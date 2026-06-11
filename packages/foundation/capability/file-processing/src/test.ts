@@ -51,18 +51,6 @@ export const TestFileProcessingEngineDescriptor = FileProcessingEngineDescriptor
 const testIdentifierHex = "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7";
 
 /**
- * Canonical synthetic operation identifiers shared by driver test fixtures.
- *
- * @category fixtures
- * @since 0.0.0
- */
-export interface TestOperationIdentifiers {
-  readonly artifactId: ArtifactId;
-  readonly digest: ContentDigest;
-  readonly operationId: OperationId;
-}
-
-/**
  * Decode the canonical synthetic artifact, digest, and operation identifiers
  * shared by driver test fixtures.
  *
@@ -83,7 +71,10 @@ export interface TestOperationIdentifiers {
  * @since 0.0.0
  */
 export const decodeTestOperationIdentifiers = Effect.fn("FileProcessingTest.decodeTestOperationIdentifiers")(
-  function* (): Effect.fn.Return<TestOperationIdentifiers, S.SchemaError> {
+  function* (): Effect.fn.Return<
+    { readonly artifactId: ArtifactId; readonly digest: ContentDigest; readonly operationId: OperationId },
+    S.SchemaError
+  > {
     const artifactId = yield* S.decodeUnknownEffect(ArtifactId)(`artifact:${testIdentifierHex}`);
     const digest = yield* S.decodeUnknownEffect(ContentDigest)(`sha256:${testIdentifierHex}`);
     const operationId = yield* S.decodeUnknownEffect(OperationId)(`operation:${testIdentifierHex}`);

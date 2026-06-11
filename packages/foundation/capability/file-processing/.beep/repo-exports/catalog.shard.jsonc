@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6ca329937702dd2429ab8e131c5190d98a6ffbf28be84662fa6d40fc2e78fd97",
+    "digest": "dc13fb0b37c4e69e0474abab87d4e768ec57ca5974f2cc1ecb4f263dcdb5ec63",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/foundation/capability/file-processing/src/test.ts",
-        "sha256": "e325784cb9fee91984284ab47163a0e9e84cabe6f372848478eb828afaf37378",
-        "bytes": 6821
+        "sha256": "3b205e891795e28a2900b8313f08c39946c0904f5675f1f2dd4ec308e4ed4678",
+        "bytes": 6632
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -98,8 +98,8 @@
       "@beep/file-processing/test"
     ],
     "counts": {
-      "publicExportEntries": 172,
-      "uniqueSymbols": 71,
+      "publicExportEntries": 171,
+      "uniqueSymbols": 70,
       "sourceFiles": 7
     },
     "exports": [
@@ -4211,7 +4211,7 @@
         "symbolName": "decodeTestOperationIdentifiers",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
-        "sourceLine": 85,
+        "sourceLine": 73,
         "summary": "Decode the canonical synthetic artifact, digest, and operation identifiers",
         "categories": [
           "fixtures"
@@ -4236,7 +4236,7 @@
         "symbolName": "TestFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
-        "sourceLine": 137,
+        "sourceLine": 128,
         "summary": "Synthetic file-processing engine for generated fixtures.",
         "categories": [
           "fixtures"
@@ -4275,30 +4275,6 @@
           "@since"
         ],
         "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test testfileprocessingenginedescriptor const synthetic engine descriptor used by tests and proof fixtures. fixtures packages/foundation/capability/file-processing/src/test.ts"
-      },
-      {
-        "packageName": "@beep/file-processing",
-        "packagePath": "packages/foundation/capability/file-processing",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/file-processing/test",
-        "exportSubpath": "./test",
-        "exportedFromPath": "packages/foundation/capability/file-processing/src/test.ts",
-        "symbolName": "TestOperationIdentifiers",
-        "exportKind": "interface",
-        "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
-        "sourceLine": 59,
-        "summary": "Canonical synthetic operation identifiers shared by driver test fixtures.",
-        "categories": [
-          "fixtures"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test testoperationidentifiers interface canonical synthetic operation identifiers shared by driver test fixtures. fixtures packages/foundation/capability/file-processing/src/test.ts"
       }
     ]
   }

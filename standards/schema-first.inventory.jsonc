@@ -536,16 +536,6 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/drivers/libpff/test/Libpff.pffexport.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 57,
-      "owner": "@beep/libpff",
-      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "CountJsonlParameters",
       "kind": "object-struct-schema",
@@ -704,16 +694,6 @@
       "status": "exception",
       "owner": "@beep/sanity",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/drivers/tika/test/Tika.tikaapp.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 46,
-      "owner": "@beep/tika",
-      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/drivers/uspto/src/Uspto.service.ts",
