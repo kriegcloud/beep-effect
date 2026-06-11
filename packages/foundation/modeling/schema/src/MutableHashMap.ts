@@ -215,16 +215,30 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
         ([key, value]) =>
         (fc, ctx) => {
           const constraint = ctx.constraint ?? {};
-          const entries = fc.array(fc.tuple(key.arbitrary, value.arbitrary), {
+          const constraints = {
             ...(constraint.minLength !== undefined ? { minLength: constraint.minLength } : {}),
             ...(constraint.maxLength !== undefined ? { maxLength: constraint.maxLength } : {}),
-          });
-          const empty = fc.constant<Array<[Key["Type"], Value["Type"]]>>([]);
-          const terminal = empty.map(MutableHashMap_.fromIterable);
-          const arbitrary = (
-            ctx.recursion === undefined ? fc.oneof(empty, entries) : fc.oneof(ctx.recursion, empty, entries)
-          ).map(MutableHashMap_.fromIterable);
-          return { arbitrary, terminal };
+          };
+          const minLength = constraints.minLength ?? 0;
+          const terminalItem =
+            key.terminal === undefined || value.terminal === undefined
+              ? undefined
+              : fc.tuple(key.terminal, value.terminal);
+          const terminalEntries =
+            minLength === 0
+              ? fc.constant<Array<[Key["Type"], Value["Type"]]>>([])
+              : terminalItem === undefined
+                ? undefined
+                : fc.array(terminalItem, { ...constraints, maxLength: minLength });
+          const entries = fc.array(fc.tuple(key.arbitrary, value.arbitrary), constraints);
+          const arbitraryEntries =
+            terminalEntries === undefined || ctx.recursion === undefined
+              ? entries
+              : fc.oneof(ctx.recursion, terminalEntries, entries);
+          return {
+            arbitrary: arbitraryEntries.map(MutableHashMap_.fromIterable),
+            terminal: terminalEntries?.map(MutableHashMap_.fromIterable),
+          };
         },
       toEquivalence: ([key, value]) => makeMutableHashMapEquivalence(key, value),
       toFormatter:
