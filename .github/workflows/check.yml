@@ -271,7 +271,21 @@ jobs:
           mkdir -p .beep/fallow
           : > .beep/fallow/status.md
 
-          run_fallow() {
+          run_blocking_fallow() {
+            local lane="$1"
+            local started_at="$SECONDS"
+
+            bun run beep quality fallow "$lane" \
+              --check \
+              --base "${{ steps.base.outputs.base_ref }}" \
+              --out ".beep/fallow/${lane}.json" \
+              --quiet
+            local elapsed_seconds=$((SECONDS - started_at))
+
+            echo "- ${lane}: 0 (${elapsed_seconds}s)" >> .beep/fallow/status.md
+          }
+
+          run_advisory_fallow() {
             local lane="$1"
             local started_at="$SECONDS"
 
@@ -288,8 +302,12 @@ jobs:
             echo "- ${lane}: ${status} (${elapsed_seconds}s)" >> .beep/fallow/status.md
           }
 
+          for lane in audit dead-code; do
+            run_blocking_fallow "$lane"
+          done
+
           for lane in dupes health boundaries flags security fix-preview; do
-            run_fallow "$lane"
+            run_advisory_fallow "$lane"
           done
 
           {
@@ -303,6 +321,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          for lane in audit dead-code; do
+            bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
+              --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
+              --expect-subcommand "$lane" \
+              --expect-report-path ".beep/fallow/${lane}.json" \
+              --require-raw-output
+          done
 
           for lane in dupes health boundaries flags security fix-preview; do
             bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \

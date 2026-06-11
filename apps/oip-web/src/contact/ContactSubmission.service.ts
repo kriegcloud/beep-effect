@@ -312,3 +312,26 @@ export const submitContact: (input: unknown) => Effect.Effect<ContactSubmissionR
     )
   )
 );
+
+/**
+ * Builds a JSON-safe contact response object.
+ *
+ * @example
+ * ```ts
+ * import { ContactSubmissionResponse, contactResponseBody } from "@beep/oip-web/contact"
+ *
+ * const body = contactResponseBody(ContactSubmissionResponse.make({
+ *   message: "Your note was received.",
+ *   status: "accepted"
+ * }))
+ *
+ * console.log(body.status)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const contactResponseBody = (response: ContactSubmissionResponse): typeof ContactSubmissionResponse.Encoded => ({
+  message: response.message,
+  status: response.status,
+});

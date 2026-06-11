@@ -85,6 +85,9 @@
     "@mui/x-tree-view",
     // Next apps: loaded by @next/mdx inside @beep/repo-configs SharedNextConfig.
     "@mdx-js/loader",
+    // Next apps: runtime peer for @next/mdx and mdx-components.tsx; loaded by
+    // the framework rather than imported directly from app source.
+    "@mdx-js/react",
     // Next apps: loaded by Next when SharedNextConfig defaults reactCompiler: true.
     "babel-plugin-react-compiler",
     // Root: used by git-tracked scratchpad tests; scratchpad/** is ignored above.
@@ -96,6 +99,18 @@
   // recognize it, and deleting it breaks `next build` (proven 2026-06-11 in
   // goals/fallow-zero-dead-code).
   "ignoreExports": [
+    // @beep/oip-web/contact: public HttpApi contract symbols kept for
+    // compatibility even though the current app route only imports their types.
+    {
+      "file": "apps/oip-web/src/contact/ContactSubmission.http.ts",
+      "exports": ["ContactSubmissionPayload", "OipContactHttpApiGroup"]
+    },
+    // @beep/oip-web/contact: documented JSON response helper remains part of
+    // the public contact module surface.
+    {
+      "file": "apps/oip-web/src/contact/ContactSubmission.service.ts",
+      "exports": ["contactResponseBody"]
+    },
     { "file": "apps/*/src/app/*.tsx", "exports": ["instant"] },
     { "file": "apps/*/src/app/**/*.tsx", "exports": ["instant"] }
   ],
