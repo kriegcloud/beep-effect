@@ -1170,9 +1170,7 @@ const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWrite
   context: RepoRunContext,
   intents: ReadonlyArray<CloseoutWriteIntent>
 ): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  const performIntent = Effect.fnUntraced(function* (
-    intent: CloseoutWriteIntent
-  ): Effect.fn.Return<PrCloseoutWriteAction, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const performIntent = Effect.fnUntraced(function* (intent: CloseoutWriteIntent) {
     const args =
       intent.kind === "reply"
         ? [
