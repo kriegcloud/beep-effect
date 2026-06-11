@@ -1170,34 +1170,33 @@ const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWrite
   context: RepoRunContext,
   intents: ReadonlyArray<CloseoutWriteIntent>
 ): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  return yield* Effect.forEach(
-    intents,
-    (intent) =>
-      Effect.gen(function* () {
-        const args =
-          intent.kind === "reply"
-            ? [
-                "api",
-                "graphql",
-                "-f",
-                `query=${REPLY_THREAD_MUTATION}`,
-                "-f",
-                `threadId=${intent.threadId}`,
-                "-f",
-                `body=${O.getOrElse(intent.body, () => "")}`,
-              ]
-            : ["api", "graphql", "-f", `query=${RESOLVE_THREAD_MUTATION}`, "-f", `threadId=${intent.threadId}`];
-        yield* ghOutput(context, args, `gh api graphql (${intent.kind})`);
-        yield* Effect.log(`[yeet] closeout ${intent.kind} -> ${intent.threadId}`);
-        return PrCloseoutWriteAction.make({
-          detail: intent.kind === "reply" ? "replied to review thread" : "resolved review thread",
-          kind: intent.kind,
-          ok: true,
-          threadId: intent.threadId,
-        });
-      }),
-    { concurrency: 1 }
-  );
+  const performIntent = Effect.fnUntraced(function* (
+    intent: CloseoutWriteIntent
+  ): Effect.fn.Return<PrCloseoutWriteAction, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+    const args =
+      intent.kind === "reply"
+        ? [
+            "api",
+            "graphql",
+            "-f",
+            `query=${REPLY_THREAD_MUTATION}`,
+            "-f",
+            `threadId=${intent.threadId}`,
+            "-f",
+            `body=${O.getOrElse(intent.body, () => "")}`,
+          ]
+        : ["api", "graphql", "-f", `query=${RESOLVE_THREAD_MUTATION}`, "-f", `threadId=${intent.threadId}`];
+    yield* ghOutput(context, args, `gh api graphql (${intent.kind})`);
+    yield* Effect.log(`[yeet] closeout ${intent.kind} -> ${intent.threadId}`);
+    return PrCloseoutWriteAction.make({
+      detail: intent.kind === "reply" ? "replied to review thread" : "resolved review thread",
+      kind: intent.kind,
+      ok: true,
+      threadId: intent.threadId,
+    });
+  });
+
+  return yield* Effect.forEach(intents, performIntent, { concurrency: 1 });
 });
 
 /**
