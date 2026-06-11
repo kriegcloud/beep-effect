@@ -145,23 +145,6 @@ const fallbackToStaticContent = (error: OipContentLoadError): Effect.Effect<OipS
     Effect.as(oipSiteContent)
   );
 
-/**
- * Loads OIP site content from Sanity when configured, falling back to the
- * checked-in launch content for local development, builds, and provider errors.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- * import { loadOipSiteContent } from "@beep/oip-web/content"
- *
- * Effect.runPromise(loadOipSiteContent)
- * ```
- *
- * @effects Reads server runtime config, optionally queries Sanity, decodes the
- * returned content, and logs sanitized fallback metadata.
- * @category utilities
- * @since 0.0.0
- */
 const loadOipSiteContent = Effect.gen(function* () {
   const config = yield* sanityConfig();
 
