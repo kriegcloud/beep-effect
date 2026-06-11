@@ -9,6 +9,66 @@
   ],
   "entries": [
     {
+      "file": "apps/oip-web/src/contact/ContactSubmission.model.ts",
+      "qualifiedName": "ContactSubmission.decodeUnknownEffect",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/oip-web",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 140,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "apps/oip-web/src/contact/ContactSubmission.model.ts",
+      "qualifiedName": "ContactSubmissionFormPayload.decodeUnknownEffect",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/oip-web",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 197,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "apps/oip-web/src/contact/ContactSubmission.model.ts",
+      "qualifiedName": "ContactSubmissionFormPayload.decodeUnknownResult",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/oip-web",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 196,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "apps/oip-web/src/content/OipContent.model.ts",
+      "qualifiedName": "OipSiteContent.decodeUnknownEffect",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/oip-web",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 564,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "apps/oip-web/src/content/OipContent.model.ts",
+      "qualifiedName": "OipSiteContent.decodeUnknownResult",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/oip-web",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 563,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
       "file": "packages/drivers/box/src/internal/Box.runtime.ts",
       "qualifiedName": "decodeWith",
       "kind": "exported-const-function",
@@ -490,6 +550,42 @@
       "diagnostics": ["invalid-dual-arity", "third-param-not-object-like"]
     },
     {
+      "file": "packages/foundation/modeling/rdf/src/Rdf.ts",
+      "qualifiedName": "Literal.decodeUnknownResult",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/rdf",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 427,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/foundation/modeling/rdf/src/Rdf.ts",
+      "qualifiedName": "NamedNode.decodeUnknownResult",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/rdf",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 360,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
+      "qualifiedName": "SemanticSchemaMetadata.decodeUnknownResult",
+      "kind": "static-function-property",
+      "status": "candidate",
+      "owner": "@beep/rdf",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 267,
+      "column": 19,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
       "file": "packages/foundation/modeling/schema/src/Graph/Graph.rebuild.ts",
       "qualifiedName": "rebuildImmutableGraph",
       "kind": "exported-const-function",
@@ -629,12 +725,36 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+      "qualifiedName": "githubCheckLanesForModeForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 913,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+      "qualifiedName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/repo-cli",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 963,
+      "column": 14,
+      "parameterCount": 3,
+      "diagnostics": ["missing-dual"]
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
       "qualifiedName": "reviewFixDocgenLocalArgsForTesting",
       "kind": "exported-const-function",
       "status": "candidate",
       "owner": "@beep/repo-cli",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 887,
+      "line": 1087,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -646,7 +766,7 @@
       "status": "candidate",
       "owner": "@beep/repo-cli",
       "reason": "Public helper APIs may not expose more than 3 positional parameters.",
-      "line": 834,
+      "line": 832,
       "column": 14,
       "parameterCount": 4,
       "diagnostics": ["too-many-positional-params"]

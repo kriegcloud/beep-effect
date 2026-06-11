@@ -5,7 +5,45 @@
  * @since 0.0.0
  */
 
-import { Email as InternalEmail } from "./internal/email.ts";
+import { Email as InternalEmail, EmailString as InternalEmailString } from "./internal/email.ts";
+
+/**
+ * RFC 5322 compliant email address string schema.
+ *
+ * Accepts a string, trims whitespace, lowercases, validates against RFC 5322,
+ * and keeps the decoded value as a branded string. Use this when the email
+ * address must remain displayable or serializable as plain text. Use
+ * {@link Email} when accidental logging should be prevented with `Redacted`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EmailString } from "@beep/schema"
+ *
+ * const decode = S.decodeUnknownEffect(EmailString)
+ * console.log(decode)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const EmailString = InternalEmailString;
+
+/**
+ * Branded email address string type extracted from {@link EmailString}.
+ *
+ * @example
+ * ```ts
+ * import type { EmailString } from "@beep/schema"
+ *
+ * const email = "admin@example.com" as EmailString
+ * console.log(email)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type EmailString = typeof EmailString.Type;
 
 /**
  * RFC 5322 compliant email address schema.

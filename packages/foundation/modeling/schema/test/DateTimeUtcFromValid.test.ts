@@ -11,7 +11,9 @@ import {
 } from "@beep/schema/DateTimeUtcFromValid";
 import { describe, expect, it } from "@effect/vitest";
 import * as DateTime from "effect/DateTime";
+import * as Equal from "effect/Equal";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const NativeDate = globalThis.Date;
 
@@ -180,6 +182,27 @@ describe("DateTimeUtcFromValid", () => {
   it("rejects input that passes the shape schema but cannot become a DateTime.Utc", () => {
     expect(() => decodeUtc(DateTimeInputParts.make({ year: 1e100 }))).toThrow(
       "Expected a valid Effect DateTime.Input value"
+    );
+  });
+
+  it("schema-derived values satisfy the encode round-trip law", () => {
+    const arbitrary = S.toArbitrary(DateTimeUtcFromValid);
+    const encode = S.encodeSync(DateTimeUtcFromValid);
+    const decode = S.decodeSync(DateTimeUtcFromValid);
+
+    fc.assert(
+      fc.property(arbitrary, (utc) => {
+        // Encoding is lossy (canonical tagged ISO string), so assert the robust
+        // law encode(decode(encode(x))) deep-equals encode(x) plus the Type-level
+        // invariant that every decoded value is a DateTime.Utc preserving the instant.
+        const encoded = encode(utc);
+        const roundTripped = decode(encoded);
+
+        expect(DateTime.isDateTime(roundTripped)).toBe(true);
+        expect(Equal.equals(encode(roundTripped), encoded)).toBe(true);
+        expect(DateTime.toEpochMillis(roundTripped)).toBe(DateTime.toEpochMillis(utc));
+      }),
+      { numRuns: 50 }
     );
   });
 });

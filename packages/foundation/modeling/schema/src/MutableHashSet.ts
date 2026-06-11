@@ -175,14 +175,29 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
         ),
       toArbitrary:
         ([value]) =>
-        (fc, ctx) =>
-          fc
-            .oneof(
-              ctx?.isSuspend === true ? { maxDepth: 2, depthIdentifier: "MutableHashSet" } : {},
-              fc.constant([]),
-              fc.array(value, ctx?.constraints?.array)
-            )
-            .map(MutableHashSet_.fromIterable),
+        (fc, ctx) => {
+          const constraint = ctx.constraint ?? {};
+          const constraints = {
+            ...(constraint.minLength !== undefined ? { minLength: constraint.minLength } : {}),
+            ...(constraint.maxLength !== undefined ? { maxLength: constraint.maxLength } : {}),
+          };
+          const minLength = constraints.minLength ?? 0;
+          const terminalValues =
+            minLength === 0
+              ? fc.constant<Array<Value["Type"]>>([])
+              : value.terminal === undefined
+                ? undefined
+                : fc.array(value.terminal, { ...constraints, maxLength: minLength });
+          const values = fc.array(value.arbitrary, constraints);
+          const arbitraryValues =
+            terminalValues === undefined || ctx.recursion === undefined
+              ? values
+              : fc.oneof(ctx.recursion, terminalValues, values);
+          return {
+            arbitrary: arbitraryValues.map(MutableHashSet_.fromIterable),
+            terminal: terminalValues?.map(MutableHashSet_.fromIterable),
+          };
+        },
       toEquivalence: ([value]) => makeMutableHashSetEquivalence(value),
       toFormatter:
         ([value]) =>

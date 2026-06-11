@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
+  // Library packages intentionally expose top-level src modules through package exports.
+  "entry": ["packages/**/src/*.ts", "infra/src/internal/*-entry.ts"],
+  // Approximates dead-code path suppression; Knip remains authoritative for unmigrated workspace/binary policy.
+  "ignorePatterns": [
+    "**/dtslint/**",
+    "goals/**",
+    "scratchpad/**",
+    "**/test/fixtures/**",
+    "**/examples/**",
+    "**/postcss.config.*",
+    "packages/canvas/client/**",
+    "packages/canvas/ui/**",
+    "packages/drivers/konva/**",
+    "packages/shared/client/**",
+    "packages/shared/config/**",
+    "packages/shared/server/**",
+    "packages/shared/use-cases/**",
+    "**/test/fixtures/mock-monorepo/**"
+  ],
+  "ignoreDependencies": [
+    "@effect/vitest",
+    "@effect/language-service",
+    "cspell",
+    "markdownlint-cli2",
+    "babel-plugin-annotate-pure-calls",
+    "babel-plugin-transform-next-use-client",
+    "@babel/plugin-transform-export-namespace-from",
+    "@babel/plugin-transform-modules-commonjs",
+    "@typescript-eslint/parser",
+    "eslint-plugin-jsdoc",
+    "eslint-plugin-tsdoc",
+    "tailwindcss",
+    "@tailwindcss/postcss",
+    "tsgo",
+    "ws",
+    "@types/ws",
+    "@beep/repo-utils",
+    "@beep/test-utils"
+  ],
+  "audit": {
+    "gate": "new-only"
+  },
+  "rules": {
+    "duplicate-exports": "off",
+    "unused-catalog-entries": "off",
+    "empty-catalog-groups": "off",
+    "boundary-violation": "warn"
+  }
+}

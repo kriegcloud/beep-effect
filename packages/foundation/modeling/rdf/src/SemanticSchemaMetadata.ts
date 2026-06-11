@@ -263,7 +263,9 @@ export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`S
   $I.annote("SemanticSchemaMetadata", {
     description: "Typed metadata payload stored in the semanticSchemaMetadata annotation key.",
   })
-) {}
+) {
+  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+}
 
 /**
  * Payload stored in the `semanticSchemaMetadata` annotation key.
@@ -288,8 +290,6 @@ declare module "effect/Schema" {
     }
   }
 }
-
-const decodeSemanticSchemaMetadataResult = S.decodeUnknownResult(SemanticSchemaMetadata);
 
 /**
  * Validate a metadata payload before attaching it to a public schema.
@@ -317,7 +317,7 @@ const decodeSemanticSchemaMetadataResult = S.decodeUnknownResult(SemanticSchemaM
 export const makeSemanticSchemaMetadata = (
   metadata: typeof SemanticSchemaMetadata.Encoded
 ): SemanticSchemaMetadataAnnotationPayload =>
-  pipe(decodeSemanticSchemaMetadataResult(metadata), Result.getOrThrowWith(schemaIssueToError));
+  pipe(SemanticSchemaMetadata.decodeUnknownResult(metadata), Result.getOrThrowWith(schemaIssueToError));
 
 /**
  * Attach validated semantic metadata to any Effect schema.

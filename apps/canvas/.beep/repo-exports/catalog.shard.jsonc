@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c0a60a6c74a680ece0bcd2ebc3516071d6511ea9e1175a201d48effa81d51b9f",
+    "digest": "69a2bbbf47fcaccf9038e6e1132597f4ca8ef1a01775f9423afa814ac78c35ed",
     "inputs": [
       {
         "path": "apps/canvas/package.json",
@@ -22,18 +22,18 @@
       },
       {
         "path": "apps/canvas/src/App.tsx",
-        "sha256": "24605ecda7e615b37ab9fd1a72718f93ddc1f34e0236a5f00c3f8526f5dd8cb8",
-        "bytes": 21153
+        "sha256": "d95b1121c9836444d75f4a389bc44d95b5b1f04887c6b8140b087e07ea3f76ad",
+        "bytes": 23643
       },
       {
         "path": "apps/canvas/src/commandBridge.ts",
-        "sha256": "11c68c8c4e96d92f9ac8d5d134dc1c2c8d2e16d1c24a63fe2944d87d62edb9f6",
-        "bytes": 21191
+        "sha256": "6e3035baeb01693849144e4849e513168d8e3c75281e6c3447934753c84c7db9",
+        "bytes": 22188
       },
       {
         "path": "apps/canvas/src/main.tsx",
-        "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
-        "bytes": 456
+        "sha256": "ed5640d2b0573ba23484bc31c49363e02936f368e0250889d9bb52b7c3bae566",
+        "bytes": 493
       },
       {
         "path": "generator:repo-exports-catalog",

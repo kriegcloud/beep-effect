@@ -4,11 +4,14 @@ import {
   detectQualityProfileForTesting,
   fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
+  GithubChecksFallowFeatureMatrix,
   githubCheckPrePushExternalLanesForTesting,
+  githubCheckPromotedFallowLaneDiagnosticsForTesting,
   githubCheckQualityLanesForTesting,
   githubCheckRepoSanityLanesForTesting,
   lintFixChangedStepForTesting,
   parseQualityTaskInvocation,
+  promotedFallowGithubCheckLaneIdsForTesting,
   QualityTaskFailed,
   QualityTaskGroupFailed,
   QualityTaskStep,
@@ -158,6 +161,27 @@ const repoCliPackage = {
   name: "@beep/repo-cli",
   packageJson: { name: "@beep/repo-cli" },
   path: "packages/tooling/tool/cli",
+};
+type FallowFeatureMatrixRowTuple = readonly [
+  featureFamily: "audit" | "dead-code",
+  ciMode: "advisory-artifact" | "blocking-check",
+  promotionStatus: "advisory" | "research" | "candidate-blocking" | "blocking",
+];
+
+const fallowFeatureMatrix = (features: ReadonlyArray<FallowFeatureMatrixRowTuple>) =>
+  GithubChecksFallowFeatureMatrix.make({
+    features: A.map(features, ([featureFamily, ciMode, promotionStatus]) => ({
+      ciMode,
+      featureFamily,
+      promotionStatus,
+    })),
+  });
+
+const expectMissingFallowAuditLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
+  expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit"]);
+  expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
+    "missing promoted Fallow GitHub check lane fallow:audit",
+  ]);
 };
 
 const expectSubstringBefore = (text: string, before: string, after: string): void => {
@@ -329,6 +353,24 @@ describe("quality task adapter", () => {
       "environment",
     ]);
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
+  });
+
+  it("accepts the current packet state with no promoted Fallow pre-push lanes", () => {
+    const matrix = fallowFeatureMatrix([
+      ["audit", "advisory-artifact", "advisory"],
+      ["dead-code", "advisory-artifact", "research"],
+    ]);
+
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual([]);
+    expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
+  });
+
+  it("rejects a promoted Fallow matrix row that is not wired into pre-push", () => {
+    expectMissingFallowAuditLane(fallowFeatureMatrix([["audit", "blocking-check", "blocking"]]));
+  });
+
+  it("treats candidate-blocking Fallow rows as promotion contract inputs", () => {
+    expectMissingFallowAuditLane(fallowFeatureMatrix([["audit", "advisory-artifact", "candidate-blocking"]]));
   });
 
   it("plans affected repo export checks conservatively", () => {

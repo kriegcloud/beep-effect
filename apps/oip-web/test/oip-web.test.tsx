@@ -1,19 +1,26 @@
 import { Button } from "@beep/ui/components/ui/button";
 import { A } from "@beep/utils";
-import { cleanup, render, screen } from "@testing-library/react";
+import { useAtom } from "@effect/atom-react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { Atom } from "effect/unstable/reactivity";
 import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { makeOipContactHttpApiWebHandlerWithSubmit } from "@/app/api/contact/ContactHttpApiRoute";
 import { contactRequestResponseWithSubmit } from "@/app/api/contact/ContactRouteResponse";
 import { POST } from "@/app/api/contact/route";
 import Home from "@/app/page";
+import { BackToTop } from "@/components/BackToTop";
+import { ContactForm } from "@/components/ContactForm";
+import { HeroVideo } from "@/components/HeroVideo";
 import { OipThemeProvider } from "@/components/OipThemeProvider";
 import { oipRedirects } from "@/config/OipRedirects";
 import {
+  ContactSubmission,
   ContactSubmissionAccepted,
+  ContactSubmissionFormPayload,
   ContactSubmissionRejected,
   ContactSubmissionResponse,
   contactSubmissionPayloadFromFormData,
@@ -26,10 +33,13 @@ import {
   decodeOipSiteContentResult,
   launchReviewGates,
   makeJsonLdGraph,
+  OipSiteContent,
   oipSiteContent,
   oipTwitterHandle,
   ReviewStatus,
 } from "@/content";
+import { OipAtomProvider } from "@/runtime/OipAtomProvider";
+import { oipBrowserRuntime } from "@/runtime/OipAtomRuntime";
 
 vi.mock("next/image", () =>
   vi.importActual<typeof import("react")>("react").then((ReactModule) => {
@@ -119,6 +129,54 @@ const formContactRequest = (formData = contactFormData()) =>
     method: "POST",
   });
 
+const mockMediaQueryList = (matches: boolean): MediaQueryList => ({
+  addEventListener: vi.fn(),
+  addListener: vi.fn(),
+  dispatchEvent: vi.fn(),
+  matches,
+  media: "(prefers-reduced-motion: reduce)",
+  onchange: null,
+  removeEventListener: vi.fn(),
+  removeListener: vi.fn(),
+});
+
+const mockMatchMedia = (matches: boolean) => {
+  const originalMatchMedia = window.matchMedia;
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: vi.fn(() => mockMediaQueryList(matches)),
+  });
+
+  return () =>
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: originalMatchMedia,
+    });
+};
+
+const setWindowScrollY = (scrollY: number) =>
+  Object.defineProperty(window, "scrollY", {
+    configurable: true,
+    value: scrollY,
+  });
+
+const oipRuntimeKvsAtom = Atom.kvs({
+  defaultValue: () => "initial",
+  key: "oip-web:test-kvs",
+  runtime: oipBrowserRuntime,
+  schema: S.String,
+});
+
+function OipRuntimeKvsHarness() {
+  const [value, setValue] = useAtom(oipRuntimeKvsAtom);
+
+  return (
+    <button type="button" onClick={() => setValue("stored")}>
+      {value}
+    </button>
+  );
+}
+
 describe("@beep/oip-web", { concurrent: false }, () => {
   beforeEach(() => {
     cleanup();
@@ -143,6 +201,23 @@ describe("@beep/oip-web", { concurrent: false }, () => {
 
     expect(Result.isSuccess(result)).toBe(true);
   });
+
+  it("exposes schema class-local decoders beside compatibility exports", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const contentResult = OipSiteContent.decodeUnknownResult(oipSiteContent);
+        expect(contentResult).toEqual(decodeOipSiteContentResult(oipSiteContent));
+
+        const formPayload = contactSubmissionPayloadFromFormData(contactFormData());
+        const formResult = ContactSubmissionFormPayload.decodeUnknownResult(formPayload);
+        expect(Result.isSuccess(formResult)).toBe(true);
+
+        const contactPayload = validContactPayload();
+        const submission = yield* ContactSubmission.decodeUnknownEffect(contactPayload);
+        const submissionFromAlias = yield* decodeContactSubmission(contactPayload);
+        expect(submission).toEqual(submissionFromAlias);
+      })
+    ));
 
   it("decodes the firm social profiles", () => {
     expect(A.map(oipSiteContent.socials, (social) => social.platform)).toEqual([
@@ -230,6 +305,127 @@ describe("@beep/oip-web", { concurrent: false }, () => {
     );
 
     expect(screen.getByRole("button", { name: "OIP themed child" })).toBeDefined();
+  });
+
+  it("mounts an OIP Atom runtime backed by browser key-value storage", () => {
+    render(
+      <OipAtomProvider>
+        <OipRuntimeKvsHarness />
+      </OipAtomProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "initial" }));
+
+    return waitFor(() => {
+      expect(window.localStorage.getItem("oip-web:test-kvs")).toBe(JSON.stringify("stored"));
+      expect(screen.getByRole("button", { name: "stored" })).toBeDefined();
+    });
+  });
+
+  it("drives the back-to-top control from Atom-managed scroll state", () => {
+    const restoreMatchMedia = mockMatchMedia(false);
+    const originalScrollTo = window.scrollTo;
+    const scrollTo = vi.fn();
+    Object.defineProperty(window, "scrollTo", { configurable: true, value: scrollTo });
+    setWindowScrollY(0);
+
+    render(
+      <OipAtomProvider>
+        <BackToTop />
+      </OipAtomProvider>
+    );
+
+    const button = screen.getByLabelText("Back to top") as HTMLButtonElement;
+
+    expect(button.hidden).toBe(true);
+
+    setWindowScrollY(720);
+    fireEvent.scroll(window);
+
+    return waitFor(() => expect(button.hidden).toBe(false))
+      .then(() => {
+        fireEvent.click(button);
+
+        expect(scrollTo).toHaveBeenCalledWith({ behavior: "smooth", top: 0 });
+      })
+      .finally(() => {
+        Object.defineProperty(window, "scrollTo", { configurable: true, value: originalScrollTo });
+        restoreMatchMedia();
+      });
+  });
+
+  it("starts the hero video through an Atom-mounted idle task and stores playing state in Atom", () => {
+    const restoreMatchMedia = mockMatchMedia(false);
+    const originalRequestIdleCallback = window.requestIdleCallback;
+    const originalCancelIdleCallback = window.cancelIdleCallback;
+    const originalLoad = HTMLMediaElement.prototype.load;
+    const originalPlay = HTMLMediaElement.prototype.play;
+    let idleCallback: IdleRequestCallback | undefined;
+    const requestIdleCallback = vi.fn((callback: IdleRequestCallback): number => {
+      idleCallback = callback;
+      return 7;
+    });
+    const cancelIdleCallback = vi.fn();
+    const load = vi.fn();
+    const play = vi.fn(() => Promise.resolve());
+    Object.defineProperty(window, "requestIdleCallback", { configurable: true, value: requestIdleCallback });
+    Object.defineProperty(window, "cancelIdleCallback", { configurable: true, value: cancelIdleCallback });
+    Object.defineProperty(HTMLMediaElement.prototype, "load", { configurable: true, value: load });
+    Object.defineProperty(HTMLMediaElement.prototype, "play", { configurable: true, value: play });
+
+    const { container } = render(
+      <OipAtomProvider>
+        <HeroVideo poster="/oip/hero-vid-poster.jpg" mp4="/oip/hero-vid.mp4" webm="/oip/hero-vid.webm" />
+      </OipAtomProvider>
+    );
+
+    const image = container.querySelector("img");
+    const video = container.querySelector("video");
+
+    expect(image).not.toBeNull();
+    expect(video).not.toBeNull();
+
+    return waitFor(() => expect(requestIdleCallback).toHaveBeenCalled())
+      .then(() => {
+        idleCallback?.({ didTimeout: false, timeRemaining: () => 0 });
+
+        expect(load).toHaveBeenCalled();
+        expect(play).toHaveBeenCalled();
+        expect(image?.className).toContain("opacity-70");
+
+        fireEvent.playing(video as HTMLVideoElement);
+
+        return waitFor(() => {
+          expect(image?.className).toContain("opacity-0");
+          expect(video?.className).toContain("opacity-70");
+        });
+      })
+      .finally(() => {
+        Object.defineProperty(window, "requestIdleCallback", {
+          configurable: true,
+          value: originalRequestIdleCallback,
+        });
+        Object.defineProperty(window, "cancelIdleCallback", { configurable: true, value: originalCancelIdleCallback });
+        Object.defineProperty(HTMLMediaElement.prototype, "load", { configurable: true, value: originalLoad });
+        Object.defineProperty(HTMLMediaElement.prototype, "play", { configurable: true, value: originalPlay });
+        restoreMatchMedia();
+      });
+  });
+
+  it("sets the contact form timestamp through an Atom focus command", () => {
+    render(
+      <OipAtomProvider>
+        <ContactForm email="tom@example.com" initialSubmittedAt={0} status={undefined} />
+      </OipAtomProvider>
+    );
+
+    const submittedAtInput = document.querySelector<HTMLInputElement>('input[name="submittedAt"]');
+
+    expect(submittedAtInput?.value).toBe("0");
+
+    fireEvent.focus(screen.getByLabelText("Name"));
+
+    return waitFor(() => expect(Number(submittedAtInput?.value ?? 0)).toBeGreaterThan(0));
   });
 
   it("keeps launch-risk content review-gated", () => {

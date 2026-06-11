@@ -1,0 +1,25 @@
+# Community 2099
+
+> 1 nodes · cohesion 1.00
+
+## Key Concepts
+
+- **schema-first.test.ts** (0 connections) — `packages/tooling/tool/cli/test/schema-first.test.ts`
+
+## Relationships
+
+- No strong cross-community connections detected
+
+## Source Files
+
+- `packages/tooling/tool/cli/test/schema-first.test.ts`
+
+## Audit Trail
+
+- EXTRACTED: 0 (0%)
+- INFERRED: 0 (0%)
+- AMBIGUOUS: 0 (0%)
+
+---
+
+*Part of the graphify knowledge wiki. See [[index]] to navigate.*

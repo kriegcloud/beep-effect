@@ -63,6 +63,7 @@ extend-exclude = [
   "scratchpad/**",
   "outputs/agent-reliability/**",
   "goals/**",
+  "graphify-out/**",
   "standards/repo-exports.catalog.jsonc",
   "standards/repo-exports.catalog.md",
   "**/internal/data/**",

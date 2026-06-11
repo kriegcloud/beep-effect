@@ -3,6 +3,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Effect, SchemaParser } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("Model optional helpers", () => {
   it("decodes optional nullable JSON keys into Option values and encodes them back", () => {
@@ -18,6 +19,22 @@ describe("Model optional helpers", () => {
     expect(S.encodeSync(Struct)({ value: O.some("encoded") })).toEqual({
       value: "encoded",
     });
+  });
+
+  it("round-trips Option values derived from the source schema", () => {
+    const Struct = S.Struct({
+      value: Model.optionalOption(S.String),
+    });
+    const arbitrary = S.toArbitrary(Struct);
+    const decode = S.decodeUnknownSync(Struct);
+    const encode = S.encodeSync(Struct);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        expect(decode(encode(value))).toEqual(value);
+      }),
+      { numRuns: 50 }
+    );
   });
 });
 

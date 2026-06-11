@@ -23,6 +23,7 @@ import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Cause, ConfigProvider, Data, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import sharp from "sharp";
@@ -48,6 +49,20 @@ const decodeFileProcessingFailureRecord = S.decodeUnknownEffect(S.fromJsonString
 const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
 const decodeProcessRunManifest = S.decodeUnknownEffect(S.fromJsonString(ProcessRunManifest));
 const decodeSourceProcessingRecord = S.decodeUnknownEffect(S.fromJsonString(SourceProcessingRecord));
+const encodeDetectBordersReport = S.encodeUnknownEffect(S.fromJsonString(DetectBordersReport));
+const encodeChildArtifactRecord = S.encodeUnknownEffect(S.fromJsonString(ChildArtifactRecord));
+const encodeFileProcessingCoverageSummary = S.encodeUnknownEffect(S.fromJsonString(FileProcessingCoverageSummary));
+const encodeFileProcessingFailureRecord = S.encodeUnknownEffect(S.fromJsonString(FileProcessingFailureRecord));
+const encodeNormalizeManifest = S.encodeUnknownEffect(S.fromJsonString(NormalizeManifest));
+const encodeProcessRunManifest = S.encodeUnknownEffect(S.fromJsonString(ProcessRunManifest));
+const encodeSourceProcessingRecord = S.encodeUnknownEffect(S.fromJsonString(SourceProcessingRecord));
+const DetectBordersReportArbitrary = S.toArbitrary(DetectBordersReport);
+const ChildArtifactRecordArbitrary = S.toArbitrary(ChildArtifactRecord);
+const FileProcessingCoverageSummaryArbitrary = S.toArbitrary(FileProcessingCoverageSummary);
+const FileProcessingFailureRecordArbitrary = S.toArbitrary(FileProcessingFailureRecord);
+const NormalizeManifestArbitrary = S.toArbitrary(NormalizeManifest);
+const ProcessRunManifestArbitrary = S.toArbitrary(ProcessRunManifest);
+const SourceProcessingRecordArbitrary = S.toArbitrary(SourceProcessingRecord);
 const decodeChildArtifactRecordLine = (line: string) => decodeChildArtifactRecord(line);
 const decodeFileProcessingFailureRecordLine = (line: string) => decodeFileProcessingFailureRecord(line);
 const decodeSourceProcessingRecordLine = (line: string) => decodeSourceProcessingRecord(line);
@@ -415,6 +430,67 @@ const fileSize = Effect.fn("FilesTest.fileSize")(function* (filePath: string) {
 });
 
 describe("files command", { concurrent: false }, () => {
+  it("round-trips schema-derived report data through JSON command boundaries", () =>
+    fc.assert(
+      fc.property(
+        DetectBordersReportArbitrary,
+        ChildArtifactRecordArbitrary,
+        FileProcessingCoverageSummaryArbitrary,
+        FileProcessingFailureRecordArbitrary,
+        NormalizeManifestArbitrary,
+        ProcessRunManifestArbitrary,
+        SourceProcessingRecordArbitrary,
+        (
+          detectBordersReport,
+          childArtifactRecord,
+          coverageSummary,
+          failureRecord,
+          normalizeManifest,
+          processRunManifest,
+          sourceProcessingRecord
+        ) => {
+          const encodedDetectBordersReport = Effect.runSync(encodeDetectBordersReport(detectBordersReport));
+          const decodedDetectBordersReport = decodeDetectBordersReport(encodedDetectBordersReport);
+          expect(Effect.runSync(encodeDetectBordersReport(decodedDetectBordersReport))).toBe(
+            encodedDetectBordersReport
+          );
+
+          const encodedChildArtifactRecord = Effect.runSync(encodeChildArtifactRecord(childArtifactRecord));
+          const decodedChildArtifactRecord = Effect.runSync(decodeChildArtifactRecord(encodedChildArtifactRecord));
+          expect(Effect.runSync(encodeChildArtifactRecord(decodedChildArtifactRecord))).toBe(
+            encodedChildArtifactRecord
+          );
+
+          const encodedCoverageSummary = Effect.runSync(encodeFileProcessingCoverageSummary(coverageSummary));
+          const decodedCoverageSummary = Effect.runSync(decodeFileProcessingCoverageSummary(encodedCoverageSummary));
+          expect(Effect.runSync(encodeFileProcessingCoverageSummary(decodedCoverageSummary))).toBe(
+            encodedCoverageSummary
+          );
+
+          const encodedFailureRecord = Effect.runSync(encodeFileProcessingFailureRecord(failureRecord));
+          const decodedFailureRecord = Effect.runSync(decodeFileProcessingFailureRecord(encodedFailureRecord));
+          expect(Effect.runSync(encodeFileProcessingFailureRecord(decodedFailureRecord))).toBe(encodedFailureRecord);
+
+          const encodedNormalizeManifest = Effect.runSync(encodeNormalizeManifest(normalizeManifest));
+          const decodedNormalizeManifest = decodeNormalizeManifest(encodedNormalizeManifest);
+          expect(Effect.runSync(encodeNormalizeManifest(decodedNormalizeManifest))).toBe(encodedNormalizeManifest);
+
+          const encodedProcessRunManifest = Effect.runSync(encodeProcessRunManifest(processRunManifest));
+          const decodedProcessRunManifest = Effect.runSync(decodeProcessRunManifest(encodedProcessRunManifest));
+          expect(Effect.runSync(encodeProcessRunManifest(decodedProcessRunManifest))).toBe(encodedProcessRunManifest);
+
+          const encodedSourceProcessingRecord = Effect.runSync(encodeSourceProcessingRecord(sourceProcessingRecord));
+          const decodedSourceProcessingRecord = Effect.runSync(
+            decodeSourceProcessingRecord(encodedSourceProcessingRecord)
+          );
+          expect(Effect.runSync(encodeSourceProcessingRecord(decodedSourceProcessingRecord))).toBe(
+            encodedSourceProcessingRecord
+          );
+        }
+      ),
+      { numRuns: 25 }
+    ));
+
   it("renders a plain ascii files progress bar when colors are disabled", () => {
     const rendered = renderFilesProgressBar({
       chalk: new Chalk({ level: 0 }),

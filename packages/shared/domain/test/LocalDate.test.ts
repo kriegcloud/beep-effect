@@ -32,9 +32,10 @@ import * as Duration from "effect/Duration";
 import * as Hash from "effect/Hash";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { TestClock } from "effect/testing";
+import { FastCheck as fc, TestClock } from "effect/testing";
 
 const juneFifteenth = () => make({ year: 2024, month: 6, day: 15 });
+const ModelArbitrary = S.toArbitrary(Model);
 
 const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
   const exit = yield* Effect.exit(effect);
@@ -78,6 +79,22 @@ describe("LocalDate.Model", () => {
       assert.deepEqual(encoded, { year: 2024, month: 6, day: 15 });
     })
   );
+
+  it("round-trips schema-derived values through the class and string codecs", () =>
+    fc.assert(
+      fc.property(ModelArbitrary, (date) => {
+        const encoded = S.encodeSync(Model)(date);
+        const decoded = S.decodeUnknownSync(Model)(encoded);
+        const encodedString = S.encodeSync(LocalDateFromString)(date);
+        const decodedString = S.decodeUnknownSync(LocalDateFromString)(encodedString);
+
+        assert.instanceOf(decoded, Model);
+        assert.strictEqual(equals(decoded, date), true);
+        assert.strictEqual(encodedString, date.toISOString());
+        assert.strictEqual(equals(decodedString, date), true);
+      }),
+      { numRuns: 50 }
+    ));
 
   it.effect("rejects impossible calendar dates at the schema boundary", () =>
     expectFailure(S.decodeUnknownEffect(Model)({ year: 2024, month: 2, day: 30 }))

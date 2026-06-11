@@ -26,6 +26,7 @@ const $I = $RepoCliId.create("commands/Yeet/internal/QualityIssueIndex");
 
 const MAX_RAW_EXCERPT_CHARS = 4 * 1024;
 const KNOWN_SUB_LANE_TAIL_CHARS = 16 * 1024;
+const schemaFirstPolicyIssuePrefix = "[schema-first:issue] ";
 const ansiPattern = /\u001b\[[0-9;]*m/gu;
 const tsDiagnosticPattern =
   /^(?<file>[^:\n]+):(?<line>\d+):(?<column>\d+)(?:\s+-)?\s+(?<severity>error|warning)\s+TS(?<code>\d+):\s+(?<message>.+)$/u;
@@ -100,6 +101,24 @@ export const QualityIssueSeverity = LiteralKit(["info", "warning", "error", "fat
  */
 export type QualityIssueSeverity = typeof QualityIssueSeverity.Type;
 
+class SchemaFirstPolicyOutput extends S.Class<SchemaFirstPolicyOutput>($I`SchemaFirstPolicyOutput`)(
+  {
+    category: S.Literal("schema-first-policy"),
+    ruleId: S.String,
+    severity: QualityIssueSeverity,
+    file: S.String,
+    line: S.optionalKey(S.Finite),
+    symbol: S.optionalKey(S.String),
+    message: S.String,
+    remediation: S.String,
+  },
+  $I.annote("SchemaFirstPolicyOutput", {
+    description: "Machine-readable schema-first lint finding emitted by beep lint schema-first.",
+  })
+) {}
+
+const decodeSchemaFirstPolicyOutput = S.decodeUnknownOption(S.fromJsonString(SchemaFirstPolicyOutput));
+
 /**
  * Parser confidence for a normalized issue.
  *
@@ -125,6 +144,32 @@ export const QualityIssueConfidence = LiteralKit(["structured", "partial", "raw"
  * @since 0.0.0
  */
 export type QualityIssueConfidence = typeof QualityIssueConfidence.Type;
+
+/**
+ * Source attribution carried by normalized advisory analyzer issues.
+ *
+ * @example
+ * ```ts
+ * import { QualityIssueAttribution } from "@beep/repo-cli/commands/Yeet"
+ *
+ * console.log(QualityIssueAttribution.is.introduced("introduced"))
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export const QualityIssueAttribution = LiteralKit(["introduced", "inherited-adjacent", "not-applicable"]).pipe(
+  $I.annoteSchema("QualityIssueAttribution", {
+    description: "Attribution class for advisory analyzer issues normalized into Yeet packets.",
+  })
+);
+
+/**
+ * Source attribution carried by normalized advisory analyzer issues.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type QualityIssueAttribution = typeof QualityIssueAttribution.Type;
 
 /**
  * Specialist routing hint for one issue.
@@ -194,6 +239,7 @@ export class QualityIssue extends S.Class<QualityIssue>($I`QualityIssue`)(
     sourceAnchor: S.optionalKey(S.String),
     tool: S.String,
     parser: S.String,
+    attribution: QualityIssueAttribution.pipe(S.optionalKey),
     task: S.optionalKey(S.String),
     label: S.optionalKey(S.String),
     command: S.optionalKey(S.String),
@@ -703,6 +749,46 @@ const diagnosticIssueFromLine = (
   );
 };
 
+const schemaFirstPolicyIssueFromLine = (
+  context: RepoRunContext,
+  step: RepoPlanStep,
+  result: RepoStepRunResult,
+  line: string
+): O.Option<QualityIssue> =>
+  pipe(
+    line,
+    O.liftPredicate(Str.startsWith(schemaFirstPolicyIssuePrefix)),
+    O.map(Str.replace(schemaFirstPolicyIssuePrefix, "")),
+    O.flatMap(decodeSchemaFirstPolicyOutput),
+    O.map((finding) => {
+      const file = O.some(finding.file);
+      const startLine = O.fromUndefinedOr(finding.line);
+      const inferredPackageName = pipe(
+        file,
+        O.flatMap((path) => packageNameForFile(context, path))
+      );
+      return QualityIssue.make({
+        ...issueBase(context, step, result, "schema-first-policy", finding.message, inferredPackageName),
+        id: issueId(
+          step,
+          "schema-first-policy",
+          `${finding.ruleId}: ${finding.message}`,
+          inferredPackageName,
+          file,
+          startLine
+        ),
+        subCategory: finding.ruleId,
+        severity: finding.severity,
+        confidence: "structured",
+        evidence: [line],
+        remediation: finding.remediation,
+        file: finding.file,
+        ...optionalProp("line", startLine),
+        ...optionalProp("symbol", O.fromUndefinedOr(finding.symbol)),
+      });
+    })
+  );
+
 const fallbackIssueFromResult = (
   context: RepoRunContext,
   step: RepoPlanStep,
@@ -805,7 +891,12 @@ export const qualityIssuesFromStepResult: {
   const parsedIssues = pipe(
     result.output ?? "",
     nonEmptyLines,
-    A.map((line) => diagnosticIssueFromLine(context, step, result, line)),
+    A.map((line) =>
+      pipe(
+        schemaFirstPolicyIssueFromLine(context, step, result, line),
+        O.orElse(() => diagnosticIssueFromLine(context, step, result, line))
+      )
+    ),
     A.getSomes
   );
 

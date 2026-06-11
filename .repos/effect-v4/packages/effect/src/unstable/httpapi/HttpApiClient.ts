@@ -620,24 +620,25 @@ export const urlBuilder = <Api extends HttpApi.Any>(api: Api, options?: {
 
 // ----------------------------------------------------------------------------
 
-const paramsRegExp = /:(\w+)\??/g
+const paramsRegExp = /(\/?):(\w+)(\?)?/g
 
 const compilePath = (path: string) => {
-  const segments = path.split(paramsRegExp)
-  const len = segments.length
-  if (len === 1) {
+  if (!paramsRegExp.test(path)) {
     return (_: any) => path
   }
+  paramsRegExp.lastIndex = 0
   return (params: Record<string, string | undefined>) => {
-    let url = segments[0]
-    for (let i = 1; i < len; i++) {
-      if (i % 2 === 0) {
-        url += segments[i]
-      } else {
-        url += params[segments[i]]
+    paramsRegExp.lastIndex = 0
+    return path.replace(paramsRegExp, (_, slash: string, key: string, optional: string | undefined) => {
+      const value = params[key]
+      if (value === undefined) {
+        if (optional !== undefined) {
+          return ""
+        }
+        throw new Error(`Missing path parameter: ${key}`)
       }
-    }
-    return url
+      return `${slash}${encodeURIComponent(value)}`
+    })
   }
 }
 

@@ -25,10 +25,12 @@
 
 import { A } from "@beep/utils";
 import * as O from "@beep/utils/Option";
+import { useAtom } from "@effect/atom-react";
 import { AudioFormat, CommitStrategy, RealtimeEvents, Scribe } from "@elevenlabs/client";
 import { Data, Effect } from "effect";
 import * as P from "effect/Predicate";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Atom } from "effect/unstable/reactivity";
+import { useCallback, useEffect, useId, useRef } from "react";
 import type {
   CommittedTranscriptMessage,
   MicrophoneOptions,
@@ -129,7 +131,23 @@ interface UseScribeResult {
   readonly status: ScribeStatus;
 }
 
+type ScribeState = {
+  readonly committedTranscripts: ReadonlyArray<CommittedTranscriptMessage>;
+  readonly error: string | null;
+  readonly partialTranscript: string;
+  readonly status: ScribeStatus;
+};
+
 const defaultModelId = "scribe_v2_realtime";
+
+const scribeStateAtom = Atom.family((_scope: string) =>
+  Atom.make<ScribeState>({
+    committedTranscripts: A.empty<CommittedTranscriptMessage>(),
+    error: null,
+    partialTranscript: "",
+    status: "idle",
+  })
+);
 
 const makeScribeError = (message: string): Error => new DOMException(message, "ScribeConnectionError");
 
@@ -175,27 +193,26 @@ const toMicrophoneOptions = (
  * @since 0.0.0
  */
 export function useScribe(options: UseScribeOptions): UseScribeResult {
+  const scope = useId();
   const optionsRef = useRef(options);
   const connectionRef = useRef<RealtimeConnection | null>(null);
-  const [status, setStatus] = useState<ScribeStatus>("idle");
-  const [error, setError] = useState<string | null>(null);
-  const [partialTranscript, setPartialTranscript] = useState("");
-  const [committedTranscripts, setCommittedTranscripts] = useState<ReadonlyArray<CommittedTranscriptMessage>>(
-    A.empty<CommittedTranscriptMessage>()
-  );
+  const [state, setState] = useAtom(scribeStateAtom(scope));
 
   optionsRef.current = options;
 
   const clearTranscripts = useCallback(() => {
-    setPartialTranscript("");
-    setCommittedTranscripts(A.empty<CommittedTranscriptMessage>());
-  }, []);
+    setState((current) => ({
+      ...current,
+      committedTranscripts: A.empty<CommittedTranscriptMessage>(),
+      partialTranscript: "",
+    }));
+  }, [setState]);
 
   const disconnect = useCallback(() => {
     connectionRef.current?.close();
     connectionRef.current = null;
-    setStatus("idle");
-  }, []);
+    setState((current) => ({ ...current, status: "idle" }));
+  }, [setState]);
 
   const connect = useCallback(
     ({ token }: ScribeConnectOptions): Promise<void> => {
@@ -203,8 +220,11 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
       const handleUnhandledError = (failure: ScribeConnectionFailure): Effect.Effect<never, Error> => {
         const scribeError = failure.error;
         if (!handledError) {
-          setError(scribeError.message);
-          setStatus("idle");
+          setState((current) => ({
+            ...current,
+            error: scribeError.message,
+            status: "idle",
+          }));
           optionsRef.current.onError?.(scribeError);
         }
         return Effect.fail(scribeError);
@@ -213,8 +233,11 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
       return Effect.runPromise(
         Effect.gen(function* () {
           disconnect();
-          setError(null);
-          setStatus("connecting");
+          setState((current) => ({
+            ...current,
+            error: null,
+            status: "connecting",
+          }));
 
           const connection = yield* Effect.try({
             try: () => {
@@ -262,18 +285,21 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
             const settleResolve = () => {
               if (!settled) {
                 settled = true;
-                setStatus("connected");
+                setState((current) => ({ ...current, status: "connected" }));
                 resume(Effect.void);
               }
             };
 
             const settleReject = (scribeError_1: Error) => {
               handledError = true;
-              setError(scribeError_1.message);
+              setState((current) => ({
+                ...current,
+                error: scribeError_1.message,
+              }));
               optionsRef.current.onError?.(scribeError_1);
               if (!settled) {
                 settled = true;
-                setStatus("idle");
+                setState((current) => ({ ...current, status: "idle" }));
                 resume(Effect.fail(new ScribeConnectionFailure({ error: scribeError_1 })));
               }
             };
@@ -283,7 +309,7 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
               if (connectionRef.current === connection) {
                 connectionRef.current = null;
               }
-              setStatus("idle");
+              setState((current) => ({ ...current, status: "idle" }));
               if (!settled) {
                 settleReject(closeEventToError(event_1));
               }
@@ -298,31 +324,40 @@ export function useScribe(options: UseScribeOptions): UseScribeResult {
               settleReject(makeScribeError(data_3.error));
             });
             connection.on(RealtimeEvents.PARTIAL_TRANSCRIPT, (data_4) => {
-              setPartialTranscript(data_4.text);
+              setState((current) => ({ ...current, partialTranscript: data_4.text }));
               optionsRef.current.onPartialTranscript?.(data_4);
             });
             connection.on(RealtimeEvents.COMMITTED_TRANSCRIPT, (data_5) => {
-              setPartialTranscript("");
-              setCommittedTranscripts((transcripts) => A.append(transcripts, data_5));
+              setState((current) => ({
+                ...current,
+                committedTranscripts: A.append(current.committedTranscripts, data_5),
+                partialTranscript: "",
+              }));
               optionsRef.current.onCommittedTranscript?.(data_5);
             });
           });
         }).pipe(Effect.catch(handleUnhandledError))
       );
     },
-    [disconnect]
+    [disconnect, setState]
   );
 
-  useEffect(() => disconnect, [disconnect]);
+  useEffect(
+    () => () => {
+      connectionRef.current?.close();
+      connectionRef.current = null;
+    },
+    []
+  );
 
   return {
     clearTranscripts,
-    committedTranscripts,
+    committedTranscripts: state.committedTranscripts,
     connect,
     disconnect,
-    error,
-    isConnected: status === "connected",
-    partialTranscript,
-    status,
+    error: state.error,
+    isConnected: state.status === "connected",
+    partialTranscript: state.partialTranscript,
+    status: state.status,
   };
 }

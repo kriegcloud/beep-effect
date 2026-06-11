@@ -1,0 +1,40 @@
+# Community 880
+
+> 12 nodes · cohesion 0.17
+
+## Key Concepts
+
+- **package.json** (16 connections) — `packages/drivers/xai/package.json`
+- **beep** (2 connections) — `packages/drivers/xai/package.json`
+- **family** (1 connections) — `packages/drivers/xai/package.json`
+- **description** (1 connections) — `packages/drivers/xai/package.json`
+- **files** (1 connections) — `packages/drivers/xai/package.json`
+- **homepage** (1 connections) — `packages/drivers/xai/package.json`
+- **license** (1 connections) — `packages/drivers/xai/package.json`
+- **name** (1 connections) — `packages/drivers/xai/package.json`
+- **private** (1 connections) — `packages/drivers/xai/package.json`
+- **sideEffects** (1 connections) — `packages/drivers/xai/package.json`
+- **type** (1 connections) — `packages/drivers/xai/package.json`
+- **version** (1 connections) — `packages/drivers/xai/package.json`
+
+## Relationships
+
+- [[Community 1083]] (2 shared connections)
+- [[Community 1218]] (1 shared connections)
+- [[Community 1362]] (1 shared connections)
+- [[Community 1527]] (1 shared connections)
+- [[Community 537]] (1 shared connections)
+
+## Source Files
+
+- `packages/drivers/xai/package.json`
+
+## Audit Trail
+
+- EXTRACTED: 17 (100%)
+- INFERRED: 0 (0%)
+- AMBIGUOUS: 0 (0%)
+
+---
+
+*Part of the graphify knowledge wiki. See [[index]] to navigate.*

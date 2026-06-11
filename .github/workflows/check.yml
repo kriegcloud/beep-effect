@@ -221,6 +221,120 @@ jobs:
         if: steps.lane-gate.outputs.should_run != 'true'
         run: echo "Skipping ${{ matrix.name }} for this change set."
 
+  fallow-advisory:
+    name: Fallow Advisory Envelopes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 100
+          persist-credentials: false
+
+      - name: Determine audit base
+        id: base
+        shell: bash
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          fetch_status=0
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            base_ref="origin/${GITHUB_BASE_REF:-main}"
+            git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}" || fetch_status=$?
+          elif [[ -n "${BEFORE_SHA:-}" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
+            base_ref="$BEFORE_SHA"
+            git rev-parse --verify "${base_ref}^{commit}" >/dev/null 2>&1 || git fetch --quiet --no-tags --depth=100 origin "$base_ref" || fetch_status=$?
+          else
+            base_ref="HEAD~1"
+          fi
+
+          echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
+          echo "base_fetch_status=$fetch_status" >> "$GITHUB_OUTPUT"
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Run Fallow advisory envelopes
+        id: fallow
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p .beep/fallow
+          : > .beep/fallow/status.md
+
+          run_fallow() {
+            local lane="$1"
+            local started_at="$SECONDS"
+
+            set +e
+            bun run beep quality fallow "$lane" \
+              --advisory \
+              --base "${{ steps.base.outputs.base_ref }}" \
+              --out ".beep/fallow/${lane}.json" \
+              --quiet
+            local status=$?
+            set -e
+            local elapsed_seconds=$((SECONDS - started_at))
+
+            echo "- ${lane}: ${status} (${elapsed_seconds}s)" >> .beep/fallow/status.md
+          }
+
+          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+            run_fallow "$lane"
+          done
+
+          {
+            echo "lane_status<<FALLOW_STATUS"
+            cat .beep/fallow/status.md
+            echo "FALLOW_STATUS"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Validate Fallow envelopes
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+            bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
+              --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
+              --expect-subcommand "$lane" \
+              --expect-report-path ".beep/fallow/${lane}.json" \
+              --require-raw-output
+          done
+
+      - name: Append Fallow summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### Fallow Advisory Envelopes"
+            echo
+            echo "- base ref: \`${{ steps.base.outputs.base_ref }}\`"
+            echo "- base fetch status: \`${{ steps.base.outputs.base_fetch_status }}\`"
+            echo
+            cat .beep/fallow/status.md 2>/dev/null || echo "- lane status: unavailable"
+            echo
+            jq -r '"- audit envelope status: `\(.status // "unknown")`\n- audit tool exit status: `\(.exitStatus // "unknown")`\n- audit finding count: `\(.report.findingCount // "unknown")`\n- audit introduced findings: `\(.findingAttributionSummary.introduced // "unknown")`\n- audit inherited-adjacent findings: `\(.findingAttributionSummary.inheritedAdjacent // "unknown")`"' .beep/fallow/audit.json 2>/dev/null || echo "- audit summary: unavailable"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Fallow envelopes
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: fallow-envelopes-${{ github.event_name }}-${{ github.run_attempt }}
+          path: .beep/fallow/**
+          if-no-files-found: error
+
   build:
     name: Build
     if: github.event_name == 'push'
@@ -259,7 +373,9 @@ jobs:
   secrets:
     name: Secret Scanning
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Raised from 5m: gitleaks reads the full PR diff, and this repo now commits
+    # large generated graphify-out/ artifacts that push the scan just past 5m.
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

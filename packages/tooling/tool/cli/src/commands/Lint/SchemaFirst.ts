@@ -33,16 +33,119 @@ const IDENTIFIER_PROPERTY_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const FUNCTION_LIKE_TEXT_PATTERN = /=>|\bEffect\.Effect</;
 const NON_SCHEMA_SIGNAL_PATTERN =
   /\bEffect\.Success<|\bLayer\.Layer<|\bAbortSignal\b|\bAbortController\b|\bUint8Array\b|\bEventJournal\.Entry\b|\bZod\b|\bz\./;
+const SCHEMA_FIELDS_CALL_PATTERN = /\bS\.(?:Class|Struct|TaggedClass|TaggedStruct|ErrorClass|TaggedErrorClass)\b/;
+const NUMERIC_DOMAIN_TOKENS = ["timeout", "count", "size", "rate", "limit", "ms", "seconds"] as const;
+const STATIC_API_SCHEMA_SIGNAL_PATTERN = /\b(?:S\.(?:TaggedUnion|toTaggedUnion)|LiteralKit|MappedLiteralKit)\s*\(/;
+const DEFAULTS_SCHEMA_SIGNAL_PATTERN =
+  /\b(?:S\.(?:Class|Struct|TaggedClass|TaggedStruct|ErrorClass|TaggedErrorClass)|withConstructorDefault|withDecodingDefault|SchemaUtils\.withKeyDefaults)\b/;
+const EQUIVALENCE_SCHEMA_SIGNAL_PATTERN =
+  /\b(?:S\.(?:Class|Struct|TaggedClass|TaggedStruct|ErrorClass|TaggedErrorClass|toEquivalence|overrideToEquivalence)|SchemaUtils\.toEquivalence)\b/;
+const SCHEMA_DERIVED_EQUIVALENCE_PATTERN =
+  /\b(?:S|Schema)\.(?:toEquivalence|overrideToEquivalence)\b|SchemaUtils\.toEquivalence\b/;
+const MANUAL_EQUALITY_COMPARISON_PATTERN = /===|!==/;
+const BROAD_EMAIL_SCHEMA_PATTERN = /^S\.optionalKey\(S\.String(?:\)|,)|^S\.String(?:$|\.pipe\()/;
+const DEFAULT_PARAMETER_NAMES = ["options", "params", "config", "request", "args", "input"] as const;
+const SCHEMA_CODEC_HELPERS = [
+  // Effect-returning codecs.
+  "decodeUnknownEffect",
+  "decodeEffect",
+  "encodeUnknownEffect",
+  "encodeEffect",
+  // Result-returning codecs.
+  "decodeUnknownResult",
+  "decodeResult",
+  "encodeUnknownResult",
+  "encodeResult",
+  // Option-returning codecs.
+  "decodeUnknownOption",
+  "decodeOption",
+  "encodeUnknownOption",
+  "encodeOption",
+  // Exit-returning codecs.
+  "decodeUnknownExit",
+  "decodeExit",
+  "encodeUnknownExit",
+  "encodeExit",
+  // Promise-returning codecs.
+  "decodeUnknownPromise",
+  "decodePromise",
+  "encodeUnknownPromise",
+  "encodePromise",
+  // Synchronous throwing codecs (most common in unit tests).
+  "decodeUnknownSync",
+  "decodeSync",
+  "encodeUnknownSync",
+  "encodeSync",
+] as const;
+// Schema-derived property coverage requires deriving the arbitrary from the
+// schema itself (S.toArbitrary / Schema.toArbitrary, including toArbitraryLazy).
+// A bare fc.property/assert/check over a hand-rolled arbitrary is not
+// schema-derived coverage and must not suppress the advisory.
+const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:S|Schema)\.toArbitrary/;
+const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;
+const TEST_FILE_EXCLUDED_SEGMENTS = [
+  "/.repos/",
+  "/node_modules/",
+  "/dist/",
+  "/build/",
+  "/coverage/",
+  "/docs/",
+  "/_generated/",
+  "/generated/",
+  "/dtslint/",
+] as const;
+const SCHEMA_DISCRIMINATOR_TOKENS = [
+  "_tag",
+  "tag",
+  "kind",
+  "status",
+  "type",
+  "mode",
+  "reason",
+  "state",
+  "category",
+  "profile",
+  "family",
+  "subtype",
+] as const;
 
 const stringifyJsonPretty = SchemaGetter.stringifyJson({ space: 2 });
+const stringifyJsonLine = SchemaGetter.stringifyJson({ space: 0 });
 
-const SchemaFirstEntryKind = LiteralKit(["exported-interface", "exported-type-literal", "object-struct-schema"]).pipe(
+const SchemaFirstPolicyRuleId = LiteralKit([
+  "schema-first-inventory",
+  "literal-kit-const-assertion",
+  "SFV4-defaults",
+  "SFV4-static-api",
+  "SFV4-precision-audit",
+  "SFV4-arbitrary-tests",
+  "SFV4-equivalence",
+  "SFV4-numeric-domain",
+  "SFV4-boundary-codec",
+]).pipe(
+  $I.annoteSchema("SchemaFirstPolicyRuleId", {
+    description: "Stable schema-first policy rule identifiers emitted for lint and Yeet issue routing.",
+  })
+);
+
+const SchemaFirstPolicySeverity = LiteralKit(["warning", "error"]).pipe(
+  $I.annoteSchema("SchemaFirstPolicySeverity", {
+    description: "Severity levels emitted by schema-first policy lint findings.",
+  })
+);
+
+const SchemaFirstEntryKind = LiteralKit([
+  "exported-interface",
+  "exported-type-literal",
+  "object-struct-schema",
+  "schema-policy-advisory",
+]).pipe(
   $I.annoteSchema("SchemaFirstEntryKind", {
     description: "Kinds of schema-first inventory findings.",
   })
 );
 
-const SchemaFirstEntryStatus = LiteralKit(["candidate", "exception"]).pipe(
+const SchemaFirstEntryStatus = LiteralKit(["candidate", "exception", "advisory"]).pipe(
   $I.annoteSchema("SchemaFirstEntryStatus", {
     description: "Tracked status for a schema-first inventory finding.",
   })
@@ -54,11 +157,29 @@ class SchemaFirstInventoryEntry extends S.Class<SchemaFirstInventoryEntry>($I`Sc
     symbol: S.String,
     kind: SchemaFirstEntryKind,
     status: SchemaFirstEntryStatus,
+    ruleId: S.optionalKey(SchemaFirstPolicyRuleId),
+    line: S.optionalKey(S.Finite),
     owner: S.String,
     reason: S.String,
   },
   $I.annote("SchemaFirstInventoryEntry", {
     description: "Single tracked schema-first finding for a source file symbol.",
+  })
+) {}
+
+class SchemaFirstPolicyFinding extends S.Class<SchemaFirstPolicyFinding>($I`SchemaFirstPolicyFinding`)(
+  {
+    category: S.Literal("schema-first-policy"),
+    ruleId: SchemaFirstPolicyRuleId,
+    severity: SchemaFirstPolicySeverity,
+    file: S.String,
+    line: S.optionalKey(S.Finite),
+    symbol: S.optionalKey(S.String),
+    message: S.String,
+    remediation: S.String,
+  },
+  $I.annote("SchemaFirstPolicyFinding", {
+    description: "Machine-readable schema-first lint finding consumed by Yeet quality issue packets.",
   })
 ) {}
 
@@ -128,6 +249,13 @@ class SchemaFirstLintSummary extends S.Class<SchemaFirstLintSummary>($I`SchemaFi
     staleEntries: S.Finite,
     enforcedCandidates: S.Finite,
     literalKitConstAssertions: S.Finite,
+    boundaryCodecAdvisories: S.Finite,
+    defaultsAdvisories: S.Finite,
+    staticApiAdvisories: S.Finite,
+    equivalenceAdvisories: S.Finite,
+    precisionAuditAdvisories: S.Finite,
+    arbitraryTestsAdvisories: S.Finite,
+    numericDomainAdvisories: S.Finite,
     wroteInventory: S.Boolean,
   },
   $I.annote("SchemaFirstLintSummary", {
@@ -150,10 +278,12 @@ class LiteralKitConstAssertionViolation extends S.Class<LiteralKitConstAssertion
 
 const decodeInventoryDocument = S.decodeUnknownEffect(SchemaFirstInventoryDocument);
 const encodeInventoryDocument = S.encodeUnknownEffect(SchemaFirstInventoryDocument);
+const encodePolicyFinding = S.encodeUnknownEffect(SchemaFirstPolicyFinding);
 
 const isExcludedFile = isExcludedTypeScriptSourcePath;
 
-const makeEntryKey = (entry: SchemaFirstInventoryEntry): string => `${entry.file}::${entry.symbol}::${entry.kind}`;
+const makeEntryKey = (entry: SchemaFirstInventoryEntry): string =>
+  `${entry.file}::${entry.symbol}::${entry.kind}::${entry.ruleId ?? ""}::${entry.line ?? ""}`;
 
 const byEntryKeyAscending: Order.Order<SchemaFirstInventoryEntry> = Order.mapInput(Order.String, makeEntryKey);
 
@@ -167,6 +297,77 @@ const sortEntries: (entries: ReadonlyArray<SchemaFirstInventoryEntry>) => Readon
 
 const isEnforcedFile = (filePath: string): boolean =>
   A.some(ENFORCED_ROOTS, (root) => filePath === root || Str.startsWith(`${root}/`)(filePath));
+
+const isActiveRuleAdvisory =
+  (ruleId: typeof SchemaFirstPolicyRuleId.Type) =>
+  (entry: SchemaFirstInventoryEntry): boolean =>
+    entry.ruleId === ruleId && entry.status === "advisory";
+
+const optionalProp = <Key extends string, Value>(key: Key, value: O.Option<Value>): { readonly [K in Key]?: Value } =>
+  O.isSome(value) ? ({ [key]: value.value } as { readonly [K in Key]?: Value }) : {};
+
+const renderPolicyFindingLine = Effect.fn("renderPolicyFindingLine")(function* (finding: SchemaFirstPolicyFinding) {
+  const encoded = yield* encodePolicyFinding(finding);
+  const rendered = yield* stringifyJsonLine.run(O.some(encoded), {});
+  return `[schema-first:issue] ${O.getOrElse(rendered, thunkEmptyStr)}`;
+});
+
+const inventoryEntryFinding = (
+  entry: SchemaFirstInventoryEntry,
+  message: string,
+  remediation: string
+): SchemaFirstPolicyFinding =>
+  SchemaFirstPolicyFinding.make({
+    category: "schema-first-policy",
+    ruleId: entry.ruleId ?? "schema-first-inventory",
+    severity: entry.status === "advisory" ? "warning" : "error",
+    file: entry.file,
+    symbol: entry.symbol,
+    message,
+    remediation,
+    ...optionalProp("line", O.fromUndefinedOr(entry.line)),
+  });
+
+const missingEntryRemediation = (entry: SchemaFirstInventoryEntry): string => {
+  if (entry.ruleId === "SFV4-static-api") {
+    return "Prefer schema-derived .match/.guards/.cases or LiteralKit helpers, or run bun run beep lint schema-first --write with a justification when behavior intentionally differs.";
+  }
+  if (entry.ruleId === "SFV4-numeric-domain") {
+    return "Review the numeric domain and replace broad S.Number/S.NumberFromString with S.Finite, S.Int, or checks; then run bun run beep lint schema-first --write if the broad domain is intentional.";
+  }
+  if (entry.ruleId === "SFV4-boundary-codec") {
+    return "Replace direct JSON.parse with S.UnknownFromJsonString or S.fromJsonString(schema) plus an Effect/Result/Option decoder, or inventory the exception when the protocol is intentionally non-standard.";
+  }
+  if (entry.ruleId === "SFV4-defaults") {
+    return "Move option/request fallback values into schema fields with S.withConstructorDefault, S.withDecodingDefault*, or SchemaUtils.withKeyDefaults; inventory the exception only when the fallback intentionally differs from schema construction semantics.";
+  }
+  if (entry.ruleId === "SFV4-equivalence") {
+    return "Derive comparison from S.toEquivalence(schema) or SchemaUtils.toEquivalence(schema); use S.overrideToEquivalence only when schema semantics intentionally differ.";
+  }
+  if (entry.ruleId === "SFV4-precision-audit") {
+    return "Replace broad email S.String fields with @beep/schema Email or a local precise email schema; inventory only external protocol fields that intentionally allow non-email strings.";
+  }
+  if (entry.ruleId === "SFV4-arbitrary-tests") {
+    return "Add a focused property test using S.toArbitrary(sourceSchema) and fast-check, or keep the inventory entry when the file is intentionally golden/snapshot/regression-only coverage.";
+  }
+  return "Run bun run beep lint schema-first --write after reviewing the finding, or migrate the symbol to an annotated schema.";
+};
+
+const literalKitConstAssertionFinding = (violation: LiteralKitConstAssertionViolation): SchemaFirstPolicyFinding =>
+  SchemaFirstPolicyFinding.make({
+    category: "schema-first-policy",
+    ruleId: "literal-kit-const-assertion",
+    severity: "error",
+    file: violation.file,
+    line: violation.line,
+    symbol: "LiteralKit",
+    message: "Inline LiteralKit array arguments do not need as const.",
+    remediation: "Remove the redundant as const assertion; LiteralKit already uses const type parameters.",
+  });
+
+const logPolicyFinding = Effect.fn("logPolicyFinding")(function* (finding: SchemaFirstPolicyFinding) {
+  yield* Console.error(yield* renderPolicyFindingLine(finding));
+});
 
 const todayYmd = (): string => {
   const now = DateTime.nowUnsafe();
@@ -318,6 +519,366 @@ const inferStructSymbol = (callExpression: import("ts-morph").CallExpression): s
     })
   );
 
+const propertyNameText = (property: import("ts-morph").PropertyAssignment): O.Option<string> =>
+  pipe(
+    O.fromNullishOr(property.getNameNode()),
+    O.map((nameNode) => Str.replace(/^["']|["']$/g, "")(nameNode.getText())),
+    O.filter(Str.isNonEmpty)
+  );
+
+const fieldNameTokens = (fieldName: string): ReadonlyArray<string> =>
+  pipe(
+    fieldName,
+    Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+    Str.replace(/[^A-Za-z0-9]+/g, " "),
+    Str.trim,
+    Str.split(/\s+/),
+    A.map(Str.toLowerCase),
+    A.filter(Str.isNonEmpty)
+  );
+
+const isNumericDomainFieldName = (fieldName: string): boolean =>
+  A.some(fieldNameTokens(fieldName), (token) =>
+    A.some(NUMERIC_DOMAIN_TOKENS, (numericToken) => Str.Equivalence(token, numericToken))
+  );
+
+const isBroadNumberSchemaExpression = (initializer: Node): boolean => {
+  const text = initializer.getText();
+  if (/S\.(?:Finite|Int)\b|\.check\(/.test(text)) {
+    return false;
+  }
+  return (
+    text === "S.Number" ||
+    text === "S.NumberFromString" ||
+    Str.startsWith("S.Number.pipe(")(text) ||
+    Str.startsWith("S.NumberFromString.pipe(")(text)
+  );
+};
+
+const isSchemaFieldsObjectLiteral = (node: Node): boolean => {
+  if (!Node.isObjectLiteralExpression(node)) {
+    return false;
+  }
+  const parent = node.getParent();
+  return Node.isCallExpression(parent) && SCHEMA_FIELDS_CALL_PATTERN.test(parent.getExpression().getText());
+};
+
+const inferSchemaContainerSymbol = (node: Node): string => {
+  const classDeclaration = node.getFirstAncestorByKind(SyntaxKind.ClassDeclaration);
+  if (classDeclaration !== undefined) {
+    return classDeclaration.getName() ?? "anonymous-class";
+  }
+  const variableDeclaration = node.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
+  if (variableDeclaration !== undefined) {
+    return variableDeclaration.getName();
+  }
+  const line = node.getSourceFile().getLineAndColumnAtPos(node.getStart()).line;
+  return `anonymous@${line}`;
+};
+
+const numericDomainEntryFromProperty = (
+  property: import("ts-morph").PropertyAssignment,
+  file: string,
+  owner: string
+): O.Option<SchemaFirstInventoryEntry> => {
+  const parent = property.getParent();
+  if (!isSchemaFieldsObjectLiteral(parent)) {
+    return O.none();
+  }
+
+  const fieldName = propertyNameText(property);
+  if (O.isNone(fieldName) || !isNumericDomainFieldName(fieldName.value)) {
+    return O.none();
+  }
+
+  const initializer = property.getInitializer();
+  if (initializer === undefined || !isBroadNumberSchemaExpression(initializer)) {
+    return O.none();
+  }
+
+  const field = fieldName.value;
+  const container = inferSchemaContainerSymbol(parent);
+  return O.some(
+    SchemaFirstInventoryEntry.make({
+      file,
+      symbol: `${container}.${field}`,
+      kind: "schema-policy-advisory",
+      status: "advisory",
+      ruleId: "SFV4-numeric-domain",
+      line: property.getSourceFile().getLineAndColumnAtPos(property.getStart()).line,
+      owner,
+      reason: `Broad numeric schema field "${field}" should use S.Finite, S.Int, or a range check unless NaN and infinity are intentional.`,
+    })
+  );
+};
+
+const isBroadEmailSchemaExpression = (initializer: Node): boolean => {
+  const text = initializer.getText();
+  if (/\b(?:Email|ContactEmail)\b|S\.NonEmptyString\b|\.check\(/.test(text)) {
+    return false;
+  }
+  return BROAD_EMAIL_SCHEMA_PATTERN.test(text);
+};
+
+const precisionAuditEntryFromProperty = (
+  property: import("ts-morph").PropertyAssignment,
+  file: string,
+  owner: string
+): O.Option<SchemaFirstInventoryEntry> => {
+  const parent = property.getParent();
+  if (!isSchemaFieldsObjectLiteral(parent)) {
+    return O.none();
+  }
+
+  const fieldName = propertyNameText(property);
+  if (O.isNone(fieldName) || !Str.Equivalence(fieldName.value, "email")) {
+    return O.none();
+  }
+
+  const initializer = property.getInitializer();
+  if (initializer === undefined || !isBroadEmailSchemaExpression(initializer)) {
+    return O.none();
+  }
+
+  const container = inferSchemaContainerSymbol(parent);
+  return O.some(
+    SchemaFirstInventoryEntry.make({
+      file,
+      symbol: `${container}.email`,
+      kind: "schema-policy-advisory",
+      status: "advisory",
+      ruleId: "SFV4-precision-audit",
+      line: property.getSourceFile().getLineAndColumnAtPos(property.getStart()).line,
+      owner,
+      reason:
+        'Broad string field "email" should use @beep/schema Email, a local precise email schema, or a documented external-protocol exception.',
+    })
+  );
+};
+
+const sourceHasStaticApiSchemaSignal = (sourceFile: import("ts-morph").SourceFile): boolean =>
+  STATIC_API_SCHEMA_SIGNAL_PATTERN.test(sourceFile.getFullText());
+
+const isSchemaDiscriminatorToken = (token: string): boolean =>
+  A.some(SCHEMA_DISCRIMINATOR_TOKENS, (discriminatorToken) => Str.Equivalence(discriminatorToken, token));
+
+const schemaDiscriminatorExpressionText = (expression: Node): O.Option<string> => {
+  if (Node.isIdentifier(expression) && isSchemaDiscriminatorToken(expression.getText())) {
+    return O.some(expression.getText());
+  }
+  if (Node.isPropertyAccessExpression(expression) && isSchemaDiscriminatorToken(expression.getName())) {
+    return O.some(expression.getText());
+  }
+  return O.none();
+};
+
+const inferExecutableContainerSymbol = (node: Node): string => {
+  const functionDeclaration = node.getFirstAncestorByKind(SyntaxKind.FunctionDeclaration);
+  if (functionDeclaration !== undefined) {
+    return functionDeclaration.getName() ?? "anonymous-function";
+  }
+  const arrowFunction = node.getFirstAncestorByKind(SyntaxKind.ArrowFunction);
+  const arrowVariableDeclaration = arrowFunction?.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
+  if (arrowVariableDeclaration !== undefined) {
+    return arrowVariableDeclaration.getName();
+  }
+  const functionExpression = node.getFirstAncestorByKind(SyntaxKind.FunctionExpression);
+  const functionExpressionVariableDeclaration = functionExpression?.getFirstAncestorByKind(
+    SyntaxKind.VariableDeclaration
+  );
+  if (functionExpressionVariableDeclaration !== undefined) {
+    return functionExpressionVariableDeclaration.getName();
+  }
+  return inferSchemaContainerSymbol(node);
+};
+
+const staticApiEntryFromSwitch = (
+  switchStatement: import("ts-morph").SwitchStatement,
+  file: string,
+  owner: string
+): O.Option<SchemaFirstInventoryEntry> =>
+  pipe(
+    schemaDiscriminatorExpressionText(switchStatement.getExpression()),
+    O.map((expressionText) => {
+      const line = switchStatement.getSourceFile().getLineAndColumnAtPos(switchStatement.getStart()).line;
+      return SchemaFirstInventoryEntry.make({
+        file,
+        symbol: `${inferExecutableContainerSymbol(switchStatement)}.switch(${expressionText})`,
+        kind: "schema-policy-advisory",
+        status: "advisory",
+        ruleId: "SFV4-static-api",
+        line,
+        owner,
+        reason: `Schema-modeled discriminator switch "${expressionText}" should use schema-derived .match/.guards or LiteralKit.$match when semantics match.`,
+      });
+    })
+  );
+
+const isJsonParseCallExpression = (callExpression: import("ts-morph").CallExpression): boolean => {
+  const expression = callExpression.getExpression();
+  return (
+    Node.isPropertyAccessExpression(expression) &&
+    expression.getExpression().getText() === "JSON" &&
+    expression.getName() === "parse"
+  );
+};
+
+const boundaryCodecEntryFromJsonParse = (
+  callExpression: import("ts-morph").CallExpression,
+  file: string,
+  owner: string
+): SchemaFirstInventoryEntry =>
+  SchemaFirstInventoryEntry.make({
+    file,
+    symbol: `${inferExecutableContainerSymbol(callExpression)}.JSON.parse`,
+    kind: "schema-policy-advisory",
+    status: "advisory",
+    ruleId: "SFV4-boundary-codec",
+    line: callExpression.getSourceFile().getLineAndColumnAtPos(callExpression.getStart()).line,
+    owner,
+    reason:
+      "Direct JSON.parse boundary should use S.UnknownFromJsonString or S.fromJsonString(schema) so parsing and validation stay schema-owned.",
+  });
+
+const sourceHasDefaultsSchemaSignal = (sourceFile: import("ts-morph").SourceFile): boolean =>
+  DEFAULTS_SCHEMA_SIGNAL_PATTERN.test(sourceFile.getFullText());
+
+const isDefaultParameterName = (name: string): boolean =>
+  A.some(DEFAULT_PARAMETER_NAMES, (parameterName) => Str.Equivalence(parameterName, name));
+
+const isNonEmptyObjectLiteral = (node: Node): node is import("ts-morph").ObjectLiteralExpression =>
+  Node.isObjectLiteralExpression(node) && node.getProperties().length > 0;
+
+const defaultsEntryFromParameter = (
+  parameter: import("ts-morph").ParameterDeclaration,
+  file: string,
+  owner: string
+): O.Option<SchemaFirstInventoryEntry> => {
+  const initializer = parameter.getInitializer();
+  if (initializer === undefined || !isNonEmptyObjectLiteral(initializer)) {
+    return O.none();
+  }
+
+  const parameterName = parameter.getName();
+  if (!isDefaultParameterName(parameterName)) {
+    return O.none();
+  }
+
+  return O.some(
+    SchemaFirstInventoryEntry.make({
+      file,
+      symbol: `${inferExecutableContainerSymbol(parameter)}.${parameterName}`,
+      kind: "schema-policy-advisory",
+      status: "advisory",
+      ruleId: "SFV4-defaults",
+      line: parameter.getSourceFile().getLineAndColumnAtPos(parameter.getStart()).line,
+      owner,
+      reason: `Parameter default object for "${parameterName}" should move fallback values into schema defaults so construction, decoding, and tests share one source of truth.`,
+    })
+  );
+};
+
+const sourceHasEquivalenceSchemaSignal = (sourceFile: import("ts-morph").SourceFile): boolean =>
+  EQUIVALENCE_SCHEMA_SIGNAL_PATTERN.test(sourceFile.getFullText());
+
+const isSchemaDerivedEquivalenceExpression = (text: string): boolean => SCHEMA_DERIVED_EQUIVALENCE_PATTERN.test(text);
+
+const hasManualEqualityComparison = (text: string): boolean => MANUAL_EQUALITY_COMPARISON_PATTERN.test(text);
+
+const isExportedEqualsVariableDeclaration = (declaration: import("ts-morph").VariableDeclaration): boolean => {
+  if (!Str.Equivalence(declaration.getName(), "equals")) {
+    return false;
+  }
+  const variableStatement = declaration.getFirstAncestorByKind(SyntaxKind.VariableStatement);
+  return variableStatement?.isExported() ?? false;
+};
+
+const equivalenceEntryFromVariableDeclaration = (
+  declaration: import("ts-morph").VariableDeclaration,
+  file: string,
+  owner: string
+): O.Option<SchemaFirstInventoryEntry> => {
+  if (!isExportedEqualsVariableDeclaration(declaration)) {
+    return O.none();
+  }
+
+  const initializerText = declaration.getInitializer()?.getText() ?? "";
+  if (isSchemaDerivedEquivalenceExpression(initializerText) || !hasManualEqualityComparison(initializerText)) {
+    return O.none();
+  }
+
+  return O.some(
+    SchemaFirstInventoryEntry.make({
+      file,
+      symbol: declaration.getName(),
+      kind: "schema-policy-advisory",
+      status: "advisory",
+      ruleId: "SFV4-equivalence",
+      line: declaration.getSourceFile().getLineAndColumnAtPos(declaration.getStart()).line,
+      owner,
+      reason:
+        'Exported schema-modeled equality helper "equals" should derive from S.toEquivalence(schema) unless comparison intentionally differs from schema semantics.',
+    })
+  );
+};
+
+const isSchemaFirstTestFile = (filePath: string): boolean =>
+  TEST_FILE_PATTERN.test(filePath) &&
+  !A.some(TEST_FILE_EXCLUDED_SEGMENTS, (segment) => Str.includes(segment)(`/${filePath}`));
+
+const isSchemaCodecHelperName = (name: string): boolean =>
+  A.some(SCHEMA_CODEC_HELPERS, (helperName) => Str.Equivalence(helperName, name));
+
+// Matches schema codec calls of the form `<Identifier>.<codecHelper>(...)`. This
+// covers the namespace forms `S.decodeUnknownSync(Schema)` / `Schema.decode...`
+// AND the class-local static API promoted by this repo, e.g.
+// `NamedNode.decodeUnknownResult(...)` or `ContactSubmission.decodeUnknownEffect(...)`,
+// so migrating to class statics cannot silently evade the advisory. The codec
+// helper names are Effect-Schema-specific, so any-identifier objects are safe.
+const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpression): boolean => {
+  const expression = callExpression.getExpression();
+  return (
+    Node.isPropertyAccessExpression(expression) &&
+    isSchemaCodecHelperName(expression.getName()) &&
+    Node.isIdentifier(expression.getExpression())
+  );
+};
+
+const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph").SourceFile): boolean =>
+  SCHEMA_ARBITRARY_PROPERTY_PATTERN.test(sourceFile.getFullText());
+
+const arbitraryTestsEntryFromSourceFile = (
+  sourceFile: import("ts-morph").SourceFile,
+  file: string,
+  owner: string
+): O.Option<SchemaFirstInventoryEntry> => {
+  if (!isSchemaFirstTestFile(file) || sourceHasSchemaArbitraryPropertyCoverage(sourceFile)) {
+    return O.none();
+  }
+
+  const schemaCodecCalls = A.filter(
+    sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression),
+    isSchemaCodecCallExpression
+  );
+  if (schemaCodecCalls.length < 3) {
+    return O.none();
+  }
+
+  const line = sourceFile.getLineAndColumnAtPos(schemaCodecCalls[0]?.getStart() ?? sourceFile.getStart()).line;
+  return O.some(
+    SchemaFirstInventoryEntry.make({
+      file,
+      symbol: "schema-codec-tests",
+      kind: "schema-policy-advisory",
+      status: "advisory",
+      ruleId: "SFV4-arbitrary-tests",
+      line,
+      owner,
+      reason: `Schema-heavy test file has ${schemaCodecCalls.length} Schema codec assertions but no schema-derived property coverage.`,
+    })
+  );
+};
+
 const isLiteralKitConstAssertionArgument = (argument: Node): boolean =>
   Node.isAsExpression(argument) &&
   Node.isArrayLiteralExpression(argument.getExpression()) &&
@@ -386,7 +947,11 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     kind: typeof SchemaFirstEntryKind.Type,
     status: typeof SchemaFirstEntryStatus.Type,
     reason: string,
-    owner: string
+    owner: string,
+    options: {
+      readonly line?: number;
+      readonly ruleId?: typeof SchemaFirstPolicyRuleId.Type;
+    } = {}
   ) =>
     void A.appendInPlace(
       entries,
@@ -395,6 +960,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
         symbol,
         kind,
         status,
+        ...options,
         reason,
         owner,
       })
@@ -402,11 +968,14 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
 
   for (const sourceFile of project.getSourceFiles()) {
     const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
+    const owner = ownerResolver(sourceFile.getFilePath());
+    const arbitraryTestsEntry = arbitraryTestsEntryFromSourceFile(sourceFile, filePath, owner);
+    if (O.isSome(arbitraryTestsEntry)) {
+      A.appendInPlace(entries, arbitraryTestsEntry.value);
+    }
     if (isExcludedFile(filePath)) {
       continue;
     }
-
-    const owner = ownerResolver(sourceFile.getFilePath());
 
     for (const declaration of sourceFile.getInterfaces()) {
       if (!declaration.isExported()) {
@@ -450,6 +1019,9 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
 
     for (const callExpression of sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)) {
       if (callExpression.getExpression().getText() !== "S.Struct") {
+        if (isJsonParseCallExpression(callExpression)) {
+          A.appendInPlace(entries, boundaryCodecEntryFromJsonParse(callExpression, filePath, owner));
+        }
         continue;
       }
       const reasonOption = detectStructReason(callExpression);
@@ -464,6 +1036,44 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
         O.getOrElse(reasonOption, () => "Object schema should prefer an annotated S.Class over S.Struct."),
         owner
       );
+    }
+
+    for (const property of sourceFile.getDescendantsOfKind(SyntaxKind.PropertyAssignment)) {
+      const entry = numericDomainEntryFromProperty(property, filePath, owner);
+      if (O.isSome(entry)) {
+        A.appendInPlace(entries, entry.value);
+      }
+      const precisionEntry = precisionAuditEntryFromProperty(property, filePath, owner);
+      if (O.isSome(precisionEntry)) {
+        A.appendInPlace(entries, precisionEntry.value);
+      }
+    }
+
+    if (sourceHasStaticApiSchemaSignal(sourceFile)) {
+      for (const switchStatement of sourceFile.getDescendantsOfKind(SyntaxKind.SwitchStatement)) {
+        const entry = staticApiEntryFromSwitch(switchStatement, filePath, owner);
+        if (O.isSome(entry)) {
+          A.appendInPlace(entries, entry.value);
+        }
+      }
+    }
+
+    if (sourceHasDefaultsSchemaSignal(sourceFile)) {
+      for (const parameter of sourceFile.getDescendantsOfKind(SyntaxKind.Parameter)) {
+        const entry = defaultsEntryFromParameter(parameter, filePath, owner);
+        if (O.isSome(entry)) {
+          A.appendInPlace(entries, entry.value);
+        }
+      }
+    }
+
+    if (sourceHasEquivalenceSchemaSignal(sourceFile)) {
+      for (const declaration of sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
+        const entry = equivalenceEntryFromVariableDeclaration(declaration, filePath, owner);
+        if (O.isSome(entry)) {
+          A.appendInPlace(entries, entry.value);
+        }
+      }
     }
   }
 
@@ -547,6 +1157,13 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     mergedDocument.entries,
     (entry) => entry.status === "candidate" && isEnforcedFile(entry.file)
   );
+  const boundaryCodecAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-boundary-codec"));
+  const defaultsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-defaults"));
+  const staticApiAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-static-api"));
+  const equivalenceAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-equivalence"));
+  const precisionAuditAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-precision-audit"));
+  const arbitraryTestsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-arbitrary-tests"));
+  const numericDomainAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-numeric-domain"));
 
   if (options.write) {
     yield* writeInventoryDocument(mergedDocument);
@@ -558,6 +1175,13 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   yield* Console.log(`[schema-first] stale_entries=${staleEntries.length}`);
   yield* Console.log(`[schema-first] enforced_candidates=${enforcedCandidates.length}`);
   yield* Console.log(`[schema-first] literal_kit_const_assertions=${literalKitConstAssertionViolations.length}`);
+  yield* Console.log(`[schema-first] sfv4_boundary_codec_advisories=${boundaryCodecAdvisories.length}`);
+  yield* Console.log(`[schema-first] sfv4_defaults_advisories=${defaultsAdvisories.length}`);
+  yield* Console.log(`[schema-first] sfv4_static_api_advisories=${staticApiAdvisories.length}`);
+  yield* Console.log(`[schema-first] sfv4_equivalence_advisories=${equivalenceAdvisories.length}`);
+  yield* Console.log(`[schema-first] sfv4_precision_audit_advisories=${precisionAuditAdvisories.length}`);
+  yield* Console.log(`[schema-first] sfv4_arbitrary_tests_advisories=${arbitraryTestsAdvisories.length}`);
+  yield* Console.log(`[schema-first] sfv4_numeric_domain_advisories=${numericDomainAdvisories.length}`);
   if (options.write) {
     yield* Console.log(`[schema-first] wrote ${INVENTORY_PATH}`);
   }
@@ -566,6 +1190,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     yield* Console.error("[schema-first] untracked live findings:");
     for (const entry of missingEntries) {
       yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
+      yield* logPolicyFinding(inventoryEntryFinding(entry, entry.reason, missingEntryRemediation(entry)));
     }
   }
 
@@ -573,6 +1198,13 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     yield* Console.error("[schema-first] stale inventory entries:");
     for (const entry of staleEntries) {
       yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}]`);
+      yield* logPolicyFinding(
+        inventoryEntryFinding(
+          entry,
+          "Stale schema-first inventory entry is no longer present in the live scan.",
+          "Run bun run beep lint schema-first --write after confirming the source removal or rename."
+        )
+      );
     }
   }
 
@@ -580,6 +1212,13 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     yield* Console.error("[schema-first] enforced roots still contain candidate findings:");
     for (const entry of enforcedCandidates) {
       yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
+      yield* logPolicyFinding(
+        inventoryEntryFinding(
+          entry,
+          entry.reason,
+          "Model the exported data with an annotated schema or record a justified exception in standards/schema-first.inventory.jsonc."
+        )
+      );
     }
   }
 
@@ -589,6 +1228,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
       yield* Console.error(
         `- ${violation.file}:${violation.line} arg${violation.argument} [literal-kit-const-assertion] Inline LiteralKit array arguments do not need as const.`
       );
+      yield* logPolicyFinding(literalKitConstAssertionFinding(violation));
     }
   }
 
@@ -609,6 +1249,13 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     staleEntries: staleEntries.length,
     enforcedCandidates: enforcedCandidates.length,
     literalKitConstAssertions: literalKitConstAssertionViolations.length,
+    boundaryCodecAdvisories: boundaryCodecAdvisories.length,
+    defaultsAdvisories: defaultsAdvisories.length,
+    staticApiAdvisories: staticApiAdvisories.length,
+    equivalenceAdvisories: equivalenceAdvisories.length,
+    precisionAuditAdvisories: precisionAuditAdvisories.length,
+    arbitraryTestsAdvisories: arbitraryTestsAdvisories.length,
+    numericDomainAdvisories: numericDomainAdvisories.length,
     wroteInventory: options.write,
   });
 });

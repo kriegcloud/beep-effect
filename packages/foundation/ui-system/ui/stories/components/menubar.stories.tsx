@@ -16,7 +16,9 @@ import {
   MenubarTrigger,
 } from "@beep/ui/components/menubar";
 import { A } from "@beep/utils";
-import { useState } from "react";
+import { useAtom } from "@effect/atom-react";
+import { Atom } from "effect/unstable/reactivity";
+import * as React from "react";
 import { expect, screen, userEvent, waitFor, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -174,8 +176,15 @@ export const DestructiveItem: Story = {
  */
 export const WithCheckboxes: Story = {
   render: (args) => {
-    const [showBookmarks, setShowBookmarks] = useState(true);
-    const [showFullUrls, setShowFullUrls] = useState(false);
+    const menubarCheckboxStateAtom = React.useMemo(
+      () =>
+        Atom.make({
+          showBookmarks: true,
+          showFullUrls: false,
+        }),
+      []
+    );
+    const [checkboxState, setCheckboxState] = useAtom(menubarCheckboxStateAtom);
     return (
       <Menubar {...args}>
         <MenubarMenu>
@@ -185,10 +194,16 @@ export const WithCheckboxes: Story = {
               <MenubarLabel>Appearance</MenubarLabel>
             </MenubarGroup>
             <MenubarSeparator />
-            <MenubarCheckboxItem checked={showBookmarks} onCheckedChange={setShowBookmarks}>
+            <MenubarCheckboxItem
+              checked={checkboxState.showBookmarks}
+              onCheckedChange={(showBookmarks) => setCheckboxState((state) => ({ ...state, showBookmarks }))}
+            >
               Always Show Bookmarks Bar
             </MenubarCheckboxItem>
-            <MenubarCheckboxItem checked={showFullUrls} onCheckedChange={setShowFullUrls}>
+            <MenubarCheckboxItem
+              checked={checkboxState.showFullUrls}
+              onCheckedChange={(showFullUrls) => setCheckboxState((state) => ({ ...state, showFullUrls }))}
+            >
               Always Show Full URLs
             </MenubarCheckboxItem>
           </MenubarContent>

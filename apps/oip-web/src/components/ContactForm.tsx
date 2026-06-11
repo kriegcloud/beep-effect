@@ -7,12 +7,11 @@
 
 "use client";
 
-import { useAtom, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import { Atom } from "effect/unstable/reactivity";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
 import { OipContactHttpApiClient } from "../contact/ContactSubmission.http";
 import { contactSubmissionPayloadFromFormData } from "../contact/ContactSubmission.model";
-import type { SubmitEvent } from "react";
 import type { ContactSubmissionStatus } from "../contact/ContactSubmission.model";
 
 const inputClass =
@@ -24,7 +23,51 @@ const submittedAtAtom = Atom.make(0);
 const submitContactAtom = OipContactHttpApiClient.mutation("contact", "submit");
 const contactReactivityKeys = ["oip-contact"] as const;
 
+type SubmitContactForm = {
+  readonly form: HTMLFormElement;
+  readonly initialSubmittedAt: number;
+};
+
 const currentTimestamp = (): number => Math.trunc(globalThis.performance.timeOrigin + globalThis.performance.now());
+
+const effectiveSubmittedAtAtom = Atom.family((initialSubmittedAt: number) =>
+  Atom.make((get) => {
+    const submittedAt = get(submittedAtAtom);
+    return submittedAt > 0 ? submittedAt : initialSubmittedAt;
+  })
+);
+
+const nextSubmittedAt = (submittedAt: number, initialSubmittedAt: number): number =>
+  submittedAt > 0 ? submittedAt : initialSubmittedAt > 0 ? initialSubmittedAt : currentTimestamp();
+
+const markContactStartedAtom = Atom.writable(
+  (get) => get(submittedAtAtom),
+  (ctx, initialSubmittedAt: number) => {
+    if (ctx.get(submittedAtAtom) <= 0 && initialSubmittedAt <= 0) {
+      ctx.set(submittedAtAtom, currentTimestamp());
+    }
+  }
+);
+
+const submitContactFormAtom = Atom.writable(
+  (get) => get(submitContactAtom),
+  (ctx, { form, initialSubmittedAt }: SubmitContactForm) => {
+    const submittedAt = ctx.get(submittedAtAtom);
+    const next = nextSubmittedAt(submittedAt, initialSubmittedAt);
+
+    if (submittedAt <= 0) {
+      ctx.set(submittedAtAtom, next);
+    }
+
+    const formData = new FormData(form);
+    formData.set("submittedAt", `${next}`);
+
+    ctx.set(submitContactAtom, {
+      payload: contactSubmissionPayloadFromFormData(formData),
+      reactivityKeys: contactReactivityKeys,
+    });
+  }
+);
 
 /**
  * Renders the OIP contact form.
@@ -49,8 +92,9 @@ export function ContactForm({
   readonly initialSubmittedAt: number;
   readonly status: ContactSubmissionStatus | undefined;
 }) {
-  const [submittedAt, setSubmittedAt] = useAtom(submittedAtAtom);
-  const submitContact = useAtomSet(submitContactAtom);
+  const effectiveSubmittedAt = useAtomValue(effectiveSubmittedAtAtom(initialSubmittedAt));
+  const markStarted = useAtomSet(markContactStartedAtom);
+  const submitForm = useAtomSet(submitContactFormAtom);
   const submitResult = useAtomValue(submitContactAtom);
   const isSubmitting = AsyncResult.isWaiting(submitResult);
   const submittedStatus = AsyncResult.matchWithWaiting(submitResult, {
@@ -60,7 +104,6 @@ export function ContactForm({
     onWaiting: () => undefined,
   });
   const contactStatus = submittedStatus ?? status;
-  const effectiveSubmittedAt = submittedAt > 0 ? submittedAt : initialSubmittedAt;
   const statusMessage = isSubmitting
     ? "Sending note..."
     : contactStatus === "accepted"
@@ -68,36 +111,16 @@ export function ContactForm({
       : null;
   const isRejected = !isSubmitting && contactStatus === "rejected";
 
-  const markStarted = () => {
-    if (effectiveSubmittedAt <= 0) {
-      setSubmittedAt(currentTimestamp());
-    }
-  };
-
-  const submitForm = (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const nextSubmittedAt = effectiveSubmittedAt > 0 ? effectiveSubmittedAt : currentTimestamp();
-    if (submittedAt <= 0) {
-      setSubmittedAt(nextSubmittedAt);
-    }
-
-    const formData = new FormData(event.currentTarget);
-    formData.set("submittedAt", `${nextSubmittedAt}`);
-
-    submitContact({
-      payload: contactSubmissionPayloadFromFormData(formData),
-      reactivityKeys: contactReactivityKeys,
-    });
-  };
-
   return (
     <form
       action="/api/contact"
       className="grid gap-4 rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_30%,transparent)] p-6"
       method="post"
-      onFocus={markStarted}
-      onSubmit={submitForm}
+      onFocus={() => markStarted(initialSubmittedAt)}
+      onSubmit={(event) => {
+        event.preventDefault();
+        submitForm({ form: event.currentTarget, initialSubmittedAt });
+      }}
     >
       <input aria-hidden="true" className="hidden" name="website" tabIndex={-1} autoComplete="off" />
       <input name="submittedAt" type="hidden" value={effectiveSubmittedAt} />

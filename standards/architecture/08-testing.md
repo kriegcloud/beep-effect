@@ -22,6 +22,9 @@ Test pattern:
   plain `it`/`expect`.
 - Effect-returning domain function: use `it.effect` from `@effect/vitest` and
   yield the call. Use `Effect.exit` to inspect typed failures without throwing.
+- Schema-modeled laws: derive data from the production schema with
+  `S.toArbitrary(schema)` and FastCheck. Add `toArbitrary` annotations to the
+  source schema when the domain needs realistic generated values.
 
 `Membership.canRevoke` is a pure predicate. `Membership.revoke` is an
 `Effect.fn` that returns `MembershipAlreadyRevoked` when the lifecycle rule
@@ -74,6 +77,12 @@ describe("Membership", () => {
 The fixtures `activeMembership` and `revokedMembership` are owned by
 `@beep/iam-domain/test` (see Fixture Ownership below). Domain tests never
 depend on use-case ports, server adapters, drivers, or any application Layer.
+
+Schema-derived property tests complement fixtures. Keep fixtures for exact
+golden payloads, snapshots, migration cases, compatibility payloads, and
+regression repros. When a property test finds invalid or surprising generated
+data, sharpen the production schema or its source-schema arbitrary annotation
+instead of defining a weaker test-only schema.
 
 ## Use-Case Testing With Port Stubs
 

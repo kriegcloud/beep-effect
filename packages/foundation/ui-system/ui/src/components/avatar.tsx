@@ -1,7 +1,10 @@
 "use client";
 
-import * as React from "react";
+import { useAtomSubscribe, useAtomValue } from "@effect/atom-react";
+import * as P from "effect/Predicate";
+import { Atom } from "effect/unstable/reactivity";
 import { cn } from "../lib/index.ts";
+import type * as React from "react";
 
 interface AvatarProps extends React.ComponentPropsWithoutRef<"span"> {
   readonly children?: undefined | React.ReactNode;
@@ -37,6 +40,40 @@ interface AvatarImageProps extends Omit<React.ComponentPropsWithoutRef<"img">, "
   readonly src?: string | undefined;
 }
 
+type AvatarImageStatus = "idle" | "loading" | "loaded" | "error";
+
+const avatarImageStatusAtom = Atom.family((src: string | undefined) =>
+  Atom.make((get): AvatarImageStatus => {
+    if (!P.isString(src) || src.length === 0) {
+      return "error";
+    }
+
+    if (!P.isFunction(globalThis.Image)) {
+      return "idle";
+    }
+
+    const image = new globalThis.Image();
+    let disposed = false;
+
+    image.onload = () => {
+      if (!disposed) {
+        get.setSelf("loaded");
+      }
+    };
+    image.onerror = () => {
+      if (!disposed) {
+        get.setSelf("error");
+      }
+    };
+    image.src = src;
+    get.addFinalizer(() => {
+      disposed = true;
+    });
+
+    return "loading";
+  })
+);
+
 /**
  * Avatar image component.
  *
@@ -51,36 +88,14 @@ interface AvatarImageProps extends Omit<React.ComponentPropsWithoutRef<"img">, "
  * @since 0.0.0
  */
 function AvatarImage({ className, src, alt, onLoadingStatusChange, ...props }: AvatarImageProps) {
-  const [status, setStatus] = React.useState<"idle" | "loading" | "loaded" | "error">("idle");
-  const callbackRef = React.useRef(onLoadingStatusChange);
-  callbackRef.current = onLoadingStatusChange;
+  const statusAtom = avatarImageStatusAtom(src);
+  const status = useAtomValue(statusAtom);
 
-  React.useEffect(() => {
-    if (src === undefined || src.length === 0) {
-      setStatus("error");
-      return;
+  useAtomSubscribe(statusAtom, (nextStatus) => {
+    if (nextStatus === "loaded" || nextStatus === "error") {
+      onLoadingStatusChange?.(nextStatus);
     }
-
-    setStatus("loading");
-    let cancelled = false;
-    const img = new globalThis.Image();
-    img.src = src;
-    img.onload = () => {
-      if (!cancelled) {
-        setStatus("loaded");
-        callbackRef.current?.("loaded");
-      }
-    };
-    img.onerror = () => {
-      if (!cancelled) {
-        setStatus("error");
-        callbackRef.current?.("error");
-      }
-    };
-    return () => {
-      cancelled = true;
-    };
-  }, [src]);
+  });
 
   if (status !== "loaded") {
     return null;

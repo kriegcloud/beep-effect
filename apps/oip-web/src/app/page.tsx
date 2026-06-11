@@ -29,15 +29,15 @@ const safeJsonScript = (value: unknown) =>
  *
  * @example
  * ```ts
- * import { unstable_instant } from "@beep/oip-web/app/page"
+ * import { instant } from "@beep/oip-web/app/page"
  *
- * console.log(unstable_instant)
+ * console.log(instant)
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
-export const unstable_instant = false;
+export const instant = false;
 
 /**
  * Generates page metadata from runtime OIP content.

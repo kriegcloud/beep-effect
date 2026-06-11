@@ -86,6 +86,13 @@ const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
  * @category validation
  */
 const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
+  (schema) =>
+    schema.annotate({
+      toArbitrary: () => (fc) =>
+        fc
+          .tuple(fc.stringMatching(/^[^ /\\.]+(?:\.[^ /\\.]+)*$/), fc.constantFrom(...FileExtension.Options))
+          .map(([stem, ext]) => `${stem}.${ext}` as `${string}.${FileExtension}`),
+    }),
   $I.annoteSchema("FileName", {
     description: "A portable file name in the format basename.ext.",
     documentation:

@@ -77,6 +77,7 @@ Use `LiteralKit(...)` when the literal set needs any of:
 
 - guards
 - enums
+- options or subsets
 - thunks
 - member mapping
 - direct annotation
@@ -110,9 +111,10 @@ Repo-preferred construction for reusable literal domains:
 This is the high-signal repo style for discriminator-heavy modules.
 
 When branching on the resulting schema union, prefer the schema-derived
-`.match` helper. For ordinary runtime unions that are not schema-derived,
-prefer `Match.tagsExhaustive` or `Match.tags` when they make the case set
-explicit.
+`.match` helper. Use `.cases` for case constructors, `.guards` for
+discriminator-aware guards, and `.isAnyOf` for grouped case checks. For
+ordinary runtime unions that are not schema-derived, prefer
+`Match.tagsExhaustive` or `Match.tags` when they make the case set explicit.
 
 ## 7. Reuse Schema-Derived Runtime Helpers
 
@@ -122,6 +124,10 @@ Use:
 
 - `S.is(schema)` for guards
 - `S.toEquivalence(schema)` for comparisons
+- `S.toArbitrary(schema)` for schema-modeled property tests
+- schema tagged-union `.cases`, `.guards`, `.isAnyOf`, and `.match`
+- `LiteralKit.Options`, `.Enum`, `.is`, `.pickOptions`, `.omitOptions`,
+  `.$match`, `.thunk`, and `.toTaggedUnion`
 - `S.decodeUnknownEffect` / `S.decodeEffect` for default decoders
 - `S.encodeUnknownEffect` / `S.encodeEffect` for default encoders
 - `S.decodeUnknownResult`, `S.decodeResult`, or `S.decodeUnknownOption` only
@@ -131,6 +137,9 @@ Avoid:
 
 - hand-written `isX`
 - duplicate comparison logic
+- duplicate literal arrays or enum-like constants for a `LiteralKit` domain
+- `switch` / `if` branches over a schema tagged-union discriminator in the
+  same module that owns the schema
 - manual conversion helpers that restate schema behavior
 - sync throwing schema codecs (`S.decodeSync`, `S.decodeUnknownSync`,
   `S.encodeSync`, `S.encodeUnknownSync`) as the default constructor pattern
@@ -156,7 +165,9 @@ Before custom checks:
 1. Look for an existing schema in `@beep/schema`.
 2. Look for built-in constructors such as `S.NonEmptyString`,
    `S.NonEmptyArray`, `S.isPattern`, and `S.isIncludes`.
-3. Only then use `S.makeFilter(...)` or `S.makeFilterGroup(...)`.
+3. For exported/domain/boundary schemas, ask whether broad primitives such as
+   `S.String`, `S.Number`, or `S.Array` really accept the full primitive space.
+4. Only then use `S.makeFilter(...)` or `S.makeFilterGroup(...)`.
 
 If the check is reusable, include:
 
@@ -175,6 +186,10 @@ If the check is reusable, include:
   Replace with schema JSON codecs
 - Manual default object merging
   Replace with schema defaults and transforms
+- Manual branch helpers for schema tagged unions
+  Replace with `.match`, `.guards`, `.isAnyOf`, and `.cases`
+- Duplicate literal constants for reusable literal domains
+  Replace with `LiteralKit.Enum`, `LiteralKit.Options`, and subset helpers
 - Ad-hoc string predicates
   Replace with local shared schemas, built-in checks, or a reusable metadata-rich
   filter
@@ -194,4 +209,6 @@ Before approving or shipping schema work, check:
 - Does the code reuse local shared schema primitives?
 - Are annotations present and meaningful?
 - Are tagged unions built with the right discriminator helper?
-- Are guards or comparisons derived instead of duplicated?
+- Are guards, branch helpers, options, arbitraries, or comparisons derived
+  instead of duplicated?
+- Are exported/domain/boundary primitives as precise as the domain requires?

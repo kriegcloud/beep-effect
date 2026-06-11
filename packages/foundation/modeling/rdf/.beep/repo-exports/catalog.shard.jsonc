@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "43a79ca25499e948e0f21aa27b8fbbbdca48e6e443351241f35c6404f05536bf",
+    "digest": "49a7b713d8aef975021e1c52d72d30dd3fb807e05917a1fbb6ca7a1155ce5594",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,13 +42,13 @@
       },
       {
         "path": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sha256": "ff8e72ea1ef43e33339aa208fbb88629d9e39d437227d457721fe03f173b1841",
-        "bytes": 26257
+        "sha256": "6be13e214ad338efbaf8c1d45d17161657b7df152fc2653d7c75869bce6493a3",
+        "bytes": 26288
       },
       {
         "path": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
-        "sha256": "746d97d42a9a798f5a70b1623a189476c9957b8f674ea29f0011878baa2b4e2e",
-        "bytes": 12770
+        "sha256": "048a53b0d0346043834dba9132b8b893446188a607e84130267c6e585a4f7778",
+        "bytes": 12757
       },
       {
         "path": "packages/foundation/modeling/rdf/src/Uri.ts",
@@ -271,7 +271,7 @@
         "symbolName": "areDatasetsEquivalent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1044,
+        "sourceLine": 1045,
         "summary": "Compare datasets by sorted quad serialization.",
         "categories": [
           "utilities"
@@ -325,7 +325,7 @@
         "symbolName": "BlankNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 374,
+        "sourceLine": 376,
         "summary": "RDF blank node value.",
         "categories": [
           "models"
@@ -400,7 +400,7 @@
         "symbolName": "Dataset",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 662,
+        "sourceLine": 666,
         "summary": "Dataset wrapper for RDF quads.",
         "categories": [
           "models"
@@ -425,7 +425,7 @@
         "symbolName": "DefaultGraph",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 439,
+        "sourceLine": 443,
         "summary": "RDF default graph term.",
         "categories": [
           "models"
@@ -477,7 +477,7 @@
         "symbolName": "GraphTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 600,
+        "sourceLine": 604,
         "summary": "RDF graph term union.",
         "categories": [
           "models"
@@ -502,7 +502,7 @@
         "symbolName": "GraphTerm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 621,
+        "sourceLine": 625,
         "summary": "Type for {@link GraphTerm}.",
         "categories": [
           "models"
@@ -1052,7 +1052,7 @@
         "symbolName": "Literal",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 413,
+        "sourceLine": 415,
         "summary": "RDF literal value.",
         "categories": [
           "models"
@@ -1077,7 +1077,7 @@
         "symbolName": "makeBlankNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 791,
+        "sourceLine": 792,
         "summary": "Build a blank node from a non-empty label.",
         "categories": [
           "utilities"
@@ -1104,7 +1104,7 @@
         "symbolName": "makeDataset",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 952,
+        "sourceLine": 953,
         "summary": "Build a dataset from quads.",
         "categories": [
           "utilities"
@@ -1131,7 +1131,7 @@
         "symbolName": "makeLiteral",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 854,
+        "sourceLine": 855,
         "summary": "Build an RDF literal.",
         "categories": [
           "utilities"
@@ -1158,7 +1158,7 @@
         "symbolName": "MakeLiteralOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 811,
+        "sourceLine": 812,
         "summary": "Optional language settings for {@link makeLiteral}.",
         "categories": [
           "utilities"
@@ -1183,7 +1183,7 @@
         "symbolName": "makeNamedNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 765,
+        "sourceLine": 766,
         "summary": "Build a named node from an IRI string.",
         "categories": [
           "utilities"
@@ -1210,7 +1210,7 @@
         "symbolName": "makeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 916,
+        "sourceLine": 917,
         "summary": "Build an RDF quad.",
         "categories": [
           "utilities"
@@ -1237,7 +1237,7 @@
         "symbolName": "MakeQuadOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 876,
+        "sourceLine": 877,
         "summary": "Object and optional graph settings for {@link makeQuad}.",
         "categories": [
           "utilities"
@@ -1314,7 +1314,7 @@
         "symbolName": "NamespaceBinding",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 685,
+        "sourceLine": 689,
         "summary": "Prefix-to-namespace binding for RDF compaction and expansion.",
         "categories": [
           "models"
@@ -1366,7 +1366,7 @@
         "symbolName": "ObjectTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 564,
+        "sourceLine": 568,
         "summary": "RDF object term union.",
         "categories": [
           "models"
@@ -1391,7 +1391,7 @@
         "symbolName": "ObjectTerm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 585,
+        "sourceLine": 589,
         "summary": "Type for {@link ObjectTerm}.",
         "categories": [
           "models"
@@ -1466,7 +1466,7 @@
         "symbolName": "PrefixMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 709,
+        "sourceLine": 713,
         "summary": "Prefix map keyed by {@link PrefixLabel}.",
         "categories": [
           "models"
@@ -1491,7 +1491,7 @@
         "symbolName": "PrefixMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 743,
+        "sourceLine": 747,
         "summary": "Type for {@link PrefixMap}.",
         "categories": [
           "models"
@@ -1516,7 +1516,7 @@
         "symbolName": "Quad",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 636,
+        "sourceLine": 640,
         "summary": "RDF quad value aligned with RDF/JS.",
         "categories": [
           "models"
@@ -1768,7 +1768,7 @@
         "symbolName": "SemanticSchemaMetadataAnnotationPayload",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
-        "sourceLine": 282,
+        "sourceLine": 284,
         "summary": "Payload stored in the `semanticSchemaMetadata` annotation key.",
         "categories": [
           "models"
@@ -1968,7 +1968,7 @@
         "symbolName": "serializeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1001,
+        "sourceLine": 1002,
         "summary": "Serialize an RDF quad to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -1995,7 +1995,7 @@
         "symbolName": "serializeTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 970,
+        "sourceLine": 971,
         "summary": "Serialize an RDF term to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -2022,7 +2022,7 @@
         "symbolName": "sortDatasetQuads",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1023,
+        "sourceLine": 1024,
         "summary": "Sort dataset quads by deterministic quad serialization.",
         "categories": [
           "utilities"
@@ -2049,7 +2049,7 @@
         "symbolName": "Subject",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 528,
+        "sourceLine": 532,
         "summary": "RDF subject term union.",
         "categories": [
           "models"
@@ -2074,7 +2074,7 @@
         "symbolName": "Subject",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 549,
+        "sourceLine": 553,
         "summary": "Type for {@link Subject}.",
         "categories": [
           "models"
@@ -2099,7 +2099,7 @@
         "symbolName": "Term",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 476,
+        "sourceLine": 480,
         "summary": "RDF term union.",
         "categories": [
           "models"
@@ -2124,7 +2124,7 @@
         "symbolName": "Term",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 513,
+        "sourceLine": 517,
         "summary": "Type for {@link Term}.",
         "categories": [
           "models"
@@ -2400,7 +2400,7 @@
         "symbolName": "areDatasetsEquivalent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1044,
+        "sourceLine": 1045,
         "summary": "Compare datasets by sorted quad serialization.",
         "categories": [
           "utilities"
@@ -2454,7 +2454,7 @@
         "symbolName": "BlankNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 374,
+        "sourceLine": 376,
         "summary": "RDF blank node value.",
         "categories": [
           "models"
@@ -2529,7 +2529,7 @@
         "symbolName": "Dataset",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 662,
+        "sourceLine": 666,
         "summary": "Dataset wrapper for RDF quads.",
         "categories": [
           "models"
@@ -2554,7 +2554,7 @@
         "symbolName": "DefaultGraph",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 439,
+        "sourceLine": 443,
         "summary": "RDF default graph term.",
         "categories": [
           "models"
@@ -2606,7 +2606,7 @@
         "symbolName": "GraphTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 600,
+        "sourceLine": 604,
         "summary": "RDF graph term union.",
         "categories": [
           "models"
@@ -2631,7 +2631,7 @@
         "symbolName": "GraphTerm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 621,
+        "sourceLine": 625,
         "summary": "Type for {@link GraphTerm}.",
         "categories": [
           "models"
@@ -3181,7 +3181,7 @@
         "symbolName": "Literal",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 413,
+        "sourceLine": 415,
         "summary": "RDF literal value.",
         "categories": [
           "models"
@@ -3206,7 +3206,7 @@
         "symbolName": "makeBlankNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 791,
+        "sourceLine": 792,
         "summary": "Build a blank node from a non-empty label.",
         "categories": [
           "utilities"
@@ -3233,7 +3233,7 @@
         "symbolName": "makeDataset",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 952,
+        "sourceLine": 953,
         "summary": "Build a dataset from quads.",
         "categories": [
           "utilities"
@@ -3260,7 +3260,7 @@
         "symbolName": "makeLiteral",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 854,
+        "sourceLine": 855,
         "summary": "Build an RDF literal.",
         "categories": [
           "utilities"
@@ -3287,7 +3287,7 @@
         "symbolName": "MakeLiteralOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 811,
+        "sourceLine": 812,
         "summary": "Optional language settings for {@link makeLiteral}.",
         "categories": [
           "utilities"
@@ -3312,7 +3312,7 @@
         "symbolName": "makeNamedNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 765,
+        "sourceLine": 766,
         "summary": "Build a named node from an IRI string.",
         "categories": [
           "utilities"
@@ -3339,7 +3339,7 @@
         "symbolName": "makeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 916,
+        "sourceLine": 917,
         "summary": "Build an RDF quad.",
         "categories": [
           "utilities"
@@ -3366,7 +3366,7 @@
         "symbolName": "MakeQuadOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 876,
+        "sourceLine": 877,
         "summary": "Object and optional graph settings for {@link makeQuad}.",
         "categories": [
           "utilities"
@@ -3443,7 +3443,7 @@
         "symbolName": "NamespaceBinding",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 685,
+        "sourceLine": 689,
         "summary": "Prefix-to-namespace binding for RDF compaction and expansion.",
         "categories": [
           "models"
@@ -3495,7 +3495,7 @@
         "symbolName": "ObjectTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 564,
+        "sourceLine": 568,
         "summary": "RDF object term union.",
         "categories": [
           "models"
@@ -3520,7 +3520,7 @@
         "symbolName": "ObjectTerm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 585,
+        "sourceLine": 589,
         "summary": "Type for {@link ObjectTerm}.",
         "categories": [
           "models"
@@ -3595,7 +3595,7 @@
         "symbolName": "PrefixMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 709,
+        "sourceLine": 713,
         "summary": "Prefix map keyed by {@link PrefixLabel}.",
         "categories": [
           "models"
@@ -3620,7 +3620,7 @@
         "symbolName": "PrefixMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 743,
+        "sourceLine": 747,
         "summary": "Type for {@link PrefixMap}.",
         "categories": [
           "models"
@@ -3645,7 +3645,7 @@
         "symbolName": "Quad",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 636,
+        "sourceLine": 640,
         "summary": "RDF quad value aligned with RDF/JS.",
         "categories": [
           "models"
@@ -3897,7 +3897,7 @@
         "symbolName": "SemanticSchemaMetadataAnnotationPayload",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
-        "sourceLine": 282,
+        "sourceLine": 284,
         "summary": "Payload stored in the `semanticSchemaMetadata` annotation key.",
         "categories": [
           "models"
@@ -4097,7 +4097,7 @@
         "symbolName": "serializeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1001,
+        "sourceLine": 1002,
         "summary": "Serialize an RDF quad to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -4124,7 +4124,7 @@
         "symbolName": "serializeTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 970,
+        "sourceLine": 971,
         "summary": "Serialize an RDF term to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -4151,7 +4151,7 @@
         "symbolName": "sortDatasetQuads",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1023,
+        "sourceLine": 1024,
         "summary": "Sort dataset quads by deterministic quad serialization.",
         "categories": [
           "utilities"
@@ -4178,7 +4178,7 @@
         "symbolName": "Subject",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 528,
+        "sourceLine": 532,
         "summary": "RDF subject term union.",
         "categories": [
           "models"
@@ -4203,7 +4203,7 @@
         "symbolName": "Subject",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 549,
+        "sourceLine": 553,
         "summary": "Type for {@link Subject}.",
         "categories": [
           "models"
@@ -4228,7 +4228,7 @@
         "symbolName": "Term",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 476,
+        "sourceLine": 480,
         "summary": "RDF term union.",
         "categories": [
           "models"
@@ -4253,7 +4253,7 @@
         "symbolName": "Term",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 513,
+        "sourceLine": 517,
         "summary": "Type for {@link Term}.",
         "categories": [
           "models"
@@ -4977,7 +4977,7 @@
         "symbolName": "areDatasetsEquivalent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1044,
+        "sourceLine": 1045,
         "summary": "Compare datasets by sorted quad serialization.",
         "categories": [
           "utilities"
@@ -5004,7 +5004,7 @@
         "symbolName": "BlankNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 374,
+        "sourceLine": 376,
         "summary": "RDF blank node value.",
         "categories": [
           "models"
@@ -5079,7 +5079,7 @@
         "symbolName": "Dataset",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 662,
+        "sourceLine": 666,
         "summary": "Dataset wrapper for RDF quads.",
         "categories": [
           "models"
@@ -5104,7 +5104,7 @@
         "symbolName": "DefaultGraph",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 439,
+        "sourceLine": 443,
         "summary": "RDF default graph term.",
         "categories": [
           "models"
@@ -5129,7 +5129,7 @@
         "symbolName": "GraphTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 600,
+        "sourceLine": 604,
         "summary": "RDF graph term union.",
         "categories": [
           "models"
@@ -5154,7 +5154,7 @@
         "symbolName": "GraphTerm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 621,
+        "sourceLine": 625,
         "summary": "Type for {@link GraphTerm}.",
         "categories": [
           "models"
@@ -5229,7 +5229,7 @@
         "symbolName": "Literal",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 413,
+        "sourceLine": 415,
         "summary": "RDF literal value.",
         "categories": [
           "models"
@@ -5254,7 +5254,7 @@
         "symbolName": "makeBlankNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 791,
+        "sourceLine": 792,
         "summary": "Build a blank node from a non-empty label.",
         "categories": [
           "utilities"
@@ -5281,7 +5281,7 @@
         "symbolName": "makeDataset",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 952,
+        "sourceLine": 953,
         "summary": "Build a dataset from quads.",
         "categories": [
           "utilities"
@@ -5308,7 +5308,7 @@
         "symbolName": "makeLiteral",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 854,
+        "sourceLine": 855,
         "summary": "Build an RDF literal.",
         "categories": [
           "utilities"
@@ -5335,7 +5335,7 @@
         "symbolName": "MakeLiteralOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 811,
+        "sourceLine": 812,
         "summary": "Optional language settings for {@link makeLiteral}.",
         "categories": [
           "utilities"
@@ -5360,7 +5360,7 @@
         "symbolName": "makeNamedNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 765,
+        "sourceLine": 766,
         "summary": "Build a named node from an IRI string.",
         "categories": [
           "utilities"
@@ -5387,7 +5387,7 @@
         "symbolName": "makeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 916,
+        "sourceLine": 917,
         "summary": "Build an RDF quad.",
         "categories": [
           "utilities"
@@ -5414,7 +5414,7 @@
         "symbolName": "MakeQuadOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 876,
+        "sourceLine": 877,
         "summary": "Object and optional graph settings for {@link makeQuad}.",
         "categories": [
           "utilities"
@@ -5464,7 +5464,7 @@
         "symbolName": "NamespaceBinding",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 685,
+        "sourceLine": 689,
         "summary": "Prefix-to-namespace binding for RDF compaction and expansion.",
         "categories": [
           "models"
@@ -5489,7 +5489,7 @@
         "symbolName": "ObjectTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 564,
+        "sourceLine": 568,
         "summary": "RDF object term union.",
         "categories": [
           "models"
@@ -5514,7 +5514,7 @@
         "symbolName": "ObjectTerm",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 585,
+        "sourceLine": 589,
         "summary": "Type for {@link ObjectTerm}.",
         "categories": [
           "models"
@@ -5589,7 +5589,7 @@
         "symbolName": "PrefixMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 709,
+        "sourceLine": 713,
         "summary": "Prefix map keyed by {@link PrefixLabel}.",
         "categories": [
           "models"
@@ -5614,7 +5614,7 @@
         "symbolName": "PrefixMap",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 743,
+        "sourceLine": 747,
         "summary": "Type for {@link PrefixMap}.",
         "categories": [
           "models"
@@ -5639,7 +5639,7 @@
         "symbolName": "Quad",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 636,
+        "sourceLine": 640,
         "summary": "RDF quad value aligned with RDF/JS.",
         "categories": [
           "models"
@@ -5664,7 +5664,7 @@
         "symbolName": "serializeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1001,
+        "sourceLine": 1002,
         "summary": "Serialize an RDF quad to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -5691,7 +5691,7 @@
         "symbolName": "serializeTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 970,
+        "sourceLine": 971,
         "summary": "Serialize an RDF term to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -5718,7 +5718,7 @@
         "symbolName": "sortDatasetQuads",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1023,
+        "sourceLine": 1024,
         "summary": "Sort dataset quads by deterministic quad serialization.",
         "categories": [
           "utilities"
@@ -5745,7 +5745,7 @@
         "symbolName": "Subject",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 528,
+        "sourceLine": 532,
         "summary": "RDF subject term union.",
         "categories": [
           "models"
@@ -5770,7 +5770,7 @@
         "symbolName": "Subject",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 549,
+        "sourceLine": 553,
         "summary": "Type for {@link Subject}.",
         "categories": [
           "models"
@@ -5795,7 +5795,7 @@
         "symbolName": "Term",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 476,
+        "sourceLine": 480,
         "summary": "RDF term union.",
         "categories": [
           "models"
@@ -5820,7 +5820,7 @@
         "symbolName": "Term",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 513,
+        "sourceLine": 517,
         "summary": "Type for {@link Term}.",
         "categories": [
           "models"
@@ -6026,7 +6026,7 @@
         "symbolName": "SemanticSchemaMetadataAnnotationPayload",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
-        "sourceLine": 282,
+        "sourceLine": 284,
         "summary": "Payload stored in the `semanticSchemaMetadata` annotation key.",
         "categories": [
           "models"

@@ -1,6 +1,7 @@
 import { RegExpFromStr, RegExpStr } from "@beep/schema/RegExp";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("RegExpStr", () => {
   const decode = S.decodeUnknownSync(RegExpStr);
@@ -14,6 +15,18 @@ describe("RegExpStr", () => {
   it("rejects invalid pattern strings", () => {
     expect(() => decode("(")).toThrow("Expected a valid regular expression pattern string");
     expect(() => decode("[")).toThrow("Expected a valid regular expression pattern string");
+  });
+
+  it("every schema-derived value is a valid pattern that decodes to itself", () => {
+    const arbitrary = S.toArbitrary(RegExpStr);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => {
+        new globalThis.RegExp(value);
+        return S.is(RegExpStr)(value) && decode(value) === value;
+      }),
+      { numRuns: 50 }
+    );
   });
 });
 
@@ -40,5 +53,14 @@ describe("RegExpFromStr", () => {
 
   it("forbids encoding RegExp values back to the original pattern string", () => {
     expect(() => encode(/abc/)).toThrow("Encoding RegExpFromStr back to the original pattern string is not supported");
+  });
+
+  it("every schema-derived value is a RegExp instance", () => {
+    const arbitrary = S.toArbitrary(RegExpFromStr);
+
+    fc.assert(
+      fc.property(arbitrary, (value) => value instanceof RegExp && S.is(S.RegExp)(value)),
+      { numRuns: 50 }
+    );
   });
 });

@@ -12,6 +12,14 @@ import { TikaFileProcessingEngine } from "@beep/tika";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
+
+const SourceArtifactArbitrary = S.toArbitrary(SourceArtifact);
+const ExtractFileOperationArbitrary = S.toArbitrary(ExtractFileOperation);
+const encodeSourceArtifact = S.encodeEffect(SourceArtifact);
+const decodeSourceArtifact = S.decodeUnknownEffect(SourceArtifact);
+const encodeExtractFileOperation = S.encodeEffect(ExtractFileOperation);
+const decodeExtractFileOperation = S.decodeUnknownEffect(ExtractFileOperation);
 
 const fixtureIds = Effect.all({
   artifactId: S.decodeUnknownEffect(ArtifactId)(
@@ -49,6 +57,20 @@ const source = Effect.fn("TikaTest.source")(function* (ids: FixtureIds, extensio
 });
 
 describe("@beep/tika", () => {
+  it("round-trips schema-derived extraction operation data through file-processing schemas", () =>
+    fc.assert(
+      fc.property(SourceArtifactArbitrary, ExtractFileOperationArbitrary, (sourceArtifact, extractOperation) => {
+        const encodedSourceArtifact = Effect.runSync(encodeSourceArtifact(sourceArtifact));
+        const decodedSourceArtifact = Effect.runSync(decodeSourceArtifact(encodedSourceArtifact));
+        expect(Effect.runSync(encodeSourceArtifact(decodedSourceArtifact))).toEqual(encodedSourceArtifact);
+
+        const encodedExtractOperation = Effect.runSync(encodeExtractFileOperation(extractOperation));
+        const decodedExtractOperation = Effect.runSync(decodeExtractFileOperation(encodedExtractOperation));
+        expect(Effect.runSync(encodeExtractFileOperation(decodedExtractOperation))).toEqual(encodedExtractOperation);
+      }),
+      { numRuns: 25 }
+    ));
+
   it.effect("extracts text for a P1 text fixture", () =>
     Effect.gen(function* () {
       const ids = yield* fixtureIds;

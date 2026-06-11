@@ -244,6 +244,10 @@ export class MyService extends Context.Service<MyService, {
 
 - Use `@effect/vitest` and `it.effect(...)` for effectful tests.
 - Keep fixtures typed and schema-validated where useful.
+- When behavior claims to hold across a schema-modeled domain, prefer
+  `S.toArbitrary(sourceSchema)` with FastCheck over happy-path fixture data
+  alone. Add arbitrary annotations to the source schema when generation needs
+  domain-specific realism.
 
 ### EF-11: Public APIs are documented
 
@@ -771,6 +775,8 @@ const runIsolated = program.pipe(
 - Prefer `S.Class` (or another schema constructor) over plain `type` / `interface` for property-based domain shapes.
 - Derive runtime types from schema definitions instead of duplicating parallel `type` / `interface` models.
 - Keep plain `type` / `interface` for cases schema cannot represent cleanly (complex type-level transforms, utility types, overload-only surfaces).
+- Before choosing nontrivial Schema APIs, check the local Effect v4 source at
+  `.repos/effect-v4/packages/effect/SCHEMA.md` and the relevant source module.
 
 Example:
 
@@ -830,7 +836,15 @@ export class VersionSyncOptions extends S.Class<VersionSyncOptions>($I`VersionSy
 - If a domain constraint is named, reused, matched on, or structurally validated, model it as a schema first rather than a forest of ad-hoc predicate helpers.
 - Prefer built-in schema constructors/checks before `S.makeFilter`.
 - Keep guard intent and reusable check intent in schema annotations and check metadata.
-- Use `LiteralKit` for internal literal domains whenever `.is`, `.thunk`, `$match`, or annotation-bearing schema values are useful.
+- Use `LiteralKit` for internal literal domains whenever `.Options`, `.Enum`,
+  `.is`, `.thunk`, `$match`, subset helpers, or annotation-bearing schema
+  values are useful.
+- Use `MappedLiteralKit` when a literal protocol/code map needs helpers on both
+  the encoded and decoded sides.
+- Treat broad exported/domain/boundary primitives such as `S.String`,
+  `S.Number`, and unbounded arrays as prompts to encode the real domain with
+  non-empty, finite, integer, pattern, length, range, brand, or collection
+  checks.
 - Do not add `as const` to inline array literals passed directly to `LiteralKit(...)`; `LiteralKit` uses const type parameters already.
 - Prefer named intermediate schemas; export them only when reusable or when they materially clarify the module’s domain model.
 
@@ -932,6 +946,20 @@ export const TopicName = S.NonEmptyString.check(
 Avoid this:
 
 - A forest of `const hasX = ...`, `const isY = /.../.test(...)`, and unannotated predicate helpers when the named concepts can be expressed as schemas and reused with `S.is(...)`.
+
+### EF-35b: Prefer schema-derived static APIs
+
+- Use `S.TaggedUnion` / `S.toTaggedUnion` static APIs (`.cases`, `.guards`,
+  `.isAnyOf`, `.match`) for construction, guards, grouped checks, and
+  exhaustive branching.
+- Use `LiteralKit` static APIs (`.Options`, `.Enum`, `.is`, `.pickOptions`,
+  `.omitOptions`, `.$match`, `.thunk`, `.toTaggedUnion`) instead of duplicate
+  literal arrays, enum-like objects, and ad-hoc literal guards.
+- Use class-local statics for repeated `decode`, `encode`, `arbitrary`, and
+  `equivalence` helpers when they reduce repeated plumbing without introducing
+  import cycles.
+- Reference scratch proof:
+  `scratchpad/test/schema-static-apis.test.ts`.
 
 ### EF-36: Prefer schema equivalence for domain comparisons
 
@@ -1097,7 +1125,7 @@ import { LiteralKit } from "@beep/schema";
 const Phase = LiteralKit(
   [
     "draft",
-    "running", 
+    "running",
     "done"
   ]
 )

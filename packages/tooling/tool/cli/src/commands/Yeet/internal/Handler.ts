@@ -1234,7 +1234,7 @@ const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
   return lockPath;
 });
 
-const releaseProofLock = Effect.fn("Yeet.releaseProofLock")(function* (lockPath: string) {
+const releaseProofLock = Effect.fn("releaseProofLock")(function* (lockPath: string) {
   const fs = yield* FileSystem.FileSystem;
   yield* fs.remove(lockPath).pipe(Effect.ignore);
 });

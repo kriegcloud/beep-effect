@@ -202,7 +202,7 @@ function ChartTooltipContent({
   } & Omit<RechartsPrimitive.DefaultTooltipContentProps<TooltipValueType, TooltipNameType>, "accessibilityLayer">) {
   const { config } = useChart();
 
-  const tooltipLabel = React.useMemo(() => {
+  const tooltipLabel = (() => {
     if (hideLabel || (payload?.length ?? 0) === 0) {
       return null;
     }
@@ -221,7 +221,7 @@ function ChartTooltipContent({
     }
 
     return <div className={cn("font-medium", labelClassName)}>{value}</div>;
-  }, [label, labelFormatter, payload, hideLabel, labelClassName, config, labelKey]);
+  })();
 
   if (active !== true || (payload?.length ?? 0) === 0) {
     return null;

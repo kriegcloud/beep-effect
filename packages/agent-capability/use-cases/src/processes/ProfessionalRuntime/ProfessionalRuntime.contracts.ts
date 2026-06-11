@@ -6,6 +6,7 @@
  */
 
 import { $AgentCapabilityUseCasesId } from "@beep/identity/packages";
+import { EmailString } from "@beep/schema";
 import * as S from "effect/Schema";
 import {
   RuntimeActivityType,
@@ -191,7 +192,7 @@ export class RuntimeCandidateTask extends S.Class<RuntimeCandidateTask>($I`Runti
 export class RuntimeDraftRecipient extends S.Class<RuntimeDraftRecipient>($I`RuntimeDraftRecipient`)(
   {
     displayName: S.String,
-    email: S.String,
+    email: EmailString,
   },
   $I.annote("RuntimeDraftRecipient", {
     description: "Draft recipient display name and email address.",

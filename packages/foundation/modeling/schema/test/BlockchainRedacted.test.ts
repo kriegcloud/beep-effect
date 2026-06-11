@@ -1,10 +1,14 @@
 import { CryptoTxnHashRedacted } from "@beep/schema/CryptoTxnHash";
 import { CryptoWalletAddressRedacted } from "@beep/schema/CryptoWalletAddress";
-import { EthereumValidatorPublicKeyRedacted } from "@beep/schema/EthereumValidatorPublicKey";
+import {
+  EthereumValidatorPublicKey,
+  EthereumValidatorPublicKeyRedacted,
+} from "@beep/schema/EthereumValidatorPublicKey";
 import { EvmAddressRedacted } from "@beep/schema/EvmAddress";
 import { describe, expect, it } from "@effect/vitest";
 import { Redacted } from "effect";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 const bitcoinAddress = "16L5yRNPTuciSgXGHqYwn9N6NeoKqopAu";
 const evmAddress = "0x52908400098527886e0f7030069857d2e4169ee7";
@@ -27,5 +31,17 @@ describe("blockchain redacted schemas", () => {
     expect(Redacted.value(decodedEvmAddress)).toBe(evmAddress);
     expect(Redacted.value(decodedValidatorPublicKey)).toBe(validatorPublicKey);
     expect(Redacted.value(decodedTransactionHash)).toBe(transactionHash);
+  });
+
+  const decodeValidatorPublicKey = S.decodeUnknownSync(EthereumValidatorPublicKey);
+  const validatorPublicKeyArbitrary = S.toArbitrary(EthereumValidatorPublicKey);
+
+  it("derives valid validator public keys from the source schema and round-trips", () => {
+    fc.assert(
+      fc.property(validatorPublicKeyArbitrary, (value) => {
+        expect(decodeValidatorPublicKey(value)).toBe(value);
+      }),
+      { numRuns: 50 }
+    );
   });
 });

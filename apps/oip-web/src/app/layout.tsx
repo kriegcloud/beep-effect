@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import { connection } from "next/server";
 import { use } from "react";
 import { oipSiteContent, oipTwitterHandle } from "@/content";
+import { OipAtomProvider } from "@/runtime/OipAtomProvider";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -137,15 +138,15 @@ function VercelInsights() {
  *
  * @example
  * ```ts
- * import { unstable_instant } from "@beep/oip-web/app/layout"
+ * import { instant } from "@beep/oip-web/app/layout"
  *
- * console.log(unstable_instant)
+ * console.log(instant)
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
-export const unstable_instant = false;
+export const instant = false;
 
 /**
  * Static metadata for the oip web app shell.
@@ -264,7 +265,7 @@ export default function RootLayout({
             )}
           </head>
           <body className="min-h-full flex flex-col">
-            {children}
+            <OipAtomProvider>{children}</OipAtomProvider>
             <VercelInsights />
           </body>
         </html>

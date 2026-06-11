@@ -26,7 +26,9 @@ import { describe, expect, it } from "@effect/vitest";
 import { Duration, Effect, Equal, Exit } from "effect";
 import * as DateTime from "effect/DateTime";
 import * as S from "effect/Schema";
-import { TestClock } from "effect/testing";
+import { FastCheck as fc, TestClock } from "effect/testing";
+
+const LocalDateArbitrary = S.toArbitrary(LocalDate);
 
 describe("LocalDate", () => {
   describe("validation", () => {
@@ -545,6 +547,18 @@ describe("LocalDate", () => {
   });
 
   describe("encoding", () => {
+    it("round-trips schema-derived LocalDate values through the schema codec", () =>
+      fc.assert(
+        fc.property(LocalDateArbitrary, (date) => {
+          const encoded = S.encodeSync(LocalDate)(date);
+          const decoded = S.decodeUnknownSync(LocalDate)(encoded);
+
+          expect(decoded).toBeInstanceOf(LocalDate);
+          expect(equals(decoded, date)).toBe(true);
+        }),
+        { numRuns: 50 }
+      ));
+
     it.effect(
       "encodes and decodes LocalDate",
       Effect.fnUntraced(function* () {

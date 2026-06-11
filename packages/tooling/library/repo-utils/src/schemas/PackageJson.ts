@@ -10,7 +10,7 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import { EmailString, LiteralKit } from "@beep/schema";
 import { Effect, Result, Tuple } from "effect";
 import * as S from "effect/Schema";
 import { jsonStringifyPretty } from "../JsonUtils.js";
@@ -218,7 +218,7 @@ const BrowserReplacement = S.Union([S.String, S.Literal(false)]).pipe(
 class PersonObject extends S.Class<PersonObject>($I`PersonObject`)(
   {
     name: S.String,
-    email: S.optionalKey(S.String),
+    email: S.optionalKey(EmailString),
     url: S.optionalKey(S.String),
   },
   $I.annote("PersonObject", {
@@ -242,7 +242,7 @@ class RepositoryObject extends S.Class<RepositoryObject>($I`RepositoryObject`)(
 class BugsObject extends S.Class<BugsObject>($I`BugsObject`)(
   {
     url: S.optionalKey(S.String),
-    email: S.optionalKey(S.String),
+    email: S.optionalKey(EmailString),
   },
   $I.annote("BugsObject", {
     title: "Bugs Object",
@@ -929,6 +929,7 @@ const npmPackageJsonFields = {
   type: S.OptionFromOptionalKey(PackageTypeField),
   typesVersions: S.OptionFromOptionalKey(TypesVersions),
   resolutions: S.OptionFromOptionalKey(StringRecord),
+  patchedDependencies: S.OptionFromOptionalKey(NonEmptyStringRecord),
   readme: S.OptionFromOptionalKey(S.String),
 } as const;
 

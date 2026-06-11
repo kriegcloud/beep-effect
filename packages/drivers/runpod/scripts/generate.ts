@@ -2,11 +2,15 @@
 
 // cspell:words cuda dtos uncapitalize
 
+import { $RunpodId } from "@beep/identity";
 import { A, Str, Struct } from "@beep/utils";
-import { Match, pipe } from "effect";
+import { Effect, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
+
+const $I = $RunpodId.create("scripts/generate");
 
 type JsonSchema = {
   readonly $ref?: string;
@@ -20,51 +24,119 @@ type JsonSchema = {
   readonly additionalProperties?: JsonSchema | boolean;
 };
 
-type OpenApiParameter = {
-  readonly name: string;
-  readonly in: "path" | "query" | "header" | "cookie";
-  readonly required?: boolean;
-  readonly schema?: JsonSchema;
-};
-
-type OpenApiMedia = {
-  readonly schema?: JsonSchema;
-};
-
-type OpenApiRequestBody = {
-  readonly content?: Record<string, OpenApiMedia>;
-  readonly required?: boolean;
-};
-
-type OpenApiResponse = {
-  readonly content?: Record<string, OpenApiMedia>;
-};
-
-type OpenApiOperation = {
-  readonly operationId: string;
-  readonly summary?: string;
-  readonly description?: string;
-  readonly tags?: readonly string[];
-  readonly parameters?: readonly OpenApiParameter[];
-  readonly requestBody?: OpenApiRequestBody;
-  readonly responses?: Record<string, OpenApiResponse>;
-  readonly security?: readonly Record<string, readonly string[]>[];
-};
-
-type OpenApiPathItem = Partial<Record<Lowercase<HttpMethod>, OpenApiOperation>> & {
-  readonly parameters?: readonly OpenApiParameter[];
-};
-
-type OpenApiDocument = {
-  readonly openapi: string;
-  readonly paths: Record<string, OpenApiPathItem>;
-  readonly components?: {
-    readonly schemas?: Record<string, JsonSchema>;
-  };
-  readonly security?: readonly Record<string, readonly string[]>[];
-};
-
 type HttpMethod = "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
+
+const JsonSchemaRef = S.suspend((): S.Codec<JsonSchema, JsonSchema> => JsonSchema);
+
+class JsonSchema extends S.Class<JsonSchema>($I`JsonSchema`)(
+  {
+    $ref: S.optionalKey(S.String),
+    type: S.optionalKey(S.Union([S.String, S.Array(S.String)])),
+    format: S.optionalKey(S.String),
+    enum: S.optionalKey(S.Array(S.Unknown)),
+    items: S.optionalKey(JsonSchemaRef),
+    nullable: S.optionalKey(S.Boolean),
+    properties: S.optionalKey(S.Record(S.String, JsonSchemaRef)),
+    required: S.optionalKey(S.Array(S.String)),
+    additionalProperties: S.optionalKey(S.Union([JsonSchemaRef, S.Boolean])),
+  },
+  $I.annote("JsonSchema", {
+    description: "JSON Schema subset consumed by the Runpod OpenAPI generator.",
+  })
+) {}
+
+class OpenApiParameter extends S.Class<OpenApiParameter>($I`OpenApiParameter`)(
+  {
+    name: S.String,
+    in: S.Literals(["path", "query", "header", "cookie"]),
+    required: S.optionalKey(S.Boolean),
+    schema: S.optionalKey(JsonSchema),
+  },
+  $I.annote("OpenApiParameter", {
+    description: "OpenAPI parameter subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiMedia extends S.Class<OpenApiMedia>($I`OpenApiMedia`)(
+  {
+    schema: S.optionalKey(JsonSchema),
+  },
+  $I.annote("OpenApiMedia", {
+    description: "OpenAPI media object subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiRequestBody extends S.Class<OpenApiRequestBody>($I`OpenApiRequestBody`)(
+  {
+    content: S.optionalKey(S.Record(S.String, OpenApiMedia)),
+    required: S.optionalKey(S.Boolean),
+  },
+  $I.annote("OpenApiRequestBody", {
+    description: "OpenAPI request body subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiResponse extends S.Class<OpenApiResponse>($I`OpenApiResponse`)(
+  {
+    content: S.optionalKey(S.Record(S.String, OpenApiMedia)),
+  },
+  $I.annote("OpenApiResponse", {
+    description: "OpenAPI response subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiOperation extends S.Class<OpenApiOperation>($I`OpenApiOperation`)(
+  {
+    operationId: S.String,
+    summary: S.optionalKey(S.String),
+    description: S.optionalKey(S.String),
+    tags: S.optionalKey(S.Array(S.String)),
+    parameters: S.optionalKey(S.Array(OpenApiParameter)),
+    requestBody: S.optionalKey(OpenApiRequestBody),
+    responses: S.optionalKey(S.Record(S.String, OpenApiResponse)),
+    security: S.optionalKey(S.Array(S.Record(S.String, S.Array(S.String)))),
+  },
+  $I.annote("OpenApiOperation", {
+    description: "OpenAPI operation subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiPathItem extends S.Class<OpenApiPathItem>($I`OpenApiPathItem`)(
+  {
+    get: S.optionalKey(OpenApiOperation),
+    post: S.optionalKey(OpenApiOperation),
+    patch: S.optionalKey(OpenApiOperation),
+    put: S.optionalKey(OpenApiOperation),
+    delete: S.optionalKey(OpenApiOperation),
+    parameters: S.optionalKey(S.Array(OpenApiParameter)),
+  },
+  $I.annote("OpenApiPathItem", {
+    description: "OpenAPI path item subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiComponents extends S.Class<OpenApiComponents>($I`OpenApiComponents`)(
+  {
+    schemas: S.optionalKey(S.Record(S.String, JsonSchema)),
+  },
+  $I.annote("OpenApiComponents", {
+    description: "OpenAPI components subset consumed by the Runpod generator.",
+  })
+) {}
+
+class OpenApiDocument extends S.Class<OpenApiDocument>($I`OpenApiDocument`)(
+  {
+    openapi: S.String,
+    paths: S.Record(S.String, OpenApiPathItem),
+    components: S.optionalKey(OpenApiComponents),
+    security: S.optionalKey(S.Array(S.Record(S.String, S.Array(S.String)))),
+  },
+  $I.annote("OpenApiDocument", {
+    description: "Runpod OpenAPI document subset consumed by the generator.",
+  })
+) {}
+
+const decodeOpenApiDocument = S.decodeEffect(S.fromJsonString(OpenApiDocument));
 
 type Operation = {
   readonly descriptorName: string;
@@ -115,7 +187,7 @@ let advisoryEnums: Record<string, readonly string[]> = {};
 
 const main = async (): Promise<void> => {
   const raw = await Bun.file(openApiPath).text();
-  const document = JSON.parse(raw) as OpenApiDocument;
+  const document = await Effect.runPromise(decodeOpenApiDocument(raw));
   const components = document.components?.schemas ?? {};
   const operations = buildOperations(document);
   const code = renderGeneratedFile({
