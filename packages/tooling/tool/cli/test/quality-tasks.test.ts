@@ -318,13 +318,15 @@ describe("quality task adapter", () => {
       "quality:lint",
       "quality:docgen",
       "quality:repo-exports-catalog-check",
+      "quality:reuse-clones",
       "quality:test",
     ]);
     expect(A.every(lanes, (lane) => lane.stage === "repo-quality")).toBe(true);
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
     expect(lanes[1]?.step.args).toEqual(["run", "check"]);
     expect(lanes[2]?.step.args).toEqual(["run", "lint"]);
-    expect(lanes[5]?.step.args).toEqual(["run", "test"]);
+    expect(lanes[5]?.step.args).toEqual(["run", "beep", "reuse", "clones", "--check"]);
+    expect(lanes[6]?.step.args).toEqual(["run", "test"]);
   });
 
   it("maps repo-sanity github checks as collector lanes", () => {
@@ -333,6 +335,7 @@ describe("quality task adapter", () => {
     expect(A.map(lanes, (lane) => lane.id)).toEqual([
       "repo-sanity:changeset-graph",
       "repo-sanity:tsconfig-sync",
+      "repo-sanity:fallow-boundaries-config",
       "repo-sanity:versions",
       "repo-sanity:syncpack",
       "repo-sanity:sherif",
@@ -340,7 +343,8 @@ describe("quality task adapter", () => {
     ]);
     expect(A.every(lanes, (lane) => lane.stage === "repo-sanity")).toBe(true);
     expect(lanes[0]?.step.args).toEqual(["run", "beep", "quality", "changeset-graph"]);
-    expect(lanes[5]?.step.args).toEqual(["run", "beep", "quality", "bun-audit"]);
+    expect(lanes[2]?.step.args).toEqual(["run", "beep", "quality", "fallow", "boundaries", "config-check", "--check"]);
+    expect(lanes[6]?.step.args).toEqual(["run", "beep", "quality", "bun-audit"]);
   });
 
   it("maps pre-push external gates after repo diagnostics", () => {
@@ -394,6 +398,18 @@ describe("quality task adapter", () => {
         expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
       }).pipe(provideScopedLayer(FileSystemLayer))
     ));
+
+  it("wires advisory ratchets through policy lanes instead of raw Fallow promotion lanes", () => {
+    const laneIds = pipe(
+      githubCheckLanesForModeForTesting("/repo", "pre-push"),
+      A.map((lane) => lane.id)
+    );
+
+    expect(laneIds).toContain("quality:reuse-clones");
+    expect(laneIds).toContain("repo-sanity:fallow-boundaries-config");
+    expect(laneIds).not.toContain("fallow:dupes");
+    expect(laneIds).not.toContain("fallow:boundaries");
+  });
 
   it("keeps CI Fallow blocking failures deferred until advisory envelopes are written", () =>
     Effect.runPromise(
