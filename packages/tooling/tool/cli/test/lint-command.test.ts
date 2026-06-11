@@ -1112,20 +1112,28 @@ describe("schema-first lint command", { concurrent: false }, () => {
           Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
             const path = yield* Path.Path;
+            const exampleSourceDir = path.join("packages", "example", "src");
+            const workspaceFiles: ReadonlyArray<readonly [string, string]> = [
+              [
+                "package.json",
+                `${encodeJson({
+                  name: "@beep/test-root",
+                  private: true,
+                  type: "module",
+                  workspaces: ["packages/*"],
+                })}\n`,
+              ],
+              ["tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`],
+            ];
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
+            yield* Effect.forEach(
+              workspaceFiles,
+              ([filePath, contents]) => fs.writeFileString(filePath, contents),
+              { discard: true }
             );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
+            yield* fs.makeDirectory(exampleSourceDir, { recursive: true });
             yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
+              path.join(exampleSourceDir, "Example.ts"),
               [
                 'import * as S from "effect/Schema";',
                 "const buildClass = () => {",
