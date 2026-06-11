@@ -21,6 +21,17 @@ git diff --name-status
 
 2. If the checkout is on `main` or another protected/default branch, create a
    feature branch from the intended base before editing or publishing.
+2b. Check base freshness before publish:
+
+```bash
+git fetch origin main:refs/remotes/origin/main --quiet
+git rev-list --count "$(git merge-base HEAD origin/main)"..origin/main
+```
+
+   Yeet publish warns whenever the branch is behind `origin/main` and refuses
+   when branch files overlap commits landed on the base since the merge-base
+   (a conflicted or stale PR is likely). Rebase onto `origin/main` first;
+   `--allow-stale-base` is the explicit override.
 3. If the worktree contains unrelated changes, stage only the intended files.
    Never publish unrelated paths silently.
 4. Check for already-running heavyweight quality commands before starting a
@@ -54,6 +65,30 @@ bun run beep yeet verify --tier review-fix
 
 ```bash
 bun run beep yeet publish --message "type(scope): summary"
+```
+
+- Publish exactly the staged index from a dirty worktree (unstaged/untracked
+  residue is parked in a marked stash after the commit, the clean tree is
+  proven, and the stash is restored after push; on a restore conflict the stash
+  is kept and its marker reported):
+
+```bash
+bun run beep yeet publish --staged-only --message "type(scope): summary"
+```
+
+- Create the pull request in-flow after a green push (skips when an open PR
+  already exists; composes with --staged-only, --monitor, and
+  --start-pr-early):
+
+```bash
+bun run beep yeet publish --pr --monitor --message "type(scope): summary"
+```
+
+- Reply to and resolve addressed review threads during closeout (explicit
+  per-thread flags; closeout never writes without them):
+
+```bash
+bun run beep yeet closeout --reply-thread <thread-id> --reply-body "Fixed in <sha>." --resolve-threads <thread-id>[,<thread-id>...]
 ```
 
 - Start hosted PR review/checks immediately, then keep proving locally:
@@ -110,8 +145,9 @@ bun run beep yeet closeout --plan --json
    docgen, repo-export catalog repair, or affected feedback.
 2. Stage the reviewed files explicitly.
 3. Run `bun run beep yeet publish --message "type(scope): summary"`.
-4. If no pull request exists for the pushed branch, create a draft PR with
-   `gh pr create --draft --fill`.
+4. If no pull request exists for the pushed branch, prefer publishing with
+   `--pr` so Yeet creates a ready PR from the commit log and local proof
+   summary; `gh pr create --draft --fill` remains the manual fallback.
 5. Run `bun run beep yeet monitor` for hosted checks.
 6. Run `bun run beep yeet closeout --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0`
    to inspect unresolved actionable review threads and review-bot gates.
@@ -154,6 +190,18 @@ issue in a follow-up commit and publish again. Treat commit/pre-push hooks as
 local tripwires and proof-reuse adapters; Yeet full proof plus hosted checks are
 the authoritative gates.
 
+## Run Artifacts
+
+- Every non-plan Yeet run writes `.beep/yeet/runs/<branch>/verdict.json`
+  (`yeet-verdict/v1`): outcome, per-lane status, repair command for each
+  failed lane, packet paths, staged-only stash identity, and base-freshness
+  data. Read the verdict before scanning logs.
+- Failure packets land under `.beep/yeet/packets/` with the quality-issue
+  index at `.beep/yeet/quality-issue-index.json`.
+- The local pre-push proof includes `changeset status --since=origin/main`
+  (parity with hosted Repo Sanity). For intentionally version-neutral changes,
+  run `bunx changeset add --empty` and commit the empty changeset.
+
 ## Failure Handling
 
 - If Yeet fails after creating a local commit but before pushing, fix the issue.
@@ -178,17 +226,21 @@ the authoritative gates.
   paths and decide whether they belong in the reviewed publish intent.
 - Yeet serializes full local proof runs with `.beep/yeet/quality-lock`.
   `verify --tier review-fix` remains the cheaper loop lane while a full proof is
-  already active. If the lock is stale, confirm no full proof process is running
-  before removing it.
+  already active. Locks whose recorded pid is no longer running are removed
+  automatically on the next acquire; manual removal is only needed for
+  unreadable lock files.
 - Full pre-push proof streams a conservative collector for independent GitHub
   check lanes. A failed proof may report multiple sibling failures at once
   (for example check, lint, repo-export, tests, SAST, or Nix). Fix all reported
   actionable lanes before retrying instead of assuming the first item is the
   only blocker.
-- Yeet failure packets now add known sub-lane hints for common broad failures
-  such as cspell, terse-effect, dual-arity, repo-export catalog, docgen,
+- Failure packets are written for proof/commit/publish/monitor step failures,
+  publish-intent refusals (untracked/unstaged/partially staged paths), and
+  stale-base refusals. Intent refusals print a summarized path list on stderr;
+  the full list lives in the packet. Known sub-lane hints cover cspell, typos,
+  terse-effect, dual-arity, repo-export catalog, docgen, changeset status,
   secrets, SAST, security, and Nix. Prefer the suggested repair command in the
-  packet over rerunning the whole loop blindly.
+  packet (or `verdict.json`) over rerunning the whole loop blindly.
 - Root composite lanes prefer streaming accumulation where child commands are
   independent. For example, root `lint` streams the Turbo/Biome aggregate and
   then still runs repo-law policy lints, so one lint-family failure does not

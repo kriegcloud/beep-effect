@@ -735,6 +735,10 @@ const ensureOriginMain = Effect.fn("QualityScriptCommands.ensureOriginMain")(fun
   ]);
 });
 
+// The changeset-status lane is appended at runtime by the quality and pre-push
+// composers (it depends on the current branch and is skipped on main pushes),
+// so it is intentionally absent from the static GITHUB_CHECK_MODE_VALUES lane
+// list. Hosted CI's Repo Sanity lane runs the same check; keep them in parity.
 const githubCheckChangesetStatusLanes = Effect.fn("QualityScriptCommands.githubCheckChangesetStatusLanes")(function* (
   repoRoot: string
 ): Effect.fn.Return<
