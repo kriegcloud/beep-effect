@@ -32,3 +32,22 @@ re-checked against the live tree:
    implementation commits land on one branch (`goals/yeet-agent-ergonomics`)
    and one PR. P4 dogfooding still works because `bun run beep` executes the
    CLI from source.
+
+## P4 dogfood findings (2026-06-11)
+
+1. Four publish rounds dogfooded the failure path end-to-end: every round wrote
+   an accurate failure verdict (committed/pushed state, repair command), parked
+   and restored the staged-only residue, and routed diagnosis through packets.
+2. Rounds caught and fixed real repo-law debt: terse-effect conditional-spread
+   violations (incl. two files from PR #226), cspell gaps (`patches/**`
+   unignored), schema-first modeling of the verdict types.
+3. Known limitation discovered: `knownSubLaneHintFromOutput` scans the last
+   16KiB of broad proof output, so the LAST lane's needle (nix) can win the
+   hint even when that lane passed and the real failure (e.g. a pglite
+   integration flake) scrolled out of the window. The verdict's failed-lane id
+   stays correct; only the remediation hint misattributes. Follow-up candidate:
+   prefer needles co-located with failure markers.
+4. Pre-existing flake (out of scope): `test-utils
+   test/integration/SqlTest.pglite.test.ts` times out at 60s under full-proof
+   load but passes in isolation (10.6s, 7/7). Same class flaked on hosted CI
+   during PR #226. Hosted Test Integration is the authoritative gate.
