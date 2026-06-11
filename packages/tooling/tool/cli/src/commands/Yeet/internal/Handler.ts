@@ -191,9 +191,12 @@ const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullReq
  *   plan: true,
  *   pr: false,
  *   pushOnly: false,
+ *   replyBody: "",
+ *   replyThread: "",
  *   requireGreptileIssues: -1,
  *   requireGreptileScore: "",
  *   requireReviewComments: -1,
+ *   resolveThreads: "",
  *   retriggerGreptile: false,
  *   reuseVerified: false,
  *   stagedOnly: false,
@@ -222,9 +225,12 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     plan: S.Boolean,
     pr: S.Boolean,
     pushOnly: S.Boolean,
+    replyBody: S.String,
+    replyThread: S.String,
     requireGreptileIssues: S.Finite,
     requireGreptileScore: S.String,
     requireReviewComments: S.Finite,
+    resolveThreads: S.String,
     retriggerGreptile: S.Boolean,
     reuseVerified: S.Boolean,
     stagedOnly: S.Boolean,
@@ -273,6 +279,12 @@ class YeetRunState extends S.Class<YeetRunState>($I`YeetRunState`)(
   })
 ) {}
 
+/**
+ * Best-effort lock metadata for serializing heavyweight full-proof runs.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 class YeetProofLockState extends S.Class<YeetProofLockState>($I`YeetProofLockState`)(
   {
     schemaVersion: S.Literal("yeet-proof-lock/v1"),
@@ -1598,6 +1610,40 @@ const laneProofStateForStep = (step: RepoPlanStep, diffFingerprint: string, veri
   });
 };
 
+/**
+ * Proof-lock state schema exposed for lock-disposition tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const YeetProofLockStateForTesting = YeetProofLockState;
+
+const decodeProofLockState = S.decodeUnknownEffect(S.fromJsonString(YeetProofLockState));
+
+const isPidAlive = (pid: number): Effect.Effect<boolean> =>
+  Effect.sync(() => {
+    try {
+      process.kill(pid, 0);
+      return true;
+    } catch (error) {
+      return (error as NodeJS.ErrnoException).code === "EPERM";
+    }
+  });
+
+const proofLockDisposition = (
+  state: O.Option<YeetProofLockState>,
+  ownerAlive: boolean
+): "replace-stale" | "refuse-active" | "refuse-unreadable" =>
+  O.isNone(state) ? "refuse-unreadable" : ownerAlive ? "refuse-active" : "replace-stale";
+
+/**
+ * Decide whether an existing proof lock is stale, active, or unreadable.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const proofLockDispositionForTesting = proofLockDisposition;
+
 const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
   context: RepoRunContext,
   proofSteps: ReadonlyArray<RepoPlanStep>
@@ -1620,11 +1666,37 @@ const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
   const existing = yield* fs.exists(lockPath).pipe(Effect.orElseSucceed(() => false));
   if (existing) {
     const existingText = yield* fs.readFileString(lockPath).pipe(Effect.orElseSucceed(() => ""));
-    return yield* YeetCommandError.make({
-      message: `Another Yeet full proof appears active at ${lockPath}.\n${existingText}\nRun review-fix lanes or remove the stale lock after confirming no full proof is running.`,
-      command: "bun run beep yeet verify",
-      exitCode: 1,
-    });
+    const existingState = yield* decodeProofLockState(existingText).pipe(
+      Effect.map(O.some),
+      Effect.orElseSucceed(O.none<YeetProofLockState>)
+    );
+    const ownerAlive = yield* pipe(
+      existingState,
+      O.match({
+        onNone: () => Effect.succeed(false),
+        onSome: (state) => isPidAlive(state.pid),
+      })
+    );
+
+    if (proofLockDisposition(existingState, ownerAlive) === "replace-stale" && O.isSome(existingState)) {
+      yield* Console.error(
+        `[yeet] removing stale full-proof lock (pid ${existingState.value.pid} is not running, started ${existingState.value.startedAt})`
+      );
+      yield* fs.remove(lockPath).pipe(Effect.ignore);
+    } else {
+      const ownerDetail = pipe(
+        existingState,
+        O.match({
+          onNone: () => "",
+          onSome: (state) => ` Owner pid ${state.pid} started ${state.startedAt}.`,
+        })
+      );
+      return yield* YeetCommandError.make({
+        message: `Another Yeet full proof appears active at ${lockPath}.${ownerDetail}\n${existingText}\nRun review-fix lanes or remove the stale lock after confirming no full proof is running.`,
+        command: "bun run beep yeet verify",
+        exitCode: 1,
+      });
+    }
   }
 
   yield* writeTextFile(lockPath, lockText);
@@ -2223,6 +2295,9 @@ const runCloseoutMode = Effect.fn("Yeet.runCloseoutMode")(function* (
       requireGreptileScore: options.requireGreptileScore,
       requireReviewComments: options.requireReviewComments,
       retriggerGreptile: options.retriggerGreptile,
+      replyBody: options.replyBody,
+      replyThread: options.replyThread,
+      resolveThreads: options.resolveThreads,
     })
   );
   const reportPath = yield* runOutputPathForContext(context, "pr-closeout.json");
@@ -2395,6 +2470,20 @@ const renderPlan = Effect.fn("Yeet.renderPlan")(function* (
   }
 });
 
+const lockfileChangedSinceBase = Effect.fn("Yeet.lockfileChangedSinceBase")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<boolean, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const changed = yield* runGitPathList(context.repoRoot, [
+    "diff",
+    "--name-only",
+    "-z",
+    `${context.base}...${context.head}`,
+    "--",
+    "bun.lock",
+  ]).pipe(Effect.orElseSucceed(A.empty<string>));
+  return !A.isReadonlyArrayEmpty(changed);
+});
+
 /**
  * Run yeet with the provided options.
  *
@@ -2420,12 +2509,22 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
   const message = yield* validateRequiredMessage(options);
   const context = yield* hydrateYeetRunContext(options);
   yield* validateMonitorGuards(context, options);
+  const forceTurbo =
+    options.mode === "repair" || options.mode === "verify" || options.mode === "publish"
+      ? yield* lockfileChangedSinceBase(context)
+      : false;
+  if (forceTurbo) {
+    yield* Console.log(
+      `[yeet] bun.lock changed since ${context.base}; forcing dependency-sensitive lanes (TURBO_FORCE=true)`
+    );
+  }
   const plan = buildYeetRunPlanWithMode(
     context,
     message,
     YeetRunPlanModeOptions.make({
       amend: options.amend,
       fast: options.fast,
+      forceTurbo,
       mode: options.mode,
       monitor: options.monitor,
       noEdit: options.noEdit,
@@ -2455,6 +2554,7 @@ export const buildYeetRunPlanForTesting = (options: {
   readonly amend?: boolean;
   readonly context: RepoRunContext;
   readonly fast?: boolean;
+  readonly forceTurbo?: boolean;
   readonly message: O.Option<string>;
   readonly mode?: YeetRunMode;
   readonly monitor?: boolean;
@@ -2470,6 +2570,7 @@ export const buildYeetRunPlanForTesting = (options: {
     YeetRunPlanModeOptions.make({
       amend: options.amend ?? false,
       fast: options.fast ?? false,
+      forceTurbo: options.forceTurbo ?? false,
       mode: options.mode ?? "publish",
       monitor: options.monitor ?? false,
       noEdit: options.noEdit ?? false,
@@ -2505,9 +2606,12 @@ export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): 
     plan: false,
     pr: false,
     pushOnly: false,
+    replyBody: "",
+    replyThread: "",
     requireGreptileIssues: -1,
     requireGreptileScore: "",
     requireReviewComments: -1,
+    resolveThreads: "",
     retriggerGreptile: false,
     reuseVerified: false,
     stagedOnly: false,

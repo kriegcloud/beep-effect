@@ -4,6 +4,7 @@ import {
   buildYeetRunPlanForTesting,
   buildYeetVerdictForTesting,
   closeoutGateStatesForTesting,
+  closeoutWritePlanForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   defaultYeetRunOptions,
@@ -16,9 +17,11 @@ import {
   latestGreptileSummaryForTesting,
   overlappingBasePathsForTesting,
   PrCloseoutOptions,
+  PrCloseoutReport,
   partiallyStagedPathsForTesting,
   prePushLocalShasFromStdinForTesting,
   prePushShaMismatchesForTesting,
+  proofLockDispositionForTesting,
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
   publishUpstreamMismatchWarningForTesting,
@@ -35,6 +38,7 @@ import {
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
+  YeetProofLockStateForTesting,
   YeetVerdict,
 } from "@beep/repo-cli/test/Yeet";
 import { provideScopedLayer } from "@beep/test-utils";
@@ -1449,6 +1453,80 @@ describe("yeet publish scope helpers", () => {
           expect(stashList.join("\n")).toContain("yeet-staged-only/");
         })
       )
+    ));
+
+  it("forces dependency-sensitive lanes when forceTurbo is set", () => {
+    const forced = buildYeetRunPlanForTesting({
+      context,
+      forceTurbo: true,
+      message: O.some("feat(repo-cli): add yeet"),
+    });
+    const proof = findStep(forced.steps, "full:pre-push");
+    expect(proof.env).toMatchObject({ TURBO_FORCE: "true" });
+    const advisory = findStep(forced.steps, "fallow-advisory-feedback");
+    expect(advisory.env?.TURBO_FORCE).toBeUndefined();
+
+    const unforced = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet") });
+    expect(findStep(unforced.steps, "full:pre-push").env?.TURBO_FORCE).toBeUndefined();
+  });
+
+  it("classifies proof lock disposition by readability and owner liveness", () => {
+    const state = O.some(
+      YeetProofLockStateForTesting.make({
+        schemaVersion: "yeet-proof-lock/v1",
+        branch: "feature",
+        command: "bun run beep quality github-checks pre-push",
+        pid: 12345,
+        proofTier: "full",
+        startedAt: "2026-06-11T00:00:00.000Z",
+      })
+    );
+    expect(proofLockDispositionForTesting(O.none(), false)).toBe("refuse-unreadable");
+    expect(proofLockDispositionForTesting(O.none(), true)).toBe("refuse-unreadable");
+    expect(proofLockDispositionForTesting(state, true)).toBe("refuse-active");
+    expect(proofLockDispositionForTesting(state, false)).toBe("replace-stale");
+  });
+
+  it("plans closeout write actions only for known thread ids with a paired body", () => {
+    const known = ["PRRT_a", "PRRT_b"];
+    const ok = closeoutWritePlanForTesting("PRRT_a", "Fixed in abc123.", "PRRT_a,PRRT_b", known);
+    expect(O.isNone(ok.error)).toBe(true);
+    expect(ok.intents.map((intent) => `${intent.kind}:${intent.threadId}`)).toEqual([
+      "reply:PRRT_a",
+      "resolve:PRRT_a",
+      "resolve:PRRT_b",
+    ]);
+
+    const unknown = closeoutWritePlanForTesting("", "", "PRRT_missing", known);
+    expect(O.isSome(unknown.error)).toBe(true);
+    if (O.isSome(unknown.error)) {
+      expect(unknown.error.value).toContain("PRRT_missing");
+    }
+
+    const unpaired = closeoutWritePlanForTesting("PRRT_a", "", "", known);
+    expect(O.isSome(unpaired.error)).toBe(true);
+
+    const oversized = closeoutWritePlanForTesting("PRRT_a", "x".repeat(17 * 1024), "", known);
+    expect(O.isSome(oversized.error)).toBe(true);
+  });
+
+  it("decodes closeout reports without writeActions for backwards compatibility", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const decoded = yield* S.decodeUnknownEffect(PrCloseoutReport)({
+          actionableReviewThreadCount: 0,
+          botCommentCount: 0,
+          greptile: {},
+          issueCount: 0,
+          issues: [],
+          prNumber: 1,
+          prUrl: "https://example.test/pr/1",
+          retriggeredGreptile: false,
+          schemaVersion: "yeet-pr-closeout/v1",
+        });
+        expect(decoded.writeActions).toEqual([]);
+        expect(decoded.states).toEqual([]);
+      })
     ));
 
   it("warns on behind-only divergence and reports overlap paths for refusal", () =>

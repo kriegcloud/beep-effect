@@ -109,6 +109,21 @@ const requireReviewCommentsFlag = Flag.integer("require-review-comments").pipe(
   Flag.withDefault(-1)
 );
 
+const replyThreadFlag = Flag.string("reply-thread").pipe(
+  Flag.withDescription("Review thread id to reply to during closeout; requires --reply-body"),
+  Flag.withDefault("")
+);
+
+const replyBodyFlag = Flag.string("reply-body").pipe(
+  Flag.withDescription("Reply body posted to --reply-thread during closeout"),
+  Flag.withDefault("")
+);
+
+const resolveThreadsFlag = Flag.string("resolve-threads").pipe(
+  Flag.withDescription("Comma-separated review thread ids to resolve during closeout"),
+  Flag.withDefault("")
+);
+
 const retriggerGreptileFlag = Flag.boolean("retrigger-greptile").pipe(
   Flag.withDescription("Post the explicit Greptile retrigger comment after reading current PR state")
 );
@@ -183,9 +198,12 @@ const publishFlags = {
 const closeoutFlags = {
   ...sharedFlags,
   bots: botsFlag,
+  replyBody: replyBodyFlag,
+  replyThread: replyThreadFlag,
   requireGreptileIssues: requireGreptileIssuesFlag,
   requireGreptileScore: requireGreptileScoreFlag,
   requireReviewComments: requireReviewCommentsFlag,
+  resolveThreads: resolveThreadsFlag,
   retriggerGreptile: retriggerGreptileFlag,
 } as const;
 
@@ -203,9 +221,12 @@ type SharedOptions = {
   readonly noEdit?: boolean;
   readonly pr?: boolean;
   readonly pushOnly?: boolean;
+  readonly replyBody?: string;
+  readonly replyThread?: string;
   readonly requireGreptileIssues?: number;
   readonly requireGreptileScore?: string;
   readonly requireReviewComments?: number;
+  readonly resolveThreads?: string;
   readonly retriggerGreptile?: boolean;
   readonly reuseVerified?: boolean;
   readonly stagedOnly?: boolean;
@@ -227,9 +248,12 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       noEdit: options.noEdit ?? false,
       pr: options.pr ?? false,
       pushOnly: options.pushOnly ?? false,
+      replyBody: options.replyBody ?? "",
+      replyThread: options.replyThread ?? "",
       requireGreptileIssues: options.requireGreptileIssues ?? -1,
       requireGreptileScore: options.requireGreptileScore ?? "",
       requireReviewComments: options.requireReviewComments ?? -1,
+      resolveThreads: options.resolveThreads ?? "",
       retriggerGreptile: options.retriggerGreptile ?? false,
       reuseVerified: options.reuseVerified ?? false,
       stagedOnly: options.stagedOnly ?? false,

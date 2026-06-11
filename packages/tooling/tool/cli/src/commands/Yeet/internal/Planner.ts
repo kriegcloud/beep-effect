@@ -129,6 +129,10 @@ export class YeetRunPlanModeOptions extends S.Class<YeetRunPlanModeOptions>($I`Y
     startPrEarly: S.Boolean,
     tier: YeetProofTier,
     pr: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
+    forceTurbo: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
   },
   $I.annote("YeetRunPlanModeOptions", {
     description: "Options for building a Yeet run plan in a specific mode.",
@@ -478,6 +482,17 @@ const stepsForMode = (
     "pre-push-hook": () => [],
   });
 
+const withTurboForce = (steps: ReadonlyArray<RepoPlanStep>, forceTurbo: boolean): ReadonlyArray<RepoPlanStep> =>
+  forceTurbo
+    ? A.map(steps, (step) =>
+        step.command === "bun" &&
+        (step.phase === "feedback" || step.phase === "full") &&
+        step.label !== "fallow-advisory-feedback"
+          ? RepoPlanStep.make({ ...step, env: { ...step.env, TURBO_FORCE: "true" } })
+          : step
+      )
+    : steps;
+
 /**
  * Build a yeet run plan for a specific mode.
  *
@@ -533,7 +548,10 @@ export const buildYeetRunPlanWithMode: {
   (context: RepoRunContext, message: O.Option<string>, options: YeetRunPlanModeOptions): RepoRunPlan =>
     RepoRunPlan.make({
       context,
-      steps: pipe(stepsForMode(context, message, options), A.sort(byRepoPlanStepAscending)),
+      steps: pipe(
+        withTurboForce(stepsForMode(context, message, options), options.forceTurbo),
+        A.sort(byRepoPlanStepAscending)
+      ),
     })
 );
 
