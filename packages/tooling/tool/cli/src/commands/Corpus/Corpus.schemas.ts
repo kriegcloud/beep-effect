@@ -551,11 +551,12 @@ export const CorpusOrganizeCategory = LiteralKit([
   "docket",
   "email-archive",
   "email-export",
+  "recycle-metadata",
   "unsorted",
 ]).pipe(
   $I.annoteSchema("CorpusOrganizeCategory", {
     description:
-      "Taxonomy category: client-mapped, docket-grouped, PST email archive, per-message email export, or unsorted.",
+      "Taxonomy category: client-mapped, docket-grouped, PST email archive, per-message email export, recycle-bin metadata, or unsorted.",
   })
 );
 

@@ -1265,11 +1265,16 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
         : windowsPathDirectories(restoration.original.originalPath);
     const docket = pipeDocket(`${effectiveName} ${record.relativePath}`);
     const isEmailExport = record.relativePath.startsWith("Sent_Emails.export/");
+    const isRecycleMetadata = O.match(classifyRecycleBinName(basenameOf(record.relativePath)), {
+      onNone: () => false,
+      onSome: (entry) => entry.kind === "metadata",
+    });
     const client = clientByLabel.get(record.sourceLabel);
     const extension = extensionOf(effectiveName);
 
-    const category: CorpusOrganizeCategory =
-      extension === "pst"
+    const category: CorpusOrganizeCategory = isRecycleMetadata
+      ? "recycle-metadata"
+      : extension === "pst"
         ? "email-archive"
         : O.isSome(docket)
           ? "docket"
@@ -1323,7 +1328,7 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
 
   const usedTargets = new Set<string>();
   const records: Array<CorpusOrganizeRecord> = [];
-  const counts = { client: 0, docket: 0, "email-archive": 0, "email-export": 0, unsorted: 0 };
+  const counts = { client: 0, docket: 0, "email-archive": 0, "email-export": 0, "recycle-metadata": 0, unsorted: 0 };
 
   for (const row of plan) {
     counts[row.category] += 1;
