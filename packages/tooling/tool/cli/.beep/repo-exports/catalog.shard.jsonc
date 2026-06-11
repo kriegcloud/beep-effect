@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "bd10558ac657351bb8c6d40b0bdf02f6d00e983add9004137a558bb48ffc478c",
+    "digest": "0c4ba5716c01ff7d28e86a6ba287ddf9afc4d2023f642040988e60838195cde0",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -432,8 +432,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "ea787281b5350e90f34f10b1d5f3b872e2a67ef7d86c3541e53aca8168439eb7",
-        "bytes": 81130
+        "sha256": "399ae4181f7c7cf8d33edbe28a68a2dcfa69c4901cc13eb21508ec9f8089629d",
+        "bytes": 81606
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -973,8 +973,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1894,
-      "uniqueSymbols": 727,
+      "publicExportEntries": 1895,
+      "uniqueSymbols": 728,
       "sourceFiles": 154
     },
     "exports": [
@@ -27856,7 +27856,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2319,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28630,10 +28630,35 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/FallowQuality.command",
         "exportSubpath": "./commands/Quality/FallowQuality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+        "symbolName": "fallowCiUploadDiagnosticsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+        "sourceLine": 2112,
+        "summary": "Return Fallow CI upload diagnostics for contract tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/fallowquality.command ./commands/quality/fallowquality.command fallowciuploaddiagnosticsfortesting const return fallow ci upload diagnostics for contract tests. testing packages/tooling/tool/cli/src/commands/quality/fallowquality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/FallowQuality.command",
+        "exportSubpath": "./commands/Quality/FallowQuality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2319,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28708,7 +28733,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2319,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -42763,7 +42788,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2319,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"

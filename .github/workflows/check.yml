@@ -275,14 +275,18 @@ jobs:
             local lane="$1"
             local started_at="$SECONDS"
 
+            set +e
             bun run beep quality fallow "$lane" \
               --check \
               --base "${{ steps.base.outputs.base_ref }}" \
               --out ".beep/fallow/${lane}.json" \
               --quiet
+            local status=$?
+            set -e
             local elapsed_seconds=$((SECONDS - started_at))
 
-            echo "- ${lane}: 0 (${elapsed_seconds}s)" >> .beep/fallow/status.md
+            echo "- ${lane}: ${status} (${elapsed_seconds}s)" >> .beep/fallow/status.md
+            return "$status"
           }
 
           run_advisory_fallow() {

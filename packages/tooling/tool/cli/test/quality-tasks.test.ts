@@ -1,3 +1,4 @@
+import { fallowCiUploadDiagnosticsForTesting } from "@beep/repo-cli/commands/Quality/FallowQuality.command";
 import {
   affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
@@ -422,6 +423,26 @@ describe("quality task adapter", () => {
         ["dead-code", "advisory-artifact", "research"],
       ])
     );
+  });
+
+  it("requires Fallow CI upload wiring only when the contract requires uploads", () => {
+    const uploadStep = {
+      uses: "actions/upload-artifact@v4",
+      with: {
+        "if-no-files-found": "error",
+        path: ".beep/fallow/**",
+      },
+    };
+
+    expect(fallowCiUploadDiagnosticsForTesting(false, [], [], ".beep/fallow", "error")).toEqual([]);
+    expect(fallowCiUploadDiagnosticsForTesting(true, [], [], ".beep/fallow", "error")).toEqual([
+      "missing upload of complete Fallow output tree: .beep/fallow/**",
+      "missing actions/upload-artifact step",
+      "missing if-no-files-found: error",
+    ]);
+    expect(
+      fallowCiUploadDiagnosticsForTesting(true, ["actions/upload-artifact@v4"], [uploadStep], ".beep/fallow", "error")
+    ).toEqual([]);
   });
 
   it("accepts promoted Fallow findings with blocking true in report envelopes", () => {

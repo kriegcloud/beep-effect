@@ -2081,7 +2081,7 @@ const fallowCiUploadDiagnostics = (
   ifNoFilesFound: string
 ): ReadonlyArray<string> => [
   ...missingDiagnostic(
-    A.some(uploadArtifactSteps, (step) => uploadWithStringEquals(step, "path", `${expectOutDir}/**`)),
+    !requireUpload || A.some(uploadArtifactSteps, (step) => uploadWithStringEquals(step, "path", `${expectOutDir}/**`)),
     `missing upload of complete Fallow output tree: ${expectOutDir}/**`
   ),
   ...presentDiagnostic(
@@ -2094,6 +2094,22 @@ const fallowCiUploadDiagnostics = (
     `missing if-no-files-found: ${ifNoFilesFound}`
   ),
 ];
+
+/**
+ * Return Fallow CI upload diagnostics for contract tests.
+ *
+ * @example
+ * ```ts
+ * import { fallowCiUploadDiagnosticsForTesting } from "@beep/repo-cli/commands/Quality/FallowQuality.command"
+ *
+ * const diagnostics = fallowCiUploadDiagnosticsForTesting(false, [], [], ".beep/fallow", "error")
+ * console.log(diagnostics)
+ * ```
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const fallowCiUploadDiagnosticsForTesting = fallowCiUploadDiagnostics;
 
 const fallowCiLaneDiagnostics = (
   lanes: ReadonlyArray<string>,
