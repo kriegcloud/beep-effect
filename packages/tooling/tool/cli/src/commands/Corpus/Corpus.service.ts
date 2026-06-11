@@ -1561,7 +1561,13 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
 
   const orderedCandidates = A.sort(
     [...candidates.entries()],
-    Order.mapInput(Order.Number, (entry: readonly [string, EnrichCandidate]) => -entry[1].occurrenceCount)
+    Order.mapInput(
+      Order.Number,
+      (entry: readonly [string, EnrichCandidate]) =>
+        // Docket-family-associated candidates first (filename-grounded, high
+        // precision), then by corpus occurrence.
+        (entry[1].docketFamilies.size > 0 ? -1_000_000 : 0) - entry[1].occurrenceCount
+    )
   );
   const limited =
     options.maxLookups === undefined
