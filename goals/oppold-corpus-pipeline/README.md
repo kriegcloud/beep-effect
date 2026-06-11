@@ -36,22 +36,22 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P2 Extraction. P0+P1 completed 2026-06-11: all five sources salvaged
-(8,438 files, 31.7 GB, SHA-256 verified, zero errors); DuckDB catalog built
-via the new `beep corpus catalog` command (7,330 distinct digests, 290
-duplicate sets, 677 MB redundant); `$I`/`$R` restoration manifest covers all
-252 `$I` files (251 matched). `Sent_Emails.pst` triplet confirmed;
-`LH_Inbox_2011.pst` copies turned out to be distinct snapshots, not
-duplicates.
+P4 Enrichment running / P5 Close. P0–P3 completed 2026-06-11: salvage
+(8,438 files, 31.7 GB, zero errors), DuckDB catalog (7,330 distinct digests,
+290 duplicate sets), real extraction via hardened libpff/tika drivers
+(7,045/7,330 succeeded; 663,272 PST message artifacts; 6,702 text
+artifacts), and the `organized/` taxonomy (643 docket files across 105
+docket families, 242 restored names). New `drivers/uspto` resolves corpus
+identifiers against the Open Data Portal.
 
 ## Latest Evidence
 
-[`history/outputs/2026-06-11-p1-catalog-report.md`](./history/outputs/2026-06-11-p1-catalog-report.md)
-(P1 catalog run report). Earlier:
-[`history/outputs/2026-06-11-p0-salvage-report.md`](./history/outputs/2026-06-11-p0-salvage-report.md)
-(P0 salvage run report),
-[`research/corpus-scan-inventory.md`](./research/corpus-scan-inventory.md)
-(2026-06-11 scan).
+- [`history/outputs/2026-06-11-p3-organize-report.md`](./history/outputs/2026-06-11-p3-organize-report.md)
+- [`history/outputs/2026-06-11-p2-extraction-report.md`](./history/outputs/2026-06-11-p2-extraction-report.md)
+- [`history/outputs/2026-06-11-p1-catalog-report.md`](./history/outputs/2026-06-11-p1-catalog-report.md)
+- [`history/outputs/2026-06-11-p0-salvage-report.md`](./history/outputs/2026-06-11-p0-salvage-report.md)
+- [`research/corpus-scan-inventory.md`](./research/corpus-scan-inventory.md)
+  (2026-06-11 scan).
 
 ## Related Packets
 

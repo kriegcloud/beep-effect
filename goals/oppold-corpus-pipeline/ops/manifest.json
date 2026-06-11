@@ -43,12 +43,12 @@
     {
       "id": "P2",
       "name": "Extraction",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P3",
       "name": "Organization",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P4",

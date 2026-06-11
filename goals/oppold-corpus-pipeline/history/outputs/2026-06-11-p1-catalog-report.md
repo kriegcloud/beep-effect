@@ -55,8 +55,11 @@ including an end-to-end synthetic-corpus catalog run). Package gates green:
 2. **`LH_Inbox_2011.pst` is NOT an exact duplicate** (contrary to the
    packet's going-in assumption): the USB copy is 2,431,607,808 bytes and
    `~/Documents/LH_Emails/LH_Inbox_2011.pst` is 1,135,607,808 bytes with a
-   different digest. They are distinct snapshots; both stay in the corpus.
-   P2 extraction should compare their message sets.
+   different digest. *Amended during P4:* the Documents copy hashed
+   byte-identical to the first 1,135,607,808 bytes of the USB original — it
+   is a truncated partial copy (interrupted transfer), unreadable by libpff
+   (index node referenced at offset 2.41 GB past EOF). The USB archive is
+   authoritative and exported 10,438 messages in P2.
 3. **Recycle-bin restoration covers all 252 `$I` files**: 251 matched to
    `$R` content with restored original names/paths (all v2 format, original
    paths under `H:\Oppold_IP_Law\...`); the single unmatched `$I` is a
