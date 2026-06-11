@@ -13,10 +13,11 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeYamlTextAs, LiteralKit } from "@beep/schema";
 import { A, thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, FileSystem, Path, SchemaGetter } from "effect";
+import { Console, Effect, FileSystem, Path, pipe, SchemaGetter } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
@@ -153,16 +154,18 @@ const logPolicyFinding = Effect.fn("logReflectionFinding")(function* (finding: R
 
 const decodeFrontmatter = decodeYamlTextAs(ReflectionFrontmatter);
 
+const normalizeFrontmatterNewlines = Str.replace(/\r\n/g, "\n");
+
 const extractFrontmatter = (raw: string): O.Option<string> => {
-  if (!raw.startsWith("---")) {
+  const normalized = normalizeFrontmatterNewlines(raw);
+  if (!Str.startsWith("---")(normalized)) {
     return O.none();
   }
-  const rest = raw.slice(3);
-  const endIndex = rest.indexOf("\n---");
-  if (endIndex < 0) {
-    return O.none();
-  }
-  return O.some(rest.slice(0, endIndex).trim());
+  const rest = Str.slice(3)(normalized);
+  return pipe(
+    Str.indexOf("\n---")(rest),
+    O.map((endIndex) => Str.trim(Str.slice(0, endIndex)(rest)))
+  );
 };
 
 const frontmatterIsValid = (raw: string): Effect.Effect<boolean> =>
@@ -258,13 +261,10 @@ export const runReflectionArtifactLint = Effect.fn(function* () {
       continue;
     }
 
-    let anyValid = false;
     for (const file of reflectionFiles) {
       const raw = yield* fs.readFileString(path.join(reflectionsDir, file));
       const valid = yield* frontmatterIsValid(raw);
-      if (valid) {
-        anyValid = true;
-      } else {
+      if (!valid) {
         const finding = makeFinding(
           slug,
           reflectionRequired ? "error" : "warning",
@@ -274,15 +274,6 @@ export const runReflectionArtifactLint = Effect.fn(function* () {
         );
         (reflectionRequired ? blocking : advisories).push(finding);
       }
-    }
-    if (!anyValid && reflectionFiles.length > 0) {
-      const finding = makeFinding(
-        slug,
-        reflectionRequired ? "error" : "warning",
-        `Completed goal "${slug}" has reflection files but none validate against ReflectionFrontmatter.`,
-        REMEDIATION
-      );
-      (reflectionRequired ? blocking : advisories).push(finding);
     }
   }
 
