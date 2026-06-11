@@ -306,8 +306,16 @@ jobs:
             echo "- ${lane}: ${status} (${elapsed_seconds}s)" >> .beep/fallow/status.md
           }
 
+          blocking_status=0
           for lane in audit dead-code; do
-            run_blocking_fallow "$lane"
+            if run_blocking_fallow "$lane"; then
+              :
+            else
+              status=$?
+              if (( blocking_status == 0 )); then
+                blocking_status=$status
+              fi
+            fi
           done
 
           for lane in dupes health boundaries flags security fix-preview; do
@@ -319,6 +327,10 @@ jobs:
             cat .beep/fallow/status.md
             echo "FALLOW_STATUS"
           } >> "$GITHUB_OUTPUT"
+
+          if (( blocking_status != 0 )); then
+            exit "$blocking_status"
+          fi
 
       - name: Validate Fallow envelopes
         if: always()

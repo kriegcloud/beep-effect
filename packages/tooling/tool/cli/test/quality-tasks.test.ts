@@ -395,6 +395,31 @@ describe("quality task adapter", () => {
       }).pipe(provideScopedLayer(FileSystemLayer))
     ));
 
+  it("keeps CI Fallow blocking failures deferred until advisory envelopes are written", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repoRoot = yield* findRepoRoot();
+        const workflowText = yield* fs.readFileString(path.join(repoRoot, ".github/workflows/check.yml"));
+        const fallowStepText = Str.slice(
+          workflowText.indexOf("          run_blocking_fallow()"),
+          workflowText.indexOf("      - name: Validate Fallow envelopes")
+        )(workflowText);
+        const advisoryLoopIndex = fallowStepText.indexOf(
+          "          for lane in dupes health boundaries flags security fix-preview; do"
+        );
+        const outputWriteIndex = fallowStepText.indexOf('          } >> "$GITHUB_OUTPUT"');
+        const deferredExitIndex = fallowStepText.indexOf("          if (( blocking_status != 0 )); then");
+
+        expect(fallowStepText).toContain("          blocking_status=0");
+        expect(fallowStepText).toContain('            if run_blocking_fallow "$lane"; then');
+        expect(advisoryLoopIndex).toBeGreaterThan(-1);
+        expect(outputWriteIndex).toBeGreaterThan(advisoryLoopIndex);
+        expect(deferredExitIndex).toBeGreaterThan(outputWriteIndex);
+      }).pipe(provideScopedLayer(FileSystemLayer))
+    ));
+
   it("rejects a promoted Fallow matrix row that is not wired into pre-push", () => {
     const matrix = fallowFeatureMatrix([
       ["audit", "blocking-check", "blocking"],
