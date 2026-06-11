@@ -1,5 +1,5 @@
 /**
- * Runtime OIP content loading with Sanity fallback.
+ * Runtime OIP content loading with Sanity and checked-in content fallback.
  *
  * @packageDocumentation
  * @since 0.0.0

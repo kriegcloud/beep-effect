@@ -45,11 +45,15 @@ Higher sources outrank lower sources when they conflict.
   `findings/patches/CSF-NNN.patch`.
 - Lanes: partition by file-ownership into non-overlapping parallel batches;
   serialize overlapping findings; no git worktrees; no merge step.
-- One approval gate after triage (disposition matrix). STOP until approved.
+- One approval gate after triage (disposition matrix) and public disclosure
+  posture. STOP until approved.
 - Closure timing: non-remediated dispositions closed right after the GATE;
   remediated findings closed when the PR is mergeable. Two Chrome closure passes.
 - Sanitize signed URLs, token-like params, auth headers, cookies, and secret
   paths from all committed content. Raw captures stay untracked in `/tmp`.
+- Keep unremediated findings of any severity redacted in public tracking;
+  publish detailed reports, affected paths, exploit analysis, validation notes,
+  and patch material only with the corresponding fix after verification.
 - Drive to mergeable through the `yeet` operator path; never weaken check names.
 
 ## Acceptance Criteria

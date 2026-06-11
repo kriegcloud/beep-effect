@@ -1169,7 +1169,7 @@ export const closeoutWritePlanForTesting = closeoutWritePlan;
 const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWriteActions")(function* (
   context: RepoRunContext,
   intents: ReadonlyArray<CloseoutWriteIntent>
-): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+) {
   const performIntent = Effect.fnUntraced(function* performIntent(intent: CloseoutWriteIntent) {
     const args =
       intent.kind === "reply"
