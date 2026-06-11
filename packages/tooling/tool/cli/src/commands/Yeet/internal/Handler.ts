@@ -677,7 +677,10 @@ const buildPrBody = Effect.fn("Yeet.buildPrBody")(function* (
     A.map((entry) => `- ${entry.step.label}: ${entry.result.exitCode === 0 ? "passed" : "failed"}`),
     A.join("\n")
   );
-  return `${Str.trim(commitLog)}\n\n## Local proof\n\n${laneSummary}\n\nVerdict: .beep/yeet/runs/${runIdForContext(context)}/verdict.json\n`;
+  const proofSection = Str.isNonEmpty(laneSummary)
+    ? laneSummary
+    : "- full local proof still running (start-pr-early); see the verdict artifact for final lane results";
+  return `${Str.trim(commitLog)}\n\n## Local proof\n\n${proofSection}\n\nVerdict: .beep/yeet/runs/${runIdForContext(context)}/verdict.json\n`;
 });
 
 const recordPrCreateLane = Effect.fn("Yeet.recordPrCreateLane")(function* (
