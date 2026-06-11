@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "fallow-debt-burndown",
+    "title": "Fallow Debt Burn-Down",
+    "status": "active",
+    "created": "2026-06-11",
+    "updated": "2026-06-11",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/fallow-debt-burndown",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/fallow-quality-enforcement/SPEC.md",
+    "goals/fallow-quality-enforcement/research/feature-matrix.jsonc",
+    "goals/fallow-debt-burndown/README.md",
+    "goals/fallow-debt-burndown/SPEC.md",
+    "goals/fallow-debt-burndown/PLAN.md",
+    "goals/fallow-debt-burndown/GOAL.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/fallow-debt-burndown/GOAL.md"
+    }
+  ],
+  "relatedPackets": [
+    {
+      "id": "fallow-quality-enforcement",
+      "path": "goals/fallow-quality-enforcement",
+      "relationship": "parent-quality-policy"
+    },
+    {
+      "id": "fallow-zero-dead-code",
+      "path": "goals/fallow-zero-dead-code",
+      "relationship": "blocking-promotion-precedent"
+    },
+    {
+      "id": "fallow-advisory-ratchets",
+      "path": "goals/fallow-advisory-ratchets",
+      "relationship": "parallel-follow-up-packet-pr-233"
+    }
+  ],
+  "requiredArtifacts": [
+    "goals/fallow-debt-burndown/GOAL.md",
+    "goals/fallow-debt-burndown/README.md",
+    "goals/fallow-debt-burndown/SPEC.md",
+    "goals/fallow-debt-burndown/PLAN.md",
+    "goals/fallow-debt-burndown/research/current-fallow-snapshot.md",
+    "goals/fallow-debt-burndown/ops/manifest.json",
+    "goals/fallow-debt-burndown/tasks/tasks.jsonc",
+    "goals/fallow-debt-burndown/tasks/tasks.schema.json",
+    "goals/fallow-debt-burndown/ops/validate-packet.ts",
+    "goals/fallow-quality-enforcement/research/feature-matrix.jsonc"
+  ],
+  "phases": [
+    { "id": "P0", "name": "Packet Authoring", "status": "done" },
+    { "id": "P1", "name": "Boundary Burn-Down", "status": "selected" },
+    { "id": "P2", "name": "Health Burn-Down", "status": "seeded" },
+    { "id": "P3", "name": "Security Triage", "status": "seeded" },
+    { "id": "P4", "name": "Dupes Cleanup", "status": "seeded" },
+    { "id": "P5", "name": "Ratchet Wiring", "status": "seeded" }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/fallow-debt-burndown/GOAL.md)\" -le 4000",
+    "bun goals/fallow-debt-burndown/ops/validate-packet.ts",
+    "bun goals/fallow-quality-enforcement/ops/validate-packet.ts",
+    "bun run beep quality fallow command-contract-check --assert audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow",
+    "bun run beep quality fallow boundaries --advisory --base origin/main --out .beep/fallow/boundaries.json --quiet",
+    "bun run beep quality fallow health --advisory --base origin/main --out .beep/fallow/health.json --quiet",
+    "bun run beep quality fallow security --advisory --base origin/main --out .beep/fallow/security.json --quiet",
+    "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes",
+    "bun run beep reuse clones --check",
+    "git diff --check -- goals/fallow-debt-burndown"
+  ],
+  "stopConditions": [
+    "Do not remove Knip.",
+    "Do not run non-dry-run fallow fix.",
+    "Do not make runtime coverage blocking.",
+    "Do not encode architecture meaning in Fallow config before doctrine.",
+    "Do not promote lanes with unresolved false positives or doctrine gaps.",
+    "Do not make all current advisory findings fail.",
+    "Do not resolve findings primarily by adding inline fallow-ignore suppressions."
+  ]
+}
