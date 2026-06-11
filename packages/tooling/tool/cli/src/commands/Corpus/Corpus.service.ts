@@ -21,6 +21,7 @@ import {
   ProcessRunManifest,
   SkippedFileProcessingFailureRecord,
   SkippedSourceProcessingRecord,
+  SourceProcessingRecord,
   SucceededSourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
 import { ProcessFileOperation } from "@beep/file-processing/Operation";
@@ -72,7 +73,6 @@ import type {
   ArchiveExportProcessFileResult,
   ExtractedProcessFileResult,
   FileProcessingFailureRecord,
-  SourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
 import type { FileProcessingEngineShape, FileProcessingService } from "@beep/file-processing/Service";
 import type { FileFormatFamily, FileProcessingEngineFamily, SelectedStrategy } from "@beep/file-processing/Strategy";
@@ -237,17 +237,27 @@ SELECT
 FROM corpus_duplicate_sets
 ORDER BY (copies - 1) * size_bytes DESC, digest`;
 
-const SourceTotalsRow = S.Struct({
-  distinctDigests: S.Finite,
-  sourceFiles: S.Finite,
-  totalBytes: S.Finite,
-});
+class SourceTotalsRow extends S.Class<SourceTotalsRow>($I`SourceTotalsRow`)(
+  {
+    distinctDigests: S.Finite,
+    sourceFiles: S.Finite,
+    totalBytes: S.Finite,
+  },
+  $I.annote("SourceTotalsRow", {
+    description: "Aggregate file, byte, and digest totals queried from the corpus catalog.",
+  })
+) {}
 
-const DuplicateTotalsRow = S.Struct({
-  duplicateFiles: S.Finite,
-  duplicateSets: S.Finite,
-  redundantBytes: S.Finite,
-});
+class DuplicateTotalsRow extends S.Class<DuplicateTotalsRow>($I`DuplicateTotalsRow`)(
+  {
+    duplicateFiles: S.Finite,
+    duplicateSets: S.Finite,
+    redundantBytes: S.Finite,
+  },
+  $I.annote("DuplicateTotalsRow", {
+    description: "Aggregate duplicate-set totals queried from the corpus catalog.",
+  })
+) {}
 
 const decodeSourceTotalsRows = S.decodeUnknownEffect(S.Array(SourceTotalsRow));
 const decodeDuplicateTotalsRows = S.decodeUnknownEffect(S.Array(DuplicateTotalsRow));
@@ -1123,7 +1133,7 @@ const pipeDocket = (text: string): O.Option<{ readonly docket: string; readonly 
   );
 
 const sanitizeSegment = (value: string): string => {
-  const cleaned = value.replaceAll(/[\\/ ]/gu, "_").trim();
+  const cleaned = value.replaceAll(/[\\/\u0000]/gu, "_").trim();
   return Str.isEmpty(cleaned) ? "_" : cleaned;
 };
 
@@ -1306,7 +1316,7 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
     if (row.category !== "docket" || row.docket === undefined) {
       continue;
     }
-    const groupKey = `${row.docket} ${versionStem(row.effectiveName)}`;
+    const groupKey = `${row.docket}\u0000${versionStem(row.effectiveName)}`;
     const group = versionGroups.get(groupKey) ?? [];
     group.push(row);
     versionGroups.set(groupKey, group);
@@ -1541,6 +1551,37 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
     scanText(`${record.effectiveName} ${record.sourceRelativePath}`, record.docketFamily);
   }
 
+  const familyByDigest = new Map<string, string>();
+  for (const record of organizeRecords) {
+    if (record.docketFamily !== undefined) {
+      familyByDigest.set(record.digest, record.docketFamily);
+    }
+  }
+  const familyByTextName = new Map<string, string>();
+  const sourcesPath = path.join(options.corpusRoot, "staging", "extract", "sources.jsonl");
+  const sourcesExists = yield* fs
+    .exists(sourcesPath)
+    .pipe(CorpusCommandError.mapError(`Failed checking extraction sources "${sourcesPath}".`));
+  if (sourcesExists) {
+    const sourcesText = yield* fs
+      .readFileString(sourcesPath)
+      .pipe(CorpusCommandError.mapError(`Failed reading extraction sources "${sourcesPath}".`));
+    const sourceRows = yield* Effect.forEach(A.filter(Str.split(sourcesText, "\n"), Str.isNonEmpty), (line) =>
+      S.decodeUnknownEffect(S.fromJsonString(SourceProcessingRecord))(line).pipe(
+        CorpusCommandError.mapError("Extraction sources line failed schema validation.")
+      )
+    );
+    for (const row of sourceRows) {
+      if (row.status !== "succeeded" || row.textPath === undefined) {
+        continue;
+      }
+      const family = familyByDigest.get(row.digest);
+      if (family !== undefined) {
+        familyByTextName.set(basenameOf(row.textPath), family);
+      }
+    }
+  }
+
   const textDirExists = yield* fs
     .exists(textDir)
     .pipe(CorpusCommandError.mapError(`Failed checking extracted text directory "${textDir}".`));
@@ -1552,7 +1593,7 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
       textFiles,
       (name) =>
         fs.readFileString(path.join(textDir, name)).pipe(
-          Effect.map((text) => scanText(text, undefined)),
+          Effect.map((text) => scanText(text, familyByTextName.get(name))),
           CorpusCommandError.mapError(`Failed reading extracted text "${name}".`)
         ),
       { concurrency: 8 }

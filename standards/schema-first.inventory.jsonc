@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-09",
+  "generatedOn": "2026-06-11",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src",
@@ -536,6 +536,16 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/drivers/libpff/test/Libpff.pffexport.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "advisory",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 57,
+      "owner": "@beep/libpff",
+      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
+    },
+    {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "CountJsonlParameters",
       "kind": "object-struct-schema",
@@ -694,6 +704,48 @@
       "status": "exception",
       "owner": "@beep/sanity",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/tika/test/Tika.tikaapp.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "advisory",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 46,
+      "owner": "@beep/tika",
+      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "ContinuityEnvelope",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/uspto",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "DocumentsEnvelope",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/uspto",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "MetadataEnvelope",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/uspto",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "UsptoShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/uspto",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/drivers/wink/src/Wink.service.ts",
@@ -2715,6 +2767,14 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/test-utils",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+      "symbol": "CorpusCommandServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
