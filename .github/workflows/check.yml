@@ -259,6 +259,24 @@ jobs:
           echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
           echo "base_fetch_status=$fetch_status" >> "$GITHUB_OUTPUT"
 
+      - name: Free runner disk for Fallow
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Disk before cleanup:"
+          df -h /
+          sudo rm -rf \
+            /opt/ghc \
+            /usr/local/.ghcup \
+            /usr/local/lib/android \
+            /usr/local/share/boost \
+            /usr/share/dotnet
+          sudo apt-get clean
+          docker system prune --all --force --volumes || true
+          echo "Disk after cleanup:"
+          df -h /
+
       - name: Setup monorepo CI
         uses: ./.github/actions/setup-monorepo-ci
         with:
