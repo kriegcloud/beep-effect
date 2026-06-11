@@ -3,8 +3,12 @@
 "@beep/tika": patch
 "@beep/uspto": patch
 "@beep/identity": patch
+"@beep/file-processing": patch
 ---
 
 Oppold corpus pipeline: real pffexport and tika-app extraction engines, new
 USPTO open data portal driver, and the beep corpus command family
-(salvage/catalog/extract/organize/enrich).
+(salvage/catalog/extract/organize/enrich). Shared file-processing helpers
+(`classifyFormatFromExtension`, `collectSourceOutcomeRecords`,
+`decodeTestOperationIdentifiers`) consolidate engine detection and test
+fixtures across drivers.

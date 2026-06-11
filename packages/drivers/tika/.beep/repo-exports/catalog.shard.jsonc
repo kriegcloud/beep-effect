@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d2dfcb25068ffccbdc1a66ae69dce3bd1f125cc904f73b5b67752db1670ae09b",
+    "digest": "3b511edee79ee9ca0f749d7a8e38c326514889bafcabc0844fdad76877c1021f",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/tika/package.json",
-        "sha256": "a4d503974b0b3c8321c6cff438bc204e4ba8941c9b900a4b694866105e39d227",
-        "bytes": 2571
+        "sha256": "f83e2a39cb014bc9709d31b1ce0a56e98a1c7953096598209f9e368bf66f78f2",
+        "bytes": 2610
       },
       {
         "path": "packages/drivers/tika/src/index.ts",
@@ -37,13 +37,13 @@
       },
       {
         "path": "packages/drivers/tika/src/Tika.service.ts",
-        "sha256": "e07d389e338b29fd4c7f42a512d146b5763b318ef61216e2b9a94108b2476a53",
-        "bytes": 8056
+        "sha256": "92570fddbee2472d46b2e82aa39951a41a4db62ec8714e81a40a6e282f3b1bdb",
+        "bytes": 7337
       },
       {
         "path": "packages/drivers/tika/src/Tika.tikaapp.ts",
-        "sha256": "f042acbb51dea4c1225b8071bc0004263e21c411eff59ec8501c4d3496896b7d",
-        "bytes": 10272
+        "sha256": "e478f590adf767e2f1cc416e0d4b12314ea9dc28972f960e82c569115a6235b6",
+        "bytes": 8904
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -90,7 +90,7 @@
         "symbolName": "makeTikaAppFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Create the real tika-app-backed file-processing engine.",
         "categories": [
           "constructors"
@@ -141,7 +141,7 @@
         "symbolName": "makeTikaFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
-        "sourceLine": 141,
+        "sourceLine": 125,
         "summary": "Create the P1 Tika file-processing engine.",
         "categories": [
           "constructors"
@@ -266,7 +266,7 @@
         "symbolName": "TikaFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
-        "sourceLine": 231,
+        "sourceLine": 215,
         "summary": "P1 Tika file-processing engine value.",
         "categories": [
           "services"
@@ -341,7 +341,7 @@
         "symbolName": "makeTikaAppFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Create the real tika-app-backed file-processing engine.",
         "categories": [
           "constructors"
@@ -392,7 +392,7 @@
         "symbolName": "makeTikaFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
-        "sourceLine": 141,
+        "sourceLine": 125,
         "summary": "Create the P1 Tika file-processing engine.",
         "categories": [
           "constructors"
@@ -517,7 +517,7 @@
         "symbolName": "TikaFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
-        "sourceLine": 231,
+        "sourceLine": 215,
         "summary": "P1 Tika file-processing engine value.",
         "categories": [
           "services"
@@ -692,7 +692,7 @@
         "symbolName": "makeTikaFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
-        "sourceLine": 141,
+        "sourceLine": 125,
         "summary": "Create the P1 Tika file-processing engine.",
         "categories": [
           "constructors"
@@ -717,7 +717,7 @@
         "symbolName": "TikaFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.service.ts",
-        "sourceLine": 231,
+        "sourceLine": 215,
         "summary": "P1 Tika file-processing engine value.",
         "categories": [
           "services"
@@ -767,7 +767,7 @@
         "symbolName": "makeTikaAppFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Create the real tika-app-backed file-processing engine.",
         "categories": [
           "constructors"

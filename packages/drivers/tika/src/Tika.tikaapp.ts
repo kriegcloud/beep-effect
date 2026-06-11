@@ -6,9 +6,9 @@
  */
 
 import { ExtractionResult } from "@beep/file-processing/Extraction";
-import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
+import { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { $TikaId } from "@beep/identity";
-import { A, Str, thunkEmptyStr } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { Effect, Match, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -16,7 +16,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { makeTikaError } from "./Tika.errors.js";
-import { TikaFileProcessingEngineDescriptor } from "./Tika.service.js";
+import { TikaFileProcessingEngine, TikaFileProcessingEngineDescriptor } from "./Tika.service.js";
 import type { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation";
 import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
 import type { TikaError } from "./Tika.errors.js";
@@ -52,22 +52,6 @@ export class TikaAppEngineConfig extends S.Class<TikaAppEngineConfig>($I`TikaApp
     description: "Configuration for the real tika-app subprocess engine: jar path, java binary, and per-file timeout.",
   })
 ) {}
-
-const classifyExtension = Match.type<string | undefined>().pipe(
-  Match.when("doc", () => "doc" as const),
-  Match.when("docx", () => "docx" as const),
-  Match.when("docm", () => "docm" as const),
-  Match.when("rtf", () => "rtf" as const),
-  Match.whenOr("htm", "html", () => "html" as const),
-  Match.when("xhtml", () => "xhtml" as const),
-  Match.when("pdf", () => "pdf-text-layer" as const),
-  Match.whenOr("txt", "text", () => "plain-text" as const),
-  Match.whenOr("md", "markdown", () => "markdown" as const),
-  Match.whenOr("bmp", "gif", "jpeg", "jpg", "png", "tif", "tiff", "webp", () => "image-metadata" as const),
-  Match.when("xls", () => "xls" as const),
-  Match.when("xlsx", () => "xlsx" as const),
-  Match.orElse(() => "unknown" as const)
-);
 
 const operationFailure = (operation: ExtractFileOperation, error: TikaError): FileProcessingOperationError =>
   Match.value(error.reason).pipe(
@@ -165,12 +149,6 @@ export const makeTikaAppFileProcessingEngine = Effect.fn("Tika.makeTikaAppFilePr
   const javaPath = config.javaPath ?? defaultJavaPath;
   const timeoutMillis = config.timeoutMillis ?? defaultTimeoutMillis;
 
-  const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<string, E> =>
-    stream.pipe(
-      Stream.decodeText(),
-      Stream.runFold(thunkEmptyStr, (acc, chunk) => `${acc}${chunk}`)
-    );
-
   const runTika = Effect.fn("Tika.tikaapp.run")(function* (sourcePath: string): Effect.fn.Return<string, TikaError> {
     const command = ChildProcess.make(javaPath, ["-jar", config.jarPath, "-J", "-t", sourcePath], {
       forceKillAfter: `${defaultForceKillAfterMillis} millis`,
@@ -180,13 +158,17 @@ export const makeTikaAppFileProcessingEngine = Effect.fn("Tika.makeTikaAppFilePr
     });
 
     const result = yield* Effect.scoped(
-      Effect.gen(function* () {
-        const handle = yield* spawner.spawn(command);
-        const [stdout, exitCode] = yield* Effect.all([collectText(handle.stdout), handle.exitCode], {
-          concurrency: "unbounded",
-        });
-        return { exitCode, stdout };
-      })
+      spawner.spawn(command).pipe(
+        Effect.flatMap((handle) =>
+          Effect.all(
+            {
+              exitCode: handle.exitCode,
+              stdout: handle.stdout.pipe(Stream.decodeText(), Stream.mkString),
+            },
+            { concurrency: "unbounded" }
+          )
+        )
+      )
     ).pipe(Effect.mapError(() => makeTikaError("engine-unavailable", { cause: "tika spawn failed" })));
 
     if (result.exitCode !== 0) {
@@ -224,18 +206,7 @@ export const makeTikaAppFileProcessingEngine = Effect.fn("Tika.makeTikaAppFilePr
 
   const engine: FileProcessingEngineShape = {
     descriptor: TikaFileProcessingEngineDescriptor,
-    detect: Effect.fn("TikaAppEngine.detect")(function* (operation) {
-      return DetectionResult.make({
-        confidence: 0.95,
-        engine: TikaFileProcessingEngineDescriptor.name,
-        format: classifyExtension(operation.source.extension),
-        operationId: operation.operationId,
-        sourceArtifactId: operation.source.id,
-        ...R.getSomes({
-          mediaType: O.fromUndefinedOr(operation.source.mediaType),
-        }),
-      });
-    }),
+    detect: TikaFileProcessingEngine.detect,
     exportArchive: Effect.fn("TikaAppEngine.exportArchive")(function* (operation: ExportArchiveOperation) {
       return yield* FileProcessingOperationError.fromReason("unsupported-file-format", {
         artifactId: operation.source.id,

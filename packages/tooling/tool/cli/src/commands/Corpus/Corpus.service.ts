@@ -25,7 +25,11 @@ import {
   SucceededSourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
 import { ProcessFileOperation } from "@beep/file-processing/Operation";
-import { makeFileProcessingServiceLayer, processFile } from "@beep/file-processing/Service";
+import {
+  collectSourceOutcomeRecords,
+  makeFileProcessingServiceLayer,
+  processFile,
+} from "@beep/file-processing/Service";
 import {
   DeferredSelectedStrategy,
   SupportedSelectedStrategy,
@@ -70,6 +74,7 @@ import {
   UnmatchedContentRestorationRecord,
   UnmatchedMetadataRestorationRecord,
 } from "./Corpus.schemas.js";
+import type { DuckDbError, DuckDbShape } from "@beep/duckdb";
 import type {
   ArchiveExportProcessFileResult,
   ExtractedProcessFileResult,
@@ -263,6 +268,25 @@ class DuplicateTotalsRow extends S.Class<DuplicateTotalsRow>($I`DuplicateTotalsR
 const decodeSourceTotalsRows = S.decodeUnknownEffect(S.Array(SourceTotalsRow));
 const decodeDuplicateTotalsRows = S.decodeUnknownEffect(S.Array(DuplicateTotalsRow));
 const decodeDuplicateSetRecords = S.decodeUnknownEffect(S.Array(CorpusDuplicateSetRecord));
+
+const runWithCorpusDb = <A, E>(
+  databasePath: string,
+  message: string,
+  work: Effect.Effect<A, E, DuckDb>
+): Effect.Effect<A, CorpusCommandError> =>
+  Effect.scoped(
+    Layer.build(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }))).pipe(
+      Effect.flatMap((context) => work.pipe(Effect.provide(context)))
+    )
+  ).pipe(CorpusCommandError.mapError(message));
+
+const insertRows = <Row>(
+  db: DuckDbShape,
+  statement: string,
+  rows: ReadonlyArray<Row>,
+  toParameters: (row: Row) => Array<string | number | boolean | null>
+): Effect.Effect<void, DuckDbError> =>
+  Effect.forEach(rows, (row) => db.run(statement, toParameters(row)), { discard: true });
 
 const singleRow = <Row>(rows: ReadonlyArray<Row>, label: string): Effect.Effect<Row, CorpusCommandError> =>
   A.head(rows).pipe(
@@ -486,10 +510,11 @@ const catalogCorpusImpl = Effect.fn("CorpusCommandService.catalogCorpus")(functi
     return { duplicateSetRows, duplicateTotalsRows, sourceTotalsRows };
   });
 
-  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }));
-  const queried = yield* Effect.scoped(
-    Layer.build(duckDbLayer).pipe(Effect.flatMap((context) => duckDbWork.pipe(Effect.provide(context))))
-  ).pipe(CorpusCommandError.mapError(`Failed building the DuckDB catalog at "${databasePath}".`));
+  const queried = yield* runWithCorpusDb(
+    databasePath,
+    `Failed building the DuckDB catalog at "${databasePath}".`,
+    duckDbWork
+  );
 
   const sourceTotals = yield* decodeSourceTotalsRows(queried.sourceTotalsRows).pipe(
     CorpusCommandError.mapError("DuckDB source totals row failed schema validation."),
@@ -514,10 +539,7 @@ const catalogCorpusImpl = Effect.fn("CorpusCommandService.catalogCorpus")(functi
     )
   );
   yield* fs
-    .writeFileString(
-      restorationManifestPath,
-      A.length(restorationLines) === 0 ? "" : `${A.join(restorationLines, "\n")}\n`
-    )
+    .writeFileString(restorationManifestPath, jsonlContent(restorationLines))
     .pipe(CorpusCommandError.mapError(`Failed writing restoration manifest "${restorationManifestPath}".`));
 
   const summary = CorpusCatalogSummary.make({
@@ -604,10 +626,10 @@ const writeCorpusStringFile = Effect.fn("CorpusCommandService.writeCorpusStringF
   const path = yield* Path.Path;
   yield* fs
     .makeDirectory(path.dirname(outputPath), { recursive: true })
-    .pipe(CorpusCommandError.mapError(`Failed creating output directory for "${outputPath}".`));
-  yield* fs
-    .writeFileString(outputPath, content)
-    .pipe(CorpusCommandError.mapError(`Failed writing output "${outputPath}".`));
+    .pipe(
+      Effect.andThen(fs.writeFileString(outputPath, content)),
+      CorpusCommandError.mapError(`Failed writing corpus output "${outputPath}".`)
+    );
 });
 
 interface CorpusExtractOutcome {
@@ -658,21 +680,19 @@ const failedOutcome = (
   }),
 });
 
-const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(function* (
-  options: CorpusExtractOptions
-): Effect.fn.Return<CorpusExtractSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
+const jsonlContent = (lines: ReadonlyArray<string>): string =>
+  A.length(lines) === 0 ? "" : `${A.join(lines, "\n")}\n`;
+
+const prepareExtractOutputDir = Effect.fn("CorpusCommandService.prepareExtractOutputDir")(function* (
+  outDir: string,
+  childrenRoot: string,
+  overwrite: boolean
+): Effect.fn.Return<void, CorpusCommandError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-
-  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
-  const outDir = path.join(options.corpusRoot, "staging", "extract");
-  const childrenRoot = path.join(outDir, "children");
-  const concurrency = Math.max(1, Math.floor(options.concurrency ?? 4));
-
   const outDirExists = yield* fs
     .exists(outDir)
     .pipe(CorpusCommandError.mapError(`Failed checking extract output directory "${outDir}".`));
-  if (outDirExists && !options.overwrite) {
+  if (outDirExists && !overwrite) {
     return yield* CorpusCommandError.make({
       message: `Extract output "${outDir}" already exists; pass --overwrite to replace it.`,
     });
@@ -685,11 +705,12 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
   yield* fs
     .makeDirectory(childrenRoot, { recursive: true })
     .pipe(CorpusCommandError.mapError(`Failed creating extract output "${childrenRoot}".`));
+});
 
-  const manifestText = yield* fs
-    .readFileString(manifestPath)
-    .pipe(CorpusCommandError.mapError(`Failed reading provenance manifest "${manifestPath}".`));
-  const allRecords = yield* decodeProvenanceLines(manifestText);
+const selectExtractRecords = (
+  allRecords: ReadonlyArray<CorpusProvenanceRecord>,
+  options: CorpusExtractOptions
+): { readonly duplicatesSkipped: number; readonly selected: ReadonlyArray<CorpusProvenanceRecord> } => {
   const labeled =
     options.sourceLabel === undefined
       ? allRecords
@@ -707,6 +728,51 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
     unique.push(record);
   }
   const selected = options.maxFiles === undefined ? unique : A.take(unique, Math.max(0, Math.floor(options.maxFiles)));
+  return { duplicatesSkipped, selected };
+};
+
+const buildExtractCoverage = (
+  sourceRecords: ReadonlyArray<SourceProcessingRecord>
+): Effect.Effect<FileProcessingCoverageSummary, CorpusCommandError> => {
+  const byFormat: Record<string, Record<string, number>> = {};
+  for (const format of extractCoverageFormats) {
+    byFormat[format] = { failed: 0, skipped: 0, succeeded: 0 };
+  }
+  for (const record of sourceRecords) {
+    const counts = byFormat[record.format] ?? { failed: 0, skipped: 0, succeeded: 0 };
+    counts[record.status] = (counts[record.status] ?? 0) + 1;
+    byFormat[record.format] = counts;
+  }
+  return S.decodeUnknownEffect(FileProcessingCoverageSummary)({
+    byFormat,
+    failedCount: A.length(A.filter(sourceRecords, (record) => record.status === "failed")),
+    skippedCount: A.length(A.filter(sourceRecords, (record) => record.status === "skipped")),
+    sourceCount: A.length(sourceRecords),
+    succeededCount: A.length(A.filter(sourceRecords, (record) => record.status === "succeeded")),
+    textArtifactCount: A.length(
+      A.filter(sourceRecords, (record) => record.status === "succeeded" && record.textPath !== undefined)
+    ),
+  }).pipe(CorpusCommandError.mapError("Coverage summary failed schema validation."));
+};
+
+const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(function* (
+  options: CorpusExtractOptions
+): Effect.fn.Return<CorpusExtractSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
+  const outDir = path.join(options.corpusRoot, "staging", "extract");
+  const childrenRoot = path.join(outDir, "children");
+  const concurrency = Math.max(1, Math.floor(options.concurrency ?? 4));
+
+  yield* prepareExtractOutputDir(outDir, childrenRoot, options.overwrite);
+
+  const manifestText = yield* fs
+    .readFileString(manifestPath)
+    .pipe(CorpusCommandError.mapError(`Failed reading provenance manifest "${manifestPath}".`));
+  const allRecords = yield* decodeProvenanceLines(manifestText);
+  const { duplicatesSkipped, selected } = selectExtractRecords(allRecords, options);
   yield* Console.log(
     `corpus extract: ${A.length(selected)} sources selected (${duplicatesSkipped} duplicate copies skipped, ${A.length(allRecords)} manifest records)`
   );
@@ -799,7 +865,7 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
                 );
                 yield* writeCorpusStringFile(
                   path.join(outDir, "children", archive.sourceArtifactId, "artifacts.jsonl"),
-                  A.length(childLines) === 0 ? "" : `${A.join(childLines, "\n")}\n`
+                  jsonlContent(childLines)
                 );
                 return {
                   childArtifactCount: A.length(archive.archiveExport.children),
@@ -923,33 +989,9 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
     )
   );
 
-  const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
-  const failureRecords = A.flatMap(outcomes, (outcome) => O.toArray(outcome.failure));
-  const byFormat: Record<string, Record<string, number>> = {};
-  for (const format of extractCoverageFormats) {
-    byFormat[format] = { failed: 0, skipped: 0, succeeded: 0 };
-  }
-  for (const record of sourceRecords) {
-    const counts = byFormat[record.format] ?? { failed: 0, skipped: 0, succeeded: 0 };
-    counts[record.status] = (counts[record.status] ?? 0) + 1;
-    byFormat[record.format] = counts;
-  }
-  const succeededCount = A.length(A.filter(sourceRecords, (record) => record.status === "succeeded"));
-  const skippedCount = A.length(A.filter(sourceRecords, (record) => record.status === "skipped"));
-  const failedCount = A.length(A.filter(sourceRecords, (record) => record.status === "failed"));
-  const textArtifactCount = A.length(
-    A.filter(sourceRecords, (record) => record.status === "succeeded" && record.textPath !== undefined)
-  );
+  const { failureRecords, sourceRecords } = collectSourceOutcomeRecords(outcomes);
   const childArtifactCount = A.reduce(outcomes, 0, (total_, outcome) => total_ + outcome.childArtifactCount);
-
-  const coverage = yield* S.decodeUnknownEffect(FileProcessingCoverageSummary)({
-    byFormat,
-    failedCount,
-    skippedCount,
-    sourceCount: A.length(sourceRecords),
-    succeededCount,
-    textArtifactCount,
-  }).pipe(CorpusCommandError.mapError("Coverage summary failed schema validation."));
+  const coverage = yield* buildExtractCoverage(sourceRecords);
 
   const runId = yield* deriveCorpusOperationId(
     `corpus-extract-run:${A.join(
@@ -986,23 +1028,17 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
 
   yield* writeCorpusStringFile(path.join(outDir, "run.json"), `${runJson}\n`);
   yield* writeCorpusStringFile(path.join(outDir, "coverage.json"), `${coverageJson}\n`);
-  yield* writeCorpusStringFile(
-    path.join(outDir, "sources.jsonl"),
-    A.length(sourceLines) === 0 ? "" : `${A.join(sourceLines, "\n")}\n`
-  );
-  yield* writeCorpusStringFile(
-    path.join(outDir, "failures.jsonl"),
-    A.length(failureLines) === 0 ? "" : `${A.join(failureLines, "\n")}\n`
-  );
+  yield* writeCorpusStringFile(path.join(outDir, "sources.jsonl"), jsonlContent(sourceLines));
+  yield* writeCorpusStringFile(path.join(outDir, "failures.jsonl"), jsonlContent(failureLines));
 
   const summary = CorpusExtractSummary.make({
     childArtifactCount: NonNegativeInt.make(childArtifactCount),
     duplicatesSkipped: NonNegativeInt.make(duplicatesSkipped),
-    failedCount: NonNegativeInt.make(failedCount),
-    skippedCount: NonNegativeInt.make(skippedCount),
-    sourceCount: NonNegativeInt.make(A.length(sourceRecords)),
-    succeededCount: NonNegativeInt.make(succeededCount),
-    textArtifactCount: NonNegativeInt.make(textArtifactCount),
+    failedCount: coverage.failedCount,
+    skippedCount: coverage.skippedCount,
+    sourceCount: coverage.sourceCount,
+    succeededCount: coverage.succeededCount,
+    textArtifactCount: coverage.textArtifactCount,
   });
   const summaryJson = yield* encodeCorpusExtractSummaryJson(summary).pipe(
     CorpusCommandError.mapError("Extract summary failed JSON encoding.")
@@ -1185,19 +1221,11 @@ interface OrganizePlanRow {
   readonly sourceRelativePath: string;
 }
 
-const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(function* (
-  options: CorpusOrganizeOptions
-): Effect.fn.Return<CorpusOrganizeSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
+const prepareOrganizedRoot = Effect.fn("CorpusCommandService.prepareOrganizedRoot")(function* (
+  organizedRoot: string,
+  overwrite: boolean
+): Effect.fn.Return<void, CorpusCommandError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-
-  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
-  const restorationPath = path.join(options.corpusRoot, "catalog", "restoration-manifest.jsonl");
-  const organizedRoot = path.join(options.corpusRoot, "organized");
-  const organizeManifestPath = path.join(options.corpusRoot, "catalog", "organize-manifest.jsonl");
-  const summaryReportPath = path.join(options.corpusRoot, "catalog", "reports", "organize-summary.json");
-  const databasePath = path.join(options.corpusRoot, "catalog", "corpus.duckdb");
-
   const organizedExists = yield* fs
     .exists(organizedRoot)
     .pipe(CorpusCommandError.mapError(`Failed checking organized root "${organizedRoot}".`));
@@ -1205,7 +1233,7 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
     const entries = yield* fs
       .readDirectory(organizedRoot)
       .pipe(CorpusCommandError.mapError(`Failed reading organized root "${organizedRoot}".`));
-    if (A.length(entries) > 0 && !options.overwrite) {
+    if (A.length(entries) > 0 && !overwrite) {
       return yield* CorpusCommandError.make({
         message: `Organized root "${organizedRoot}" is not empty; pass --overwrite to rebuild it.`,
       });
@@ -1219,17 +1247,16 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
   yield* fs
     .makeDirectory(organizedRoot, { recursive: true })
     .pipe(CorpusCommandError.mapError(`Failed creating organized root "${organizedRoot}".`));
+});
 
-  const manifestText = yield* fs
-    .readFileString(manifestPath)
-    .pipe(CorpusCommandError.mapError(`Failed reading provenance manifest "${manifestPath}".`));
-  const allRecords = yield* decodeProvenanceLines(manifestText);
-
+const loadMatchedRestorations = Effect.fn("CorpusCommandService.loadMatchedRestorations")(function* (
+  restorationPath: string
+): Effect.fn.Return<Map<string, MatchedRestorationRecord>, CorpusCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
   const restorationText = yield* fs
     .readFileString(restorationPath)
     .pipe(CorpusCommandError.mapError(`Failed reading restoration manifest "${restorationPath}"; run catalog first.`));
-  const restorationLines = A.filter(Str.split(restorationText, "\n"), Str.isNonEmpty);
-  const restorations = yield* Effect.forEach(restorationLines, (line) =>
+  const restorations = yield* Effect.forEach(A.filter(Str.split(restorationText, "\n"), Str.isNonEmpty), (line) =>
     decodeRestorationRecordJson(line).pipe(
       CorpusCommandError.mapError("Restoration manifest line failed schema validation.")
     )
@@ -1240,20 +1267,91 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
       restoredByLabelPath.set(labelPathKey(record.sourceLabel, record.contentRelativePath), record);
     }
   }
+  return restoredByLabelPath;
+});
 
+const loadClientMap = Effect.fn("CorpusCommandService.loadClientMap")(function* (
+  clientMapPath: string | undefined
+): Effect.fn.Return<Map<string, string>, CorpusCommandError, FileSystem.FileSystem> {
   const clientByLabel = new Map<string, string>();
-  if (options.clientMapPath !== undefined) {
-    const clientMapText = yield* fs
-      .readFileString(options.clientMapPath)
-      .pipe(CorpusCommandError.mapError(`Failed reading client map "${options.clientMapPath}".`));
-    const clientMap = yield* decodeClientMapJson(clientMapText).pipe(
-      CorpusCommandError.mapError("Client map failed schema validation.")
-    );
-    for (const [label, client] of Object.entries(clientMap)) {
-      clientByLabel.set(label, sanitizeSegment(client));
-    }
+  if (clientMapPath === undefined) {
+    return clientByLabel;
   }
+  const fs = yield* FileSystem.FileSystem;
+  const clientMapText = yield* fs
+    .readFileString(clientMapPath)
+    .pipe(CorpusCommandError.mapError(`Failed reading client map "${clientMapPath}".`));
+  const clientMap = yield* decodeClientMapJson(clientMapText).pipe(
+    CorpusCommandError.mapError("Client map failed schema validation.")
+  );
+  for (const [label, client] of Object.entries(clientMap)) {
+    clientByLabel.set(label, sanitizeSegment(client));
+  }
+  return clientByLabel;
+});
 
+const organizeCategoryFor = (input: {
+  readonly client: string | undefined;
+  readonly extension: string | undefined;
+  readonly hasDocket: boolean;
+  readonly isEmailExport: boolean;
+  readonly isRecycleMetadata: boolean;
+}): CorpusOrganizeCategory =>
+  input.isRecycleMetadata
+    ? "recycle-metadata"
+    : input.extension === "pst"
+      ? "email-archive"
+      : input.hasDocket
+        ? "docket"
+        : input.isEmailExport
+          ? "email-export"
+          : input.client === undefined
+            ? "unsorted"
+            : "client";
+
+const planOrganizeRow = (
+  record: CorpusProvenanceRecord,
+  restoration: MatchedRestorationRecord | undefined,
+  client: string | undefined
+): OrganizePlanRow => {
+  const effectiveName = sanitizeSegment(restoration?.original.originalName ?? basenameOf(record.relativePath));
+  const directories =
+    restoration === undefined
+      ? A.map(A.filter(Str.split(parentDirOf(record.relativePath), "/"), Str.isNonEmpty), sanitizeSegment)
+      : windowsPathDirectories(restoration.original.originalPath);
+  const docket = pipeDocket(`${effectiveName} ${record.relativePath}`);
+  const isRecycleMetadata = O.match(classifyRecycleBinName(basenameOf(record.relativePath)), {
+    onNone: () => false,
+    onSome: (entry) => entry.kind === "metadata",
+  });
+
+  return {
+    category: organizeCategoryFor({
+      client,
+      extension: extensionOf(effectiveName),
+      hasDocket: O.isSome(docket),
+      isEmailExport: record.relativePath.startsWith("Sent_Emails.export/"),
+      isRecycleMetadata,
+    }),
+    client,
+    destPath: record.destPath,
+    digest: `sha256:${record.sha256}`,
+    directories,
+    docket: O.isSome(docket) ? docket.value.docket : undefined,
+    docketFamily: O.isSome(docket) ? docket.value.family : undefined,
+    effectiveName,
+    mtimeEpoch: record.mtimeEpoch,
+    restored: restoration !== undefined,
+    sourceLabel: record.sourceLabel,
+    sourceRelativePath: record.relativePath,
+  };
+};
+
+const buildOrganizePlan = (
+  allRecords: ReadonlyArray<CorpusProvenanceRecord>,
+  restoredByLabelPath: ReadonlyMap<string, MatchedRestorationRecord>,
+  clientByLabel: ReadonlyMap<string, string>
+): { readonly duplicatesSkipped: number; readonly plan: ReadonlyArray<OrganizePlanRow> } => {
   const seenDigests = new Set<string>();
   let duplicatesSkipped = 0;
   const plan: Array<OrganizePlanRow> = [];
@@ -1264,51 +1362,21 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
       continue;
     }
     seenDigests.add(record.sha256);
-
-    const restoration = restoredByLabelPath.get(labelPathKey(record.sourceLabel, record.relativePath));
-    const restored = restoration !== undefined;
-    const effectiveName = sanitizeSegment(restoration?.original.originalName ?? basenameOf(record.relativePath));
-    const directories =
-      restoration === undefined
-        ? A.map(A.filter(Str.split(parentDirOf(record.relativePath), "/"), Str.isNonEmpty), sanitizeSegment)
-        : windowsPathDirectories(restoration.original.originalPath);
-    const docket = pipeDocket(`${effectiveName} ${record.relativePath}`);
-    const isEmailExport = record.relativePath.startsWith("Sent_Emails.export/");
-    const isRecycleMetadata = O.match(classifyRecycleBinName(basenameOf(record.relativePath)), {
-      onNone: () => false,
-      onSome: (entry) => entry.kind === "metadata",
-    });
-    const client = clientByLabel.get(record.sourceLabel);
-    const extension = extensionOf(effectiveName);
-
-    const category: CorpusOrganizeCategory = isRecycleMetadata
-      ? "recycle-metadata"
-      : extension === "pst"
-        ? "email-archive"
-        : O.isSome(docket)
-          ? "docket"
-          : isEmailExport
-            ? "email-export"
-            : client === undefined
-              ? "unsorted"
-              : "client";
-
-    plan.push({
-      category,
-      client,
-      destPath: record.destPath,
-      digest: `sha256:${record.sha256}`,
-      directories,
-      docket: O.isSome(docket) ? docket.value.docket : undefined,
-      docketFamily: O.isSome(docket) ? docket.value.family : undefined,
-      effectiveName,
-      mtimeEpoch: record.mtimeEpoch,
-      restored,
-      sourceLabel: record.sourceLabel,
-      sourceRelativePath: record.relativePath,
-    });
+    plan.push(
+      planOrganizeRow(
+        record,
+        restoredByLabelPath.get(labelPathKey(record.sourceLabel, record.relativePath)),
+        clientByLabel.get(record.sourceLabel)
+      )
+    );
   }
 
+  return { duplicatesSkipped, plan };
+};
+
+const assignVersionIndexes = (
+  plan: ReadonlyArray<OrganizePlanRow>
+): { readonly multiVersionGroups: number; readonly versionIndexByRow: ReadonlyMap<OrganizePlanRow, number> } => {
   const versionIndexByRow = new Map<OrganizePlanRow, number>();
   const versionGroups = new Map<string, Array<OrganizePlanRow>>();
   for (const row of plan) {
@@ -1334,69 +1402,181 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
       versionIndexByRow.set(row, index + 1);
     });
   }
+  return { multiVersionGroups, versionIndexByRow };
+};
+
+const joinOrganizedSegments = (segments: ReadonlyArray<string>): string => A.join(segments, "/");
+
+const organizedRelativeFor = (row: OrganizePlanRow, versionedName: string): string | undefined =>
+  Match.value(row.category).pipe(
+    Match.when("email-archive", () =>
+      joinOrganizedSegments(["email-archives", `${row.sourceLabel}--${row.effectiveName}`])
+    ),
+    Match.when("docket", () =>
+      joinOrganizedSegments(["dockets", row.docketFamily ?? "_", row.docket ?? "_", versionedName])
+    ),
+    Match.when("client", () =>
+      joinOrganizedSegments(["clients", row.client ?? "_", ...row.directories, row.effectiveName])
+    ),
+    Match.when("unsorted", () =>
+      joinOrganizedSegments(["_unsorted", row.sourceLabel, ...row.directories, row.effectiveName])
+    ),
+    Match.orElse(() => undefined)
+  );
+
+const dedupeOrganizedTarget = (candidate: string, usedTargets: ReadonlySet<string>, digest: string): string => {
+  if (!usedTargets.has(candidate)) {
+    return candidate;
+  }
+  const digestSuffix = digest.slice("sha256:".length, "sha256:".length + 8);
+  const dot = candidate.lastIndexOf(".");
+  return dot <= candidate.lastIndexOf("/")
+    ? `${candidate}--${digestSuffix}`
+    : `${candidate.slice(0, dot)}--${digestSuffix}${candidate.slice(dot)}`;
+};
+
+const materializeOrganizedRow = Effect.fn("CorpusCommandService.materializeOrganizedRow")(function* (
+  organizedRoot: string,
+  row: OrganizePlanRow,
+  organizedRelative: string
+): Effect.fn.Return<void, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const targetPath = path.join(organizedRoot, organizedRelative);
+  yield* fs
+    .makeDirectory(path.dirname(targetPath), { recursive: true })
+    .pipe(CorpusCommandError.mapError(`Failed creating organized directory for "${organizedRelative}".`));
+  yield* (
+    row.category === "email-archive" ? fs.symlink(row.destPath, targetPath) : fs.copyFile(row.destPath, targetPath)
+  ).pipe(CorpusCommandError.mapError(`Failed materializing organized artifact "${organizedRelative}".`));
+});
+
+const organizeRecordFor = (
+  row: OrganizePlanRow,
+  organizedRelative: string | undefined,
+  versionIndex: number | undefined,
+  materialized: boolean
+): CorpusOrganizeRecord =>
+  CorpusOrganizeRecord.make({
+    category: row.category,
+    digest: row.digest,
+    effectiveName: row.effectiveName,
+    materialized,
+    restoredFromRecycleBin: row.restored,
+    sourceLabel: row.sourceLabel,
+    sourceRelativePath: row.sourceRelativePath,
+    ...R.getSomes({
+      client: O.fromUndefinedOr(row.client),
+      docket: O.fromUndefinedOr(row.docket),
+      docketFamily: O.fromUndefinedOr(row.docketFamily),
+      organizedRelativePath: O.fromUndefinedOr(organizedRelative),
+    }),
+    ...R.getSomes({ versionIndex: O.map(O.fromUndefinedOr(versionIndex), NonNegativeInt.make) }),
+  });
+
+const writeOrganizedTable = Effect.fn("CorpusCommandService.writeOrganizedTable")(function* (
+  databasePath: string,
+  records: ReadonlyArray<CorpusOrganizeRecord>
+): Effect.fn.Return<void, CorpusCommandError> {
+  yield* runWithCorpusDb(
+    databasePath,
+    `Failed writing the organized catalog table at "${databasePath}".`,
+    Effect.gen(function* () {
+      const db = yield* DuckDb;
+      yield* db.run(createOrganizedTable);
+      yield* insertRows(db, insertOrganizedStatement, records, (record) => [
+        record.digest,
+        record.sourceLabel,
+        record.sourceRelativePath,
+        record.category,
+        record.client ?? null,
+        record.docket ?? null,
+        record.docketFamily ?? null,
+        record.versionIndex ?? null,
+        record.organizedRelativePath ?? null,
+        record.effectiveName,
+        record.restoredFromRecycleBin,
+        record.materialized,
+      ]);
+    })
+  );
+});
+
+const buildOrganizeSummary = (input: {
+  readonly counts: Record<CorpusOrganizeCategory, number>;
+  readonly duplicatesSkipped: number;
+  readonly multiVersionGroups: number;
+  readonly plan: ReadonlyArray<OrganizePlanRow>;
+  readonly records: ReadonlyArray<CorpusOrganizeRecord>;
+}): CorpusOrganizeSummary => {
+  const docketFamilies = new Set(
+    A.flatMap(input.plan, (row) => (row.docketFamily === undefined ? [] : [row.docketFamily]))
+  );
+  return CorpusOrganizeSummary.make({
+    canonicalArtifacts: NonNegativeInt.make(A.length(input.plan)),
+    clientFiles: NonNegativeInt.make(input.counts.client),
+    docketFamilies: NonNegativeInt.make(docketFamilies.size),
+    docketFiles: NonNegativeInt.make(input.counts.docket),
+    duplicatesSkipped: NonNegativeInt.make(input.duplicatesSkipped),
+    emailArchives: NonNegativeInt.make(input.counts["email-archive"]),
+    emailExportFiles: NonNegativeInt.make(input.counts["email-export"]),
+    restoredNames: NonNegativeInt.make(A.length(A.filter(input.records, (record) => record.restoredFromRecycleBin))),
+    unsortedFiles: NonNegativeInt.make(input.counts.unsorted),
+    versionGroups: NonNegativeInt.make(input.multiVersionGroups),
+  });
+};
+
+const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(function* (
+  options: CorpusOrganizeOptions
+): Effect.fn.Return<CorpusOrganizeSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
+  const restorationPath = path.join(options.corpusRoot, "catalog", "restoration-manifest.jsonl");
+  const organizedRoot = path.join(options.corpusRoot, "organized");
+  const organizeManifestPath = path.join(options.corpusRoot, "catalog", "organize-manifest.jsonl");
+  const summaryReportPath = path.join(options.corpusRoot, "catalog", "reports", "organize-summary.json");
+  const databasePath = path.join(options.corpusRoot, "catalog", "corpus.duckdb");
+
+  yield* prepareOrganizedRoot(organizedRoot, options.overwrite);
+
+  const manifestText = yield* fs
+    .readFileString(manifestPath)
+    .pipe(CorpusCommandError.mapError(`Failed reading provenance manifest "${manifestPath}".`));
+  const allRecords = yield* decodeProvenanceLines(manifestText);
+  const restoredByLabelPath = yield* loadMatchedRestorations(restorationPath);
+  const clientByLabel = yield* loadClientMap(options.clientMapPath);
+
+  const { duplicatesSkipped, plan } = buildOrganizePlan(allRecords, restoredByLabelPath, clientByLabel);
+  const { multiVersionGroups, versionIndexByRow } = assignVersionIndexes(plan);
 
   const usedTargets = new Set<string>();
   const records: Array<CorpusOrganizeRecord> = [];
-  const counts = { client: 0, docket: 0, "email-archive": 0, "email-export": 0, "recycle-metadata": 0, unsorted: 0 };
+  const counts: Record<CorpusOrganizeCategory, number> = {
+    client: 0,
+    docket: 0,
+    "email-archive": 0,
+    "email-export": 0,
+    "recycle-metadata": 0,
+    unsorted: 0,
+  };
 
   for (const row of plan) {
     counts[row.category] += 1;
     const versionIndex = versionIndexByRow.get(row);
     const versionedName =
       versionIndex === undefined ? row.effectiveName : `v${`${versionIndex}`.padStart(2, "0")}--${row.effectiveName}`;
-
-    let organizedRelative: string | undefined;
-    let materialized = false;
-
-    if (row.category === "email-archive") {
-      organizedRelative = path.join("email-archives", `${row.sourceLabel}--${row.effectiveName}`);
-    } else if (row.category === "docket") {
-      organizedRelative = path.join("dockets", row.docketFamily ?? "_", row.docket ?? "_", versionedName);
-    } else if (row.category === "client") {
-      organizedRelative = path.join("clients", row.client ?? "_", ...row.directories, row.effectiveName);
-    } else if (row.category === "unsorted") {
-      organizedRelative = path.join("_unsorted", row.sourceLabel, ...row.directories, row.effectiveName);
-    }
+    const candidate = organizedRelativeFor(row, versionedName);
+    const organizedRelative =
+      candidate === undefined ? undefined : dedupeOrganizedTarget(candidate, usedTargets, row.digest);
 
     if (organizedRelative !== undefined) {
-      if (usedTargets.has(organizedRelative)) {
-        const digestSuffix = row.digest.slice("sha256:".length, "sha256:".length + 8);
-        const dot = organizedRelative.lastIndexOf(".");
-        organizedRelative =
-          dot <= organizedRelative.lastIndexOf("/")
-            ? `${organizedRelative}--${digestSuffix}`
-            : `${organizedRelative.slice(0, dot)}--${digestSuffix}${organizedRelative.slice(dot)}`;
-      }
       usedTargets.add(organizedRelative);
-
-      const targetPath = path.join(organizedRoot, organizedRelative);
-      yield* fs
-        .makeDirectory(path.dirname(targetPath), { recursive: true })
-        .pipe(CorpusCommandError.mapError(`Failed creating organized directory for "${organizedRelative}".`));
-      yield* (
-        row.category === "email-archive" ? fs.symlink(row.destPath, targetPath) : fs.copyFile(row.destPath, targetPath)
-      ).pipe(CorpusCommandError.mapError(`Failed materializing organized artifact "${organizedRelative}".`));
-      materialized = true;
+      yield* materializeOrganizedRow(organizedRoot, row, organizedRelative);
     }
 
-    records.push(
-      CorpusOrganizeRecord.make({
-        category: row.category,
-        digest: row.digest,
-        effectiveName: row.effectiveName,
-        materialized,
-        restoredFromRecycleBin: row.restored,
-        sourceLabel: row.sourceLabel,
-        sourceRelativePath: row.sourceRelativePath,
-        ...R.getSomes({
-          client: O.fromUndefinedOr(row.client),
-          docket: O.fromUndefinedOr(row.docket),
-          docketFamily: O.fromUndefinedOr(row.docketFamily),
-          organizedRelativePath: O.fromUndefinedOr(organizedRelative),
-        }),
-        ...R.getSomes({ versionIndex: O.map(O.fromUndefinedOr(versionIndex), NonNegativeInt.make) }),
-      })
-    );
+    records.push(organizeRecordFor(row, organizedRelative, versionIndex, organizedRelative !== undefined));
   }
 
   const manifestLines = yield* Effect.forEach(records, (record) =>
@@ -1404,55 +1584,10 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
       CorpusCommandError.mapError("Organize manifest record failed JSONL encoding.")
     )
   );
-  yield* writeCorpusStringFile(
-    organizeManifestPath,
-    A.length(manifestLines) === 0 ? "" : `${A.join(manifestLines, "\n")}\n`
-  );
+  yield* writeCorpusStringFile(organizeManifestPath, jsonlContent(manifestLines));
+  yield* writeOrganizedTable(databasePath, records);
 
-  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }));
-  yield* Effect.scoped(
-    Layer.build(duckDbLayer).pipe(
-      Effect.flatMap((context) =>
-        Effect.gen(function* () {
-          const db = yield* DuckDb;
-          yield* db.run(createOrganizedTable);
-          yield* Effect.forEach(
-            records,
-            (record) =>
-              db.run(insertOrganizedStatement, [
-                record.digest,
-                record.sourceLabel,
-                record.sourceRelativePath,
-                record.category,
-                record.client ?? null,
-                record.docket ?? null,
-                record.docketFamily ?? null,
-                record.versionIndex ?? null,
-                record.organizedRelativePath ?? null,
-                record.effectiveName,
-                record.restoredFromRecycleBin,
-                record.materialized,
-              ]),
-            { discard: true }
-          );
-        }).pipe(Effect.provide(context))
-      )
-    )
-  ).pipe(CorpusCommandError.mapError(`Failed writing the organized catalog table at "${databasePath}".`));
-
-  const docketFamilies = new Set(A.flatMap(plan, (row) => (row.docketFamily === undefined ? [] : [row.docketFamily])));
-  const summary = CorpusOrganizeSummary.make({
-    canonicalArtifacts: NonNegativeInt.make(A.length(plan)),
-    clientFiles: NonNegativeInt.make(counts.client),
-    docketFamilies: NonNegativeInt.make(docketFamilies.size),
-    docketFiles: NonNegativeInt.make(counts.docket),
-    duplicatesSkipped: NonNegativeInt.make(duplicatesSkipped),
-    emailArchives: NonNegativeInt.make(counts["email-archive"]),
-    emailExportFiles: NonNegativeInt.make(counts["email-export"]),
-    restoredNames: NonNegativeInt.make(A.length(A.filter(records, (record) => record.restoredFromRecycleBin))),
-    unsortedFiles: NonNegativeInt.make(counts.unsorted),
-    versionGroups: NonNegativeInt.make(multiVersionGroups),
-  });
+  const summary = buildOrganizeSummary({ counts, duplicatesSkipped, multiVersionGroups, plan, records });
   const summaryJson = yield* encodeCorpusOrganizeSummaryJson(summary).pipe(
     CorpusCommandError.mapError("Organize summary failed JSON encoding.")
   );
@@ -1493,31 +1628,12 @@ CREATE OR REPLACE TABLE corpus_enrichment (
 const insertEnrichmentStatement = `
 INSERT INTO corpus_enrichment VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
 
-const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function* (
-  options: CorpusEnrichOptions
-): Effect.fn.Return<CorpusEnrichSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+interface EnrichCandidateCollector {
+  readonly candidates: Map<string, EnrichCandidate>;
+  readonly scanText: (text: string, docketFamily: string | undefined) => void;
+}
 
-  const organizeManifestPath = path.join(options.corpusRoot, "catalog", "organize-manifest.jsonl");
-  const textDir = path.join(options.corpusRoot, "staging", "extract", "text");
-  const enrichmentManifestPath = path.join(options.corpusRoot, "catalog", "enrichment-manifest.jsonl");
-  const summaryReportPath = path.join(options.corpusRoot, "catalog", "reports", "enrich-summary.json");
-  const databasePath = path.join(options.corpusRoot, "catalog", "corpus.duckdb");
-  const lookupDelayMillis = Math.max(0, Math.floor(options.lookupDelayMillis ?? 400));
-
-  const organizeText = yield* fs
-    .readFileString(organizeManifestPath)
-    .pipe(
-      CorpusCommandError.mapError(`Failed reading organize manifest "${organizeManifestPath}"; run organize first.`)
-    );
-  const organizeLines = A.filter(Str.split(organizeText, "\n"), Str.isNonEmpty);
-  const organizeRecords = yield* Effect.forEach(organizeLines, (line) =>
-    S.decodeUnknownEffect(S.fromJsonString(CorpusOrganizeRecord))(line).pipe(
-      CorpusCommandError.mapError("Organize manifest line failed schema validation.")
-    )
-  );
-
+const makeEnrichCandidateCollector = (): EnrichCandidateCollector => {
   const candidates = new Map<string, EnrichCandidate>();
   const noteCandidate = (
     kind: "application" | "patent",
@@ -1532,7 +1648,6 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
     }
     candidates.set(key, existing);
   };
-
   const scanText = (text: string, docketFamily: string | undefined): void => {
     for (const match of text.matchAll(patentTextPattern)) {
       const normalized = normalizeUsptoPatentNumber(match[1] ?? "");
@@ -1547,11 +1662,31 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
       }
     }
   };
+  return { candidates, scanText };
+};
 
-  for (const record of organizeRecords) {
-    scanText(`${record.effectiveName} ${record.sourceRelativePath}`, record.docketFamily);
-  }
+const loadEnrichOrganizeRecords = Effect.fn("CorpusCommandService.loadEnrichOrganizeRecords")(function* (
+  organizeManifestPath: string
+): Effect.fn.Return<ReadonlyArray<CorpusOrganizeRecord>, CorpusCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  const organizeText = yield* fs
+    .readFileString(organizeManifestPath)
+    .pipe(
+      CorpusCommandError.mapError(`Failed reading organize manifest "${organizeManifestPath}"; run organize first.`)
+    );
+  return yield* Effect.forEach(A.filter(Str.split(organizeText, "\n"), Str.isNonEmpty), (line) =>
+    S.decodeUnknownEffect(S.fromJsonString(CorpusOrganizeRecord))(line).pipe(
+      CorpusCommandError.mapError("Organize manifest line failed schema validation.")
+    )
+  );
+});
 
+const buildFamilyByTextName = Effect.fn("CorpusCommandService.buildFamilyByTextName")(function* (
+  corpusRoot: string,
+  organizeRecords: ReadonlyArray<CorpusOrganizeRecord>
+): Effect.fn.Return<ReadonlyMap<string, string>, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
   const familyByDigest = new Map<string, string>();
   for (const record of organizeRecords) {
     if (record.docketFamily !== undefined) {
@@ -1559,29 +1694,68 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
     }
   }
   const familyByTextName = new Map<string, string>();
-  const sourcesPath = path.join(options.corpusRoot, "staging", "extract", "sources.jsonl");
+  const sourcesPath = path.join(corpusRoot, "staging", "extract", "sources.jsonl");
   const sourcesExists = yield* fs
     .exists(sourcesPath)
     .pipe(CorpusCommandError.mapError(`Failed checking extraction sources "${sourcesPath}".`));
-  if (sourcesExists) {
-    const sourcesText = yield* fs
-      .readFileString(sourcesPath)
-      .pipe(CorpusCommandError.mapError(`Failed reading extraction sources "${sourcesPath}".`));
-    const sourceRows = yield* Effect.forEach(A.filter(Str.split(sourcesText, "\n"), Str.isNonEmpty), (line) =>
-      S.decodeUnknownEffect(S.fromJsonString(SourceProcessingRecord))(line).pipe(
-        CorpusCommandError.mapError("Extraction sources line failed schema validation.")
-      )
-    );
-    for (const row of sourceRows) {
-      if (row.status !== "succeeded" || row.textPath === undefined) {
-        continue;
-      }
-      const family = familyByDigest.get(row.digest);
-      if (family !== undefined) {
-        familyByTextName.set(basenameOf(row.textPath), family);
-      }
+  if (!sourcesExists) {
+    return familyByTextName;
+  }
+  const sourcesText = yield* fs
+    .readFileString(sourcesPath)
+    .pipe(CorpusCommandError.mapError(`Failed reading extraction sources "${sourcesPath}".`));
+  const sourceRows = yield* Effect.forEach(A.filter(Str.split(sourcesText, "\n"), Str.isNonEmpty), (line) =>
+    S.decodeUnknownEffect(S.fromJsonString(SourceProcessingRecord))(line).pipe(
+      CorpusCommandError.mapError("Extraction sources line failed schema validation.")
+    )
+  );
+  for (const row of sourceRows) {
+    if (row.status !== "succeeded" || row.textPath === undefined) {
+      continue;
+    }
+    const family = familyByDigest.get(row.digest);
+    if (family !== undefined) {
+      familyByTextName.set(basenameOf(row.textPath), family);
     }
   }
+  return familyByTextName;
+});
+
+const buildEnrichSummary = (records: ReadonlyArray<CorpusEnrichmentRecord>): CorpusEnrichSummary => {
+  const resolvedRecords = A.filter(records, (record) => record.status === "resolved");
+  return CorpusEnrichSummary.make({
+    applicationCandidates: NonNegativeInt.make(
+      A.length(A.filter(records, (record) => record.candidateKind === "application"))
+    ),
+    failedLookups: NonNegativeInt.make(A.length(A.filter(records, (record) => record.status === "failed"))),
+    familyAnchors: NonNegativeInt.make(
+      A.length(A.filter(resolvedRecords, (record) => A.length(record.docketFamilies) > 0))
+    ),
+    notFound: NonNegativeInt.make(A.length(A.filter(records, (record) => record.status === "not-found"))),
+    patentCandidates: NonNegativeInt.make(A.length(A.filter(records, (record) => record.candidateKind === "patent"))),
+    resolved: NonNegativeInt.make(A.length(resolvedRecords)),
+  });
+};
+
+const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function* (
+  options: CorpusEnrichOptions
+): Effect.fn.Return<CorpusEnrichSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const organizeManifestPath = path.join(options.corpusRoot, "catalog", "organize-manifest.jsonl");
+  const textDir = path.join(options.corpusRoot, "staging", "extract", "text");
+  const enrichmentManifestPath = path.join(options.corpusRoot, "catalog", "enrichment-manifest.jsonl");
+  const summaryReportPath = path.join(options.corpusRoot, "catalog", "reports", "enrich-summary.json");
+  const databasePath = path.join(options.corpusRoot, "catalog", "corpus.duckdb");
+  const lookupDelayMillis = Math.max(0, Math.floor(options.lookupDelayMillis ?? 400));
+
+  const organizeRecords = yield* loadEnrichOrganizeRecords(organizeManifestPath);
+  const { candidates, scanText } = makeEnrichCandidateCollector();
+  for (const record of organizeRecords) {
+    scanText(`${record.effectiveName} ${record.sourceRelativePath}`, record.docketFamily);
+  }
+  const familyByTextName = yield* buildFamilyByTextName(options.corpusRoot, organizeRecords);
 
   const textDirExists = yield* fs
     .exists(textDir)
@@ -1686,54 +1860,31 @@ const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function
       CorpusCommandError.mapError("Enrichment record failed JSONL encoding.")
     )
   );
-  yield* writeCorpusStringFile(
-    enrichmentManifestPath,
-    A.length(manifestLines) === 0 ? "" : `${A.join(manifestLines, "\n")}\n`
+  yield* writeCorpusStringFile(enrichmentManifestPath, jsonlContent(manifestLines));
+
+  yield* runWithCorpusDb(
+    databasePath,
+    `Failed writing the enrichment catalog table at "${databasePath}".`,
+    Effect.gen(function* () {
+      const db = yield* DuckDb;
+      yield* db.run(createEnrichmentTable);
+      yield* insertRows(db, insertEnrichmentStatement, records, (record) => [
+        record.candidate,
+        record.candidateKind,
+        record.status,
+        record.applicationNumber ?? null,
+        record.patentNumber ?? null,
+        record.inventionTitle ?? null,
+        record.firstApplicantName ?? null,
+        record.firstInventorName ?? null,
+        record.occurrenceCount,
+        A.join(record.docketFamilies, " | "),
+        A.join(record.parentApplicationNumbers, " | "),
+      ]);
+    })
   );
 
-  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }));
-  yield* Effect.scoped(
-    Layer.build(duckDbLayer).pipe(
-      Effect.flatMap((context) =>
-        Effect.gen(function* () {
-          const db = yield* DuckDb;
-          yield* db.run(createEnrichmentTable);
-          yield* Effect.forEach(
-            records,
-            (record) =>
-              db.run(insertEnrichmentStatement, [
-                record.candidate,
-                record.candidateKind,
-                record.status,
-                record.applicationNumber ?? null,
-                record.patentNumber ?? null,
-                record.inventionTitle ?? null,
-                record.firstApplicantName ?? null,
-                record.firstInventorName ?? null,
-                record.occurrenceCount,
-                A.join(record.docketFamilies, " | "),
-                A.join(record.parentApplicationNumbers, " | "),
-              ]),
-            { discard: true }
-          );
-        }).pipe(Effect.provide(context))
-      )
-    )
-  ).pipe(CorpusCommandError.mapError(`Failed writing the enrichment catalog table at "${databasePath}".`));
-
-  const resolvedRecords = A.filter(records, (record) => record.status === "resolved");
-  const summary = CorpusEnrichSummary.make({
-    applicationCandidates: NonNegativeInt.make(
-      A.length(A.filter(records, (record) => record.candidateKind === "application"))
-    ),
-    failedLookups: NonNegativeInt.make(A.length(A.filter(records, (record) => record.status === "failed"))),
-    familyAnchors: NonNegativeInt.make(
-      A.length(A.filter(resolvedRecords, (record) => A.length(record.docketFamilies) > 0))
-    ),
-    notFound: NonNegativeInt.make(A.length(A.filter(records, (record) => record.status === "not-found"))),
-    patentCandidates: NonNegativeInt.make(A.length(A.filter(records, (record) => record.candidateKind === "patent"))),
-    resolved: NonNegativeInt.make(A.length(resolvedRecords)),
-  });
+  const summary = buildEnrichSummary(records);
   const summaryJson = yield* encodeCorpusEnrichSummaryJson(summary).pipe(
     CorpusCommandError.mapError("Enrich summary failed JSON encoding.")
   );

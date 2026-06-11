@@ -7,7 +7,7 @@
 
 import { ArtifactReference, deriveArtifactId } from "@beep/file-processing/Artifact";
 import { ArchiveExportResult } from "@beep/file-processing/Extraction";
-import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
+import { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { $LibpffId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
@@ -18,7 +18,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { makeLibpffError } from "./Libpff.errors.js";
-import { LibpffFileProcessingEngineDescriptor } from "./Libpff.service.js";
+import { LibpffFileProcessingEngine, LibpffFileProcessingEngineDescriptor } from "./Libpff.service.js";
 import type { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation";
 import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
 import type { LibpffError } from "./Libpff.errors.js";
@@ -316,15 +316,7 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
 
   const engine: FileProcessingEngineShape = {
     descriptor: LibpffFileProcessingEngineDescriptor,
-    detect: Effect.fn("LibpffPffexportEngine.detect")(function* (operation) {
-      return DetectionResult.make({
-        confidence: operation.source.extension === "pst" ? 1 : 0,
-        engine: LibpffFileProcessingEngineDescriptor.name,
-        format: operation.source.extension === "pst" ? "pst" : "unknown",
-        operationId: operation.operationId,
-        sourceArtifactId: operation.source.id,
-      });
-    }),
+    detect: LibpffFileProcessingEngine.detect,
     exportArchive: Effect.fn("LibpffPffexportEngine.exportArchive")(function* (operation) {
       if (operation.format !== "pst") {
         return yield* FileProcessingOperationError.fromReason("unsupported-file-format", {

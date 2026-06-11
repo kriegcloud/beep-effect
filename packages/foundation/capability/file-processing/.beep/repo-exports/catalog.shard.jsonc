@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "9250eb82d753ec15dd4437d59ff8c73a9a2ef2e30e04fcaabf0278f80cf1298a",
+    "digest": "6ca329937702dd2429ab8e131c5190d98a6ffbf28be84662fa6d40fc2e78fd97",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -47,18 +47,18 @@
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sha256": "3e7954ef3933ee01be2b385e78e48eebb66312bb577ebbc0ffef3b69b931ae60",
-        "bytes": 19626
+        "sha256": "c9e78ef72b88d48a4a4eca54ef65dfc106ae31726e2851f120157fac5dec946a",
+        "bytes": 20506
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sha256": "e5c91f281c25b266f6a55346a4086666171f51e61bb057a96839b722564a03fc",
-        "bytes": 9369
+        "sha256": "6856b563253e64582aee8fc730214ce3f6c43f31a7f814e7f277bfcf9ee4aa21",
+        "bytes": 10798
       },
       {
         "path": "packages/foundation/capability/file-processing/src/test.ts",
-        "sha256": "8050b388da614e0066f2d10ff99ae3d88100483051c94e04ee50cf7c0659f1b3",
-        "bytes": 6134
+        "sha256": "e325784cb9fee91984284ab47163a0e9e84cabe6f372848478eb828afaf37378",
+        "bytes": 6821
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -98,8 +98,8 @@
       "@beep/file-processing/test"
     ],
     "counts": {
-      "publicExportEntries": 166,
-      "uniqueSymbols": 67,
+      "publicExportEntries": 172,
+      "uniqueSymbols": 71,
       "sourceFiles": 7
     },
     "exports": [
@@ -2760,10 +2760,35 @@
         "importSpecifier": "@beep/file-processing/Service",
         "exportSubpath": "./Service",
         "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "collectSourceOutcomeRecords",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 200,
+        "summary": "Fold per-source processing outcomes into their source and failure records.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service ./service collectsourceoutcomerecords const fold per-source processing outcomes into their source and failure records. combinators packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service",
+        "exportSubpath": "./Service",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
         "symbolName": "detectFile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 333,
+        "sourceLine": 366,
         "summary": "Detect a source artifact with the configured service.",
         "categories": [
           "use-cases"
@@ -2789,7 +2814,7 @@
         "symbolName": "exportArchive",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 438,
+        "sourceLine": 471,
         "summary": "Export child artifacts from an archive source with the configured service.",
         "categories": [
           "use-cases"
@@ -2815,7 +2840,7 @@
         "symbolName": "extractFile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 386,
+        "sourceLine": 419,
         "summary": "Extract text and metadata from a source artifact with the configured service.",
         "categories": [
           "use-cases"
@@ -2841,7 +2866,7 @@
         "symbolName": "FileProcessingEngineShape",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 51,
+        "sourceLine": 57,
         "summary": "Runtime-neutral file-processing engine shape implemented by drivers.",
         "categories": [
           "services"
@@ -2866,7 +2891,7 @@
         "symbolName": "FileProcessingService",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 96,
+        "sourceLine": 102,
         "summary": "File-processing service tag.",
         "categories": [
           "services"
@@ -2891,7 +2916,7 @@
         "symbolName": "FileProcessingServiceShape",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 74,
+        "sourceLine": 80,
         "summary": "Service contract exposed by the file-processing capability.",
         "categories": [
           "services"
@@ -2916,7 +2941,7 @@
         "symbolName": "makeFileProcessingServiceLayer",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 196,
+        "sourceLine": 229,
         "summary": "Build a runtime-neutral file-processing service layer from concrete drivers.",
         "categories": [
           "layers"
@@ -2943,7 +2968,7 @@
         "symbolName": "processFile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 491,
+        "sourceLine": 524,
         "summary": "Process a source artifact with the configured service.",
         "categories": [
           "use-cases"
@@ -2966,10 +2991,35 @@
         "importSpecifier": "@beep/file-processing/Service/index",
         "exportSubpath": "./Service/index",
         "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "symbolName": "collectSourceOutcomeRecords",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
+        "sourceLine": 200,
+        "summary": "Fold per-source processing outcomes into their source and failure records.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/service/index ./service/index collectsourceoutcomerecords const fold per-source processing outcomes into their source and failure records. combinators packages/foundation/capability/file-processing/src/service/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Service/index",
+        "exportSubpath": "./Service/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Service/index.ts",
         "symbolName": "detectFile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 333,
+        "sourceLine": 366,
         "summary": "Detect a source artifact with the configured service.",
         "categories": [
           "use-cases"
@@ -2995,7 +3045,7 @@
         "symbolName": "exportArchive",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 438,
+        "sourceLine": 471,
         "summary": "Export child artifacts from an archive source with the configured service.",
         "categories": [
           "use-cases"
@@ -3021,7 +3071,7 @@
         "symbolName": "extractFile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 386,
+        "sourceLine": 419,
         "summary": "Extract text and metadata from a source artifact with the configured service.",
         "categories": [
           "use-cases"
@@ -3047,7 +3097,7 @@
         "symbolName": "FileProcessingEngineShape",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 51,
+        "sourceLine": 57,
         "summary": "Runtime-neutral file-processing engine shape implemented by drivers.",
         "categories": [
           "services"
@@ -3072,7 +3122,7 @@
         "symbolName": "FileProcessingService",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 96,
+        "sourceLine": 102,
         "summary": "File-processing service tag.",
         "categories": [
           "services"
@@ -3097,7 +3147,7 @@
         "symbolName": "FileProcessingServiceShape",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 74,
+        "sourceLine": 80,
         "summary": "Service contract exposed by the file-processing capability.",
         "categories": [
           "services"
@@ -3122,7 +3172,7 @@
         "symbolName": "makeFileProcessingServiceLayer",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 196,
+        "sourceLine": 229,
         "summary": "Build a runtime-neutral file-processing service layer from concrete drivers.",
         "categories": [
           "layers"
@@ -3149,7 +3199,7 @@
         "symbolName": "processFile",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
-        "sourceLine": 491,
+        "sourceLine": 524,
         "summary": "Process a source artifact with the configured service.",
         "categories": [
           "use-cases"
@@ -3172,10 +3222,35 @@
         "importSpecifier": "@beep/file-processing/Strategy",
         "exportSubpath": "./Strategy",
         "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "classifyFormatFromExtension",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 407,
+        "summary": "Classify a bare file extension into its deterministic format family.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy ./strategy classifyformatfromextension const classify a bare file extension into its deterministic format family. utilities packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy",
+        "exportSubpath": "./Strategy",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
         "symbolName": "DeferredSelectedStrategy",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 281,
+        "sourceLine": 282,
         "summary": "Strategy selected when an operation is intentionally deferred.",
         "categories": [
           "models"
@@ -3200,7 +3275,7 @@
         "symbolName": "FileFormatFamily",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 81,
+        "sourceLine": 82,
         "summary": "V1 file format families recognized by the capability.",
         "categories": [
           "schemas"
@@ -3225,7 +3300,7 @@
         "symbolName": "FileFormatFamily",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 108,
+        "sourceLine": 109,
         "summary": "Type for {@link FileFormatFamily}.",
         "categories": [
           "models"
@@ -3249,7 +3324,7 @@
         "symbolName": "FileProcessingCapability",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 123,
+        "sourceLine": 124,
         "summary": "Processing capability advertised by an engine.",
         "categories": [
           "schemas"
@@ -3274,7 +3349,7 @@
         "symbolName": "FileProcessingCapability",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 140,
+        "sourceLine": 141,
         "summary": "Type for {@link FileProcessingCapability}.",
         "categories": [
           "models"
@@ -3298,7 +3373,7 @@
         "symbolName": "FileProcessingEngineDescriptor",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 373,
+        "sourceLine": 374,
         "summary": "Runtime-neutral engine descriptor.",
         "categories": [
           "models"
@@ -3323,7 +3398,7 @@
         "symbolName": "FileProcessingEngineFamily",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Concrete engine families known to P1.",
         "categories": [
           "schemas"
@@ -3348,7 +3423,7 @@
         "symbolName": "FileProcessingEngineFamily",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 66,
+        "sourceLine": 67,
         "summary": "Type for {@link FileProcessingEngineFamily}.",
         "categories": [
           "models"
@@ -3372,7 +3447,7 @@
         "symbolName": "FileProcessingOperationKind",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 27,
+        "sourceLine": 28,
         "summary": "Operation kinds supported by the capability contract.",
         "categories": [
           "schemas"
@@ -3397,7 +3472,7 @@
         "symbolName": "FileProcessingOperationKind",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 39,
+        "sourceLine": 40,
         "summary": "Type for {@link FileProcessingOperationKind}.",
         "categories": [
           "models"
@@ -3421,7 +3496,7 @@
         "symbolName": "FileProcessingSkipReason",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 182,
+        "sourceLine": 183,
         "summary": "Reason a source was skipped or deferred.",
         "categories": [
           "schemas"
@@ -3446,7 +3521,7 @@
         "symbolName": "FileProcessingSkipReason",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 203,
+        "sourceLine": 204,
         "summary": "Type for {@link FileProcessingSkipReason}.",
         "categories": [
           "models"
@@ -3470,7 +3545,7 @@
         "symbolName": "FileProcessingSupportDisposition",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 155,
+        "sourceLine": 156,
         "summary": "Support disposition selected for a source artifact.",
         "categories": [
           "schemas"
@@ -3495,7 +3570,7 @@
         "symbolName": "FileProcessingSupportDisposition",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 167,
+        "sourceLine": 168,
         "summary": "Type for {@link FileProcessingSupportDisposition}.",
         "categories": [
           "models"
@@ -3519,7 +3594,7 @@
         "symbolName": "SelectedStrategy",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 341,
+        "sourceLine": 342,
         "summary": "Strategy selected for a concrete operation.",
         "categories": [
           "models"
@@ -3544,7 +3619,7 @@
         "symbolName": "SelectedStrategy",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 358,
+        "sourceLine": 359,
         "summary": "Type for {@link SelectedStrategy}.",
         "categories": [
           "models"
@@ -3568,7 +3643,7 @@
         "symbolName": "StrategyPreference",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 219,
+        "sourceLine": 220,
         "summary": "Preferred engine selection for an operation.",
         "categories": [
           "models"
@@ -3593,7 +3668,7 @@
         "symbolName": "SupportedSelectedStrategy",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 248,
+        "sourceLine": 249,
         "summary": "Strategy selected when an operation is supported.",
         "categories": [
           "models"
@@ -3618,7 +3693,7 @@
         "symbolName": "UnsupportedSelectedStrategy",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 315,
+        "sourceLine": 316,
         "summary": "Strategy selected when an operation is unsupported.",
         "categories": [
           "models"
@@ -3640,10 +3715,35 @@
         "importSpecifier": "@beep/file-processing/Strategy/index",
         "exportSubpath": "./Strategy/index",
         "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "symbolName": "classifyFormatFromExtension",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
+        "sourceLine": 407,
+        "summary": "Classify a bare file extension into its deterministic format family.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/strategy/index ./strategy/index classifyformatfromextension const classify a bare file extension into its deterministic format family. utilities packages/foundation/capability/file-processing/src/strategy/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/Strategy/index",
+        "exportSubpath": "./Strategy/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
         "symbolName": "DeferredSelectedStrategy",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 281,
+        "sourceLine": 282,
         "summary": "Strategy selected when an operation is intentionally deferred.",
         "categories": [
           "models"
@@ -3668,7 +3768,7 @@
         "symbolName": "FileFormatFamily",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 81,
+        "sourceLine": 82,
         "summary": "V1 file format families recognized by the capability.",
         "categories": [
           "schemas"
@@ -3693,7 +3793,7 @@
         "symbolName": "FileFormatFamily",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 108,
+        "sourceLine": 109,
         "summary": "Type for {@link FileFormatFamily}.",
         "categories": [
           "models"
@@ -3717,7 +3817,7 @@
         "symbolName": "FileProcessingCapability",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 123,
+        "sourceLine": 124,
         "summary": "Processing capability advertised by an engine.",
         "categories": [
           "schemas"
@@ -3742,7 +3842,7 @@
         "symbolName": "FileProcessingCapability",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 140,
+        "sourceLine": 141,
         "summary": "Type for {@link FileProcessingCapability}.",
         "categories": [
           "models"
@@ -3766,7 +3866,7 @@
         "symbolName": "FileProcessingEngineDescriptor",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 373,
+        "sourceLine": 374,
         "summary": "Runtime-neutral engine descriptor.",
         "categories": [
           "models"
@@ -3791,7 +3891,7 @@
         "symbolName": "FileProcessingEngineFamily",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Concrete engine families known to P1.",
         "categories": [
           "schemas"
@@ -3816,7 +3916,7 @@
         "symbolName": "FileProcessingEngineFamily",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 66,
+        "sourceLine": 67,
         "summary": "Type for {@link FileProcessingEngineFamily}.",
         "categories": [
           "models"
@@ -3840,7 +3940,7 @@
         "symbolName": "FileProcessingOperationKind",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 27,
+        "sourceLine": 28,
         "summary": "Operation kinds supported by the capability contract.",
         "categories": [
           "schemas"
@@ -3865,7 +3965,7 @@
         "symbolName": "FileProcessingOperationKind",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 39,
+        "sourceLine": 40,
         "summary": "Type for {@link FileProcessingOperationKind}.",
         "categories": [
           "models"
@@ -3889,7 +3989,7 @@
         "symbolName": "FileProcessingSkipReason",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 182,
+        "sourceLine": 183,
         "summary": "Reason a source was skipped or deferred.",
         "categories": [
           "schemas"
@@ -3914,7 +4014,7 @@
         "symbolName": "FileProcessingSkipReason",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 203,
+        "sourceLine": 204,
         "summary": "Type for {@link FileProcessingSkipReason}.",
         "categories": [
           "models"
@@ -3938,7 +4038,7 @@
         "symbolName": "FileProcessingSupportDisposition",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 155,
+        "sourceLine": 156,
         "summary": "Support disposition selected for a source artifact.",
         "categories": [
           "schemas"
@@ -3963,7 +4063,7 @@
         "symbolName": "FileProcessingSupportDisposition",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 167,
+        "sourceLine": 168,
         "summary": "Type for {@link FileProcessingSupportDisposition}.",
         "categories": [
           "models"
@@ -3987,7 +4087,7 @@
         "symbolName": "SelectedStrategy",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 341,
+        "sourceLine": 342,
         "summary": "Strategy selected for a concrete operation.",
         "categories": [
           "models"
@@ -4012,7 +4112,7 @@
         "symbolName": "SelectedStrategy",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 358,
+        "sourceLine": 359,
         "summary": "Type for {@link SelectedStrategy}.",
         "categories": [
           "models"
@@ -4036,7 +4136,7 @@
         "symbolName": "StrategyPreference",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 219,
+        "sourceLine": 220,
         "summary": "Preferred engine selection for an operation.",
         "categories": [
           "models"
@@ -4061,7 +4161,7 @@
         "symbolName": "SupportedSelectedStrategy",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 248,
+        "sourceLine": 249,
         "summary": "Strategy selected when an operation is supported.",
         "categories": [
           "models"
@@ -4086,7 +4186,7 @@
         "symbolName": "UnsupportedSelectedStrategy",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/file-processing/src/Strategy/index.ts",
-        "sourceLine": 315,
+        "sourceLine": 316,
         "summary": "Strategy selected when an operation is unsupported.",
         "categories": [
           "models"
@@ -4108,10 +4208,35 @@
         "importSpecifier": "@beep/file-processing/test",
         "exportSubpath": "./test",
         "exportedFromPath": "packages/foundation/capability/file-processing/src/test.ts",
+        "symbolName": "decodeTestOperationIdentifiers",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
+        "sourceLine": 85,
+        "summary": "Decode the canonical synthetic artifact, digest, and operation identifiers",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test decodetestoperationidentifiers const decode the canonical synthetic artifact, digest, and operation identifiers fixtures packages/foundation/capability/file-processing/src/test.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/test.ts",
         "symbolName": "TestFileProcessingEngine",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
-        "sourceLine": 105,
+        "sourceLine": 137,
         "summary": "Synthetic file-processing engine for generated fixtures.",
         "categories": [
           "fixtures"
@@ -4136,7 +4261,7 @@
         "symbolName": "TestFileProcessingEngineDescriptor",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
-        "sourceLine": 37,
+        "sourceLine": 43,
         "summary": "Synthetic engine descriptor used by tests and proof fixtures.",
         "categories": [
           "fixtures"
@@ -4150,6 +4275,30 @@
           "@since"
         ],
         "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test testfileprocessingenginedescriptor const synthetic engine descriptor used by tests and proof fixtures. fixtures packages/foundation/capability/file-processing/src/test.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/test.ts",
+        "symbolName": "TestOperationIdentifiers",
+        "exportKind": "interface",
+        "sourcePath": "packages/foundation/capability/file-processing/src/test.ts",
+        "sourceLine": 59,
+        "summary": "Canonical synthetic operation identifiers shared by driver test fixtures.",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/test ./test testoperationidentifiers interface canonical synthetic operation identifiers shared by driver test fixtures. fixtures packages/foundation/capability/file-processing/src/test.ts"
       }
     ]
   }

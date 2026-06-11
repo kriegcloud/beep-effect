@@ -1,13 +1,9 @@
-import {
-  ArtifactId,
-  ArtifactLocator,
-  ContentDigest,
-  OperationId,
-  SourceArtifact,
-} from "@beep/file-processing/Artifact";
+import { ArtifactLocator, SourceArtifact } from "@beep/file-processing/Artifact";
 import { ExtractFileOperation } from "@beep/file-processing/Operation";
+import { decodeTestOperationIdentifiers } from "@beep/file-processing/test";
 import { NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
+import { provideScopedLayer } from "@beep/test-utils";
 import { makeTikaAppFileProcessingEngine, TikaAppEngineConfig } from "@beep/tika";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
@@ -16,11 +12,6 @@ import * as S from "effect/Schema";
 import type { FileFormatFamily } from "@beep/file-processing/Strategy";
 
 const testLayer = NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer));
-
-const provideScopedLayer =
-  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
-  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
-    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const provideTestLayer = provideScopedLayer(testLayer);
 
@@ -43,15 +34,7 @@ const fixture = Effect.fn(function* (stubScript: string, format: FileFormatFamil
   const sourcePath = path.join(dir, "document.pdf");
   yield* fs.writeFileString(sourcePath, "not a real pdf");
 
-  const artifactId = yield* S.decodeUnknownEffect(ArtifactId)(
-    "artifact:3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7"
-  );
-  const digest = yield* S.decodeUnknownEffect(ContentDigest)(
-    "sha256:3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7"
-  );
-  const operationId = yield* S.decodeUnknownEffect(OperationId)(
-    "operation:3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7"
-  );
+  const { artifactId, digest, operationId } = yield* decodeTestOperationIdentifiers();
   const locatorValue = yield* S.decodeUnknownEffect(PosixPath)(sourcePath);
   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("document.pdf");
 

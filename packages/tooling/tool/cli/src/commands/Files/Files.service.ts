@@ -35,7 +35,9 @@ import {
   SucceededSourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
 import { FileProcessingOperationError } from "@beep/file-processing/Operation";
+import { collectSourceOutcomeRecords } from "@beep/file-processing/Service";
 import {
+  classifyFormatFromExtension,
   DeferredSelectedStrategy,
   SupportedSelectedStrategy,
   UnsupportedSelectedStrategy,
@@ -3830,22 +3832,7 @@ const decodeOperationId = S.decodeUnknownEffect(OperationId);
 const decodeProcessPosixPath = S.decodeUnknownEffect(NativePathToPosixPath);
 const processCount = (count: number): NonNegativeInt => NonNegativeInt.make(count);
 
-const classifyProcessExtension = Match.type<string>().pipe(
-  Match.when("doc", () => "doc" as const),
-  Match.when("docx", () => "docx" as const),
-  Match.when("docm", () => "docm" as const),
-  Match.when("rtf", () => "rtf" as const),
-  Match.whenOr("htm", "html", () => "html" as const),
-  Match.when("xhtml", () => "xhtml" as const),
-  Match.when("pdf", () => "pdf-text-layer" as const),
-  Match.when("pst", () => "pst" as const),
-  Match.whenOr("txt", "text", () => "plain-text" as const),
-  Match.whenOr("md", "markdown", () => "markdown" as const),
-  Match.whenOr("bmp", "gif", "jpeg", "jpg", "png", "tif", "tiff", "webp", () => "image-metadata" as const),
-  Match.when("xls", () => "xls" as const),
-  Match.when("xlsx", () => "xlsx" as const),
-  Match.orElse(() => "unknown" as const)
-);
+const classifyProcessExtension = classifyFormatFromExtension;
 
 const mediaTypeForProcessFormat = Match.type<FileFormatFamily>().pipe(
   Match.when("html", () => O.some("text/html")),
@@ -4630,8 +4617,7 @@ const writeProcessManifestTree = Effect.fn("Files.writeProcessManifestTree")(fun
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const path = yield* Path.Path;
-  const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
-  const failureRecords = A.flatMap(outcomes, (outcome) => O.toArray(outcome.failure));
+  const { failureRecords, sourceRecords } = collectSourceOutcomeRecords(outcomes);
   const runId = yield* makeOperationIdFromText(
     `${options.engine}:${A.join("|")(A.map(sourceRecords, (record) => `${record.relativePath}:${record.operationId}`))}`,
     "process run"
@@ -4699,7 +4685,7 @@ const processFilesImpl = Effect.fn("FilesCommandService.processFiles")(function*
       concurrency: FilesConcurrency.scan,
     }
   );
-  const sourceRecords = A.map(outcomes, (outcome) => outcome.sourceRecord);
+  const { sourceRecords } = collectSourceOutcomeRecords(outcomes);
   const coverage = makeProcessCoverage(sourceRecords);
   const summary = ProcessFilesSummary.make({
     failedCount: coverage.failedCount,

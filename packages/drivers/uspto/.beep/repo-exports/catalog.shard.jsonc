@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e5575ea65a960f87c81ed69977da5898366051fc0a1b4d1815338cae20b7fbbb",
+    "digest": "2c9d1724c4cab3a94cb3069021d74c219de3217249fd31c38ba5559095255be6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/uspto/package.json",
-        "sha256": "b32cc70e40f1007187b3673b7a985ec2b5d67ebf7bb3fa9dc7adfd21afddd4e8",
-        "bytes": 2468
+        "sha256": "8789472802cee948addcfbded32e176c3ee2087fbc023b7a2a04d0a2a5803ee1",
+        "bytes": 2507
       },
       {
         "path": "packages/drivers/uspto/src/index.ts",

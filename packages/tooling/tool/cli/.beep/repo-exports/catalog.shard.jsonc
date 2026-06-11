@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "eb5dfed96c6c35c673da6d7db96a49e85e746e9a6637753cec8f9e2ed293683f",
+    "digest": "f7a40cffa467383fa6c8ed3dbe257489493bef345d7a2fae839f6edbabbefb56",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -152,8 +152,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sha256": "93acdc2f05b4949afe8085d368b9c83eaef918ed1ee7d53c3050139187368e43",
-        "bytes": 76485
+        "sha256": "20056d486f35ea58dd10bb1d7f253ff2b255eaaeefc73589aaec881b3dc0afb3",
+        "bytes": 81825
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
@@ -282,8 +282,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sha256": "657640918279e52f7f96d184e1c7e1d5c672d8712f96a06e18e436e28a34f1a7",
-        "bytes": 187743
+        "sha256": "ae0305a3dd3e1a608fb7923bd59e33b40b63cb7fe7e5ba50dd472369405d6403",
+        "bytes": 187029
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Files/index.ts",
@@ -5526,7 +5526,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1799,
+        "sourceLine": 1950,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -5680,7 +5680,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 157,
+        "sourceLine": 162,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -5705,7 +5705,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1783,
+        "sourceLine": 1934,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -5730,7 +5730,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 108,
+        "sourceLine": 113,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -6403,7 +6403,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1839,
+        "sourceLine": 1990,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -6430,7 +6430,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1819,
+        "sourceLine": 1970,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -6457,7 +6457,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1121,
+        "sourceLine": 1157,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -6509,7 +6509,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1859,
+        "sourceLine": 2010,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -6588,7 +6588,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1897,
+        "sourceLine": 2048,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -6861,7 +6861,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1879,
+        "sourceLine": 2030,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -7988,7 +7988,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1799,
+        "sourceLine": 1950,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -8015,7 +8015,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 157,
+        "sourceLine": 162,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -8040,7 +8040,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1783,
+        "sourceLine": 1934,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -8065,7 +8065,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 108,
+        "sourceLine": 113,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -8090,7 +8090,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1839,
+        "sourceLine": 1990,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -8117,7 +8117,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1819,
+        "sourceLine": 1970,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -8144,7 +8144,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1121,
+        "sourceLine": 1157,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -8171,7 +8171,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1859,
+        "sourceLine": 2010,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -8198,7 +8198,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1897,
+        "sourceLine": 2048,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -8223,7 +8223,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1879,
+        "sourceLine": 2030,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -8250,7 +8250,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1799,
+        "sourceLine": 1950,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -8404,7 +8404,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 157,
+        "sourceLine": 162,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -8429,7 +8429,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1783,
+        "sourceLine": 1934,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -8454,7 +8454,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 108,
+        "sourceLine": 113,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -9127,7 +9127,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1839,
+        "sourceLine": 1990,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -9154,7 +9154,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1819,
+        "sourceLine": 1970,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -9181,7 +9181,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1121,
+        "sourceLine": 1157,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -9233,7 +9233,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1859,
+        "sourceLine": 2010,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -9312,7 +9312,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1897,
+        "sourceLine": 2048,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -9585,7 +9585,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1879,
+        "sourceLine": 2030,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -13429,7 +13429,7 @@
         "symbolName": "archivePoorCandidates",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5521,
+        "sourceLine": 5507,
         "summary": "Archive obvious poor image candidates out of a dataset directory.",
         "categories": [
           "use-cases"
@@ -14302,7 +14302,7 @@
         "symbolName": "createCaptionFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5541,
+        "sourceLine": 5527,
         "summary": "Create same-stem caption sidecar files for direct image files.",
         "categories": [
           "use-cases"
@@ -14503,7 +14503,7 @@
         "symbolName": "cropBordersFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5561,
+        "sourceLine": 5547,
         "summary": "Crop solid or near-solid borders from direct image files.",
         "categories": [
           "use-cases"
@@ -14932,7 +14932,7 @@
         "symbolName": "detectBordersFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5581,
+        "sourceLine": 5567,
         "summary": "Detect solid or near-solid borders in direct image files.",
         "categories": [
           "use-cases"
@@ -15158,7 +15158,7 @@
         "symbolName": "detectFacesFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5601,
+        "sourceLine": 5587,
         "summary": "Detect human faces in direct image files.",
         "categories": [
           "use-cases"
@@ -15660,7 +15660,7 @@
         "symbolName": "FilesCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 426,
+        "sourceLine": 428,
         "summary": "Service tag for dataset file curation operations.",
         "categories": [
           "services"
@@ -15685,7 +15685,7 @@
         "symbolName": "FilesCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5505,
+        "sourceLine": 5491,
         "summary": "Live service layer for dataset file curation operations.",
         "categories": [
           "layers"
@@ -15710,7 +15710,7 @@
         "symbolName": "FilesCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 341,
+        "sourceLine": 343,
         "summary": "Service contract for dataset file curation operations.",
         "categories": [
           "services"
@@ -16356,7 +16356,7 @@
         "symbolName": "normalizeFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5621,
+        "sourceLine": 5607,
         "summary": "Normalize direct image files into an output directory and write a transform manifest.",
         "categories": [
           "use-cases"
@@ -16833,7 +16833,7 @@
         "symbolName": "printFilesIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 4737,
+        "sourceLine": 4723,
         "summary": "Print the files command index.",
         "categories": [
           "use-cases"
@@ -16858,7 +16858,7 @@
         "symbolName": "processFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5642,
+        "sourceLine": 5628,
         "summary": "Process a file or directory into the V1 file-processing proof manifest tree.",
         "categories": [
           "use-cases"
@@ -17771,7 +17771,7 @@
         "symbolName": "sortAndRenameFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5665,
+        "sourceLine": 5651,
         "summary": "Sort direct regular files in a directory by size and rename them with a generated prefix.",
         "categories": [
           "use-cases"
@@ -17823,7 +17823,7 @@
         "symbolName": "stripMetadataFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5692,
+        "sourceLine": 5678,
         "summary": "Strip user-authored metadata from direct image and video files in a directory.",
         "categories": [
           "use-cases"
@@ -22281,7 +22281,7 @@
         "symbolName": "archivePoorCandidates",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5521,
+        "sourceLine": 5507,
         "summary": "Archive obvious poor image candidates out of a dataset directory.",
         "categories": [
           "use-cases"
@@ -22308,7 +22308,7 @@
         "symbolName": "createCaptionFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5541,
+        "sourceLine": 5527,
         "summary": "Create same-stem caption sidecar files for direct image files.",
         "categories": [
           "use-cases"
@@ -22335,7 +22335,7 @@
         "symbolName": "cropBordersFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5561,
+        "sourceLine": 5547,
         "summary": "Crop solid or near-solid borders from direct image files.",
         "categories": [
           "use-cases"
@@ -22362,7 +22362,7 @@
         "symbolName": "detectBordersFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5581,
+        "sourceLine": 5567,
         "summary": "Detect solid or near-solid borders in direct image files.",
         "categories": [
           "use-cases"
@@ -22389,7 +22389,7 @@
         "symbolName": "detectFacesFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5601,
+        "sourceLine": 5587,
         "summary": "Detect human faces in direct image files.",
         "categories": [
           "use-cases"
@@ -22416,7 +22416,7 @@
         "symbolName": "FilesCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 426,
+        "sourceLine": 428,
         "summary": "Service tag for dataset file curation operations.",
         "categories": [
           "services"
@@ -22441,7 +22441,7 @@
         "symbolName": "FilesCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5505,
+        "sourceLine": 5491,
         "summary": "Live service layer for dataset file curation operations.",
         "categories": [
           "layers"
@@ -22466,7 +22466,7 @@
         "symbolName": "FilesCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 341,
+        "sourceLine": 343,
         "summary": "Service contract for dataset file curation operations.",
         "categories": [
           "services"
@@ -22491,7 +22491,7 @@
         "symbolName": "normalizeFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5621,
+        "sourceLine": 5607,
         "summary": "Normalize direct image files into an output directory and write a transform manifest.",
         "categories": [
           "use-cases"
@@ -22518,7 +22518,7 @@
         "symbolName": "printFilesIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 4737,
+        "sourceLine": 4723,
         "summary": "Print the files command index.",
         "categories": [
           "use-cases"
@@ -22543,7 +22543,7 @@
         "symbolName": "processFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5642,
+        "sourceLine": 5628,
         "summary": "Process a file or directory into the V1 file-processing proof manifest tree.",
         "categories": [
           "use-cases"
@@ -22571,7 +22571,7 @@
         "symbolName": "sortAndRenameFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5665,
+        "sourceLine": 5651,
         "summary": "Sort direct regular files in a directory by size and rename them with a generated prefix.",
         "categories": [
           "use-cases"
@@ -22598,7 +22598,7 @@
         "symbolName": "stripMetadataFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5692,
+        "sourceLine": 5678,
         "summary": "Strip user-authored metadata from direct image and video files in a directory.",
         "categories": [
           "use-cases"
@@ -22677,7 +22677,7 @@
         "symbolName": "archivePoorCandidates",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5521,
+        "sourceLine": 5507,
         "summary": "Archive obvious poor image candidates out of a dataset directory.",
         "categories": [
           "use-cases"
@@ -23550,7 +23550,7 @@
         "symbolName": "createCaptionFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5541,
+        "sourceLine": 5527,
         "summary": "Create same-stem caption sidecar files for direct image files.",
         "categories": [
           "use-cases"
@@ -23751,7 +23751,7 @@
         "symbolName": "cropBordersFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5561,
+        "sourceLine": 5547,
         "summary": "Crop solid or near-solid borders from direct image files.",
         "categories": [
           "use-cases"
@@ -24180,7 +24180,7 @@
         "symbolName": "detectBordersFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5581,
+        "sourceLine": 5567,
         "summary": "Detect solid or near-solid borders in direct image files.",
         "categories": [
           "use-cases"
@@ -24406,7 +24406,7 @@
         "symbolName": "detectFacesFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5601,
+        "sourceLine": 5587,
         "summary": "Detect human faces in direct image files.",
         "categories": [
           "use-cases"
@@ -24908,7 +24908,7 @@
         "symbolName": "FilesCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 426,
+        "sourceLine": 428,
         "summary": "Service tag for dataset file curation operations.",
         "categories": [
           "services"
@@ -24933,7 +24933,7 @@
         "symbolName": "FilesCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5505,
+        "sourceLine": 5491,
         "summary": "Live service layer for dataset file curation operations.",
         "categories": [
           "layers"
@@ -24958,7 +24958,7 @@
         "symbolName": "FilesCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 341,
+        "sourceLine": 343,
         "summary": "Service contract for dataset file curation operations.",
         "categories": [
           "services"
@@ -25604,7 +25604,7 @@
         "symbolName": "normalizeFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5621,
+        "sourceLine": 5607,
         "summary": "Normalize direct image files into an output directory and write a transform manifest.",
         "categories": [
           "use-cases"
@@ -26081,7 +26081,7 @@
         "symbolName": "printFilesIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 4737,
+        "sourceLine": 4723,
         "summary": "Print the files command index.",
         "categories": [
           "use-cases"
@@ -26106,7 +26106,7 @@
         "symbolName": "processFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5642,
+        "sourceLine": 5628,
         "summary": "Process a file or directory into the V1 file-processing proof manifest tree.",
         "categories": [
           "use-cases"
@@ -27019,7 +27019,7 @@
         "symbolName": "sortAndRenameFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5665,
+        "sourceLine": 5651,
         "summary": "Sort direct regular files in a directory by size and rename them with a generated prefix.",
         "categories": [
           "use-cases"
@@ -27071,7 +27071,7 @@
         "symbolName": "stripMetadataFiles",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
-        "sourceLine": 5692,
+        "sourceLine": 5678,
         "summary": "Strip user-authored metadata from direct image and video files in a directory.",
         "categories": [
           "use-cases"
