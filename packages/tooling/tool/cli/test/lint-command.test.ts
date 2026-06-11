@@ -454,12 +454,6 @@ describe("schema-first lint command", { concurrent: false }, () => {
                 version: 1,
                 generatedOn: "2026-06-08",
                 scope: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
-                enforcedRoots: [
-                  "packages/tooling/tool/cli/src",
-                  "packages/tooling/library/repo-utils/src/FsUtils.ts",
-                  "packages/tooling/library/repo-utils/src/UniqueDeps.ts",
-                  "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts",
-                ],
                 entries: [
                   {
                     file: "packages/example/src/Example.ts",

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "44094b5dee45bb21eb20001777a811e29258d037b4d5f2b162b30681d6414afe",
+    "digest": "6385969a25fe956e562c65e140bee0548b2e0fe479fa43da51378162b2b54345",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sha256": "118a6aebb09e2650bfad74e7f57e99776903fe797e68b49497f7e7373d228a22",
-        "bytes": 25733
+        "sha256": "0b9deed12eddbfa091fa992995d7c16ef09baf9448b7441b9608100576957a94",
+        "bytes": 25778
       },
       {
         "path": "packages/foundation/modeling/rdf/src/JsonLd.ts",

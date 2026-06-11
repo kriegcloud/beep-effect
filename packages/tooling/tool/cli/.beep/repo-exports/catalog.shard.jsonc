@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2ead1b66b30a392855cd82f931932f050ec175274ebcd329dc6c3fdf25082c19",
+    "digest": "bb02e33184fac39fd59553cd07b3ce54d4476e104d8ebc31e1482ce0db02e2d2",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -407,8 +407,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sha256": "2f1c7f63667a81b441954fac07ca37c10f94864a9a69d83ee90cd10531c3773d",
-        "bytes": 51216
+        "sha256": "62c2b58739cddd21408b7e002fe89951089964fcf124a71edcfff61c925de39a",
+        "bytes": 50655
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts",
@@ -26996,7 +26996,7 @@
         "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 890,
+        "sourceLine": 880,
         "summary": "Test whether source text contains schema-derived arbitrary coverage.",
         "categories": [
           "utilities"
@@ -27225,7 +27225,7 @@
         "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 890,
+        "sourceLine": 880,
         "summary": "Test whether source text contains schema-derived arbitrary coverage.",
         "categories": [
           "utilities"
@@ -27454,7 +27454,7 @@
         "symbolName": "lintSchemaFirstCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1316,
+        "sourceLine": 1304,
         "summary": "Repo-wide schema-first lint command.",
         "categories": [
           "utilities"
@@ -27479,7 +27479,7 @@
         "symbolName": "runSchemaFirstLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1173,
+        "sourceLine": 1161,
         "summary": "Run schema-first inventory verification against the committed baseline.",
         "categories": [
           "utilities"
@@ -27504,7 +27504,7 @@
         "symbolName": "SchemaFirstInventoryEntry",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 198,
+        "sourceLine": 192,
         "summary": "Namespace for {@link SchemaFirstInventoryEntry} companion types.",
         "categories": [
           "models"
@@ -27529,7 +27529,7 @@
         "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 890,
+        "sourceLine": 880,
         "summary": "Test whether source text contains schema-derived arbitrary coverage.",
         "categories": [
           "utilities"

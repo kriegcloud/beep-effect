@@ -88,7 +88,7 @@ const IriArbitraryValues = [
   "foo:#frag",
 ] as const;
 const AbsoluteIriArbitraryValues = ["https://example.com/path?x=1", "mailto:user@example.org", "foo:bar"] as const;
-const IriReferenceArbitraryValues = [
+const RelativeIriReferenceArbitraryValues = [
   "",
   "#fragment",
   "?key=value",
@@ -102,7 +102,7 @@ const IriReferenceArbitraryValues = [
   "folder/%F0%90%8C%80",
   ".",
 ] as const;
-const RelativeIriReferenceArbitraryValues = IriReferenceArbitraryValues;
+const IriReferenceArbitraryValues = [...RelativeIriReferenceArbitraryValues, ...IriArbitraryValues] as const;
 
 const slice = (input: string, start: number, end?: number): string => pipe(input, Str.slice(start, end));
 

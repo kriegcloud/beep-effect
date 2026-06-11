@@ -23,12 +23,6 @@ const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";
 const INCLUDED_GLOBS = ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"] as const;
 const SOURCE_FILE_GLOBS = [...INCLUDED_GLOBS, "!**/docs/**"] as const;
-const ENFORCED_ROOTS = [
-  "packages/tooling/tool/cli/src",
-  "packages/tooling/library/repo-utils/src/FsUtils.ts",
-  "packages/tooling/library/repo-utils/src/UniqueDeps.ts",
-  "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts",
-] as const;
 const IDENTIFIER_PROPERTY_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const FUNCTION_LIKE_TEXT_PATTERN = /=>|\bEffect\.Effect</;
 const NON_SCHEMA_SIGNAL_PATTERN =
@@ -216,10 +210,6 @@ class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>
     scope: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS))),
       S.withDecodingDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS)))
-    ),
-    enforcedRoots: S.Array(S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(A.fromIterable(ENFORCED_ROOTS))),
-      S.withDecodingDefault(Effect.succeed(A.fromIterable(ENFORCED_ROOTS)))
     ),
     entries: S.Array(SchemaFirstInventoryEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry>())),
@@ -1127,7 +1117,6 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     version: 1,
     generatedOn: todayYmd(),
     scope: A.fromIterable(INCLUDED_GLOBS),
-    enforcedRoots: A.fromIterable(ENFORCED_ROOTS),
     entries: sortEntries(A.dedupeWith(entries, (left, right) => makeEntryKey(left) === makeEntryKey(right))),
   });
 });
@@ -1155,7 +1144,6 @@ const mergeInventory = (
     version: 1,
     generatedOn: liveDocument.generatedOn,
     scope: liveDocument.scope,
-    enforcedRoots: liveDocument.enforcedRoots,
     entries: sortEntries(mergedEntries),
   });
 };

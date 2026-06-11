@@ -31,8 +31,8 @@ const GlobArbitraryValues = [
   "src/**/*.ts",
   "{src,test}/**/*.ts",
   "foo/bar",
-  "foo/[bar",
-  "foo/{bar",
+  "foo/[abc]",
+  "foo/{bar,baz}",
   "!index.ts",
 ] as const;
 type BunGlobConstructor = new (pattern: string) => object;
