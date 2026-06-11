@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "dc68286fd83b86e64ffdb7c1fc58c6e077cadb762b9937364c0ed81b5b82204d",
+    "digest": "3171dfad554b2ec5a1eeb5a906dea9edf0fe8bb8978ed265141d68f344efa968",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -832,13 +832,13 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sha256": "b31312adf1d71e6000e1c167baab4906703d05ca21e4e4e2c0ec70c4bdc67740",
-        "bytes": 9128
+        "sha256": "149fe127c644bd075b048cff59fd5b478c943aa57e7891e2b0e5509f5b2ed810",
+        "bytes": 10133
       },
       {
         "path": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sha256": "da29e4510adde007133d6f294d0691ce69eb1e51089d1b15d4c492f8702db5b5",
-        "bytes": 7275
+        "sha256": "75bd3867e3135b0e875ab490fd22bcee47fb016592c816b0cadf457740e5cec9",
+        "bytes": 8066
       },
       {
         "path": "packages/foundation/modeling/schema/src/NoOpen/index.ts",
@@ -8066,7 +8066,7 @@
         "symbolName": "MutableHashMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 269,
+        "sourceLine": 288,
         "summary": "Schema for decoding entry arrays into `MutableHashMap` instances and encoding",
         "categories": [
           "validation"
@@ -8193,7 +8193,7 @@
         "symbolName": "MutableHashSet",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 228,
+        "sourceLine": 243,
         "summary": "Schema for decoding arrays into `MutableHashSet` instances and encoding sets",
         "categories": [
           "validation"
@@ -35691,7 +35691,7 @@
         "symbolName": "MutableHashMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 269,
+        "sourceLine": 288,
         "summary": "Schema for decoding entry arrays into `MutableHashMap` instances and encoding",
         "categories": [
           "validation"
@@ -35845,7 +35845,7 @@
         "symbolName": "MutableHashSet",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 228,
+        "sourceLine": 243,
         "summary": "Schema for decoding arrays into `MutableHashSet` instances and encoding sets",
         "categories": [
           "validation"

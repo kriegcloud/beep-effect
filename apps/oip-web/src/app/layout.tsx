@@ -138,15 +138,15 @@ function VercelInsights() {
  *
  * @example
  * ```ts
- * import { unstable_instant } from "@beep/oip-web/app/layout"
+ * import { instant } from "@beep/oip-web/app/layout"
  *
- * console.log(unstable_instant)
+ * console.log(instant)
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
-export const unstable_instant = false;
+export const instant = false;
 
 /**
  * Static metadata for the oip web app shell.

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "4e1ffbf290425615c273eafff75a45c9aef89aebc292d9d2d57b0e621a8b81bc",
+    "digest": "1c7c40226db85d875cf8d8f46a14951a46bb8df14954f373df5c08e1a178cbc4",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
-        "sha256": "67262900617272f1d05fadd4bedee26c0f061dd772736b0e9e7a9993d9217a17",
-        "bytes": 19690
+        "sha256": "536f5571faef170929db70f99e4128e29a28c67e21952ffe35b28a5f73b72315",
+        "bytes": 20275
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -246,7 +246,7 @@
         "symbolName": "lookupRepoExports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
-        "sourceLine": 607,
+        "sourceLine": 623,
         "summary": "Lookup public repo exports by symbol name or free-text intent.",
         "categories": [
           "utilities"
@@ -1525,7 +1525,7 @@
         "symbolName": "lookupRepoExports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
-        "sourceLine": 607,
+        "sourceLine": 623,
         "summary": "Lookup public repo exports by symbol name or free-text intent.",
         "categories": [
           "utilities"
@@ -2704,7 +2704,7 @@
         "symbolName": "lookupRepoExports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
-        "sourceLine": 607,
+        "sourceLine": 623,
         "summary": "Lookup public repo exports by symbol name or free-text intent.",
         "categories": [
           "utilities"

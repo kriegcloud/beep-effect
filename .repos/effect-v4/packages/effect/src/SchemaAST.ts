@@ -652,6 +652,7 @@ export class Declaration extends Base {
   readonly run: (
     typeParameters: ReadonlyArray<AST>
   ) => (input: unknown, self: Declaration, options: ParseOptions) => Effect.Effect<any, SchemaIssue.Issue, any>
+  readonly encodingChecks: Checks | undefined
 
   constructor(
     typeParameters: ReadonlyArray<AST>,
@@ -661,11 +662,13 @@ export class Declaration extends Base {
     annotations?: Schema.Annotations.Annotations,
     checks?: Checks,
     encoding?: Encoding,
-    context?: Context
+    context?: Context,
+    encodingChecks?: Checks
   ) {
     super(annotations, checks, encoding, context)
     this.typeParameters = typeParameters
     this.run = run
+    this.encodingChecks = encodingChecks
   }
   /** @internal */
   getParser(): SchemaParser.Parser {
@@ -675,12 +678,19 @@ export class Declaration extends Base {
       return Effect.mapEager(run(oinput.value, this, options), Option.some)
     }
   }
-  /** @internal */
-  recur(recur: (ast: AST) => AST) {
+  private rebuild(recur: (ast: AST) => AST, checks: Checks | undefined, encodingChecks: Checks | undefined) {
     const tps = mapOrSame(this.typeParameters, recur)
     return tps === this.typeParameters ?
       this :
-      new Declaration(tps, this.run, this.annotations, this.checks, undefined, this.context)
+      new Declaration(tps, this.run, this.annotations, checks, undefined, this.context, encodingChecks)
+  }
+  /** @internal */
+  recur(recur: (ast: AST) => AST) {
+    return this.rebuild(recur, this.checks, this.encodingChecks)
+  }
+  /** @internal */
+  flip(recur: (ast: AST) => AST) {
+    return this.rebuild(recur, this.encodingChecks, this.checks)
   }
   /** @internal */
   getExpected(): string {
@@ -1556,6 +1566,7 @@ export class Arrays extends Base {
   readonly isMutable: boolean
   readonly elements: ReadonlyArray<AST>
   readonly rest: ReadonlyArray<AST>
+  readonly encodingChecks: Checks | undefined
 
   constructor(
     isMutable: boolean,
@@ -1564,12 +1575,14 @@ export class Arrays extends Base {
     annotations?: Schema.Annotations.Annotations,
     checks?: Checks,
     encoding?: Encoding,
-    context?: Context
+    context?: Context,
+    encodingChecks?: Checks
   ) {
     super(annotations, checks, encoding, context)
     this.isMutable = isMutable
     this.elements = elements
     this.rest = rest
+    this.encodingChecks = encodingChecks
 
     // A required element cannot follow an optional element. ts(1257)
     const i = elements.findIndex(isOptional)
@@ -1654,13 +1667,29 @@ export class Arrays extends Base {
       return Option.some(state.output)
     })
   }
-  /** @internal */
-  recur(recur: (ast: AST) => AST) {
+  private rebuild(recur: (ast: AST) => AST, checks: Checks | undefined, encodingChecks: Checks | undefined) {
     const elements = mapOrSame(this.elements, recur)
     const rest = mapOrSame(this.rest, recur)
     return elements === this.elements && rest === this.rest ?
       this :
-      new Arrays(this.isMutable, elements, rest, this.annotations, this.checks, undefined, this.context)
+      new Arrays(
+        this.isMutable,
+        elements,
+        rest,
+        this.annotations,
+        checks,
+        undefined,
+        this.context,
+        encodingChecks
+      )
+  }
+  /** @internal */
+  recur(recur: (ast: AST) => AST) {
+    return this.rebuild(recur, this.checks, this.encodingChecks)
+  }
+  /** @internal */
+  flip(recur: (ast: AST) => AST) {
+    return this.rebuild(recur, this.encodingChecks, this.checks)
   }
   /** @internal */
   getExpected(): string {
@@ -1924,6 +1953,7 @@ export class Objects extends Base {
   readonly _tag = "Objects"
   readonly propertySignatures: ReadonlyArray<PropertySignature>
   readonly indexSignatures: ReadonlyArray<IndexSignature>
+  readonly encodingChecks: Checks | undefined
 
   constructor(
     propertySignatures: ReadonlyArray<PropertySignature>,
@@ -1931,11 +1961,13 @@ export class Objects extends Base {
     annotations?: Schema.Annotations.Annotations,
     checks?: Checks,
     encoding?: Encoding,
-    context?: Context
+    context?: Context,
+    encodingChecks?: Checks
   ) {
     super(annotations, checks, encoding, context)
     this.propertySignatures = propertySignatures
     this.indexSignatures = indexSignatures
+    this.encodingChecks = encodingChecks
 
     // Duplicate property signatures
     const duplicates = propertySignatures.map((ps) => ps.name).filter((name, i, arr) => arr.indexOf(name) !== i)
@@ -2007,6 +2039,9 @@ export class Objects extends Base {
             return
           } else if (exitKey.value._tag === "Some" && exitValue.value._tag === "Some") {
             const k2 = exitKey.value.value
+            if (expectedKeysSet.has(key) || expectedKeysSet.has(k2)) {
+              return
+            }
             const v2 = exitValue.value.value
             if (is.merge && is.merge.decode && Object.hasOwn(s.out, k2)) {
               const [k, v] = is.merge.decode.combine([k2, s.out[k2]], [k2, v2])
@@ -2118,7 +2153,9 @@ export class Objects extends Base {
   }
   private rebuild(
     recur: (ast: AST) => AST,
-    flipMerge: boolean
+    flipMerge: boolean,
+    checks: Checks | undefined,
+    encodingChecks: Checks | undefined
   ): Objects {
     const props = mapOrSame(this.propertySignatures, (ps) => {
       const t = recur(ps.type)
@@ -2136,15 +2173,23 @@ export class Objects extends Base {
 
     return props === this.propertySignatures && indexes === this.indexSignatures
       ? this
-      : new Objects(props, indexes, this.annotations, this.checks, undefined, this.context)
+      : new Objects(
+        props,
+        indexes,
+        this.annotations,
+        checks,
+        undefined,
+        this.context,
+        encodingChecks
+      )
   }
   /** @internal */
   flip(recur: (ast: AST) => AST): AST {
-    return this.rebuild(recur, true)
+    return this.rebuild(recur, true, this.encodingChecks, this.checks)
   }
   /** @internal */
   recur(recur: (ast: AST) => AST): AST {
-    return this.rebuild(recur, false)
+    return this.rebuild(recur, false, this.checks, this.encodingChecks)
   }
   /** @internal */
   getExpected(): string {
@@ -2492,6 +2537,7 @@ export class Union<A extends AST = AST> extends Base {
   readonly _tag = "Union"
   readonly types: ReadonlyArray<A>
   readonly mode: "anyOf" | "oneOf"
+  readonly encodingChecks: Checks | undefined
 
   constructor(
     types: ReadonlyArray<A>,
@@ -2499,11 +2545,13 @@ export class Union<A extends AST = AST> extends Base {
     annotations?: Schema.Annotations.Annotations,
     checks?: Checks,
     encoding?: Encoding,
-    context?: Context
+    context?: Context,
+    encodingChecks?: Checks
   ) {
     super(annotations, checks, encoding, context)
     this.types = types
     this.mode = mode
+    this.encodingChecks = encodingChecks
   }
   /** @internal */
   getParser(recur: (ast: AST) => SchemaParser.Parser): SchemaParser.Parser {
@@ -2541,12 +2589,19 @@ export class Union<A extends AST = AST> extends Base {
       })
     }
   }
-  /** @internal */
-  recur(recur: (ast: AST) => AST) {
+  private rebuild(recur: (ast: AST) => AST, checks: Checks | undefined, encodingChecks: Checks | undefined) {
     const types = mapOrSame(this.types, recur)
     return types === this.types ?
       this :
-      new Union(types, this.mode, this.annotations, this.checks, undefined, this.context)
+      new Union(types, this.mode, this.annotations, checks, undefined, this.context, encodingChecks)
+  }
+  /** @internal */
+  recur(recur: (ast: AST) => AST) {
+    return this.rebuild(recur, this.checks, this.encodingChecks)
+  }
+  /** @internal */
+  flip(recur: (ast: AST) => AST) {
+    return this.rebuild(recur, this.encodingChecks, this.checks)
   }
   /** @internal */
   getExpected(getExpected: (ast: AST) => string): string {
@@ -2701,7 +2756,10 @@ export class Suspend extends Base {
     encoding?: Encoding,
     context?: Context
   ) {
-    super(annotations, checks, encoding, context)
+    if (checks !== undefined) {
+      throw new Error("Cannot add checks to Suspend")
+    }
+    super(annotations, undefined, encoding, context)
     this.thunk = memoizeThunk(thunk)
   }
   /** @internal */
@@ -2710,11 +2768,30 @@ export class Suspend extends Base {
   }
   /** @internal */
   recur(recur: (ast: AST) => AST) {
-    return new Suspend(() => recur(this.thunk()), this.annotations, this.checks, undefined, this.context)
+    return new Suspend(
+      () => recur(this.thunk()),
+      this.annotations,
+      undefined,
+      undefined,
+      this.context
+    )
   }
   /** @internal */
   getExpected(getExpected: (ast: AST) => string): string {
     return getExpected(this.thunk())
+  }
+}
+
+/** @internal */
+export function getEncodingChecks(ast: AST): Checks | undefined {
+  switch (ast._tag) {
+    case "Declaration":
+    case "Arrays":
+    case "Objects":
+    case "Union":
+      return ast.encodingChecks
+    default:
+      return undefined
   }
 }
 
@@ -2954,6 +3031,9 @@ export function annotate<A extends AST>(ast: A, annotations: Schema.Annotations.
 
 /** @internal */
 export function replaceChecks<A extends AST>(ast: A, checks: Checks | undefined): A {
+  if (ast._tag === "Suspend" && checks !== undefined) {
+    throw new Error("Cannot add checks to Suspend")
+  }
   if (ast.checks === checks) {
     return ast
   }
@@ -3233,7 +3313,13 @@ export const toType = memoize(<A extends AST>(ast: A): A => {
     return toType(replaceEncoding(ast, undefined))
   }
   const out: any = ast
-  return out.recur?.(toType) ?? out
+  const type = out.recur?.(toType) ?? out
+  if (getEncodingChecks(type)) {
+    return modifyOwnPropertyDescriptors(type, (d) => {
+      d.encodingChecks.value = undefined
+    })
+  }
+  return type
 })
 
 /**

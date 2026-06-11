@@ -260,7 +260,7 @@
         "symbolName": "dual",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 137,
+        "sourceLine": 99,
         "summary": "Creates a function that can be called in data-first style or data-last",
         "categories": [
           "combinators"
@@ -5050,7 +5050,7 @@
         "symbolName": "and",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 292,
+        "sourceLine": 245,
         "summary": "Combines two booleans using logical AND: `self && that`.",
         "categories": [
           "combinators"
@@ -5074,7 +5074,7 @@
         "symbolName": "Boolean",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 94,
+        "sourceLine": 47,
         "summary": "Exposes the global boolean constructor for JavaScript truthiness",
         "categories": [
           "constructors"
@@ -5098,7 +5098,7 @@
         "symbolName": "Equivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 244,
+        "sourceLine": 197,
         "summary": "Equivalence instance for booleans using strict equality (`===`).",
         "categories": [
           "instances"
@@ -5122,7 +5122,7 @@
         "symbolName": "eqv",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 650,
+        "sourceLine": 603,
         "summary": "Combines two booleans using EQV (aka XNOR): `!xor(self, that)`.",
         "categories": [
           "combinators"
@@ -5146,7 +5146,7 @@
         "symbolName": "every",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 791,
+        "sourceLine": 744,
         "summary": "Checks whether every boolean in a collection is `true`.",
         "categories": [
           "predicates"
@@ -5171,7 +5171,7 @@
         "symbolName": "implies",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 720,
+        "sourceLine": 673,
         "summary": "Combines two booleans using an implication: `(!self || that)`.",
         "categories": [
           "combinators"
@@ -5195,7 +5195,7 @@
         "symbolName": "isBoolean",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 115,
+        "sourceLine": 68,
         "summary": "Checks whether a value is a `boolean`.",
         "categories": [
           "guards"
@@ -5219,7 +5219,7 @@
         "symbolName": "match",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 141,
+        "sourceLine": 94,
         "summary": "Chooses between two lazy branches based on a boolean value.",
         "categories": [
           "pattern matching"
@@ -5243,7 +5243,7 @@
         "symbolName": "nand",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 370,
+        "sourceLine": 323,
         "summary": "Combines two booleans using NAND: `!(self && that)`.",
         "categories": [
           "combinators"
@@ -5267,7 +5267,7 @@
         "symbolName": "nor",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 510,
+        "sourceLine": 463,
         "summary": "Combines two booleans using NOR: `!(self || that)`.",
         "categories": [
           "combinators"
@@ -5291,7 +5291,7 @@
         "symbolName": "not",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 265,
+        "sourceLine": 218,
         "summary": "Negates the given boolean: `!self`",
         "categories": [
           "combinators"
@@ -5315,7 +5315,7 @@
         "symbolName": "or",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 440,
+        "sourceLine": 393,
         "summary": "Combines two booleans using OR: `self || that`.",
         "categories": [
           "combinators"
@@ -5339,7 +5339,7 @@
         "symbolName": "Order",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 223,
+        "sourceLine": 176,
         "summary": "Provides an `Order` instance for `boolean` that allows comparing and sorting boolean values.",
         "categories": [
           "instances"
@@ -5363,7 +5363,7 @@
         "symbolName": "ReducerAnd",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 839,
+        "sourceLine": 792,
         "summary": "Reducer for combining `boolean`s using AND.",
         "categories": [
           "math"
@@ -5388,7 +5388,7 @@
         "symbolName": "ReducerOr",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 858,
+        "sourceLine": 811,
         "summary": "Reducer for combining `boolean`s using OR.",
         "categories": [
           "math"
@@ -5413,7 +5413,7 @@
         "symbolName": "some",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 815,
+        "sourceLine": 768,
         "summary": "Checks whether at least one boolean in a collection is `true`.",
         "categories": [
           "predicates"
@@ -5438,7 +5438,7 @@
         "symbolName": "xor",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Boolean.d.ts",
-        "sourceLine": 580,
+        "sourceLine": 533,
         "summary": "Combines two booleans using XOR: `(!self && that) || (self && !that)`.",
         "categories": [
           "combinators"
@@ -5462,7 +5462,7 @@
         "symbolName": "add",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3445,
+        "sourceLine": 3405,
         "summary": "Adds the given `amount` of `unit` to a `DateTime`.",
         "categories": [
           "math"
@@ -5486,7 +5486,7 @@
         "symbolName": "addDuration",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3292,
+        "sourceLine": 3252,
         "summary": "Adds the given `Duration` to a `DateTime`.",
         "categories": [
           "math"
@@ -5511,7 +5511,7 @@
         "symbolName": "between",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1846,
+        "sourceLine": 1806,
         "summary": "Checks whether a `DateTime` is between two other `DateTime` values (inclusive).",
         "categories": [
           "comparisons"
@@ -5535,7 +5535,7 @@
         "symbolName": "clamp",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 565,
+        "sourceLine": 525,
         "summary": "Returns a `DateTime` constrained between a minimum and maximum value.",
         "categories": [
           "ordering"
@@ -5559,7 +5559,7 @@
         "symbolName": "CurrentTimeZone",
         "exportKind": "class",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2514,
+        "sourceLine": 2474,
         "summary": "Context service that supplies the ambient `TimeZone` for APIs that work in",
         "categories": [
           "current time zone"
@@ -5583,7 +5583,7 @@
         "symbolName": "DateTime",
         "exportKind": "namespace",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 116,
+        "sourceLine": 76,
         "summary": "Companion namespace containing the public helper types used by `DateTime`",
         "categories": [],
         "since": [
@@ -5604,7 +5604,7 @@
         "symbolName": "DateTime",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 73,
+        "sourceLine": 33,
         "summary": "A `DateTime` represents a point in time. It can optionally have a time zone",
         "categories": [
           "models"
@@ -5653,7 +5653,7 @@
         "symbolName": "Disambiguation",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 398,
+        "sourceLine": 358,
         "summary": "A `Disambiguation` is used to resolve ambiguities when a `DateTime` is",
         "categories": [
           "models"
@@ -5677,7 +5677,7 @@
         "symbolName": "distance",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1410,
+        "sourceLine": 1370,
         "summary": "Computes the difference between two `DateTime` values, returning a",
         "categories": [
           "comparisons"
@@ -5701,7 +5701,7 @@
         "symbolName": "endOf",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3648,
+        "sourceLine": 3608,
         "summary": "Converts a `DateTime` to the end of the given `part`.",
         "categories": [
           "math"
@@ -5725,7 +5725,7 @@
         "symbolName": "Equivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 512,
+        "sourceLine": 472,
         "summary": "Provides an `Equivalence` for comparing two `DateTime` values for equality.",
         "categories": [
           "instances"
@@ -5749,7 +5749,7 @@
         "symbolName": "format",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3812,
+        "sourceLine": 3772,
         "summary": "Formats a `DateTime` with `Intl.DateTimeFormat`.",
         "categories": [
           "formatting"
@@ -5773,7 +5773,7 @@
         "symbolName": "formatIntl",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4116,
+        "sourceLine": 4076,
         "summary": "Formats a `DateTime` as a string using the `Intl.DateTimeFormat` API.",
         "categories": [
           "formatting"
@@ -5798,7 +5798,7 @@
         "symbolName": "formatIso",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4224,
+        "sourceLine": 4184,
         "summary": "Formats a `DateTime` as a UTC ISO string.",
         "categories": [
           "formatting"
@@ -5822,7 +5822,7 @@
         "symbolName": "formatIsoDate",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4249,
+        "sourceLine": 4209,
         "summary": "Formats a `DateTime` as a time zone adjusted ISO date string.",
         "categories": [
           "formatting"
@@ -5846,7 +5846,7 @@
         "symbolName": "formatIsoDateUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4274,
+        "sourceLine": 4234,
         "summary": "Formats a `DateTime` as a UTC ISO date string.",
         "categories": [
           "formatting"
@@ -5870,7 +5870,7 @@
         "symbolName": "formatIsoOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4300,
+        "sourceLine": 4260,
         "summary": "Formats a `DateTime.Zoned` as an ISO string with an offset.",
         "categories": [
           "formatting"
@@ -5894,7 +5894,7 @@
         "symbolName": "formatIsoZoned",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4331,
+        "sourceLine": 4291,
         "summary": "Formats a `DateTime.Zoned` as a string.",
         "categories": [
           "formatting"
@@ -5918,7 +5918,7 @@
         "symbolName": "formatLocal",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3912,
+        "sourceLine": 3872,
         "summary": "Formats a `DateTime` with `Intl.DateTimeFormat` using the system local time",
         "categories": [
           "formatting"
@@ -5942,7 +5942,7 @@
         "symbolName": "formatUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4004,
+        "sourceLine": 3964,
         "summary": "Formats a `DateTime` with `Intl.DateTimeFormat` using the UTC time zone.",
         "categories": [
           "formatting"
@@ -5966,7 +5966,7 @@
         "symbolName": "fromDateUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 646,
+        "sourceLine": 606,
         "summary": "Create a `DateTime` from a `Date`.",
         "categories": [
           "constructors"
@@ -5990,7 +5990,7 @@
         "symbolName": "getPart",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2281,
+        "sourceLine": 2241,
         "summary": "Gets one time-zone-adjusted part of a `DateTime` as a number.",
         "categories": [
           "parts"
@@ -6014,7 +6014,7 @@
         "symbolName": "getPartUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2215,
+        "sourceLine": 2175,
         "summary": "Gets one UTC part of a `DateTime` as a number.",
         "categories": [
           "parts"
@@ -6038,7 +6038,7 @@
         "symbolName": "isDateTime",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 412,
+        "sourceLine": 372,
         "summary": "Checks whether a value is a `DateTime`.",
         "categories": [
           "guards"
@@ -6063,7 +6063,7 @@
         "symbolName": "isFuture",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1914,
+        "sourceLine": 1874,
         "summary": "Checks effectfully if a `DateTime` is in the future compared to the current time.",
         "categories": [
           "comparisons"
@@ -6087,7 +6087,7 @@
         "symbolName": "isFutureUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1942,
+        "sourceLine": 1902,
         "summary": "Checks synchronously if a `DateTime` is in the future compared to the current time.",
         "categories": [
           "comparisons"
@@ -6111,7 +6111,7 @@
         "symbolName": "isGreaterThan",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1602,
+        "sourceLine": 1562,
         "summary": "Checks whether the first `DateTime` is after the second `DateTime`.",
         "categories": [
           "comparisons"
@@ -6135,7 +6135,7 @@
         "symbolName": "isGreaterThanOrEqualTo",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1662,
+        "sourceLine": 1622,
         "summary": "Checks whether the first `DateTime` is after or equal to the second `DateTime`.",
         "categories": [
           "comparisons"
@@ -6159,7 +6159,7 @@
         "symbolName": "isLessThan",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1724,
+        "sourceLine": 1684,
         "summary": "Checks whether the first `DateTime` is before the second `DateTime`.",
         "categories": [
           "comparisons"
@@ -6183,7 +6183,7 @@
         "symbolName": "isLessThanOrEqualTo",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1784,
+        "sourceLine": 1744,
         "summary": "Checks whether the first `DateTime` is before or equal to the second `DateTime`.",
         "categories": [
           "comparisons"
@@ -6207,7 +6207,7 @@
         "symbolName": "isPast",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1965,
+        "sourceLine": 1925,
         "summary": "Checks effectfully if a `DateTime` is in the past compared to the current time.",
         "categories": [
           "comparisons"
@@ -6231,7 +6231,7 @@
         "symbolName": "isPastUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1993,
+        "sourceLine": 1953,
         "summary": "Checks synchronously if a `DateTime` is in the past compared to the current time.",
         "categories": [
           "comparisons"
@@ -6255,7 +6255,7 @@
         "symbolName": "isTimeZone",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 427,
+        "sourceLine": 387,
         "summary": "Checks whether a value is a `TimeZone`.",
         "categories": [
           "guards"
@@ -6280,7 +6280,7 @@
         "symbolName": "isTimeZoneNamed",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 457,
+        "sourceLine": 417,
         "summary": "Checks whether a value is a named `TimeZone` (IANA time zone).",
         "categories": [
           "guards"
@@ -6305,7 +6305,7 @@
         "symbolName": "isTimeZoneOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 442,
+        "sourceLine": 402,
         "summary": "Checks whether a value is an offset-based `TimeZone`.",
         "categories": [
           "guards"
@@ -6330,7 +6330,7 @@
         "symbolName": "isUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 472,
+        "sourceLine": 432,
         "summary": "Checks whether a `DateTime` is a UTC `DateTime` (no time zone information).",
         "categories": [
           "guards"
@@ -6355,7 +6355,7 @@
         "symbolName": "isZoned",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 487,
+        "sourceLine": 447,
         "summary": "Checks whether a `DateTime` is a zoned `DateTime` (has time zone information).",
         "categories": [
           "guards"
@@ -6380,7 +6380,7 @@
         "symbolName": "layerCurrentZone",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4359,
+        "sourceLine": 4319,
         "summary": "Create a Layer from the given time zone.",
         "categories": [
           "current time zone"
@@ -6404,7 +6404,7 @@
         "symbolName": "layerCurrentZoneLocal",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4439,
+        "sourceLine": 4399,
         "summary": "Create a Layer from the system's local time zone.",
         "categories": [
           "current time zone"
@@ -6428,7 +6428,7 @@
         "symbolName": "layerCurrentZoneNamed",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4413,
+        "sourceLine": 4373,
         "summary": "Create a Layer from the given IANA time zone identifier.",
         "categories": [
           "current time zone"
@@ -6452,7 +6452,7 @@
         "symbolName": "layerCurrentZoneOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 4386,
+        "sourceLine": 4346,
         "summary": "Create a Layer from the given time zone offset.",
         "categories": [
           "current time zone"
@@ -6476,7 +6476,7 @@
         "symbolName": "make",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 809,
+        "sourceLine": 769,
         "summary": "Creates a `DateTime` safely from supported input values.",
         "categories": [
           "constructors"
@@ -6500,7 +6500,7 @@
         "symbolName": "makeUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 684,
+        "sourceLine": 644,
         "summary": "Create a `DateTime` from supported input values.",
         "categories": [
           "constructors"
@@ -6549,7 +6549,7 @@
         "symbolName": "makeZoned",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 765,
+        "sourceLine": 725,
         "summary": "Creates a `DateTime.Zoned` safely from an input and a time zone.",
         "categories": [
           "constructors"
@@ -6573,7 +6573,7 @@
         "symbolName": "makeZonedFromString",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 840,
+        "sourceLine": 800,
         "summary": "Parses an ISO zoned date-time string into a `DateTime.Zoned` safely.",
         "categories": [
           "constructors"
@@ -6597,7 +6597,7 @@
         "symbolName": "makeZonedUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 721,
+        "sourceLine": 681,
         "summary": "Create a `DateTime.Zoned` using `DateTime.makeUnsafe` and a time zone.",
         "categories": [
           "constructors"
@@ -6621,7 +6621,7 @@
         "symbolName": "mapEpochMillis",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2967,
+        "sourceLine": 2927,
         "summary": "Transforms a `DateTime` by applying a function to the number of milliseconds",
         "categories": [
           "mapping"
@@ -6645,7 +6645,7 @@
         "symbolName": "match",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3186,
+        "sourceLine": 3146,
         "summary": "Pattern match on a `DateTime` to handle `Utc` and `Zoned` cases differently.",
         "categories": [
           "mapping"
@@ -6669,7 +6669,7 @@
         "symbolName": "max",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1544,
+        "sourceLine": 1504,
         "summary": "Returns the later of two `DateTime` values.",
         "categories": [
           "comparisons"
@@ -6693,7 +6693,7 @@
         "symbolName": "min",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1486,
+        "sourceLine": 1446,
         "summary": "Returns the earlier of two `DateTime` values.",
         "categories": [
           "comparisons"
@@ -6717,7 +6717,7 @@
         "symbolName": "mutate",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2790,
+        "sourceLine": 2750,
         "summary": "Modifies a `DateTime` with a mutable local `Date` copy.",
         "categories": [
           "mapping"
@@ -6741,7 +6741,7 @@
         "symbolName": "mutateUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2891,
+        "sourceLine": 2851,
         "summary": "Modifies a `DateTime` with a mutable UTC `Date` copy.",
         "categories": [
           "mapping"
@@ -6765,7 +6765,7 @@
         "symbolName": "nearest",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3725,
+        "sourceLine": 3685,
         "summary": "Converts a `DateTime` to the nearest given `part`.",
         "categories": [
           "math"
@@ -6789,7 +6789,7 @@
         "symbolName": "now",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 858,
+        "sourceLine": 818,
         "summary": "Gets the current time using the `Clock` service and convert it to a `DateTime`.",
         "categories": [
           "constructors"
@@ -6813,7 +6813,7 @@
         "symbolName": "nowAsDate",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 876,
+        "sourceLine": 836,
         "summary": "Gets the current time from the `Clock` service and returns it as a",
         "categories": [
           "constructors"
@@ -6837,7 +6837,7 @@
         "symbolName": "nowInCurrentZone",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2756,
+        "sourceLine": 2716,
         "summary": "Gets the current time as a `DateTime.Zoned`, using the `CurrentTimeZone`.",
         "categories": [
           "current time zone"
@@ -6861,7 +6861,7 @@
         "symbolName": "nowUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 902,
+        "sourceLine": 862,
         "summary": "Gets the current time using `Date.now`.",
         "categories": [
           "constructors"
@@ -6885,7 +6885,7 @@
         "symbolName": "Order",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 539,
+        "sourceLine": 499,
         "summary": "Provides an `Order` for comparing and sorting `DateTime` values.",
         "categories": [
           "instances"
@@ -6909,7 +6909,7 @@
         "symbolName": "removeTime",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2137,
+        "sourceLine": 2097,
         "summary": "Removes the time aspect of a `DateTime`, first adjusting for the time",
         "categories": [
           "converting"
@@ -6933,7 +6933,7 @@
         "symbolName": "setParts",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2354,
+        "sourceLine": 2314,
         "summary": "Sets time-zone-adjusted parts on a `DateTime`.",
         "categories": [
           "parts"
@@ -6957,7 +6957,7 @@
         "symbolName": "setPartsUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2432,
+        "sourceLine": 2392,
         "summary": "Sets UTC parts on a `DateTime`.",
         "categories": [
           "parts"
@@ -6981,7 +6981,7 @@
         "symbolName": "setZone",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 952,
+        "sourceLine": 912,
         "summary": "Sets the time zone of a `DateTime`, returning a new `DateTime.Zoned`.",
         "categories": [
           "time zones"
@@ -7005,7 +7005,7 @@
         "symbolName": "setZoneCurrent",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2536,
+        "sourceLine": 2496,
         "summary": "Sets the time zone of a `DateTime` to the current time zone, which is",
         "categories": [
           "current time zone"
@@ -7029,7 +7029,7 @@
         "symbolName": "setZoneNamed",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1268,
+        "sourceLine": 1228,
         "summary": "Sets the time zone of a `DateTime` safely from an IANA time zone identifier. If the",
         "categories": [
           "time zones"
@@ -7053,7 +7053,7 @@
         "symbolName": "setZoneNamedUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1335,
+        "sourceLine": 1295,
         "summary": "Sets the time zone of a `DateTime` from an IANA time zone identifier. If the",
         "categories": [
           "time zones"
@@ -7077,7 +7077,7 @@
         "symbolName": "setZoneOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1025,
+        "sourceLine": 985,
         "summary": "Adds a fixed offset time zone to a `DateTime`.",
         "categories": [
           "time zones"
@@ -7101,7 +7101,7 @@
         "symbolName": "startOf",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3571,
+        "sourceLine": 3531,
         "summary": "Converts a `DateTime` to the start of the given `part`.",
         "categories": [
           "math"
@@ -7125,7 +7125,7 @@
         "symbolName": "subtract",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3510,
+        "sourceLine": 3470,
         "summary": "Subtracts the given `amount` of `unit` from a `DateTime`.",
         "categories": [
           "math"
@@ -7149,7 +7149,7 @@
         "symbolName": "subtractDuration",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3385,
+        "sourceLine": 3345,
         "summary": "Subtracts the given `Duration` from a `DateTime`.",
         "categories": [
           "math"
@@ -7173,7 +7173,7 @@
         "symbolName": "TimeZone",
         "exportKind": "namespace",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 290,
+        "sourceLine": 250,
         "summary": "Companion namespace containing the public variant and protocol types for",
         "categories": [],
         "since": [
@@ -7194,7 +7194,7 @@
         "symbolName": "TimeZone",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 283,
+        "sourceLine": 243,
         "summary": "Represents a time zone used by `DateTime.Zoned`.",
         "categories": [
           "models"
@@ -7218,7 +7218,7 @@
         "symbolName": "toDate",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2043,
+        "sourceLine": 2003,
         "summary": "Converts a `DateTime` to a `Date`, applying the time zone first.",
         "categories": [
           "converting"
@@ -7242,7 +7242,7 @@
         "symbolName": "toDateUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2017,
+        "sourceLine": 1977,
         "summary": "Gets the UTC `Date` of a `DateTime`.",
         "categories": [
           "converting"
@@ -7266,7 +7266,7 @@
         "symbolName": "toEpochMillis",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2114,
+        "sourceLine": 2074,
         "summary": "Gets the milliseconds since the Unix epoch of a `DateTime`.",
         "categories": [
           "converting"
@@ -7290,7 +7290,7 @@
         "symbolName": "toParts",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2169,
+        "sourceLine": 2129,
         "summary": "Gets the time-zone-adjusted parts of a `DateTime` as an object.",
         "categories": [
           "parts"
@@ -7314,7 +7314,7 @@
         "symbolName": "toPartsUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2194,
+        "sourceLine": 2154,
         "summary": "Gets the UTC parts of a `DateTime` as an object.",
         "categories": [
           "parts"
@@ -7338,7 +7338,7 @@
         "symbolName": "toUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 931,
+        "sourceLine": 891,
         "summary": "Converts a `DateTime` to a UTC `DateTime`.",
         "categories": [
           "time zones"
@@ -7362,7 +7362,7 @@
         "symbolName": "Utc",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 85,
+        "sourceLine": 45,
         "summary": "Represents a `DateTime` stored as an absolute UTC instant with no associated",
         "categories": [
           "models"
@@ -7386,7 +7386,7 @@
         "symbolName": "withCurrentZone",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2555,
+        "sourceLine": 2515,
         "summary": "Provides the `CurrentTimeZone` to an effect.",
         "categories": [
           "current time zone"
@@ -7410,7 +7410,7 @@
         "symbolName": "withCurrentZoneLocal",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2613,
+        "sourceLine": 2573,
         "summary": "Provides the `CurrentTimeZone` to an effect, using the system's local time",
         "categories": [
           "current time zone"
@@ -7434,7 +7434,7 @@
         "symbolName": "withCurrentZoneNamed",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2691,
+        "sourceLine": 2651,
         "summary": "Provides the `CurrentTimeZone` to an effect using an IANA time zone",
         "categories": [
           "current time zone"
@@ -7458,7 +7458,7 @@
         "symbolName": "withCurrentZoneOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2631,
+        "sourceLine": 2591,
         "summary": "Provides the `CurrentTimeZone` to an effect, using an offset.",
         "categories": [
           "current time zone"
@@ -7482,7 +7482,7 @@
         "symbolName": "withDate",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3031,
+        "sourceLine": 2991,
         "summary": "Applies a function to a JavaScript `Date` representing the `DateTime` and",
         "categories": [
           "mapping"
@@ -7506,7 +7506,7 @@
         "symbolName": "withDateUtc",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 3106,
+        "sourceLine": 3066,
         "summary": "Applies a function to a JavaScript `Date` representing the `DateTime`'s UTC",
         "categories": [
           "mapping"
@@ -7530,7 +7530,7 @@
         "symbolName": "Zoned",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 102,
+        "sourceLine": 62,
         "summary": "Represents a `DateTime` with an associated `TimeZone`.",
         "categories": [
           "models"
@@ -7554,7 +7554,7 @@
         "symbolName": "zonedOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2068,
+        "sourceLine": 2028,
         "summary": "Computes the time zone offset of a `DateTime.Zoned` in milliseconds.",
         "categories": [
           "converting"
@@ -7578,7 +7578,7 @@
         "symbolName": "zonedOffsetIso",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 2092,
+        "sourceLine": 2052,
         "summary": "Formats the time zone offset of a `DateTime.Zoned` as an ISO string.",
         "categories": [
           "converting"
@@ -7602,7 +7602,7 @@
         "symbolName": "zoneFromString",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1229,
+        "sourceLine": 1189,
         "summary": "Tries to parse a `TimeZone` from a string safely.",
         "categories": [
           "time zones"
@@ -7626,7 +7626,7 @@
         "symbolName": "zoneMakeLocal",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1204,
+        "sourceLine": 1164,
         "summary": "Create a named time zone from the system's local time zone.",
         "categories": [
           "time zones"
@@ -7650,7 +7650,7 @@
         "symbolName": "zoneMakeNamed",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1159,
+        "sourceLine": 1119,
         "summary": "Creates a named time zone safely from an IANA time zone identifier.",
         "categories": [
           "time zones"
@@ -7674,7 +7674,7 @@
         "symbolName": "zoneMakeNamedEffect",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1183,
+        "sourceLine": 1143,
         "summary": "Creates a named time zone effectfully from an IANA time zone identifier.",
         "categories": [
           "time zones"
@@ -7698,7 +7698,7 @@
         "symbolName": "zoneMakeNamedUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1111,
+        "sourceLine": 1071,
         "summary": "Attempts to create a named time zone from an IANA time zone identifier.",
         "categories": [
           "time zones"
@@ -7722,7 +7722,7 @@
         "symbolName": "zoneMakeOffset",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1136,
+        "sourceLine": 1096,
         "summary": "Create a fixed offset time zone.",
         "categories": [
           "time zones"
@@ -7746,7 +7746,7 @@
         "symbolName": "zoneToString",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/DateTime.d.ts",
-        "sourceLine": 1248,
+        "sourceLine": 1208,
         "summary": "Formats a `TimeZone` as a string.",
         "categories": [
           "time zones"
@@ -7770,7 +7770,7 @@
         "symbolName": "asEquivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 300,
+        "sourceLine": 240,
         "summary": "Wraps {@link equals} as an `Equivalence<A>`.",
         "categories": [
           "instances"
@@ -7795,7 +7795,7 @@
         "symbolName": "byReference",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 341,
+        "sourceLine": 281,
         "summary": "Creates a proxy that uses reference equality instead of structural equality.",
         "categories": [
           "equality"
@@ -7820,7 +7820,7 @@
         "symbolName": "byReferenceUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 383,
+        "sourceLine": 323,
         "summary": "Marks an object permanently to use reference equality, without creating a proxy.",
         "categories": [
           "unsafe"
@@ -7845,7 +7845,7 @@
         "symbolName": "Equal",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 162,
+        "sourceLine": 102,
         "summary": "The interface for types that define their own equality logic.",
         "categories": [
           "models"
@@ -7870,7 +7870,7 @@
         "symbolName": "equals",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 229,
+        "sourceLine": 169,
         "summary": "Checks whether two values are deeply structurally equal.",
         "categories": [
           "equality"
@@ -7895,7 +7895,7 @@
         "symbolName": "equals",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 230,
+        "sourceLine": 170,
         "summary": "",
         "categories": [],
         "since": [],
@@ -7912,7 +7912,7 @@
         "symbolName": "isEqual",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 271,
+        "sourceLine": 211,
         "summary": "Checks whether a value implements the {@link Equal} interface.",
         "categories": [
           "guards"
@@ -7937,7 +7937,7 @@
         "symbolName": "symbol",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Equal.d.ts",
-        "sourceLine": 109,
+        "sourceLine": 49,
         "summary": "Defines the unique string identifier for the `Equal` interface.",
         "categories": [
           "symbols"
@@ -8078,7 +8078,7 @@
         "symbolName": "AnyEvent",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 264,
+        "sourceLine": 233,
         "summary": "Union of SSE values that can be rendered by an `Encoder`: regular events and",
         "categories": [
           "models"
@@ -8102,7 +8102,7 @@
         "symbolName": "decode",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 59,
+        "sourceLine": 28,
         "summary": "Creates a channel that parses Server-Sent Events text chunks into `Event` values.",
         "categories": [
           "decoding"
@@ -8126,7 +8126,7 @@
         "symbolName": "decodeDataSchema",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 87,
+        "sourceLine": 56,
         "summary": "Creates an SSE decoder channel that JSON-decodes each event `data` field with a schema.",
         "categories": [
           "decoding"
@@ -8150,7 +8150,7 @@
         "symbolName": "decodeSchema",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 71,
+        "sourceLine": 40,
         "summary": "Creates an SSE decoder channel that decodes each parsed event with a schema.",
         "categories": [
           "decoding"
@@ -8174,7 +8174,7 @@
         "symbolName": "encode",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 129,
+        "sourceLine": 98,
         "summary": "Creates a channel that encodes `Event` values as Server-Sent Events text.",
         "categories": [
           "encoding"
@@ -8198,7 +8198,7 @@
         "symbolName": "encoder",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 276,
+        "sourceLine": 245,
         "summary": "Default Server-Sent Events encoder.",
         "categories": [
           "encoding"
@@ -8222,7 +8222,7 @@
         "symbolName": "Encoder",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 153,
+        "sourceLine": 122,
         "summary": "Encoder capable of rendering an `Event` or `Retry` value as Server-Sent",
         "categories": [
           "encoding"
@@ -8246,7 +8246,7 @@
         "symbolName": "encodeSchema",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 141,
+        "sourceLine": 110,
         "summary": "Creates an SSE encoder channel for values accepted by a schema.",
         "categories": [
           "encoding"
@@ -8270,7 +8270,7 @@
         "symbolName": "Event",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 185,
+        "sourceLine": 154,
         "summary": "Schema for the tagged Server-Sent Events message model that adds `_tag: \"Event\"` to the event name, optional event ID, and string data payload.",
         "categories": [
           "models"
@@ -8294,7 +8294,7 @@
         "symbolName": "Event",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 162,
+        "sourceLine": 131,
         "summary": "Tagged model for a Server-Sent Events message containing the event name, optional event ID, and string data payload.",
         "categories": [
           "models"
@@ -8318,7 +8318,7 @@
         "symbolName": "EventEncoded",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 174,
+        "sourceLine": 143,
         "summary": "Schema for the untagged Server-Sent Events payload shape containing `id`, `event`, and string `data` fields.",
         "categories": [
           "models"
@@ -8342,7 +8342,7 @@
         "symbolName": "EventEncoded",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 214,
+        "sourceLine": 183,
         "summary": "Untagged Server-Sent Events payload shape containing the event name, optional event ID, and string data payload.",
         "categories": [
           "models"
@@ -8391,7 +8391,7 @@
         "symbolName": "makeParser",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 103,
+        "sourceLine": 72,
         "summary": "Creates a stateful Server-Sent Events parser.",
         "categories": [
           "decoding"
@@ -8415,7 +8415,7 @@
         "symbolName": "Parser",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 114,
+        "sourceLine": 83,
         "summary": "Stateful Server-Sent Events parser returned by `makeParser`.",
         "categories": [
           "decoding"
@@ -8439,7 +8439,7 @@
         "symbolName": "Retry",
         "exportKind": "class",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 234,
+        "sourceLine": 203,
         "summary": "Represents a Server-Sent Events retry directive.",
         "categories": [
           "models"
@@ -8463,7 +8463,7 @@
         "symbolName": "transformEvent",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 198,
+        "sourceLine": 167,
         "summary": "Schema for transforming untagged SSE event payloads into tagged `Event`",
         "categories": [
           "models"
@@ -8513,7 +8513,7 @@
         "symbolName": "absurd",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 661,
+        "sourceLine": 623,
         "summary": "Marks an impossible branch by accepting a `never` value and returning any",
         "categories": [
           "utility types"
@@ -8537,7 +8537,7 @@
         "symbolName": "apply",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 293,
+        "sourceLine": 255,
         "summary": "Applies a function to a given value.",
         "categories": [
           "combinators"
@@ -8562,7 +8562,7 @@
         "symbolName": "cast",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 403,
+        "sourceLine": 365,
         "summary": "Returns the input value with a different static type.",
         "categories": [
           "utility types"
@@ -8587,7 +8587,7 @@
         "symbolName": "compose",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 578,
+        "sourceLine": 540,
         "summary": "Composes two functions, `ab` and `bc` into a single function that takes in an argument `a` of type `A` and returns a result of type `C`.",
         "categories": [
           "combinators"
@@ -8612,7 +8612,7 @@
         "symbolName": "constant",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 427,
+        "sourceLine": 389,
         "summary": "Creates a zero-argument function that always returns the provided value.",
         "categories": [
           "constructors"
@@ -8636,7 +8636,7 @@
         "symbolName": "constFalse",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 467,
+        "sourceLine": 429,
         "summary": "Returns `false` when called.",
         "categories": [
           "constants"
@@ -8660,7 +8660,7 @@
         "symbolName": "constNull",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 487,
+        "sourceLine": 449,
         "summary": "Returns `null` when called.",
         "categories": [
           "constants"
@@ -8684,7 +8684,7 @@
         "symbolName": "constTrue",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 447,
+        "sourceLine": 409,
         "summary": "Returns `true` when called.",
         "categories": [
           "constants"
@@ -8708,7 +8708,7 @@
         "symbolName": "constUndefined",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 507,
+        "sourceLine": 469,
         "summary": "Returns `undefined` when called.",
         "categories": [
           "constants"
@@ -8732,7 +8732,7 @@
         "symbolName": "constVoid",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 528,
+        "sourceLine": 490,
         "summary": "Returns no meaningful value when called.",
         "categories": [
           "constants"
@@ -8784,7 +8784,7 @@
         "symbolName": "dual",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 137,
+        "sourceLine": 99,
         "summary": "Creates a function that can be called in data-first style or data-last",
         "categories": [
           "combinators"
@@ -8808,7 +8808,7 @@
         "symbolName": "flip",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 551,
+        "sourceLine": 513,
         "summary": "Reverses the order of arguments for a curried function.",
         "categories": [
           "combinators"
@@ -8832,7 +8832,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 868,
+        "sourceLine": 830,
         "summary": "Performs left-to-right function composition.",
         "categories": [
           "combinators"
@@ -8857,7 +8857,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 869,
+        "sourceLine": 831,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8874,7 +8874,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 870,
+        "sourceLine": 832,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8891,7 +8891,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 871,
+        "sourceLine": 833,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8908,7 +8908,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 872,
+        "sourceLine": 834,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8925,7 +8925,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 873,
+        "sourceLine": 835,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8942,7 +8942,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 874,
+        "sourceLine": 836,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8959,7 +8959,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 875,
+        "sourceLine": 837,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8976,7 +8976,7 @@
         "symbolName": "flow",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 876,
+        "sourceLine": 838,
         "summary": "",
         "categories": [],
         "since": [],
@@ -8993,7 +8993,7 @@
         "symbolName": "FunctionN",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 334,
+        "sourceLine": 296,
         "summary": "Represents a function with multiple arguments.",
         "categories": [
           "models"
@@ -9017,7 +9017,7 @@
         "symbolName": "FunctionTypeLambda",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 71,
+        "sourceLine": 33,
         "summary": "Type lambda for function types, used for higher-kinded type operations.",
         "categories": [
           "type lambdas"
@@ -9041,7 +9041,7 @@
         "symbolName": "hole",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 906,
+        "sourceLine": 868,
         "summary": "Creates a compile-time placeholder for a value of any type.",
         "categories": [
           "utility types"
@@ -9065,7 +9065,7 @@
         "symbolName": "identity",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 354,
+        "sourceLine": 316,
         "summary": "Returns its input argument unchanged.",
         "categories": [
           "combinators"
@@ -9117,7 +9117,7 @@
         "symbolName": "LazyArg",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 312,
+        "sourceLine": 274,
         "summary": "A zero-argument function that produces a value when invoked.",
         "categories": [
           "models"
@@ -9141,7 +9141,7 @@
         "symbolName": "memoize",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 953,
+        "sourceLine": 915,
         "summary": "Creates a memoized function whose input is an object, caching results by",
         "categories": [
           "caching"
@@ -9165,7 +9165,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 815,
+        "sourceLine": 777,
         "summary": "Pipes the value of an expression through a left-to-right sequence of",
         "categories": [
           "combinators"
@@ -9189,7 +9189,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 816,
+        "sourceLine": 778,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9206,7 +9206,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 817,
+        "sourceLine": 779,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9223,7 +9223,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 818,
+        "sourceLine": 780,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9240,7 +9240,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 819,
+        "sourceLine": 781,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9257,7 +9257,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 820,
+        "sourceLine": 782,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9274,7 +9274,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 821,
+        "sourceLine": 783,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9291,7 +9291,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 822,
+        "sourceLine": 784,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9308,7 +9308,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 823,
+        "sourceLine": 785,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9325,7 +9325,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 824,
+        "sourceLine": 786,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9342,7 +9342,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 825,
+        "sourceLine": 787,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9359,7 +9359,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 826,
+        "sourceLine": 788,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9376,7 +9376,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 827,
+        "sourceLine": 789,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9393,7 +9393,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 828,
+        "sourceLine": 790,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9410,7 +9410,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 829,
+        "sourceLine": 791,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9427,7 +9427,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 830,
+        "sourceLine": 792,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9444,7 +9444,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 831,
+        "sourceLine": 793,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9461,7 +9461,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 832,
+        "sourceLine": 794,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9478,7 +9478,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 833,
+        "sourceLine": 795,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9495,7 +9495,7 @@
         "symbolName": "pipe",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 834,
+        "sourceLine": 796,
         "summary": "",
         "categories": [],
         "since": [],
@@ -9540,7 +9540,7 @@
         "symbolName": "satisfies",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 384,
+        "sourceLine": 346,
         "summary": "Ensures that the type of an expression matches some type,",
         "categories": [
           "utility types"
@@ -9565,7 +9565,7 @@
         "symbolName": "SK",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 928,
+        "sourceLine": 890,
         "summary": "Returns the second argument and discards the first. The SK combinator is",
         "categories": [
           "combinators"
@@ -9617,7 +9617,7 @@
         "symbolName": "tupled",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 685,
+        "sourceLine": 647,
         "summary": "Creates a tupled version of this function: instead of `n` arguments, it accepts a single tuple argument.",
         "categories": [
           "combinators"
@@ -9698,7 +9698,7 @@
         "symbolName": "untupled",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 709,
+        "sourceLine": 671,
         "summary": "Converts a tupled function back to an uncurried function.",
         "categories": [
           "combinators"
@@ -10049,7 +10049,7 @@
         "symbolName": "dual",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Function.d.ts",
-        "sourceLine": 137,
+        "sourceLine": 99,
         "summary": "Creates a function that can be called in data-first style or data-last",
         "categories": [
           "combinators"
@@ -11061,7 +11061,7 @@
         "symbolName": "between",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 845,
+        "sourceLine": 794,
         "summary": "Checks whether a `number` is between a `minimum` and `maximum` value (inclusive).",
         "categories": [
           "predicates"
@@ -11086,7 +11086,7 @@
         "symbolName": "clamp",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 936,
+        "sourceLine": 885,
         "summary": "Restricts the given `number` to be within the range specified by the `minimum` and `maximum` values.",
         "categories": [
           "math"
@@ -11111,7 +11111,7 @@
         "symbolName": "decrement",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 507,
+        "sourceLine": 456,
         "summary": "Decrements a number by `1`.",
         "categories": [
           "math"
@@ -11135,7 +11135,7 @@
         "symbolName": "divide",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 335,
+        "sourceLine": 284,
         "summary": "Divides `number`s safely, returning `Option.none()` if the divisor is `0`.",
         "categories": [
           "math"
@@ -11160,7 +11160,7 @@
         "symbolName": "divideUnsafe",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 410,
+        "sourceLine": 359,
         "summary": "Divides two `number` values without returning an `Option`.",
         "categories": [
           "math"
@@ -11185,7 +11185,7 @@
         "symbolName": "Equivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 551,
+        "sourceLine": 500,
         "summary": "Equivalence instance for numbers where `NaN` is considered equal to `NaN`.",
         "categories": [
           "instances"
@@ -11209,7 +11209,7 @@
         "symbolName": "increment",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 487,
+        "sourceLine": 436,
         "summary": "Returns the result of adding `1` to a given number.",
         "categories": [
           "math"
@@ -11233,7 +11233,7 @@
         "symbolName": "isGreaterThan",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 707,
+        "sourceLine": 656,
         "summary": "Returns `true` if the first argument is greater than the second, otherwise `false`.",
         "categories": [
           "predicates"
@@ -11257,7 +11257,7 @@
         "symbolName": "isGreaterThanOrEqualTo",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 774,
+        "sourceLine": 723,
         "summary": "Returns a function that checks if a given `number` is greater than or equal to the provided one.",
         "categories": [
           "predicates"
@@ -11306,7 +11306,7 @@
         "symbolName": "isLessThan",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 573,
+        "sourceLine": 522,
         "summary": "Returns `true` if the first argument is less than the second, otherwise `false`.",
         "categories": [
           "predicates"
@@ -11330,7 +11330,7 @@
         "symbolName": "isLessThanOrEqualTo",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 640,
+        "sourceLine": 589,
         "summary": "Returns a function that checks if a given `number` is less than or equal to the provided one.",
         "categories": [
           "predicates"
@@ -11354,7 +11354,7 @@
         "symbolName": "isNumber",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 117,
+        "sourceLine": 66,
         "summary": "Checks whether a value is a `number`.",
         "categories": [
           "guards"
@@ -11406,7 +11406,7 @@
         "symbolName": "max",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1096,
+        "sourceLine": 1045,
         "summary": "Returns the maximum between two `number`s.",
         "categories": [
           "math"
@@ -11431,7 +11431,7 @@
         "symbolName": "min",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1029,
+        "sourceLine": 978,
         "summary": "Returns the minimum between two `number`s.",
         "categories": [
           "math"
@@ -11456,7 +11456,7 @@
         "symbolName": "multiply",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 206,
+        "sourceLine": 155,
         "summary": "Provides a multiplication operation on `number`s.",
         "categories": [
           "math"
@@ -11481,7 +11481,7 @@
         "symbolName": "multiplyAll",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1209,
+        "sourceLine": 1158,
         "summary": "Takes an `Iterable` of `number`s and returns their multiplication as a single `number`.",
         "categories": [
           "math"
@@ -11506,7 +11506,7 @@
         "symbolName": "nextPow2",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1306,
+        "sourceLine": 1255,
         "summary": "Returns the next power of 2 from the given number.",
         "categories": [
           "math"
@@ -11530,7 +11530,7 @@
         "symbolName": "Number",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 96,
+        "sourceLine": 45,
         "summary": "Exposes the global number constructor.",
         "categories": [
           "constructors"
@@ -11555,7 +11555,7 @@
         "symbolName": "Order",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 529,
+        "sourceLine": 478,
         "summary": "Order instance for `number` values.",
         "categories": [
           "instances"
@@ -11579,7 +11579,7 @@
         "symbolName": "parse",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1333,
+        "sourceLine": 1282,
         "summary": "Parses a `number` from a `string` safely using the `Number()` function.",
         "categories": [
           "constructors"
@@ -11604,7 +11604,7 @@
         "symbolName": "ReducerMax",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1460,
+        "sourceLine": 1409,
         "summary": "Reducer for reducing `number`s by keeping the maximum value.",
         "categories": [
           "math"
@@ -11629,7 +11629,7 @@
         "symbolName": "ReducerMin",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1483,
+        "sourceLine": 1432,
         "summary": "Reducer for reducing `number`s by keeping the minimum value.",
         "categories": [
           "math"
@@ -11654,7 +11654,7 @@
         "symbolName": "ReducerMultiply",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1437,
+        "sourceLine": 1386,
         "summary": "Reducer for combining `number`s using multiplication.",
         "categories": [
           "math"
@@ -11679,7 +11679,7 @@
         "symbolName": "ReducerSum",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1415,
+        "sourceLine": 1364,
         "summary": "Reducer for combining `number`s using addition.",
         "categories": [
           "math"
@@ -11704,7 +11704,7 @@
         "symbolName": "remainder",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1234,
+        "sourceLine": 1183,
         "summary": "Returns the remainder left over when one operand is divided by a second operand, always taking the sign of the dividend.",
         "categories": [
           "math"
@@ -11729,7 +11729,7 @@
         "symbolName": "round",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1354,
+        "sourceLine": 1303,
         "summary": "Returns the number rounded with the given precision.",
         "categories": [
           "math"
@@ -11753,7 +11753,7 @@
         "symbolName": "sign",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1163,
+        "sourceLine": 1112,
         "summary": "Determines the sign of a given `number`.",
         "categories": [
           "math"
@@ -11777,7 +11777,7 @@
         "symbolName": "subtract",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 271,
+        "sourceLine": 220,
         "summary": "Provides a subtraction operation on `number`s.",
         "categories": [
           "math"
@@ -11801,7 +11801,7 @@
         "symbolName": "sum",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 139,
+        "sourceLine": 88,
         "summary": "Provides an addition operation on `number`s.",
         "categories": [
           "math"
@@ -11826,7 +11826,7 @@
         "symbolName": "sumAll",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Number.d.ts",
-        "sourceLine": 1186,
+        "sourceLine": 1135,
         "summary": "Takes an `Iterable` of `number`s and returns their sum as a single `number`.",
         "categories": [
           "math"
@@ -11851,7 +11851,7 @@
         "symbolName": "all",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2912,
+        "sourceLine": 2851,
         "summary": "Combines a structure of `Option`s (tuple, struct, or iterable) into a single",
         "categories": [
           "combining"
@@ -11876,7 +11876,7 @@
         "symbolName": "andThen",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1883,
+        "sourceLine": 1822,
         "summary": "Chains a second computation onto an `Option`. The second value can be a",
         "categories": [
           "sequencing"
@@ -11901,7 +11901,7 @@
         "symbolName": "as",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1597,
+        "sourceLine": 1536,
         "summary": "Replaces the value inside a `Some` with a constant, leaving `None` unchanged.",
         "categories": [
           "mapping"
@@ -11926,7 +11926,7 @@
         "symbolName": "asVoid",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1679,
+        "sourceLine": 1618,
         "summary": "Replaces the value inside a `Some` with `void` (`undefined`), leaving `None`",
         "categories": [
           "mapping"
@@ -11951,7 +11951,7 @@
         "symbolName": "bind",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4331,
+        "sourceLine": 4270,
         "summary": "Adds an `Option` value to the do notation record under a given name. If the",
         "categories": [
           "do notation"
@@ -11976,7 +11976,7 @@
         "symbolName": "bindTo",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4190,
+        "sourceLine": 4129,
         "summary": "Gives a name to the value of an `Option`, creating a single-key record",
         "categories": [
           "do notation"
@@ -12001,7 +12001,7 @@
         "symbolName": "composeK",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2604,
+        "sourceLine": 2543,
         "summary": "Composes two `Option`-returning functions into a single function that chains",
         "categories": [
           "sequencing"
@@ -12026,7 +12026,7 @@
         "symbolName": "contains",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3894,
+        "sourceLine": 3833,
         "summary": "Checks whether an `Option` contains a value equal to the given one, using default",
         "categories": [
           "elements"
@@ -12051,7 +12051,7 @@
         "symbolName": "containsWith",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3855,
+        "sourceLine": 3794,
         "summary": "Checks whether an `Option` contains a value equivalent to the given one, using a",
         "categories": [
           "elements"
@@ -12076,7 +12076,7 @@
         "symbolName": "Do",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4433,
+        "sourceLine": 4372,
         "summary": "Provides an `Option` containing an empty record `{}`, used as the starting point for",
         "categories": [
           "do notation"
@@ -12101,7 +12101,7 @@
         "symbolName": "exists",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4005,
+        "sourceLine": 3944,
         "summary": "Checks whether the value in a `Some` satisfies a predicate or refinement.",
         "categories": [
           "elements"
@@ -12126,7 +12126,7 @@
         "symbolName": "filter",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3400,
+        "sourceLine": 3339,
         "summary": "Filters an `Option` using a predicate. Returns `None` if the predicate is",
         "categories": [
           "filtering"
@@ -12151,7 +12151,7 @@
         "symbolName": "filterMap",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3296,
+        "sourceLine": 3235,
         "summary": "Transforms and filters an `Option` using a `Filter` callback.",
         "categories": [
           "filtering"
@@ -12176,7 +12176,7 @@
         "symbolName": "firstSomeOf",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1099,
+        "sourceLine": 1038,
         "summary": "Returns the first `Some` found in an iterable of `Option`s, or `None` if",
         "categories": [
           "error handling"
@@ -12201,7 +12201,7 @@
         "symbolName": "flatMap",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1749,
+        "sourceLine": 1688,
         "summary": "Applies a function that returns an `Option` to the value of a `Some`,",
         "categories": [
           "sequencing"
@@ -12226,7 +12226,7 @@
         "symbolName": "flatMapNullishOr",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2254,
+        "sourceLine": 2193,
         "summary": "Combines {@link flatMap} with {@link fromNullishOr}: applies a function that",
         "categories": [
           "sequencing"
@@ -12251,7 +12251,7 @@
         "symbolName": "flatten",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2370,
+        "sourceLine": 2309,
         "summary": "Flattens a nested `Option<Option<A>>` into `Option<A>`.",
         "categories": [
           "sequencing"
@@ -12276,7 +12276,7 @@
         "symbolName": "fromIterable",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 611,
+        "sourceLine": 550,
         "summary": "Wraps the first element of an `Iterable` in a `Some`, or returns `None` if",
         "categories": [
           "constructors"
@@ -12301,7 +12301,7 @@
         "symbolName": "fromNullishOr",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1135,
+        "sourceLine": 1074,
         "summary": "Converts a nullable value (`null` or `undefined`) into an `Option`.",
         "categories": [
           "converting"
@@ -12326,7 +12326,7 @@
         "symbolName": "fromNullOr",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1207,
+        "sourceLine": 1146,
         "summary": "Converts a possibly `null` value into an `Option`, leaving `undefined`",
         "categories": [
           "converting"
@@ -12351,7 +12351,7 @@
         "symbolName": "fromUndefinedOr",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1171,
+        "sourceLine": 1110,
         "summary": "Converts a possibly `undefined` value into an `Option`, leaving `null`",
         "categories": [
           "converting"
@@ -12376,7 +12376,7 @@
         "symbolName": "gen",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4473,
+        "sourceLine": 4412,
         "summary": "Provides generator-based syntax for `Option`, similar to `async`/`await` but for",
         "categories": [
           "generators"
@@ -12401,7 +12401,7 @@
         "symbolName": "getFailure",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 673,
+        "sourceLine": 612,
         "summary": "Converts a `Result` into an `Option`, keeping only the failure value.",
         "categories": [
           "converting"
@@ -12426,7 +12426,7 @@
         "symbolName": "getOrElse",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 707,
+        "sourceLine": 646,
         "summary": "Extracts the value from a `Some`, or evaluates a fallback thunk on `None`.",
         "categories": [
           "getters"
@@ -12451,7 +12451,7 @@
         "symbolName": "getOrNull",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1277,
+        "sourceLine": 1216,
         "summary": "Extracts the value from a `Some`, or returns `null` for `None`.",
         "categories": [
           "getters"
@@ -12476,7 +12476,7 @@
         "symbolName": "getOrThrow",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1470,
+        "sourceLine": 1409,
         "summary": "Extracts the value from a `Some`, or throws a default `Error` for `None`.",
         "categories": [
           "converting"
@@ -12501,7 +12501,7 @@
         "symbolName": "getOrThrowWith",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1373,
+        "sourceLine": 1312,
         "summary": "Extracts the value from a `Some`, or throws a custom error for `None`.",
         "categories": [
           "converting"
@@ -12526,7 +12526,7 @@
         "symbolName": "getOrUndefined",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1309,
+        "sourceLine": 1248,
         "summary": "Extracts the value from a `Some`, or returns `undefined` for `None`.",
         "categories": [
           "getters"
@@ -12576,7 +12576,7 @@
         "symbolName": "getSuccess",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 642,
+        "sourceLine": 581,
         "summary": "Converts a `Result` into an `Option`, keeping only the success value.",
         "categories": [
           "converting"
@@ -12601,7 +12601,7 @@
         "symbolName": "isNone",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 400,
+        "sourceLine": 339,
         "summary": "Checks whether an `Option` is `None` (absent).",
         "categories": [
           "guards"
@@ -12626,7 +12626,7 @@
         "symbolName": "isOption",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 371,
+        "sourceLine": 310,
         "summary": "Determines whether the given value is an `Option`.",
         "categories": [
           "guards"
@@ -12651,7 +12651,7 @@
         "symbolName": "isSome",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 429,
+        "sourceLine": 368,
         "summary": "Checks whether an `Option` contains a value (`Some`).",
         "categories": [
           "guards"
@@ -12676,7 +12676,7 @@
         "symbolName": "let",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4260,
+        "sourceLine": 4199,
         "summary": "",
         "categories": [],
         "since": [],
@@ -12693,7 +12693,7 @@
         "symbolName": "lift2",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3669,
+        "sourceLine": 3608,
         "summary": "Lifts a binary function to operate on two `Option` values.",
         "categories": [
           "lifting"
@@ -12718,7 +12718,7 @@
         "symbolName": "liftNullishOr",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1185,
         "summary": "Lifts a function that may return `null` or `undefined` into one that returns",
         "categories": [
           "converting"
@@ -12743,7 +12743,7 @@
         "symbolName": "liftPredicate",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3708,
+        "sourceLine": 3647,
         "summary": "Lifts a `Predicate` or `Refinement` into the `Option` context: returns",
         "categories": [
           "lifting"
@@ -12768,7 +12768,7 @@
         "symbolName": "liftThrowable",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1341,
+        "sourceLine": 1280,
         "summary": "Lifts a function that may throw into one that returns an `Option`.",
         "categories": [
           "converting"
@@ -12793,7 +12793,7 @@
         "symbolName": "makeCombinerFailFast",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4540,
+        "sourceLine": 4479,
         "summary": "Creates a `Combiner` for `Option<A>` with fail-fast semantics: returns `None`",
         "categories": [
           "Combiner"
@@ -12818,7 +12818,7 @@
         "symbolName": "makeEquivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3600,
+        "sourceLine": 3539,
         "summary": "Creates an `Equivalence` for `Option<A>` from an `Equivalence` for `A`.",
         "categories": [
           "instances"
@@ -12842,7 +12842,7 @@
         "symbolName": "makeOrder",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3636,
+        "sourceLine": 3575,
         "summary": "Creates an `Order` for `Option<A>` from an `Order` for `A`.",
         "categories": [
           "sorting"
@@ -12866,7 +12866,7 @@
         "symbolName": "makeReducer",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4506,
+        "sourceLine": 4445,
         "summary": "Creates a `Reducer` for `Option<A>` that prioritizes the first non-`None`",
         "categories": [
           "Reducer"
@@ -12891,7 +12891,7 @@
         "symbolName": "makeReducerFailFast",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 4575,
+        "sourceLine": 4514,
         "summary": "Creates a `Reducer` for `Option<A>` by lifting an existing `Reducer` with",
         "categories": [
           "Reducer"
@@ -12916,7 +12916,7 @@
         "symbolName": "map",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1503,
+        "sourceLine": 1442,
         "summary": "Transforms the value inside a `Some` using the provided function, leaving",
         "categories": [
           "mapping"
@@ -12941,7 +12941,7 @@
         "symbolName": "match",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 463,
+        "sourceLine": 402,
         "summary": "Pattern-matches on an `Option`, handling both `None` and `Some` cases.",
         "categories": [
           "pattern matching"
@@ -12966,7 +12966,7 @@
         "symbolName": "none",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 304,
+        "sourceLine": 243,
         "summary": "Creates an `Option` representing the absence of a value.",
         "categories": [
           "constructors"
@@ -12991,7 +12991,7 @@
         "symbolName": "None",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 125,
+        "sourceLine": 64,
         "summary": "Represents the absence of a value within an {@link Option}.",
         "categories": [
           "models"
@@ -13016,7 +13016,7 @@
         "symbolName": "Option",
         "exportKind": "namespace",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 217,
+        "sourceLine": 156,
         "summary": "Namespace containing utility types for `Option`.",
         "categories": [],
         "since": [
@@ -13037,7 +13037,7 @@
         "symbolName": "Option",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 106,
+        "sourceLine": 45,
         "summary": "The `Option` data type represents optional values. An `Option<A>` is either",
         "categories": [
           "models"
@@ -13062,7 +13062,7 @@
         "symbolName": "OptionIterator",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 151,
+        "sourceLine": 90,
         "summary": "Iterator protocol used to yield an `Option` inside {@link gen}, returning the",
         "categories": [
           "generators"
@@ -13087,7 +13087,7 @@
         "symbolName": "OptionTypeLambda",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 270,
+        "sourceLine": 209,
         "summary": "Type lambda interface for higher-kinded type encodings with `Option`.",
         "categories": [
           "type lambdas"
@@ -13111,7 +13111,7 @@
         "symbolName": "OptionUnify",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 203,
+        "sourceLine": 142,
         "summary": "Type-level unification support for `Option` values.",
         "categories": [
           "models"
@@ -13135,7 +13135,7 @@
         "symbolName": "OptionUnifyIgnore",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 257,
+        "sourceLine": 196,
         "summary": "Marker interface used by Effect's `Unify` machinery for `Option` values.",
         "categories": [
           "models"
@@ -13159,7 +13159,7 @@
         "symbolName": "orElse",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 809,
+        "sourceLine": 748,
         "summary": "Returns the fallback `Option` if `self` is `None`; otherwise returns `self`.",
         "categories": [
           "error handling"
@@ -13184,7 +13184,7 @@
         "symbolName": "orElseResult",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1002,
+        "sourceLine": 941,
         "summary": "Returns the first available value and marks whether it came from the fallback.",
         "categories": [
           "error handling"
@@ -13209,7 +13209,7 @@
         "symbolName": "orElseSome",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 907,
+        "sourceLine": 846,
         "summary": "Returns `Some` of the fallback value if `self` is `None`; otherwise returns",
         "categories": [
           "error handling"
@@ -13234,7 +13234,7 @@
         "symbolName": "partitionMap",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3184,
+        "sourceLine": 3123,
         "summary": "Splits an `Option` into two `Option`s using a function that returns a `Result`.",
         "categories": [
           "filtering"
@@ -13259,7 +13259,7 @@
         "symbolName": "product",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2830,
+        "sourceLine": 2769,
         "summary": "Combines two `Option`s into a `Some` containing a tuple `[A, B]` if both",
         "categories": [
           "combining"
@@ -13284,7 +13284,7 @@
         "symbolName": "productMany",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2866,
+        "sourceLine": 2805,
         "summary": "Combines a primary `Option` with an iterable of `Option`s into a tuple if",
         "categories": [
           "combining"
@@ -13334,7 +13334,7 @@
         "symbolName": "reduceCompact",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3054,
+        "sourceLine": 2993,
         "summary": "Reduces an iterable of `Option`s to a single value, skipping `None` entries.",
         "categories": [
           "reducing"
@@ -13358,7 +13358,7 @@
         "symbolName": "some",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 336,
+        "sourceLine": 275,
         "summary": "Wraps the given value into an `Option` to represent its presence.",
         "categories": [
           "constructors"
@@ -13383,7 +13383,7 @@
         "symbolName": "Some",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 174,
+        "sourceLine": 113,
         "summary": "Represents the presence of a value within an {@link Option}.",
         "categories": [
           "models"
@@ -13408,7 +13408,7 @@
         "symbolName": "tap",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2722,
+        "sourceLine": 2661,
         "summary": "Runs a side-effecting `Option`-returning function on the value of a `Some`,",
         "categories": [
           "sequencing"
@@ -13433,7 +13433,7 @@
         "symbolName": "toArray",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 3144,
+        "sourceLine": 3083,
         "summary": "Converts an `Option` into an `Array`.",
         "categories": [
           "converting"
@@ -13458,7 +13458,7 @@
         "symbolName": "toRefinement",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 579,
+        "sourceLine": 518,
         "summary": "Converts an `Option`-returning function into a type guard (refinement).",
         "categories": [
           "converting"
@@ -13483,7 +13483,7 @@
         "symbolName": "void",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 1680,
+        "sourceLine": 1619,
         "summary": "",
         "categories": [],
         "since": [],
@@ -13500,7 +13500,7 @@
         "symbolName": "zipLeft",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2499,
+        "sourceLine": 2438,
         "summary": "Sequences two `Option`s, keeping the value from the first if both are `Some`.",
         "categories": [
           "zipping"
@@ -13525,7 +13525,7 @@
         "symbolName": "zipRight",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2402,
+        "sourceLine": 2341,
         "summary": "Sequences two `Option`s, keeping the value from the second if both are `Some`.",
         "categories": [
           "zipping"
@@ -13550,7 +13550,7 @@
         "symbolName": "zipWith",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Option.d.ts",
-        "sourceLine": 2952,
+        "sourceLine": 2891,
         "summary": "Combines two `Option`s using a provided function.",
         "categories": [
           "zipping"
@@ -15157,7 +15157,7 @@
         "symbolName": "at",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 683,
+        "sourceLine": 625,
         "summary": "Returns the character at the specified relative index safely, or `None` if the index is out of bounds.",
         "categories": [
           "elements"
@@ -15231,7 +15231,7 @@
         "symbolName": "capitalize",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 290,
+        "sourceLine": 232,
         "summary": "Capitalizes the first character of a string.",
         "categories": [
           "transforming"
@@ -15255,7 +15255,7 @@
         "symbolName": "charAt",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 732,
+        "sourceLine": 674,
         "summary": "Returns the character at the specified non-negative index safely, or `None` if the index is out of bounds.",
         "categories": [
           "elements"
@@ -15279,7 +15279,7 @@
         "symbolName": "charCodeAt",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 618,
+        "sourceLine": 560,
         "summary": "Returns the character code at the specified index safely, or `None` if the index is out of bounds.",
         "categories": [
           "elements"
@@ -15303,7 +15303,7 @@
         "symbolName": "codePointAt",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 781,
+        "sourceLine": 723,
         "summary": "Returns the Unicode code point at the specified index safely, or `None` if the index is out of bounds.",
         "categories": [
           "elements"
@@ -15327,7 +15327,7 @@
         "symbolName": "concat",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 200,
+        "sourceLine": 142,
         "summary": "Concatenates two strings at runtime.",
         "categories": [
           "combining"
@@ -15351,7 +15351,7 @@
         "symbolName": "Concat",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 181,
+        "sourceLine": 123,
         "summary": "Concatenates two strings at the type level.",
         "categories": [
           "models"
@@ -15375,7 +15375,7 @@
         "symbolName": "constantCase",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1572,
+        "sourceLine": 1514,
         "summary": "Converts a string to CONSTANT_CASE (uppercase with underscores).",
         "categories": [
           "transforming"
@@ -15425,7 +15425,7 @@
         "symbolName": "empty",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 165,
+        "sourceLine": 107,
         "summary": "Provides the empty string `\"\"`.",
         "categories": [
           "constants"
@@ -15499,7 +15499,7 @@
         "symbolName": "Equivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 145,
+        "sourceLine": 87,
         "summary": "Provides an `Equivalence` instance for strings using strict equality (`===`).",
         "categories": [
           "instances"
@@ -15551,7 +15551,7 @@
         "symbolName": "includes",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 568,
+        "sourceLine": 510,
         "summary": "Returns `true` if `searchString` appears as a substring of `self`, at one or more positions that are",
         "categories": [
           "predicates"
@@ -15575,7 +15575,7 @@
         "symbolName": "indexOf",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 830,
+        "sourceLine": 772,
         "summary": "Returns the index of the first occurrence of a substring safely, or `None` if not found.",
         "categories": [
           "searching"
@@ -15599,7 +15599,7 @@
         "symbolName": "isEmpty",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 462,
+        "sourceLine": 404,
         "summary": "Checks whether a `string` is empty.",
         "categories": [
           "predicates"
@@ -15623,7 +15623,7 @@
         "symbolName": "isNonEmpty",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 479,
+        "sourceLine": 421,
         "summary": "Checks whether a `string` is non-empty.",
         "categories": [
           "guards"
@@ -15647,7 +15647,7 @@
         "symbolName": "isString",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 111,
+        "sourceLine": 53,
         "summary": "Checks whether a value is a `string`.",
         "categories": [
           "guards"
@@ -15721,7 +15721,7 @@
         "symbolName": "lastIndexOf",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 846,
+        "sourceLine": 788,
         "summary": "Returns the index of the last occurrence of a substring safely, or `None` if not found.",
         "categories": [
           "searching"
@@ -15745,7 +15745,7 @@
         "symbolName": "length",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 495,
+        "sourceLine": 437,
         "summary": "Returns the JavaScript string length, measured in UTF-16 code units.",
         "categories": [
           "getters"
@@ -15769,7 +15769,7 @@
         "symbolName": "linesIterator",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1257,
+        "sourceLine": 1199,
         "summary": "Returns an `IterableIterator` which yields each line contained within the",
         "categories": [
           "splitting"
@@ -15793,7 +15793,7 @@
         "symbolName": "linesWithSeparators",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1274,
+        "sourceLine": 1216,
         "summary": "Returns an `IterableIterator` which yields each line contained within the",
         "categories": [
           "splitting"
@@ -15817,7 +15817,7 @@
         "symbolName": "localeCompare",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 866,
+        "sourceLine": 808,
         "summary": "Computes locale-aware ordering for two strings, with optional locales and",
         "categories": [
           "comparing"
@@ -15891,7 +15891,7 @@
         "symbolName": "match",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 888,
+        "sourceLine": 830,
         "summary": "Matches a string against a pattern safely and returns `Option.some` with the match",
         "categories": [
           "searching"
@@ -15915,7 +15915,7 @@
         "symbolName": "matchAll",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 907,
+        "sourceLine": 849,
         "summary": "Returns an iterator over all regular expression matches in the string using",
         "categories": [
           "searching"
@@ -15939,7 +15939,7 @@
         "symbolName": "noCase",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1413,
         "summary": "Normalizes a string by splitting it into word parts, transforming each part,",
         "categories": [
           "transforming"
@@ -15964,7 +15964,7 @@
         "symbolName": "normalize",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 931,
+        "sourceLine": 873,
         "summary": "Normalizes a string according to the specified Unicode normalization form.",
         "categories": [
           "transforming"
@@ -15988,7 +15988,7 @@
         "symbolName": "Order",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 129,
+        "sourceLine": 71,
         "summary": "Provides an `Order` instance for comparing strings using lexicographic",
         "categories": [
           "instances"
@@ -16063,7 +16063,7 @@
         "symbolName": "padEnd",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 948,
+        "sourceLine": 890,
         "summary": "Pads the string from the end with a given fill string to a specified length.",
         "categories": [
           "transforming"
@@ -16087,7 +16087,7 @@
         "symbolName": "padStart",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 965,
+        "sourceLine": 907,
         "summary": "Pads the string from the start with a given fill string to a specified length.",
         "categories": [
           "transforming"
@@ -16261,7 +16261,7 @@
         "symbolName": "ReducerConcat",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1623,
+        "sourceLine": 1565,
         "summary": "Reducer for concatenating `string`s.",
         "categories": [
           "combining"
@@ -16311,7 +16311,7 @@
         "symbolName": "replace",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 332,
+        "sourceLine": 274,
         "summary": "Replaces matches in a string using `String.prototype.replace`.",
         "categories": [
           "transforming"
@@ -16335,7 +16335,7 @@
         "symbolName": "replaceAll",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 999,
+        "sourceLine": 941,
         "summary": "Replaces all occurrences of a substring or pattern in a string.",
         "categories": [
           "transforming"
@@ -16434,7 +16434,7 @@
         "symbolName": "search",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1017,
+        "sourceLine": 959,
         "summary": "Returns the index of the first match for a string or regular expression safely, or",
         "categories": [
           "searching"
@@ -16458,7 +16458,7 @@
         "symbolName": "slice",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 445,
+        "sourceLine": 387,
         "summary": "Extracts a section of a string and returns it as a new string.",
         "categories": [
           "transforming"
@@ -16582,7 +16582,7 @@
         "symbolName": "split",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 513,
+        "sourceLine": 455,
         "summary": "Splits a string into an array of substrings using a separator.",
         "categories": [
           "transforming"
@@ -16631,7 +16631,7 @@
         "symbolName": "String",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 94,
+        "sourceLine": 36,
         "summary": "Exposes the global string constructor.",
         "categories": [
           "constructors"
@@ -16656,7 +16656,7 @@
         "symbolName": "stripMargin",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1346,
+        "sourceLine": 1288,
         "summary": "Strips a leading `|` margin prefix from every line.",
         "categories": [
           "transforming"
@@ -16680,7 +16680,7 @@
         "symbolName": "stripMarginWith",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1292,
+        "sourceLine": 1234,
         "summary": "Strips a leading margin prefix from every line using the supplied margin",
         "categories": [
           "transforming"
@@ -16704,7 +16704,7 @@
         "symbolName": "substring",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 667,
+        "sourceLine": 609,
         "summary": "Extracts characters from a string between two specified indices.",
         "categories": [
           "transforming"
@@ -16728,7 +16728,7 @@
         "symbolName": "takeLeft",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1113,
+        "sourceLine": 1055,
         "summary": "Keeps the specified number of characters from the start of a string.",
         "categories": [
           "transforming"
@@ -16752,7 +16752,7 @@
         "symbolName": "takeRight",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1189,
+        "sourceLine": 1131,
         "summary": "Keeps the specified number of characters from the end of a string.",
         "categories": [
           "transforming"
@@ -16776,7 +16776,7 @@
         "symbolName": "toLocaleLowerCase",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1071,
+        "sourceLine": 1013,
         "summary": "Converts the string to lowercase according to the specified locale.",
         "categories": [
           "transforming"
@@ -16800,7 +16800,7 @@
         "symbolName": "toLocaleUpperCase",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 1088,
+        "sourceLine": 1030,
         "summary": "Converts the string to uppercase according to the specified locale.",
         "categories": [
           "transforming"
@@ -16824,7 +16824,7 @@
         "symbolName": "toLowerCase",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 273,
+        "sourceLine": 215,
         "summary": "Converts a string to lowercase.",
         "categories": [
           "transforming"
@@ -16873,7 +16873,7 @@
         "symbolName": "toUpperCase",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 256,
+        "sourceLine": 198,
         "summary": "Converts a string to uppercase.",
         "categories": [
           "transforming"
@@ -16897,7 +16897,7 @@
         "symbolName": "trim",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 364,
+        "sourceLine": 306,
         "summary": "Removes whitespace from both ends of a string.",
         "categories": [
           "transforming"
@@ -16921,7 +16921,7 @@
         "symbolName": "Trim",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 347,
+        "sourceLine": 289,
         "summary": "Type-level representation of trimming whitespace from both ends of a string.",
         "categories": [
           "models"
@@ -16945,7 +16945,7 @@
         "symbolName": "trimEnd",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 428,
+        "sourceLine": 370,
         "summary": "Removes whitespace from the end of a string.",
         "categories": [
           "transforming"
@@ -16969,7 +16969,7 @@
         "symbolName": "TrimEnd",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 411,
+        "sourceLine": 353,
         "summary": "Type-level representation of trimming whitespace from the end of a string.",
         "categories": [
           "models"
@@ -16993,7 +16993,7 @@
         "symbolName": "trimStart",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 396,
+        "sourceLine": 338,
         "summary": "Removes whitespace from the start of a string.",
         "categories": [
           "transforming"
@@ -17017,7 +17017,7 @@
         "symbolName": "TrimStart",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 379,
+        "sourceLine": 321,
         "summary": "Type-level representation of trimming whitespace from the start of a string.",
         "categories": [
           "models"
@@ -17093,7 +17093,7 @@
         "symbolName": "uncapitalize",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/String.d.ts",
-        "sourceLine": 307,
+        "sourceLine": 249,
         "summary": "Uncapitalizes the first character of a string.",
         "categories": [
           "transforming"
@@ -17144,7 +17144,7 @@
         "symbolName": "Apply",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1094,
+        "sourceLine": 1031,
         "summary": "Applies a {@link Lambda} type-level function to a value type `V`, producing",
         "categories": [
           "Lambda"
@@ -17169,7 +17169,7 @@
         "symbolName": "assign",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 468,
+        "sourceLine": 405,
         "summary": "Merges two structs into a new struct. When both structs share a key, the",
         "categories": [
           "combining"
@@ -17194,7 +17194,7 @@
         "symbolName": "Assign",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 170,
+        "sourceLine": 107,
         "summary": "Merges two object types with properties from `U` taking precedence over `T`",
         "categories": [
           "utility types"
@@ -17344,7 +17344,7 @@
         "symbolName": "evolve",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 568,
+        "sourceLine": 505,
         "summary": "Transforms values of a struct selectively using per-key functions. Keys",
         "categories": [
           "transforming"
@@ -17369,7 +17369,7 @@
         "symbolName": "evolveEntries",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 788,
+        "sourceLine": 725,
         "summary": "Transforms both keys and values of a struct selectively. Each per-key",
         "categories": [
           "transforming"
@@ -17394,7 +17394,7 @@
         "symbolName": "evolveKeys",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 679,
+        "sourceLine": 616,
         "summary": "Transforms keys of a struct selectively using per-key functions. Keys without",
         "categories": [
           "Key utilities"
@@ -17444,7 +17444,7 @@
         "symbolName": "get",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 196,
+        "sourceLine": 133,
         "summary": "Retrieves the value at `key` from a struct.",
         "categories": [
           "getters"
@@ -17544,7 +17544,7 @@
         "symbolName": "lambda",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1133,
+        "sourceLine": 1070,
         "summary": "Wraps a plain function as a {@link Lambda} value so it can be used with",
         "categories": [
           "Lambda"
@@ -17569,7 +17569,7 @@
         "symbolName": "Lambda",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1059,
+        "sourceLine": 996,
         "summary": "Interface for type-level functions used by {@link map}, {@link mapPick}, and",
         "categories": [
           "Lambda"
@@ -17594,7 +17594,7 @@
         "symbolName": "makeCombiner",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1476,
+        "sourceLine": 1413,
         "summary": "Creates a `Combiner` for a struct shape by providing a `Combiner` for each",
         "categories": [
           "combining"
@@ -17619,7 +17619,7 @@
         "symbolName": "makeEquivalence",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 993,
+        "sourceLine": 930,
         "summary": "Creates an `Equivalence` for a struct by providing an `Equivalence` for each",
         "categories": [
           "instances"
@@ -17644,7 +17644,7 @@
         "symbolName": "makeOrder",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1027,
+        "sourceLine": 964,
         "summary": "Creates an `Order` for a struct by providing an `Order` for each property.",
         "categories": [
           "ordering"
@@ -17669,7 +17669,7 @@
         "symbolName": "makeReducer",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1519,
+        "sourceLine": 1456,
         "summary": "Creates a `Reducer` for a struct shape by providing a `Reducer` for each",
         "categories": [
           "folding"
@@ -17694,7 +17694,7 @@
         "symbolName": "map",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1167,
+        "sourceLine": 1104,
         "summary": "Applies a {@link Lambda} transformation to every value in a struct.",
         "categories": [
           "mapping"
@@ -17719,7 +17719,7 @@
         "symbolName": "mapOmit",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1373,
+        "sourceLine": 1310,
         "summary": "Applies a {@link Lambda} transformation to all keys except the specified",
         "categories": [
           "mapping"
@@ -17794,7 +17794,7 @@
         "symbolName": "mapPick",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1272,
+        "sourceLine": 1209,
         "summary": "Applies a {@link Lambda} transformation only to the specified keys; all",
         "categories": [
           "mapping"
@@ -17819,7 +17819,7 @@
         "symbolName": "Mutable",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 138,
+        "sourceLine": 75,
         "summary": "Removes `readonly` modifiers from all properties of an object type.",
         "categories": [
           "utility types"
@@ -17844,7 +17844,7 @@
         "symbolName": "omit",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 386,
+        "sourceLine": 323,
         "summary": "Creates a new struct with the specified keys removed.",
         "categories": [
           "filtering"
@@ -17919,7 +17919,7 @@
         "symbolName": "pick",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 305,
+        "sourceLine": 242,
         "summary": "Creates a new struct containing only the specified keys.",
         "categories": [
           "filtering"
@@ -17944,7 +17944,7 @@
         "symbolName": "Record",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 1543,
+        "sourceLine": 1480,
         "summary": "Creates a record with the given keys and value.",
         "categories": [
           "constructors"
@@ -17968,7 +17968,7 @@
         "symbolName": "renameKeys",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 887,
+        "sourceLine": 824,
         "summary": "Renames keys in a struct using a static `{ oldKey: newKey }` mapping. Keys",
         "categories": [
           "Key utilities"
@@ -18068,7 +18068,7 @@
         "symbolName": "Simplify",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Struct.d.ts",
-        "sourceLine": 109,
+        "sourceLine": 46,
         "summary": "Flattens intersection types into a single object type for readability.",
         "categories": [
           "utility types"
@@ -18871,7 +18871,7 @@
         "symbolName": "Gen",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/Utils.d.ts",
-        "sourceLine": 192,
+        "sourceLine": 145,
         "summary": "Type-level signature for generator-based monadic composition over any",
         "categories": [
           "models"
@@ -18896,7 +18896,7 @@
         "symbolName": "SingleShotGen",
         "exportKind": "class",
         "sourcePath": "node_modules/effect/dist/Utils.d.ts",
-        "sourceLine": 98,
+        "sourceLine": 51,
         "summary": "Yields its wrapped value exactly once through an `IterableIterator`.",
         "categories": [
           "constructors"
@@ -18971,7 +18971,7 @@
         "symbolName": "Variance",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/Utils.d.ts",
-        "sourceLine": 158,
+        "sourceLine": 111,
         "summary": "Type-level marker encoding the variance of a `TypeLambda`'s type",
         "categories": [
           "models"
