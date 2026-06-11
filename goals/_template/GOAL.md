@@ -28,6 +28,10 @@ Workflow:
 3. Preserve unrelated user/worktree changes.
 4. Keep decisions tied to evidence from files, tests, docs, or command output.
 5. Update packet evidence/status if the implementation changes readiness.
+6. At P3 Close, write a closeout reflection to
+   `history/reflections/<YYYY-MM-DD>-<agent>.md` via the `/reflect` skill (see
+   `PLAN.md` P3 Closeout Checklist); `bun run beep lint reflection-artifacts`
+   must pass.
 
 Acceptance:
 
