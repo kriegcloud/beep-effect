@@ -32,7 +32,7 @@ launcher; `SPEC.md` remains the normative contract.
 
 ## Current Phase
 
-`P1 extract` - 12 of 52 findings are committed as sanitized markdown captures.
+`P1 extract` - 12 of 52 findings are committed as redacted public ledgers.
 CSF-001 through CSF-003 also have captured patch files. Next action: continue
 capturing the remaining 40 findings from the authenticated Codex tab.
 
@@ -47,8 +47,9 @@ captures and 3 committed patch files.
   closures or remediation before approval.
 - Raw captures stay untracked in `/tmp/codex-security-findings-2026-06`; commit
   only sanitized markdown + patches.
-- Unremediated High findings stay redacted in public tracking; publish detailed
-  report and patch material only with the corresponding fix and verification.
+- Unremediated findings stay redacted in public tracking regardless of severity;
+  publish detailed report and patch material only with the corresponding fix and
+  verification.
 - The packet is tracking metadata, not package source or generated public API
   input; repo-export and graph artifacts showed no `goals/` leakage in the
   2026-06-11 verification pass.

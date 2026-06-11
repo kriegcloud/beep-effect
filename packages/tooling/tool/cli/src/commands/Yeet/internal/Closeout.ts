@@ -578,7 +578,7 @@ const isBotComment = (tokens: ReadonlyArray<string>, author: GhActor | null): bo
 const isGreptileComment = (author: GhActor | null): boolean =>
   Str.includes("greptile")(Str.toLowerCase(authorLogin(author)));
 
-const scorePattern = /(?<score>\d+(?:\.\d+)?)\s*\/\s*5/u;
+const scorePattern = /(?:confidence\s+)?score\s*[:=-]\s*(?<score>\d+(?:\.\d+)?)\s*\/\s*5/iu;
 const leadingIssueCountPattern = /^\s*(?<count>\d+)\s+(?:open\s+)?issues?\b/imu;
 const labeledIssueCountPattern = /^\s*(?:open\s+)?issues?\s*[:=-]\s*(?<count>\d+)\b/imu;
 
@@ -1170,7 +1170,7 @@ const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWrite
   context: RepoRunContext,
   intents: ReadonlyArray<CloseoutWriteIntent>
 ): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  const performIntent = Effect.fnUntraced(function* (intent: CloseoutWriteIntent) {
+  const performIntent = Effect.fnUntraced(function* performIntent(intent: CloseoutWriteIntent) {
     const args =
       intent.kind === "reply"
         ? [

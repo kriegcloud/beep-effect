@@ -69,7 +69,7 @@
     "trackedRawFindingContent": false,
     "rawCaptureLocation": "/tmp/codex-security-findings-2026-06",
     "commitsOnlySanitizedMarkdownAndPatches": true,
-    "publicHighFindingPolicy": "Unremediated High findings keep detailed report text, affected paths, exploit analysis, validation notes, and proposed patches outside the public branch until fixes land atomically.",
+    "publicFindingPolicy": "Unremediated findings of any severity keep detailed report text, affected paths, exploit analysis, validation notes, and proposed patches outside the public branch until fixes land atomically.",
     "redactedPatterns": [
       "signed artifact URLs",
       "token-like query params",
@@ -189,15 +189,15 @@
       "findings/CSF-001-redacted-high-finding.md",
       "findings/CSF-002-redacted-high-finding.md",
       "findings/CSF-003-redacted-high-finding.md",
-      "findings/CSF-004-unescaped-systemd-upstream-enables-directive-injection.md",
-      "findings/CSF-005-unrestricted-box-url-operations-enable-ssrf.md",
-      "findings/CSF-006-yeet-skill-leaks-process-command-lines.md",
-      "findings/CSF-007-pr-affected-lint-skips-repo-wide-security-policies.md",
-      "findings/CSF-008-unsafe-markdown-projection-permits-script-link-injection.md",
-      "findings/CSF-009-turtle-projection-allows-prefix-injection.md",
-      "findings/CSF-010-default-defect-encoding-leaks-error-causes-over-rpc.md",
-      "findings/CSF-011-symlink-following-source-scan-can-escape-repo.md",
-      "findings/CSF-012-nlp-telemetry-logs-unsanitized-failure-causes.md"
+      "findings/CSF-004-redacted-medium-finding.md",
+      "findings/CSF-005-redacted-medium-finding.md",
+      "findings/CSF-006-redacted-medium-finding.md",
+      "findings/CSF-007-redacted-medium-finding.md",
+      "findings/CSF-008-redacted-medium-finding.md",
+      "findings/CSF-009-redacted-medium-finding.md",
+      "findings/CSF-010-redacted-medium-finding.md",
+      "findings/CSF-011-redacted-medium-finding.md",
+      "findings/CSF-012-redacted-medium-finding.md"
     ]
   }
 }

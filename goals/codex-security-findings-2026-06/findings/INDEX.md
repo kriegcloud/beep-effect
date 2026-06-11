@@ -5,8 +5,8 @@ Partially captured from Codex Cloud Security scan
 on 2026-06-08 for `kriegcloud/beep-effect`. The scan contains 52 findings
 visible in the authenticated Codex Security UI with severities
 `high,medium,low,informational`; this index currently registers the 12 committed
-captures. Unremediated High findings are redacted in public tracking until their
-fixes land atomically. Remediation lands on branch
+captures. Unremediated findings are redacted in public tracking regardless of
+severity until their fixes land atomically. Remediation lands on branch
 `@slop/june-8-2026` in a single PR.
 
 Disposition policy: remediate by default; `Won't fix` only with explicit written
@@ -65,12 +65,12 @@ justification. One approval gate after triage. Two Chrome closure passes
 | [CSF-001](./CSF-001-redacted-high-finding.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted High severity finding | _private tracker_ | _redacted_ |
 | [CSF-002](./CSF-002-redacted-high-finding.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted High severity finding | _private tracker_ | _redacted_ |
 | [CSF-003](./CSF-003-redacted-high-finding.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted High severity finding | _private tracker_ | _redacted_ |
-| [CSF-004](./CSF-004-unescaped-systemd-upstream-enables-directive-injection.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Unescaped systemd upstream enables directive injection | packages/tooling/tool | 241a206 |
-| [CSF-005](./CSF-005-unrestricted-box-url-operations-enable-ssrf.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Unrestricted Box URL operations enable SSRF | packages/drivers/box | 9d8e7ac |
-| [CSF-006](./CSF-006-yeet-skill-leaks-process-command-lines.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Yeet skill leaks process command lines | .claude/skills/yeet | 7ce284a |
-| [CSF-007](./CSF-007-pr-affected-lint-skips-repo-wide-security-policies.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | PR affected lint skips repo-wide security policies | packages/tooling/tool/cli | 009c89b |
-| [CSF-008](./CSF-008-unsafe-markdown-projection-permits-script-link-injection.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Unsafe Markdown projection permits script-link injection | packages/foundation/modeling/ontology | 8a64c3c |
-| [CSF-009](./CSF-009-turtle-projection-allows-prefix-injection.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Turtle projection allows prefix injection | packages/foundation/modeling/ontology | 8273eb9 |
-| [CSF-010](./CSF-010-default-defect-encoding-leaks-error-causes-over-rpc.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Default defect encoding leaks Error causes over RPC | packages/effect/src/unstable/rpc | 5938a35 |
-| [CSF-011](./CSF-011-symlink-following-source-scan-can-escape-repo.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Symlink-following source scan can escape repo | packages/tooling/tool/cli | fa66534 |
-| [CSF-012](./CSF-012-nlp-telemetry-logs-unsanitized-failure-causes.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | NLP telemetry logs unsanitized failure causes | packages/foundation/capability/nlp | 0b8d3fc |
+| [CSF-004](./CSF-004-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-005](./CSF-005-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-006](./CSF-006-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-007](./CSF-007-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-008](./CSF-008-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-009](./CSF-009-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-010](./CSF-010-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-011](./CSF-011-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
+| [CSF-012](./CSF-012-redacted-medium-finding.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted Medium severity finding | _private tracker_ | _redacted_ |
