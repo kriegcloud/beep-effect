@@ -375,6 +375,7 @@ jobs:
         with:
           name: fallow-envelopes-${{ github.event_name }}-${{ github.run_attempt }}
           path: .beep/fallow/**
+          include-hidden-files: "true"
           if-no-files-found: error
 
   build:

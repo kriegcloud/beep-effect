@@ -1,16 +1,16 @@
 # Graph Report - beep-effect5  (2026-06-11)
 
 ## Corpus Check
-- 3131 files · ~2,440,832 words
+- 3131 files · ~2,440,852 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 44569 nodes · 51785 edges · 2802 communities (2426 shown, 376 thin omitted)
+- 44569 nodes · 51785 edges · 2799 communities (2423 shown, 376 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 144 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3049ce16`
+- Built from commit: `de34f882`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -2203,7 +2203,6 @@
 - [[_COMMUNITY_Community 2190|Community 2190]]
 - [[_COMMUNITY_Community 2191|Community 2191]]
 - [[_COMMUNITY_Community 2192|Community 2192]]
-- [[_COMMUNITY_Community 2193|Community 2193]]
 - [[_COMMUNITY_Community 2194|Community 2194]]
 - [[_COMMUNITY_Community 2195|Community 2195]]
 - [[_COMMUNITY_Community 2196|Community 2196]]
@@ -2272,7 +2271,6 @@
 - [[_COMMUNITY_Community 2262|Community 2262]]
 - [[_COMMUNITY_Community 2263|Community 2263]]
 - [[_COMMUNITY_Community 2264|Community 2264]]
-- [[_COMMUNITY_Community 2265|Community 2265]]
 - [[_COMMUNITY_Community 2266|Community 2266]]
 - [[_COMMUNITY_Community 2267|Community 2267]]
 - [[_COMMUNITY_Community 2268|Community 2268]]
@@ -2293,7 +2291,6 @@
 - [[_COMMUNITY_Community 2283|Community 2283]]
 - [[_COMMUNITY_Community 2284|Community 2284]]
 - [[_COMMUNITY_Community 2285|Community 2285]]
-- [[_COMMUNITY_Community 2287|Community 2287]]
 - [[_COMMUNITY_Community 2288|Community 2288]]
 - [[_COMMUNITY_Community 2289|Community 2289]]
 - [[_COMMUNITY_Community 2290|Community 2290]]
@@ -2633,7 +2630,7 @@
 - 1-file cycle: `apps/professional-runtime-proof/src/index.ts -> apps/professional-runtime-proof/src/index.ts`
 - 3-file cycle: `packages/tooling/tool/docgen/src/Configuration.ts -> packages/tooling/tool/docgen/src/Domain.ts -> packages/tooling/tool/docgen/src/Parser.ts -> packages/tooling/tool/docgen/src/Configuration.ts`
 
-## Communities (2802 total, 376 thin omitted)
+## Communities (2799 total, 376 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.01
@@ -2953,7 +2950,7 @@ Nodes (78): App(), $I, LoadState, $I, Badge(), badgeVariants, AsLink, Count (+70
 
 ### Community 79 - "Community 79"
 Cohesion: 0.02
-Nodes (87): BeepScopedPackageName, buildCanonicalSyncpackSources(), buildCanonicalTstycheTestFileMatch(), buildPackageSubpathAliasTargets(), buildSourceOnlySubpathAliasTargets(), buildWorkspaceDescriptors, byPlannedChangeAscending, byPlannedChangeFileAscending (+79 more)
+Nodes (91): arraysEqual(), BeepScopedPackageName, buildCanonicalSyncpackSources(), buildCanonicalTstycheTestFileMatch(), buildPackageSubpathAliasTargets(), buildSourceOnlySubpathAliasTargets(), buildWorkspaceDescriptors, byPlannedChangeAscending (+83 more)
 
 ### Community 80 - "Community 80"
 Cohesion: 0.03
@@ -3241,7 +3238,7 @@ Nodes (45): encodeJsonString, ActiveToolCall, assistantTextContent(), assistantT
 
 ### Community 151 - "Community 151"
 Cohesion: 0.04
-Nodes (43): AspectRatio(), Default, Portrait, Square, Story, Ultrawide, WithImage, Checkbox() (+35 more)
+Nodes (44): AspectRatio(), Default, Portrait, Square, Story, Ultrawide, WithImage, LiveWaveform() (+36 more)
 
 ### Community 152 - "Community 152"
 Cohesion: 0.05
@@ -3549,7 +3546,7 @@ Nodes (28): CommandOutput, countRecordSummary(), decodeJsonText, decodeUnknownRe
 
 ### Community 228 - "Community 228"
 Cohesion: 0.09
-Nodes (39): optionalExpression(), packageRoot, pipeExpression(), repoRoot, clientPath, collectFields(), extractPropertyName(), fieldSchema() (+31 more)
+Nodes (42): main(), packageRoot, repoRoot, clientPath, collectDeclarationNames(), collectDeclarations(), collectManagerMethods(), collectManagerProperties() (+34 more)
 
 ### Community 229 - "Community 229"
 Cohesion: 0.05
@@ -3932,8 +3929,8 @@ Cohesion: 0.06
 Nodes (32): compilerOptions, allowImportingTsExtensions, allowJs, composite, declaration, declarationMap, erasableSyntaxOnly, exactOptionalPropertyTypes (+24 more)
 
 ### Community 324 - "Community 324"
-Cohesion: 0.08
-Nodes (19): launchReviewGates, oipSiteContent, ReviewGateInput, OipSiteContent, ReviewStatus, getOipSiteContent(), $I, loadOipSiteContent (+11 more)
+Cohesion: 0.05
+Nodes (34): launchReviewGates, oipSiteContent, ReviewGateInput, AboutPanel, ClientLogo, ContactContent, ExternalLink, HeroContent (+26 more)
 
 ### Community 325 - "Community 325"
 Cohesion: 0.06
@@ -5496,8 +5493,8 @@ Cohesion: 0.15
 Nodes (13): AgentState, Orb(), OrbProps, OrbUniforms, randomUint32(), Scene(), splitmix32(), CustomColors (+5 more)
 
 ### Community 715 - "Community 715"
-Cohesion: 0.12
-Nodes (15): AboutPanel, ClientLogo, ContactContent, ExternalLink, HeroContent, $I, MatterItem, NavItem (+7 more)
+Cohesion: 0.14
+Nodes (18): optionalExpression(), pipeExpression(), collectFields(), extractPropertyName(), fieldSchema(), finalTopLevelPipeOpenIndex(), isIdentifierName(), propertyName() (+10 more)
 
 ### Community 716 - "Community 716"
 Cohesion: 0.21
@@ -5640,8 +5637,8 @@ Cohesion: 0.13
 Nodes (15): devDependencies, babel-plugin-react-compiler, @beep/repo-utils, @effect/vitest, jsdom, @mdx-js/loader, tailwindcss, @tailwindcss/postcss (+7 more)
 
 ### Community 751 - "Community 751"
-Cohesion: 0.21
-Nodes (15): main(), collectDeclarationNames(), collectDeclarations(), collectManagerProperties(), collectNonJsonDeclarationNames(), declarationFromStatement(), declarationName(), hasExportModifier() (+7 more)
+Cohesion: 0.20
+Nodes (9): Checkbox(), Checked, Default, Disabled, DisabledChecked, Indeterminate, ReadOnly, Story (+1 more)
 
 ### Community 752 - "Community 752"
 Cohesion: 0.18
@@ -5672,8 +5669,8 @@ Cohesion: 0.15
 Nodes (9): $I, UnknownRecord, decodeTomlUnknown(), decodeUnknownRecord, getTomlParse(), $I, invalidTomlInput, TomlParse (+1 more)
 
 ### Community 759 - "Community 759"
-Cohesion: 0.13
-Nodes (14): 16. Risk Register and Mitigations, 17. Open Decisions for Next Spec, 19. Glossary, 1. Purpose and Reader Contract, 4. Core Vision, 9. Unified End-to-End Dataflow, OVERVIEW: Repo Codegraph + JSDoc + NLP + Reasoning, Pipeline Notes (+6 more)
+Cohesion: 0.17
+Nodes (11): 16. Risk Register and Mitigations, 17. Open Decisions for Next Spec, 19. Glossary, 1. Purpose and Reader Contract, 4. Core Vision, OVERVIEW: Repo Codegraph + JSDoc + NLP + Reasoning, State Split, State Split (+3 more)
 
 ### Community 760 - "Community 760"
 Cohesion: 0.14
@@ -6025,7 +6022,7 @@ Nodes (12): description, devDependencies, @effect/vitest, @types/node, files, ho
 
 ### Community 847 - "Community 847"
 Cohesion: 0.15
-Nodes (12): beep, family, kind, description, files, homepage, license, name (+4 more)
+Nodes (12): description, files, homepage, license, name, peerDependencies, react, react-dom (+4 more)
 
 ### Community 848 - "Community 848"
 Cohesion: 0.18
@@ -6104,8 +6101,8 @@ Cohesion: 0.15
 Nodes (12): Built-in variants first, className for layout only, Contents, No manual dark: color overrides, No manual z-index on overlay components, No raw color values for status/state indicators, No space-x-* / space-y-*, Prefer size-* over w-* h-* when equal (+4 more)
 
 ### Community 867 - "Community 867"
-Cohesion: 0.22
-Nodes (12): causeFromUnknown(), httpClientCauseLabel(), $I, isRunpodOperationDescriptor, readProperty(), readString, RunpodDocsErrorOptions, RunpodDocsErrorReason (+4 more)
+Cohesion: 0.17
+Nodes (15): causeFromUnknown(), httpClientCauseLabel(), $I, isRunpodOperationDescriptor, readProperty(), readString, RunpodDocsErrorOptions, RunpodDocsErrorReason (+7 more)
 
 ### Community 868 - "Community 868"
 Cohesion: 0.23
@@ -6208,8 +6205,8 @@ Cohesion: 0.20
 Nodes (10): ScrollArea(), ScrollBar(), artworks, BothAxes, Default, Horizontal, NoOverflow, Story (+2 more)
 
 ### Community 893 - "Community 893"
-Cohesion: 0.20
-Nodes (10): Slider(), sliderValues(), CustomRange, Default, Disabled, MinDistance, Range, Stepped (+2 more)
+Cohesion: 0.67
+Nodes (3): beep, family, kind
 
 ### Community 894 - "Community 894"
 Cohesion: 0.18
@@ -9660,8 +9657,8 @@ Cohesion: 0.33
 Nodes (5): @beep/sanity, Development, Installation, License, Usage
 
 ### Community 1767 - "Community 1767"
-Cohesion: 0.40
-Nodes (6): collectManagerMethods(), methodHasDeprecatedTag(), toIdentifier(), typeNameText(), typeReferencesNonJson(), unwrapPromise()
+Cohesion: 0.67
+Nodes (3): 9. Unified End-to-End Dataflow, Pipeline Notes, State Split
 
 ### Community 1768 - "Community 1768"
 Cohesion: 0.33
@@ -11052,8 +11049,8 @@ Cohesion: 0.50
 Nodes (3): extends, references, $schema
 
 ### Community 2143 - "Community 2143"
-Cohesion: 0.50
-Nodes (4): arraysEqual(), pathValuesEqual(), stringArrayEquivalence, summaryCounts()
+Cohesion: 0.67
+Nodes (3): reportPath, pattern, type
 
 ### Community 2144 - "Community 2144"
 Cohesion: 0.50
@@ -11198,10 +11195,6 @@ Nodes (3): publishConfig, access, provenance
 ### Community 2191 - "Community 2191"
 Cohesion: 0.67
 Nodes (3): devDependencies, @effect/vitest, @types/node
-
-### Community 2193 - "Community 2193"
-Cohesion: 0.67
-Nodes (3): peerDependencies, react, react-dom
 
 ### Community 2194 - "Community 2194"
 Cohesion: 0.67
@@ -11387,10 +11380,6 @@ Nodes (3): pattern, type, parser
 Cohesion: 0.67
 Nodes (3): rawOutputRef, minLength, type
 
-### Community 2265 - "Community 2265"
-Cohesion: 0.67
-Nodes (3): sourceEnvelopeRef, pattern, type
-
 ### Community 2266 - "Community 2266"
 Cohesion: 0.67
 Nodes (3): subCategory, pattern, type
@@ -11462,10 +11451,6 @@ Nodes (3): devDependencies, @effect/vitest, @types/node
 ### Community 2284 - "Community 2284"
 Cohesion: 0.67
 Nodes (3): readBody(), readJson(), runProfessionalRuntimeScenario()
-
-### Community 2287 - "Community 2287"
-Cohesion: 0.67
-Nodes (3): RunpodError, Runpod, RunpodShape
 
 ### Community 2288 - "Community 2288"
 Cohesion: 0.67

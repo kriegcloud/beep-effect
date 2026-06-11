@@ -10710,8 +10710,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts": {
-    "mtime": 1781197538.6033447,
-    "ast_hash": "ac737cf7fdcc5783c0db0e843cc8a6fb",
+    "mtime": 1781208908.5483232,
+    "ast_hash": "2ad55fc3572319c87068ef0e072dc81f",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts": {
@@ -11220,8 +11220,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/quality-tasks.test.ts": {
-    "mtime": 1781197538.6053448,
-    "ast_hash": "a9e72a1b073d9b9d4e44dc22bcd7ffe6",
+    "mtime": 1781208887.8745296,
+    "ast_hash": "ff84e74c35d846e8c904e9825fb08b88",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/reflection-lint.test.ts": {
@@ -12320,8 +12320,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/check.yml": {
-    "mtime": 1781197538.4703395,
-    "ast_hash": "0be42b5c53513cca4ed9ce565e3206b0",
+    "mtime": 1781208887.8725295,
+    "ast_hash": "cb50ff548d7297fb8c1a31e485ee1abe",
     "semantic_hash": ""
   },
   ".github/workflows/data-sync.yml": {
@@ -15800,7 +15800,7 @@
     "semantic_hash": ""
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1781207398.637434,
+    "mtime": 1781207465.8910205,
     "ast_hash": "addab81cf0721168b56be59afead7862",
     "semantic_hash": ""
   },

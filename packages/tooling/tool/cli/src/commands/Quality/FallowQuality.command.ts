@@ -2093,6 +2093,11 @@ const fallowCiUploadDiagnostics = (
       !A.some(uploadArtifactSteps, (step) => uploadWithStringEquals(step, "if-no-files-found", ifNoFilesFound)),
     `missing if-no-files-found: ${ifNoFilesFound}`
   ),
+  ...presentDiagnostic(
+    requireUpload &&
+      !A.some(uploadArtifactSteps, (step) => uploadWithStringEquals(step, "include-hidden-files", "true")),
+    "missing include-hidden-files: true"
+  ),
 ];
 
 /**
