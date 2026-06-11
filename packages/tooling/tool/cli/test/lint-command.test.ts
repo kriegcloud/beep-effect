@@ -1126,11 +1126,9 @@ describe("schema-first lint command", { concurrent: false }, () => {
               ["tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`],
             ];
 
-            yield* Effect.forEach(
-              workspaceFiles,
-              ([filePath, contents]) => fs.writeFileString(filePath, contents),
-              { discard: true }
-            );
+            yield* Effect.forEach(workspaceFiles, ([filePath, contents]) => fs.writeFileString(filePath, contents), {
+              discard: true,
+            });
             yield* fs.makeDirectory(exampleSourceDir, { recursive: true });
             yield* fs.writeFileString(
               path.join(exampleSourceDir, "Example.ts"),
