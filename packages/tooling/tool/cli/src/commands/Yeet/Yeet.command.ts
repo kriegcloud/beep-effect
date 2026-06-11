@@ -73,6 +73,10 @@ const allowStaleBaseFlag = Flag.boolean("allow-stale-base").pipe(
   )
 );
 
+const prFlag = Flag.boolean("pr").pipe(
+  Flag.withDescription("Create a ready (non-draft) pull request after the push succeeds, unless one is already open")
+);
+
 const noEditFlag = Flag.boolean("no-edit").pipe(
   Flag.withDescription("Reuse the current commit message with --amend during publish")
 );
@@ -169,6 +173,7 @@ const publishFlags = {
   message: messageFlag,
   monitor: monitorFlag,
   noEdit: noEditFlag,
+  pr: prFlag,
   pushOnly: pushOnlyFlag,
   reuseVerified: reuseVerifiedFlag,
   stagedOnly: stagedOnlyFlag,
@@ -196,6 +201,7 @@ type SharedOptions = {
   readonly plan: boolean;
   readonly monitor?: boolean;
   readonly noEdit?: boolean;
+  readonly pr?: boolean;
   readonly pushOnly?: boolean;
   readonly requireGreptileIssues?: number;
   readonly requireGreptileScore?: string;
@@ -219,6 +225,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       mode,
       monitor: options.monitor ?? false,
       noEdit: options.noEdit ?? false,
+      pr: options.pr ?? false,
       pushOnly: options.pushOnly ?? false,
       requireGreptileIssues: options.requireGreptileIssues ?? -1,
       requireGreptileScore: options.requireGreptileScore ?? "",

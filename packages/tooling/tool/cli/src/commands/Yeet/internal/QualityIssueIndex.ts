@@ -533,6 +533,28 @@ const knownSubLaneHintFromOutput = (output: string | undefined): O.Option<KnownS
   );
 };
 
+/**
+ * Return the remediation command for a known failed sub-lane found in broad
+ * command output.
+ *
+ * @param output - Captured step output to scan for known sub-lane needles.
+ * @returns Remediation text when a known sub-lane hint matches.
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { knownSubLaneRemediationFromOutput } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(O.isSome(knownSubLaneRemediationFromOutput("lint:cspell failed")))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const knownSubLaneRemediationFromOutput = (output: string | undefined): O.Option<string> =>
+  pipe(
+    knownSubLaneHintFromOutput(output),
+    O.map((hint) => hint.remediation)
+  );
+
 const severityForLine = (severity: string): QualityIssueSeverity => (severity === "warning" ? "warning" : "error");
 const lineIndicatesEffectDiagnostic = (line: string): boolean =>
   Str.includes(" effect(")(line) || Str.includes("effectFn")(line) || Str.includes("@effect")(line);

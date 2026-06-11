@@ -2,6 +2,7 @@ import {
   assessBaseFreshnessForTesting,
   buildQualityIssueIndex,
   buildYeetRunPlanForTesting,
+  buildYeetVerdictForTesting,
   closeoutGateStatesForTesting,
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
@@ -34,6 +35,7 @@ import {
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
+  YeetVerdict,
 } from "@beep/repo-cli/test/Yeet";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
@@ -44,6 +46,7 @@ import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { describe, expect, it } from "vitest";
 
@@ -1233,6 +1236,150 @@ describe("yeet publish scope helpers", () => {
     expect(overlappingBasePathsForTesting(["src/a.ts"], ["src/c.ts"])).toEqual([]);
     expect(overlappingBasePathsForTesting([], ["src/c.ts"])).toEqual([]);
   });
+
+  it("plans publish --pr with the create step after the push", () => {
+    const plan = buildYeetRunPlanForTesting({ context, message: O.some("feat(repo-cli): add yeet"), pr: true });
+    const labels = pipe(
+      plan.steps,
+      A.map((step) => step.label)
+    );
+    expect(labels).toEqual([
+      "fallow-advisory-feedback",
+      "commit:git:commit",
+      "full:pre-push",
+      "publish:git:push",
+      "publish:pr-create",
+    ]);
+    expect(findStep(plan.steps, "publish:pr-create").command).toBe("gh");
+  });
+
+  it("plans start-pr-early --pr with the create step after the early push", () => {
+    const plan = buildYeetRunPlanForTesting({
+      context,
+      message: O.some("feat(repo-cli): add yeet"),
+      monitor: true,
+      pr: true,
+      startPrEarly: true,
+    });
+    const labels = pipe(
+      plan.steps,
+      A.map((step) => step.label)
+    );
+    expect(labels).toEqual([
+      "fallow-advisory-feedback",
+      "commit:git:commit",
+      "early-publish:git:push",
+      "publish:pr-create",
+      "full:pre-push",
+      "monitor:pr-context",
+      "monitor:pr-checks:watch",
+    ]);
+  });
+
+  it("builds a verdict with hint-derived repair commands and not-run lanes", () => {
+    const proofStep = RepoPlanStep.make({
+      id: "full:pre-push",
+      label: "full:pre-push",
+      phase: "full",
+      command: "bun",
+      args: ["run", "beep", "quality", "github-checks", "pre-push"],
+      cwd: "/repo",
+      scope: "repo",
+      mutability: "readonly",
+      resume: "never",
+    });
+    const pushStep = RepoPlanStep.make({
+      id: "publish:01-git-push",
+      label: "publish:git:push",
+      phase: "publish",
+      command: "git",
+      args: ["push", "-u", "origin", "HEAD"],
+      cwd: "/repo",
+      scope: "git",
+      mutability: "publish",
+      resume: "never",
+    });
+    const verdict = buildYeetVerdictForTesting({
+      base: "origin/main",
+      branch: "feature",
+      createdAt: "2026-06-11T00:00:00.000Z",
+      executed: [
+        {
+          result: RepoStepRunResult.make({
+            stepId: proofStep.id,
+            commandText: "bun run beep quality github-checks pre-push",
+            exitCode: 1,
+            output: "[beep-cli] lint:cspell: cspell .\nUnknown word found",
+          }),
+          step: proofStep,
+        },
+      ],
+      head: "HEAD",
+      message: "yeet publish proof failed after creating the local commit.",
+      mode: "publish",
+      outcome: "failure",
+      packetPaths: [],
+      planned: [proofStep, pushStep],
+      runId: "feature",
+    });
+
+    expect(verdict.outcome).toBe("failure");
+    expect(verdict.committed).toBe(false);
+    expect(verdict.pushed).toBe(false);
+    expect(verdict.lanes).toHaveLength(2);
+    expect(verdict.lanes[0]).toMatchObject({
+      id: "full:pre-push",
+      repairCommand: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
+      status: "failed",
+    });
+    expect(verdict.lanes[1]).toMatchObject({ id: "publish:01-git-push", status: "not-run" });
+  });
+
+  it("round-trips the verdict schema and marks executed push lanes", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pushStep = RepoPlanStep.make({
+          id: "publish:01-git-push",
+          label: "publish:git:push",
+          phase: "publish",
+          command: "git",
+          args: ["push", "-u", "origin", "HEAD"],
+          cwd: "/repo",
+          scope: "git",
+          mutability: "publish",
+          resume: "never",
+        });
+        const verdict = buildYeetVerdictForTesting({
+          base: "origin/main",
+          branch: "feature",
+          createdAt: "2026-06-11T00:00:00.000Z",
+          executed: [
+            {
+              result: RepoStepRunResult.make({
+                stepId: pushStep.id,
+                commandText: "git push -u origin HEAD",
+                exitCode: 0,
+                output: "",
+              }),
+              step: pushStep,
+            },
+          ],
+          head: "HEAD",
+          message: "yeet publish succeeded.",
+          mode: "publish",
+          outcome: "success",
+          packetPaths: [],
+          planned: [pushStep],
+          runId: "feature",
+        });
+
+        expect(verdict.pushed).toBe(true);
+        const encoded = yield* S.encodeEffect(YeetVerdict)(verdict);
+        const decoded = yield* S.decodeUnknownEffect(YeetVerdict)(encoded);
+        expect(decoded.lanes[0]?.status).toBe("passed");
+        expect(decoded.schemaVersion).toBe("yeet-verdict/v1");
+      })
+    ));
 
   it("parks and restores staged-only residue through a marked stash", () =>
     Effect.runPromise(
