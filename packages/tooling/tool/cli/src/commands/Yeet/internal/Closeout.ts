@@ -327,6 +327,12 @@ export class PrCloseoutOptions extends S.Class<PrCloseoutOptions>($I`PrCloseoutO
     requireGreptileScore: S.String,
     requireReviewComments: S.Finite,
     retriggerGreptile: S.Boolean,
+    replyBody: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    replyThread: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    resolveThreads: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed(""))
+    ),
   },
   $I.annote("PrCloseoutOptions", {
     description: "Runtime closeout gates accepted by Yeet.",
@@ -399,6 +405,43 @@ export class PrCloseoutGateState extends S.Class<PrCloseoutGateState>($I`PrClose
  * @category models
  * @since 0.0.0
  */
+/**
+ * One review-thread write action performed during closeout.
+ *
+ * @example
+ * ```ts
+ * import { PrCloseoutWriteAction } from "@beep/repo-cli/test/Yeet"
+ *
+ * const action = PrCloseoutWriteAction.make({
+ *   detail: "replied",
+ *   kind: "reply",
+ *   ok: true,
+ *   threadId: "PRRT_example",
+ * })
+ * console.log(action.kind)
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class PrCloseoutWriteAction extends S.Class<PrCloseoutWriteAction>($I`PrCloseoutWriteAction`)(
+  {
+    detail: S.String,
+    kind: LiteralKit(["reply", "resolve"]),
+    ok: S.Boolean,
+    threadId: S.String,
+    url: S.optionalKey(S.String),
+  },
+  $I.annote("PrCloseoutWriteAction", {
+    description: "One explicit review-thread write action performed during Yeet closeout.",
+  })
+) {}
+
+/**
+ * Structured PR closeout result emitted by Yeet.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class PrCloseoutReport extends S.Class<PrCloseoutReport>($I`PrCloseoutReport`)(
   {
     actionableReviewThreadCount: S.Finite,
@@ -413,6 +456,10 @@ export class PrCloseoutReport extends S.Class<PrCloseoutReport>($I`PrCloseoutRep
     states: S.Array(PrCloseoutGateState).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutGateState>())),
       S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutGateState>()))
+    ),
+    writeActions: S.Array(PrCloseoutWriteAction).pipe(
+      S.withConstructorDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<PrCloseoutWriteAction>()))
     ),
   },
   $I.annote("PrCloseoutReport", {
@@ -1045,6 +1092,114 @@ const collectPrCloseoutPayload = Effect.fn("YeetCloseout.collectPrCloseoutPayloa
   return { pullRequest, pr };
 });
 
+const CLOSEOUT_REPLY_BODY_MAX_CHARS = 16 * 1024;
+
+const REPLY_THREAD_MUTATION =
+  "mutation($threadId: ID!, $body: String!) { addPullRequestReviewThreadReply(input: {pullRequestReviewThreadId: $threadId, body: $body}) { comment { id url } } }";
+
+const RESOLVE_THREAD_MUTATION =
+  "mutation($threadId: ID!) { resolveReviewThread(input: {threadId: $threadId}) { thread { id isResolved } } }";
+
+type CloseoutWriteIntent = {
+  readonly body: O.Option<string>;
+  readonly kind: "reply" | "resolve";
+  readonly threadId: string;
+};
+
+const caseSensitiveTokens = (value: string): ReadonlyArray<string> =>
+  pipe(value, Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
+
+const closeoutWritePlan = (
+  replyThread: string,
+  replyBody: string,
+  resolveThreads: string,
+  knownThreadIds: ReadonlyArray<string>
+): { readonly error: O.Option<string>; readonly intents: ReadonlyArray<CloseoutWriteIntent> } => {
+  const reply = Str.trim(replyThread);
+  const body = replyBody;
+  const resolves = caseSensitiveTokens(resolveThreads);
+
+  if (Str.isNonEmpty(reply) !== Str.isNonEmpty(Str.trim(body))) {
+    return {
+      error: O.some("yeet closeout requires --reply-thread and --reply-body together."),
+      intents: [],
+    };
+  }
+  if (Str.isNonEmpty(reply) && body.length > CLOSEOUT_REPLY_BODY_MAX_CHARS) {
+    return {
+      error: O.some(`yeet closeout --reply-body exceeds ${CLOSEOUT_REPLY_BODY_MAX_CHARS} characters.`),
+      intents: [],
+    };
+  }
+
+  const requestedIds = pipe(Str.isNonEmpty(reply) ? [reply, ...resolves] : [...resolves], A.dedupe);
+  const unknownIds = pipe(
+    requestedIds,
+    A.filter((threadId) => !A.contains(knownThreadIds, threadId))
+  );
+  if (!A.isReadonlyArrayEmpty(unknownIds)) {
+    return {
+      error: O.some(
+        `yeet closeout cannot write to unknown review thread id(s): ${A.join(unknownIds, ", ")}. Copy ids from the closeout report.`
+      ),
+      intents: [],
+    };
+  }
+
+  return {
+    error: O.none(),
+    intents: [
+      ...(Str.isNonEmpty(reply) ? [{ body: O.some(body), kind: "reply" as const, threadId: reply }] : []),
+      ...pipe(
+        resolves,
+        A.map((threadId) => ({ body: O.none<string>(), kind: "resolve" as const, threadId }))
+      ),
+    ],
+  };
+};
+
+/**
+ * Plan explicit closeout write actions from CLI flag values.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const closeoutWritePlanForTesting = closeoutWritePlan;
+
+const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWriteActions")(function* (
+  context: RepoRunContext,
+  intents: ReadonlyArray<CloseoutWriteIntent>
+): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  return yield* Effect.forEach(
+    intents,
+    (intent) =>
+      Effect.gen(function* () {
+        const args =
+          intent.kind === "reply"
+            ? [
+                "api",
+                "graphql",
+                "-f",
+                `query=${REPLY_THREAD_MUTATION}`,
+                "-f",
+                `threadId=${intent.threadId}`,
+                "-f",
+                `body=${O.getOrElse(intent.body, () => "")}`,
+              ]
+            : ["api", "graphql", "-f", `query=${RESOLVE_THREAD_MUTATION}`, "-f", `threadId=${intent.threadId}`];
+        yield* ghOutput(context, args, `gh api graphql (${intent.kind})`);
+        yield* Effect.log(`[yeet] closeout ${intent.kind} -> ${intent.threadId}`);
+        return PrCloseoutWriteAction.make({
+          detail: intent.kind === "reply" ? "replied to review thread" : "resolved review thread",
+          kind: intent.kind,
+          ok: true,
+          threadId: intent.threadId,
+        });
+      }),
+    { concurrency: 1 }
+  );
+});
+
 /**
  * Inspect current PR review and bot closeout state.
  *
@@ -1055,7 +1210,30 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
   context: RepoRunContext,
   options: PrCloseoutOptions
 ): Effect.fn.Return<PrCloseoutReport, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  const { pullRequest, pr } = yield* collectPrCloseoutPayload(context);
+  let { pullRequest, pr } = yield* collectPrCloseoutPayload(context);
+  const writeRequested =
+    Str.isNonEmpty(Str.trim(options.replyThread)) ||
+    Str.isNonEmpty(Str.trim(options.replyBody)) ||
+    Str.isNonEmpty(Str.trim(options.resolveThreads));
+  let writeActions: ReadonlyArray<PrCloseoutWriteAction> = A.empty();
+  if (writeRequested) {
+    const plan = closeoutWritePlan(
+      options.replyThread,
+      options.replyBody,
+      options.resolveThreads,
+      pipe(
+        pullRequest.reviewThreads.nodes,
+        A.map((thread) => thread.id)
+      )
+    );
+    if (O.isSome(plan.error)) {
+      return yield* YeetCommandError.make({ message: plan.error.value, exitCode: 1 });
+    }
+    writeActions = yield* performCloseoutWriteActions(context, plan.intents);
+    const refreshed = yield* collectPrCloseoutPayload(context);
+    pullRequest = refreshed.pullRequest;
+    pr = refreshed.pr;
+  }
   const botTokens = normalizedTokens(options.bots);
   const actionableThreads = pipe(
     pullRequest.reviewThreads.nodes,
@@ -1122,5 +1300,6 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
     retriggeredGreptile: options.retriggerGreptile,
     schemaVersion: "yeet-pr-closeout/v1",
     states,
+    writeActions,
   });
 });

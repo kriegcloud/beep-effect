@@ -488,6 +488,20 @@ const knownSubLaneHints: ReadonlyArray<KnownSubLaneHint> = [
     category: "security-audit",
     remediation: "Rerun `bun run beep quality github-checks nix` and inspect the Nix error.",
   },
+  {
+    needle: "changeset",
+    subCategory: "changeset-status",
+    category: "changeset-policy",
+    remediation:
+      "Run `bun run changeset:status:since-main`. If the change is intentionally version-neutral, run `bunx changeset add --empty` and commit the empty changeset.",
+  },
+  {
+    needle: "typos",
+    subCategory: "typos",
+    category: "lint-tool",
+    remediation:
+      "Run the typos checker on the flagged files and fix the spelling, or whitelist intentional terms in `_typos.toml`.",
+  },
 ];
 
 const knownSubLaneHintFromText = (text: string): O.Option<KnownSubLaneHint> =>
@@ -518,6 +532,28 @@ const knownSubLaneHintFromOutput = (output: string | undefined): O.Option<KnownS
     O.orElse(() => knownSubLaneHintFromText(normalized))
   );
 };
+
+/**
+ * Return the remediation command for a known failed sub-lane found in broad
+ * command output.
+ *
+ * @param output - Captured step output to scan for known sub-lane needles.
+ * @returns Remediation text when a known sub-lane hint matches.
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { knownSubLaneRemediationFromOutput } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(O.isSome(knownSubLaneRemediationFromOutput("lint:cspell failed")))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const knownSubLaneRemediationFromOutput = (output: string | undefined): O.Option<string> =>
+  pipe(
+    knownSubLaneHintFromOutput(output),
+    O.map((hint) => hint.remediation)
+  );
 
 const severityForLine = (severity: string): QualityIssueSeverity => (severity === "warning" ? "warning" : "error");
 const lineIndicatesEffectDiagnostic = (line: string): boolean =>
