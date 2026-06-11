@@ -1,5 +1,5 @@
 /**
- * OIP browser Atom runtime.
+ * OIP browser Atom runtime services.
  *
  * @packageDocumentation
  * @since 0.0.0

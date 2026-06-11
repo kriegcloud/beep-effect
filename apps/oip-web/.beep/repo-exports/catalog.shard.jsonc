@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f30ec43cb557424abec1b1d6c7d164ddebf3b8c2b3178fd64f8de29bd83d4ac1",
+    "digest": "11b84759da122c5e2892a897efdd4210bff3d5759ef758754276d95bcf92105f",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
@@ -142,8 +142,8 @@
       },
       {
         "path": "apps/oip-web/src/content/OipContent.runtime.ts",
-        "sha256": "cf8212287223bfa42e875a900d06b98571157cbd435ef98da1d130ccf043d43d",
-        "bytes": 6405
+        "sha256": "39c96f6859bfb1eb66190c082d2602beafa0a545cf6dba19ab675425bdfad7a7",
+        "bytes": 5911
       },
       {
         "path": "apps/oip-web/src/content/OipSeo.ts",
@@ -167,8 +167,8 @@
       },
       {
         "path": "apps/oip-web/src/runtime/OipAtomRuntime.ts",
-        "sha256": "4fe34eb779bd61a2ae22be6441df1b7e1f2cdd222bea6ef37a4b429476ebbe97",
-        "bytes": 1361
+        "sha256": "39b2da5b60a3deb4d7877d3104f9b347625d16c596788d8d77f4c1875206389b",
+        "bytes": 874
       },
       {
         "path": "generator:repo-exports-catalog",

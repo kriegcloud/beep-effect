@@ -578,7 +578,7 @@ const isBotComment = (tokens: ReadonlyArray<string>, author: GhActor | null): bo
 const isGreptileComment = (author: GhActor | null): boolean =>
   Str.includes("greptile")(Str.toLowerCase(authorLogin(author)));
 
-const scorePattern = /(?<score>\d+(?:\.\d+)?)\s*\/\s*5/u;
+const scorePattern = /(?:confidence\s+)?score\s*[:=-]\s*(?<score>\d+(?:\.\d+)?)\s*\/\s*5/iu;
 const leadingIssueCountPattern = /^\s*(?<count>\d+)\s+(?:open\s+)?issues?\b/imu;
 const labeledIssueCountPattern = /^\s*(?:open\s+)?issues?\s*[:=-]\s*(?<count>\d+)\b/imu;
 
@@ -1169,35 +1169,32 @@ export const closeoutWritePlanForTesting = closeoutWritePlan;
 const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWriteActions")(function* (
   context: RepoRunContext,
   intents: ReadonlyArray<CloseoutWriteIntent>
-): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
-  return yield* Effect.forEach(
-    intents,
-    (intent) =>
-      Effect.gen(function* () {
-        const args =
-          intent.kind === "reply"
-            ? [
-                "api",
-                "graphql",
-                "-f",
-                `query=${REPLY_THREAD_MUTATION}`,
-                "-f",
-                `threadId=${intent.threadId}`,
-                "-f",
-                `body=${O.getOrElse(intent.body, () => "")}`,
-              ]
-            : ["api", "graphql", "-f", `query=${RESOLVE_THREAD_MUTATION}`, "-f", `threadId=${intent.threadId}`];
-        yield* ghOutput(context, args, `gh api graphql (${intent.kind})`);
-        yield* Effect.log(`[yeet] closeout ${intent.kind} -> ${intent.threadId}`);
-        return PrCloseoutWriteAction.make({
-          detail: intent.kind === "reply" ? "replied to review thread" : "resolved review thread",
-          kind: intent.kind,
-          ok: true,
-          threadId: intent.threadId,
-        });
-      }),
-    { concurrency: 1 }
-  );
+) {
+  const performIntent = Effect.fnUntraced(function* performIntent(intent: CloseoutWriteIntent) {
+    const args =
+      intent.kind === "reply"
+        ? [
+            "api",
+            "graphql",
+            "-f",
+            `query=${REPLY_THREAD_MUTATION}`,
+            "-f",
+            `threadId=${intent.threadId}`,
+            "-f",
+            `body=${O.getOrElse(intent.body, () => "")}`,
+          ]
+        : ["api", "graphql", "-f", `query=${RESOLVE_THREAD_MUTATION}`, "-f", `threadId=${intent.threadId}`];
+    yield* ghOutput(context, args, `gh api graphql (${intent.kind})`);
+    yield* Effect.log(`[yeet] closeout ${intent.kind} -> ${intent.threadId}`);
+    return PrCloseoutWriteAction.make({
+      detail: intent.kind === "reply" ? "replied to review thread" : "resolved review thread",
+      kind: intent.kind,
+      ok: true,
+      threadId: intent.threadId,
+    });
+  });
+
+  return yield* Effect.forEach(intents, performIntent, { concurrency: 1 });
 });
 
 /**
