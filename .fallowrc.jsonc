@@ -11,6 +11,8 @@
     "apps/*/src/index.ts",
     "apps/*/next.config.ts",
     "apps/*/vite.config.ts",
+    "apps/*/src/app/layout.tsx",
+    "apps/*/src/app/page.tsx",
     "apps/*/src/app/**/layout.tsx",
     "apps/*/src/app/**/page.tsx",
     "apps/*/src/app/**/route.ts",
@@ -86,6 +88,15 @@
     "babel-plugin-react-compiler",
     // Root: used by git-tracked scratchpad tests; scratchpad/** is ignored above.
     "@faker-js/faker"
+  ],
+  // `instant` is a Next.js framework config export (blocking-prerender opt-out,
+  // see nextjs.org/docs/messages/blocking-prerender-dynamic). The framework
+  // consumes it from layout/page modules; fallow's Next plugin does not yet
+  // recognize it, and deleting it breaks `next build` (proven 2026-06-11 in
+  // goals/fallow-zero-dead-code).
+  "ignoreExports": [
+    { "file": "apps/*/src/app/*.tsx", "exports": ["instant"] },
+    { "file": "apps/*/src/app/**/*.tsx", "exports": ["instant"] }
   ],
   "audit": {
     "gate": "new-only"

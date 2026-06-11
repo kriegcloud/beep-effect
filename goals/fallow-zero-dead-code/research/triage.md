@@ -40,8 +40,8 @@ True positives (unexport only; symbols stay for internal use):
 
 | Finding | Verdict |
 | --- | --- |
-| `apps/oip-web/src/app/layout.tsx:149` `instant` | tp-unexport |
-| `apps/oip-web/src/app/page.tsx:40` `instant` | tp-unexport |
+| `apps/oip-web/src/app/layout.tsx:149` `instant` | ~~tp-unexport~~ fp-framework (REVISED 2026-06-11) |
+| `apps/oip-web/src/app/page.tsx:40` `instant` | ~~tp-unexport~~ fp-framework (REVISED 2026-06-11) |
 | `apps/professional-desktop/src/App.tsx:76` `LoadState` | tp-unexport |
 
 False positives (22): all remaining export findings in `apps/canvas`
@@ -53,6 +53,13 @@ False positives (22): all remaining export findings in `apps/canvas`
 `apps/stack-installer` `P1RequiredPlatform` (used by
 `capture-p1-manual-proof.ts`). All are reachable once apps are rooted
 as entries.
+
+**Verdict revision (2026-06-11):** deleting the `instant` exports broke
+`next build` for oip-web (`blocking-prerender-dynamic`: "Set `export const
+instant = false` to allow a blocking route"). `instant` is a Next.js framework
+config export consumed by the framework itself, invisible to import analysis.
+Both exports were restored and are suppressed config-only via
+`.fallowrc.jsonc#ignoreExports` with provenance. Net true positives: 18.
 
 ## Unused types (4)
 

@@ -25,6 +25,18 @@ const safeJsonScript = (value: unknown) =>
   Str.replaceAll("<", "\\u003c")(S.encodeUnknownSync(S.UnknownFromJsonString)(value));
 
 /**
+ * Allows the search-param aware home route to block during the first render.
+ *
+ * Next.js framework config export: opts the route out of blocking-prerender
+ * errors (`blocking-prerender-dynamic`). Consumed by the framework, not by
+ * application imports.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const instant = false;
+
+/**
  * Generates page metadata from runtime OIP content.
  *
  * @example

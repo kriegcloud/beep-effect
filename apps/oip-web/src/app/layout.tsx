@@ -134,6 +134,18 @@ function VercelInsights() {
 }
 
 /**
+ * Allows the nonce-bearing root layout to block on request state.
+ *
+ * Next.js framework config export: opts the route out of blocking-prerender
+ * errors (`blocking-prerender-dynamic`). Consumed by the framework, not by
+ * application imports.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const instant = false;
+
+/**
  * Static metadata for the oip web app shell.
  *
  * @example
