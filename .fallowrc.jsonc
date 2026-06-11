@@ -99,6 +99,33 @@
   // recognize it, and deleting it breaks `next build` (proven 2026-06-11 in
   // goals/fallow-zero-dead-code).
   "ignoreExports": [
+    // @beep/canvas command bridge: documented request/schema values kept as
+    // public bridge contracts for typed host integrations.
+    {
+      "file": "apps/canvas/src/commandBridge.ts",
+      "exports": ["CanvasSceneNode", "SceneSaveRequest", "SceneLoadRequest"]
+    },
+    // @beep/oip-web/content: schema-first content contracts are exported for
+    // barrel consumers even when current app rendering can keep them internal.
+    {
+      "file": "apps/oip-web/src/content/OipContent.model.ts",
+      "exports": [
+        "ReviewGate",
+        "ExternalLink",
+        "SocialPlatform",
+        "SocialLink",
+        "SiteAsset",
+        "SiteMetadataContent",
+        "NavItem",
+        "HeroContent",
+        "AboutPanel",
+        "PracticeArea",
+        "MatterItem",
+        "ClientLogo",
+        "PressItem",
+        "ContactContent"
+      ]
+    },
     // @beep/oip-web/contact: public HttpApi contract symbols kept for
     // compatibility even though the current app route only imports their types.
     {

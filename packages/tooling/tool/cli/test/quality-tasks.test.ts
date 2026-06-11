@@ -2,6 +2,7 @@ import {
   affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
   detectQualityProfileForTesting,
+  FallowReportFinding,
   fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
   GithubChecksFallowFeatureMatrix,
@@ -432,6 +433,20 @@ describe("quality task adapter", () => {
         ["dead-code", "advisory-artifact", "research"],
       ])
     );
+  });
+
+  it("accepts promoted Fallow findings with blocking true in report envelopes", () => {
+    expect(
+      FallowReportFinding.make({
+        attribution: "introduced",
+        blocking: true,
+        featureFamily: "audit",
+        id: "audit-introduced-dead-code-1",
+        parser: "fallow/audit/v1",
+        sourceRef: "standards/fallow.pilot.inventory.jsonc",
+        subCategory: "fallow:audit:dead-code",
+      }).blocking
+    ).toBe(true);
   });
 
   it("plans affected repo export checks conservatively", () => {

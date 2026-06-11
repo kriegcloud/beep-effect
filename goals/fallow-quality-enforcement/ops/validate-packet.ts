@@ -1125,7 +1125,7 @@ const requiredLatestReviewAcceptanceCommands = [
 const githubChecksPlanContractCommand =
   "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes";
 const ciFallowContractCommand =
-  "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
+  "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
 const expectedFallowAuditBaseline = {
   changedFilesMinimum: 90,
   deadCodeIssues: 30,
@@ -1703,7 +1703,13 @@ const taskFeatureCiContractDiagnostics = (
     A.map((feature) => feature.featureFamily),
     A.join(",")
   );
-  const expectedCiContractCommand = `bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes ${advisoryLaneCsv} --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`;
+  const blockingLaneCsv = pipe(
+    featureMatrix.features,
+    A.filter((feature) => feature.ciMode === "blocking-check" && feature.repoCommandTarget.phase === "P1"),
+    A.map((feature) => feature.featureFamily),
+    A.join(",")
+  );
+  const expectedCiContractCommand = `bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes ${advisoryLaneCsv} --expect-blocking-lanes ${blockingLaneCsv} --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`;
   const fqe005 = pipe(
     tasks.tasks,
     A.findFirst((task) => task.id === "fqe-005"),

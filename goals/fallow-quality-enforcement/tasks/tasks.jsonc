@@ -188,13 +188,13 @@
       ],
       "proofCommands": [
         "ruby -e 'require \"yaml\"; YAML.load_file(\".github/workflows/check.yml\")'",
-        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
+        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
         "bun run beep quality fallow audit --advisory --base origin/main --out .beep/fallow/audit.json",
         "bun run beep quality fallow envelope-check .beep/fallow/audit.json --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef"
       ],
       "acceptanceCommands": [
         "ruby -e 'require \"yaml\"; YAML.load_file(\".github/workflows/check.yml\")'",
-        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
+        "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory",
         "bun run beep quality fallow audit --advisory --base origin/main --out .beep/fallow/audit.json",
         "bun run beep quality fallow envelope-check .beep/fallow/audit.json --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef"
       ],
