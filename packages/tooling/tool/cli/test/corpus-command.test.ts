@@ -1,18 +1,27 @@
 import {
   CorpusCatalogOptions,
   CorpusCommandServiceLive,
+  CorpusExtractOptions,
+  CorpusSalvageOptions,
   catalogCorpus,
   classifyRecycleBinName,
+  extractCorpus,
   pairRecycleBinEntries,
   parseRecycleBinMetadata,
   RecycleBinScanEntry,
+  verifySalvage,
 } from "@beep/repo-cli/commands/Corpus";
-import { NodeServices } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 
-const testLayer = Layer.mergeAll(CorpusCommandServiceLive.pipe(Layer.provideMerge(NodeServices.layer)));
+const testLayer = Layer.mergeAll(
+  CorpusCommandServiceLive.pipe(
+    Layer.provideMerge(NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer)))
+  ),
+  NodeServices.layer
+);
 
 const runTest = <A, E>(effect: Effect.Effect<A, E, never>): Promise<A> => Effect.runPromise(effect);
 
@@ -187,5 +196,116 @@ describe("corpus catalog", () => {
     expect(restorationLines).toHaveLength(2);
     expect(result.restorationText).toContain("Spec v3.docx");
     expect(result.restorationText).toContain("unmatched-content");
+  });
+});
+
+const stubPffexport = `#!/usr/bin/env bash
+target=""
+prev=""
+for arg in "$@"; do
+  if [ "$prev" = "-t" ]; then target="$arg"; fi
+  prev="$arg"
+done
+source="\${@: -1}"
+[ -f "$source" ] || exit 2
+mkdir -p "$target.export/Top of Personal Folders/Inbox/Message00001/Attachments"
+printf 'hello body' > "$target.export/Top of Personal Folders/Inbox/Message00001/Message.txt"
+printf 'pdfbytes' > "$target.export/Top of Personal Folders/Inbox/Message00001/Attachments/report.pdf"
+exit 0
+`;
+
+const stubJava = `#!/usr/bin/env bash
+printf '%s' '[{"Content-Type":"text/plain","X-TIKA:content":"\\n  stub text body\\n"}]'
+exit 0
+`;
+
+const writeStub = (script: string, stubPath: string) =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    yield* fs.writeFileString(stubPath, script);
+    yield* fs.chmod(stubPath, 0o755);
+  });
+
+describe("corpus extract and salvage", () => {
+  it("extracts a synthetic corpus through stub engines and verifies salvage", async () => {
+    const program = Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const corpusRoot = yield* fs.makeTempDirectoryScoped({ prefix: "corpus-extract-test-" });
+      const rawDir = path.join(corpusRoot, "raw", "source-a");
+      yield* fs.makeDirectory(rawDir, { recursive: true });
+
+      const pffexportStubPath = path.join(corpusRoot, "pffexport-stub");
+      const javaStubPath = path.join(corpusRoot, "java-stub");
+      yield* writeStub(stubPffexport, pffexportStubPath);
+      yield* writeStub(stubJava, javaStubPath);
+
+      const pstPath = path.join(rawDir, "mailbox.pst");
+      const txtPath = path.join(rawDir, "note.txt");
+      yield* fs.writeFileString(pstPath, "not a real pst");
+      yield* fs.writeFileString(txtPath, "stub text body");
+
+      const record = (relativePath: string, hash: string, sizeBytes: number, destPath: string): string =>
+        JSON.stringify({
+          destPath,
+          mtimeEpoch: 1_700_000_000,
+          mtimeIso: "2023-11-14T22:13:20Z",
+          originPath: `/origin/source-a/${relativePath}`,
+          relativePath,
+          salvagedAt: "2026-06-11T15:00:00Z",
+          sha256: hash,
+          sizeBytes,
+          sourceLabel: "source-a",
+        });
+
+      // Real digests so salvage verification passes: sha256("not a real pst") / sha256("stub text body")
+      const pstDigest = "166df44db090f14dbb3ec7730fc17e78c170477163a6c913e5485d075c4b92d0";
+      const txtDigest = "ed17e4908506d9bfe380ef2aa2b226c484600dc77ada8ee21a6b3380242228c1";
+
+      const manifestLines = [
+        record("mailbox.pst", pstDigest, 14, pstPath),
+        record("note.txt", txtDigest, 14, txtPath),
+        record("copy/note-copy.txt", txtDigest, 14, txtPath),
+      ];
+      yield* fs.writeFileString(path.join(corpusRoot, "raw", "provenance.jsonl"), `${manifestLines.join("\n")}\n`);
+
+      const summary = yield* extractCorpus(
+        CorpusExtractOptions.make({
+          concurrency: 2,
+          corpusRoot,
+          exportChildren: true,
+          includeDuplicates: false,
+          javaPath: javaStubPath,
+          overwrite: false,
+          pffexportPath: pffexportStubPath,
+          tikaJarPath: path.join(corpusRoot, "raw", "provenance.jsonl"),
+        })
+      );
+
+      const outDir = path.join(corpusRoot, "staging", "extract");
+      const sourcesText = yield* fs.readFileString(path.join(outDir, "sources.jsonl"));
+      const runExists = yield* fs.exists(path.join(outDir, "run.json"));
+      const pstArtifactId = `artifact:${pstDigest}`;
+      const childrenText = yield* fs.readFileString(path.join(outDir, "children", pstArtifactId, "artifacts.jsonl"));
+
+      const salvage = yield* verifySalvage(CorpusSalvageOptions.make({ corpusRoot }));
+
+      return { childrenText, runExists, salvage, sourcesText, summary };
+    });
+
+    const result = await runTest(Effect.scoped(program).pipe(Effect.provide(testLayer)));
+
+    expect(result.summary.sourceCount).toBe(2);
+    expect(result.summary.duplicatesSkipped).toBe(1);
+    expect(result.summary.succeededCount).toBe(2);
+    expect(result.summary.failedCount).toBe(0);
+    expect(result.summary.childArtifactCount).toBe(2);
+    expect(result.summary.textArtifactCount).toBe(1);
+    expect(result.runExists).toBe(true);
+    expect(result.sourcesText).toContain('"status":"succeeded"');
+    expect(result.childrenText).toContain("Attachments/report.pdf");
+    expect(result.salvage.matched).toBe(3);
+    expect(result.salvage.mismatched).toBe(0);
+    expect(result.salvage.missing).toBe(0);
   });
 });

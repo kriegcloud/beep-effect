@@ -447,6 +447,7 @@ export class CorpusExtractOptions extends S.Class<CorpusExtractOptions>($I`Corpu
     corpusRoot: S.String,
     exportChildren: S.Boolean,
     includeDuplicates: S.Boolean,
+    javaPath: S.optionalKey(S.String),
     maxFiles: S.optionalKey(S.Finite),
     overwrite: S.Boolean,
     pffexportPath: S.optionalKey(S.String),
