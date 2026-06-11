@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2fc97c44abffafdba4abf1bb5e0f4f44f981c3cf74b0d96c4cdb02f63592ec34",
+    "digest": "8010d89f7c87057a8da3617bef2c818ee5c44756a531d28f2e5e7d3dfa82b851",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -402,8 +402,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/ReflectionArtifact.ts",
-        "sha256": "88e7f8fd362ecc2391e46fb19901afbad6cdd9d7cc600ff5496d15eb0b45f3ee",
-        "bytes": 11000
+        "sha256": "a9665e64cab16e131b06259c6f2b426d6baadea6e8e58521eb66d41db6ab3595",
+        "bytes": 10746
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
@@ -27320,7 +27320,7 @@
         "symbolName": "lintReflectionArtifactsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/ReflectionArtifact.ts",
-        "sourceLine": 318,
+        "sourceLine": 309,
         "summary": "`bun run beep lint reflection-artifacts` — enforce closeout reflections.",
         "categories": [
           "commands"
@@ -27345,7 +27345,7 @@
         "symbolName": "ReflectionFinding",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/ReflectionArtifact.ts",
-        "sourceLine": 104,
+        "sourceLine": 105,
         "summary": "Namespace for {@link ReflectionFinding} companion types.",
         "categories": [
           "models"
@@ -27370,7 +27370,7 @@
         "symbolName": "runReflectionArtifactLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/ReflectionArtifact.ts",
-        "sourceLine": 218,
+        "sourceLine": 221,
         "summary": "Verifies completed goal packets carry a schema-valid closeout reflection.",
         "categories": [
           "commands"

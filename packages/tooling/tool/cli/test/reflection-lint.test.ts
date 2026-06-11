@@ -3,6 +3,7 @@ import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
 import { NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
 
@@ -41,7 +42,7 @@ const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       })
   );
 
-const writeCompletedGoal = Effect.fn("writeCompletedGoal")(function* (slug: string) {
+const writeCompletedGoal = Effect.fn("writeCompletedGoal")(function* (slug: string, reflectionRequired = true) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   yield* fs.makeDirectory(path.join("goals", slug, "ops"), { recursive: true });
@@ -50,7 +51,7 @@ const writeCompletedGoal = Effect.fn("writeCompletedGoal")(function* (slug: stri
     `${encodeJson({
       schemaVersion: "initiative-manifest/v1",
       initiative: { id: slug, title: slug, status: "completed-retained" },
-      reflectionRequired: true,
+      reflectionRequired,
     })}\n`
   );
 });
@@ -72,6 +73,8 @@ todos:
 
 # Reflection
 `;
+
+const VALID_REFLECTION_CRLF = Str.replaceAll("\n", "\r\n")(VALID_REFLECTION);
 
 const writeReflection = Effect.fn("writeReflection")(function* (slug: string, file: string, body: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -113,6 +116,22 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
   );
 
   it(
+    "accepts CRLF-delimited reflection frontmatter",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            yield* writeCompletedGoal("example");
+            yield* writeReflection("example", "2026-06-09-claude.md", VALID_REFLECTION_CRLF);
+            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+            expect(Exit.isSuccess(exit)).toBe(true);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    20_000
+  );
+
+  it(
     "blocks when a reflection artifact has invalid frontmatter",
     () =>
       Effect.runPromise(
@@ -122,6 +141,37 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
             yield* writeReflection("example", "2026-06-09-claude.md", "# no frontmatter here\n");
             const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
             expectReportedFailure(exit);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    20_000
+  );
+
+  it(
+    "reports advisory-only findings for completed goals without reflectionRequired",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            yield* writeCompletedGoal("example", false);
+            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+            expect(Exit.isSuccess(exit)).toBe(true);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    20_000
+  );
+
+  it(
+    "passes when a completed goal without reflectionRequired has a valid reflection",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            yield* writeCompletedGoal("example", false);
+            yield* writeReflection("example", "2026-06-09-claude.md", VALID_REFLECTION);
+            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+            expect(Exit.isSuccess(exit)).toBe(true);
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
