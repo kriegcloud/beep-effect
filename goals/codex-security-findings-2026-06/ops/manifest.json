@@ -69,6 +69,7 @@
     "trackedRawFindingContent": false,
     "rawCaptureLocation": "/tmp/codex-security-findings-2026-06",
     "commitsOnlySanitizedMarkdownAndPatches": true,
+    "publicHighFindingPolicy": "Unremediated High findings keep detailed report text, affected paths, exploit analysis, validation notes, and proposed patches outside the public branch until fixes land atomically.",
     "redactedPatterns": [
       "signed artifact URLs",
       "token-like query params",
@@ -185,9 +186,9 @@
       "findings/patches/CSF-003.patch"
     ],
     "findings": [
-      "findings/CSF-001-unrestricted-file-url-reads-in-nlp-mcp-tools.md",
-      "findings/CSF-002-event-log-rpc-trusts-spoofable-publickey-fields.md",
-      "findings/CSF-003-event-log-rpc-lets-clients-impersonate-other-public-keys.md",
+      "findings/CSF-001-redacted-high-finding.md",
+      "findings/CSF-002-redacted-high-finding.md",
+      "findings/CSF-003-redacted-high-finding.md",
       "findings/CSF-004-unescaped-systemd-upstream-enables-directive-injection.md",
       "findings/CSF-005-unrestricted-box-url-operations-enable-ssrf.md",
       "findings/CSF-006-yeet-skill-leaks-process-command-lines.md",

@@ -27,6 +27,12 @@ the repository.
 `AGENTS.md`, `CLAUDE.md`, repo standards, and `SPEC.md` outrank this launcher.
 Use `PLAN.md` for phase state and stop conditions.
 
+## Public Artifact Boundary
+
+This tracked packet is not package source, repo-export input, docgen input, or
+JSDoc inventory input. Details that would widen the attack window stay in the
+private raw capture until their fixes land with verification.
+
 ## Minimal Verification
 
 ```sh

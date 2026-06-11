@@ -47,5 +47,10 @@ captures and 3 committed patch files.
   closures or remediation before approval.
 - Raw captures stay untracked in `/tmp/codex-security-findings-2026-06`; commit
   only sanitized markdown + patches.
+- Unremediated High findings stay redacted in public tracking; publish detailed
+  report and patch material only with the corresponding fix and verification.
+- The packet is tracking metadata, not package source or generated public API
+  input; repo-export and graph artifacts showed no `goals/` leakage in the
+  2026-06-11 verification pass.
 - The PR on `@slop/june-8-2026` will also carry that branch's pre-existing
   effect-v4/yeet commits; the security work is additive on top.

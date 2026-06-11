@@ -5,7 +5,8 @@ Partially captured from Codex Cloud Security scan
 on 2026-06-08 for `kriegcloud/beep-effect`. The scan contains 52 findings
 visible in the authenticated Codex Security UI with severities
 `high,medium,low,informational`; this index currently registers the 12 committed
-sanitized captures. Remediation lands on branch
+captures. Unremediated High findings are redacted in public tracking until their
+fixes land atomically. Remediation lands on branch
 `@slop/june-8-2026` in a single PR.
 
 Disposition policy: remediate by default; `Won't fix` only with explicit written
@@ -61,9 +62,9 @@ justification. One approval gate after triage. Two Chrome closure passes
 
 | ID | Severity | Verdict | Disposition | Codex Status | Lane | Title | Owner Area | Source Commit |
 |---|---|---|---|---|---|---|---|---|
-| [CSF-001](./CSF-001-unrestricted-file-url-reads-in-nlp-mcp-tools.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Unrestricted file/URL reads in NLP MCP tools | packages/drivers/nlp-mcp | 4805e97 |
-| [CSF-002](./CSF-002-event-log-rpc-trusts-spoofable-publickey-fields.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Event-log RPC trusts spoofable publicKey fields | packages/effect/src | 0dc3200 |
-| [CSF-003](./CSF-003-event-log-rpc-lets-clients-impersonate-other-public-keys.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Event-log RPC lets clients impersonate other public keys | packages/effect/src | 92ef20f |
+| [CSF-001](./CSF-001-redacted-high-finding.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted High severity finding | _private tracker_ | _redacted_ |
+| [CSF-002](./CSF-002-redacted-high-finding.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted High severity finding | _private tracker_ | _redacted_ |
+| [CSF-003](./CSF-003-redacted-high-finding.md) | High | _pending P2_ | _pending P2_ | New | _pending P4_ | Redacted High severity finding | _private tracker_ | _redacted_ |
 | [CSF-004](./CSF-004-unescaped-systemd-upstream-enables-directive-injection.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Unescaped systemd upstream enables directive injection | packages/tooling/tool | 241a206 |
 | [CSF-005](./CSF-005-unrestricted-box-url-operations-enable-ssrf.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Unrestricted Box URL operations enable SSRF | packages/drivers/box | 9d8e7ac |
 | [CSF-006](./CSF-006-yeet-skill-leaks-process-command-lines.md) | Medium | _pending P2_ | _pending P2_ | New | _pending P4_ | Yeet skill leaks process command lines | .claude/skills/yeet | 7ce284a |
