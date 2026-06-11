@@ -145,7 +145,7 @@ the current CLI surface:
   boundary config freshness and is separate from boundary analyzer enforcement.
 - `beep quality fallow envelope-check <path> --require <csv>` decodes one
   envelope and fails if required metadata is missing.
-- `beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`
+- `beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`
   proves hosted CI uses the repo-cli envelope wrapper and cannot silently miss
   any advisory artifact for the implemented P1 lane set.
 - `beep yeet plan-contract-check --from-stdin --expect-step-id advisory:01-fallow-feedback --expect-step-label fallow-advisory-feedback --expect-command bun --expect-args "run beep yeet fallow-feedback --from .beep/fallow --emit .beep/yeet/fallow-quality-issues.json --advisory"`

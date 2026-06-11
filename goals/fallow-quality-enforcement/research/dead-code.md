@@ -17,13 +17,13 @@ updated: 2026-06-08
 ## Baseline
 
 - Command: `bun run fallow:dead-code:json -- --summary`
-- Fallow exit status: 1
+- Fallow exit status: 0 (zero findings since goals/fallow-zero-dead-code)
 - Fallow runtime: about 1-3s warm, depending on cache.
-- Fallow counts: 63 total issues: 6 unused files, 25 unused exports, 4 unused types, 21 unused dependencies, 7 unlisted dependencies, 0 unresolved imports, 0 duplicate exports, 0 circular dependencies, 0 boundary violations.
+- Fallow counts: 0 total issues across every dead-code category; the regression baseline at standards/fallow.dead-code.regression-baseline.jsonc records zero for all counts (re-measured 2026-06-11 after goals/fallow-zero-dead-code).
 - Knip comparison command: `bun run knip --reporter json`
 - Knip exit status: 1
 - Knip runtime: about 45-61s
-- Knip counts: 31 issue containers with nested totals of 9 files, 13 exports, 4 dependencies, 4 devDependencies, 1 unlisted dependency, and 9 unresolved references.
+- Knip counts: 17 issue containers with nested totals of 6 files, 2 exports, 0 dependencies, 4 devDependencies, 0 unlisted dependencies, and 9 unresolved references (re-measured 2026-06-11; the zero-dead-code remediation resolved 14 containers).
 - Fallow migration dry-run: exit 0, with warnings for `rules.catalog`, `ignoreBinaries`, `ignoreWorkspaces`, and `workspaces`.
 - Fallow workspace inventory: `bun run fallow -- list --workspaces --config .fallowrc.jsonc --format json --quiet` reports 89 workspaces, including scaffold workspaces that Knip `ignoreWorkspaces` is meant to suppress.
 - Fallow plugin inventory: `bun run fallow -- list --plugins --config .fallowrc.jsonc --format json --quiet` reports 20 active plugins.
@@ -52,7 +52,7 @@ updated: 2026-06-08
 - Yeet category: `repo-law`
 - Parser: `fallow/dead-code/v1`
 - Default blocking: false
-- CI mode: advisory artifact
+- CI mode: blocking check (promoted pre-push lane via goals/fallow-zero-dead-code)
 - Failure envelope behavior: P1 wrapper must preserve Fallow exit status while `--advisory` exits 0.
 
 ## Promotion Gate

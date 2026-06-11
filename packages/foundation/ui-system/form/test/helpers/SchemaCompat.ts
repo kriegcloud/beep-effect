@@ -26,7 +26,7 @@ type CompatFilterIssue = S.FilterIssue | LegacyFilterIssue;
 
 type CompatFilterOutput = undefined | boolean | CompatFilterIssue | ReadonlyArray<CompatFilterIssue>;
 
-export type Either<E, A> = { readonly _tag: "Left"; readonly left: E } | { readonly _tag: "Right"; readonly right: A };
+type Either<E, A> = { readonly _tag: "Left"; readonly left: E } | { readonly _tag: "Right"; readonly right: A };
 
 const normalizeAnnotations = (annotations?: LegacyAnnotations | undefined): S.Annotations.Filter | undefined => {
   if (annotations === undefined) {

@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3df1a11ce0459ec9ca9e8217b8eab0eb51b43229dee1bdab64cc4609d79102ba",
+    "digest": "1861eb725a1d463d0ba9befd36bd8f7f745a3259ae27003409f5b7cb6a5c220a",
     "inputs": [
       {
         "path": "apps/codedank-web/package.json",
-        "sha256": "199f2a724be2040e8612de2e5e5ef29c650614507a4d5c469b4f8379d9758576",
-        "bytes": 2247
+        "sha256": "a6f43214d49478c90b9dfa23c828fca70e934e24cd5b613322d92c5c3fb12d11",
+        "bytes": 2214
       },
       {
         "path": "apps/codedank-web/src/app/layout.tsx",

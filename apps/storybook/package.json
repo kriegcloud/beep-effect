@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "@beep/ui": "workspace:^",
-    "@mdx-js/react": "catalog:",
     "@storybook/addon-a11y": "catalog:",
     "@storybook/addon-docs": "catalog:",
     "@storybook/addon-themes": "catalog:",

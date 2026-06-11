@@ -27,12 +27,9 @@ const safeJsonScript = (value: unknown) =>
 /**
  * Allows the search-param aware home route to block during the first render.
  *
- * @example
- * ```ts
- * import { instant } from "@beep/oip-web/app/page"
- *
- * console.log(instant)
- * ```
+ * Next.js framework config export: opts the route out of blocking-prerender
+ * errors (`blocking-prerender-dynamic`). Consumed by the framework, not by
+ * application imports.
  *
  * @category configuration
  * @since 0.0.0

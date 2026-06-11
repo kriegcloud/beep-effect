@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a008523bc236e84ff44e81b735cd2373dec7a46101457ee20d03eab7fc68aeaf",
+    "digest": "6d650865d1cd3ce1debc6c2f883bde6cc0e4a3a26de17d971c3ef84e55bfc62c",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/package.json",
-        "sha256": "8593f55980d20bb452d632d06197adec7771ec3e601fa9948ef084271787406a",
-        "bytes": 4051
+        "sha256": "7617ae47b34b318586965af7d6641c7fe005d41966c9deefba04afb56b73928c",
+        "bytes": 4031
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/accordion.tsx",

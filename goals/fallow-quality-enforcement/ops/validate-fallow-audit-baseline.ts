@@ -5,18 +5,15 @@ type JsonRecord = Record<string, unknown>;
 const textDecoder = new TextDecoder();
 const repoRoot = new URL("../../../", import.meta.url).pathname;
 
+// Post-remediation contract (goals/fallow-zero-dead-code): the audit lane is
+// blocking under the new-only gate, so a clean branch must introduce nothing
+// and the dead-code lane must hold at zero. Inherited-adjacent counts vary by
+// branch and are deliberately not pinned.
 const expectedAuditSummary = {
-  changed_files_minimum: 90,
-  dead_code_issues: 30,
-  complexity_findings: 37,
-  duplication_clone_groups: 143,
-  dead_code_introduced: 3,
-  dead_code_inherited: 27,
-  complexity_introduced: 6,
-  complexity_inherited: 30,
-  complexity_unattributed: 1,
-  duplication_introduced: 3,
-  duplication_inherited: 140,
+  dead_code_issues: 0,
+  dead_code_introduced: 0,
+  complexity_introduced: 0,
+  duplication_introduced: 0,
 } as const;
 
 const fail = (message: string): never => {
@@ -60,40 +57,21 @@ const result = Bun.spawnSync(["bun", "run", "fallow:audit", "--", "--base", "ori
   stderr: "pipe",
 });
 
-expectEqual("fallow audit exit", result.exitCode, 1);
+expectEqual("fallow audit exit", result.exitCode, 0);
 
 const output = `${textDecoder.decode(result.stdout)}\n${textDecoder.decode(result.stderr)}`;
 const audit = extractJsonObject(output, "fallow audit");
 const summary = asRecord(audit.summary, "fallow audit.summary");
 const attribution = asRecord(audit.attribution, "fallow audit.attribution");
 
-expectEqual("fallow audit verdict", audit.verdict, "fail");
+expectEqual("fallow audit verdict", audit.verdict, "pass");
 expectEqual("fallow audit attribution gate", attribution.gate, "new-only");
-expectAtLeast(
-  "fallow audit changed_files_count",
-  audit.changed_files_count,
-  expectedAuditSummary.changed_files_minimum
-);
+expectAtLeast("fallow audit changed_files_count", audit.changed_files_count, 0);
 expectEqual("fallow audit summary.dead_code_issues", summary.dead_code_issues, expectedAuditSummary.dead_code_issues);
-expectEqual(
-  "fallow audit summary.complexity_findings",
-  summary.complexity_findings,
-  expectedAuditSummary.complexity_findings
-);
-expectEqual(
-  "fallow audit summary.duplication_clone_groups",
-  summary.duplication_clone_groups,
-  expectedAuditSummary.duplication_clone_groups
-);
 expectEqual(
   "fallow audit attribution.dead_code_introduced",
   attribution.dead_code_introduced,
   expectedAuditSummary.dead_code_introduced
-);
-expectEqual(
-  "fallow audit attribution.dead_code_inherited",
-  attribution.dead_code_inherited,
-  expectedAuditSummary.dead_code_inherited
 );
 expectEqual(
   "fallow audit attribution.complexity_introduced",
@@ -101,26 +79,9 @@ expectEqual(
   expectedAuditSummary.complexity_introduced
 );
 expectEqual(
-  "fallow audit attribution.complexity_inherited",
-  attribution.complexity_inherited,
-  expectedAuditSummary.complexity_inherited
-);
-expectEqual(
-  "fallow audit attribution.complexity_unattributed",
-  Number(summary.complexity_findings) -
-    Number(attribution.complexity_introduced) -
-    Number(attribution.complexity_inherited),
-  expectedAuditSummary.complexity_unattributed
-);
-expectEqual(
   "fallow audit attribution.duplication_introduced",
   attribution.duplication_introduced,
   expectedAuditSummary.duplication_introduced
 );
-expectEqual(
-  "fallow audit attribution.duplication_inherited",
-  attribution.duplication_inherited,
-  expectedAuditSummary.duplication_inherited
-);
 
-console.log("fallow audit baseline matches recorded P0 evidence");
+console.log("fallow audit baseline holds the zero-introduced contract");

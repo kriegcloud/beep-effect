@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "bb2619043e2c53385974b58675db78f8ee3d587c1c412be9975d563ffa0d1b08",
+    "digest": "f30ec43cb557424abec1b1d6c7d164ddebf3b8c2b3178fd64f8de29bd83d4ac1",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
-        "sha256": "a2bdc5b1faf1eb63e3e1ff5128493ce452134c8482a270816c383a2383e1a7ec",
-        "bytes": 2591
+        "sha256": "598b071dd5b9d00bbfda57420c53ca9d1afca6aa3bdc1c8d10ed911ba3b2dc76",
+        "bytes": 2632
       },
       {
         "path": "apps/oip-web/src/app/api/contact/ContactHttpApiRoute.ts",
@@ -37,8 +37,8 @@
       },
       {
         "path": "apps/oip-web/src/app/layout.tsx",
-        "sha256": "5efa746132c164a5ae57271d26b9618becd4990f56197d5c86553c235df00313",
-        "bytes": 7831
+        "sha256": "dd117999a2cb03dc1ce33cbd4e9c069542746a5df0d69b76d2435a94dfaab34f",
+        "bytes": 7899
       },
       {
         "path": "apps/oip-web/src/app/llms.txt/route.ts",
@@ -52,8 +52,8 @@
       },
       {
         "path": "apps/oip-web/src/app/page.tsx",
-        "sha256": "b7f73c79b695ca8b81bdc5035a97c5c4c6dd8a2cc3e75627c2715dab96e391b1",
-        "bytes": 3892
+        "sha256": "7e8a278c9d2051337bebc0e1987e77241d143edc9df037251ce2f5853527cd77",
+        "bytes": 3962
       },
       {
         "path": "apps/oip-web/src/app/robots.ts",
@@ -74,11 +74,6 @@
         "path": "apps/oip-web/src/components/ContactForm.tsx",
         "sha256": "2f1aa10247c09c96469eae5dd4450d5132152c89d25ab58cf65cd6fe6db63b4f",
         "bytes": 7175
-      },
-      {
-        "path": "apps/oip-web/src/components/CtaLink.tsx",
-        "sha256": "f2a1db30c0a96dfa3a38744f12fb32e9bb3ecb6243990e111de44a1c69f65db5",
-        "bytes": 821
       },
       {
         "path": "apps/oip-web/src/components/HeroVideo.tsx",
@@ -137,8 +132,8 @@
       },
       {
         "path": "apps/oip-web/src/content/OipContent.data.ts",
-        "sha256": "fc90b3abf4610c8215bc3c76a7352605a2b43a5b8f32ca973e42c22ea68e842b",
-        "bytes": 15461
+        "sha256": "f2e20b06dfebebe6d365b5d9d5a4080c01ea6b84ccb59288be2716d62eee0ea2",
+        "bytes": 15620
       },
       {
         "path": "apps/oip-web/src/content/OipContent.model.ts",
@@ -147,8 +142,8 @@
       },
       {
         "path": "apps/oip-web/src/content/OipContent.runtime.ts",
-        "sha256": "9b9fa369f6824d136fa779ea54adc8afa8048772f4d48dce6eb51b64a178ed2d",
-        "bytes": 6412
+        "sha256": "cf8212287223bfa42e875a900d06b98571157cbd435ef98da1d130ccf043d43d",
+        "bytes": 6405
       },
       {
         "path": "apps/oip-web/src/content/OipSeo.ts",
@@ -172,8 +167,8 @@
       },
       {
         "path": "apps/oip-web/src/runtime/OipAtomRuntime.ts",
-        "sha256": "2a36f378310ba71058c60bc7fb86c965cf566d2c16448eca6e21d02506be77b8",
-        "bytes": 1375
+        "sha256": "4fe34eb779bd61a2ae22be6441df1b7e1f2cdd222bea6ef37a4b429476ebbe97",
+        "bytes": 1361
       },
       {
         "path": "generator:repo-exports-catalog",
@@ -206,7 +201,7 @@
     "counts": {
       "publicExportEntries": 0,
       "uniqueSymbols": 0,
-      "sourceFiles": 31
+      "sourceFiles": 30
     },
     "exports": []
   }

@@ -78,6 +78,7 @@
       "./commands/Ci": "./dist/commands/Ci/index.js",
       "./commands/Codegen": "./dist/commands/Codegen/index.js",
       "./commands/Codex": "./dist/commands/Codex/index.js",
+      "./commands/Corpus": "./dist/commands/Corpus/index.js",
       "./commands/CreatePackage": "./dist/commands/CreatePackage/index.js",
       "./commands/Docgen": "./dist/commands/Docgen/index.js",
       "./commands/Docs": "./dist/commands/Docs/index.js",
@@ -154,6 +155,7 @@
     "handlebars": "catalog:",
     "image-size": "catalog:",
     "jsonc-parser": "catalog:",
+    "madge": "catalog:",
     "sharp": "catalog:",
     "ts-morph": "catalog:",
     "yaml": "catalog:"

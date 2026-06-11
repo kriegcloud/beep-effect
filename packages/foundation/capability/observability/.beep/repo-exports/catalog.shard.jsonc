@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1997f20fe06042db6438ca92c74bb753bf99216697d657d094361e649dfee319",
+    "digest": "196ba864deb7c85ce962a6afbff523bef8ba2928f2cfbe3953a28117d1609ab0",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/capability/observability/package.json",
-        "sha256": "fb5dae5ef240769d49851cfd8f879df22c9c010ea26f77d66d23db4cb85fd638",
-        "bytes": 3004
+        "sha256": "de4ed500785f7de912ce0fb13a84890a137bfe78a11bc186e5180f7e89c30713",
+        "bytes": 2915
       },
       {
         "path": "packages/foundation/capability/observability/src/CauseDiagnostics.ts",

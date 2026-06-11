@@ -1,10 +1,13 @@
+import { fallowCiUploadDiagnosticsForTesting } from "@beep/repo-cli/commands/Quality/FallowQuality.command";
 import {
   affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
   detectQualityProfileForTesting,
+  FallowReportFinding,
   fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
   GithubChecksFallowFeatureMatrix,
+  githubCheckLanesForModeForTesting,
   githubCheckPrePushExternalLanesForTesting,
   githubCheckPromotedFallowLaneDiagnosticsForTesting,
   githubCheckQualityLanesForTesting,
@@ -26,12 +29,14 @@ import {
   sqlIntegrationStepForTesting,
   workspaceTaskFiltersForTesting,
 } from "@beep/repo-cli/test/Quality";
+import { findRepoRoot } from "@beep/repo-utils";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { provideScopedLayer } from "@beep/test-utils";
 import { A, Str } from "@beep/utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Cause, Effect, Exit, FileSystem, Layer, Path } from "effect";
+import { Cause, Effect, Exit, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
@@ -45,6 +50,7 @@ const PlatformLayer = Layer.mergeAll(
   TestConsole.layer
 );
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const decodeGithubChecksFallowFeatureMatrixJsoncForTesting = decodeJsoncTextAs(GithubChecksFallowFeatureMatrix);
 const isQualityTaskFailed = S.is(QualityTaskFailed);
 const isQualityTaskGroupFailed = S.is(QualityTaskGroupFailed);
 const isString = (value: unknown): value is string => typeof value === "string";
@@ -163,7 +169,7 @@ const repoCliPackage = {
   path: "packages/tooling/tool/cli",
 };
 type FallowFeatureMatrixRowTuple = readonly [
-  featureFamily: "audit" | "dead-code",
+  featureFamily: "audit" | "dead-code" | "dupes",
   ciMode: "advisory-artifact" | "blocking-check",
   promotionStatus: "advisory" | "research" | "candidate-blocking" | "blocking",
 ];
@@ -177,10 +183,10 @@ const fallowFeatureMatrix = (features: ReadonlyArray<FallowFeatureMatrixRowTuple
     })),
   });
 
-const expectMissingFallowAuditLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
+const expectUnpromotedWiredDeadCodeLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
   expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit"]);
   expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
-    "missing promoted Fallow GitHub check lane fallow:audit",
+    "unpromoted Fallow GitHub check lane is wired: fallow:dead-code",
   ]);
 };
 
@@ -355,22 +361,127 @@ describe("quality task adapter", () => {
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
   });
 
-  it("accepts the current packet state with no promoted Fallow pre-push lanes", () => {
+  it("accepts the current packet state with promoted audit and dead-code pre-push lanes", () => {
     const matrix = fallowFeatureMatrix([
-      ["audit", "advisory-artifact", "advisory"],
-      ["dead-code", "advisory-artifact", "research"],
+      ["audit", "blocking-check", "blocking"],
+      ["dead-code", "blocking-check", "blocking"],
     ]);
 
-    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual([]);
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit", "fallow:dead-code"]);
     expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
   });
 
+  it("keeps wired pre-push Fallow lanes in parity with authoritative promoted matrix lanes", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repoRoot = yield* findRepoRoot();
+        const matrixText = yield* fs.readFileString(
+          path.join(repoRoot, "goals/fallow-quality-enforcement/research/feature-matrix.jsonc")
+        );
+        const matrix = yield* decodeGithubChecksFallowFeatureMatrixJsoncForTesting(matrixText);
+        const promotedLaneIds = promotedFallowGithubCheckLaneIdsForTesting(matrix);
+        const wiredFallowLaneIds = pipe(
+          githubCheckLanesForModeForTesting("/repo", "pre-push"),
+          A.map((lane) => lane.id),
+          A.filter(Str.startsWith("fallow:")),
+          A.dedupe,
+          A.sort(Order.String)
+        );
+
+        expect(wiredFallowLaneIds).toEqual(promotedLaneIds);
+        expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
+      }).pipe(provideScopedLayer(FileSystemLayer))
+    ));
+
+  it("keeps CI Fallow blocking failures deferred until advisory envelopes are written", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const repoRoot = yield* findRepoRoot();
+        const workflowText = yield* fs.readFileString(path.join(repoRoot, ".github/workflows/check.yml"));
+        const fallowStepText = Str.slice(
+          workflowText.indexOf("          run_blocking_fallow()"),
+          workflowText.indexOf("      - name: Validate Fallow envelopes")
+        )(workflowText);
+        const advisoryLoopIndex = fallowStepText.indexOf(
+          "          for lane in dupes health boundaries flags security fix-preview; do"
+        );
+        const outputWriteIndex = fallowStepText.indexOf('          } >> "$GITHUB_OUTPUT"');
+        const deferredExitIndex = fallowStepText.indexOf("          if (( blocking_status != 0 )); then");
+
+        expect(fallowStepText).toContain("          blocking_status=0");
+        expect(fallowStepText).toContain('            if run_blocking_fallow "$lane"; then');
+        expect(advisoryLoopIndex).toBeGreaterThan(-1);
+        expect(outputWriteIndex).toBeGreaterThan(advisoryLoopIndex);
+        expect(deferredExitIndex).toBeGreaterThan(outputWriteIndex);
+      }).pipe(provideScopedLayer(FileSystemLayer))
+    ));
+
   it("rejects a promoted Fallow matrix row that is not wired into pre-push", () => {
-    expectMissingFallowAuditLane(fallowFeatureMatrix([["audit", "blocking-check", "blocking"]]));
+    const matrix = fallowFeatureMatrix([
+      ["audit", "blocking-check", "blocking"],
+      ["dead-code", "blocking-check", "blocking"],
+      ["dupes", "blocking-check", "blocking"],
+    ]);
+
+    expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
+      "missing promoted Fallow GitHub check lane fallow:dupes",
+    ]);
+  });
+
+  it("rejects a wired Fallow lane whose matrix row is not promoted", () => {
+    expectUnpromotedWiredDeadCodeLane(
+      fallowFeatureMatrix([
+        ["audit", "blocking-check", "blocking"],
+        ["dead-code", "advisory-artifact", "research"],
+      ])
+    );
   });
 
   it("treats candidate-blocking Fallow rows as promotion contract inputs", () => {
-    expectMissingFallowAuditLane(fallowFeatureMatrix([["audit", "advisory-artifact", "candidate-blocking"]]));
+    expectUnpromotedWiredDeadCodeLane(
+      fallowFeatureMatrix([
+        ["audit", "advisory-artifact", "candidate-blocking"],
+        ["dead-code", "advisory-artifact", "research"],
+      ])
+    );
+  });
+
+  it("requires Fallow CI upload wiring only when the contract requires uploads", () => {
+    const uploadStep = {
+      uses: "actions/upload-artifact@v4",
+      with: {
+        "if-no-files-found": "error",
+        path: ".beep/fallow/**",
+      },
+    };
+
+    expect(fallowCiUploadDiagnosticsForTesting(false, [], [], ".beep/fallow", "error")).toEqual([]);
+    expect(fallowCiUploadDiagnosticsForTesting(true, [], [], ".beep/fallow", "error")).toEqual([
+      "missing upload of complete Fallow output tree: .beep/fallow/**",
+      "missing actions/upload-artifact step",
+      "missing if-no-files-found: error",
+    ]);
+    expect(
+      fallowCiUploadDiagnosticsForTesting(true, ["actions/upload-artifact@v4"], [uploadStep], ".beep/fallow", "error")
+    ).toEqual([]);
+  });
+
+  it("accepts promoted Fallow findings with blocking true in report envelopes", () => {
+    expect(
+      FallowReportFinding.make({
+        attribution: "introduced",
+        blocking: true,
+        featureFamily: "audit",
+        id: "audit-introduced-dead-code-1",
+        parser: "fallow/audit/v1",
+        sourceRef: "standards/fallow.pilot.inventory.jsonc",
+        subCategory: "fallow:audit:dead-code",
+      }).blocking
+    ).toBe(true);
   });
 
   it("plans affected repo export checks conservatively", () => {

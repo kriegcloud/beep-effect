@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1b0d7278ec242eb102cbd65f2b7502056d54a970dfa71494c32f010969c0cee0",
+    "digest": "7fbe4f6ff64166471e0a7c624832a53f83adc36752448739fc02549e1d057f89",
     "inputs": [
       {
         "path": "apps/stack-installer/package.json",
@@ -47,8 +47,8 @@
       },
       {
         "path": "apps/stack-installer/src/proof/P1ProofArtifacts.ts",
-        "sha256": "0777a5adeae0b8d752cdb562747a79f84c38124f32b01fbcf0be06c15cd312db",
-        "bytes": 6206
+        "sha256": "cbeb387b264da633dc8fb1c21ef259454cbebf698bc2f23411038a8d71d02c13",
+        "bytes": 6199
       },
       {
         "path": "apps/stack-installer/src/proof/P1ProofCommands.ts",
