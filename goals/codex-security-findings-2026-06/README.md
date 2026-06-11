@@ -18,13 +18,8 @@ Informational) in a single, mergeable PR on `@slop/june-8-2026`.
 
 ## Launch
 
-Use this command for execution-capable sessions:
-
-```text
-/goal follow the instructions in goals/codex-security-findings-2026-06/GOAL.md
-```
-
-`GOAL.md` is the compact launcher. `SPEC.md` remains the normative contract.
+Start from `GOAL.md` in execution-capable sessions. It is only a compact
+launcher; `SPEC.md` remains the normative contract.
 
 ## Read This First
 
