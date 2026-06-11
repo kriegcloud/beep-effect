@@ -71,7 +71,8 @@
     "packages/drivers/libpff",
     "apps/canvas",
     "packages/drivers/box",
-    "packages/drivers/firecrawl"
+    "packages/drivers/firecrawl",
+    "packages/drivers/uspto"
   ],
   "repository": {
     "type": "git",

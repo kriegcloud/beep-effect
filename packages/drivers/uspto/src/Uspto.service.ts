@@ -1,0 +1,349 @@
+/**
+ * Effect service for USPTO Open Data Portal endpoints.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $UsptoId } from "@beep/identity";
+import { NonNegativeInt } from "@beep/schema";
+import { A } from "@beep/utils";
+import { Config, Context, Effect, Layer, Match, Redacted } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import { FetchHttpClient } from "effect/unstable/http";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import { USPTO_API_URL } from "./Uspto.config.ts";
+import { UsptoError } from "./Uspto.errors.ts";
+import { UsptoApplicationMetadata, UsptoContinuity, UsptoDocumentReference } from "./Uspto.models.ts";
+import type { HttpClientResponse } from "effect/unstable/http/HttpClientResponse";
+import type { UsptoConfigInput } from "./Uspto.config.ts";
+
+const $I = $UsptoId.create("Uspto.service");
+
+/**
+ * Runtime shape exposed by the {@link Uspto} service.
+ *
+ * @example
+ * ```ts
+ * import type { UsptoShape } from "@beep/uspto"
+ *
+ * const service = {} as UsptoShape
+ * console.log(service)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export interface UsptoShape {
+  /**
+   * Download one published file-wrapper document.
+   *
+   * @since 0.0.0
+   */
+  readonly downloadDocument: (downloadUrl: string) => Effect.Effect<Uint8Array, UsptoError>;
+  /**
+   * Resolve official metadata for one application number.
+   *
+   * @since 0.0.0
+   */
+  readonly getApplication: (applicationNumber: string) => Effect.Effect<UsptoApplicationMetadata, UsptoError>;
+  /**
+   * Resolve parent and child continuity for one application number.
+   *
+   * @since 0.0.0
+   */
+  readonly getContinuity: (applicationNumber: string) => Effect.Effect<UsptoContinuity, UsptoError>;
+  /**
+   * List file-wrapper documents for one application number.
+   *
+   * @since 0.0.0
+   */
+  readonly getDocuments: (
+    applicationNumber: string
+  ) => Effect.Effect<ReadonlyArray<UsptoDocumentReference>, UsptoError>;
+  /**
+   * Search applications with an Open Data Portal query expression.
+   *
+   * @since 0.0.0
+   */
+  readonly searchApplications: (query: string) => Effect.Effect<ReadonlyArray<UsptoApplicationMetadata>, UsptoError>;
+}
+
+const MetadataEnvelope = S.Struct({
+  patentFileWrapperDataBag: S.Array(
+    S.Struct({
+      applicationMetaData: S.Record(S.String, S.Unknown).pipe(S.optionalKey),
+      applicationNumberText: S.optionalKey(S.String),
+    })
+  ).pipe(S.optionalKey),
+});
+
+const ContinuityEnvelope = S.Struct({
+  patentFileWrapperDataBag: S.Array(
+    S.Struct({
+      childContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
+      parentContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
+    })
+  ).pipe(S.optionalKey),
+});
+
+const DocumentsEnvelope = S.Struct({
+  documentBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
+});
+
+const decodeMetadataEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(MetadataEnvelope));
+const decodeContinuityEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(ContinuityEnvelope));
+const decodeDocumentsEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(DocumentsEnvelope));
+const decodeApplicationMetadata = S.decodeUnknownEffect(UsptoApplicationMetadata);
+const decodeDocumentReference = S.decodeUnknownEffect(UsptoDocumentReference);
+
+const stringField = (record: Readonly<Record<string, unknown>>, key: string): O.Option<string> =>
+  O.fromUndefinedOr(record[key]).pipe(O.filter(P.isString));
+
+const optionalField = (record: Readonly<Record<string, unknown>>, key: string): Record<string, string> =>
+  stringField(record, key).pipe(
+    O.match({
+      onNone: () => ({}),
+      onSome: (value) => ({ [key]: value }),
+    })
+  );
+
+const metadataFromWrapper = (
+  wrapper: {
+    readonly applicationMetaData?: Readonly<Record<string, unknown>>;
+    readonly applicationNumberText?: string;
+  },
+  fallbackApplicationNumber: string
+): Effect.Effect<UsptoApplicationMetadata, UsptoError> => {
+  const meta = wrapper.applicationMetaData ?? {};
+  return decodeApplicationMetadata({
+    applicationNumberText: wrapper.applicationNumberText ?? fallbackApplicationNumber,
+    ...optionalField(meta, "applicationStatusDescriptionText"),
+    ...optionalField(meta, "applicationTypeLabelName"),
+    ...optionalField(meta, "docketNumber"),
+    ...optionalField(meta, "earliestPublicationNumber"),
+    ...optionalField(meta, "filingDate"),
+    ...optionalField(meta, "firstApplicantName"),
+    ...optionalField(meta, "firstInventorName"),
+    ...optionalField(meta, "grantDate"),
+    ...optionalField(meta, "inventionTitle"),
+    ...optionalField(meta, "patentNumber"),
+  }).pipe(Effect.mapError(() => UsptoError.fromReason("response-decoding")));
+};
+
+const continuityNumbers = (records: ReadonlyArray<Readonly<Record<string, unknown>>>): Array<string> =>
+  A.flatMap(records, (record) =>
+    O.toArray(
+      stringField(record, "applicationNumberText").pipe(
+        O.orElse(() => stringField(record, "parentApplicationNumberText")),
+        O.orElse(() => stringField(record, "childApplicationNumberText"))
+      )
+    )
+  );
+
+const documentFromRecord = (
+  record: Readonly<Record<string, unknown>>
+): Effect.Effect<O.Option<UsptoDocumentReference>, UsptoError> => {
+  const identifier = stringField(record, "documentIdentifier");
+  if (O.isNone(identifier)) {
+    return Effect.succeed(O.none());
+  }
+  const downloadOptions = O.fromUndefinedOr(record.downloadOptionBag).pipe(
+    O.filter(Array.isArray),
+    O.flatMap((options) =>
+      A.findFirst(
+        options as Array<unknown>,
+        (option): option is Record<string, unknown> =>
+          P.isObject(option) && P.isString((option as Record<string, unknown>).downloadUrl)
+      )
+    ),
+    O.flatMap((option) => stringField(option, "downloadUrl"))
+  );
+  return decodeDocumentReference({
+    documentIdentifier: identifier.value,
+    ...optionalField(record, "documentCode"),
+    ...optionalField(record, "documentCodeDescriptionText"),
+    ...optionalField(record, "officialDate"),
+    ...downloadOptions.pipe(
+      O.match({
+        onNone: () => ({}),
+        onSome: (downloadUrl) => ({ downloadUrl }),
+      })
+    ),
+  }).pipe(
+    Effect.map(O.some),
+    Effect.mapError(() => UsptoError.fromReason("response-decoding"))
+  );
+};
+
+interface ResolvedUsptoConfig {
+  readonly apiKey: O.Option<Redacted.Redacted<string>>;
+  readonly apiUrl: string;
+}
+
+const normalizeBaseUrl = (url: string): string => (url.endsWith("/") ? url.slice(0, -1) : url);
+
+const resolveConfig = (input: UsptoConfigInput): ResolvedUsptoConfig => ({
+  apiKey: O.fromUndefinedOr(input.apiKey),
+  apiUrl: normalizeBaseUrl(input.apiUrl ?? USPTO_API_URL),
+});
+
+const statusError = (status: number): UsptoError =>
+  Match.value(status).pipe(
+    Match.when(404, () => UsptoError.fromReason("not-found", { status: NonNegativeInt.make(status) })),
+    Match.when(429, () => UsptoError.fromReason("rate-limited", { status: NonNegativeInt.make(status) })),
+    Match.orElse(() => UsptoError.fromReason("response-status", { status: NonNegativeInt.make(status) }))
+  );
+
+const makeService = (client: HttpClient.HttpClient, config: ResolvedUsptoConfig): UsptoShape => {
+  const requestFor = (url: string): HttpClientRequest.HttpClientRequest =>
+    HttpClientRequest.get(url).pipe(HttpClientRequest.accept("application/json"), (request) =>
+      O.match(config.apiKey, {
+        onNone: () => request,
+        onSome: (key) => HttpClientRequest.setHeader(request, "X-API-KEY", Redacted.value(key)),
+      })
+    );
+
+  const executeForResponse = Effect.fn("Uspto.executeForResponse")(function* (
+    url: string
+  ): Effect.fn.Return<HttpClientResponse, UsptoError> {
+    const response = yield* client
+      .execute(requestFor(url))
+      .pipe(Effect.mapError(() => UsptoError.fromReason("transport")));
+    if (response.status < 200 || response.status >= 300) {
+      return yield* statusError(response.status);
+    }
+    return response;
+  });
+
+  const executeForText = Effect.fn("Uspto.executeForText")(function* (
+    url: string
+  ): Effect.fn.Return<string, UsptoError> {
+    const response = yield* executeForResponse(url);
+    return yield* response.text.pipe(Effect.mapError(() => UsptoError.fromReason("response-decoding")));
+  });
+
+  const applicationsUrl = (applicationNumber: string): string =>
+    `${config.apiUrl}/api/v1/patent/applications/${encodeURIComponent(applicationNumber)}`;
+
+  return {
+    downloadDocument: Effect.fn("Uspto.downloadDocument")(function* (downloadUrl: string) {
+      const response = yield* executeForResponse(downloadUrl);
+      const buffer = yield* response.arrayBuffer.pipe(
+        Effect.mapError(() => UsptoError.fromReason("response-decoding"))
+      );
+      return new Uint8Array(buffer);
+    }),
+    getApplication: Effect.fn("Uspto.getApplication")(function* (applicationNumber: string) {
+      const text = yield* executeForText(applicationsUrl(applicationNumber));
+      const envelope = yield* decodeMetadataEnvelopeJson(text).pipe(
+        Effect.mapError(() => UsptoError.fromReason("response-decoding"))
+      );
+      const wrapper = A.head(envelope.patentFileWrapperDataBag ?? []);
+      if (O.isNone(wrapper)) {
+        return yield* UsptoError.fromReason("not-found");
+      }
+      return yield* metadataFromWrapper(wrapper.value, applicationNumber);
+    }),
+    getContinuity: Effect.fn("Uspto.getContinuity")(function* (applicationNumber: string) {
+      const text = yield* executeForText(`${applicationsUrl(applicationNumber)}/continuity`);
+      const envelope = yield* decodeContinuityEnvelopeJson(text).pipe(
+        Effect.mapError(() => UsptoError.fromReason("response-decoding"))
+      );
+      const wrapper = A.head(envelope.patentFileWrapperDataBag ?? []);
+      return UsptoContinuity.make({
+        childApplicationNumbers: O.isNone(wrapper) ? [] : continuityNumbers(wrapper.value.childContinuityBag ?? []),
+        parentApplicationNumbers: O.isNone(wrapper) ? [] : continuityNumbers(wrapper.value.parentContinuityBag ?? []),
+      });
+    }),
+    getDocuments: Effect.fn("Uspto.getDocuments")(function* (applicationNumber: string) {
+      const text = yield* executeForText(`${applicationsUrl(applicationNumber)}/documents`);
+      const envelope = yield* decodeDocumentsEnvelopeJson(text).pipe(
+        Effect.mapError(() => UsptoError.fromReason("response-decoding"))
+      );
+      const references = yield* Effect.forEach(envelope.documentBag ?? [], documentFromRecord);
+      return A.flatMap(references, O.toArray);
+    }),
+    searchApplications: Effect.fn("Uspto.searchApplications")(function* (query: string) {
+      const text = yield* executeForText(
+        `${config.apiUrl}/api/v1/patent/applications/search?q=${encodeURIComponent(query)}`
+      );
+      const envelope = yield* decodeMetadataEnvelopeJson(text).pipe(
+        Effect.mapError(() => UsptoError.fromReason("response-decoding"))
+      );
+      return yield* Effect.forEach(envelope.patentFileWrapperDataBag ?? [], (wrapper) =>
+        metadataFromWrapper(wrapper, wrapper.applicationNumberText ?? "unknown")
+      );
+    }),
+  };
+};
+
+/**
+ * Effect service for product-neutral USPTO Open Data Portal access.
+ *
+ * @example
+ * ```ts
+ * import { Uspto } from "@beep/uspto"
+ *
+ * console.log(Uspto)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class Uspto extends Context.Service<Uspto, UsptoShape>()($I`Uspto`) {
+  /**
+   * Build a layer from explicit configuration.
+   *
+   * @example
+   * ```ts
+   * import { Uspto, UsptoConfigInput } from "@beep/uspto"
+   *
+   * const layer = Uspto.makeLayer(UsptoConfigInput.make({ apiKey: "test-key" }))
+   * console.log(layer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (config: UsptoConfigInput): Layer.Layer<Uspto, never, HttpClient.HttpClient> =>
+    Layer.effect(
+      Uspto,
+      Effect.gen(function* () {
+        const client = yield* HttpClient.HttpClient;
+        return Uspto.of(makeService(client, resolveConfig(config)));
+      })
+    );
+
+  /**
+   * Live layer backed by `USPTO_API_KEY` and `USPTO_API_URL` configuration.
+   *
+   * @example
+   * ```ts
+   * import { Uspto } from "@beep/uspto"
+   *
+   * const layer = Uspto.layer
+   * console.log(layer)
+   * ```
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly layer: Layer.Layer<Uspto, UsptoError> = Layer.effect(
+    Uspto,
+    Effect.gen(function* () {
+      const apiKey = yield* Config.redacted("USPTO_API_KEY").pipe(Config.option);
+      const apiUrl = yield* Config.string("USPTO_API_URL").pipe(Config.withDefault(USPTO_API_URL));
+      const client = yield* HttpClient.HttpClient;
+      return Uspto.of(
+        makeService(client, {
+          apiKey,
+          apiUrl: normalizeBaseUrl(apiUrl),
+        })
+      );
+    }).pipe(Effect.mapError(() => UsptoError.fromReason("config")))
+  ).pipe(Layer.provide(FetchHttpClient.layer));
+}
