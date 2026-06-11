@@ -1212,7 +1212,9 @@ export const runPrCloseout = Effect.fn("YeetCloseout.runPrCloseout")(function* (
 ): Effect.fn.Return<PrCloseoutReport, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   let { pullRequest, pr } = yield* collectPrCloseoutPayload(context);
   const writeRequested =
-    Str.isNonEmpty(Str.trim(options.replyThread)) || Str.isNonEmpty(Str.trim(options.resolveThreads));
+    Str.isNonEmpty(Str.trim(options.replyThread)) ||
+    Str.isNonEmpty(Str.trim(options.replyBody)) ||
+    Str.isNonEmpty(Str.trim(options.resolveThreads));
   let writeActions: ReadonlyArray<PrCloseoutWriteAction> = A.empty();
   if (writeRequested) {
     const plan = closeoutWritePlan(

@@ -1522,6 +1522,9 @@ describe("yeet publish scope helpers", () => {
     const unpaired = closeoutWritePlanForTesting("PRRT_a", "", "", known);
     expect(O.isSome(unpaired.error)).toBe(true);
 
+    const orphanBody = closeoutWritePlanForTesting("", "orphan body without a thread", "", known);
+    expect(O.isSome(orphanBody.error)).toBe(true);
+
     const oversized = closeoutWritePlanForTesting("PRRT_a", "x".repeat(17 * 1024), "", known);
     expect(O.isSome(oversized.error)).toBe(true);
   });
@@ -1587,6 +1590,11 @@ describe("yeet publish scope helpers", () => {
           const stillOverlapping = yield* assessBaseFreshnessForTesting(overlapContext);
           expect(stillOverlapping.behindCount).toBe(2);
           expect(stillOverlapping.overlappingPaths).toEqual(["shared.txt"]);
+
+          yield* fs.writeFileString(path.join(tmpDir, "other.txt"), "staged before commit\n");
+          yield* runGit(tmpDir, ["add", "other.txt"]);
+          const withStaged = yield* assessBaseFreshnessForTesting(overlapContext);
+          expect(withStaged.overlappingPaths).toEqual(["other.txt", "shared.txt"]);
         })
       )
     ));

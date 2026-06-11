@@ -19,6 +19,7 @@ import {
   commandTextForStep,
   executeRepoPlanStepStreaming,
   RepoRunContext,
+  RepoStepRunResult,
   resolveLocalRepoBinary,
   runRepoCommandCapture,
   TurboPlanSnapshot,
@@ -45,7 +46,7 @@ import {
 } from "./QualityIssueIndex.js";
 import { buildYeetVerdict, YeetBaseFreshness, YeetExecutedStep, YeetStashState } from "./Verdict.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
-import type { RepoPlanStep, RepoRunPlan, RepoStepRunResult } from "../../../internal/repo-run/index.js";
+import type { RepoPlanStep, RepoRunPlan } from "../../../internal/repo-run/index.js";
 import type { PackageQualityReport, QualityIssueIndex } from "./QualityIssueIndex.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Handler");
@@ -679,9 +680,34 @@ const buildPrBody = Effect.fn("Yeet.buildPrBody")(function* (
   return `${Str.trim(commitLog)}\n\n## Local proof\n\n${laneSummary}\n\nVerdict: .beep/yeet/runs/${runIdForContext(context)}/verdict.json\n`;
 });
 
+const recordPrCreateLane = Effect.fn("Yeet.recordPrCreateLane")(function* (
+  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
+  prStep: O.Option<RepoPlanStep>,
+  output: string
+): Effect.fn.Return<void> {
+  if (O.isNone(prStep)) {
+    return;
+  }
+  yield* Ref.update(
+    recorder,
+    A.append(
+      YeetExecutedStep.make({
+        result: RepoStepRunResult.make({
+          stepId: prStep.value.id,
+          commandText: "gh pr create",
+          exitCode: 0,
+          output,
+        }),
+        step: prStep.value,
+      })
+    )
+  );
+});
+
 const ensurePullRequest = Effect.fn("Yeet.ensurePullRequest")(function* (
   context: RepoRunContext,
-  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>
+  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
+  prStep: O.Option<RepoPlanStep>
 ): Effect.fn.Return<
   void,
   YeetCommandError,
@@ -692,6 +718,7 @@ const ensurePullRequest = Effect.fn("Yeet.ensurePullRequest")(function* (
     yield* Console.log(
       `[yeet] --pr: open pull request #${existing.value.number} already exists for ${context.branch}; skipping create`
     );
+    yield* recordPrCreateLane(recorder, prStep, `skipped: open pull request #${existing.value.number} already exists`);
     return;
   }
 
@@ -711,6 +738,7 @@ const ensurePullRequest = Effect.fn("Yeet.ensurePullRequest")(function* (
     });
   }
   yield* Console.log(`[yeet] --pr: created pull request -> ${Str.trim(result.output)}`);
+  yield* recordPrCreateLane(recorder, prStep, Str.trim(result.output));
 });
 
 const validateOpenPullRequest = Effect.fn("Yeet.validateOpenPullRequest")(function* (
@@ -1003,7 +1031,9 @@ const assessBaseFreshness = Effect.fn("Yeet.assessBaseFreshness")(function* (
     return YeetBaseFreshness.make({ behindCount: 0, mergeBase, overlappingPaths: [] });
   }
 
-  const branchPaths = yield* runGitPathList(context.repoRoot, ["diff", "--name-only", "-z", `${mergeBase}..HEAD`]);
+  const committedPaths = yield* runGitPathList(context.repoRoot, ["diff", "--name-only", "-z", `${mergeBase}..HEAD`]);
+  const stagedFreshnessPaths = yield* collectStagedPublishPaths(context.repoRoot);
+  const branchPaths = sortedUniquePaths([...committedPaths, ...stagedFreshnessPaths]);
   const basePaths = yield* runGitPathList(context.repoRoot, [
     "diff",
     "--name-only",
@@ -2140,7 +2170,11 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
       }
 
       if (options.pr) {
-        yield* ensurePullRequest(plan.context, recorder);
+        yield* ensurePullRequest(
+          plan.context,
+          recorder,
+          A.findFirst(plan.steps, (step) => step.id === "publish:02-pr-create")
+        );
       }
 
       const fullResults = yield* runProofPhase(plan.context, fullSteps, "full", recorder);
@@ -2192,7 +2226,11 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     }
 
     if (options.pr) {
-      yield* ensurePullRequest(plan.context, recorder);
+      yield* ensurePullRequest(
+        plan.context,
+        recorder,
+        A.findFirst(plan.steps, (step) => step.id === "publish:02-pr-create")
+      );
     }
 
     const monitorResults = yield* runPhase(plan.context, monitorSteps, recorder);
