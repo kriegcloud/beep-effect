@@ -422,11 +422,22 @@ const validate = Effect.fn("validate")(function* () {
   const reviewDiagnostics = yield* diagnosticsFrom(
     decodeJsonc(`${packetRoot}/history/review-rounds.jsonc`, decodeReviewRoundsDocument),
     (document) =>
-      A.flatMap(document.rounds, (round) =>
-        round.openRequiredFindingCount === 0 || A.length(round.findings) > 0
-          ? A.empty<string>()
-          : [`review-rounds.jsonc: ${round.roundId} reports open required findings without finding rows`]
-      )
+      A.flatMap(document.rounds, (round) => {
+        const requiredRows = A.filter(round.findings, (finding) => finding.severity === "required");
+        const openRequiredRows = A.filter(requiredRows, (finding) => finding.closureStatus === "open");
+        return [
+          ...(round.requiredFindingCount === A.length(requiredRows)
+            ? A.empty<string>()
+            : [
+                `review-rounds.jsonc: ${round.roundId} requiredFindingCount ${round.requiredFindingCount} does not match ${A.length(requiredRows)} required finding row(s)`,
+              ]),
+          ...(round.openRequiredFindingCount === A.length(openRequiredRows)
+            ? A.empty<string>()
+            : [
+                `review-rounds.jsonc: ${round.roundId} openRequiredFindingCount ${round.openRequiredFindingCount} does not match ${A.length(openRequiredRows)} open required finding row(s)`,
+              ]),
+        ];
+      })
   );
 
   const manifestDiagnostics = yield* decodeJsonc(`${packetRoot}/ops/manifest.json`, decodeManifestDocument).pipe(

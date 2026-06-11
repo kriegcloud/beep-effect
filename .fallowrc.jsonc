@@ -25,6 +25,7 @@
     "apps/*/src/app/sitemap.ts",
     "apps/*/src/mdx-components.tsx",
     "apps/*/src/middleware.ts",
+    "apps/*/src/proxy.ts",
     "apps/*/src/instrumentation.ts",
     "apps/storybook/.storybook/main.ts",
     "apps/storybook/.storybook/manager.ts",
