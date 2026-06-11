@@ -1,6 +1,6 @@
 # GOAL: Ship the Yeet agent-ergonomics enhancements to a mergeable PR
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
+Repo: this `beep-effect` checkout.
 
 Outcome: all ten enhancements in `SPEC.md` are implemented, tested, and merged-
 ready on one PR (one commit per phase), published and closed out through Yeet

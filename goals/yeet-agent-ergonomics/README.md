@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -47,16 +47,16 @@ default is unchanged.
 
 ## Current Phase
 
-P4 Verify + publish. P0-P3 are implemented and committed (grounding,
-correctness, flow completion, QoL + docs). Next concrete action: dogfood
-`bun run beep yeet publish --staged-only --pr --monitor` for the final commit,
-then run P5 closeout gates.
+Complete. All phases (P0 grounding through P5 closeout) are done; see
+[`history/2026-06-11-closeout.md`](./history/2026-06-11-closeout.md) for the
+evidence trail and PR #230 for the implementation.
 
 ## Latest Evidence
 
-Phase commits on `goals/yeet-agent-ergonomics`: P1 `c964826034`,
-P2 `4d01d9373f`, P3 `ee579dacf7`. Focused suites green (58 yeet + 43
-quality-tasks tests); `research/grounding.md` records the verified code map.
+PR #230 (https://github.com/kriegcloud/beep-effect/pull/230). Phase commits:
+P1 `19dccddb87`, P2 `a6c27e6abd`, P3 `f74d17d2b0`; review fixes `8980811bab`,
+`0c6e6248dc`. Focused suites green (59 yeet + 43 quality-tasks tests);
+`research/grounding.md` records the verified code map and dogfood findings.
 
 ## Notes
 

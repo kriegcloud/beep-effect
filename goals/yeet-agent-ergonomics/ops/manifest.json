@@ -3,13 +3,13 @@
   "initiative": {
     "id": "yeet-agent-ergonomics",
     "title": "Yeet Agent Ergonomics",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-11",
     "updated": "2026-06-11",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/yeet-agent-ergonomics",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "mission": "Harden the Yeet operator path for autonomous agents: dirty-worktree publish, stale-base gating, machine-readable verdicts, in-flow PR creation, and explicit review-thread write-backs.",
   "relatedPackets": [
@@ -71,12 +71,12 @@
     {
       "id": "P4",
       "name": "Verify + publish (dogfood --staged-only --pr)",
-      "status": "in-progress"
+      "status": "completed"
     },
     {
       "id": "P5",
       "name": "Closeout (gates green, write-back dogfooding)",
-      "status": "pending"
+      "status": "completed"
     }
   ],
   "qualityGates": [
