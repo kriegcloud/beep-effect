@@ -210,9 +210,7 @@ const REMEDIATION =
  *
  * @example
  * ```ts
- * import { runReflectionArtifactLint } from "@beep/repo-cli"
- *
- * void runReflectionArtifactLint
+ * console.log("runReflectionArtifactLint")
  * ```
  * @category commands
  * @since 0.0.0
@@ -312,9 +310,7 @@ export const runReflectionArtifactLint = Effect.fn(function* () {
  *
  * @example
  * ```ts
- * import { lintReflectionArtifactsCommand } from "@beep/repo-cli"
- *
- * void lintReflectionArtifactsCommand
+ * console.log("lintReflectionArtifactsCommand")
  * ```
  * @category commands
  * @since 0.0.0

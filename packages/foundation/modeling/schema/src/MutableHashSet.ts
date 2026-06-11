@@ -7,6 +7,7 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
+import * as O from "@beep/utils/Option";
 import {
   Effect,
   MutableHashSet as MutableHashSet_,
@@ -177,10 +178,10 @@ export const MutableHashSetFromSelf = <Value extends S.Top>(value: Value): Mutab
         ([value]) =>
         (fc, ctx) => {
           const constraint = ctx.constraint ?? {};
-          const constraints = {
-            ...(constraint.minLength !== undefined ? { minLength: constraint.minLength } : {}),
-            ...(constraint.maxLength !== undefined ? { maxLength: constraint.maxLength } : {}),
-          };
+          const constraints = O.getSomesStruct({
+            minLength: O.fromUndefinedOr(constraint.minLength),
+            maxLength: O.fromUndefinedOr(constraint.maxLength),
+          });
           const minLength = constraints.minLength ?? 0;
           const terminalValues =
             minLength === 0

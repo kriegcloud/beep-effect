@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3171dfad554b2ec5a1eeb5a906dea9edf0fe8bb8978ed265141d68f344efa968",
+    "digest": "2a4ed1808940ab2ef26d4c81bc481b4a35498e50acee611775b62270da9608dd",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -832,13 +832,13 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sha256": "149fe127c644bd075b048cff59fd5b478c943aa57e7891e2b0e5509f5b2ed810",
-        "bytes": 10133
+        "sha256": "63f2f5e6c9f3b1ef61c94e910f35264b85793bd8281502d5b850a8c2532ce7cd",
+        "bytes": 10128
       },
       {
         "path": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sha256": "75bd3867e3135b0e875ab490fd22bcee47fb016592c816b0cadf457740e5cec9",
-        "bytes": 8066
+        "sha256": "a0f02bc97603d9aac26b79a8d4d2687519567c68e02836ae1ed17208d0aa431c",
+        "bytes": 8061
       },
       {
         "path": "packages/foundation/modeling/schema/src/NoOpen/index.ts",
@@ -6534,7 +6534,7 @@
         "symbolName": "isMutableHashMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 145,
+        "sourceLine": 146,
         "summary": "Type guard for Effect `MutableHashMap` values.",
         "categories": [
           "guards"
@@ -6561,7 +6561,7 @@
         "symbolName": "isMutableHashSet",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 110,
+        "sourceLine": 111,
         "summary": "Type guard for Effect `MutableHashSet` values.",
         "categories": [
           "guards"
@@ -8066,7 +8066,7 @@
         "symbolName": "MutableHashMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 288,
+        "sourceLine": 289,
         "summary": "Schema for decoding entry arrays into `MutableHashMap` instances and encoding",
         "categories": [
           "validation"
@@ -8093,7 +8093,7 @@
         "symbolName": "MutableHashMap",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 118,
+        "sourceLine": 119,
         "summary": "Schema for transforming entry arrays into `MutableHashMap` instances.",
         "categories": [
           "validation"
@@ -8117,7 +8117,7 @@
         "symbolName": "MutableHashMapFromSelf",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 170,
+        "sourceLine": 171,
         "summary": "Schema for validating existing `MutableHashMap` instances while applying the",
         "categories": [
           "validation"
@@ -8144,7 +8144,7 @@
         "symbolName": "MutableHashMapFromSelf",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 100,
+        "sourceLine": 101,
         "summary": "Schema for validating an existing `MutableHashMap` instance.",
         "categories": [
           "validation"
@@ -8168,7 +8168,7 @@
         "symbolName": "MutableHashMapIso",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 90,
+        "sourceLine": 91,
         "summary": "Serializable entry-array iso type for `MutableHashMap` schemas.",
         "categories": [
           "models"
@@ -8193,7 +8193,7 @@
         "symbolName": "MutableHashSet",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 243,
+        "sourceLine": 244,
         "summary": "Schema for decoding arrays into `MutableHashSet` instances and encoding sets",
         "categories": [
           "validation"
@@ -8220,7 +8220,7 @@
         "symbolName": "MutableHashSet",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 87,
+        "sourceLine": 88,
         "summary": "Schema for transforming arrays into `MutableHashSet` instances.",
         "categories": [
           "validation"
@@ -8244,7 +8244,7 @@
         "symbolName": "MutableHashSetFromSelf",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 135,
+        "sourceLine": 136,
         "summary": "Schema for validating existing `MutableHashSet` instances while applying the",
         "categories": [
           "validation"
@@ -8271,7 +8271,7 @@
         "symbolName": "MutableHashSetFromSelf",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 70,
+        "sourceLine": 71,
         "summary": "Schema for validating an existing `MutableHashSet` instance.",
         "categories": [
           "validation"
@@ -8295,7 +8295,7 @@
         "symbolName": "MutableHashSetIso",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 62,
+        "sourceLine": 63,
         "summary": "Iso representation (serializable value array) used by",
         "categories": [
           "models"
@@ -35664,7 +35664,7 @@
         "symbolName": "isMutableHashMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 145,
+        "sourceLine": 146,
         "summary": "Type guard for Effect `MutableHashMap` values.",
         "categories": [
           "guards"
@@ -35691,7 +35691,7 @@
         "symbolName": "MutableHashMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 288,
+        "sourceLine": 289,
         "summary": "Schema for decoding entry arrays into `MutableHashMap` instances and encoding",
         "categories": [
           "validation"
@@ -35718,7 +35718,7 @@
         "symbolName": "MutableHashMap",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 118,
+        "sourceLine": 119,
         "summary": "Schema for transforming entry arrays into `MutableHashMap` instances.",
         "categories": [
           "validation"
@@ -35742,7 +35742,7 @@
         "symbolName": "MutableHashMapFromSelf",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 170,
+        "sourceLine": 171,
         "summary": "Schema for validating existing `MutableHashMap` instances while applying the",
         "categories": [
           "validation"
@@ -35769,7 +35769,7 @@
         "symbolName": "MutableHashMapFromSelf",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 100,
+        "sourceLine": 101,
         "summary": "Schema for validating an existing `MutableHashMap` instance.",
         "categories": [
           "validation"
@@ -35793,7 +35793,7 @@
         "symbolName": "MutableHashMapIso",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
-        "sourceLine": 90,
+        "sourceLine": 91,
         "summary": "Serializable entry-array iso type for `MutableHashMap` schemas.",
         "categories": [
           "models"
@@ -35818,7 +35818,7 @@
         "symbolName": "isMutableHashSet",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 110,
+        "sourceLine": 111,
         "summary": "Type guard for Effect `MutableHashSet` values.",
         "categories": [
           "guards"
@@ -35845,7 +35845,7 @@
         "symbolName": "MutableHashSet",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 243,
+        "sourceLine": 244,
         "summary": "Schema for decoding arrays into `MutableHashSet` instances and encoding sets",
         "categories": [
           "validation"
@@ -35872,7 +35872,7 @@
         "symbolName": "MutableHashSet",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 87,
+        "sourceLine": 88,
         "summary": "Schema for transforming arrays into `MutableHashSet` instances.",
         "categories": [
           "validation"
@@ -35896,7 +35896,7 @@
         "symbolName": "MutableHashSetFromSelf",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 135,
+        "sourceLine": 136,
         "summary": "Schema for validating existing `MutableHashSet` instances while applying the",
         "categories": [
           "validation"
@@ -35923,7 +35923,7 @@
         "symbolName": "MutableHashSetFromSelf",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 70,
+        "sourceLine": 71,
         "summary": "Schema for validating an existing `MutableHashSet` instance.",
         "categories": [
           "validation"
@@ -35947,7 +35947,7 @@
         "symbolName": "MutableHashSetIso",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
-        "sourceLine": 62,
+        "sourceLine": 63,
         "summary": "Iso representation (serializable value array) used by",
         "categories": [
           "models"
