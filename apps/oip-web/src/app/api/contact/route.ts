@@ -8,12 +8,8 @@
 import { Str } from "@beep/utils";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
-import {
-  ContactSubmissionPayload,
-  ContactSubmissionResponse,
-  contactResponseBody,
-  submitContact,
-} from "../../../contact";
+import { ContactSubmissionPayload, ContactSubmissionResponse, contactResponseBody } from "../../../contact";
+import { oipContactHttpApiWebHandler } from "./ContactHttpApiRoute";
 import { contactRequestResponse } from "./ContactRouteResponse";
 
 const isJsonContactSubmission = (request: Request): boolean =>
@@ -38,11 +34,18 @@ const readJsonContactPayload = Effect.fn("OipContact.readJsonContactPayload")(fu
   return yield* decodeJsonContactSubmissionPayload(body).pipe(Effect.mapError(() => rejectedContactSubmission));
 });
 
+const rejectedJsonContactResponse = (response: ContactSubmissionResponse): Response =>
+  Response.json(contactResponseBody(response), { status: contactJsonStatus(response) });
+
 const jsonContactResponse = (request: Request): Effect.Effect<Response> =>
-  readJsonContactPayload(request).pipe(
-    Effect.flatMap(submitContact),
-    Effect.orElseSucceed(() => rejectedContactSubmission),
-    Effect.map((response) => Response.json(contactResponseBody(response), { status: contactJsonStatus(response) }))
+  readJsonContactPayload(request.clone()).pipe(
+    Effect.flatMap(() =>
+      Effect.tryPromise({
+        try: () => oipContactHttpApiWebHandler(request),
+        catch: () => rejectedContactSubmission,
+      })
+    ),
+    Effect.catch((response) => Effect.succeed(rejectedJsonContactResponse(response)))
   );
 
 /**

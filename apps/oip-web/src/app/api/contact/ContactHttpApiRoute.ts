@@ -8,7 +8,7 @@
 import { Effect, Layer } from "effect";
 import { HttpRouter, HttpServer } from "effect/unstable/http";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
-import { ContactSubmissionAccepted, ContactSubmissionRejected, OipHttpApi } from "../../../contact";
+import { ContactSubmissionAccepted, ContactSubmissionRejected, OipHttpApi, submitContact } from "../../../contact";
 import type { ContactSubmissionPayload, ContactSubmissionResponse } from "../../../contact";
 
 type SubmitContact = (payload: ContactSubmissionPayload) => Effect.Effect<ContactSubmissionResponse>;
@@ -35,26 +35,13 @@ const makeOipContactHttpApiRouteLive = (submit: SubmitContact) =>
     handlers.handle("submit", ({ payload }) => submit(payload).pipe(Effect.flatMap(contactHttpApiResponse)))
   );
 
-/**
- * Server implementation layer for the OIP contact HttpApi group.
- *
- * @example
- * ```ts
- * import { OipContactHttpApiRouteLive } from "@beep/oip-web/app/api/contact/ContactHttpApiRoute"
- *
- * console.log(OipContactHttpApiRouteLive)
- * ```
- *
- * @category layers
- * @since 0.0.0
- */
-// export const OipContactHttpApiRouteLive = makeOipContactHttpApiRouteLive(submitContact);
-
 const makeOipContactHttpApiAppLayer = (submit: SubmitContact) =>
   HttpApiBuilder.layer(OipHttpApi).pipe(
     Layer.provideMerge(makeOipContactHttpApiRouteLive(submit)),
     Layer.provideMerge(HttpServer.layerServices)
   );
+
+const OipContactHttpApiAppLayer = makeOipContactHttpApiAppLayer(submitContact);
 
 /**
  * Builds a Web-standard OIP contact handler with an injected submit workflow.
@@ -78,3 +65,22 @@ export const makeOipContactHttpApiWebHandlerWithSubmit = (
   submit: SubmitContact
 ): ((request: Request) => Promise<Response>) =>
   HttpRouter.toWebHandler(makeOipContactHttpApiAppLayer(submit), { disableLogger: true }).handler;
+
+/**
+ * Web-standard request handler for the OIP contact API.
+ *
+ * @example
+ * ```ts
+ * import { oipContactHttpApiWebHandler } from "@beep/oip-web/app/api/contact/ContactHttpApiRoute"
+ *
+ * const handler: (request: Request) => Promise<Response> = oipContactHttpApiWebHandler
+ * console.log(typeof handler)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const oipContactHttpApiWebHandler: (request: Request) => Promise<Response> = HttpRouter.toWebHandler(
+  OipContactHttpApiAppLayer,
+  { disableLogger: true }
+).handler;
