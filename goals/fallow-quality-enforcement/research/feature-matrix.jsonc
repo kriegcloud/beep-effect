@@ -1,7 +1,7 @@
 {
   "$schema": "./feature-matrix.schema.json",
   "schemaVersion": "fallow-quality-enforcement/feature-matrix/v1",
-  "updated": "2026-06-08",
+  "updated": "2026-06-11",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "features": [
     {
@@ -42,10 +42,10 @@
       "baselineArtifact": "standards/fallow.pilot.inventory.jsonc",
       "baselineSummary": {
         "status": "measured",
-        "counts": "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 37 raw complexity findings, and 143 clone groups; introduced counts were 3 dead-code, 6 complexity, and 3 duplication; 37 raw complexity findings = 6 introduced + 30 inherited + 1 unattributed.",
-        "notes": "Changed-file count is worktree-volatile while this packet is edited. The baseline helper enforces a minimum changed-file snapshot plus exact finding and attribution counts."
+        "counts": "Post-remediation audit against origin/main passes under the new-only gate with 0 dead-code issues and 0 introduced dead-code, complexity, or duplication findings (goals/fallow-zero-dead-code).",
+        "notes": "The baseline helper enforces the zero-introduced contract: clean verdict, exit 0, and zero introduced findings in every audit category. Inherited-adjacent counts vary by branch and are not pinned."
       },
-      "falsePositiveStatus": "unknown",
+      "falsePositiveStatus": "none-known",
       "falsePositiveOwner": "@beep-team",
       "falsePositiveEvidence": [
         "research/audit.md",
@@ -68,11 +68,12 @@
         "blockingDefault": false,
         "routingSkills": ["quality-review-fix-loop"]
       },
-      "ciMode": "advisory-artifact",
-      "promotionStatus": "advisory",
+      "ciMode": "blocking-check",
+      "promotionStatus": "blocking",
       "promotionCriteria": {
         "requiredCommands": [
-          "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts"
+          "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
+          "bun run audit:github pre-push"
         ],
         "requiredEvidenceRefs": ["research/audit.md"],
         "requiredReviewerRoles": [
@@ -128,10 +129,10 @@
       "baselineArtifact": "standards/fallow.dead-code.regression-baseline.jsonc",
       "baselineSummary": {
         "status": "measured",
-        "counts": "Configured Fallow reports 63 issues: 6 unused files, 25 unused exports, 4 unused types, 21 unused dependencies, 7 unlisted dependencies, and 0 unresolved imports. Knip reports 31 issue containers with nested totals of 9 files, 13 exports, 4 dependencies, 4 devDependencies, 1 unlisted dependency, and 9 unresolved references.",
-        "notes": "Knip remains the reference analyzer because migration reports unmapped Knip surfaces."
+        "counts": "Configured Fallow reports 0 issues across every dead-code category; the regression baseline at standards/fallow.dead-code.regression-baseline.jsonc records zero for all counts (goals/fallow-zero-dead-code).",
+        "notes": "Knip remains the blocking reference analyzer (keep-knip); false positives were eliminated config-only via app entry roots and provenance-commented ignoreDependencies entries."
       },
-      "falsePositiveStatus": "config-gap",
+      "falsePositiveStatus": "none-known",
       "falsePositiveOwner": "@beep-team",
       "falsePositiveEvidence": ["research/knip-parity.jsonc"],
       "suppressionPolicy": {
@@ -151,12 +152,13 @@
         "blockingDefault": false,
         "routingSkills": ["repo-symbol-discovery", "quality-review-fix-loop"]
       },
-      "ciMode": "advisory-artifact",
-      "promotionStatus": "research",
+      "ciMode": "blocking-check",
+      "promotionStatus": "blocking",
       "promotionCriteria": {
         "requiredCommands": [
           "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-          "bun run fallow:migrate:dry-run -- --from knip.jsonc"
+          "bun run fallow:migrate:dry-run -- --from knip.jsonc",
+          "bun run audit:github pre-push"
         ],
         "requiredEvidenceRefs": [
           "research/dead-code.md",
@@ -177,6 +179,7 @@
       "evidenceRefs": [
         "standards/fallow.dead-code.regression-baseline.jsonc",
         "research/dead-code.md",
+        "research/knip-parity.jsonc",
         "standards/fallow.pilot.inventory.jsonc"
       ]
     },
@@ -215,7 +218,7 @@
       "baselineArtifact": "standards/fallow.pilot.inventory.jsonc",
       "baselineSummary": {
         "status": "measured",
-        "counts": "Top-bounded configured run reported 50 clone groups, 19 clone families, 536 clone instances, 341 files with clones, and 5.07 percent duplication.",
+        "counts": "Full configured run on 2026-06-11 reported 930 clone groups; this is the advisory ratchet ceiling for future packets.",
         "notes": "JSON remains large because clone fragments are included; no threshold is accepted yet."
       },
       "falsePositiveStatus": "unknown",
@@ -235,7 +238,7 @@
         "routingSkills": ["quality-review-fix-loop"]
       },
       "ciMode": "advisory-artifact",
-      "promotionStatus": "research",
+      "promotionStatus": "advisory",
       "promotionCriteria": {
         "requiredCommands": [
           "bun run fallow:dupes -- --format json --quiet --top 50"
@@ -291,7 +294,7 @@
       "baselineArtifact": "standards/fallow.pilot.inventory.jsonc",
       "baselineSummary": {
         "status": "measured",
-        "counts": "Configured run scored 73.3 (B), analyzed 1,859 files and 26,627 functions, and found 199 functions above threshold: 36 critical, 50 high, 113 moderate.",
+        "counts": "Configured run on 2026-06-11 analyzed 1,868 files and 27,426 functions with average maintainability 92.3, finding 209 functions above threshold: 39 critical, 54 high, 116 moderate; this is the advisory ratchet ceiling.",
         "notes": "Threshold policy needs Effect/schema-heavy calibration before blocking."
       },
       "falsePositiveStatus": "unknown",
@@ -311,7 +314,7 @@
         "routingSkills": ["effect-first-development", "quality-review-fix-loop"]
       },
       "ciMode": "advisory-artifact",
-      "promotionStatus": "research",
+      "promotionStatus": "advisory",
       "promotionCriteria": {
         "requiredCommands": [
           "bun run fallow:health -- --format json --quiet --report-only --top 50"

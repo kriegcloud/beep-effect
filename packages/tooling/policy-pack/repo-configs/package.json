@@ -46,6 +46,7 @@
     "@next/mdx": "catalog:",
     "@types/estree": "catalog:",
     "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "next": "catalog:",
     "next-pwa": "catalog:"
   },

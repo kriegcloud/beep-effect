@@ -409,7 +409,7 @@ class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowReportFi
     attribution: FindingAttributionKind,
     parser: TrimmedNonEmptyString,
     subCategory: TrimmedNonEmptyString,
-    blocking: S.Literal(false),
+    blocking: S.Boolean,
     sourceRef: RepoRefString,
   },
   $I.annote("FallowReportFinding", {
@@ -1125,7 +1125,7 @@ const requiredLatestReviewAcceptanceCommands = [
 const githubChecksPlanContractCommand =
   "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes";
 const ciFallowContractCommand =
-  "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
+  "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
 const expectedFallowAuditBaseline = {
   changedFilesMinimum: 90,
   deadCodeIssues: 30,
@@ -1144,7 +1144,7 @@ const auditCountsNarrative =
 const auditAttributionNarrative =
   "Attribution: 3 introduced dead-code issues, 6 introduced complexity findings, 3 introduced duplication clone groups; 37 raw complexity findings = 6 introduced + 30 inherited + 1 unattributed";
 const auditBaselineSummaryCounts =
-  "Live audit saw at least 90 changed files in the current dirty worktree, 30 changed-scope dead-code issues, 37 raw complexity findings, and 143 clone groups; introduced counts were 3 dead-code, 6 complexity, and 3 duplication; 37 raw complexity findings = 6 introduced + 30 inherited + 1 unattributed.";
+  "Post-remediation audit against origin/main passes under the new-only gate with 0 dead-code issues and 0 introduced dead-code, complexity, or duplication findings (goals/fallow-zero-dead-code).";
 const requiredBoundarySourceRefs = ["package.json", "standards/fallow.boundaries.generated.jsonc"];
 const requiredBoundaryCatalogRef = "standards/repo-exports.catalog.jsonc";
 const requiredBoundaryDoctrineRefPrefix = "standards/ARCHITECTURE.md";
@@ -1703,7 +1703,13 @@ const taskFeatureCiContractDiagnostics = (
     A.map((feature) => feature.featureFamily),
     A.join(",")
   );
-  const expectedCiContractCommand = `bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes ${advisoryLaneCsv} --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`;
+  const blockingLaneCsv = pipe(
+    featureMatrix.features,
+    A.filter((feature) => feature.ciMode === "blocking-check" && feature.repoCommandTarget.phase === "P1"),
+    A.map((feature) => feature.featureFamily),
+    A.join(",")
+  );
+  const expectedCiContractCommand = `bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes ${advisoryLaneCsv} --expect-blocking-lanes ${blockingLaneCsv} --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`;
   const fqe005 = pipe(
     tasks.tasks,
     A.findFirst((task) => task.id === "fqe-005"),
@@ -1764,7 +1770,10 @@ const knipParityDiagnostics = (document: KnipParityDocument): ReadonlyArray<stri
   ];
 };
 
-const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
+const tasksDiagnostics = (document: TasksDocument, featureMatrix: FeatureMatrixDocument): ReadonlyArray<string> => {
+  const promotedLaneRowsExist = A.some(featureMatrix.features, (row) =>
+    A.contains(promotedStatuses, row.promotionStatus)
+  );
   const ids = A.map(document.tasks, (task) => task.id);
   const ranks = A.map(document.tasks, (task) => `${task.rank}`);
   const gateKinds = A.map(document.tasks, (task) => task.decisionGate.kind);
@@ -1944,8 +1953,19 @@ const tasksDiagnostics = (document: TasksDocument): ReadonlyArray<string> => {
       ) {
         diagnostics.push(`${task.id}: github-checks plan assertions must use the plan-contract-check helper`);
       }
-      if (task.id === "fqe-006" && (task.status !== "seeded" || task.decisionGate.status !== "blocked")) {
+      if (
+        task.id === "fqe-006" &&
+        !promotedLaneRowsExist &&
+        (task.status !== "seeded" || task.decisionGate.status !== "blocked")
+      ) {
         diagnostics.push(`${task.id}: blocking pre-push promotion must remain seeded/blocked until parity gates pass`);
+      }
+      if (
+        task.id === "fqe-006" &&
+        promotedLaneRowsExist &&
+        (task.status !== "done" || task.decisionGate.status !== "passed")
+      ) {
+        diagnostics.push(`${task.id}: promoted feature-matrix lanes require fqe-006 to be done with a passed gate`);
       }
       return diagnostics;
     }),
@@ -2765,7 +2785,7 @@ const validate = Effect.fn("validate")(function* () {
     ...featureArtifactRefResults,
     ...featureMatrixDiagnostics(featureMatrix),
     ...knipParityDiagnostics(knipParity),
-    ...tasksDiagnostics(tasks),
+    ...tasksDiagnostics(tasks, featureMatrix),
     ...taskFeatureCiContractDiagnostics(tasks, featureMatrix),
     ...taskParityGateDiagnostics(tasks, knipParity),
     ...rawReportFixtureDiagnostics(rawReportFixtures),

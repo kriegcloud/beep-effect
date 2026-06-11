@@ -870,6 +870,22 @@ const githubCheckPrePushExternalLanes = (repoRoot: string): ReadonlyArray<Github
 
 const fallowGithubCheckLaneId = (featureFamily: FallowQualityFeatureFamily): string => `fallow:${featureFamily}`;
 
+// Promoted blocking Fallow lanes (goals/fallow-quality-enforcement feature
+// matrix rows with promotionStatus blocking). The dead-code lane holds the
+// zero regression baseline; the audit lane enforces the new-only gate.
+const githubCheckFallowLanes = (repoRoot: string): ReadonlyArray<GithubCheckLaneSpec> => [
+  githubCheckLane(
+    "fallow:audit",
+    "repo-quality",
+    repoCliLane(repoRoot, "fallow:audit", ["fallow", "audit", "--check", "--quiet"])
+  ),
+  githubCheckLane(
+    "fallow:dead-code",
+    "repo-quality",
+    repoCliLane(repoRoot, "fallow:dead-code", ["fallow", "dead-code", "--check", "--quiet"])
+  ),
+];
+
 const isBlockingFallowMatrixRow = (row: GithubChecksFallowFeatureMatrixRow): boolean =>
   row.promotionStatus === "candidate-blocking" || row.promotionStatus === "blocking" || row.ciMode === "blocking-check";
 
@@ -939,6 +955,7 @@ export const githubCheckLanesForModeForTesting = (
     Match.when("nix", () => externalLane("pre-push:nix")),
     Match.when("pre-push", () => [
       ...githubCheckQualityLanes(repoRoot),
+      ...githubCheckFallowLanes(repoRoot),
       ...githubCheckRepoSanityLanes(repoRoot),
       ...githubCheckPrePushExternalLanes(repoRoot),
     ]),
@@ -1062,6 +1079,7 @@ const runPrePushChecks = Effect.fn("QualityScriptCommands.runPrePushChecks")(fun
   const changesetStatusLanes = yield* githubCheckChangesetStatusLanes(repoRoot);
   yield* runGithubCheckLaneGroup("github-checks:pre-push", [
     ...githubCheckQualityLanes(repoRoot),
+    ...githubCheckFallowLanes(repoRoot),
     ...githubCheckRepoSanityLanes(repoRoot),
     ...changesetStatusLanes,
     ...githubCheckPrePushExternalLanes(repoRoot),

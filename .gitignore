@@ -106,3 +106,4 @@ sst-env.d.ts
 graphify-out/cache/
 graphify-out/cost.json
 graphify-out/.graphify_*
+.claude/settings.local.json

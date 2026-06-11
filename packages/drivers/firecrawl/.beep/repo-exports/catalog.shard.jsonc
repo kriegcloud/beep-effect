@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5327686abc4ad0be3d19e9e5c967c1f495dc4e35afc63d6515de0d61fee006e0",
+    "digest": "baaffb415308bcdea1b5601e8d0eb8bac063c5e0b9fe43acea7e5f2fb13c85ee",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/firecrawl/package.json",
-        "sha256": "c11d6c3fc2ef9b55477b8cea9fff25f90309dbe8bcbb152f2dfeb05ba27fc5b3",
-        "bytes": 2687
+        "sha256": "f8b8f76713347bff9da8071b644d618e3abd20133ce96565e0da7257efb0b99c",
+        "bytes": 2645
       },
       {
         "path": "packages/drivers/firecrawl/src/Firecrawl.config.ts",

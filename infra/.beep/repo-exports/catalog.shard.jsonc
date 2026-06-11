@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0b3a3d8052373130115b0174ccdab046871e538a8c9cf6c99dd26bb6f251fb5c",
+    "digest": "d7d057dc4f7c4e169f4d83b9946eb3b16257f4aba6d69eba9fbce6275318f38f",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "infra/package.json",
-        "sha256": "c843f6dd5e22a601522d0a8da569bcb92b8f69534e88be01b86d8ea419851a0a",
-        "bytes": 1767
+        "sha256": "6d147a437147bb7105ce3edb1d61fc31775718e4cf3f72164c985eb9b911026b",
+        "bytes": 1793
       },
       {
         "path": "infra/src/AIMetrics.ts",

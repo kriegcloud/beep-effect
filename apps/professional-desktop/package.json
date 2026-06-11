@@ -35,6 +35,7 @@
     "@effect/atom-react": "catalog:",
     "@phosphor-icons/react": "catalog:",
     "@tauri-apps/api": "catalog:",
+    "effect": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
   },

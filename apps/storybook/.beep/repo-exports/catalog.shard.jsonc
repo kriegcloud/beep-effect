@@ -13,12 +13,12 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f8be6223d1a708a13530e5c97667fd84e989ec15a76f50b6d1e09068401f9c4f",
+    "digest": "0fff2111849a39fd42d1ce95669df4a3b6a571d6e18a3ee1e5e90727aa5fb0c1",
     "inputs": [
       {
         "path": "apps/storybook/package.json",
-        "sha256": "945988de2c2c58acf157aee47fb9a278e00dfd0674e444a9094b3de838294c53",
-        "bytes": 2881
+        "sha256": "e56ae57a2799f6aca1b8a22535ceaea1340c4c7e308ef13f15986fd252179f07",
+        "bytes": 2848
       },
       {
         "path": "generator:repo-exports-catalog",
