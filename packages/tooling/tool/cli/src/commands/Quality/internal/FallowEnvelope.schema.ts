@@ -179,7 +179,7 @@ export class FallowReportFinding extends S.Class<FallowReportFinding>($I`FallowR
     attribution: FindingAttributionKind,
     parser: S.String,
     subCategory: S.String,
-    blocking: S.Literal(false),
+    blocking: S.Boolean,
     sourceRef: S.String,
   },
   $I.annote("FallowReportFinding", {

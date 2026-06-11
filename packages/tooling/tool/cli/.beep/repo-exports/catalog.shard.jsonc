@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "12e9b0ff80aaeb5e864c5f75b8c1d933a14de4a46641a1d605187bd5b7dcc3b4",
+    "digest": "c268dbc17ab168a029372232c17f325c64d30ab28f6676e83f0e63c88984bb07",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/package.json",
-        "sha256": "fa1e7129fbbcaa881af6eafe8fd8b71aaf65cdd57707ad8441e777956883f74f",
-        "bytes": 6789
+        "sha256": "38638e195d9c2cd4bc1a2595273b31a72ef138333ed0a3e77f971598673caa5e",
+        "bytes": 6814
       },
       {
         "path": "packages/tooling/tool/cli/src/bin-main.ts",
@@ -432,8 +432,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "8d9708a145324aecbc36db998a8909a621f7a03a9441f01a63439e49a85ae57d",
-        "bytes": 76958
+        "sha256": "399ae4181f7c7cf8d33edbe28a68a2dcfa69c4901cc13eb21508ec9f8089629d",
+        "bytes": 81606
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -447,8 +447,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sha256": "41a2692e2b4189648f84b05ba1fbbf6a4335b5bcbbacb014aec537b5d69efcbe",
-        "bytes": 9865
+        "sha256": "a5859a1e192c75f486cf677746528e1e4f3ae20d464801914678936bcf7aaf66",
+        "bytes": 9858
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
@@ -487,8 +487,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "22118946a1ec00de0b999daef60437284e22724f6af1606c66643b7c0b3e3ebd",
-        "bytes": 103745
+        "sha256": "3e74cb30498a461c904bd2869426bd64125891aceca2997dcac94b14f5846000",
+        "bytes": 104458
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -787,8 +787,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
-        "sha256": "0fba81d853e6c1c162490d5e15798775d254edb5b1779c47ee32c4f18ac87b38",
-        "bytes": 609
+        "sha256": "5dd1a4d7115fb98d11c003cebf4f7cb26fb3ea9acdb8643427e19ced753e586c",
+        "bytes": 680
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
@@ -973,8 +973,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1871,
-      "uniqueSymbols": 706,
+      "publicExportEntries": 1895,
+      "uniqueSymbols": 728,
       "sourceFiles": 154
     },
     "exports": [
@@ -1338,7 +1338,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2913,
+        "sourceLine": 2931,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27831,7 +27831,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2913,
+        "sourceLine": 2931,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27856,7 +27856,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28630,10 +28630,35 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/FallowQuality.command",
         "exportSubpath": "./commands/Quality/FallowQuality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+        "symbolName": "fallowCiUploadDiagnosticsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+        "sourceLine": 2112,
+        "summary": "Return Fallow CI upload diagnostics for contract tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/fallowquality.command ./commands/quality/fallowquality.command fallowciuploaddiagnosticsfortesting const return fallow ci upload diagnostics for contract tests. testing packages/tooling/tool/cli/src/commands/quality/fallowquality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/FallowQuality.command",
+        "exportSubpath": "./commands/Quality/FallowQuality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28683,7 +28708,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2913,
+        "sourceLine": 2931,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28708,7 +28733,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -29308,7 +29333,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2564,
+        "sourceLine": 2582,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -29334,7 +29359,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1622,
+        "sourceLine": 1640,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -29386,7 +29411,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2496,
+        "sourceLine": 2514,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -29412,7 +29437,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 917,
+        "sourceLine": 933,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -29564,7 +29589,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1032,
+        "sourceLine": 1049,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29591,7 +29616,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 967,
+        "sourceLine": 984,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -29618,7 +29643,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1002,
+        "sourceLine": 1019,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29645,7 +29670,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1017,
+        "sourceLine": 1034,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29697,7 +29722,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 891,
+        "sourceLine": 907,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -29724,7 +29749,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2913,
+        "sourceLine": 2931,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29899,7 +29924,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1091,
+        "sourceLine": 1109,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -29953,7 +29978,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1959,
+        "sourceLine": 1977,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -29980,7 +30005,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1314,
+        "sourceLine": 1332,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -30007,7 +30032,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2279,
+        "sourceLine": 2297,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -30033,7 +30058,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2202,
+        "sourceLine": 2220,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -30059,7 +30084,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2396,
+        "sourceLine": 2414,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -30084,7 +30109,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2314,
+        "sourceLine": 2332,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -30111,7 +30136,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2005,
+        "sourceLine": 2023,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -30138,7 +30163,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1768,
+        "sourceLine": 1786,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -30164,7 +30189,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2101,
+        "sourceLine": 2119,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -41243,7 +41268,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2564,
+        "sourceLine": 2582,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -41417,7 +41442,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1622,
+        "sourceLine": 1640,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -41544,6 +41569,481 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowAttributionKinds",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 214,
+        "summary": "Non-empty attribution-kind list emitted by Fallow report envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowattributionkinds const non-empty attribution-kind list emitted by fallow report envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowAttributionKinds",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 227,
+        "summary": "Decoded non-empty attribution-kind list emitted by Fallow report envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowattributionkinds type decoded non-empty attribution-kind list emitted by fallow report envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowEnvelopeStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 73,
+        "summary": "Status discriminator for Fallow quality envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowenvelopestatus const status discriminator for fallow quality envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowFailureEnvelope",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 355,
+        "summary": "Failure variant union for Fallow report envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowfailureenvelope type failure variant union for fallow report envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowFailureEnvelopeStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 92,
+        "summary": "Failure status discriminator for Fallow quality envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowfailureenvelopestatus const failure status discriminator for fallow quality envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowFeature",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 51,
+        "summary": "Decoded Fallow feature family value.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowfeature type decoded fallow feature family value. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowFeatureFamily",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 29,
+        "summary": "Fallow feature family implemented by the quality wrapper.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowfeaturefamily const fallow feature family implemented by the quality wrapper. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportBaseFields",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 236,
+        "summary": "Common metadata required on every Fallow report envelope variant.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportbasefields const common metadata required on every fallow report envelope variant. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportBaseResolutionFailed",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 334,
+        "summary": "Fallow envelope emitted when a diff-aware base ref cannot be resolved.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportbaseresolutionfailed class fallow envelope emitted when a diff-aware base ref cannot be resolved. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportEnvelope",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 368,
+        "summary": "Internal decoded Fallow report envelope discriminated by status.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportenvelope const internal decoded fallow report envelope discriminated by status. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportEnvelope",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 390,
+        "summary": "Decoded Fallow report envelope value.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportenvelope type decoded fallow report envelope value. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportFinding",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 175,
+        "summary": "Normalized Fallow finding inside the repo-cli report envelope.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportfinding class normalized fallow finding inside the repo-cli report envelope. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportInvalidJson",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 296,
+        "summary": "Fallow envelope emitted when the tool succeeded but emitted invalid JSON.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportinvalidjson class fallow envelope emitted when the tool succeeded but emitted invalid json. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportInvalidReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 315,
+        "summary": "Fallow envelope emitted when JSON decodes but does not match the expected feature report shape.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportinvalidreport class fallow envelope emitted when json decodes but does not match the expected feature report shape. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportOk",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 258,
+        "summary": "Successful Fallow envelope. The raw tool exit status is preserved separately.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportok class successful fallow envelope. the raw tool exit status is preserved separately. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportPayload",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 197,
+        "summary": "Normalized report payload carried by successful Fallow envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreportpayload class normalized report payload carried by successful fallow envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FallowReportToolFailed",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 277,
+        "summary": "Fallow envelope emitted when the tool failed without decodable JSON.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality fallowreporttoolfailed class fallow envelope emitted when the tool failed without decodable json. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FindingAttributionKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 60,
+        "summary": "Attribution kind retained by repo-cli Fallow envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality findingattributionkind const attribution kind retained by repo-cli fallow envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "FindingAttributionSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 157,
+        "summary": "Count summary for normalized Fallow finding attribution.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality findingattributionsummary class count summary for normalized fallow finding attribution. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "findMissingChangesetPackageReferences",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
@@ -41574,7 +42074,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2496,
+        "sourceLine": 2514,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -41600,7 +42100,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 917,
+        "sourceLine": 933,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -41752,7 +42252,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1032,
+        "sourceLine": 1049,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41779,7 +42279,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 967,
+        "sourceLine": 984,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -41806,7 +42306,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1002,
+        "sourceLine": 1019,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -41833,7 +42333,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1017,
+        "sourceLine": 1034,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -42208,10 +42708,35 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "PositiveExitStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 110,
+        "summary": "Positive process exit status used by failure Fallow envelopes.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality positiveexitstatus const positive process exit status used by failure fallow envelopes. schema packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 891,
+        "sourceLine": 907,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -42238,7 +42763,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2913,
+        "sourceLine": 2931,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -42263,7 +42788,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2198,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -42740,7 +43265,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1091,
+        "sourceLine": 1109,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -42846,7 +43371,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1959,
+        "sourceLine": 1977,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -42873,7 +43398,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1314,
+        "sourceLine": 1332,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -42900,7 +43425,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2279,
+        "sourceLine": 2297,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -42926,7 +43451,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2202,
+        "sourceLine": 2220,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -42952,7 +43477,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2396,
+        "sourceLine": 2414,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -43184,7 +43709,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2314,
+        "sourceLine": 2332,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -43236,7 +43761,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2005,
+        "sourceLine": 2023,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -43263,7 +43788,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1768,
+        "sourceLine": 1786,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -43289,7 +43814,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2101,
+        "sourceLine": 2119,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -43330,6 +43855,81 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality runturboconfigproof const collect a turbo scoped-config proof report. use-cases packages/tooling/tool/cli/src/commands/quality/internal/turboconfigproof.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "sameAttributionKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 130,
+        "summary": "Equivalence over Fallow finding attribution kinds.",
+        "categories": [
+          "equivalence"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality sameattributionkind const equivalence over fallow finding attribution kinds. equivalence packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "sameEnvelopeStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 139,
+        "summary": "Equivalence over Fallow envelope status discriminators.",
+        "categories": [
+          "equivalence"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality sameenvelopestatus const equivalence over fallow envelope status discriminators. equivalence packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "sameFeatureFamily",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
+        "sourceLine": 148,
+        "summary": "Equivalence over Fallow feature families.",
+        "categories": [
+          "equivalence"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@internal",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality samefeaturefamily const equivalence over fallow feature families. equivalence packages/tooling/tool/cli/src/commands/quality/internal/fallowenvelope.schema.ts"
       },
       {
         "packageName": "@beep/repo-cli",

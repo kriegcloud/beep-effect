@@ -32,7 +32,6 @@
     "@lexical/react": "catalog:",
     "@lexical/rich-text": "catalog:",
     "@mui/material": "catalog:",
-    "@mui/material-pigment-css": "catalog:",
     "@mui/x-data-grid": "catalog:",
     "@mui/x-date-pickers": "catalog:",
     "@mui/x-date-pickers-pro": "catalog:",
@@ -46,6 +45,7 @@
     "clsx": "catalog:",
     "cmdk": "catalog:",
     "d3": "catalog:",
+    "effect": "catalog:",
     "embla-carousel-react": "catalog:",
     "framer-motion": "catalog:",
     "input-otp": "catalog:",
@@ -57,6 +57,7 @@
     "sonner": "catalog:",
     "tailwind-merge": "catalog:",
     "tailwindcss-jun-layout": "catalog:",
+    "three": "catalog:",
     "tw-animate-css": "catalog:",
     "use-stick-to-bottom": "catalog:",
     "vaul": "catalog:"
@@ -68,7 +69,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "next": "catalog:",
-    "shadcn": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:"
   },

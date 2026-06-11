@@ -61,7 +61,19 @@
     "ws",
     "@types/ws",
     "@beep/repo-utils",
-    "@beep/test-utils"
+    "@beep/test-utils",
+    // Mirrored from .fallowrc.jsonc (goals/fallow-zero-dead-code): MUI runtime
+    // peers, type-only themeAugmentation imports, shared-Next-config plugin
+    // loads, and scratchpad-only usage.
+    "@emotion/react",
+    "@emotion/styled",
+    "@mui/x-data-grid",
+    "@mui/x-date-pickers",
+    "@mui/x-date-pickers-pro",
+    "@mui/x-tree-view",
+    "@mdx-js/loader",
+    "babel-plugin-react-compiler",
+    "@faker-js/faker"
   ],
   // op = 1Password CLI, beep-cli = repo CLI bin, portless = dev proxy invoked from app scripts —
   // binaries not provided as a resolvable dependency import.

@@ -153,6 +153,7 @@
     "handlebars": "catalog:",
     "image-size": "catalog:",
     "jsonc-parser": "catalog:",
+    "madge": "catalog:",
     "sharp": "catalog:",
     "ts-morph": "catalog:",
     "yaml": "catalog:"
