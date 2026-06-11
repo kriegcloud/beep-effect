@@ -1125,6 +1125,30 @@ Expected a string including "c", got "ab"`
           `Expected a value with a length of at least 3, got ""`
         )
       })
+
+      it("object-level checks are validated against the decoded value when encoding", async () => {
+        const schema = Schema.Struct({ a: Schema.FiniteFromString }).check(
+          Schema.makeFilter((o) => typeof o.a === "number", { expected: "a is a number" })
+        )
+        const asserts = new TestSchema.Asserts(schema)
+
+        const decoding = asserts.decoding()
+        await decoding.succeed({ a: "1" }, { a: 1 })
+
+        const encoding = asserts.encoding()
+        await encoding.succeed({ a: 1 }, { a: "1" })
+      })
+
+      it("suspended checks are not supported", () => {
+        throws(
+          () => {
+            Schema.suspend(() => Schema.Struct({ a: Schema.FiniteFromString })).check(
+              Schema.makeFilter((o) => typeof o.a === "number", { expected: "a is a number" })
+            )
+          },
+          "Cannot add checks to Suspend"
+        )
+      })
     })
 
     it("refine", async () => {
@@ -4049,6 +4073,33 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
         { a: 1, b: 1 },
         `Expected bgt(1), got {"a":1,"b":1}`
       )
+    })
+
+    it("index signatures should not re-parse fixed properties", async () => {
+      const Trimmed = Schema.String.pipe(Schema.decodeTo(Schema.String, SchemaTransformation.trim()))
+      const schema = Schema.StructWithRest(
+        Schema.Struct({ a: Trimmed }),
+        [Schema.Record(Schema.String, Schema.String)]
+      )
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed({ a: "  x  ", b: "y" }, { a: "x", b: "y" })
+
+      const encoding = asserts.encoding()
+      await encoding.succeed({ a: "x", b: "y" })
+    })
+
+    it("index signatures should not overwrite fixed properties after key decoding", async () => {
+      const UppercaseKey = Schema.String.pipe(Schema.decodeTo(Schema.String, SchemaTransformation.toUpperCase()))
+      const schema = Schema.StructWithRest(
+        Schema.Struct({ A: Schema.String }),
+        [Schema.Record(UppercaseKey, Schema.String)]
+      )
+      const asserts = new TestSchema.Asserts(schema)
+
+      const decoding = asserts.decoding()
+      await decoding.succeed({ A: "fixed", a: "rest" }, { A: "fixed" })
     })
   })
 
@@ -7354,6 +7405,65 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
 
       const encoding = asserts.encoding()
       await encoding.succeed(new A({ a: 1, b: "b" }), { c: "1", b: "b" })
+    })
+
+    it("supports symbol source keys", () => {
+      const field = Symbol("field")
+      const schema = Schema.Struct({
+        [field]: Schema.String
+      }).pipe(Schema.encodeKeys({ [field]: "field" }))
+
+      deepStrictEqual(Schema.decodeUnknownSync(schema)({ field: "a" }), { [field]: "a" })
+      deepStrictEqual(Schema.encodeSync(schema)({ [field]: "a" }), { field: "a" })
+    })
+
+    it("supports symbol destination keys", () => {
+      const field = Symbol("field")
+      const schema = Schema.Struct({
+        field: Schema.String
+      }).pipe(Schema.encodeKeys({ field }))
+
+      deepStrictEqual(Schema.decodeUnknownSync(schema)({ [field]: "a" }), { field: "a" })
+      deepStrictEqual(Schema.encodeSync(schema)({ field: "a" }), { [field]: "a" })
+    })
+
+    it("rejects duplicate destination keys", () => {
+      throws(
+        () =>
+          Schema.Struct({
+            a: Schema.String,
+            b: Schema.String
+          }).pipe(Schema.encodeKeys({ a: "c", b: "c" })),
+        (e) => {
+          assertInclude(String(e), "Duplicate encoded keys")
+        }
+      )
+    })
+
+    it("rejects destination keys that collide with unmapped fields", () => {
+      throws(
+        () =>
+          Schema.Struct({
+            a: Schema.String,
+            b: Schema.String
+          }).pipe(Schema.encodeKeys({ a: "b" })),
+        (e) => {
+          assertInclude(String(e), "Duplicate encoded keys")
+        }
+      )
+    })
+
+    it("rejects canonical number and string destination key collisions", () => {
+      throws(
+        () =>
+          Schema.Struct({
+            a: Schema.String,
+            b: Schema.String
+          }).pipe(Schema.encodeKeys({ a: 1, b: "1" })),
+        (e) => {
+          assertInclude(String(e), "Duplicate encoded keys")
+        }
+      )
     })
   })
 
