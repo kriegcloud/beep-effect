@@ -218,7 +218,7 @@ describe("@beep/oip-web", { concurrent: false }, () => {
         expect(decodeOipSiteContent(encodedContent)).toEqual(content);
         expect(decodeContactSubmissionFormPayload(encodedPayload)).toEqual(payload);
       }),
-      { numRuns: 20 }
+      { numRuns: 100 }
     );
   });
 
@@ -514,6 +514,27 @@ describe("@beep/oip-web", { concurrent: false }, () => {
       expect(Exit.isFailure(submittedAtExit)).toBe(true);
     }));
 
+  it("rejects malformed contact form payloads at the browser wire schema", () => {
+    const decodeFormPayload = S.decodeUnknownExit(ContactSubmissionFormPayload);
+
+    expect(
+      Exit.isFailure(
+        decodeFormPayload({
+          ...validContactPayload(),
+          message: "short",
+        })
+      )
+    ).toBe(true);
+    expect(
+      Exit.isFailure(
+        decodeFormPayload({
+          ...validContactPayload(),
+          name: "T",
+        })
+      )
+    ).toBe(true);
+  });
+
   it("exposes an Effect HttpApi contract and Atom client for contact submissions", () => {
     const submitContactMutation = OipContactHttpApiClient.mutation("contact", "submit");
 
@@ -681,6 +702,24 @@ describe("@beep/oip-web", { concurrent: false }, () => {
           });
         })
       ));
+
+  it("returns a JSON rejected response for unreadable contact route submissions", () =>
+    POST(
+      new Request("https://oip.law/api/contact", {
+        body: "{",
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      })
+    ).then((response) =>
+      response.json().then((body) => {
+        expect(response.status).toBe(400);
+        expect(response.headers.get("content-type")).toContain("application/json");
+        expect(body).toEqual({
+          message: "The submission could not be accepted.",
+          status: "rejected",
+        });
+      })
+    ));
 
   it("redirects malformed browser form submissions without calling submit", () => {
     const formData = contactFormData();

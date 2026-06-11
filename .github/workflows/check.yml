@@ -264,6 +264,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          # This job only runs Fallow advisory envelope generation after setup.
+          # The cleanup mirrors the verification-lane disk trim and happens
+          # before dependency install so no later Docker/toolchain cache in this
+          # job is discarded.
           echo "Disk before cleanup:"
           df -h /
           sudo rm -rf \

@@ -235,8 +235,8 @@
     "semantic_hash": "efe00133e9b6d8c808f2db077a26ed25"
   },
   "apps/oip-web/src/app/api/contact/route.ts": {
-    "mtime": 1781204991.2431943,
-    "ast_hash": "cacdd2395db57f2a70dd43ff6ddea801",
+    "mtime": 1781206370.720735,
+    "ast_hash": "dfb041ed907cd67e570eb296276c3fdb",
     "semantic_hash": ""
   },
   "apps/oip-web/src/app/layout.tsx": {
@@ -315,8 +315,8 @@
     "semantic_hash": ""
   },
   "apps/oip-web/src/contact/ContactSubmission.model.ts": {
-    "mtime": 1781203265.31241,
-    "ast_hash": "98b680a23f67e08b5cd44f8635f36327",
+    "mtime": 1781206394.0356233,
+    "ast_hash": "ce9b59a77c27d4d5cdd06ca1ca16f7b5",
     "semantic_hash": ""
   },
   "apps/oip-web/src/contact/ContactSubmission.service.ts": {
@@ -370,8 +370,8 @@
     "semantic_hash": "229288b012dd3620565de113d2e37e06"
   },
   "apps/oip-web/test/oip-web.test.tsx": {
-    "mtime": 1781203265.31241,
-    "ast_hash": "daa2d4efecbc45b80272bbb221a4bafc",
+    "mtime": 1781206309.4434001,
+    "ast_hash": "c0c35cfd309892440d5130987b6e5484",
     "semantic_hash": ""
   },
   "apps/oip-web/test/setup.dom.ts": {
@@ -12095,8 +12095,8 @@
     "semantic_hash": "28dd9bb850e6ba76de37a69dff2e8a1b"
   },
   ".github/workflows/check.yml": {
-    "mtime": 1781203732.0892234,
-    "ast_hash": "8ed596b1f40082664b2f8f34d15de5b4",
+    "mtime": 1781206309.4444003,
+    "ast_hash": "f606e6ecda16f93b686b23098a094486",
     "semantic_hash": ""
   },
   ".github/workflows/data-sync.yml": {
@@ -15990,8 +15990,8 @@
     "semantic_hash": ""
   },
   ".changeset/schema-first-zero-actionables.md": {
-    "mtime": 1781203265.31241,
-    "ast_hash": "0aa7ddf2da8129e26263ef388c532988",
+    "mtime": 1781206309.4444003,
+    "ast_hash": "e8c10c6d8c13aa3d75d13fc86787869a",
     "semantic_hash": ""
   },
   "goals/schema-first-zero-actionables/GOAL.md": {
@@ -16010,8 +16010,8 @@
     "semantic_hash": ""
   },
   "goals/schema-first-zero-actionables/SPEC.md": {
-    "mtime": 1781203265.31341,
-    "ast_hash": "13e8a9183f07abcf8bb093412fc87d61",
+    "mtime": 1781206069.3712537,
+    "ast_hash": "60e9e654bdc1b37cbaaeed39d063c428",
     "semantic_hash": ""
   },
   "goals/schema-first-zero-actionables/research/baseline-2026-06-11.md": {

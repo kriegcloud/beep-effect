@@ -1,12 +1,12 @@
 ---
-"@beep/box": patch
-"@beep/chalk": patch
-"@beep/nlp": patch
-"@beep/rdf": patch
-"@beep/repo-docgen": patch
-"@beep/schema": patch
-"@beep/semantic-web": patch
-"@beep/test-utils": patch
+"@beep/box": minor
+"@beep/chalk": minor
+"@beep/nlp": minor
+"@beep/rdf": minor
+"@beep/repo-docgen": minor
+"@beep/schema": minor
+"@beep/semantic-web": minor
+"@beep/test-utils": minor
 ---
 
 Model Box streaming payloads, Chalk runtime state, NLP tool results, RDF terms,

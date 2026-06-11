@@ -19,6 +19,12 @@ const $I = $OipWebId.create("contact/ContactSubmission.model");
 const contactEmailPattern =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 const ContactEmailArbitraryValues = ["builder@example.com", "intake@oip.law", "tom@example.com"] as const;
+const ContactNameArbitraryValues = ["Builder", "Thomas Oppold", "OIP Intake"] as const;
+const ContactMessageArbitraryValues = [
+  "I would like to discuss a patent matter.",
+  "Please contact me about protecting a new machine design.",
+  "We need help reviewing an intellectual property portfolio.",
+] as const;
 
 const TrimmedContactText = TrimmedNonEmptyText.annotate({
   toArbitrary: () => (fc) => fc.string({ minLength: 1 }).map(Str.trim).filter(Str.isNonEmpty),
@@ -32,11 +38,15 @@ const ContactName = TrimmedContactText.check(
   S.isMinLength(2, {
     message: "Name must include at least 2 characters.",
   })
-).pipe(
-  $I.annoteSchema("ContactName", {
-    description: "Normalized contact form name.",
-  })
-);
+)
+  .pipe(
+    $I.annoteSchema("ContactName", {
+      description: "Normalized contact form name.",
+    })
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactNameArbitraryValues),
+  });
 
 const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLowerCase()))
   .check(
@@ -60,11 +70,15 @@ const ContactMessage = TrimmedContactText.check(
   S.isMinLength(10, {
     message: "Message must include at least 10 characters.",
   })
-).pipe(
-  $I.annoteSchema("ContactMessage", {
-    description: "Normalized contact form message.",
-  })
-);
+)
+  .pipe(
+    $I.annoteSchema("ContactMessage", {
+      description: "Normalized contact form message.",
+    })
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactMessageArbitraryValues),
+  });
 
 /**
  * Public contact submission status.
@@ -186,8 +200,8 @@ export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormP
   {
     company: S.optionalKey(TrimmedContactText),
     email: ContactEmail,
-    message: S.String,
-    name: S.String,
+    message: ContactMessage,
+    name: ContactName,
     phone: S.optionalKey(TrimmedContactText),
     posture: S.optionalKey(TrimmedContactText),
     submittedAt: ContactSubmissionFormSubmittedAt,

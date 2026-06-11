@@ -88,7 +88,7 @@ Higher sources outrank lower sources when they conflict.
 | --- | --- | --- |
 | Packet launcher size | `test "$(wc -m < goals/schema-first-zero-actionables/GOAL.md)" -le 4000` | Passes |
 | Manifest JSON | `jq . goals/schema-first-zero-actionables/ops/manifest.json` | Passes |
-| Packet references | `rg -n "schema-first-zero-actionables|GOAL.md|agentLaunchers|packetAnchorDocument" goals/schema-first-zero-actionables` | Finds expected references |
+| Packet references | `rg -n "schema-first-zero-actionables\|GOAL.md\|agentLaunchers\|packetAnchorDocument" goals/schema-first-zero-actionables` | Finds expected references |
 | Packet whitespace | `git diff --check -- goals/schema-first-zero-actionables` | Passes |
 | Schema-first lint | `bun run beep lint schema-first` | Missing/stale/actionable/advisory counts are zero |
 | Repo exports | `bun run repo-exports:catalog:check` | Passes or refreshed intentionally |

@@ -7,28 +7,42 @@
 
 import { Str } from "@beep/utils";
 import { Effect } from "effect";
-import { oipContactHttpApiWebHandler } from "./ContactHttpApiRoute";
+import * as S from "effect/Schema";
+import {
+  ContactSubmissionPayload,
+  ContactSubmissionResponse,
+  contactResponseBody,
+  submitContact,
+} from "../../../contact";
 import { contactRequestResponse } from "./ContactRouteResponse";
 
 const isJsonContactSubmission = (request: Request): boolean =>
   Str.includes("application/json")(request.headers.get("content-type") ?? "");
 
-const jsonRejectedContactSubmission = (): Response =>
-  Response.json(
-    {
-      message: "The submission could not be accepted.",
-      status: "rejected",
-    },
-    { status: 400 }
-  );
+const decodeJsonContactSubmissionPayload = S.decodeUnknownEffect(ContactSubmissionPayload);
+
+const rejectedContactSubmission = ContactSubmissionResponse.make({
+  message: "The submission could not be accepted.",
+  status: "rejected",
+});
+
+const contactJsonStatus = (response: ContactSubmissionResponse): 202 | 400 =>
+  response.status === "accepted" ? 202 : 400;
+
+const readJsonContactPayload = Effect.fn("OipContact.readJsonContactPayload")(function* (request: Request) {
+  const body = yield* Effect.tryPromise({
+    try: () => request.json(),
+    catch: () => rejectedContactSubmission,
+  });
+
+  return yield* decodeJsonContactSubmissionPayload(body).pipe(Effect.mapError(() => rejectedContactSubmission));
+});
 
 const jsonContactResponse = (request: Request): Effect.Effect<Response> =>
-  Effect.promise(() => oipContactHttpApiWebHandler(request)).pipe(
-    Effect.map((response) =>
-      response.status === 400 && response.headers.get("content-type") === null
-        ? jsonRejectedContactSubmission()
-        : response
-    )
+  readJsonContactPayload(request).pipe(
+    Effect.flatMap(submitContact),
+    Effect.orElseSucceed(() => rejectedContactSubmission),
+    Effect.map((response) => Response.json(contactResponseBody(response), { status: contactJsonStatus(response) }))
   );
 
 /**
