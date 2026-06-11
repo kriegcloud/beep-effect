@@ -22,12 +22,14 @@ const jsonRejectedContactSubmission = (): Response =>
     { status: 400 }
   );
 
-const jsonContactResponse = async (request: Request): Promise<Response> => {
-  const response = await oipContactHttpApiWebHandler(request);
-  return response.status === 400 && response.headers.get("content-type") === null
-    ? jsonRejectedContactSubmission()
-    : response;
-};
+const jsonContactResponse = (request: Request): Effect.Effect<Response> =>
+  Effect.promise(() => oipContactHttpApiWebHandler(request)).pipe(
+    Effect.map((response) =>
+      response.status === 400 && response.headers.get("content-type") === null
+        ? jsonRejectedContactSubmission()
+        : response
+    )
+  );
 
 /**
  * Handles OIP contact submissions at the Next.js route boundary.
@@ -44,4 +46,4 @@ const jsonContactResponse = async (request: Request): Promise<Response> => {
  * @since 0.0.0
  */
 export const POST: (request: Request) => Promise<Response> = (request) =>
-  isJsonContactSubmission(request) ? jsonContactResponse(request) : Effect.runPromise(contactRequestResponse(request));
+  Effect.runPromise(isJsonContactSubmission(request) ? jsonContactResponse(request) : contactRequestResponse(request));
