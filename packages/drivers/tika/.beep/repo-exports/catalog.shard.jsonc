@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "805421557b427c8ef1085c458fcab376d01194b6799564b14b9f3f067b2acd49",
+    "digest": "842103fc5e33d4767903fb92b6886b3654c4d95463963cf9033f06ee2e0c13dd",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,13 +22,13 @@
       },
       {
         "path": "packages/drivers/tika/package.json",
-        "sha256": "cb18e6ae0c61d9b8460dc3b396b5c02a849457e55b2770a1db798e319d85a054",
-        "bytes": 2530
+        "sha256": "a4d503974b0b3c8321c6cff438bc204e4ba8941c9b900a4b694866105e39d227",
+        "bytes": 2571
       },
       {
         "path": "packages/drivers/tika/src/index.ts",
-        "sha256": "e4dc2c7661205280fba38b4d7c20459e9a67266bf5aba350ecaf9942d6f152b2",
-        "bytes": 553
+        "sha256": "cdf13481a37d418b03a5ea7cfb3b7818a41eb2136fc4ca0cc5f2743a00cf09c0",
+        "bytes": 698
       },
       {
         "path": "packages/drivers/tika/src/Tika.errors.ts",
@@ -39,6 +39,11 @@
         "path": "packages/drivers/tika/src/Tika.service.ts",
         "sha256": "e07d389e338b29fd4c7f42a512d146b5763b318ef61216e2b9a94108b2476a53",
         "bytes": 8056
+      },
+      {
+        "path": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sha256": "c4d1135616cbabd212159ca92b61210a1426509824b8c702e69aedcac3486a94",
+        "bytes": 10256
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -66,14 +71,41 @@
       "@beep/tika",
       "@beep/tika/index",
       "@beep/tika/Tika.errors",
-      "@beep/tika/Tika.service"
+      "@beep/tika/Tika.service",
+      "@beep/tika/Tika.tikaapp"
     ],
     "counts": {
-      "publicExportEntries": 23,
-      "uniqueSymbols": 7,
-      "sourceFiles": 3
+      "publicExportEntries": 29,
+      "uniqueSymbols": 9,
+      "sourceFiles": 4
     },
     "exports": [
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "makeTikaAppFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sourceLine": 161,
+        "summary": "Create the real tika-app-backed file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . maketikaappfileprocessingengine const create the real tika-app-backed file-processing engine. constructors packages/drivers/tika/src/tika.tikaapp.ts"
+      },
       {
         "packageName": "@beep/tika",
         "packagePath": "packages/drivers/tika",
@@ -123,6 +155,31 @@
           "@since"
         ],
         "searchText": "@beep/tika packages/drivers/tika @beep/tika . maketikafileprocessingengine const create the p1 tika file-processing engine. constructors packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaAppEngineConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sourceLine": 45,
+        "summary": "Configuration for the tika-app subprocess engine.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika . tikaappengineconfig class configuration for the tika-app subprocess engine. configuration packages/drivers/tika/src/tika.tikaapp.ts"
       },
       {
         "packageName": "@beep/tika",
@@ -259,7 +316,7 @@
         "symbolName": "VERSION",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/index.ts",
-        "sourceLine": 36,
+        "sourceLine": 43,
         "summary": "Package version.",
         "categories": [
           "constants"
@@ -273,6 +330,32 @@
           "@since"
         ],
         "searchText": "@beep/tika packages/drivers/tika @beep/tika . version const package version. constants packages/drivers/tika/src/index.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "makeTikaAppFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sourceLine": 161,
+        "summary": "Create the real tika-app-backed file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index maketikaappfileprocessingengine const create the real tika-app-backed file-processing engine. constructors packages/drivers/tika/src/tika.tikaapp.ts"
       },
       {
         "packageName": "@beep/tika",
@@ -323,6 +406,31 @@
           "@since"
         ],
         "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index maketikafileprocessingengine const create the p1 tika file-processing engine. constructors packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/tika/src/index.ts",
+        "symbolName": "TikaAppEngineConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sourceLine": 45,
+        "summary": "Configuration for the tika-app subprocess engine.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/index ./index tikaappengineconfig class configuration for the tika-app subprocess engine. configuration packages/drivers/tika/src/tika.tikaapp.ts"
       },
       {
         "packageName": "@beep/tika",
@@ -459,7 +567,7 @@
         "symbolName": "VERSION",
         "exportKind": "const",
         "sourcePath": "packages/drivers/tika/src/index.ts",
-        "sourceLine": 36,
+        "sourceLine": 43,
         "summary": "Package version.",
         "categories": [
           "constants"
@@ -648,6 +756,57 @@
           "@since"
         ],
         "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.service ./tika.service tikafileprocessingenginedescriptor const tika file-processing engine descriptor. services packages/drivers/tika/src/tika.service.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.tikaapp",
+        "exportSubpath": "./Tika.tikaapp",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "symbolName": "makeTikaAppFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sourceLine": 161,
+        "summary": "Create the real tika-app-backed file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.tikaapp ./tika.tikaapp maketikaappfileprocessingengine const create the real tika-app-backed file-processing engine. constructors packages/drivers/tika/src/tika.tikaapp.ts"
+      },
+      {
+        "packageName": "@beep/tika",
+        "packagePath": "packages/drivers/tika",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/tika/Tika.tikaapp",
+        "exportSubpath": "./Tika.tikaapp",
+        "exportedFromPath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "symbolName": "TikaAppEngineConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/tika/src/Tika.tikaapp.ts",
+        "sourceLine": 45,
+        "summary": "Configuration for the tika-app subprocess engine.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/tika packages/drivers/tika @beep/tika/tika.tikaapp ./tika.tikaapp tikaappengineconfig class configuration for the tika-app subprocess engine. configuration packages/drivers/tika/src/tika.tikaapp.ts"
       }
     ]
   }

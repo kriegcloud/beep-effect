@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ae1de9ed985fb73fcea1178990bfcc4fe51446c3ef00d48eaf6b20a56f313cd4",
+    "digest": "629502be36b88462d6057bc19fe4572b4a570f592ae129a4489df281eea574a6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/package.json",
-        "sha256": "38638e195d9c2cd4bc1a2595273b31a72ef138333ed0a3e77f971598673caa5e",
-        "bytes": 6814
+        "sha256": "c7f9bea00edfbc6dabf338c85120741fadaf50a07c6ce4e73aa0c83875b73fb0",
+        "bytes": 6969
       },
       {
         "path": "packages/tooling/tool/cli/src/bin-main.ts",
@@ -129,6 +129,36 @@
         "path": "packages/tooling/tool/cli/src/commands/Codex/index.ts",
         "sha256": "2cf37bf2826eff7b8ffba99a4f2272b2dcf951d85735301958653cecd94c1cd9",
         "bytes": 326
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.command.ts",
+        "sha256": "7d5d3a613f7efb014f5ae6ba9820c3cf6207f7cc5f10c4d52b7afaecd3eb1baf",
+        "bytes": 6965
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.errors.ts",
+        "sha256": "e0c49fc8e29a35b5a10a15b898eb35d7e1c267c53559ea188312fcc882069c24",
+        "bytes": 1491
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sha256": "b4611a9abc5388df25f084ba60359a6b23bd3e83cf5b4ac1e9cd17141feda187",
+        "bytes": 9621
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sha256": "3abd0da449aa7e4b30e6d1e0ab9e74362bef8ee5485c0e516881c916329be9d4",
+        "bytes": 27729
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sha256": "8b5d7bfa366bcb80a8829579491c8246db66b8d60f2e1c4c7fb57134d233f0e8",
+        "bytes": 76915
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "sha256": "4a213c627755c11cb5a779502a0f7373f3b1aa99182b3a8e493d07f3b7674610",
+        "bytes": 766
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/CreatePackage/ConfigUpdater.ts",
@@ -527,8 +557,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Root.ts",
-        "sha256": "5772e57de3bb9f6ea84c73d333a92815db250bb6962797f3c18adceb2c05597d",
-        "bytes": 2351
+        "sha256": "d60728a1acaa7cc10d814bb5694d2793e232f054fa85ec7018e287d98164e6a8",
+        "bytes": 2421
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts",
@@ -722,8 +752,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/index.ts",
-        "sha256": "712358b1ecb5bce21f7ee20615e8fed787366e8c08b40c04f8e12744ddbb3743",
-        "bytes": 7448
+        "sha256": "95efd0c055e80e48940652438d9578e69806307d5e2a4e207a647e62a11c7d11",
+        "bytes": 7820
       },
       {
         "path": "packages/tooling/tool/cli/src/internal/cli/ExitCodeError.ts",
@@ -843,6 +873,13 @@
       "@beep/repo-cli/commands/Codex/Codex.command",
       "@beep/repo-cli/commands/Codex/Codex.errors",
       "@beep/repo-cli/commands/Codex/index",
+      "@beep/repo-cli/commands/Corpus",
+      "@beep/repo-cli/commands/Corpus/Corpus.command",
+      "@beep/repo-cli/commands/Corpus/Corpus.errors",
+      "@beep/repo-cli/commands/Corpus/Corpus.recyclebin",
+      "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+      "@beep/repo-cli/commands/Corpus/Corpus.service",
+      "@beep/repo-cli/commands/Corpus/index",
       "@beep/repo-cli/commands/CreatePackage",
       "@beep/repo-cli/commands/CreatePackage/ConfigUpdater",
       "@beep/repo-cli/commands/CreatePackage/CreatePackage.command",
@@ -973,9 +1010,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1895,
-      "uniqueSymbols": 728,
-      "sourceFiles": 154
+      "publicExportEntries": 2058,
+      "uniqueSymbols": 778,
+      "sourceFiles": 160
     },
     "exports": [
       {
@@ -1077,6 +1114,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli . codexcommand const codex helper command group. cli-commands packages/tooling/tool/cli/src/commands/codex/codex.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/tool/cli/src/index.ts",
+        "symbolName": "corpusCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.command.ts",
+        "sourceLine": 220,
+        "summary": "Corpus curation command group.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli . corpuscommand const corpus curation command group. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -1388,7 +1450,7 @@
         "symbolName": "rootCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Root.ts",
-        "sourceLine": 47,
+        "sourceLine": 48,
         "summary": "Top-level CLI command that registers all subcommands.",
         "categories": [
           "utilities"
@@ -5453,6 +5515,4092 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/codex/index ./commands/codex/index runcodexqualityreviewfixloop const launch codex with the repo-local quality review fix loop prompt. use-cases packages/tooling/tool/cli/src/commands/codex/codex.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "catalogCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1803,
+        "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus catalogcorpus const build the corpus catalog, duplicate-set report, and restoration manifest. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "classifyRecycleBinName",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 152,
+        "summary": "Classify a file name as a `$I` metadata or `$R` content artifact.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus classifyrecyclebinname const classify a file name as a `$i` metadata or `$r` content artifact. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCatalogOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 416,
+        "summary": "Validated options used by `corpus catalog`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscatalogoptions class validated options used by `corpus catalog`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCatalogSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 896,
+        "summary": "Summary counts returned by `corpus catalog`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscatalogsummary class summary counts returned by `corpus catalog`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "corpusCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.command.ts",
+        "sourceLine": 220,
+        "summary": "Corpus curation command group.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscommand const corpus curation command group. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.errors.ts",
+        "sourceLine": 29,
+        "summary": "Error raised by corpus curation commands.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscommanderror class error raised by corpus curation commands. error-handling packages/tooling/tool/cli/src/commands/corpus/corpus.errors.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandService",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 156,
+        "summary": "Service tag for corpus curation operations.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscommandservice class service tag for corpus curation operations. services packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandServiceLive",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1787,
+        "summary": "Live service layer for corpus curation operations.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscommandservicelive const live service layer for corpus curation operations. layers packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandServiceShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 107,
+        "summary": "Service contract for corpus curation operations.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpuscommandserviceshape interface service contract for corpus curation operations. services packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusDuplicateSetRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 258,
+        "summary": "One exact-duplicate digest group reported by the corpus catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusduplicatesetrecord class one exact-duplicate digest group reported by the corpus catalog. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusEnrichmentRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 720,
+        "summary": "One resolved USPTO identifier row of the enrichment manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusenrichmentrecord class one resolved uspto identifier row of the enrichment manifest. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusEnrichOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 698,
+        "summary": "Validated options used by `corpus enrich`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusenrichoptions class validated options used by `corpus enrich`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusEnrichSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 775,
+        "summary": "Summary counts returned by `corpus enrich`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusenrichsummary class summary counts returned by `corpus enrich`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusExtractOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 444,
+        "summary": "Validated options used by `corpus extract`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusextractoptions class validated options used by `corpus extract`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusExtractSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 473,
+        "summary": "Summary counts returned by `corpus extract`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusextractsummary class summary counts returned by `corpus extract`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeCategory",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 549,
+        "summary": "Organization category assigned to one canonical corpus artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusorganizecategory const organization category assigned to one canonical corpus artifact. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeCategory",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 569,
+        "summary": "Type for {@link CorpusOrganizeCategory}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusorganizecategory type type for {@link corpusorganizecategory}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 527,
+        "summary": "Validated options used by `corpus organize`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusorganizeoptions class validated options used by `corpus organize`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 582,
+        "summary": "One row of the organize manifest mapping a canonical artifact into the taxonomy.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusorganizerecord class one row of the organize manifest mapping a canonical artifact into the taxonomy. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 638,
+        "summary": "Summary counts returned by `corpus organize`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusorganizesummary class summary counts returned by `corpus organize`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusProvenanceRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 25,
+        "summary": "One salvaged-file row of the corpus provenance manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusprovenancerecord class one salvaged-file row of the corpus provenance manifest. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusRestorationRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 206,
+        "summary": "Restoration manifest row for one recycle-bin artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusrestorationrecord const restoration manifest row for one recycle-bin artifact. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusRestorationRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 223,
+        "summary": "Type for {@link CorpusRestorationRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpusrestorationrecord type type for {@link corpusrestorationrecord}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusSalvageOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 827,
+        "summary": "Validated options used by `corpus salvage`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpussalvageoptions class validated options used by `corpus salvage`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusSalvageSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 848,
+        "summary": "Summary counts returned by `corpus salvage`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus corpussalvagesummary class summary counts returned by `corpus salvage`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "decodeCorpusProvenanceRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 67,
+        "summary": "JSONL decoder for {@link CorpusProvenanceRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus decodecorpusprovenancerecordjson const jsonl decoder for {@link corpusprovenancerecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusCatalogSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 939,
+        "summary": "JSON encoder for {@link CorpusCatalogSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpuscatalogsummaryjson const json encoder for {@link corpuscatalogsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusDuplicateSetReportJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 290,
+        "summary": "JSON encoder for the duplicate-set report array.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusduplicatesetreportjson const json encoder for the duplicate-set report array. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusEnrichmentRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 762,
+        "summary": "JSONL encoder for {@link CorpusEnrichmentRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusenrichmentrecordjson const jsonl encoder for {@link corpusenrichmentrecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusEnrichSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 812,
+        "summary": "JSON encoder for {@link CorpusEnrichSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusenrichsummaryjson const json encoder for {@link corpusenrichsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusExtractSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 512,
+        "summary": "JSON encoder for {@link CorpusExtractSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusextractsummaryjson const json encoder for {@link corpusextractsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusOrganizeRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 625,
+        "summary": "JSONL encoder for {@link CorpusOrganizeRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusorganizerecordjson const jsonl encoder for {@link corpusorganizerecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusOrganizeSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 683,
+        "summary": "JSON encoder for {@link CorpusOrganizeSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusorganizesummaryjson const json encoder for {@link corpusorganizesummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusRestorationRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 245,
+        "summary": "JSONL encoder for {@link CorpusRestorationRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpusrestorationrecordjson const jsonl encoder for {@link corpusrestorationrecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusSalvageSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 883,
+        "summary": "JSON encoder for {@link CorpusSalvageSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus encodecorpussalvagesummaryjson const json encoder for {@link corpussalvagesummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "enrichCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1843,
+        "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus enrichcorpus const resolve corpus-derived patent and application numbers against uspto. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "extractCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1823,
+        "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus extractcorpus const run libpff and tika extraction over salvaged raw/ files into staging/. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "extractCorpusDocket",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1122,
+        "summary": "Extract an attorney-docket token and its family prefix from free text.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus extractcorpusdocket const extract an attorney-docket token and its family prefix from free text. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "MatchedRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 130,
+        "summary": "Matched `$I`/`$R` restoration row.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus matchedrestorationrecord class matched `$i`/`$r` restoration row. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "organizeCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1863,
+        "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus organizecorpus const build the organized/ client, docket, and email-archive taxonomy. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "pairRecycleBinEntries",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 188,
+        "summary": "Pair `$I` metadata entries with `$R` content entries on their pair key.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus pairrecyclebinentries const pair `$i` metadata entries with `$r` content entries on their pair key. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "parseRecycleBinMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 96,
+        "summary": "Parse one `$I` recycle-bin metadata file into its recovered original facts.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus parserecyclebinmetadata const parse one `$i` recycle-bin metadata file into its recovered original facts. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "printCorpusIndex",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1901,
+        "summary": "Print the corpus command index.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus printcorpusindex const print the corpus command index. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinEntryKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 305,
+        "summary": "Recycle-bin artifact kind derived from the `$I`/`$R` filename prefix.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinentrykind const recycle-bin artifact kind derived from the `$i`/`$r` filename prefix. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinEntryKind",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 317,
+        "summary": "Type for {@link RecycleBinEntryKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinentrykind type type for {@link recyclebinentrykind}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinFormatVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 80,
+        "summary": "Recycle-bin metadata format version family.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinformatversion const recycle-bin metadata format version family. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinFormatVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 92,
+        "summary": "Type for {@link RecycleBinFormatVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinformatversion type type for {@link recyclebinformatversion}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinOriginal",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 105,
+        "summary": "Original-file facts recovered from one `$I` recycle-bin metadata file.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinoriginal class original-file facts recovered from one `$i` recycle-bin metadata file. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinPairedEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 364,
+        "summary": "A `$I`/`$R` pair joined on its shared pair key.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinpairedentry class a `$i`/`$r` pair joined on its shared pair key. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinPairing",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 392,
+        "summary": "Pairing outcome over a set of recycle-bin scan entries.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinpairing class pairing outcome over a set of recycle-bin scan entries. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinScanEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 336,
+        "summary": "One recycle-bin artifact discovered while scanning salvaged sources.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus recyclebinscanentry class one recycle-bin artifact discovered while scanning salvaged sources. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "UnmatchedContentRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 181,
+        "summary": "Restoration row for a `$R` content file with no `$I` metadata partner.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus unmatchedcontentrestorationrecord class restoration row for a `$r` content file with no `$i` metadata partner. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "UnmatchedMetadataRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 155,
+        "summary": "Restoration row for a `$I` metadata file with no `$R` content partner.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus unmatchedmetadatarestorationrecord class restoration row for a `$i` metadata file with no `$r` content partner. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus",
+        "exportSubpath": "./commands/Corpus",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "verifySalvage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1883,
+        "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus ./commands/corpus verifysalvage const re-hash salvaged raw/ files against the provenance manifest. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.command",
+        "exportSubpath": "./commands/Corpus/Corpus.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.command.ts",
+        "symbolName": "corpusCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.command.ts",
+        "sourceLine": 220,
+        "summary": "Corpus curation command group.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.command ./commands/corpus/corpus.command corpuscommand const corpus curation command group. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.errors",
+        "exportSubpath": "./commands/Corpus/Corpus.errors",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.errors.ts",
+        "symbolName": "CorpusCommandError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.errors.ts",
+        "sourceLine": 29,
+        "summary": "Error raised by corpus curation commands.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.errors ./commands/corpus/corpus.errors corpuscommanderror class error raised by corpus curation commands. error-handling packages/tooling/tool/cli/src/commands/corpus/corpus.errors.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.recyclebin",
+        "exportSubpath": "./commands/Corpus/Corpus.recyclebin",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "symbolName": "classifyRecycleBinName",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 152,
+        "summary": "Classify a file name as a `$I` metadata or `$R` content artifact.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.recyclebin ./commands/corpus/corpus.recyclebin classifyrecyclebinname const classify a file name as a `$i` metadata or `$r` content artifact. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.recyclebin",
+        "exportSubpath": "./commands/Corpus/Corpus.recyclebin",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "symbolName": "pairRecycleBinEntries",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 188,
+        "summary": "Pair `$I` metadata entries with `$R` content entries on their pair key.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.recyclebin ./commands/corpus/corpus.recyclebin pairrecyclebinentries const pair `$i` metadata entries with `$r` content entries on their pair key. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.recyclebin",
+        "exportSubpath": "./commands/Corpus/Corpus.recyclebin",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "symbolName": "parseRecycleBinMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 96,
+        "summary": "Parse one `$I` recycle-bin metadata file into its recovered original facts.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.recyclebin ./commands/corpus/corpus.recyclebin parserecyclebinmetadata const parse one `$i` recycle-bin metadata file into its recovered original facts. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusCatalogOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 416,
+        "summary": "Validated options used by `corpus catalog`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpuscatalogoptions class validated options used by `corpus catalog`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusCatalogSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 896,
+        "summary": "Summary counts returned by `corpus catalog`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpuscatalogsummary class summary counts returned by `corpus catalog`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusDuplicateSetRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 258,
+        "summary": "One exact-duplicate digest group reported by the corpus catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusduplicatesetrecord class one exact-duplicate digest group reported by the corpus catalog. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusEnrichmentRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 720,
+        "summary": "One resolved USPTO identifier row of the enrichment manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusenrichmentrecord class one resolved uspto identifier row of the enrichment manifest. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusEnrichOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 698,
+        "summary": "Validated options used by `corpus enrich`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusenrichoptions class validated options used by `corpus enrich`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusEnrichSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 775,
+        "summary": "Summary counts returned by `corpus enrich`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusenrichsummary class summary counts returned by `corpus enrich`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusExtractOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 444,
+        "summary": "Validated options used by `corpus extract`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusextractoptions class validated options used by `corpus extract`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusExtractSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 473,
+        "summary": "Summary counts returned by `corpus extract`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusextractsummary class summary counts returned by `corpus extract`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusOrganizeCategory",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 549,
+        "summary": "Organization category assigned to one canonical corpus artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusorganizecategory const organization category assigned to one canonical corpus artifact. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusOrganizeCategory",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 569,
+        "summary": "Type for {@link CorpusOrganizeCategory}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusorganizecategory type type for {@link corpusorganizecategory}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusOrganizeOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 527,
+        "summary": "Validated options used by `corpus organize`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusorganizeoptions class validated options used by `corpus organize`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusOrganizeRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 582,
+        "summary": "One row of the organize manifest mapping a canonical artifact into the taxonomy.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusorganizerecord class one row of the organize manifest mapping a canonical artifact into the taxonomy. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusOrganizeSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 638,
+        "summary": "Summary counts returned by `corpus organize`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusorganizesummary class summary counts returned by `corpus organize`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusProvenanceRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 25,
+        "summary": "One salvaged-file row of the corpus provenance manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusprovenancerecord class one salvaged-file row of the corpus provenance manifest. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusRestorationRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 206,
+        "summary": "Restoration manifest row for one recycle-bin artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusrestorationrecord const restoration manifest row for one recycle-bin artifact. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusRestorationRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 223,
+        "summary": "Type for {@link CorpusRestorationRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpusrestorationrecord type type for {@link corpusrestorationrecord}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusSalvageOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 827,
+        "summary": "Validated options used by `corpus salvage`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpussalvageoptions class validated options used by `corpus salvage`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "CorpusSalvageSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 848,
+        "summary": "Summary counts returned by `corpus salvage`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas corpussalvagesummary class summary counts returned by `corpus salvage`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "decodeCorpusProvenanceRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 67,
+        "summary": "JSONL decoder for {@link CorpusProvenanceRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas decodecorpusprovenancerecordjson const jsonl decoder for {@link corpusprovenancerecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusCatalogSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 939,
+        "summary": "JSON encoder for {@link CorpusCatalogSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpuscatalogsummaryjson const json encoder for {@link corpuscatalogsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusDuplicateSetReportJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 290,
+        "summary": "JSON encoder for the duplicate-set report array.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusduplicatesetreportjson const json encoder for the duplicate-set report array. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusEnrichmentRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 762,
+        "summary": "JSONL encoder for {@link CorpusEnrichmentRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusenrichmentrecordjson const jsonl encoder for {@link corpusenrichmentrecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusEnrichSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 812,
+        "summary": "JSON encoder for {@link CorpusEnrichSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusenrichsummaryjson const json encoder for {@link corpusenrichsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusExtractSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 512,
+        "summary": "JSON encoder for {@link CorpusExtractSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusextractsummaryjson const json encoder for {@link corpusextractsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusOrganizeRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 625,
+        "summary": "JSONL encoder for {@link CorpusOrganizeRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusorganizerecordjson const jsonl encoder for {@link corpusorganizerecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusOrganizeSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 683,
+        "summary": "JSON encoder for {@link CorpusOrganizeSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusorganizesummaryjson const json encoder for {@link corpusorganizesummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusRestorationRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 245,
+        "summary": "JSONL encoder for {@link CorpusRestorationRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpusrestorationrecordjson const jsonl encoder for {@link corpusrestorationrecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "encodeCorpusSalvageSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 883,
+        "summary": "JSON encoder for {@link CorpusSalvageSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas encodecorpussalvagesummaryjson const json encoder for {@link corpussalvagesummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "MatchedRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 130,
+        "summary": "Matched `$I`/`$R` restoration row.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas matchedrestorationrecord class matched `$i`/`$r` restoration row. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinEntryKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 305,
+        "summary": "Recycle-bin artifact kind derived from the `$I`/`$R` filename prefix.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinentrykind const recycle-bin artifact kind derived from the `$i`/`$r` filename prefix. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinEntryKind",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 317,
+        "summary": "Type for {@link RecycleBinEntryKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinentrykind type type for {@link recyclebinentrykind}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinFormatVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 80,
+        "summary": "Recycle-bin metadata format version family.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinformatversion const recycle-bin metadata format version family. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinFormatVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 92,
+        "summary": "Type for {@link RecycleBinFormatVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinformatversion type type for {@link recyclebinformatversion}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinOriginal",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 105,
+        "summary": "Original-file facts recovered from one `$I` recycle-bin metadata file.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinoriginal class original-file facts recovered from one `$i` recycle-bin metadata file. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinPairedEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 364,
+        "summary": "A `$I`/`$R` pair joined on its shared pair key.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinpairedentry class a `$i`/`$r` pair joined on its shared pair key. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinPairing",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 392,
+        "summary": "Pairing outcome over a set of recycle-bin scan entries.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinpairing class pairing outcome over a set of recycle-bin scan entries. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "RecycleBinScanEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 336,
+        "summary": "One recycle-bin artifact discovered while scanning salvaged sources.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas recyclebinscanentry class one recycle-bin artifact discovered while scanning salvaged sources. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "UnmatchedContentRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 181,
+        "summary": "Restoration row for a `$R` content file with no `$I` metadata partner.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas unmatchedcontentrestorationrecord class restoration row for a `$r` content file with no `$i` metadata partner. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.schemas",
+        "exportSubpath": "./commands/Corpus/Corpus.schemas",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "symbolName": "UnmatchedMetadataRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 155,
+        "summary": "Restoration row for a `$I` metadata file with no `$R` content partner.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.schemas ./commands/corpus/corpus.schemas unmatchedmetadatarestorationrecord class restoration row for a `$i` metadata file with no `$r` content partner. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "catalogCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1803,
+        "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service catalogcorpus const build the corpus catalog, duplicate-set report, and restoration manifest. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "CorpusCommandService",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 156,
+        "summary": "Service tag for corpus curation operations.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service corpuscommandservice class service tag for corpus curation operations. services packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "CorpusCommandServiceLive",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1787,
+        "summary": "Live service layer for corpus curation operations.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service corpuscommandservicelive const live service layer for corpus curation operations. layers packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "CorpusCommandServiceShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 107,
+        "summary": "Service contract for corpus curation operations.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service corpuscommandserviceshape interface service contract for corpus curation operations. services packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "enrichCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1843,
+        "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service enrichcorpus const resolve corpus-derived patent and application numbers against uspto. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "extractCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1823,
+        "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service extractcorpus const run libpff and tika extraction over salvaged raw/ files into staging/. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "extractCorpusDocket",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1122,
+        "summary": "Extract an attorney-docket token and its family prefix from free text.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service extractcorpusdocket const extract an attorney-docket token and its family prefix from free text. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "organizeCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1863,
+        "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service organizecorpus const build the organized/ client, docket, and email-archive taxonomy. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "printCorpusIndex",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1901,
+        "summary": "Print the corpus command index.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service printcorpusindex const print the corpus command index. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/Corpus.service",
+        "exportSubpath": "./commands/Corpus/Corpus.service",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "symbolName": "verifySalvage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1883,
+        "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/corpus.service ./commands/corpus/corpus.service verifysalvage const re-hash salvaged raw/ files against the provenance manifest. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "catalogCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1803,
+        "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index catalogcorpus const build the corpus catalog, duplicate-set report, and restoration manifest. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "classifyRecycleBinName",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 152,
+        "summary": "Classify a file name as a `$I` metadata or `$R` content artifact.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index classifyrecyclebinname const classify a file name as a `$i` metadata or `$r` content artifact. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCatalogOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 416,
+        "summary": "Validated options used by `corpus catalog`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscatalogoptions class validated options used by `corpus catalog`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCatalogSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 896,
+        "summary": "Summary counts returned by `corpus catalog`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscatalogsummary class summary counts returned by `corpus catalog`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "corpusCommand",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.command.ts",
+        "sourceLine": 220,
+        "summary": "Corpus curation command group.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscommand const corpus curation command group. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.errors.ts",
+        "sourceLine": 29,
+        "summary": "Error raised by corpus curation commands.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscommanderror class error raised by corpus curation commands. error-handling packages/tooling/tool/cli/src/commands/corpus/corpus.errors.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandService",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 156,
+        "summary": "Service tag for corpus curation operations.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscommandservice class service tag for corpus curation operations. services packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandServiceLive",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1787,
+        "summary": "Live service layer for corpus curation operations.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscommandservicelive const live service layer for corpus curation operations. layers packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusCommandServiceShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 107,
+        "summary": "Service contract for corpus curation operations.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpuscommandserviceshape interface service contract for corpus curation operations. services packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusDuplicateSetRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 258,
+        "summary": "One exact-duplicate digest group reported by the corpus catalog.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusduplicatesetrecord class one exact-duplicate digest group reported by the corpus catalog. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusEnrichmentRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 720,
+        "summary": "One resolved USPTO identifier row of the enrichment manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusenrichmentrecord class one resolved uspto identifier row of the enrichment manifest. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusEnrichOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 698,
+        "summary": "Validated options used by `corpus enrich`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusenrichoptions class validated options used by `corpus enrich`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusEnrichSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 775,
+        "summary": "Summary counts returned by `corpus enrich`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusenrichsummary class summary counts returned by `corpus enrich`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusExtractOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 444,
+        "summary": "Validated options used by `corpus extract`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusextractoptions class validated options used by `corpus extract`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusExtractSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 473,
+        "summary": "Summary counts returned by `corpus extract`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusextractsummary class summary counts returned by `corpus extract`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeCategory",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 549,
+        "summary": "Organization category assigned to one canonical corpus artifact.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusorganizecategory const organization category assigned to one canonical corpus artifact. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeCategory",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 569,
+        "summary": "Type for {@link CorpusOrganizeCategory}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusorganizecategory type type for {@link corpusorganizecategory}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 527,
+        "summary": "Validated options used by `corpus organize`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusorganizeoptions class validated options used by `corpus organize`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 582,
+        "summary": "One row of the organize manifest mapping a canonical artifact into the taxonomy.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusorganizerecord class one row of the organize manifest mapping a canonical artifact into the taxonomy. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusOrganizeSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 638,
+        "summary": "Summary counts returned by `corpus organize`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusorganizesummary class summary counts returned by `corpus organize`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusProvenanceRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 25,
+        "summary": "One salvaged-file row of the corpus provenance manifest.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusprovenancerecord class one salvaged-file row of the corpus provenance manifest. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusRestorationRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 206,
+        "summary": "Restoration manifest row for one recycle-bin artifact.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusrestorationrecord const restoration manifest row for one recycle-bin artifact. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusRestorationRecord",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 223,
+        "summary": "Type for {@link CorpusRestorationRecord}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpusrestorationrecord type type for {@link corpusrestorationrecord}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusSalvageOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 827,
+        "summary": "Validated options used by `corpus salvage`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpussalvageoptions class validated options used by `corpus salvage`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "CorpusSalvageSummary",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 848,
+        "summary": "Summary counts returned by `corpus salvage`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index corpussalvagesummary class summary counts returned by `corpus salvage`. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "decodeCorpusProvenanceRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 67,
+        "summary": "JSONL decoder for {@link CorpusProvenanceRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index decodecorpusprovenancerecordjson const jsonl decoder for {@link corpusprovenancerecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusCatalogSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 939,
+        "summary": "JSON encoder for {@link CorpusCatalogSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpuscatalogsummaryjson const json encoder for {@link corpuscatalogsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusDuplicateSetReportJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 290,
+        "summary": "JSON encoder for the duplicate-set report array.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusduplicatesetreportjson const json encoder for the duplicate-set report array. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusEnrichmentRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 762,
+        "summary": "JSONL encoder for {@link CorpusEnrichmentRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusenrichmentrecordjson const jsonl encoder for {@link corpusenrichmentrecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusEnrichSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 812,
+        "summary": "JSON encoder for {@link CorpusEnrichSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusenrichsummaryjson const json encoder for {@link corpusenrichsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusExtractSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 512,
+        "summary": "JSON encoder for {@link CorpusExtractSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusextractsummaryjson const json encoder for {@link corpusextractsummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusOrganizeRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 625,
+        "summary": "JSONL encoder for {@link CorpusOrganizeRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusorganizerecordjson const jsonl encoder for {@link corpusorganizerecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusOrganizeSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 683,
+        "summary": "JSON encoder for {@link CorpusOrganizeSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusorganizesummaryjson const json encoder for {@link corpusorganizesummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusRestorationRecordJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 245,
+        "summary": "JSONL encoder for {@link CorpusRestorationRecord}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpusrestorationrecordjson const jsonl encoder for {@link corpusrestorationrecord}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "encodeCorpusSalvageSummaryJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 883,
+        "summary": "JSON encoder for {@link CorpusSalvageSummary}.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index encodecorpussalvagesummaryjson const json encoder for {@link corpussalvagesummary}. codecs packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "enrichCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1843,
+        "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index enrichcorpus const resolve corpus-derived patent and application numbers against uspto. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "extractCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1823,
+        "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index extractcorpus const run libpff and tika extraction over salvaged raw/ files into staging/. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "extractCorpusDocket",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1122,
+        "summary": "Extract an attorney-docket token and its family prefix from free text.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index extractcorpusdocket const extract an attorney-docket token and its family prefix from free text. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "MatchedRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 130,
+        "summary": "Matched `$I`/`$R` restoration row.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index matchedrestorationrecord class matched `$i`/`$r` restoration row. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "organizeCorpus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1863,
+        "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index organizecorpus const build the organized/ client, docket, and email-archive taxonomy. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "pairRecycleBinEntries",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 188,
+        "summary": "Pair `$I` metadata entries with `$R` content entries on their pair key.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index pairrecyclebinentries const pair `$i` metadata entries with `$r` content entries on their pair key. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "parseRecycleBinMetadata",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+        "sourceLine": 96,
+        "summary": "Parse one `$I` recycle-bin metadata file into its recovered original facts.",
+        "categories": [
+          "parsers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index parserecyclebinmetadata const parse one `$i` recycle-bin metadata file into its recovered original facts. parsers packages/tooling/tool/cli/src/commands/corpus/corpus.recyclebin.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "printCorpusIndex",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1901,
+        "summary": "Print the corpus command index.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index printcorpusindex const print the corpus command index. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinEntryKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 305,
+        "summary": "Recycle-bin artifact kind derived from the `$I`/`$R` filename prefix.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinentrykind const recycle-bin artifact kind derived from the `$i`/`$r` filename prefix. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinEntryKind",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 317,
+        "summary": "Type for {@link RecycleBinEntryKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinentrykind type type for {@link recyclebinentrykind}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinFormatVersion",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 80,
+        "summary": "Recycle-bin metadata format version family.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinformatversion const recycle-bin metadata format version family. schemas packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinFormatVersion",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 92,
+        "summary": "Type for {@link RecycleBinFormatVersion}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinformatversion type type for {@link recyclebinformatversion}. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinOriginal",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 105,
+        "summary": "Original-file facts recovered from one `$I` recycle-bin metadata file.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinoriginal class original-file facts recovered from one `$i` recycle-bin metadata file. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinPairedEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 364,
+        "summary": "A `$I`/`$R` pair joined on its shared pair key.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinpairedentry class a `$i`/`$r` pair joined on its shared pair key. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinPairing",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 392,
+        "summary": "Pairing outcome over a set of recycle-bin scan entries.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinpairing class pairing outcome over a set of recycle-bin scan entries. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "RecycleBinScanEntry",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 336,
+        "summary": "One recycle-bin artifact discovered while scanning salvaged sources.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index recyclebinscanentry class one recycle-bin artifact discovered while scanning salvaged sources. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "UnmatchedContentRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 181,
+        "summary": "Restoration row for a `$R` content file with no `$I` metadata partner.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index unmatchedcontentrestorationrecord class restoration row for a `$r` content file with no `$i` metadata partner. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "UnmatchedMetadataRestorationRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.schemas.ts",
+        "sourceLine": 155,
+        "summary": "Restoration row for a `$I` metadata file with no `$R` content partner.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index unmatchedmetadatarestorationrecord class restoration row for a `$i` metadata file with no `$r` content partner. models packages/tooling/tool/cli/src/commands/corpus/corpus.schemas.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Corpus/index",
+        "exportSubpath": "./commands/Corpus/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
+        "symbolName": "verifySalvage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+        "sourceLine": 1883,
+        "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/corpus/index ./commands/corpus/index verifysalvage const re-hash salvaged raw/ files against the provenance manifest. use-cases packages/tooling/tool/cli/src/commands/corpus/corpus.service.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -31891,7 +36039,7 @@
         "symbolName": "rootCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Root.ts",
-        "sourceLine": 47,
+        "sourceLine": 48,
         "summary": "Top-level CLI command that registers all subcommands.",
         "categories": [
           "utilities"
