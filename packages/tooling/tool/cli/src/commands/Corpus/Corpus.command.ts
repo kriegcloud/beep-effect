@@ -10,6 +10,7 @@ import * as O from "effect/Option";
 import { Command, Flag } from "effect/unstable/cli";
 import {
   CorpusCatalogOptions,
+  CorpusEnrichOptions,
   CorpusExtractOptions,
   CorpusOrganizeOptions,
   CorpusSalvageOptions,
@@ -17,6 +18,7 @@ import {
 import {
   CorpusCommandServiceLive,
   catalogCorpus,
+  enrichCorpus,
   extractCorpus,
   organizeCorpus,
   printCorpusIndex,
@@ -155,6 +157,36 @@ const corpusOrganizeCommand = Command.make(
   Command.provide(CorpusCommandServiceLive)
 );
 
+const maxLookupsFlag = Flag.integer("max-lookups").pipe(
+  Flag.withDescription("Resolve at most this many identifier candidates against USPTO"),
+  Flag.optional
+);
+const lookupDelayFlag = Flag.integer("lookup-delay-millis").pipe(
+  Flag.withDefault(400),
+  Flag.withDescription("Delay between USPTO lookups to respect rate limits")
+);
+
+const corpusEnrichCommand = Command.make(
+  "enrich",
+  {
+    corpusRoot: corpusRootFlag,
+    lookupDelayMillis: lookupDelayFlag,
+    maxLookups: maxLookupsFlag,
+  },
+  Effect.fn(function* ({ corpusRoot, lookupDelayMillis, maxLookups }) {
+    yield* enrichCorpus(
+      CorpusEnrichOptions.make({
+        corpusRoot,
+        lookupDelayMillis,
+        ...(O.isNone(maxLookups) ? {} : { maxLookups: maxLookups.value }),
+      })
+    ).pipe(Effect.asVoid);
+  })
+).pipe(
+  Command.withDescription("Resolve corpus-derived patent and application numbers against the USPTO open data portal"),
+  Command.provide(CorpusCommandServiceLive)
+);
+
 const corpusSalvageCommand = Command.make(
   "salvage",
   {
@@ -187,5 +219,11 @@ const corpusSalvageCommand = Command.make(
  */
 export const corpusCommand = Command.make("corpus", {}, () => printCorpusIndex).pipe(
   Command.withDescription("Corpus salvage and curation commands"),
-  Command.withSubcommands([corpusCatalogCommand, corpusExtractCommand, corpusOrganizeCommand, corpusSalvageCommand])
+  Command.withSubcommands([
+    corpusCatalogCommand,
+    corpusEnrichCommand,
+    corpusExtractCommand,
+    corpusOrganizeCommand,
+    corpusSalvageCommand,
+  ])
 );

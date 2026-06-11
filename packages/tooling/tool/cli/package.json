@@ -146,6 +146,7 @@
     "@beep/schema": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@beep/tika": "workspace:^",
+    "@beep/uspto": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",

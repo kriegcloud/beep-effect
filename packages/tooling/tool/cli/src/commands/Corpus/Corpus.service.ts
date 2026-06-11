@@ -35,8 +35,9 @@ import { makePffexportFileProcessingEngine, PffexportEngineConfig } from "@beep/
 import { NonNegativeInt, Sha256HexFromBytes } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { makeTikaAppFileProcessingEngine, TikaAppEngineConfig } from "@beep/tika";
+import { makeUsptoError, normalizeUsptoApplicationNumber, normalizeUsptoPatentNumber, Uspto } from "@beep/uspto";
 import { A, Str } from "@beep/utils";
-import { Console, Context, Effect, FileSystem, Layer, Match, Order, Path, Ref, Stream } from "effect";
+import { Console, Context, Effect, FileSystem, Layer, Match, Order, Path, Ref, Result, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { printLines } from "../../internal/cli/Printer.js";
@@ -45,6 +46,8 @@ import { classifyRecycleBinName, pairRecycleBinEntries, parseRecycleBinMetadata 
 import {
   CorpusCatalogSummary,
   CorpusDuplicateSetRecord,
+  CorpusEnrichmentRecord,
+  CorpusEnrichSummary,
   CorpusExtractSummary,
   CorpusOrganizeRecord,
   CorpusOrganizeSummary,
@@ -53,6 +56,8 @@ import {
   decodeCorpusProvenanceRecordJson,
   encodeCorpusCatalogSummaryJson,
   encodeCorpusDuplicateSetReportJson,
+  encodeCorpusEnrichmentRecordJson,
+  encodeCorpusEnrichSummaryJson,
   encodeCorpusExtractSummaryJson,
   encodeCorpusOrganizeRecordJson,
   encodeCorpusOrganizeSummaryJson,
@@ -74,6 +79,7 @@ import type { FileFormatFamily, FileProcessingEngineFamily, SelectedStrategy } f
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type {
   CorpusCatalogOptions,
+  CorpusEnrichOptions,
   CorpusExtractOptions,
   CorpusOrganizeCategory,
   CorpusOrganizeOptions,
@@ -106,6 +112,13 @@ export interface CorpusCommandServiceShape {
    * @since 0.0.0
    */
   readonly catalogCorpus: (options: CorpusCatalogOptions) => Effect.Effect<CorpusCatalogSummary, CorpusCommandError>;
+
+  /**
+   * Resolve corpus-derived patent and application numbers against USPTO.
+   *
+   * @since 0.0.0
+   */
+  readonly enrichCorpus: (options: CorpusEnrichOptions) => Effect.Effect<CorpusEnrichSummary, CorpusCommandError>;
 
   /**
    * Run libpff and Tika extraction over salvaged raw/ files into staging/.
@@ -1437,12 +1450,264 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
   return summary;
 });
 
+const patentTextPattern = /\b(?:US[\s-]?)?(\d{1,2},\d{3},\d{3}|\d{7,8})(?:\s?[ABU]\d)?\b/gu;
+const applicationTextPattern = /\b(\d{2}\/\d{3},?\d{3})\b/gu;
+
+interface EnrichCandidate {
+  readonly docketFamilies: Set<string>;
+  readonly kind: "application" | "patent";
+  occurrenceCount: number;
+}
+
+const createEnrichmentTable = `
+CREATE OR REPLACE TABLE corpus_enrichment (
+  candidate VARCHAR NOT NULL,
+  candidate_kind VARCHAR NOT NULL,
+  status VARCHAR NOT NULL,
+  application_number VARCHAR,
+  patent_number VARCHAR,
+  invention_title VARCHAR,
+  first_applicant_name VARCHAR,
+  first_inventor_name VARCHAR,
+  occurrence_count BIGINT NOT NULL,
+  docket_families VARCHAR,
+  parent_application_numbers VARCHAR
+)`;
+
+const insertEnrichmentStatement = `
+INSERT INTO corpus_enrichment VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`;
+
+const enrichCorpusImpl = Effect.fn("CorpusCommandService.enrichCorpus")(function* (
+  options: CorpusEnrichOptions
+): Effect.fn.Return<CorpusEnrichSummary, CorpusCommandError, CorpusCommandServiceRequirements> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  const organizeManifestPath = path.join(options.corpusRoot, "catalog", "organize-manifest.jsonl");
+  const textDir = path.join(options.corpusRoot, "staging", "extract", "text");
+  const enrichmentManifestPath = path.join(options.corpusRoot, "catalog", "enrichment-manifest.jsonl");
+  const summaryReportPath = path.join(options.corpusRoot, "catalog", "reports", "enrich-summary.json");
+  const databasePath = path.join(options.corpusRoot, "catalog", "corpus.duckdb");
+  const lookupDelayMillis = Math.max(0, Math.floor(options.lookupDelayMillis ?? 400));
+
+  const organizeText = yield* fs
+    .readFileString(organizeManifestPath)
+    .pipe(
+      CorpusCommandError.mapError(`Failed reading organize manifest "${organizeManifestPath}"; run organize first.`)
+    );
+  const organizeLines = A.filter(Str.split(organizeText, "\n"), Str.isNonEmpty);
+  const organizeRecords = yield* Effect.forEach(organizeLines, (line) =>
+    S.decodeUnknownEffect(S.fromJsonString(CorpusOrganizeRecord))(line).pipe(
+      CorpusCommandError.mapError("Organize manifest line failed schema validation.")
+    )
+  );
+
+  const candidates = new Map<string, EnrichCandidate>();
+  const noteCandidate = (
+    kind: "application" | "patent",
+    normalized: string,
+    docketFamily: string | undefined
+  ): void => {
+    const key = `${kind}:${normalized}`;
+    const existing = candidates.get(key) ?? { docketFamilies: new Set<string>(), kind, occurrenceCount: 0 };
+    existing.occurrenceCount += 1;
+    if (docketFamily !== undefined) {
+      existing.docketFamilies.add(docketFamily);
+    }
+    candidates.set(key, existing);
+  };
+
+  const scanText = (text: string, docketFamily: string | undefined): void => {
+    for (const match of text.matchAll(patentTextPattern)) {
+      const normalized = normalizeUsptoPatentNumber(match[1] ?? "");
+      if (O.isSome(normalized) && normalized.value.length >= 7) {
+        noteCandidate("patent", normalized.value, docketFamily);
+      }
+    }
+    for (const match of text.matchAll(applicationTextPattern)) {
+      const normalized = normalizeUsptoApplicationNumber(match[1] ?? "");
+      if (O.isSome(normalized)) {
+        noteCandidate("application", normalized.value, docketFamily);
+      }
+    }
+  };
+
+  for (const record of organizeRecords) {
+    scanText(`${record.effectiveName} ${record.sourceRelativePath}`, record.docketFamily);
+  }
+
+  const textDirExists = yield* fs
+    .exists(textDir)
+    .pipe(CorpusCommandError.mapError(`Failed checking extracted text directory "${textDir}".`));
+  if (textDirExists) {
+    const textFiles = yield* fs
+      .readDirectory(textDir)
+      .pipe(CorpusCommandError.mapError(`Failed reading extracted text directory "${textDir}".`));
+    yield* Effect.forEach(
+      textFiles,
+      (name) =>
+        fs.readFileString(path.join(textDir, name)).pipe(
+          Effect.map((text) => scanText(text, undefined)),
+          CorpusCommandError.mapError(`Failed reading extracted text "${name}".`)
+        ),
+      { concurrency: 8 }
+    );
+  }
+
+  const orderedCandidates = A.sort(
+    [...candidates.entries()],
+    Order.mapInput(Order.Number, (entry: readonly [string, EnrichCandidate]) => -entry[1].occurrenceCount)
+  );
+  const limited =
+    options.maxLookups === undefined
+      ? orderedCandidates
+      : A.take(orderedCandidates, Math.max(0, Math.floor(options.maxLookups)));
+  yield* Console.log(
+    `corpus enrich: ${A.length(limited)}/${candidates.size} identifier candidates selected for USPTO lookup`
+  );
+
+  const lookups = Effect.gen(function* () {
+    const uspto = yield* Uspto;
+    return yield* Effect.forEach(
+      limited,
+      ([key, candidate]) =>
+        Effect.gen(function* () {
+          const normalized = key.slice(key.indexOf(":") + 1);
+          yield* Effect.sleep(`${lookupDelayMillis} millis`);
+          const resolved =
+            candidate.kind === "application"
+              ? yield* uspto.getApplication(normalized).pipe(Effect.result)
+              : yield* uspto.searchApplications(`applicationMetaData.patentNumber:"${normalized}"`).pipe(
+                  Effect.flatMap((results) =>
+                    A.head(results).pipe(
+                      O.match({
+                        onNone: () => Effect.fail(makeUsptoError("not-found")),
+                        onSome: Effect.succeed,
+                      })
+                    )
+                  ),
+                  Effect.result
+                );
+
+          if (Result.isFailure(resolved)) {
+            const status = resolved.failure.reason === "not-found" ? ("not-found" as const) : ("failed" as const);
+            return CorpusEnrichmentRecord.make({
+              candidate: normalized,
+              candidateKind: candidate.kind,
+              docketFamilies: [...candidate.docketFamilies].sort(),
+              occurrenceCount: NonNegativeInt.make(candidate.occurrenceCount),
+              parentApplicationNumbers: [],
+              status,
+            });
+          }
+
+          const continuity = yield* uspto
+            .getContinuity(resolved.success.applicationNumberText)
+            .pipe(Effect.orElseSucceed(() => ({ childApplicationNumbers: [], parentApplicationNumbers: [] })));
+
+          return CorpusEnrichmentRecord.make({
+            applicationNumber: resolved.success.applicationNumberText,
+            candidate: normalized,
+            candidateKind: candidate.kind,
+            docketFamilies: [...candidate.docketFamilies].sort(),
+            occurrenceCount: NonNegativeInt.make(candidate.occurrenceCount),
+            parentApplicationNumbers: continuity.parentApplicationNumbers,
+            status: "resolved",
+            ...(resolved.success.firstApplicantName === undefined
+              ? {}
+              : { firstApplicantName: resolved.success.firstApplicantName }),
+            ...(resolved.success.firstInventorName === undefined
+              ? {}
+              : { firstInventorName: resolved.success.firstInventorName }),
+            ...(resolved.success.inventionTitle === undefined
+              ? {}
+              : { inventionTitle: resolved.success.inventionTitle }),
+            ...(resolved.success.patentNumber === undefined ? {} : { patentNumber: resolved.success.patentNumber }),
+          });
+        }),
+      { concurrency: 1 }
+    );
+  });
+
+  const records = yield* Effect.scoped(
+    Layer.build(Uspto.layer).pipe(Effect.flatMap((context) => lookups.pipe(Effect.provide(context))))
+  ).pipe(CorpusCommandError.mapError("USPTO enrichment lookups failed."));
+
+  const manifestLines = yield* Effect.forEach(records, (record) =>
+    encodeCorpusEnrichmentRecordJson(record).pipe(
+      CorpusCommandError.mapError("Enrichment record failed JSONL encoding.")
+    )
+  );
+  yield* writeCorpusStringFile(
+    enrichmentManifestPath,
+    A.length(manifestLines) === 0 ? "" : `${A.join(manifestLines, "\n")}\n`
+  );
+
+  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath }));
+  yield* Effect.scoped(
+    Layer.build(duckDbLayer).pipe(
+      Effect.flatMap((context) =>
+        Effect.gen(function* () {
+          const db = yield* DuckDb;
+          yield* db.run(createEnrichmentTable);
+          yield* Effect.forEach(
+            records,
+            (record) =>
+              db.run(insertEnrichmentStatement, [
+                record.candidate,
+                record.candidateKind,
+                record.status,
+                record.applicationNumber ?? null,
+                record.patentNumber ?? null,
+                record.inventionTitle ?? null,
+                record.firstApplicantName ?? null,
+                record.firstInventorName ?? null,
+                record.occurrenceCount,
+                A.join(record.docketFamilies, " | "),
+                A.join(record.parentApplicationNumbers, " | "),
+              ]),
+            { discard: true }
+          );
+        }).pipe(Effect.provide(context))
+      )
+    )
+  ).pipe(CorpusCommandError.mapError(`Failed writing the enrichment catalog table at "${databasePath}".`));
+
+  const resolvedRecords = A.filter(records, (record) => record.status === "resolved");
+  const summary = CorpusEnrichSummary.make({
+    applicationCandidates: NonNegativeInt.make(
+      A.length(A.filter(records, (record) => record.candidateKind === "application"))
+    ),
+    failedLookups: NonNegativeInt.make(A.length(A.filter(records, (record) => record.status === "failed"))),
+    familyAnchors: NonNegativeInt.make(
+      A.length(A.filter(resolvedRecords, (record) => A.length(record.docketFamilies) > 0))
+    ),
+    notFound: NonNegativeInt.make(A.length(A.filter(records, (record) => record.status === "not-found"))),
+    patentCandidates: NonNegativeInt.make(A.length(A.filter(records, (record) => record.candidateKind === "patent"))),
+    resolved: NonNegativeInt.make(A.length(resolvedRecords)),
+  });
+  const summaryJson = yield* encodeCorpusEnrichSummaryJson(summary).pipe(
+    CorpusCommandError.mapError("Enrich summary failed JSON encoding.")
+  );
+  yield* writeCorpusStringFile(summaryReportPath, `${summaryJson}\n`);
+
+  yield* Console.log(
+    `corpus enrich: resolved=${summary.resolved} notFound=${summary.notFound} failed=${summary.failedLookups} familyAnchors=${summary.familyAnchors} (applications=${summary.applicationCandidates}, patents=${summary.patentCandidates})`
+  );
+  yield* Console.log(`corpus enrich: manifest "${enrichmentManifestPath}"`);
+
+  return summary;
+});
+
 const makeCorpusCommandService = Effect.fn("CorpusCommandService.make")(function* () {
   const runtimeContext = yield* Effect.context<CorpusCommandServiceRequirements>();
 
   return CorpusCommandService.of({
     catalogCorpus: Effect.fn("CorpusCommandService.catalogCorpus")((options) =>
       catalogCorpusImpl(options).pipe(Effect.provide(runtimeContext))
+    ),
+    enrichCorpus: Effect.fn("CorpusCommandService.enrichCorpus")((options) =>
+      enrichCorpusImpl(options).pipe(Effect.provide(runtimeContext))
     ),
     extractCorpus: Effect.fn("CorpusCommandService.extractCorpus")((options) =>
       extractCorpusImpl(options).pipe(Effect.provide(runtimeContext))
@@ -1511,6 +1776,26 @@ export const extractCorpus = Effect.fn("Corpus.extractCorpus")(function* (
 });
 
 /**
+ * Resolve corpus-derived patent and application numbers against USPTO.
+ *
+ * @param options - Enrichment options naming the corpus root.
+ * @returns Summary counts for the enrichment run.
+ * @example
+ * ```ts
+ * import { enrichCorpus } from "@beep/repo-cli/commands/Corpus"
+ * console.log(enrichCorpus)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const enrichCorpus = Effect.fn("Corpus.enrichCorpus")(function* (
+  options: CorpusEnrichOptions
+): Effect.fn.Return<CorpusEnrichSummary, CorpusCommandError, CorpusCommandService> {
+  const corpus = yield* CorpusCommandService;
+  return yield* corpus.enrichCorpus(options);
+});
+
+/**
  * Build the organized/ client, docket, and email-archive taxonomy.
  *
  * @param options - Organize options naming the corpus root.
@@ -1567,4 +1852,5 @@ export const printCorpusIndex = printLines([
   "- bun run beep corpus catalog --corpus-root /path/to/corpus",
   "- bun run beep corpus extract --corpus-root /path/to/corpus --tika-jar /path/to/tika-app.jar --export-children",
   "- bun run beep corpus organize --corpus-root /path/to/corpus",
+  "- bun run beep corpus enrich --corpus-root /path/to/corpus",
 ]);
