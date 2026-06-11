@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2a4ed1808940ab2ef26d4c81bc481b4a35498e50acee611775b62270da9608dd",
+    "digest": "bd77deeafe0932e46466f21b83c2ffa362114a087d59d50967d2ffdbaf881b9a",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -107,8 +107,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/Color/Color.shared.ts",
-        "sha256": "87d53f17fbd52557d56a79abc59934e0e5ca7777422027f9d3c6da549bbd45f5",
-        "bytes": 1090
+        "sha256": "de2daaf4351650bd75aa7749525d23a719cbdecd9117f804087b43659853c19a",
+        "bytes": 1411
       },
       {
         "path": "packages/foundation/modeling/schema/src/Color/Color.transforms.ts",
@@ -482,18 +482,18 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sha256": "2dcc37bda689ee83fde2702f91defea1ed2eaa9a9f3240b18f6e0c3254916cf0",
-        "bytes": 5913
+        "sha256": "589b0f95cd33586ec1c85d1c0c21536544a2b6de4f226d7ae96f4825f5ad145e",
+        "bytes": 6274
       },
       {
         "path": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sha256": "09a5c15765bf49397b49e598dbaf7eb58288c4469d84119ceaa94944209486db",
-        "bytes": 4487
+        "sha256": "483b69688f7475bd6533c293417ce0bc34220adbd9feb9bd9f5f7ecb9a877e0c",
+        "bytes": 4665
       },
       {
         "path": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sha256": "471f23f8a2154a289ddbf2514beec592418c56fce7961ae1c564be78be4a5ec2",
-        "bytes": 4486
+        "sha256": "5e9b55191b155b49d5f8ed6d1c386c3d8b8fbee3b759c6327444c36ba23955e3",
+        "bytes": 4664
       },
       {
         "path": "packages/foundation/modeling/schema/src/Fn/Fn.schema.ts",
@@ -527,8 +527,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sha256": "8d6107fcf532c87a2dd0819badf559e8c1dda35e66ee77129ff3dc022cccf439",
-        "bytes": 4269
+        "sha256": "8e23cc13a7687ecc65ebab01aa0e2d74c5abcd489622425ab74c040b5a5bc7ae",
+        "bytes": 4512
       },
       {
         "path": "packages/foundation/modeling/schema/src/Glob/index.ts",
@@ -4487,7 +4487,7 @@
         "symbolName": "Float16Arr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 94,
+        "sourceLine": 105,
         "summary": "Type for {@link Float16Arr}.",
         "categories": [
           "models"
@@ -4511,7 +4511,7 @@
         "symbolName": "Float16ArrayField",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 194,
+        "sourceLine": 205,
         "summary": "Model field helper for storing `Float16Array` values in variant-based model",
         "categories": [
           "schemas"
@@ -4536,7 +4536,7 @@
         "symbolName": "Float16ArrayFromArray",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 121,
+        "sourceLine": 132,
         "summary": "Bidirectional schema that decodes arrays of numbers into `Float16Array`",
         "categories": [
           "validation"
@@ -4561,7 +4561,7 @@
         "symbolName": "Float16ArrayFromArray",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 153,
+        "sourceLine": 164,
         "summary": "Namespace members for {@link Float16ArrayFromArray}.",
         "categories": [
           "models"
@@ -4585,7 +4585,7 @@
         "symbolName": "Float16ArrayFromArray",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 145,
+        "sourceLine": 156,
         "summary": "Type for {@link Float16ArrayFromArray}.",
         "categories": [
           "models"
@@ -4634,7 +4634,7 @@
         "symbolName": "Float32Arr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 54,
+        "sourceLine": 59,
         "summary": "Type for {@link Float32Arr}.",
         "categories": [
           "models"
@@ -4658,7 +4658,7 @@
         "symbolName": "Float32ArrayField",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 151,
+        "sourceLine": 156,
         "summary": "Model field helper for storing `Float32Array` values in variant-based model",
         "categories": [
           "schemas"
@@ -4683,7 +4683,7 @@
         "symbolName": "Float32ArrayFromArray",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 81,
+        "sourceLine": 86,
         "summary": "Bidirectional schema that decodes arrays of numbers into `Float32Array`",
         "categories": [
           "validation"
@@ -4708,7 +4708,7 @@
         "symbolName": "Float32ArrayFromArray",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 110,
+        "sourceLine": 115,
         "summary": "Namespace members for {@link Float32ArrayFromArray}.",
         "categories": [
           "models"
@@ -4732,7 +4732,7 @@
         "symbolName": "Float32ArrayFromArray",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 102,
+        "sourceLine": 107,
         "summary": "Type for {@link Float32ArrayFromArray}.",
         "categories": [
           "models"
@@ -4781,7 +4781,7 @@
         "symbolName": "Float64Arr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 54,
+        "sourceLine": 59,
         "summary": "Type for {@link Float64Arr}.",
         "categories": [
           "models"
@@ -4805,7 +4805,7 @@
         "symbolName": "Float64ArrayField",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 151,
+        "sourceLine": 156,
         "summary": "Model field helper for storing `Float64Array` values in variant-based model",
         "categories": [
           "schemas"
@@ -4830,7 +4830,7 @@
         "symbolName": "Float64ArrayFromArray",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 81,
+        "sourceLine": 86,
         "summary": "Bidirectional schema that decodes arrays of numbers into `Float64Array`",
         "categories": [
           "validation"
@@ -4855,7 +4855,7 @@
         "symbolName": "Float64ArrayFromArray",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 110,
+        "sourceLine": 115,
         "summary": "Namespace members for {@link Float64ArrayFromArray}.",
         "categories": [
           "models"
@@ -4879,7 +4879,7 @@
         "symbolName": "Float64ArrayFromArray",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 102,
+        "sourceLine": 107,
         "summary": "Type for {@link Float64ArrayFromArray}.",
         "categories": [
           "models"
@@ -5508,7 +5508,7 @@
         "symbolName": "Glob",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 105,
+        "sourceLine": 113,
         "summary": "Branded schema for portable non-empty glob pattern strings.",
         "categories": [
           "validation"
@@ -5533,7 +5533,7 @@
         "symbolName": "Glob",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 118,
+        "sourceLine": 130,
         "summary": "Type for {@link Glob}.",
         "categories": [
           "models"
@@ -10335,7 +10335,7 @@
         "symbolName": "Schema",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 133,
+        "sourceLine": 145,
         "summary": "Primary glob schema role alias.",
         "categories": [
           "schemas"
@@ -10360,7 +10360,7 @@
         "symbolName": "Schema",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 149,
+        "sourceLine": 161,
         "summary": "Runtime type extracted from {@link Schema}.",
         "categories": [
           "models"
@@ -24628,7 +24628,7 @@
         "symbolName": "Float16Arr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 94,
+        "sourceLine": 105,
         "summary": "Type for {@link Float16Arr}.",
         "categories": [
           "models"
@@ -24652,7 +24652,7 @@
         "symbolName": "Float16ArrayField",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 194,
+        "sourceLine": 205,
         "summary": "Model field helper for storing `Float16Array` values in variant-based model",
         "categories": [
           "schemas"
@@ -24677,7 +24677,7 @@
         "symbolName": "Float16ArrayFromArray",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 121,
+        "sourceLine": 132,
         "summary": "Bidirectional schema that decodes arrays of numbers into `Float16Array`",
         "categories": [
           "validation"
@@ -24702,7 +24702,7 @@
         "symbolName": "Float16ArrayFromArray",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 153,
+        "sourceLine": 164,
         "summary": "Namespace members for {@link Float16ArrayFromArray}.",
         "categories": [
           "models"
@@ -24726,7 +24726,7 @@
         "symbolName": "Float16ArrayFromArray",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float16Array.ts",
-        "sourceLine": 145,
+        "sourceLine": 156,
         "summary": "Type for {@link Float16ArrayFromArray}.",
         "categories": [
           "models"
@@ -24800,7 +24800,7 @@
         "symbolName": "Float32Arr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 54,
+        "sourceLine": 59,
         "summary": "Type for {@link Float32Arr}.",
         "categories": [
           "models"
@@ -24824,7 +24824,7 @@
         "symbolName": "Float32ArrayField",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 151,
+        "sourceLine": 156,
         "summary": "Model field helper for storing `Float32Array` values in variant-based model",
         "categories": [
           "schemas"
@@ -24849,7 +24849,7 @@
         "symbolName": "Float32ArrayFromArray",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 81,
+        "sourceLine": 86,
         "summary": "Bidirectional schema that decodes arrays of numbers into `Float32Array`",
         "categories": [
           "validation"
@@ -24874,7 +24874,7 @@
         "symbolName": "Float32ArrayFromArray",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 110,
+        "sourceLine": 115,
         "summary": "Namespace members for {@link Float32ArrayFromArray}.",
         "categories": [
           "models"
@@ -24898,7 +24898,7 @@
         "symbolName": "Float32ArrayFromArray",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float32Array.ts",
-        "sourceLine": 102,
+        "sourceLine": 107,
         "summary": "Type for {@link Float32ArrayFromArray}.",
         "categories": [
           "models"
@@ -24947,7 +24947,7 @@
         "symbolName": "Float64Arr",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 54,
+        "sourceLine": 59,
         "summary": "Type for {@link Float64Arr}.",
         "categories": [
           "models"
@@ -24971,7 +24971,7 @@
         "symbolName": "Float64ArrayField",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 151,
+        "sourceLine": 156,
         "summary": "Model field helper for storing `Float64Array` values in variant-based model",
         "categories": [
           "schemas"
@@ -24996,7 +24996,7 @@
         "symbolName": "Float64ArrayFromArray",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 81,
+        "sourceLine": 86,
         "summary": "Bidirectional schema that decodes arrays of numbers into `Float64Array`",
         "categories": [
           "validation"
@@ -25021,7 +25021,7 @@
         "symbolName": "Float64ArrayFromArray",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 110,
+        "sourceLine": 115,
         "summary": "Namespace members for {@link Float64ArrayFromArray}.",
         "categories": [
           "models"
@@ -25045,7 +25045,7 @@
         "symbolName": "Float64ArrayFromArray",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Float64Array.ts",
-        "sourceLine": 102,
+        "sourceLine": 107,
         "summary": "Type for {@link Float64ArrayFromArray}.",
         "categories": [
           "models"
@@ -26216,7 +26216,7 @@
         "symbolName": "Glob",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 105,
+        "sourceLine": 113,
         "summary": "Branded schema for portable non-empty glob pattern strings.",
         "categories": [
           "validation"
@@ -26241,7 +26241,7 @@
         "symbolName": "Glob",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 118,
+        "sourceLine": 130,
         "summary": "Type for {@link Glob}.",
         "categories": [
           "models"
@@ -26265,7 +26265,7 @@
         "symbolName": "Schema",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 133,
+        "sourceLine": 145,
         "summary": "Primary glob schema role alias.",
         "categories": [
           "schemas"
@@ -26290,7 +26290,7 @@
         "symbolName": "Schema",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/schema/src/Glob/Glob.schema.ts",
-        "sourceLine": 149,
+        "sourceLine": 161,
         "summary": "Runtime type extracted from {@link Schema}.",
         "categories": [
           "models"

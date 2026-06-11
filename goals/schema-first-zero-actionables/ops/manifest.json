@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "schema-first-zero-actionables",
+    "title": "Schema-First Zero Actionables",
+    "status": "active",
+    "created": "2026-06-11",
+    "updated": "2026-06-11",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/schema-first-zero-actionables",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "standards/ARCHITECTURE.md",
+    "standards/effect-first-development.md",
+    ".claude/skills/schema-first-development/SKILL.md",
+    "goals/schema-first-v4-capabilities/README.md",
+    "goals/schema-first-v4-capabilities/SPEC.md",
+    "goals/schema-first-v4-capabilities/PLAN.md",
+    "goals/schema-first-v4-capabilities/reviews/p4-wave3-deferred-arbitraries.md",
+    "goals/schema-first-zero-actionables/README.md",
+    "goals/schema-first-zero-actionables/SPEC.md",
+    "goals/schema-first-zero-actionables/PLAN.md",
+    "goals/schema-first-zero-actionables/GOAL.md",
+    "goals/schema-first-zero-actionables/research/baseline-2026-06-11.md",
+    "standards/schema-first.inventory.jsonc",
+    "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/schema-first-zero-actionables/GOAL.md"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Packet and baseline",
+      "status": "in-progress"
+    },
+    {
+      "id": "P1",
+      "name": "Detector audit",
+      "status": "pending"
+    },
+    {
+      "id": "P2",
+      "name": "Arbitrary leftovers",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "High-volume migration",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Stragglers and hard gate",
+      "status": "pending"
+    },
+    {
+      "id": "P5",
+      "name": "PR closure",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/schema-first-zero-actionables/GOAL.md)\" -le 4000",
+    "jq . goals/schema-first-zero-actionables/ops/manifest.json",
+    "rg -n \"schema-first-zero-actionables|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/schema-first-zero-actionables",
+    "git diff --check -- goals/schema-first-zero-actionables",
+    "bun run beep lint schema-first",
+    "bun run repo-exports:catalog:check",
+    "bun run beep yeet verify",
+    "bun run beep yeet monitor",
+    "bun run beep yeet closeout --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0"
+  ],
+  "stopConditions": [
+    "A detector change would hide a real pure-data schema-first violation.",
+    "A migration requires public API or wire-shape changes not captured by SPEC.md.",
+    "Generated output needs rewriting rather than exclusion or handwritten wrapper migration.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

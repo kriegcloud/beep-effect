@@ -26,12 +26,48 @@ import type { ColorInfo } from "./ChalkSchema.ts";
 import type { ChalkConstructorOptions } from "./PublicSurface.ts";
 
 const $I = $ChalkId.create("Domain");
+class ChalkNoColorState extends S.Class<ChalkNoColorState>($I`ChalkNoColorState`)(
+  {
+    level: S.tag(0),
+  },
+  $I.annote("ChalkNoColorState", {
+    description: "Chalk builder state for disabled color output.",
+  })
+) {}
+
+class ChalkAnsiColorState extends S.Class<ChalkAnsiColorState>($I`ChalkAnsiColorState`)(
+  {
+    level: S.tag(1),
+  },
+  $I.annote("ChalkAnsiColorState", {
+    description: "Chalk builder state for basic ANSI color output.",
+  })
+) {}
+
+class ChalkAnsi256ColorState extends S.Class<ChalkAnsi256ColorState>($I`ChalkAnsi256ColorState`)(
+  {
+    level: S.tag(2),
+  },
+  $I.annote("ChalkAnsi256ColorState", {
+    description: "Chalk builder state for ANSI 256-color output.",
+  })
+) {}
+
+class ChalkTrueColorState extends S.Class<ChalkTrueColorState>($I`ChalkTrueColorState`)(
+  {
+    level: S.tag(3),
+  },
+  $I.annote("ChalkTrueColorState", {
+    description: "Chalk builder state for truecolor output.",
+  })
+) {}
+
 export const ChalkState = ColorSupportLevel.mapMembers(
   Tuple.evolve([
-    (literal) => S.Struct({ level: S.tag(literal.literal) }),
-    (literal) => S.Struct({ level: S.tag(literal.literal) }),
-    (literal) => S.Struct({ level: S.tag(literal.literal) }),
-    (literal) => S.Struct({ level: S.tag(literal.literal) }),
+    () => ChalkNoColorState,
+    () => ChalkAnsiColorState,
+    () => ChalkAnsi256ColorState,
+    () => ChalkTrueColorState,
   ])
 ).pipe(S.toTaggedUnion("level"));
 type ChalkState = typeof ChalkState.Type;

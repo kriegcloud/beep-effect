@@ -15,6 +15,13 @@
  */
 export * from "./Layer.js";
 /**
+ * Schema property-test helper exports.
+ *
+ * @category schema
+ * @since 0.0.0
+ */
+export * from "./Schema.js";
+/**
  * SQL test utility exports.
  *
  * @category testing

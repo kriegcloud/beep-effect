@@ -24,14 +24,15 @@ class TokenizeParameters extends S.Class<TokenizeParameters>($I`TokenizeParamete
   })
 ) {}
 
-const TokenizeSuccess = S.Struct({
-  tokenCount: S.Finite,
-  tokens: S.Array(AiToken),
-}).pipe(
-  $I.annoteSchema("TokenizeSuccess", {
+class TokenizeSuccess extends S.Class<TokenizeSuccess>($I`TokenizeSuccess`)(
+  {
+    tokenCount: S.Finite,
+    tokens: S.Array(AiToken),
+  },
+  $I.annote("TokenizeSuccess", {
     description: "Annotated token stream and total token count for an input text.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for tokenizing text into annotated
@@ -61,5 +62,5 @@ export const Tokenize = Tool.make("Tokenize", {
   failure: AiToolError,
   failureMode: "return",
   parameters: TokenizeParameters,
-  success: TokenizeSuccess,
+  success: S.toEncoded(TokenizeSuccess),
 });

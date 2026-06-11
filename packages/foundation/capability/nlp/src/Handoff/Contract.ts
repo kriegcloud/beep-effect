@@ -182,11 +182,21 @@ export const Span = SpanFields.check(
           issue: "Span end must be greater than or equal to start",
         }
   )
-).pipe(
-  $I.annoteSchema("Span", {
-    description: "A half-open character span [start, end) into the source text (zero-based offsets).",
+)
+  .annotate({
+    toArbitrary: () => (fc) =>
+      fc.tuple(fc.nat(10_000), fc.nat(10_000)).map(([start, length]) =>
+        SpanFields.make({
+          end: NonNegativeInt.make(start + length),
+          start: NonNegativeInt.make(start),
+        })
+      ),
   })
-);
+  .pipe(
+    $I.annoteSchema("Span", {
+      description: "A half-open character span [start, end) into the source text (zero-based offsets).",
+    })
+  );
 
 /**
  * Runtime type of {@link Span}.

@@ -53,5 +53,5 @@ export const DocumentStats = Tool.make("DocumentStats", {
   failure: AiToolError,
   failureMode: "return",
   parameters: DocumentStatsParameters,
-  success: AiDocumentStats,
+  success: S.toEncoded(AiDocumentStats),
 });

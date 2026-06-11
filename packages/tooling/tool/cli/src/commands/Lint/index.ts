@@ -19,6 +19,13 @@ export * from "./Lint.command.js";
  */
 export * from "./Lint.errors.js";
 /**
+ * Schema-first lint utilities.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export { sourceTextHasSchemaArbitraryPropertyCoverage } from "./SchemaFirst.ts";
+/**
  * Schema topology lint utilities.
  *
  * @category cli-commands

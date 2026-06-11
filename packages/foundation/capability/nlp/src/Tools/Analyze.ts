@@ -52,5 +52,5 @@ export const Analyze = Tool.make("Analyze", {
   failure: AiToolError,
   failureMode: "return",
   parameters: AnalyzeParameters,
-  success: AiAnalysis,
+  success: S.toEncoded(AiAnalysis),
 });

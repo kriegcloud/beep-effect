@@ -32,8 +32,9 @@ const ENFORCED_ROOTS = [
 const IDENTIFIER_PROPERTY_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const FUNCTION_LIKE_TEXT_PATTERN = /=>|\bEffect\.Effect</;
 const NON_SCHEMA_SIGNAL_PATTERN =
-  /\bEffect\.Success<|\bLayer\.Layer<|\bAbortSignal\b|\bAbortController\b|\bUint8Array\b|\bEventJournal\.Entry\b|\bZod\b|\bz\./;
+  /\bEffect\.Success<|\bLayer\.Layer<|\bAbortSignal\b|\bAbortController\b|\bUint8Array\b|\bEventJournal\.Entry\b|\bZod\b|\bz\.|\bAtom\.|\bNodeJS\.(?:Readable|Writable)Stream\b|\bStartedTestContainer\b|\bpulumi\.Input<|\bWinkMethods\b|\b(?:Any)?OperationResult\b/;
 const SCHEMA_FIELDS_CALL_PATTERN = /\bS\.(?:Class|Struct|TaggedClass|TaggedStruct|ErrorClass|TaggedErrorClass)\b/;
+const SCHEMA_CLASS_FIELDS_CALL_PATTERN = /\bS\.(?:Class|TaggedClass|ErrorClass|TaggedErrorClass)\b/;
 const NUMERIC_DOMAIN_TOKENS = ["timeout", "count", "size", "rate", "limit", "ms", "seconds"] as const;
 const STATIC_API_SCHEMA_SIGNAL_PATTERN = /\b(?:S\.(?:TaggedUnion|toTaggedUnion)|LiteralKit|MappedLiteralKit)\s*\(/;
 const DEFAULTS_SCHEMA_SIGNAL_PATTERN =
@@ -78,10 +79,11 @@ const SCHEMA_CODEC_HELPERS = [
   "encodeSync",
 ] as const;
 // Schema-derived property coverage requires deriving the arbitrary from the
-// schema itself (S.toArbitrary / Schema.toArbitrary, including toArbitraryLazy).
+// schema itself, either directly (S.toArbitrary / Schema.toArbitrary, including
+// toArbitraryLazy) or through repo-owned helpers that perform that derivation.
 // A bare fc.property/assert/check over a hand-rolled arbitrary is not
 // schema-derived coverage and must not suppress the advisory.
-const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:S|Schema)\.toArbitrary/;
+const SCHEMA_ARBITRARY_PROPERTY_PATTERN = /\b(?:(?:S|Schema)\.toArbitrary|assertSchemaArbitraryDecodesToSelf)\b/;
 const TEST_FILE_PATTERN = /(?:\/test\/|\/tests\/|\.test\.tsx?$|\.spec\.tsx?$)/;
 const TEST_FILE_EXCLUDED_SEGMENTS = [
   "/.repos/",
@@ -295,9 +297,6 @@ const byWorkspacePathLengthDescending: Order.Order<readonly [string, string]> = 
 const sortEntries: (entries: ReadonlyArray<SchemaFirstInventoryEntry>) => ReadonlyArray<SchemaFirstInventoryEntry> =
   flow(A.sort(byEntryKeyAscending));
 
-const isEnforcedFile = (filePath: string): boolean =>
-  A.some(ENFORCED_ROOTS, (root) => filePath === root || Str.startsWith(`${root}/`)(filePath));
-
 const isActiveRuleAdvisory =
   (ruleId: typeof SchemaFirstPolicyRuleId.Type) =>
   (entry: SchemaFirstInventoryEntry): boolean =>
@@ -484,6 +483,30 @@ const detectTypeAliasReason = (node: import("ts-morph").TypeAliasDeclaration): O
   return O.none();
 };
 
+const isFunctionLocalNode = (node: Node): boolean =>
+  node.getFirstAncestor(
+    (ancestor) =>
+      Node.isFunctionDeclaration(ancestor) ||
+      Node.isFunctionExpression(ancestor) ||
+      Node.isArrowFunction(ancestor) ||
+      Node.isMethodDeclaration(ancestor)
+  ) !== undefined;
+
+const isStructFieldsInputForSchemaClass = (callExpression: import("ts-morph").CallExpression): boolean => {
+  const variableDeclaration = callExpression.getFirstAncestorByKind(SyntaxKind.VariableDeclaration);
+  if (variableDeclaration === undefined) {
+    return false;
+  }
+
+  const variableName = variableDeclaration.getName();
+  return A.some(callExpression.getSourceFile().getDescendantsOfKind(SyntaxKind.CallExpression), (candidate) => {
+    if (candidate === callExpression || !SCHEMA_CLASS_FIELDS_CALL_PATTERN.test(candidate.getExpression().getText())) {
+      return false;
+    }
+    return candidate.getArguments()[0]?.getText() === variableName;
+  });
+};
+
 const detectStructReason = (callExpression: import("ts-morph").CallExpression): O.Option<string> => {
   const firstArgument = callExpression.getArguments()[0];
   if (firstArgument === undefined || !Node.isObjectLiteralExpression(firstArgument)) {
@@ -505,6 +528,12 @@ const detectStructReason = (callExpression: import("ts-morph").CallExpression): 
   }
   if (callExpression.getFirstAncestorByKind(SyntaxKind.PropertyAssignment) !== undefined) {
     return O.some("Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass.");
+  }
+  if (isStructFieldsInputForSchemaClass(callExpression)) {
+    return O.some("Internal S.Struct field block feeds an S.Class constructor and stays tied to the class model.");
+  }
+  if (isFunctionLocalNode(callExpression)) {
+    return O.some("Function-local S.Struct wrappers used for transient decode envelopes stay tracked as exceptions.");
   }
   return O.none();
 };
@@ -844,8 +873,25 @@ const isSchemaCodecCallExpression = (callExpression: import("ts-morph").CallExpr
   );
 };
 
+/**
+ * Test whether source text contains schema-derived arbitrary coverage.
+ *
+ * @param sourceText - TypeScript source text to inspect.
+ * @returns Whether the text contains schema-derived arbitrary coverage.
+ * @example
+ * ```ts
+ * import { sourceTextHasSchemaArbitraryPropertyCoverage } from "@beep/repo-cli/commands/Lint"
+ *
+ * console.log(sourceTextHasSchemaArbitraryPropertyCoverage("S.toArbitrary(Worker)"))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const sourceTextHasSchemaArbitraryPropertyCoverage = (sourceText: string): boolean =>
+  SCHEMA_ARBITRARY_PROPERTY_PATTERN.test(sourceText);
+
 const sourceHasSchemaArbitraryPropertyCoverage = (sourceFile: import("ts-morph").SourceFile): boolean =>
-  SCHEMA_ARBITRARY_PROPERTY_PATTERN.test(sourceFile.getFullText());
+  sourceTextHasSchemaArbitraryPropertyCoverage(sourceFile.getFullText());
 
 const arbitraryTestsEntryFromSourceFile = (
   sourceFile: import("ts-morph").SourceFile,
@@ -1153,10 +1199,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     ),
     O.getOrElse(A.empty<SchemaFirstInventoryEntry>)
   );
-  const enforcedCandidates = A.filter(
-    mergedDocument.entries,
-    (entry) => entry.status === "candidate" && isEnforcedFile(entry.file)
-  );
+  const enforcedCandidates = A.filter(mergedDocument.entries, (entry) => entry.status === "candidate");
   const boundaryCodecAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-boundary-codec"));
   const defaultsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-defaults"));
   const staticApiAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-static-api"));
@@ -1209,7 +1252,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   }
 
   if (enforcedCandidates.length > 0) {
-    yield* Console.error("[schema-first] enforced roots still contain candidate findings:");
+    yield* Console.error("[schema-first] repo still contains candidate findings:");
     for (const entry of enforcedCandidates) {
       yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
       yield* logPolicyFinding(

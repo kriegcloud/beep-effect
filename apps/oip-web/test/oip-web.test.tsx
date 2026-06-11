@@ -5,6 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import { Atom } from "effect/unstable/reactivity";
 import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -166,6 +167,8 @@ const oipRuntimeKvsAtom = Atom.kvs({
   runtime: oipBrowserRuntime,
   schema: S.String,
 });
+const OipSiteContentArbitrary = S.toArbitrary(OipSiteContent);
+const ContactSubmissionFormPayloadArbitrary = S.toArbitrary(ContactSubmissionFormPayload);
 
 function OipRuntimeKvsHarness() {
   const [value, setValue] = useAtom(oipRuntimeKvsAtom);
@@ -200,6 +203,16 @@ describe("@beep/oip-web", { concurrent: false }, () => {
     const result = decodeOipSiteContentResult(oipSiteContent);
 
     expect(Result.isSuccess(result)).toBe(true);
+  });
+
+  it("derives valid OIP content and contact form values from production schemas", () => {
+    fc.assert(
+      fc.property(OipSiteContentArbitrary, ContactSubmissionFormPayloadArbitrary, (content, payload) => {
+        expect(S.is(OipSiteContent)(content)).toBe(true);
+        expect(S.is(ContactSubmissionFormPayload)(payload)).toBe(true);
+      }),
+      { numRuns: 20 }
+    );
   });
 
   it("exposes schema class-local decoders beside compatibility exports", () =>
