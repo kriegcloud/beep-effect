@@ -38,6 +38,7 @@ import {
   TurboPlanSnapshot,
   TurboPlanTask,
   TurboWorkspacePackage,
+  YeetExecutedStep,
   YeetProofLockStateForTesting,
   YeetVerdict,
 } from "@beep/repo-cli/test/Yeet";
@@ -52,6 +53,7 @@ import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { FastCheck as fc } from "effect/testing";
 import { describe, expect, it } from "vitest";
 
 const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
@@ -1308,7 +1310,7 @@ describe("yeet publish scope helpers", () => {
       branch: "feature",
       createdAt: "2026-06-11T00:00:00.000Z",
       executed: [
-        {
+        YeetExecutedStep.make({
           result: RepoStepRunResult.make({
             stepId: proofStep.id,
             commandText: "bun run beep quality github-checks pre-push",
@@ -1316,7 +1318,7 @@ describe("yeet publish scope helpers", () => {
             output: "[beep-cli] lint:cspell: cspell .\nUnknown word found",
           }),
           step: proofStep,
-        },
+        }),
       ],
       head: "HEAD",
       message: "yeet publish proof failed after creating the local commit.",
@@ -1358,7 +1360,7 @@ describe("yeet publish scope helpers", () => {
           branch: "feature",
           createdAt: "2026-06-11T00:00:00.000Z",
           executed: [
-            {
+            YeetExecutedStep.make({
               result: RepoStepRunResult.make({
                 stepId: pushStep.id,
                 commandText: "git push -u origin HEAD",
@@ -1366,7 +1368,7 @@ describe("yeet publish scope helpers", () => {
                 output: "",
               }),
               step: pushStep,
-            },
+            }),
           ],
           head: "HEAD",
           message: "yeet publish succeeded.",
@@ -1384,6 +1386,20 @@ describe("yeet publish scope helpers", () => {
         expect(decoded.schemaVersion).toBe("yeet-verdict/v1");
       })
     ));
+
+  it("property: verdict schema round-trips arbitrary verdicts", () => {
+    const VerdictArbitrary = S.toArbitrary(YeetVerdict);
+    fc.assert(
+      fc.property(VerdictArbitrary, (verdict) => {
+        const encoded = S.encodeSync(YeetVerdict)(verdict);
+        const decoded = S.decodeUnknownSync(YeetVerdict)(encoded);
+        expect(decoded.schemaVersion).toBe("yeet-verdict/v1");
+        expect(decoded.lanes.length).toBe(verdict.lanes.length);
+        expect(decoded.outcome).toBe(verdict.outcome);
+      }),
+      { numRuns: 32 }
+    );
+  });
 
   it("parks and restores staged-only residue through a marked stash", () =>
     Effect.runPromise(

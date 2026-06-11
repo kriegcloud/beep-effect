@@ -47,13 +47,16 @@ default is unchanged.
 
 ## Current Phase
 
-P0 Grounding. Next concrete action: re-verify the code map in
-`research/session-findings.md` against the current tree and record findings in
-`research/grounding.md`.
+P4 Verify + publish. P0-P3 are implemented and committed (grounding,
+correctness, flow completion, QoL + docs). Next concrete action: dogfood
+`bun run beep yeet publish --staged-only --pr --monitor` for the final commit,
+then run P5 closeout gates.
 
 ## Latest Evidence
 
-Not started.
+Phase commits on `goals/yeet-agent-ergonomics`: P1 `c964826034`,
+P2 `4d01d9373f`, P3 `ee579dacf7`. Focused suites green (58 yeet + 43
+quality-tasks tests); `research/grounding.md` records the verified code map.
 
 ## Notes
 

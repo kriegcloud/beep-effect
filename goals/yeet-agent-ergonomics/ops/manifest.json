@@ -51,27 +51,27 @@
     {
       "id": "P0",
       "name": "Grounding",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P1",
       "name": "Correctness (staged-only, base-freshness, changeset hint, packetized intent)",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P2",
       "name": "Flow completion (verdict.json, publish --pr)",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P3",
       "name": "QoL + docs (closeout write-backs, lock staleness, deps forcing, skill text)",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P4",
       "name": "Verify + publish (dogfood --staged-only --pr)",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P5",

@@ -13,10 +13,10 @@ import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { commandTextForStep } from "../../../internal/repo-run/index.js";
+import { commandTextForStep, RepoPlanStep, RepoStepRunResult } from "../../../internal/repo-run/index.js";
 import { knownSubLaneRemediationFromOutput } from "./QualityIssueIndex.js";
-import type { RepoPlanStep, RepoStepRunResult } from "../../../internal/repo-run/index.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Verdict");
 
@@ -189,30 +189,42 @@ export class YeetVerdict extends S.Class<YeetVerdict>($I`YeetVerdict`)(
 /**
  * One executed plan step paired with its run result.
  *
- * @category type-level
+ * @example
+ * ```ts
+ * import { YeetExecutedStep } from "@beep/repo-cli/test/Yeet"
+ *
+ * console.log(YeetExecutedStep.name)
+ * ```
+ * @category models
  * @since 0.0.0
  */
-export type YeetExecutedStep = {
-  readonly step: RepoPlanStep;
-  readonly result: RepoStepRunResult;
-};
+export class YeetExecutedStep extends S.Class<YeetExecutedStep>($I`YeetExecutedStep`)(
+  {
+    result: RepoStepRunResult,
+    step: RepoPlanStep,
+  },
+  $I.annote("YeetExecutedStep", {
+    description: "One executed yeet plan step paired with its run result.",
+  })
+) {}
 
 const laneFromExecuted = (executed: YeetExecutedStep): YeetVerdictLane => {
   const failed = executed.result.exitCode !== 0;
+  const repairCommand = failed
+    ? O.some(
+        pipe(
+          knownSubLaneRemediationFromOutput(executed.result.output),
+          O.getOrElse(() => commandTextForStep(executed.step))
+        )
+      )
+    : O.none<string>();
   return YeetVerdictLane.make({
     id: executed.step.id,
     label: executed.step.label,
     phase: executed.step.phase,
     status: failed ? "failed" : "passed",
     exitCode: executed.result.exitCode,
-    ...(failed
-      ? {
-          repairCommand: pipe(
-            knownSubLaneRemediationFromOutput(executed.result.output),
-            O.getOrElse(() => commandTextForStep(executed.step))
-          ),
-        }
-      : {}),
+    ...R.getSomes({ repairCommand }),
   });
 };
 
@@ -305,9 +317,9 @@ export const buildYeetVerdict = (input: {
       )
     ),
     runId: input.runId,
-    ...(input.indexPath !== undefined ? { indexPath: input.indexPath } : {}),
-    ...(input.baseFreshness !== undefined ? { baseFreshness: input.baseFreshness } : {}),
-    ...(input.stash !== undefined ? { stash: input.stash } : {}),
+    ...R.getSomes({ indexPath: O.fromUndefinedOr(input.indexPath) }),
+    ...R.getSomes({ baseFreshness: O.fromUndefinedOr(input.baseFreshness) }),
+    ...R.getSomes({ stash: O.fromUndefinedOr(input.stash) }),
   });
 };
 

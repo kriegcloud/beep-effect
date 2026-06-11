@@ -43,11 +43,10 @@ import {
   QualityIssueRouting,
   qualityIssuesFromStepResult,
 } from "./QualityIssueIndex.js";
-import { buildYeetVerdict, YeetBaseFreshness, YeetStashState } from "./Verdict.js";
+import { buildYeetVerdict, YeetBaseFreshness, YeetExecutedStep, YeetStashState } from "./Verdict.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoPlanStep, RepoRunPlan, RepoStepRunResult } from "../../../internal/repo-run/index.js";
 import type { PackageQualityReport, QualityIssueIndex } from "./QualityIssueIndex.js";
-import type { YeetExecutedStep } from "./Verdict.js";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Handler");
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
@@ -426,7 +425,8 @@ const summarizePublishPaths = (paths: ReadonlyArray<string>): string => {
     unique.length > PUBLISH_PATH_EXAMPLE_LIMIT
       ? `\n  - (+${unique.length - PUBLISH_PATH_EXAMPLE_LIMIT} more; full list in the failure packet)`
       : "";
-  return `${unique.length} path(s) across ${topLevelDirs.length} top-level entr${topLevelDirs.length === 1 ? "y" : "ies"}: ${A.join(topLevelDirs, ", ")}\n${examples}${overflow}`;
+  const entryWord = topLevelDirs.length === 1 ? "entry" : "entries";
+  return `${unique.length} path(s) across ${topLevelDirs.length} top-level ${entryWord}: ${A.join(topLevelDirs, ", ")}\n${examples}${overflow}`;
 };
 
 const partiallyStagedPaths = (
@@ -1981,7 +1981,7 @@ const runPhase = Effect.fn("Yeet.runPhase")(function* (
     steps,
     (step) =>
       executeStepWithArtifacts(context, step).pipe(
-        Effect.tap((result) => Ref.update(recorder, A.append({ result, step })))
+        Effect.tap((result) => Ref.update(recorder, A.append(YeetExecutedStep.make({ result, step }))))
       ),
     { concurrency: 1 }
   );
