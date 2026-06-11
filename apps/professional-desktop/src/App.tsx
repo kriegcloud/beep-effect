@@ -1,5 +1,5 @@
 /**
- * Professional Desktop React workbench shell.
+ * Professional Desktop React workbench shell bootstrap.
  *
  * @packageDocumentation
  * @category components

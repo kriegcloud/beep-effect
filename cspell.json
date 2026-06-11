@@ -58,8 +58,8 @@
   ],
   "ignorePaths": [
     "bun.lock",
-    "_typos.toml",
     "patches/**",
+    "_typos.toml",
     "node_modules",
     ".repos",
     "graphify-out/**",

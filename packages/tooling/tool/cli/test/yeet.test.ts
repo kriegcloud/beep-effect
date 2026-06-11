@@ -794,6 +794,27 @@ describe("yeet planner", () => {
     ).toMatchObject({});
   });
 
+  it("parses only labeled Greptile summary scores", () => {
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "<h3>Confidence Score: 5/5</h3>\nReviewed 12 of 52 captures.",
+          url: "https://github.test/pr#confidence",
+        },
+      ])
+    ).toMatchObject({ score: "5/5" });
+    expect(
+      latestGreptileSummaryForTesting([
+        {
+          authorLogin: "greptile-apps",
+          body: "Reviewed 12/5 candidate notes without a labeled score.",
+          url: "https://github.test/pr#noise",
+        },
+      ])
+    ).toMatchObject({});
+  });
+
   it("infers missing Greptile issue counts from active Greptile threads", () => {
     expect(inferGreptileIssueCountForTesting(latestGreptileSummaryForTesting([]), 0)).toMatchObject({
       issueCount: 0,
