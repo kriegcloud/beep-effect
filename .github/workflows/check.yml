@@ -261,25 +261,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # This job only runs Fallow advisory envelope generation after setup.
-          # Keep cleanup narrow and thresholded so runner image/toolchain changes
-          # cannot silently affect later steps when disk pressure is absent.
+          # This job only needs the monorepo toolchain plus Fallow. The shared
+          # setup step can exhaust the default runner image when cleanup is
+          # skipped, so clear the large preinstalled stacks before installing.
           echo "Disk before cleanup:"
           df -h /
-          available_kb="$(df --output=avail / | tail -n 1 | tr -d ' ')"
-          min_available_kb=$((12 * 1024 * 1024))
-
-          if (( available_kb < min_available_kb )); then
-            sudo rm -rf \
-              /opt/ghc \
-              /usr/local/.ghcup \
-              /usr/local/lib/android \
-              /usr/local/share/boost \
-              /usr/share/dotnet
-            sudo apt-get clean
-          else
-            echo "Skipping disk cleanup; available space is above threshold."
-          fi
+          sudo rm -rf \
+            /opt/ghc \
+            /usr/local/.ghcup \
+            /usr/local/lib/android \
+            /usr/local/share/boost \
+            /usr/share/dotnet
+          sudo apt-get clean
+          docker system prune --all --force --volumes || true
           echo "Disk after cleanup:"
           df -h /
 
