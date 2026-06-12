@@ -88,6 +88,7 @@ const LintPolicySubcommand = LiteralKit([
   "circular",
   "deprecated-apis",
   "package-test-imports",
+  "policy",
   "reflection-artifacts",
   "schema-first",
   "schema-topology",
@@ -556,11 +557,9 @@ const isExplicitTurboAffectedOrScopeArg = (arg: string): boolean =>
 
 const isLintFixAggregateArg = (arg: string): boolean => A.some(LINT_FIX_AGGREGATE_ARGS, (name) => name === arg);
 
-const stripLintFixAggregateArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(
-    args,
-    A.filter((arg) => !isLintFixAggregateArg(arg))
-  );
+const stripLintFixAggregateArgs: (args: ReadonlyArray<string>) => ReadonlyArray<string> = A.filter(
+  (arg) => !isLintFixAggregateArg(arg)
+);
 
 const shouldForceAggregateLintFix = (args: ReadonlyArray<string>): boolean => A.some(args, isLintFixAggregateArg);
 
@@ -1194,7 +1193,7 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:reflection-artifacts", ["lint", "reflection-artifacts"]),
   repoCliStep(repoRoot, "lint:schema-first", ["lint", "schema-first"]),
   repoCliStep(repoRoot, "lint:deprecated-apis", ["lint", "deprecated-apis"]),
-  bunxStep(repoRoot, "lint:jsdoc", ["eslint", "."]),
+  bunxStep(repoRoot, "lint:jsdoc", ["eslint", ".", "--max-warnings=0"]),
   repoCliStep(repoRoot, "lint:jsdoc-module-tags", ["quality", "jsdoc-module-tags"]),
   repoCliStep(repoRoot, "lint:docgen", ["docgen", "check", "--reuse-proof-manifest"]),
   bunxStep(repoRoot, "lint:spell", ["cspell", ".", "--no-progress"]),
@@ -1204,6 +1203,45 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   repoCliStep(repoRoot, "lint:clones", ["reuse", "clones", "--check"]),
   bunxStep(repoRoot, "lint:typos", ["typos"]),
 ];
+
+/**
+ * Build the repo-wide root lint policy subprocess steps.
+ *
+ * @param repoRoot - Repository root directory.
+ * @returns Planned subprocess steps for policy-only lint verification.
+ * @example
+ * ```ts
+ * import { rootLintPolicyStepsForTesting } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(rootLintPolicyStepsForTesting("/repo").map((step) => step.label))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const rootLintPolicyStepsForTesting = (repoRoot: string): ReadonlyArray<QualityTaskStep> =>
+  rootRepoLintPolicySteps(repoRoot);
+
+/**
+ * Run the repo-wide root lint policy checks without the aggregate Turbo lint lane.
+ *
+ * @example
+ * ```ts
+ * import { runRootLintPolicyTask } from "@beep/repo-cli/commands/Quality"
+ *
+ * console.log(runRootLintPolicyTask)
+ * ```
+ * @category use-cases
+ * @since 0.0.0
+ */
+export const runRootLintPolicyTask: Effect.Effect<void, QualityTaskError, QualityTaskEnvironment> = Effect.gen(
+  function* () {
+    const path = yield* Path.Path;
+    const cwd = path.resolve(process.cwd());
+    const repoRoot = yield* findRepoRoot(cwd);
+
+    yield* runStreamingStepGroup("lint:policy", rootRepoLintPolicySteps(repoRoot));
+  }
+);
 
 const rootLintPolicySteps = (
   repoRoot: string,

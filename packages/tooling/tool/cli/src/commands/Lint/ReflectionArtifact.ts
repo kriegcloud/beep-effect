@@ -3,8 +3,9 @@
  *
  * Verifies that completed goal packets carry a schema-valid closeout reflection
  * under `goals/<slug>/history/reflections/<YYYY-MM-DD>-<agent>.md`. Packets that
- * opt in via `reflectionRequired: true` in their manifest are gated (blocking);
- * other completed packets surface non-fatal advisories so the backlog is visible.
+ * opt in via `reflectionRequired: true` in their manifest record the intent
+ * explicitly, but all completed packets are gated once they lack a valid
+ * reflection artifact.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -21,6 +22,7 @@ import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
+import { optionalProp } from "../../internal/cli/OptionRecord.js";
 
 const $I = $RepoCliId.create("commands/Lint/ReflectionArtifact");
 
@@ -31,9 +33,6 @@ const REFLECTION_FILE_PATTERN = /^\d{4}-\d{2}-\d{2}-.+\.md$/;
 const COMPLETED_STATUS_TOKENS: ReadonlyArray<string> = ["completed-retained", "complete", "completed", "v1-closed"];
 
 const stringifyJsonLine = SchemaGetter.stringifyJson({ space: 0 });
-
-const optionalProp = <Key extends string, Value>(key: Key, value: O.Option<Value>): { readonly [K in Key]?: Value } =>
-  O.isSome(value) ? ({ [key]: value.value } as { readonly [K in Key]?: Value }) : {};
 
 const ReflectionConfidence = LiteralKit(["high", "medium", "low"]).pipe(
   $I.annoteSchema("ReflectionConfidence", {
@@ -238,7 +237,7 @@ export const runReflectionArtifactLint = Effect.fn(function* () {
     if (O.isNone(manifestRead)) {
       continue;
     }
-    const { status, reflectionRequired } = readManifestStatus(parse(manifestRead.value));
+    const { status } = readManifestStatus(parse(manifestRead.value));
     const completed = COMPLETED_STATUS_TOKENS.includes(status);
     if (!completed) {
       continue;
@@ -253,11 +252,11 @@ export const runReflectionArtifactLint = Effect.fn(function* () {
     if (reflectionFiles.length === 0) {
       const finding = makeFinding(
         slug,
-        reflectionRequired ? "error" : "warning",
+        "error",
         `Completed goal "${slug}" (status: ${status}) has no closeout reflection artifact.`,
         REMEDIATION
       );
-      (reflectionRequired ? blocking : advisories).push(finding);
+      blocking.push(finding);
       continue;
     }
 
@@ -267,12 +266,12 @@ export const runReflectionArtifactLint = Effect.fn(function* () {
       if (!valid) {
         const finding = makeFinding(
           slug,
-          reflectionRequired ? "error" : "warning",
+          "error",
           `Reflection artifact has missing or invalid ReflectionFrontmatter.`,
           REMEDIATION,
           `${reflectionsDir}/${file}`
         );
-        (reflectionRequired ? blocking : advisories).push(finding);
+        blocking.push(finding);
       }
     }
   }

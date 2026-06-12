@@ -89,7 +89,7 @@ const metadataValueToString = (value: unknown): O.Option<string> => {
   if (P.isString(value)) {
     return O.some(value);
   }
-  if (Array.isArray(value)) {
+  if (A.isArray(value)) {
     const strings = A.filter(value, P.isString);
     return A.length(strings) === 0 ? O.none() : O.some(A.join(strings, "; "));
   }

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "51770580ee497181748345b1a6061d7636256e844a5837e6e4f11f4c432b33a2",
+    "digest": "09481991442447276905dea97944d5b7c84f2cbd12b919e36532478930bbebe1",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/drivers/wink/src/WinkBackend.service.ts",
-        "sha256": "e181b40b798c82ac41c99899e7a41a87f369760529eb5395178d332b08ec7625",
-        "bytes": 6184
+        "sha256": "6d455a0fbb9a7ceef23b0061b421877416a4947a6890dbb320c6cdbca31257af",
+        "bytes": 6215
       },
       {
         "path": "packages/drivers/wink/src/WinkCorpus.service.ts",
@@ -87,8 +87,8 @@
       },
       {
         "path": "packages/drivers/wink/src/WinkTools.service.ts",
-        "sha256": "023a44f6ee3d32da6bfa7fd7ff5dcd5d16bb244a6423205256963b99ebe38635",
-        "bytes": 39405
+        "sha256": "383e9f8c713e10e9073b518e39ebe43ac9275a79137abd3c05e553c049f5b67c",
+        "bytes": 39351
       },
       {
         "path": "packages/drivers/wink/src/WinkUtils.service.ts",
@@ -556,7 +556,7 @@
         "symbolName": "WinkBackendLive",
         "exportKind": "const",
         "sourcePath": "packages/drivers/wink/src/WinkBackend.service.ts",
-        "sourceLine": 150,
+        "sourceLine": 151,
         "summary": "Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}).",
         "categories": [
           "layers"
@@ -959,7 +959,7 @@
         "symbolName": "WinkNlpToolkitLive",
         "exportKind": "const",
         "sourcePath": "packages/drivers/wink/src/WinkTools.service.ts",
-        "sourceLine": 345,
+        "sourceLine": 343,
         "summary": "Live toolkit handler layer backed by the wink NLP runtime.",
         "categories": [
           "layers"
@@ -1710,7 +1710,7 @@
         "symbolName": "WinkBackendLive",
         "exportKind": "const",
         "sourcePath": "packages/drivers/wink/src/WinkBackend.service.ts",
-        "sourceLine": 150,
+        "sourceLine": 151,
         "summary": "Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}).",
         "categories": [
           "layers"
@@ -2113,7 +2113,7 @@
         "symbolName": "WinkNlpToolkitLive",
         "exportKind": "const",
         "sourcePath": "packages/drivers/wink/src/WinkTools.service.ts",
-        "sourceLine": 345,
+        "sourceLine": 343,
         "summary": "Live toolkit handler layer backed by the wink NLP runtime.",
         "categories": [
           "layers"
@@ -3114,7 +3114,7 @@
         "symbolName": "WinkBackendLive",
         "exportKind": "const",
         "sourcePath": "packages/drivers/wink/src/WinkBackend.service.ts",
-        "sourceLine": 150,
+        "sourceLine": 151,
         "summary": "Live {@link NLPBackend} layer backed by wink-nlp (requires {@link WinkEngine}).",
         "categories": [
           "layers"
@@ -3691,7 +3691,7 @@
         "symbolName": "WinkNlpToolkitLive",
         "exportKind": "const",
         "sourcePath": "packages/drivers/wink/src/WinkTools.service.ts",
-        "sourceLine": 345,
+        "sourceLine": 343,
         "summary": "Live toolkit handler layer backed by the wink NLP runtime.",
         "categories": [
           "layers"

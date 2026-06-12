@@ -11,7 +11,7 @@ import { LiteralKit } from "@beep/schema";
 import { O as OptionUtils } from "@beep/utils";
 import { Effect } from "effect";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -557,13 +557,11 @@ const ghOutput = Effect.fn("YeetCloseout.ghOutput")(function* (
   return result.output;
 });
 
-const normalizedTokens = (value: string): ReadonlyArray<string> =>
-  pipe(
-    value,
-    Str.split(","),
-    A.map((token) => Str.toLowerCase(Str.trim(token))),
-    A.filter(Str.isNonEmpty)
-  );
+const normalizedTokens: (value: string) => ReadonlyArray<string> = flow(
+  Str.split(","),
+  A.map(flow(Str.trim, Str.toLowerCase)),
+  A.filter(Str.isNonEmpty)
+);
 
 const authorLogin = (author: GhActor | null): string => author?.login ?? "unknown";
 
@@ -604,34 +602,30 @@ const parseIssueCount = (body: string): O.Option<number> => {
   );
 };
 
-const latestGreptileSummary = (comments: ReadonlyArray<GhComment>): GreptileSummary =>
-  pipe(
-    comments,
-    A.filter((comment) => isGreptileComment(comment.author)),
-    A.map((comment) =>
-      GreptileSummary.make({
-        ...OptionUtils.getSomesStruct({ issueCount: parseIssueCount(comment.body) }),
-        ...OptionUtils.getSomesStruct({ score: parseScore(comment.body) }),
-        url: comment.url,
-      })
-    ),
-    A.filter((summary) => summary.score !== undefined || summary.issueCount !== undefined),
-    A.reverse,
-    A.head,
-    O.getOrElse(() => GreptileSummary.make({}))
-  );
+const latestGreptileSummary: (comments: ReadonlyArray<GhComment>) => GreptileSummary = flow(
+  A.filter((comment) => isGreptileComment(comment.author)),
+  A.map((comment) =>
+    GreptileSummary.make({
+      ...OptionUtils.getSomesStruct({ issueCount: parseIssueCount(comment.body) }),
+      ...OptionUtils.getSomesStruct({ score: parseScore(comment.body) }),
+      url: comment.url,
+    })
+  ),
+  A.filter((summary) => summary.score !== undefined || summary.issueCount !== undefined),
+  A.reverse,
+  A.head,
+  O.getOrElse(() => GreptileSummary.make({}))
+);
 
-const greptileAuthoredReviewThreadCount = (threads: ReadonlyArray<GhReviewThread>): number =>
-  pipe(
-    threads,
-    A.filter(
-      (thread) =>
-        !thread.isResolved &&
-        !thread.isOutdated &&
-        A.some(thread.comments.nodes, (comment) => isGreptileComment(comment.author))
-    ),
-    A.length
-  );
+const greptileAuthoredReviewThreadCount: (threads: ReadonlyArray<GhReviewThread>) => number = flow(
+  A.filter(
+    (thread) =>
+      !thread.isResolved &&
+      !thread.isOutdated &&
+      A.some(thread.comments.nodes, (comment) => isGreptileComment(comment.author))
+  ),
+  A.length
+);
 
 const botAuthoredReviewThreadCount = (threads: ReadonlyArray<GhReviewThread>, token: string): number =>
   pipe(
@@ -855,6 +849,11 @@ const closeoutGateStates = (
 /**
  * Build durable PR closeout gate states from simplified test inputs.
  *
+ * @param options - PR closeout options controlling gate requirements.
+ * @param actionableReviewThreadCount - Number of unresolved actionable review threads.
+ * @param greptile - Latest Greptile summary used for quality gates.
+ * @param botComments - Simplified bot comments to include in closeout state.
+ * @returns Durable PR closeout gate states for tests.
  * @example
  * ```ts
  * import { closeoutGateStatesForTesting, GreptileSummary, PrCloseoutOptions } from "@beep/repo-cli/test/Yeet"
@@ -1106,8 +1105,11 @@ type CloseoutWriteIntent = {
   readonly threadId: string;
 };
 
-const caseSensitiveTokens = (value: string): ReadonlyArray<string> =>
-  pipe(value, Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const caseSensitiveTokens: (value: string) => ReadonlyArray<string> = flow(
+  Str.split(","),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const closeoutWritePlan = (
   replyThread: string,

@@ -1,84 +1,121 @@
 import { runTerseEffectRules, TerseEffectRulesOptions } from "@beep/repo-cli/test/Laws";
+import { provideScopedLayer } from "@beep/test-utils";
 import { A } from "@beep/utils";
-import { NodeServices } from "@effect/platform-node";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
+import {
+  NodeTestLayer,
+  readProjectFile,
+  withTempWorkingDirectory,
+  writeDefaultTsconfig,
+  writeProjectFile,
+} from "./support/CommandTest.js";
 
-const provideScopedLayer =
-  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
-  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
-    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+const DemoSourcePath = "packages/demo/src/index.ts" as const;
 
-const testLayer = Layer.mergeAll(NodeServices.layer);
+type TerseEffectSummary = {
+  readonly touchedFiles: number;
+  readonly helpersSimplified: number;
+  readonly thunkHelpersSimplified: number;
+  readonly flowCandidatesDetected: number;
+  readonly optionObjectCompactionCandidatesDetected: number;
+  readonly conditionalOptionalObjectSpreadCandidatesDetected: number;
+  readonly nestedOptionMatchCandidatesDetected: number;
+  readonly nestedBoolMatchCandidatesDetected: number;
+  readonly dualOverloadCandidatesDetected: number;
+  readonly strictFailure: boolean;
+  readonly changedFiles: ReadonlyArray<string>;
+  readonly blockingFiles: ReadonlyArray<string>;
+  readonly rewritableFiles: ReadonlyArray<string>;
+  readonly informationalFiles: ReadonlyArray<string>;
+  readonly blockingFindings: ReadonlyArray<string>;
+  readonly rewritableFindings: ReadonlyArray<string>;
+  readonly informationalFindings: ReadonlyArray<string>;
+};
 
-const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const tmpDir = yield* fs.makeTempDirectory();
-      const previousCwd = process.cwd();
-      process.chdir(tmpDir);
-      return { fs, previousCwd, tmpDir } as const;
-    }),
-    () => use,
-    ({ fs, previousCwd, tmpDir }) =>
-      Effect.gen(function* () {
-        process.chdir(previousCwd);
-        yield* fs.remove(tmpDir, { recursive: true });
-      })
+const writeDemoSource = (lines: ReadonlyArray<string>) => writeProjectFile(DemoSourcePath, A.join(lines, "\n"));
+
+const runTerseRules = (write: boolean, strictCheck: boolean) =>
+  runTerseEffectRules(
+    TerseEffectRulesOptions.make({
+      write,
+      strictCheck,
+      excludePaths: [],
+    })
   );
 
-const writeProjectFile = Effect.fn(function* (relativePath: string, content: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const absolutePath = path.join(process.cwd(), relativePath);
-  const directoryPath = path.dirname(absolutePath);
+const writeHelperWrapperFixture = writeDemoSource([
+  'import * as A from "effect/Array";',
+  "",
+  "export const value = {",
+  "  onNone: () => A.empty<string>(),",
+  "  onSome: (reference) => A.make(reference),",
+  "};",
+  "",
+]);
 
-  yield* fs.makeDirectory(directoryPath, { recursive: true });
-  yield* fs.writeFileString(absolutePath, content);
-});
+const writeFlowThunkFixture = writeDemoSource([
+  'import { pipe } from "effect";',
+  'import * as O from "effect/Option";',
+  'import { thunkUndefined } from "@beep/utils";',
+  "",
+  "declare const parse: (value: string) => O.Option<string>;",
+  "declare const render: (value: O.Option<string>) => string;",
+  "",
+  "export const value = {",
+  "  onNone: () => undefined,",
+  "  parse: (input: string) => pipe(input, parse, render),",
+  "};",
+  "",
+]);
 
-const readProjectFile = Effect.fn(function* (relativePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  return yield* fs.readFileString(path.join(process.cwd(), relativePath));
-});
+const expectNoHelperFlowFindings = (summary: TerseEffectSummary) => {
+  expect(summary.helpersSimplified).toBe(0);
+  expect(summary.thunkHelpersSimplified).toBe(0);
+  expect(summary.flowCandidatesDetected).toBe(0);
+};
 
-const writeTsconfig = writeProjectFile(
-  "tsconfig.json",
-  A.join(["{", '  "compilerOptions": {', '    "target": "ES2022",', '    "module": "ESNext"', "  }", "}"], "\n")
-);
+const expectNoCoreFindings = (summary: TerseEffectSummary) => {
+  expectNoHelperFlowFindings(summary);
+  expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
+};
+
+const expectCleanTerseSummary = (summary: TerseEffectSummary) => {
+  expect(summary.touchedFiles).toBe(0);
+  expectNoCoreFindings(summary);
+  expect(summary.strictFailure).toBe(false);
+  expect(summary.changedFiles).toEqual([]);
+};
+
+const expectStrictDemoChange = (summary: TerseEffectSummary) => {
+  expect(summary.strictFailure).toBe(true);
+  expect(summary.changedFiles).toEqual([DemoSourcePath]);
+};
+
+const expectFlowThunkFindings = (summary: TerseEffectSummary) => {
+  expect(summary.blockingFiles).toEqual([DemoSourcePath]);
+  expect(summary.rewritableFiles).toEqual([DemoSourcePath]);
+  expect(summary.informationalFiles).toEqual([]);
+  expect(summary.blockingFindings).toEqual(
+    expect.arrayContaining([
+      expect.stringMatching(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u),
+      expect.stringMatching(/^packages\/demo\/src\/index\.ts:\d+:\d+ flow-candidate$/u),
+    ])
+  );
+  expect(summary.rewritableFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
+  expect(summary.informationalFindings).toEqual([]);
+};
 
 describe("terse effect laws", () => {
   it("reports helper simplifications in dry-run check mode without rewriting files", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
-          yield* writeProjectFile(
-            "packages/demo/src/index.ts",
-            A.join(
-              [
-                'import * as A from "effect/Array";',
-                "",
-                "export const value = {",
-                "  onNone: () => A.empty<string>(),",
-                "  onSome: (reference) => A.make(reference),",
-                "};",
-                "",
-              ],
-              "\n"
-            )
-          );
+          yield* writeDefaultTsconfig;
+          yield* writeHelperWrapperFixture;
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
-          const source = yield* readProjectFile("packages/demo/src/index.ts");
+          const summary = yield* runTerseRules(false, true);
+          const source = yield* readProjectFile(DemoSourcePath);
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.helpersSimplified).toBe(2);
@@ -86,42 +123,22 @@ describe("terse effect laws", () => {
           expect(summary.flowCandidatesDetected).toBe(0);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(true);
-          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(summary.changedFiles).toEqual([DemoSourcePath]);
           expect(source).toContain("onNone: () => A.empty<string>()");
           expect(source).toContain("onSome: (reference) => A.make(reference)");
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("rewrites supported helper wrappers in write mode", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
-          yield* writeProjectFile(
-            "packages/demo/src/index.ts",
-            A.join(
-              [
-                'import * as A from "effect/Array";',
-                "",
-                "export const value = {",
-                "  onNone: () => A.empty<string>(),",
-                "  onSome: (reference) => A.make(reference),",
-                "};",
-                "",
-              ],
-              "\n"
-            )
-          );
+          yield* writeDefaultTsconfig;
+          yield* writeHelperWrapperFixture;
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: true,
-              strictCheck: false,
-              excludePaths: [],
-            })
-          );
-          const source = yield* readProjectFile("packages/demo/src/index.ts");
+          const summary = yield* runTerseRules(true, false);
+          const source = yield* readProjectFile(DemoSourcePath);
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.helpersSimplified).toBe(2);
@@ -132,16 +149,16 @@ describe("terse effect laws", () => {
           expect(source).toContain("onNone: A.empty<string>");
           expect(source).toContain("onSome: A.of");
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("leaves already-terse code unchanged", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 'import * as A from "effect/Array";',
@@ -156,59 +173,22 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
-          expect(summary.touchedFiles).toBe(0);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
-          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
-          expect(summary.strictFailure).toBe(false);
-          expect(summary.changedFiles).toEqual([]);
+          expectCleanTerseSummary(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("detects flow candidates and shared thunk helpers in dry-run mode", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
-          yield* writeProjectFile(
-            "packages/demo/src/index.ts",
-            A.join(
-              [
-                'import { pipe } from "effect";',
-                'import * as O from "effect/Option";',
-                'import { thunkUndefined } from "@beep/utils";',
-                "",
-                "declare const parse: (value: string) => O.Option<string>;",
-                "declare const render: (value: O.Option<string>) => string;",
-                "",
-                "export const value = {",
-                "  onNone: () => undefined,",
-                "  parse: (input: string) => pipe(input, parse, render),",
-                "};",
-                "",
-              ],
-              "\n"
-            )
-          );
+          yield* writeDefaultTsconfig;
+          yield* writeFlowThunkFixture;
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
-          const source = yield* readProjectFile("packages/demo/src/index.ts");
+          const summary = yield* runTerseRules(false, true);
+          const source = yield* readProjectFile(DemoSourcePath);
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.helpersSimplified).toBe(0);
@@ -216,52 +196,22 @@ describe("terse effect laws", () => {
           expect(summary.flowCandidatesDetected).toBe(1);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(true);
-          expect(summary.blockingFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.rewritableFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.informationalFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.blockingFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
-          expect(summary.rewritableFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
-          expect(summary.informationalFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ flow-candidate$/u);
+          expectFlowThunkFindings(summary);
           expect(source).toContain("onNone: () => undefined");
           expect(source).toContain("parse: (input: string) => pipe(input, parse, render)");
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
-  it("rewrites shared thunk helper cases while leaving flow-only candidates for manual follow-up", () =>
+  it("rewrites shared thunk helper cases while keeping flow-only candidates blocking", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
-          yield* writeProjectFile(
-            "packages/demo/src/index.ts",
-            A.join(
-              [
-                'import { pipe } from "effect";',
-                'import * as O from "effect/Option";',
-                'import { thunkUndefined } from "@beep/utils";',
-                "",
-                "declare const parse: (value: string) => O.Option<string>;",
-                "declare const render: (value: O.Option<string>) => string;",
-                "",
-                "export const value = {",
-                "  onNone: () => undefined,",
-                "  parse: (input: string) => pipe(input, parse, render),",
-                "};",
-                "",
-              ],
-              "\n"
-            )
-          );
+          yield* writeDefaultTsconfig;
+          yield* writeFlowThunkFixture;
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: true,
-              strictCheck: false,
-              excludePaths: [],
-            })
-          );
-          const source = yield* readProjectFile("packages/demo/src/index.ts");
+          const summary = yield* runTerseRules(true, false);
+          const source = yield* readProjectFile(DemoSourcePath);
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.helpersSimplified).toBe(0);
@@ -269,25 +219,20 @@ describe("terse effect laws", () => {
           expect(summary.flowCandidatesDetected).toBe(1);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
-          expect(summary.blockingFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.rewritableFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.informationalFiles).toEqual(["packages/demo/src/index.ts"]);
-          expect(summary.blockingFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
-          expect(summary.rewritableFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ thunk-helper$/u);
-          expect(summary.informationalFindings[0]).toMatch(/^packages\/demo\/src\/index\.ts:\d+:\d+ flow-candidate$/u);
+          expectFlowThunkFindings(summary);
           expect(source).toContain("onNone: thunkUndefined");
           expect(source).toContain("parse: (input: string) => pipe(input, parse, render)");
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("ignores type-only thunk imports when checking shared helper availability", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 'import { type thunkUndefined, thunk0 } from "@beep/utils";',
@@ -300,31 +245,20 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
-          expect(summary.touchedFiles).toBe(0);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
-          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
-          expect(summary.strictFailure).toBe(false);
+          expectCleanTerseSummary(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("reports whole-object Option match compaction candidates without rewriting files", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 'import { pipe } from "effect";',
@@ -349,34 +283,25 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
-          const source = yield* readProjectFile("packages/demo/src/index.ts");
+          const summary = yield* runTerseRules(false, true);
+          const source = yield* readProjectFile(DemoSourcePath);
 
           expect(summary.touchedFiles).toBe(1);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
+          expectNoHelperFlowFindings(summary);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(1);
-          expect(summary.strictFailure).toBe(true);
-          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expectStrictDemoChange(summary);
           expect(source).toContain("onNone: () => ({})");
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("reports object-spread Option match compaction candidates", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 'import * as O from "effect/Option";',
@@ -396,29 +321,22 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(1);
-          expect(summary.strictFailure).toBe(true);
-          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expectStrictDemoChange(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("reports conditional optional object spread candidates", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 "declare const name: string | undefined;",
@@ -435,30 +353,23 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.conditionalOptionalObjectSpreadCandidatesDetected).toBe(2);
-          expect(summary.strictFailure).toBe(true);
-          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expectStrictDemoChange(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("ignores JSX prop spreads and non-object optional spreads", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 "declare const id: string | undefined;",
@@ -489,28 +400,22 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
           expect(summary.touchedFiles).toBe(0);
           expect(summary.conditionalOptionalObjectSpreadCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("reports nested Option and Bool match candidates", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 'import * as Bool from "effect/Boolean";',
@@ -536,35 +441,25 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
           expect(summary.touchedFiles).toBe(1);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
-          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
+          expectNoCoreFindings(summary);
           expect(summary.nestedOptionMatchCandidatesDetected).toBe(1);
           expect(summary.nestedBoolMatchCandidatesDetected).toBe(1);
           expect(summary.dualOverloadCandidatesDetected).toBe(0);
-          expect(summary.strictFailure).toBe(true);
-          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expectStrictDemoChange(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("reports explicit dual-overload helper candidates", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 "type PackageOptions = Readonly<{ packageName: string }>;",
@@ -596,35 +491,25 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
           expect(summary.touchedFiles).toBe(1);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
-          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
+          expectNoCoreFindings(summary);
           expect(summary.nestedOptionMatchCandidatesDetected).toBe(0);
           expect(summary.nestedBoolMatchCandidatesDetected).toBe(0);
           expect(summary.dualOverloadCandidatesDetected).toBe(1);
-          expect(summary.strictFailure).toBe(true);
-          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expectStrictDemoChange(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("does not enforce broad nested ternary or if shapes", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 "export const nestedTernary = (first: boolean, second: boolean): string =>",
@@ -647,35 +532,23 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
-          expect(summary.touchedFiles).toBe(0);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
-          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
+          expectCleanTerseSummary(summary);
           expect(summary.nestedOptionMatchCandidatesDetected).toBe(0);
           expect(summary.nestedBoolMatchCandidatesDetected).toBe(0);
           expect(summary.dualOverloadCandidatesDetected).toBe(0);
-          expect(summary.strictFailure).toBe(false);
-          expect(summary.changedFiles).toEqual([]);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 
   it("ignores clean Option object helpers and schema-boundary Option helpers", () =>
     Effect.runPromise(
       withTempWorkingDirectory(
         Effect.gen(function* () {
-          yield* writeTsconfig;
+          yield* writeDefaultTsconfig;
           yield* writeProjectFile(
-            "packages/demo/src/index.ts",
+            DemoSourcePath,
             A.join(
               [
                 'import * as O from "effect/Option";',
@@ -694,21 +567,10 @@ describe("terse effect laws", () => {
             )
           );
 
-          const summary = yield* runTerseEffectRules(
-            TerseEffectRulesOptions.make({
-              write: false,
-              strictCheck: true,
-              excludePaths: [],
-            })
-          );
+          const summary = yield* runTerseRules(false, true);
 
-          expect(summary.touchedFiles).toBe(0);
-          expect(summary.helpersSimplified).toBe(0);
-          expect(summary.thunkHelpersSimplified).toBe(0);
-          expect(summary.flowCandidatesDetected).toBe(0);
-          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
-          expect(summary.strictFailure).toBe(false);
+          expectCleanTerseSummary(summary);
         })
-      ).pipe(provideScopedLayer(testLayer))
+      ).pipe(provideScopedLayer(NodeTestLayer))
     ));
 });

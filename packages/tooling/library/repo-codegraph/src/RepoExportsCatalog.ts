@@ -10,6 +10,7 @@ import { TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, flow, Inspectable, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { parse, printParseErrorCode } from "jsonc-parser";
 import { RepoCodegraphPackageImportPolicy, RepoCodegraphPreferredImport } from "./RepoCodegraphLookup.model.ts";
@@ -131,12 +132,11 @@ const parseJsoncUnknown = (path: string, content: string) => {
 };
 
 const parsedStandard = (value: unknown): O.Option<string> => {
-  if (typeof value !== "object" || value === null || !("standard" in value)) {
+  if (!P.isObject(value) || !P.hasProperty(value, "standard")) {
     return O.none();
   }
 
-  const standard = (value as { readonly standard?: unknown }).standard;
-  return typeof standard === "string" ? O.some(standard) : O.none();
+  return P.isString(value.standard) ? O.some(value.standard) : O.none();
 };
 
 const readTextFile = Effect.fn("RepoCodegraph.readTextFile")(function* (path: string) {

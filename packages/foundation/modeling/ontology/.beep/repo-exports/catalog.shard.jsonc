@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5639499ac307732f3454d67e6cf9a70fbdede2d635654cf41bc06d1497be2b72",
+    "digest": "f7e6338a643cf2188a166f716ab2a014d3f96482ede8b9994e2ad74faf344fb0",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,13 +27,13 @@
       },
       {
         "path": "packages/foundation/modeling/ontology/src/annotations.ts",
-        "sha256": "e9d1a63da549aeef333f952a5f7a80e6606e8746abda6325bc283de17e690c03",
-        "bytes": 22699
+        "sha256": "a6a1c1fcad8d657b5328799309dffc5fa7d8d21362fd958ac3afd11d0baf2a2d",
+        "bytes": 22673
       },
       {
         "path": "packages/foundation/modeling/ontology/src/assembly.ts",
-        "sha256": "641bfef54767d3a8eb2bbab36dbb9fbe0eb2e626a4cd42a994f41309120cc75d",
-        "bytes": 23501
+        "sha256": "923ca397b7076974eaae94e3fdf5af41d6e5fd053e3943c7e25007b2dc8000b6",
+        "bytes": 23441
       },
       {
         "path": "packages/foundation/modeling/ontology/src/create.ts",
@@ -52,18 +52,23 @@
       },
       {
         "path": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
-        "sha256": "7b8bbe30f3fe3e0db3a5e5ac5453d460743637b1002011a9bb20b8139956905c",
-        "bytes": 20007
+        "sha256": "210e7f32179c7a2bbf1ea5fd1e095a29b4f58b430865673a82e1980b724f1f7e",
+        "bytes": 18978
       },
       {
         "path": "packages/foundation/modeling/ontology/src/projections/markdown.ts",
-        "sha256": "a92c9f0cd1a53be3c90fb3874787d0dd07f2216efb9f8a56731ab2555d2ce00c",
-        "bytes": 13794
+        "sha256": "a8021317e0136dfd73fc81c1d926b2024c0c5bfd69f069fd1f59f186734fdc4b",
+        "bytes": 12784
+      },
+      {
+        "path": "packages/foundation/modeling/ontology/src/projections/skos.ts",
+        "sha256": "9a6c8137bdc4fc8743a4eecc95e65b5b92c81df9469ad8c32bff3e90f740f28e",
+        "bytes": 2896
       },
       {
         "path": "packages/foundation/modeling/ontology/src/projections/turtle.ts",
-        "sha256": "a1b15079da734050ff6e421f6db2d744ef91d24207c50896772a693f39b02651",
-        "bytes": 10079
+        "sha256": "712b52b7bc5898af1819ae601819076f9f553039cfbd5d434742faa23482fdfc",
+        "bytes": 9076
       },
       {
         "path": "packages/foundation/modeling/ontology/src/references.ts",
@@ -98,7 +103,7 @@
     "counts": {
       "publicExportEntries": 12,
       "uniqueSymbols": 12,
-      "sourceFiles": 9
+      "sourceFiles": 10
     },
     "exports": [
       {
@@ -234,7 +239,7 @@
         "symbolName": "parseJsonLdOntology",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
-        "sourceLine": 487,
+        "sourceLine": 461,
         "summary": "Parses the POC JSON-LD graph representation back into an assembled ontology result.",
         "categories": [
           "projections"
@@ -258,7 +263,7 @@
         "symbolName": "projectJsonLdContext",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
-        "sourceLine": 69,
+        "sourceLine": 74,
         "summary": "Projects an assembled ontology into a reusable JSON-LD context document.",
         "categories": [
           "projections"
@@ -282,7 +287,7 @@
         "symbolName": "projectJsonLdOntology",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/projections/jsonld.ts",
-        "sourceLine": 264,
+        "sourceLine": 243,
         "summary": "Projects an assembled ontology into the POC JSON-LD graph representation.",
         "categories": [
           "projections"
@@ -306,7 +311,7 @@
         "symbolName": "projectMarkdown",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/projections/markdown.ts",
-        "sourceLine": 352,
+        "sourceLine": 330,
         "summary": "Projects an assembled ontology into deterministic Markdown documentation.",
         "categories": [
           "projections"
@@ -330,7 +335,7 @@
         "symbolName": "projectTurtle",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/ontology/src/projections/turtle.ts",
-        "sourceLine": 260,
+        "sourceLine": 234,
         "summary": "Projects an assembled ontology into a compact Turtle document.",
         "categories": [
           "projections"

@@ -157,6 +157,11 @@ when the aggregate Turbo `lint:fix` lane is required. Root lint Turbo lanes add
 parallel package-level Biome workers; pass an explicit `--concurrency` value
 when a different bound is needed.
 
+Use `bun run beep lint policy` for the repo-wide policy gates without the
+aggregate Turbo lint lane. It runs the law, allowlist, schema/reflection,
+docgen, spelling, circularity, tagged-error, clone, and typos checks that must
+stay advisory-free locally and in CI.
+
 ### `docgen quality`
 
 Produce a report-only JSDoc quality review for exported symbols. The command

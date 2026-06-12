@@ -14,6 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { optionalProp } from "../../../internal/cli/OptionRecord.js";
 import { commandTextForStep, TurboWorkspacePackage, turboTaskForStep } from "../../../internal/repo-run/index.js";
 import type {
   RepoPlanStep,
@@ -638,16 +639,11 @@ const optionalNumberFromString = (value: string | undefined): O.Option<number> =
 
 const optionalStringFromStep = (value: string | undefined): O.Option<string> =>
   pipe(O.fromUndefinedOr(value), O.filter(Str.isNonEmpty));
-const optionalProp = <Key extends string, Value>(key: Key, value: O.Option<Value>): { readonly [K in Key]?: Value } =>
-  O.isSome(value) ? ({ [key]: value.value } as { readonly [K in Key]?: Value }) : {};
-
-const packageNameFromFilterArg = (arg: string): O.Option<string> =>
-  pipe(
-    arg,
-    O.liftPredicate(Str.startsWith(filterArgPrefix)),
-    O.map(Str.replace(filterArgPrefix, "")),
-    O.filter(Str.isNonEmpty)
-  );
+const packageNameFromFilterArg: (arg: string) => O.Option<string> = flow(
+  O.liftPredicate(Str.startsWith(filterArgPrefix)),
+  O.map(Str.replace(filterArgPrefix, "")),
+  O.filter(Str.isNonEmpty)
+);
 
 const filteredPackageNamesForStep = (step: RepoPlanStep): ReadonlyArray<string> =>
   pipe(step.args, A.map(packageNameFromFilterArg), A.getSomes, A.dedupe, A.sort(Order.String));

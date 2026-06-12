@@ -6,7 +6,7 @@
  */
 
 import { createHash } from "node:crypto";
-import { Effect, Path, pipe } from "effect";
+import { Effect, flow, Path } from "effect";
 import * as Str from "effect/String";
 import type { RepoRunContext } from "../../../internal/repo-run/index.js";
 
@@ -24,10 +24,11 @@ import type { RepoRunContext } from "../../../internal/repo-run/index.js";
  * @category utilities
  * @since 0.0.0
  */
-export const safeArtifactName = (value: string): string =>
-  pipe(value, Str.replace(/[^a-zA-Z0-9._-]+/gu, "_"), Str.replace(/^_+|_+$/gu, ""), (name) =>
-    Str.isNonEmpty(name) ? name : "repo"
-  );
+export const safeArtifactName: (value: string) => string = flow(
+  Str.replace(/[^a-zA-Z0-9._-]+/gu, "_"),
+  Str.replace(/^_+|_+$/gu, ""),
+  (name) => (Str.isNonEmpty(name) ? name : "repo")
+);
 
 const artifactNameHash = (value: string): string => createHash("sha256").update(value).digest("hex").slice(0, 12);
 

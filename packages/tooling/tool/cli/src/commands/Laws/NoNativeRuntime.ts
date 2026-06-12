@@ -23,7 +23,7 @@ import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Node, Project, SyntaxKind } from "ts-morph";
+import { Node, Project } from "ts-morph";
 import { NoNativeRuntimeRulesExecutionError } from "./Laws.errors.js";
 import type {
   BinaryExpression,
@@ -55,6 +55,13 @@ const OBJECT_METHODS = HashSet.fromIterable([
 const DATE_METHODS = HashSet.fromIterable(["now", "parse", "UTC"]);
 const ARRAY_STATIC_METHODS = HashSet.fromIterable(["from", "isArray", "of"]);
 const MAP_SET_CTORS = HashSet.fromIterable(["Map", "Set", "WeakMap", "WeakSet"]);
+const PLATFORM_AVAILABILITY_GLOBALS = HashSet.fromIterable([
+  "document",
+  "localStorage",
+  "navigator",
+  "sessionStorage",
+  "window",
+]);
 const NATIVE_ERROR_CTORS = HashSet.fromIterable([
   "AggregateError",
   "Error",
@@ -276,6 +283,34 @@ const getRuntimeTypeLiteral = (node: import("ts-morph").Node): O.Option<string> 
   return HashSet.has(TYPEOF_RUNTIME_LITERALS, value) ? O.some(value) : O.none();
 };
 
+const getTypeofIdentifierName = (node: import("ts-morph").Node): O.Option<string> => {
+  if (!Node.isTypeOfExpression(node)) {
+    return O.none();
+  }
+
+  const expression = node.getExpression();
+  return Node.isIdentifier(expression) ? O.some(expression.getText()) : O.none();
+};
+
+const isPlatformAvailabilityGuard = (typeofNode: import("ts-morph").Node, literal: O.Option<string>): boolean =>
+  O.exists(literal, (value) => value === "undefined") &&
+  pipe(
+    getTypeofIdentifierName(typeofNode),
+    O.exists((identifierName) => HashSet.has(PLATFORM_AVAILABILITY_GLOBALS, identifierName))
+  );
+
+const isIgnoredPlatformTypeofComparison = (
+  typeofCandidate: import("ts-morph").Node,
+  literalCandidate: import("ts-morph").Node
+): boolean =>
+  Node.isTypeOfExpression(typeofCandidate) &&
+  isPlatformAvailabilityGuard(typeofCandidate, getRuntimeTypeLiteral(literalCandidate));
+
+const hasRuntimeTypeofComparison = (
+  typeofCandidate: import("ts-morph").Node,
+  literalCandidate: import("ts-morph").Node
+): boolean => Node.isTypeOfExpression(typeofCandidate) && O.isSome(getRuntimeTypeLiteral(literalCandidate));
+
 const detectImportViolation = (node: ImportDeclaration, inHotspotScope: boolean): O.Option<NativeRuntimeViolation> => {
   if (!inHotspotScope) {
     return O.none();
@@ -381,12 +416,15 @@ const detectBinaryExpressionViolation = (node: BinaryExpression): O.Option<Nativ
 
   const leftNode = node.getLeft();
   const rightNode = node.getRight();
-  const leftIsTypeof = leftNode.getKind() === SyntaxKind.TypeOfExpression;
-  const rightIsTypeof = rightNode.getKind() === SyntaxKind.TypeOfExpression;
-  const leftLiteral = getRuntimeTypeLiteral(leftNode);
-  const rightLiteral = getRuntimeTypeLiteral(rightNode);
 
-  return (leftIsTypeof && O.isSome(rightLiteral)) || (rightIsTypeof && O.isSome(leftLiteral))
+  if (
+    isIgnoredPlatformTypeofComparison(leftNode, rightNode) ||
+    isIgnoredPlatformTypeofComparison(rightNode, leftNode)
+  ) {
+    return O.none();
+  }
+
+  return hasRuntimeTypeofComparison(leftNode, rightNode) || hasRuntimeTypeofComparison(rightNode, leftNode)
     ? O.some(makeViolation(node, "typeof-runtime", "typeofRuntime"))
     : O.none();
 };
@@ -641,7 +679,7 @@ export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(func
     touchedFiles: affectedFiles.length,
     warningCount,
     errorCount,
-    strictFailure: options.strictCheck && errorCount > 0,
+    strictFailure: options.strictCheck && (warningCount > 0 || errorCount > 0),
     affectedFiles,
     allowlistedCount: HashSet.size(usedAllowlistKeys),
     unusedAllowlistEntries: A.filter(expectedAllowlistKeys, (key) => !HashSet.has(usedAllowlistKeys, key)),

@@ -346,18 +346,14 @@ const TAURI_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   TemplateSpec.make({ templateName: "app-real-AGENTS.md.hbs", outputPath: "AGENTS.md" }),
 ];
 
-const templateSpecsFor = (appKind: O.Option<AppKind>): ReadonlyArray<TemplateSpec> =>
-  pipe(
-    appKind,
-    O.match({
-      onNone: () => PACKAGE_TEMPLATE_SPECS,
-      onSome: (kind) => {
-        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_TEMPLATE_SPECS;
-        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_TEMPLATE_SPECS;
-        return PACKAGE_TEMPLATE_SPECS;
-      },
-    })
-  );
+const templateSpecsFor: (appKind: O.Option<AppKind>) => ReadonlyArray<TemplateSpec> = O.match({
+  onNone: () => PACKAGE_TEMPLATE_SPECS,
+  onSome: (kind) => {
+    if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_TEMPLATE_SPECS;
+    if (appKindEquivalence(kind, "tauri")) return TAURI_APP_TEMPLATE_SPECS;
+    return PACKAGE_TEMPLATE_SPECS;
+  },
+});
 
 /**
  * Ordered list of all generated files for dry-run and summary output.
@@ -418,18 +414,14 @@ const TAURI_APP_FILES = [
   "CLAUDE.md -> AGENTS.md (symlink)",
 ] as const;
 
-const filesFor = (appKind: O.Option<AppKind>): ReadonlyArray<string> =>
-  pipe(
-    appKind,
-    O.match({
-      onNone: () => PACKAGE_FILES,
-      onSome: (kind) => {
-        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_FILES;
-        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_FILES;
-        return PACKAGE_FILES;
-      },
-    })
-  );
+const filesFor: (appKind: O.Option<AppKind>) => ReadonlyArray<string> = O.match({
+  onNone: () => PACKAGE_FILES,
+  onSome: (kind) => {
+    if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_FILES;
+    if (appKindEquivalence(kind, "tauri")) return TAURI_APP_FILES;
+    return PACKAGE_FILES;
+  },
+});
 
 /**
  * Root-relative directories created for each package.
@@ -441,18 +433,14 @@ const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
 const NEXTJS_APP_DIRECTORIES = ["src", "src/app", "test"] as const;
 const TAURI_APP_DIRECTORIES = ["src", "test", "src-tauri", "src-tauri/capabilities", "src-tauri/src"] as const;
 
-const directoriesFor = (appKind: O.Option<AppKind>): ReadonlyArray<string> =>
-  pipe(
-    appKind,
-    O.match({
-      onNone: () => PACKAGE_DIRECTORIES,
-      onSome: (kind) => {
-        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_DIRECTORIES;
-        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_DIRECTORIES;
-        return PACKAGE_DIRECTORIES;
-      },
-    })
-  );
+const directoriesFor: (appKind: O.Option<AppKind>) => ReadonlyArray<string> = O.match({
+  onNone: () => PACKAGE_DIRECTORIES,
+  onSome: (kind) => {
+    if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_DIRECTORIES;
+    if (appKindEquivalence(kind, "tauri")) return TAURI_APP_DIRECTORIES;
+    return PACKAGE_DIRECTORIES;
+  },
+});
 
 const gitkeepFilesFor = (appKind: O.Option<AppKind>): ReadonlyArray<PlannedFile> =>
   O.isSome(appKind) && !appKindEquivalence(appKind.value, "runtime-proof")

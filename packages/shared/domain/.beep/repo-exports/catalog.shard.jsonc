@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3012253d28e08330d2a7dbb44a1b00b304bbfca1cb5e3071199ca3788ad680fa",
+    "digest": "465a2bf39c5c89918c8bb0198f80d892b255e59afc1fdcccea88efbfe5e0e1ba",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -147,8 +147,8 @@
       },
       {
         "path": "packages/shared/domain/src/identity/index.ts",
-        "sha256": "4adf12df07fa41547843e0301bd9eadaf6c932e350eabc656b1ab245b8f04b1f",
-        "bytes": 5846
+        "sha256": "acd377b90fb214ba1ee72d8a82fb5a13a1cdaef02087f763e55d454726bc18b1",
+        "bytes": 5862
       },
       {
         "path": "packages/shared/domain/src/identity/LawPractice.ts",
@@ -2926,7 +2926,7 @@
         "symbolName": "AnyIdentityComposer",
         "exportKind": "const",
         "sourcePath": "packages/shared/domain/src/identity/index.ts",
-        "sourceLine": 115,
+        "sourceLine": 116,
         "summary": "Effect Schema for validating any runtime {@link IdentityComposerType} value.",
         "categories": [
           "schemas"
@@ -2951,7 +2951,7 @@
         "symbolName": "AnyIdentityComposer",
         "exportKind": "type",
         "sourcePath": "packages/shared/domain/src/identity/index.ts",
-        "sourceLine": 135,
+        "sourceLine": 136,
         "summary": "Runtime type for {@link AnyIdentityComposer}.",
         "categories": [
           "models"
@@ -2993,7 +2993,7 @@
         "symbolName": "isIdentityComposer",
         "exportKind": "const",
         "sourcePath": "packages/shared/domain/src/identity/index.ts",
-        "sourceLine": 81,
+        "sourceLine": 82,
         "summary": "Guard for runtime identity composer values.",
         "categories": [
           "guards"
@@ -3404,7 +3404,7 @@
         "symbolName": "AnyIdentityComposer",
         "exportKind": "const",
         "sourcePath": "packages/shared/domain/src/identity/index.ts",
-        "sourceLine": 115,
+        "sourceLine": 116,
         "summary": "Effect Schema for validating any runtime {@link IdentityComposerType} value.",
         "categories": [
           "schemas"
@@ -3429,7 +3429,7 @@
         "symbolName": "AnyIdentityComposer",
         "exportKind": "type",
         "sourcePath": "packages/shared/domain/src/identity/index.ts",
-        "sourceLine": 135,
+        "sourceLine": 136,
         "summary": "Runtime type for {@link AnyIdentityComposer}.",
         "categories": [
           "models"
@@ -3471,7 +3471,7 @@
         "symbolName": "isIdentityComposer",
         "exportKind": "const",
         "sourcePath": "packages/shared/domain/src/identity/index.ts",
-        "sourceLine": 81,
+        "sourceLine": 82,
         "summary": "Guard for runtime identity composer values.",
         "categories": [
           "guards"

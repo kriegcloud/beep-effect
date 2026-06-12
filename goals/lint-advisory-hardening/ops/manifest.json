@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "lint-advisory-hardening",
+    "title": "Lint Advisory Hardening",
+    "status": "active",
+    "created": "2026-06-12",
+    "updated": "2026-06-12",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/lint-advisory-hardening",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "ownership": {
+    "family": "tooling",
+    "primaryPackage": "@beep/repo-cli",
+    "primaryPath": "packages/tooling/tool/cli"
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "standards/effect-laws-v1.md",
+    "goals/lint-advisory-hardening/README.md",
+    "goals/lint-advisory-hardening/SPEC.md",
+    "goals/lint-advisory-hardening/PLAN.md",
+    "goals/lint-advisory-hardening/GOAL.md",
+    "goals/lint-advisory-hardening/tasks/tasks.jsonc"
+  ],
+  "relatedPackets": [
+    {
+      "path": "goals/fallow-advisory-ratchets",
+      "relationship": "reference-only"
+    },
+    {
+      "path": "goals/repo-quality-throughput",
+      "relationship": "quality-workflow-precedent"
+    }
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/lint-advisory-hardening/GOAL.md"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "done"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "in-progress"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "taskInventory": "tasks/tasks.jsonc",
+  "verificationCommands": [
+    "test \"$(wc -m < goals/lint-advisory-hardening/GOAL.md)\" -le 4000",
+    "jq . goals/lint-advisory-hardening/ops/manifest.json",
+    "git diff --check -- goals/lint-advisory-hardening",
+    "bun run beep laws terse-effect --check",
+    "bun run beep laws native-runtime --check",
+    "bun run beep lint reflection-artifacts",
+    "bun run beep lint schema-first",
+    "bun run beep lint policy",
+    "bun run lint",
+    "bun run beep yeet verify"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The implementation would exceed named root-lint-policy scope.",
+    "The work would promote Fallow advisory lanes.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

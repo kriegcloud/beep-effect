@@ -81,7 +81,7 @@ const resolveTargets = (
 const jsonSchemaSidecarOptions = {
   additionalProperties: false,
   generateDescriptions: true,
-  includeAnnotationKey: (key: string) => pipe(key, Str.startsWith("x-")),
+  includeAnnotationKey: Str.startsWith("x-"),
 };
 
 const jsonSchemaSidecarOptionsSummary = OntologyJsonSchemaSidecarOptions.make({
@@ -216,15 +216,12 @@ const classAssemblySeed = Effect.fn("Ontology.classAssemblySeed")(function* (bas
   } satisfies ClassAssemblySeed;
 });
 
-const classReferenceIndex = (
+const classReferenceIndex: (
   seeds: ReadonlyArray<ClassAssemblySeed>
-): ReferenceResolutionContext["classesBySchemaIdentity"] =>
-  pipe(
-    seeds,
-    A.reduce(R.empty<string, { readonly iri: IRI }>(), (current, seed) =>
-      R.set(current, seed.schemaIdentity, { iri: seed.iri })
-    )
-  );
+) => ReferenceResolutionContext["classesBySchemaIdentity"] = A.reduce(
+  R.empty<string, { readonly iri: IRI }>(),
+  (current, seed) => R.set(current, seed.schemaIdentity, { iri: seed.iri })
+);
 
 const finalizeClassMetadata = Effect.fn("Ontology.finalizeClassMetadata")(function* (
   context: ReferenceResolutionContext,
