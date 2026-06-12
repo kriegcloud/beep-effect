@@ -7,6 +7,7 @@
 
 import { $FileProcessingId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
+import { Match } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $FileProcessingId.create("Strategy");
@@ -384,3 +385,40 @@ export class FileProcessingEngineDescriptor extends S.Class<FileProcessingEngine
     description: "Runtime-neutral descriptor for a file-processing engine implementation.",
   })
 ) {}
+
+/**
+ * Classify a bare file extension into its deterministic format family.
+ *
+ * This is the canonical extension-to-format mapping shared by detection
+ * engines and processing pipelines; unknown extensions classify as
+ * `"unknown"`.
+ *
+ * @example
+ * ```ts
+ * import { classifyFormatFromExtension } from "@beep/file-processing/Strategy"
+ *
+ * console.log(classifyFormatFromExtension("docx")) // "docx"
+ * console.log(classifyFormatFromExtension("zip")) // "unknown"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const classifyFormatFromExtension: (extension: string | undefined) => FileFormatFamily = Match.type<
+  string | undefined
+>().pipe(
+  Match.when("doc", () => "doc" as const),
+  Match.when("docx", () => "docx" as const),
+  Match.when("docm", () => "docm" as const),
+  Match.when("rtf", () => "rtf" as const),
+  Match.whenOr("htm", "html", () => "html" as const),
+  Match.when("xhtml", () => "xhtml" as const),
+  Match.when("pdf", () => "pdf-text-layer" as const),
+  Match.when("pst", () => "pst" as const),
+  Match.whenOr("txt", "text", () => "plain-text" as const),
+  Match.whenOr("md", "markdown", () => "markdown" as const),
+  Match.whenOr("bmp", "gif", "jpeg", "jpg", "png", "tif", "tiff", "webp", () => "image-metadata" as const),
+  Match.when("xls", () => "xls" as const),
+  Match.when("xlsx", () => "xlsx" as const),
+  Match.orElse(() => "unknown" as const)
+);

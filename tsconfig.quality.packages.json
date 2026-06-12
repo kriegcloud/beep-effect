@@ -136,6 +136,9 @@
       "path": "packages/drivers/tika"
     },
     {
+      "path": "packages/drivers/uspto"
+    },
+    {
       "path": "packages/drivers/venice-ai"
     },
     {

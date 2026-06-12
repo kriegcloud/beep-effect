@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "52f6f9ab8f762505f581170117e4857350331e1f368452a5a1774d6b7469ab44",
+    "digest": "f3cfeade051b8303c26590910f63e106aaab336e5d62755452bc5f850bdf27b9",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,18 +22,23 @@
       },
       {
         "path": "packages/drivers/libpff/package.json",
-        "sha256": "48b98afdca4566f1cbb27f04362e8b02096661e6dd34408fc6e1b49f1f061a8d",
-        "bytes": 2459
+        "sha256": "9d36c7a3558bef7feac24275adb9532cdc7b577273e3a12e607990003cf0490d",
+        "bytes": 2539
       },
       {
         "path": "packages/drivers/libpff/src/index.ts",
-        "sha256": "f7b788af9f8ac2e5ed159c9a472a764bf9a0ed03cacfb59a532301863e9d3182",
-        "bytes": 558
+        "sha256": "1852ec8ff611575386abf8652e578230056db5f3b0d4e3409d9bebdd33754f77",
+        "bytes": 698
       },
       {
         "path": "packages/drivers/libpff/src/Libpff.errors.ts",
         "sha256": "73d079851975013d416c45d26a70ec4d1ba8a52c91bd36268a8a4e70155d692f",
         "bytes": 2763
+      },
+      {
+        "path": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sha256": "12d06ca44cbef27d61ecda48f4d9cf64381cd3a8baac0cd57950695a4c2a8fe3",
+        "bytes": 12783
       },
       {
         "path": "packages/drivers/libpff/src/Libpff.service.ts",
@@ -66,12 +71,13 @@
       "@beep/libpff",
       "@beep/libpff/index",
       "@beep/libpff/Libpff.errors",
+      "@beep/libpff/Libpff.pffexport",
       "@beep/libpff/Libpff.service"
     ],
     "counts": {
-      "publicExportEntries": 26,
-      "uniqueSymbols": 8,
-      "sourceFiles": 3
+      "publicExportEntries": 44,
+      "uniqueSymbols": 12,
+      "sourceFiles": 4
     },
     "exports": [
       {
@@ -281,10 +287,159 @@
         "importSpecifier": "@beep/libpff",
         "exportSubpath": ".",
         "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "makePffexportFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 183,
+        "summary": "Create the real pffexport-backed file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . makepffexportfileprocessingengine const create the real pffexport-backed file-processing engine. constructors packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportEngineConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 97,
+        "summary": "Configuration for the pffexport subprocess engine.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . pffexportengineconfig class configuration for the pffexport subprocess engine. configuration packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportFormat",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 69,
+        "summary": "pffexport message body export format.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . pffexportformat const pffexport message body export format. schemas packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportFormat",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 81,
+        "summary": "Type for {@link PffexportFormat}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . pffexportformat type type for {@link pffexportformat}. models packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportMode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 43,
+        "summary": "pffexport item export mode.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . pffexportmode const pffexport item export mode. schemas packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportMode",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link PffexportMode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff . pffexportmode type type for {@link pffexportmode}. models packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
         "symbolName": "VERSION",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/index.ts",
-        "sourceLine": 36,
+        "sourceLine": 43,
         "summary": "Package version.",
         "categories": [
           "constants"
@@ -506,10 +661,159 @@
         "importSpecifier": "@beep/libpff/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "makePffexportFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 183,
+        "summary": "Create the real pffexport-backed file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index makepffexportfileprocessingengine const create the real pffexport-backed file-processing engine. constructors packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportEngineConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 97,
+        "summary": "Configuration for the pffexport subprocess engine.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index pffexportengineconfig class configuration for the pffexport subprocess engine. configuration packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportFormat",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 69,
+        "summary": "pffexport message body export format.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index pffexportformat const pffexport message body export format. schemas packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportFormat",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 81,
+        "summary": "Type for {@link PffexportFormat}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index pffexportformat type type for {@link pffexportformat}. models packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportMode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 43,
+        "summary": "pffexport item export mode.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index pffexportmode const pffexport item export mode. schemas packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
+        "symbolName": "PffexportMode",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link PffexportMode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/index ./index pffexportmode type type for {@link pffexportmode}. models packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/drivers/libpff/src/index.ts",
         "symbolName": "VERSION",
         "exportKind": "const",
         "sourcePath": "packages/drivers/libpff/src/index.ts",
-        "sourceLine": 36,
+        "sourceLine": 43,
         "summary": "Package version.",
         "categories": [
           "constants"
@@ -623,6 +927,155 @@
           "@since"
         ],
         "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.errors ./libpff.errors makelibpfferror const create a libpff technical error with a typed reason. constructors packages/drivers/libpff/src/libpff.errors.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.pffexport",
+        "exportSubpath": "./Libpff.pffexport",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "symbolName": "makePffexportFileProcessingEngine",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 183,
+        "summary": "Create the real pffexport-backed file-processing engine.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.pffexport ./libpff.pffexport makepffexportfileprocessingengine const create the real pffexport-backed file-processing engine. constructors packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.pffexport",
+        "exportSubpath": "./Libpff.pffexport",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "symbolName": "PffexportEngineConfig",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 97,
+        "summary": "Configuration for the pffexport subprocess engine.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.pffexport ./libpff.pffexport pffexportengineconfig class configuration for the pffexport subprocess engine. configuration packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.pffexport",
+        "exportSubpath": "./Libpff.pffexport",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "symbolName": "PffexportFormat",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 69,
+        "summary": "pffexport message body export format.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.pffexport ./libpff.pffexport pffexportformat const pffexport message body export format. schemas packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.pffexport",
+        "exportSubpath": "./Libpff.pffexport",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "symbolName": "PffexportFormat",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 81,
+        "summary": "Type for {@link PffexportFormat}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.pffexport ./libpff.pffexport pffexportformat type type for {@link pffexportformat}. models packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.pffexport",
+        "exportSubpath": "./Libpff.pffexport",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "symbolName": "PffexportMode",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 43,
+        "summary": "pffexport item export mode.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.pffexport ./libpff.pffexport pffexportmode const pffexport item export mode. schemas packages/drivers/libpff/src/libpff.pffexport.ts"
+      },
+      {
+        "packageName": "@beep/libpff",
+        "packagePath": "packages/drivers/libpff",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/libpff/Libpff.pffexport",
+        "exportSubpath": "./Libpff.pffexport",
+        "exportedFromPath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "symbolName": "PffexportMode",
+        "exportKind": "type",
+        "sourcePath": "packages/drivers/libpff/src/Libpff.pffexport.ts",
+        "sourceLine": 55,
+        "summary": "Type for {@link PffexportMode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/libpff packages/drivers/libpff @beep/libpff/libpff.pffexport ./libpff.pffexport pffexportmode type type for {@link pffexportmode}. models packages/drivers/libpff/src/libpff.pffexport.ts"
       },
       {
         "packageName": "@beep/libpff",

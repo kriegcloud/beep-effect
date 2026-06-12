@@ -71,6 +71,7 @@ const config = {
     "apps/canvas/package.json",
     "packages/drivers/box/package.json",
     "packages/drivers/firecrawl/package.json",
+    "packages/drivers/uspto/package.json",
   ],
   customTypes: {
     catalog: {

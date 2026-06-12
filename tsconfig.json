@@ -1153,6 +1153,15 @@
       ],
       "@beep/repo-cli/commands/Fallow": [
         "./packages/tooling/tool/cli/src/commands/Fallow/index.ts"
+      ],
+      "@beep/repo-cli/commands/Corpus": [
+        "./packages/tooling/tool/cli/src/commands/Corpus/index.ts"
+      ],
+      "@beep/uspto": [
+        "./packages/drivers/uspto/src/index.ts"
+      ],
+      "@beep/uspto/*": [
+        "./packages/drivers/uspto/src/*"
       ]
     }
   }

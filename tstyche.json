@@ -60,6 +60,7 @@
     "packages/drivers/libpff/dtslint/**/*.tst.*",
     "packages/drivers/box/dtslint/**/*.tst.*",
     "packages/drivers/firecrawl/dtslint/**/*.tst.*",
+    "packages/drivers/uspto/dtslint/**/*.tst.*",
     "packages/tooling/library/ai-sync/dtslint/**/*.tst.*",
     "packages/tooling/library/repo-codegraph/dtslint/**/*.tst.*",
     "packages/tooling/library/repo-utils/dtslint/**/*.tst.*"

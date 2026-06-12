@@ -5,14 +5,20 @@
  * @since 0.0.0
  */
 
-import { ArtifactReference, deriveArtifactId } from "@beep/file-processing/Artifact";
+import {
+  ArtifactId,
+  ArtifactReference,
+  ContentDigest,
+  deriveArtifactId,
+  OperationId,
+} from "@beep/file-processing/Artifact";
 import { ArchiveExportResult, ExtractionResult } from "@beep/file-processing/Extraction";
 import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
-import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
+import { classifyFormatFromExtension, FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
 import { NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
 import { A } from "@beep/utils";
-import { Effect, Match } from "effect";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import type {
   DetectFileOperation,
@@ -42,21 +48,38 @@ export const TestFileProcessingEngineDescriptor = FileProcessingEngineDescriptor
   version: "0.0.0",
 });
 
-const classifyExtension = Match.type<string | undefined>().pipe(
-  Match.whenOr("md", "markdown", () => "markdown" as const),
-  Match.whenOr("html", "htm", () => "html" as const),
-  Match.when("xhtml", () => "xhtml" as const),
-  Match.whenOr("txt", "text", () => "plain-text" as const),
-  Match.when("pst", () => "pst" as const),
-  Match.when("rtf", () => "rtf" as const),
-  Match.when("doc", () => "doc" as const),
-  Match.when("docx", () => "docx" as const),
-  Match.when("pdf", () => "pdf-text-layer" as const),
-  Match.whenOr("png", "jpg", "jpeg", "gif", "webp", "tif", "tiff", () => "image-metadata" as const),
-  Match.when("docm", () => "docm" as const),
-  Match.when("xls", () => "xls" as const),
-  Match.when("xlsx", () => "xlsx" as const),
-  Match.orElse(() => "unknown" as const)
+const testIdentifierHex = "3a6eb0790f39ac87c94f3856b2dd2c5d110e6811602261a9a923d3bb23adc8b7";
+
+/**
+ * Decode the canonical synthetic artifact, digest, and operation identifiers
+ * shared by driver test fixtures.
+ *
+ * @example
+ * ```ts
+ * import { decodeTestOperationIdentifiers } from "@beep/file-processing/test"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const identifiers = yield* decodeTestOperationIdentifiers()
+ *   return identifiers.artifactId
+ * })
+ *
+ * console.log(program)
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
+export const decodeTestOperationIdentifiers = Effect.fn("FileProcessingTest.decodeTestOperationIdentifiers")(
+  function* (): Effect.fn.Return<
+    { readonly artifactId: ArtifactId; readonly digest: ContentDigest; readonly operationId: OperationId },
+    S.SchemaError
+  > {
+    const artifactId = yield* S.decodeUnknownEffect(ArtifactId)(`artifact:${testIdentifierHex}`);
+    const digest = yield* S.decodeUnknownEffect(ContentDigest)(`sha256:${testIdentifierHex}`);
+    const operationId = yield* S.decodeUnknownEffect(OperationId)(`operation:${testIdentifierHex}`);
+    return { artifactId, digest, operationId };
+  }
 );
 
 const decodeTestArtifactPath = (
@@ -108,7 +131,7 @@ export const TestFileProcessingEngine: FileProcessingEngineShape = {
     return DetectionResult.make({
       confidence: 1,
       engine: TestFileProcessingEngineDescriptor.name,
-      format: classifyExtension(operation.source.extension),
+      format: classifyFormatFromExtension(operation.source.extension),
       operationId: operation.operationId,
       sourceArtifactId: operation.source.id,
     });

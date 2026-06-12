@@ -150,7 +150,8 @@ const generatedComposers = $I.compose(
   "tika",
   "libpff",
   "box",
-  "firecrawl"
+  "firecrawl",
+  "uspto"
 );
 
 const composers = {
@@ -1693,3 +1694,19 @@ export const $LibpffId: Identity.IdentityComposer<"@beep/libpff"> = composers.$L
  * @category configuration
  */
 export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
+
+/**
+ * Identity composer for the `@beep/uspto` package.
+ *
+ * @example
+ * ```typescript
+ * import { $UsptoId } from "@beep/identity"
+ *
+ * const id = $UsptoId.make("Uspto")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $UsptoId: Identity.IdentityComposer<"@beep/uspto"> = composers.$UsptoId;

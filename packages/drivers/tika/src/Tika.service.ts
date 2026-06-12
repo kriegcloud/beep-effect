@@ -7,7 +7,7 @@
 
 import { ExtractionResult } from "@beep/file-processing/Extraction";
 import { DetectionResult, FileProcessingOperationError } from "@beep/file-processing/Operation";
-import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
+import { classifyFormatFromExtension, FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy";
 import { A } from "@beep/utils";
 import { Effect, Match } from "effect";
 import * as O from "effect/Option";
@@ -54,22 +54,6 @@ export const TikaFileProcessingEngineDescriptor = FileProcessingEngineDescriptor
     "xlsx",
   ],
 });
-
-const classifyExtension = Match.type<string | undefined>().pipe(
-  Match.when("doc", () => "doc" as const),
-  Match.when("docx", () => "docx" as const),
-  Match.when("docm", () => "docm" as const),
-  Match.when("rtf", () => "rtf" as const),
-  Match.whenOr("htm", "html", () => "html" as const),
-  Match.when("xhtml", () => "xhtml" as const),
-  Match.when("pdf", () => "pdf-text-layer" as const),
-  Match.whenOr("txt", "text", () => "plain-text" as const),
-  Match.whenOr("md", "markdown", () => "markdown" as const),
-  Match.whenOr("bmp", "gif", "jpeg", "jpg", "png", "tif", "tiff", "webp", () => "image-metadata" as const),
-  Match.when("xls", () => "xls" as const),
-  Match.when("xlsx", () => "xlsx" as const),
-  Match.orElse(() => "unknown" as const)
-);
 
 const textExtractionFormats: ReadonlyArray<FileFormatFamily> = ["html", "xhtml", "markdown", "plain-text"];
 const deferredExtractionFormats: ReadonlyArray<FileFormatFamily> = ["doc", "docx", "rtf", "pdf-text-layer"];
@@ -144,7 +128,7 @@ export const makeTikaFileProcessingEngine = (): FileProcessingEngineShape => ({
     return DetectionResult.make({
       confidence: 0.95,
       engine: TikaFileProcessingEngineDescriptor.name,
-      format: classifyExtension(operation.source.extension),
+      format: classifyFormatFromExtension(operation.source.extension),
       operationId: operation.operationId,
       sourceArtifactId: operation.source.id,
       ...R.getSomes({
