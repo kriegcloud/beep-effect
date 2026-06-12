@@ -163,9 +163,6 @@
       "path": "packages/foundation/capability/langextract"
     },
     {
-      "path": "packages/foundation/capability/md"
-    },
-    {
       "path": "packages/foundation/capability/nlp"
     },
     {
@@ -179,6 +176,9 @@
     },
     {
       "path": "packages/foundation/modeling/identity"
+    },
+    {
+      "path": "packages/foundation/modeling/md"
     },
     {
       "path": "packages/foundation/modeling/messages"

@@ -316,10 +316,10 @@
     },
     {
       "packageName": "@beep/md",
-      "packagePath": "packages/foundation/capability/md",
+      "packagePath": "packages/foundation/modeling/md",
       "topoOrder": 42,
       "status": "has-public-exports",
-      "shardPath": "packages/foundation/capability/md/.beep/repo-exports/catalog.shard.jsonc"
+      "shardPath": "packages/foundation/modeling/md/.beep/repo-exports/catalog.shard.jsonc"
     },
     {
       "packageName": "@beep/canvas",

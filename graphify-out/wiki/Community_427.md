@@ -4,31 +4,31 @@
 
 ## Key Concepts
 
-- **examplesCompilerOptions** (27 connections) — `packages/foundation/capability/md/docgen.json`
-- **allowImportingTsExtensions** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **allowJs** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **declaration** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **declarationMap** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **erasableSyntaxOnly** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **exactOptionalPropertyTypes** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **jsx** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **lib** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **module** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **moduleDetection** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **moduleResolution** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **noEmit** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **noErrorTruncation** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **noFallthroughCasesInSwitch** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **noImplicitOverride** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **noUnusedLocals** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **noUnusedParameters** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **rewriteRelativeImportExtensions** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **skipLibCheck** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **sourceMap** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **strict** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **stripInternal** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **target** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **types** (1 connections) — `packages/foundation/capability/md/docgen.json`
+- **examplesCompilerOptions** (27 connections) — `packages/foundation/modeling/md/docgen.json`
+- **allowImportingTsExtensions** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **allowJs** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **declaration** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **declarationMap** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **erasableSyntaxOnly** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **exactOptionalPropertyTypes** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **jsx** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **lib** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **module** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **moduleDetection** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **moduleResolution** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **noEmit** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **noErrorTruncation** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **noFallthroughCasesInSwitch** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **noImplicitOverride** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **noUnusedLocals** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **noUnusedParameters** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **rewriteRelativeImportExtensions** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **skipLibCheck** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **sourceMap** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **strict** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **stripInternal** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **target** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **types** (1 connections) — `packages/foundation/modeling/md/docgen.json`
 - *... and 1 more nodes in this community*
 
 ## Relationships
@@ -37,7 +37,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/docgen.json`
+- `packages/foundation/modeling/md/docgen.json`
 
 ## Audit Trail
 

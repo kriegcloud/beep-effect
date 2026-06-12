@@ -4,15 +4,15 @@
 
 ## Key Concepts
 
-- **tsconfig.json** (5 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **compilerOptions** (4 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **outDir** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **rootDir** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **types** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **extends** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **include** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **references** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
-- **$schema** (1 connections) — `packages/foundation/capability/md/tsconfig.json`
+- **tsconfig.json** (5 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **compilerOptions** (4 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **outDir** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **rootDir** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **types** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **extends** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **include** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **references** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
+- **$schema** (1 connections) — `packages/foundation/modeling/md/tsconfig.json`
 
 ## Relationships
 
@@ -20,7 +20,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/tsconfig.json`
+- `packages/foundation/modeling/md/tsconfig.json`
 
 ## Audit Trail
 

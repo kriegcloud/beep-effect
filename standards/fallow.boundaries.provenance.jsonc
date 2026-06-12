@@ -627,7 +627,7 @@
       "sourceClass": "manifest-derived",
       "sourceRefs": [
         "package.json",
-        "packages/foundation/capability/md/package.json",
+        "packages/foundation/modeling/md/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],

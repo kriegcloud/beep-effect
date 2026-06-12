@@ -5,7 +5,7 @@
 ## Key Concepts
 
 - **vitestCoverageReportOnly** (8 connections) — `vitest.shared.ts`
-- **vitest.config.ts** (2 connections) — `packages/foundation/capability/md/vitest.config.ts`
+- **vitest.config.ts** (2 connections) — `packages/foundation/modeling/md/vitest.config.ts`
 - **vitest.config.ts** (2 connections) — `packages/foundation/modeling/ontology/vitest.config.ts`
 - **vitest.config.ts** (2 connections) — `packages/shared/domain/vitest.config.ts`
 - **vitest.config.ts** (2 connections) — `packages/shared/tables/vitest.config.ts`
@@ -19,7 +19,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/vitest.config.ts`
+- `packages/foundation/modeling/md/vitest.config.ts`
 - `packages/foundation/modeling/ontology/vitest.config.ts`
 - `packages/foundation/modeling/rdf/vitest.config.ts`
 - `packages/shared/domain/vitest.config.ts`

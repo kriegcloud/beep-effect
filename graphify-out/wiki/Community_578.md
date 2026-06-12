@@ -4,26 +4,26 @@
 
 ## Key Concepts
 
-- **make()** (12 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **asInlineArray()** (7 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **templateToBlockArray()** (6 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **text()** (5 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **taskItem()** (4 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **a()** (3 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **asInline()** (3 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **asTaskItem()** (3 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **templateToInlineArray()** (3 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **code()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **img()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **isBlockTemplateFormattingChunk()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **isInlineInputArray()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **isTaskItem** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **ol()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **pre()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **rawHtml()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **rawMarkdown()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **taskList()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **ul()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
+- **make()** (12 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **asInlineArray()** (7 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **templateToBlockArray()** (6 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **text()** (5 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **taskItem()** (4 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **a()** (3 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **asInline()** (3 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **asTaskItem()** (3 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **templateToInlineArray()** (3 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **code()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **img()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **isBlockTemplateFormattingChunk()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **isInlineInputArray()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **isTaskItem** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **ol()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **pre()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **rawHtml()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **rawMarkdown()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **taskList()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **ul()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
 
 ## Relationships
 
@@ -32,7 +32,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/src/Md.ts`
+- `packages/foundation/modeling/md/src/Md.ts`
 
 ## Audit Trail
 

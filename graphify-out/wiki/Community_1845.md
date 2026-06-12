@@ -4,8 +4,8 @@
 
 ## Key Concepts
 
-- **Md.test.ts** (1 connections) — `packages/foundation/capability/md/test/Md.test.ts`
-- **name()** (1 connections) — `packages/foundation/capability/md/test/Md.test.ts`
+- **Md.test.ts** (1 connections) — `packages/foundation/modeling/md/test/Md.test.ts`
+- **name()** (1 connections) — `packages/foundation/modeling/md/test/Md.test.ts`
 
 ## Relationships
 
@@ -13,7 +13,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/test/Md.test.ts`
+- `packages/foundation/modeling/md/test/Md.test.ts`
 
 ## Audit Trail
 

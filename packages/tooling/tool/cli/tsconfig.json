@@ -42,13 +42,13 @@
       "path": "../../../foundation/capability/file-processing/tsconfig.json"
     },
     {
-      "path": "../../../foundation/capability/md/tsconfig.json"
-    },
-    {
       "path": "../../../foundation/capability/observability/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../../foundation/modeling/md/tsconfig.json"
     },
     {
       "path": "../../../foundation/modeling/schema/tsconfig.json"

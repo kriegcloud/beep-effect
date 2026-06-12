@@ -4,31 +4,31 @@
 
 ## Key Concepts
 
-- **paths** (120 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/identity** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/identity/packages** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/md** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/md/Md** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/md/Md.model** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/md/Md.render** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/md/Md.utils** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/AbortSignal** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/Age** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/ArrayOf** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/BigDecimal** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/BinaryFileExtension** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/BufferEncoding** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CardinalDirection** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CauseTaggedError** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/Color** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CommonTextSchemas** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CrossOriginEmbedderPolicy** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CrossOriginOpenerPolicy** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CrossOriginResourcePolicy** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CryptoTxnHash** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/CryptoWalletAddress** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **@beep/schema/Csp** (1 connections) — `packages/foundation/capability/md/docgen.json`
+- **paths** (120 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/identity** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/identity/packages** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/md** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/md/Md** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/md/Md.model** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/md/Md.render** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/md/Md.utils** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/AbortSignal** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/Age** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/ArrayOf** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/BigDecimal** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/BinaryFileExtension** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/BufferEncoding** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CardinalDirection** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CauseTaggedError** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/Color** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CommonTextSchemas** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CrossOriginEmbedderPolicy** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CrossOriginOpenerPolicy** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CrossOriginResourcePolicy** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CryptoTxnHash** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/CryptoWalletAddress** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **@beep/schema/Csp** (1 connections) — `packages/foundation/modeling/md/docgen.json`
 - *... and 95 more nodes in this community*
 
 ## Relationships
@@ -37,7 +37,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/docgen.json`
+- `packages/foundation/modeling/md/docgen.json`
 
 ## Audit Trail
 
