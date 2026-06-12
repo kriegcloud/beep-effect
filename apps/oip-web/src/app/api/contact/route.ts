@@ -7,11 +7,50 @@
 
 import { Str } from "@beep/utils";
 import { Effect } from "effect";
+import * as S from "effect/Schema";
+import { ContactSubmissionPayload, ContactSubmissionResponse, contactResponseBody } from "../../../contact";
 import { oipContactHttpApiWebHandler } from "./ContactHttpApiRoute";
 import { contactRequestResponse } from "./ContactRouteResponse";
 
 const isJsonContactSubmission = (request: Request): boolean =>
   Str.includes("application/json")(request.headers.get("content-type") ?? "");
+
+const decodeJsonContactSubmissionPayload = S.decodeUnknownEffect(ContactSubmissionPayload);
+
+const rejectedContactSubmission = ContactSubmissionResponse.make({
+  message: "The submission could not be accepted.",
+  status: "rejected",
+});
+
+const contactJsonStatus = (response: ContactSubmissionResponse): 202 | 400 =>
+  response.status === "accepted" ? 202 : 400;
+
+const readJsonContactPayload = Effect.fn("OipContact.readJsonContactPayload")(function* (request: Request) {
+  const body = yield* Effect.tryPromise({
+    try: () => request.json(),
+    catch: () => rejectedContactSubmission,
+  });
+
+  return yield* decodeJsonContactSubmissionPayload(body).pipe(Effect.mapError(() => rejectedContactSubmission));
+});
+
+const rejectedJsonContactResponse = (response: ContactSubmissionResponse): Response =>
+  Response.json(contactResponseBody(response), { status: contactJsonStatus(response) });
+
+// Effect v4 uses `Effect.catch` for catch-all recovery; the v3 `catchAll` name is not available here.
+const recoverRejectedJsonContactResponse = (response: ContactSubmissionResponse): Effect.Effect<Response> =>
+  Effect.succeed(rejectedJsonContactResponse(response));
+
+const jsonContactResponse = (request: Request): Effect.Effect<Response> =>
+  readJsonContactPayload(request.clone()).pipe(
+    Effect.flatMap(() =>
+      Effect.tryPromise({
+        try: () => oipContactHttpApiWebHandler(request),
+        catch: () => rejectedContactSubmission,
+      })
+    ),
+    Effect.catch(recoverRejectedJsonContactResponse)
+  );
 
 /**
  * Handles OIP contact submissions at the Next.js route boundary.
@@ -28,6 +67,4 @@ const isJsonContactSubmission = (request: Request): boolean =>
  * @since 0.0.0
  */
 export const POST: (request: Request) => Promise<Response> = (request) =>
-  isJsonContactSubmission(request)
-    ? oipContactHttpApiWebHandler(request)
-    : Effect.runPromise(contactRequestResponse(request));
+  Effect.runPromise(isJsonContactSubmission(request) ? jsonContactResponse(request) : contactRequestResponse(request));

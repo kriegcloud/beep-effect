@@ -1169,8 +1169,10 @@ export const closeoutWritePlanForTesting = closeoutWritePlan;
 const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWriteActions")(function* (
   context: RepoRunContext,
   intents: ReadonlyArray<CloseoutWriteIntent>
-) {
-  const performIntent = Effect.fnUntraced(function* performIntent(intent: CloseoutWriteIntent) {
+): Effect.fn.Return<ReadonlyArray<PrCloseoutWriteAction>, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+  const performWriteIntent = Effect.fnUntraced(function* (
+    intent: CloseoutWriteIntent
+  ): Effect.fn.Return<PrCloseoutWriteAction, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
     const args =
       intent.kind === "reply"
         ? [
@@ -1194,7 +1196,7 @@ const performCloseoutWriteActions = Effect.fn("YeetCloseout.performCloseoutWrite
     });
   });
 
-  return yield* Effect.forEach(intents, performIntent, { concurrency: 1 });
+  return yield* Effect.forEach(intents, performWriteIntent, { concurrency: 1 });
 });
 
 /**

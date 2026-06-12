@@ -34,11 +34,16 @@ export const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]
  * @category models
  * @since 0.0.0
  */
-export type RgbEncoded = {
-  readonly r: number;
-  readonly g: number;
-  readonly b: number;
-};
+export class RgbEncoded extends S.Class<RgbEncoded>($I`RgbEncoded`)(
+  {
+    r: S.Finite,
+    g: S.Finite,
+    b: S.Finite,
+  },
+  $I.annote("RgbEncoded", {
+    description: "Encoded RGB channel payload used by internal color conversions.",
+  })
+) {}
 
 /**
  * Encoded OKLCH coordinate payload used by internal color conversions.
@@ -47,8 +52,13 @@ export type RgbEncoded = {
  * @category models
  * @since 0.0.0
  */
-export type OklchEncoded = {
-  readonly l: number;
-  readonly c: number;
-  readonly h: number;
-};
+export class OklchEncoded extends S.Class<OklchEncoded>($I`OklchEncoded`)(
+  {
+    l: S.Finite,
+    c: S.Finite,
+    h: S.Finite,
+  },
+  $I.annote("OklchEncoded", {
+    description: "Encoded OKLCH coordinate payload used by internal color conversions.",
+  })
+) {}

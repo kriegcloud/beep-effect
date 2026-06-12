@@ -24,14 +24,15 @@ class ParagraphizeParameters extends S.Class<ParagraphizeParameters>($I`Paragrap
   })
 ) {}
 
-const ParagraphizeSuccess = S.Struct({
-  count: S.Finite,
-  paragraphs: S.Array(S.String),
-}).pipe(
-  $I.annoteSchema("ParagraphizeSuccess", {
+class ParagraphizeSuccess extends S.Class<ParagraphizeSuccess>($I`ParagraphizeSuccess`)(
+  {
+    count: S.Finite,
+    paragraphs: S.Array(S.String),
+  },
+  $I.annote("ParagraphizeSuccess", {
     description: "Split text into paragraphs on blank-line boundaries.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for splitting text into paragraphs on
@@ -60,5 +61,5 @@ export const Paragraphize = Tool.make("Paragraphize", {
   failure: AiToolError,
   failureMode: "return",
   parameters: ParagraphizeParameters,
-  success: ParagraphizeSuccess,
+  success: S.toEncoded(ParagraphizeSuccess),
 });

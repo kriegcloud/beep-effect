@@ -3,6 +3,11 @@ import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Graph_ from "effect/Graph";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
+
+const NodeIndexArbitrary = S.toArbitrary(GraphSchema.NodeIndex);
+const EdgeIndexArbitrary = S.toArbitrary(GraphSchema.EdgeIndex);
+const GraphKindArbitrary = S.toArbitrary(GraphSchema.GraphKind);
 
 describe("Graph indices", () => {
   it("brands non-negative integer node and edge indices", () => {
@@ -24,6 +29,17 @@ describe("Graph indices", () => {
   it("decodes graph kind discriminators", () => {
     expect(S.decodeUnknownSync(GraphSchema.GraphKind)("directed")).toBe("directed");
     expect(S.decodeUnknownSync(GraphSchema.GraphKind)("undirected")).toBe("undirected");
+  });
+
+  it("derives valid graph primitives from their source schemas", () => {
+    fc.assert(
+      fc.property(NodeIndexArbitrary, EdgeIndexArbitrary, GraphKindArbitrary, (nodeIndex, edgeIndex, graphKind) => {
+        expect(S.is(GraphSchema.NodeIndex)(nodeIndex)).toBe(true);
+        expect(S.is(GraphSchema.EdgeIndex)(edgeIndex)).toBe(true);
+        expect(S.is(GraphSchema.GraphKind)(graphKind)).toBe(true);
+      }),
+      { numRuns: 50 }
+    );
   });
 });
 

@@ -75,7 +75,7 @@ export const Default: Story = {
           <SheetDescription>Make changes to your profile here. Click save when you are done.</SheetDescription>
         </SheetHeader>
         <SheetFooter>
-          <Button type="submit">Save changes</Button>
+          <Button type="button">Save changes</Button>
           <SheetClose render={<Button variant="outline">Cancel</Button>} />
         </SheetFooter>
       </SheetContent>

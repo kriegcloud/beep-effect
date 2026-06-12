@@ -17,11 +17,25 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Struct from "effect/Struct";
+import { FastCheck as fc } from "effect/testing";
 
 const objectKeys = (value: unknown): ReadonlyArray<string> => (P.isObject(value) ? Struct.keys(value) : A.empty());
+const PackageJsonNameArbitrary = S.toArbitrary(PackageJson.fields.name);
 
 describe("PackageJson schema", () => {
   describe("valid structures", () => {
+    it("derives repo package names from the production field schema arbitrary", () => {
+      fc.assert(
+        fc.property(PackageJsonNameArbitrary, (name) => {
+          const decoded = decodePackageJson({ name });
+
+          expect(S.is(PackageJson)(decoded)).toBe(true);
+          expect(decoded.name).toBe(name);
+        }),
+        { numRuns: 20 }
+      );
+    });
+
     it("decodes minimal package.json (name only)", () => {
       const result = decodePackageJson({ name: "my-package" });
       expect(result.name).toBe("my-package");

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6d650865d1cd3ce1debc6c2f883bde6cc0e4a3a26de17d971c3ef84e55bfc62c",
+    "digest": "9ca73b4855ebafb4f802f497477d5c4c1d8fd54105782f86ff67c71b7c3fa656",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -232,8 +232,8 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/link-preview.tsx",
-        "sha256": "38d97a1c8351e31f4059ba7f47d490255162b370da16a1c1be3bcd4f0c34d2e9",
-        "bytes": 12412
+        "sha256": "506666da475af9b10aee5634143c60b90ade68459a539e57d97cb365c0cb6c0f",
+        "bytes": 12383
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/live-waveform.tsx",

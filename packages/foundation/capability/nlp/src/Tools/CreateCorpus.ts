@@ -77,5 +77,5 @@ export const CreateCorpus = Tool.make("CreateCorpus", {
   failure: AiToolError,
   failureMode: "return",
   parameters: CreateCorpusParameters,
-  success: AiCorpusSummary,
+  success: S.toEncoded(AiCorpusSummary),
 });

@@ -46,17 +46,18 @@ class NGramsParameters extends S.Class<NGramsParameters>($I`NGramsParameters`)(
   })
 ) {}
 
-const NGramsSuccess = S.Struct({
-  mode: NGramMode,
-  ngrams: S.Array(AiNGram),
-  size: S.Finite,
-  totalNGrams: S.Finite,
-  uniqueNGrams: S.Finite,
-}).pipe(
-  $I.annoteSchema("NGramsSuccess", {
+class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
+  {
+    mode: NGramMode,
+    ngrams: S.Array(AiNGram),
+    size: S.Finite,
+    totalNGrams: S.Finite,
+    uniqueNGrams: S.Finite,
+  },
+  $I.annote("NGramsSuccess", {
     description: "Extracted n-gram entries and summary counts for the selected mode.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for extracting fixed-size character
@@ -88,5 +89,5 @@ export const NGrams = Tool.make("NGrams", {
   failure: AiToolError,
   failureMode: "return",
   parameters: NGramsParameters,
-  success: NGramsSuccess,
+  success: S.toEncoded(NGramsSuccess),
 });

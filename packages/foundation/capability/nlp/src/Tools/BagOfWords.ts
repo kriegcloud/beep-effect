@@ -24,15 +24,16 @@ class BagOfWordsParameters extends S.Class<BagOfWordsParameters>($I`BagOfWordsPa
   })
 ) {}
 
-const BagOfWordsSuccess = S.Struct({
-  terms: S.Array(AiNGram),
-  totalTerms: S.Finite,
-  uniqueTerms: S.Finite,
-}).pipe(
-  $I.annoteSchema("BagOfWordsSuccess", {
+class BagOfWordsSuccess extends S.Class<BagOfWordsSuccess>($I`BagOfWordsSuccess`)(
+  {
+    terms: S.Array(AiNGram),
+    totalTerms: S.Finite,
+    uniqueTerms: S.Finite,
+  },
+  $I.annote("BagOfWordsSuccess", {
     description: "Bag-of-words term-frequency table with total and unique term counts.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for computing a bag-of-words
@@ -61,5 +62,5 @@ export const BagOfWords = Tool.make("BagOfWords", {
   failure: AiToolError,
   failureMode: "return",
   parameters: BagOfWordsParameters,
-  success: BagOfWordsSuccess,
+  success: S.toEncoded(BagOfWordsSuccess),
 });

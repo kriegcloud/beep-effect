@@ -1,7 +1,7 @@
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@beep/ui/components/input-otp";
 import { expect, fn, userEvent, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode, SyntheticEvent } from "react";
 
 type InputOTPProps = ComponentProps<typeof InputOTP>;
 
@@ -30,6 +30,10 @@ const otpProps = (args: Partial<InputOTPControls>): Omit<InputOTPChildrenProps, 
     ...(onComplete === undefined ? {} : { onComplete }),
     ...(id === undefined ? {} : { id }),
   };
+};
+
+const preventSubmit = (event: SyntheticEvent<HTMLFormElement>): void => {
+  event.preventDefault();
 };
 
 /**
@@ -205,7 +209,7 @@ export const Disabled: Story = {
 /** A realistic verification card: a labeled six-digit code split into two groups with helper text. */
 export const VerificationForm: Story = {
   render: (args) => (
-    <form className="flex w-full max-w-sm flex-col items-center gap-3">
+    <form className="flex w-full max-w-sm flex-col items-center gap-3" onSubmit={preventSubmit}>
       <label htmlFor="otp-verify" className="text-sm font-medium">
         Enter your verification code
       </label>

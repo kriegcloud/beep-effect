@@ -24,15 +24,16 @@ class RemoveStopWordsParameters extends S.Class<RemoveStopWordsParameters>($I`Re
   })
 ) {}
 
-const RemoveStopWordsSuccess = S.Struct({
-  count: S.Finite,
-  removedCount: S.Finite,
-  tokens: S.Array(S.String),
-}).pipe(
-  $I.annoteSchema("RemoveStopWordsSuccess", {
+class RemoveStopWordsSuccess extends S.Class<RemoveStopWordsSuccess>($I`RemoveStopWordsSuccess`)(
+  {
+    count: S.Finite,
+    removedCount: S.Finite,
+    tokens: S.Array(S.String),
+  },
+  $I.annote("RemoveStopWordsSuccess", {
     description: "Remove stop words from text, returning the remaining word tokens.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for removing stop words from text and
@@ -61,5 +62,5 @@ export const RemoveStopWords = Tool.make("RemoveStopWords", {
   failure: AiToolError,
   failureMode: "return",
   parameters: RemoveStopWordsParameters,
-  success: RemoveStopWordsSuccess,
+  success: S.toEncoded(RemoveStopWordsSuccess),
 });

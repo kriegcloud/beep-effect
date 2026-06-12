@@ -6,7 +6,7 @@
  */
 
 import { $OipWebId } from "@beep/identity/packages";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { LiteralKit, NonNegativeInt, TrimmedNonEmptyText } from "@beep/schema";
 import { Str } from "@beep/utils";
 import { Effect, pipe, Result, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
@@ -18,9 +18,17 @@ const $I = $OipWebId.create("contact/ContactSubmission.model");
 
 const contactEmailPattern =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+const ContactEmailArbitraryValues = ["builder@example.com", "intake@oip.law", "tom@example.com"] as const;
+const ContactNameArbitraryValues = ["Builder", "Thomas Oppold", "OIP Intake"] as const;
+const ContactMessageArbitraryValues = [
+  "I would like to discuss a patent matter.",
+  "Please contact me about protecting a new machine design.",
+  "We need help reviewing an intellectual property portfolio.",
+] as const;
 
-const TrimmedContactText = S.NonEmptyString.pipe(
-  S.decode(SchemaTransformation.trim()),
+const TrimmedContactText = TrimmedNonEmptyText.annotate({
+  toArbitrary: () => (fc) => fc.string({ minLength: 1 }).map(Str.trim).filter(Str.isNonEmpty),
+}).pipe(
   $I.annoteSchema("TrimmedContactText", {
     description: "Trimmed non-empty contact form text.",
   })
@@ -30,11 +38,15 @@ const ContactName = TrimmedContactText.check(
   S.isMinLength(2, {
     message: "Name must include at least 2 characters.",
   })
-).pipe(
-  $I.annoteSchema("ContactName", {
-    description: "Normalized contact form name.",
-  })
-);
+)
+  .pipe(
+    $I.annoteSchema("ContactName", {
+      description: "Normalized contact form name.",
+    })
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactNameArbitraryValues),
+  });
 
 const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLowerCase()))
   .check(
@@ -49,17 +61,24 @@ const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLow
     $I.annoteSchema("ContactEmail", {
       description: "Normalized contact form email address.",
     })
-  );
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactEmailArbitraryValues),
+  });
 
 const ContactMessage = TrimmedContactText.check(
   S.isMinLength(10, {
     message: "Message must include at least 10 characters.",
   })
-).pipe(
-  $I.annoteSchema("ContactMessage", {
-    description: "Normalized contact form message.",
-  })
-);
+)
+  .pipe(
+    $I.annoteSchema("ContactMessage", {
+      description: "Normalized contact form message.",
+    })
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactMessageArbitraryValues),
+  });
 
 /**
  * Public contact submission status.
@@ -180,9 +199,9 @@ export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormP
 )(
   {
     company: S.optionalKey(TrimmedContactText),
-    email: S.String,
-    message: S.String,
-    name: S.String,
+    email: ContactEmail,
+    message: ContactMessage,
+    name: ContactName,
     phone: S.optionalKey(TrimmedContactText),
     posture: S.optionalKey(TrimmedContactText),
     submittedAt: ContactSubmissionFormSubmittedAt,
