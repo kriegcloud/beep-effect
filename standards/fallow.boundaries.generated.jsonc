@@ -1054,14 +1054,12 @@
         "allow": [
           "@beep/firecrawl",
           "@beep/identity",
-          "@beep/observability",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/firecrawl",
           "@beep/identity",
-          "@beep/observability",
           "@beep/schema",
           "@beep/utils"
         ]
@@ -1190,15 +1188,13 @@
           "@beep/identity",
           "@beep/langextract",
           "@beep/nlp",
-          "@beep/schema",
-          "@beep/utils"
+          "@beep/schema"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/langextract",
           "@beep/nlp",
-          "@beep/schema",
-          "@beep/utils"
+          "@beep/schema"
         ]
       },
       {
@@ -1222,15 +1218,13 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/libpff",
-          "@beep/schema",
-          "@beep/utils"
+          "@beep/schema"
         ],
         "allowTypeOnly": [
           "@beep/file-processing",
           "@beep/identity",
           "@beep/libpff",
-          "@beep/schema",
-          "@beep/utils"
+          "@beep/schema"
         ]
       },
       {
@@ -1672,6 +1666,7 @@
           "@beep/rdf",
           "@beep/schema",
           "@beep/semantic-web",
+          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -1679,6 +1674,7 @@
           "@beep/rdf",
           "@beep/schema",
           "@beep/semantic-web",
+          "@beep/test-utils",
           "@beep/utils"
         ]
       },

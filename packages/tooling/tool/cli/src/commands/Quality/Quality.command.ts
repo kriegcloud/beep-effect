@@ -817,6 +817,11 @@ const githubCheckQualityLanes = (repoRoot: string): ReadonlyArray<GithubCheckLan
     "repo-quality",
     bunRunLane(repoRoot, "quality:repo-exports-catalog-check", ["repo-exports:catalog:check"])
   ),
+  githubCheckLane(
+    "quality:reuse-clones",
+    "repo-quality",
+    bunRunLane(repoRoot, "quality:reuse-clones", ["beep", "reuse", "clones", "--check"])
+  ),
   githubCheckLane("quality:test", "repo-quality", bunRunLane(repoRoot, "quality:test", ["test"])),
 ];
 
@@ -830,6 +835,11 @@ const githubCheckRepoSanityLanes = (repoRoot: string): ReadonlyArray<GithubCheck
     "repo-sanity:tsconfig-sync",
     "repo-sanity",
     bunRunLane(repoRoot, "repo-sanity:tsconfig-sync", ["config-sync:check"])
+  ),
+  githubCheckLane(
+    "repo-sanity:fallow-boundaries-config",
+    "repo-sanity",
+    repoCliLane(repoRoot, "repo-sanity:fallow-boundaries-config", ["fallow", "boundaries", "config-check", "--check"])
   ),
   githubCheckLane(
     "repo-sanity:versions",
