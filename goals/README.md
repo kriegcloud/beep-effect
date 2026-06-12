@@ -8,6 +8,11 @@ persistent objective, source hierarchy, decisions, verification surface, stop
 conditions, and evidence trail. Execution-capable packets must be directly
 runnable through a compact `/goal` launcher.
 
+Packets may be born from a graduated exploration in
+[`explorations/`](../explorations/README.md) — the repo's fuzzy front end for
+brainstorming, research, alignment, and decomposition. Such packets keep a
+back-link to their source exploration in `ops/manifest.json`.
+
 ## Packet Standard
 
 New execution-capable packets must start from [`_template`](./_template).

@@ -77,6 +77,7 @@
     ".aiassistant/**",
     "scratchpad/**",
     "goals/**",
+    "explorations/*/CAPTURE.md",
     ".turbo",
     "*.tsbuildinfo",
     ".agents",
