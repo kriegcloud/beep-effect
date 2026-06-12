@@ -197,10 +197,11 @@ const TsconfigSyncModeMatch = TsconfigSyncModeKit.$match;
 
 type TsconfigSyncMode = typeof TsconfigSyncMode.Type;
 const tsconfigSyncModeEquivalence = S.toEquivalence(TsconfigSyncMode);
-type TsconfigSyncModeFlags = readonly [check: boolean, dryRun: boolean];
+type TsconfigSyncModeFlags = readonly [check: boolean, dryRun: boolean, write: boolean];
 
-const isCheckModeFlags = P.Tuple([P.isTruthy, P.isBoolean]);
-const isDryRunModeFlags = P.Tuple([P.not(P.isTruthy), P.isTruthy]);
+const isCheckModeFlags = P.Tuple([P.isTruthy, P.isBoolean, P.isBoolean]);
+const isDryRunModeFlags = P.Tuple([P.not(P.isTruthy), P.isTruthy, P.isBoolean]);
+const isWriteModeFlags = P.Tuple([P.not(P.isTruthy), P.not(P.isTruthy), P.isTruthy]);
 
 class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`TsconfigSyncRunOptionsSync`)(
   {
@@ -1819,13 +1820,14 @@ export const syncTsconfigAtRoot: {
   })
 );
 
-const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
-  const flags = [check, dryRun] satisfies TsconfigSyncModeFlags;
+const resolveMode = (check: boolean, dryRun: boolean, write: boolean): TsconfigSyncMode => {
+  const flags = [check, dryRun, write] satisfies TsconfigSyncModeFlags;
 
   return pipe(
     [
       pipe(flags, O.liftPredicate(isCheckModeFlags), O.as("check" as const)),
       pipe(flags, O.liftPredicate(isDryRunModeFlags), O.as("dry-run" as const)),
+      pipe(flags, O.liftPredicate(isWriteModeFlags), O.as("sync" as const)),
     ] satisfies ReadonlyArray<O.Option<TsconfigSyncMode>>,
     O.firstSomeOf,
     O.getOrElse((): TsconfigSyncMode => "sync")
@@ -1850,6 +1852,7 @@ export const tsconfigSyncCommand = Command.make(
       Flag.withDescription("Validate drift without writing files (non-zero exit on drift)")
     ),
     dryRun: Flag.boolean("dry-run").pipe(Flag.withDescription("Preview file changes without writing files")),
+    write: Flag.boolean("write").pipe(Flag.withDescription("Apply file changes (default behavior)")),
     filter: Flag.string("filter").pipe(
       Flag.withDescription("Limit package reference sync to a workspace package name or workspace-relative path"),
       Flag.optional
@@ -1859,9 +1862,9 @@ export const tsconfigSyncCommand = Command.make(
       Flag.withDescription("Include per-package detail output")
     ),
   },
-  Effect.fn(function* ({ check, dryRun, filter, verbose }) {
+  Effect.fn(function* ({ check, dryRun, filter, verbose, write }) {
     const rootDir = yield* findRepoRoot();
-    const mode = resolveMode(check, dryRun);
+    const mode = resolveMode(check, dryRun, write);
     const syncOptions = {
       mode,
       verbose,

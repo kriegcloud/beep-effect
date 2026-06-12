@@ -2,8 +2,8 @@
 
 ## Status
 
-Stage: `research`
-Status: `active`
+Stage: `graduate`
+Status: `graduated`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -17,16 +17,24 @@ lossless editing, schema-defined blocks, deterministic thread export.
 
 ## Next Open Question
 
-Adopt `@lobehub/editor` as a dependency vs build a custom Lexical block kit
-on the existing `@beep/ui` editor-00 foundation (license, React 19 compat,
-Effect schema-first fit)? Resolve via the pending external-landscape research.
+None — graduated 2026-06-12. Execution lives in the goal packets:
+
+1. [`goals/rich-text-foundation`](../../goals/rich-text-foundation/README.md)
+2. [`goals/workspace-thread-domain`](../../goals/workspace-thread-domain/README.md)
+3. [`goals/desktop-chat-surface`](../../goals/desktop-chat-surface/README.md)
+   (depends on 1 + 2)
+
+Deferred follow-ons named in [`MAP.md`](./MAP.md): `acp-chat-binding`,
+`proposal-blocks`, attachment/table blocks, `thread-pdf-export`.
 
 ## Read This First
 
-1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.
-2. [`CAPTURE.md`](./CAPTURE.md) - the original brainstorm + screenshots (stage 0, complete).
-3. [`RESEARCH.md`](./RESEARCH.md) - in-repo inventory done; external landscape pending (stage 1, current).
-4. [`DECISIONS.md`](./DECISIONS.md) - context-alignment record (stage 2 not yet started).
+1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, links.
+2. [`CAPTURE.md`](./CAPTURE.md) - the original brainstorm + screenshots (stage 0).
+3. [`RESEARCH.md`](./RESEARCH.md) - in-repo inventory + external landscape + proof-repo inventory (stage 1).
+4. [`DECISIONS.md`](./DECISIONS.md) - 16 dated align decisions (stage 2).
+5. [`BRIEF.md`](./BRIEF.md) - Shape Up pitch (stage 3).
+6. [`MAP.md`](./MAP.md) - goal-packet decomposition + capability citations (stage 4).
 
 ## Trail
 
@@ -36,3 +44,21 @@ Effect schema-first fit)? Resolve via the pending external-landscape research.
   doctrine, UI/editor substrate, agent connectivity, schema codecs). External
   landscape research queued: lobe-editor deep dive, Lexical ecosystem, chat
   input UX comparisons, PDF export options.
+- 2026-06-12: research completed — external landscape (lobe-editor pins
+  Lexical 0.42 + antd peers; Lexical 0.45 current; serialized-state compat is
+  app-managed; branching UX prior art) + `effect-lexical-chat` proof
+  inventory added to `RESEARCH.md`. Stage → align.
+- 2026-06-12: align completed via grill-with-docs — 8 handoff-locked + 8
+  session decisions recorded in `DECISIONS.md` (build custom kit;
+  turn-kernel-first; `drivers/anthropic`; PGlite confirmed; Turn aggregate;
+  UsageRecord at finalization; thread content exempt from candidate gating;
+  v1 blocks md-core + artifact-ref). `openQuestions` cleared. Stage → shape.
+- 2026-06-12: `BRIEF.md` written (three-packet appetite, rabbit holes,
+  no-gos). Stage → decompose.
+- 2026-06-12: `MAP.md` written (rich-text-foundation,
+  workspace-thread-domain, desktop-chat-surface + named follow-ons; every
+  component cited or NET-NEW). Stage → graduate.
+- 2026-06-12: **graduated** — scaffolded `goals/{rich-text-foundation,
+  workspace-thread-domain,desktop-chat-surface}` from `goals/_template`;
+  manifests cross-linked; ATLAS updated. Drift noted en route: the
+  handoff's `@beep/md` move had already landed (PR #240).
