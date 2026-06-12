@@ -26,7 +26,9 @@ const filterFlag = Flag.string("filter").pipe(
   Flag.withDescription('Compatibility selector for commands like "bun run docgen --filter=@beep/schema"'),
   Flag.optional
 );
-const cleanFlag = Flag.boolean("clean").pipe(Flag.withDescription("Remove the root docs directory before aggregating"));
+const cleanFlag = Flag.boolean("clean").pipe(
+  Flag.withDescription("Remove the generated docs directory (docs/generated) before aggregating")
+);
 
 const resolveAggregateSelector = Effect.fn("DocsAggregate.resolveAggregateSelector")(function* (
   packageSelector: O.Option<string>,
@@ -56,14 +58,14 @@ const aggregateDocs = Effect.fn(function* (selector: O.Option<string>, clean: bo
     onNonEmpty: (nonEmptyResults) =>
       Effect.forEach(
         nonEmptyResults,
-        (result) => Console.log(`docs aggregate: ${result.packagePath} -> docs/${result.docsOutputPath}`),
+        (result) => Console.log(`docs aggregate: ${result.packagePath} -> docs/generated/${result.docsOutputPath}`),
         { discard: true }
       ),
   });
 });
 
 /**
- * Aggregate generated package docs into the root `docs/` layout.
+ * Aggregate generated package docs into the root `docs/generated/` layout.
  *
  * @example
  * ```ts
@@ -97,4 +99,4 @@ export const docsAggregateCommand = Command.make(
         }),
       })
     )
-).pipe(Command.withDescription("Aggregate generated docs into the current root docs layout"));
+).pipe(Command.withDescription("Aggregate generated docs into the root docs/generated layout"));

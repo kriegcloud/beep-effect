@@ -697,8 +697,24 @@ export const ProofFixture = 1;
           );
 
           const results = yield* aggregateGeneratedDocs();
-          const aggregatedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "Schema.md");
-          const aggregatedIndexPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "index.md");
+          const aggregatedPath = path.join(
+            tmpDir,
+            "docs",
+            "generated",
+            "foundation",
+            "modeling",
+            "schema",
+            "Schema.md"
+          );
+          const aggregatedIndexPath = path.join(
+            tmpDir,
+            "docs",
+            "generated",
+            "foundation",
+            "modeling",
+            "schema",
+            "index.md"
+          );
           const aggregated = yield* fs.readFileString(aggregatedPath);
           const aggregatedIndex = yield* fs.readFileString(aggregatedIndexPath);
 
@@ -746,8 +762,16 @@ export const ProofFixture = 1;
           yield* fs.symlink(outsideFilePath, path.join(docsModulesDir, "Leak.md"));
 
           const results = yield* aggregateGeneratedDocs();
-          const aggregatedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "Schema.md");
-          const leakedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema", "Leak.md");
+          const aggregatedPath = path.join(
+            tmpDir,
+            "docs",
+            "generated",
+            "foundation",
+            "modeling",
+            "schema",
+            "Schema.md"
+          );
+          const leakedPath = path.join(tmpDir, "docs", "generated", "foundation", "modeling", "schema", "Leak.md");
           const aggregated = yield* fs.readFileString(aggregatedPath);
           const leakedExists = yield* fs.exists(leakedPath);
 
@@ -796,7 +820,7 @@ export const ProofFixture = 1;
           yield* fs.symlink(externalDocsModulesDir, docsModulesDir);
 
           const exit = yield* aggregateGeneratedDocs().pipe(Effect.exit);
-          const aggregatedPath = path.join(tmpDir, "docs", "foundation", "modeling", "schema");
+          const aggregatedPath = path.join(tmpDir, "docs", "generated", "foundation", "modeling", "schema");
           const aggregatedExists = yield* fs.exists(aggregatedPath);
 
           expect(Exit.isFailure(exit)).toBe(true);
@@ -876,11 +900,11 @@ export const ProofFixture = 1;
             `---\nparent: Modules\ntitle: Store\n---\n\ncontent\n`
           );
 
-          yield* fs.makeDirectory(path.join(tmpDir, "docs"), { recursive: true });
-          yield* fs.writeFileString(path.join(tmpDir, "docs", "example"), "stale-path-conflict");
+          yield* fs.makeDirectory(path.join(tmpDir, "docs", "generated"), { recursive: true });
+          yield* fs.writeFileString(path.join(tmpDir, "docs", "generated", "example"), "stale-path-conflict");
 
           const results = yield* aggregateGeneratedDocs({ clean: true });
-          const aggregatedPath = path.join(tmpDir, "docs", "example", "store", "Store.md");
+          const aggregatedPath = path.join(tmpDir, "docs", "generated", "example", "store", "Store.md");
           const aggregated = yield* fs.readFileString(aggregatedPath);
 
           expect(results).toHaveLength(1);

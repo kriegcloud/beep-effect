@@ -718,7 +718,7 @@ const aggregatePackages = Effect.fn("DocgenLocal.aggregatePackages")(function* (
   for (const pkg of packages) {
     const results = yield* aggregateGeneratedDocs({ package: pkg.relativePath });
     for (const result of results) {
-      yield* Console.log(`docgen:local: aggregated ${result.packagePath} -> docs/${result.docsOutputPath}`);
+      yield* Console.log(`docgen:local: aggregated ${result.packagePath} -> docs/generated/${result.docsOutputPath}`);
     }
   }
 });

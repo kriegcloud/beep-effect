@@ -258,7 +258,7 @@ const logAggregateResults = Effect.fn(function* (results: ReadonlyArray<DocgenAg
   }
 
   for (const result of results) {
-    yield* Console.log(`docgen: aggregated ${result.packagePath} -> docs/${result.docsOutputPath}`);
+    yield* Console.log(`docgen: aggregated ${result.packagePath} -> docs/generated/${result.docsOutputPath}`);
   }
 });
 

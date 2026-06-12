@@ -498,6 +498,12 @@
         ]
       },
       {
+        "name": "@beep/uspto",
+        "patterns": [
+          "packages/drivers/uspto/src/**"
+        ]
+      },
+      {
         "name": "@beep/utils",
         "patterns": [
           "packages/foundation/modeling/utils/src/**"
@@ -1218,13 +1224,15 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/libpff",
-          "@beep/schema"
+          "@beep/schema",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
           "@beep/file-processing",
           "@beep/identity",
           "@beep/libpff",
-          "@beep/schema"
+          "@beep/schema",
+          "@beep/test-utils"
         ]
       },
       {
@@ -1502,6 +1510,7 @@
           "@beep/schema",
           "@beep/test-utils",
           "@beep/tika",
+          "@beep/uspto",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -1526,6 +1535,7 @@
           "@beep/schema",
           "@beep/test-utils",
           "@beep/tika",
+          "@beep/uspto",
           "@beep/utils"
         ]
       },
@@ -1818,6 +1828,7 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/tika",
           "@beep/utils"
         ],
@@ -1825,6 +1836,7 @@
           "@beep/file-processing",
           "@beep/identity",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/tika",
           "@beep/utils"
         ]
@@ -1846,6 +1858,23 @@
         ],
         "allowTypeOnly": [
           "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/uspto",
+        "allow": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/uspto",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/uspto",
           "@beep/utils"
         ]
       },

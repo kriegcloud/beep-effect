@@ -50,7 +50,7 @@ const WORKSPACE_ARTIFACTS = [
  * @category utilities
  * @since 0.0.0
  */
-const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
+const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs/generated"] as const;
 
 /**
  * Optional root lock artifact purged with `--lock` / `-l`.

@@ -40,10 +40,13 @@ stats.html
 .vercel
 **/.next/
 **/next-env.d.ts
-docs/
 **/docs
 !goals/**/docs/
 !goals/**/docs/**
+# Root docs/ is tracked authored documentation; generated + private stay out
+!/docs/
+/docs/generated/
+/docs/_internal/
 # Docgen analysis artifacts
 **/JSDOC_ANALYSIS.md
 **/JSDOC_ANALYSIS.json
