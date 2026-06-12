@@ -72,6 +72,8 @@ lerp
 lgtm
 libc
 libpff
+Pffexport
+pffexport
 llms
 LLMs
 loadmodule
@@ -268,6 +270,7 @@ TFIDF
 tfidf
 tika
 Tika
+tikaapp
 fallowrc
 gibibytes
 SARIF

@@ -401,8 +401,11 @@ const csvValues = (value: string): ReadonlyArray<string> =>
 const normalizePath = Str.replaceAll("\\", "/");
 const parserName = (feature: FallowFeature): string => `fallow/${feature}/v1`;
 const subCategoryName = (feature: FallowFeature, rule: string): string => `fallow:${feature}:${rule}`;
-const slugify = (value: string): string =>
-  pipe(value, flow(Str.toLowerCase, Str.replace(/[^a-z0-9]+/gu, "-"), Str.replace(/^-|-$/gu, "")));
+const slugify: (value: string) => string = flow(
+  Str.toLowerCase,
+  Str.replace(/[^a-z0-9]+/gu, "-"),
+  Str.replace(/^-|-$/gu, "")
+);
 
 const unknownRecordProperty = (value: unknown, key: string): O.Option<unknown> =>
   pipe(
@@ -1978,19 +1981,10 @@ const runCommandContractCheck = Effect.fn("FallowQuality.runCommandContractCheck
   yield* Console.log("[fallow] command contract ok");
 });
 
-const optionAsArray = <Value>(option: O.Option<Value>): ReadonlyArray<Value> =>
-  pipe(
-    option,
-    O.match({
-      onNone: A.empty<Value>,
-      onSome: A.of,
-    })
-  );
-
 const stepStringValues = (steps: ReadonlyArray<unknown>, key: string): ReadonlyArray<string> =>
   pipe(
     steps,
-    A.flatMap((step) => optionAsArray(unknownStringProperty(step, key)))
+    A.flatMap((step) => O.toArray(unknownStringProperty(step, key)))
   );
 
 const uploadWithString = (step: unknown, key: string): O.Option<string> =>
@@ -2105,7 +2099,6 @@ const fallowCiUploadDiagnostics = (
  * const diagnostics = fallowCiUploadDiagnosticsForTesting(false, [], [], ".beep/fallow", "error")
  * console.log(diagnostics)
  * ```
- *
  * @category testing
  * @since 0.0.0
  */

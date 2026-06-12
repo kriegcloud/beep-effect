@@ -76,7 +76,7 @@ export const SerializedData = S.Union([
 );
 
 /**
- * Type for {@link SerializedData}. {@inheritDoc SerializedData}
+ * {@inheritDoc SerializedData}
  *
  * @category type-level
  * @since 0.0.0
@@ -130,7 +130,7 @@ export const SerializedDataList = S.Array(S.suspend((): S.Codec<SerializedData.E
 );
 
 /**
- * Type for {@link SerializedDataList}. {@inheritDoc SerializedDataList}
+ * {@inheritDoc SerializedDataList}
  *
  * @category type-level
  * @since 0.0.0
@@ -189,7 +189,7 @@ export const SerializedDataMap = S.Record(
 );
 
 /**
- * Type for {@link SerializedDataMap}. {@inheritDoc SerializedDataMap}
+ * {@inheritDoc SerializedDataMap}
  *
  * @category type-level
  * @since 0.0.0
@@ -282,7 +282,7 @@ export const BoxSdkError = S.instanceOf(Box.BoxSdkError).pipe(
 );
 
 /**
- * Type for {@link BoxSdkError}. {@inheritDoc BoxSdkError}
+ * {@inheritDoc BoxSdkError}
  *
  * @category type-level
  * @since 0.0.0
@@ -311,7 +311,7 @@ export const BoxApiError = S.instanceOf(Box.BoxApiError).pipe(
 );
 
 /**
- * Type for {@link BoxApiError}. {@inheritDoc BoxApiError}
+ * {@inheritDoc BoxApiError}
  *
  * @category type-level
  * @since 0.0.0

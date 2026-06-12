@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1c7c40226db85d875cf8d8f46a14951a46bb8df14954f373df5c08e1a178cbc4",
+    "digest": "d2c7479be957579cf12043a1c7aab272c6ed2548842d840dd35bdf79e1fd7f96",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sha256": "a6da88efda9abf390805f29129b850b597351d0fe11af3a8165e8b66a7172a8b",
-        "bytes": 12847
+        "sha256": "e48076cd2bb095ea35e4f547d05659f1ab39c39adc06fb2ffde0602d7036bc96",
+        "bytes": 12804
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
@@ -423,7 +423,7 @@
         "symbolName": "RepoCodegraphCatalogReadError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 51,
+        "sourceLine": 52,
         "summary": "Typed failure raised while reading repo-codegraph inputs.",
         "categories": [
           "error-handling"
@@ -1702,7 +1702,7 @@
         "symbolName": "RepoCodegraphCatalogReadError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 51,
+        "sourceLine": 52,
         "summary": "Typed failure raised while reading repo-codegraph inputs.",
         "categories": [
           "error-handling"
@@ -3206,7 +3206,7 @@
         "symbolName": "RepoCodegraphCatalogReadError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 51,
+        "sourceLine": 52,
         "summary": "Typed failure raised while reading repo-codegraph inputs.",
         "categories": [
           "error-handling"

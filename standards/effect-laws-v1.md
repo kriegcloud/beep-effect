@@ -37,6 +37,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 Boundary exceptions are allowed only through [effect-laws.allowlist.jsonc](./effect-laws.allowlist.jsonc).
 It is the sole supported exception registry for Effect-law and runtime-boundary exceptions, and `bun run beep laws allowlist-check` is the required integrity check that `bun run lint` runs in normal quality flows.
 Do not add entries for scanner misses or cleanup convenience. Harden the checker when a real boundary is being reported as a false positive, or remediate the module when the exception is ordinary application code.
+The `native-runtime` law is a zero-baseline check: unsuppressed warnings and errors both fail `--check`. Browser availability guards such as `typeof window === "undefined"` are recognized by the checker and should not be allowlisted.
 
 Required fields per entry:
 
@@ -81,6 +82,7 @@ Excludes by default:
 2. Codemod/autofix for mechanical import normalization.
 3. Manual cleanup for remaining violations.
 4. Promote selected warnings to errors once baseline is near zero.
+5. Keep promoted policy lanes green through `bun run beep lint policy`, which runs the repo-wide policy checks without the aggregate Turbo lint lane for CI and Yeet verification.
 
 ## Deep References
 

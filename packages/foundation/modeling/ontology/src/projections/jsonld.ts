@@ -1,5 +1,5 @@
 // cspell:words SKOS DCTERMS skos dcterms
-import { pipe, Result } from "effect";
+import { flow, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -28,6 +28,11 @@ import {
   SKOS_NAMESPACE,
   schemaIssueToError,
 } from "../model.js";
+import {
+  skosConceptReferences as conceptReferences,
+  skosProfileLiterals as profileLiterals,
+  skosSchemeReferences as schemeReferences,
+} from "./skos.js";
 import type {
   AssembledOntologyPredicate,
   IRI,
@@ -91,44 +96,18 @@ const jsonLdIdReference = (reference: OntologyReference): typeof JsonLdIdReferen
   "@id": reference.iri,
 });
 
-const jsonLdIdReferences = (
+const jsonLdIdReferences: (
   references: ReadonlyArray<OntologyReference>
-): ReadonlyArray<typeof JsonLdIdReference.Encoded> => pipe(references, A.map(jsonLdIdReference));
-
-const profileLiterals = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosProfile) => ReadonlyArray<OntologyLanguageLiteral>
-): ReadonlyArray<OntologyLanguageLiteral> =>
-  pipe(ontologyClass.skosProfile, O.map(select), O.getOrElse(A.empty<OntologyLanguageLiteral>));
-
-const conceptReferences = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosConceptProfile) => ReadonlyArray<OntologyReference>
-): ReadonlyArray<OntologyReference> =>
-  pipe(
-    ontologyClass.skosProfile,
-    O.flatMap((profile) => (profile.kind === "concept" ? O.some(select(profile)) : O.none())),
-    O.getOrElse(A.empty<OntologyReference>)
-  );
-
-const schemeReferences = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosConceptSchemeProfile) => ReadonlyArray<OntologyReference>
-): ReadonlyArray<OntologyReference> =>
-  pipe(
-    ontologyClass.skosProfile,
-    O.flatMap((profile) => (profile.kind === "conceptScheme" ? O.some(select(profile)) : O.none())),
-    O.getOrElse(A.empty<OntologyReference>)
-  );
+) => ReadonlyArray<typeof JsonLdIdReference.Encoded> = A.map(jsonLdIdReference);
 
 const jsonLdLanguageLiteral = (literal: OntologyLanguageLiteral): typeof JsonLdLanguageLiteral.Encoded => ({
   "@value": literal.value,
   ...R.getSomes({ "@language": literal.language }),
 });
 
-const jsonLdLanguageLiterals = (
+const jsonLdLanguageLiterals: (
   literals: ReadonlyArray<OntologyLanguageLiteral>
-): ReadonlyArray<typeof JsonLdLanguageLiteral.Encoded> => pipe(literals, A.map(jsonLdLanguageLiteral));
+) => ReadonlyArray<typeof JsonLdLanguageLiteral.Encoded> = A.map(jsonLdLanguageLiteral);
 
 const jsonLdDefinitionValue = (
   ontologyClass: AssembledOntologyClass
@@ -282,9 +261,9 @@ export const projectJsonLdOntology = (ontology: AssembledOntology): typeof JsonL
 const jsonLdIdReferenceToOntologyReference = (reference: JsonLdIdReference): OntologyReference =>
   makeOntologyReference(reference["@id"]);
 
-const jsonLdIdReferencesToOntologyReferences = (
+const jsonLdIdReferencesToOntologyReferences: (
   references: ReadonlyArray<JsonLdIdReference>
-): ReadonlyArray<OntologyReference> => pipe(references, A.map(jsonLdIdReferenceToOntologyReference));
+) => ReadonlyArray<OntologyReference> = A.map(jsonLdIdReferenceToOntologyReference);
 
 const predicateNodeToAssembledPredicate = (predicate: JsonLdPredicateNode): AssembledOntologyPredicate =>
   predicate.kind === "datatypePredicate"
@@ -322,34 +301,29 @@ const jsonLdLabelValueToOntologyLiteral = (value: JsonLdLabelValue): OntologyLan
     ? OntologyLanguageLiteral.make({ value, language: O.none() })
     : jsonLdLanguageLiteralToOntologyLiteral(value);
 
-const jsonLdLabelValuesToPlainStrings = (values: ReadonlyArray<JsonLdLabelValue>): ReadonlyArray<string> =>
-  pipe(values, A.filter(P.isString));
+const jsonLdLabelValuesToPlainStrings: (values: ReadonlyArray<JsonLdLabelValue>) => ReadonlyArray<string> = A.filter(
+  P.isString
+);
 
-const jsonLdLabelValuesToOntologyLiterals = (
+const jsonLdLabelValuesToOntologyLiterals: (
   values: ReadonlyArray<JsonLdLabelValue>
-): ReadonlyArray<OntologyLanguageLiteral> =>
-  pipe(
-    values,
-    A.filter((value) => !P.isString(value)),
-    A.map(jsonLdLabelValueToOntologyLiteral)
-  );
+) => ReadonlyArray<OntologyLanguageLiteral> = flow(
+  A.filter((value) => !P.isString(value)),
+  A.map(jsonLdLabelValueToOntologyLiteral)
+);
 
-const jsonLdDefinitionToPlainDefinition = (definition: O.Option<JsonLdDefinitionValue>): O.Option<string> =>
-  pipe(
-    definition,
-    O.flatMap((value) => (P.isString(value) ? O.some(value) : A.findFirst(value, P.isString)))
-  );
+const jsonLdDefinitionToPlainDefinition: (definition: O.Option<JsonLdDefinitionValue>) => O.Option<string> = O.flatMap(
+  (value) => (P.isString(value) ? O.some(value) : A.findFirst(value, P.isString))
+);
 
-const jsonLdDefinitionToProfileDefinitions = (
+const jsonLdDefinitionToProfileDefinitions: (
   definition: O.Option<JsonLdDefinitionValue>
-): ReadonlyArray<OntologyLanguageLiteral> =>
-  pipe(
-    definition,
-    O.map((value) =>
-      P.isString(value) ? A.empty<OntologyLanguageLiteral>() : jsonLdLabelValuesToOntologyLiterals(value)
-    ),
-    O.getOrElse(A.empty<OntologyLanguageLiteral>)
-  );
+) => ReadonlyArray<OntologyLanguageLiteral> = flow(
+  O.map((value) =>
+    P.isString(value) ? A.empty<OntologyLanguageLiteral>() : jsonLdLabelValuesToOntologyLiterals(value)
+  ),
+  O.getOrElse(A.empty<OntologyLanguageLiteral>)
+);
 
 const jsonLdClassTypes = (classNode: JsonLdClassNode): ReadonlyArray<string> =>
   P.isString(classNode["@type"]) ? [classNode["@type"]] : classNode["@type"];

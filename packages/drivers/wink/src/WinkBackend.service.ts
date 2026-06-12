@@ -27,6 +27,7 @@ import * as Schema from "@beep/nlp/Graph/Schema";
 import { A } from "@beep/utils";
 import { Clock, Effect, Layer } from "effect";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { WinkEngine } from "./Wink.service.ts";
 import type { BackendCapabilities } from "@beep/nlp/Backend/NLPBackend";
 import type { Detail, ItsFunction } from "wink-nlp";
@@ -113,7 +114,7 @@ const makeWinkBackend = Effect.gen(function* () {
       const detailAccessor: ItsFunction<Detail> = its.detail;
       const details = doc.entities().out(detailAccessor);
       return A.map(details, (element) => {
-        const detail = typeof element === "string" ? { type: "UNKNOWN", value: element } : element;
+        const detail = P.isString(element) ? { type: "UNKNOWN", value: element } : element;
         return Schema.EntityNode.make({
           confidence: 1,
           entityType: detail.type,

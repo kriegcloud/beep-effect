@@ -1,5 +1,5 @@
 // cspell:words SKOS DCTERMS skos dcterms
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import { constant } from "effect/Function";
 import * as O from "effect/Option";
@@ -13,6 +13,11 @@ import {
   SKOS_NAMESPACE,
   XSD_PREFIX_IRI,
 } from "../model.js";
+import {
+  skosConceptReferences as conceptReferences,
+  skosProfileLiterals as profileLiterals,
+  skosSchemeReferences as schemeReferences,
+} from "./skos.js";
 import type {
   AssembledOntology,
   AssembledOntologyClass,
@@ -20,22 +25,17 @@ import type {
   IRI,
   OntologyLanguageLiteral,
   OntologyReference,
-  OntologySkosConceptProfile,
-  OntologySkosConceptSchemeProfile,
-  OntologySkosProfile,
 } from "../model.js";
 
 const turtleIri = (iri: IRI): string => `<${iri}>`;
 
-const escapeTurtleLiteral = (value: string): string =>
-  pipe(
-    value,
-    Str.replaceAll("\\", "\\\\"),
-    Str.replaceAll('"', '\\"'),
-    Str.replaceAll("\n", "\\n"),
-    Str.replaceAll("\r", "\\r"),
-    Str.replaceAll("\t", "\\t")
-  );
+const escapeTurtleLiteral: (value: string) => string = flow(
+  Str.replaceAll("\\", "\\\\"),
+  Str.replaceAll('"', '\\"'),
+  Str.replaceAll("\n", "\\n"),
+  Str.replaceAll("\r", "\\r"),
+  Str.replaceAll("\t", "\\t")
+);
 
 const turtleLiteral = (value: string): string => `"${escapeTurtleLiteral(value)}"`;
 
@@ -78,32 +78,6 @@ const renderSourceStatements = (ontologyClass: AssembledOntologyClass): Readonly
     ontologyClass.source,
     O.map((source) => [`dcterms:source ${turtleIri(source)}`]),
     O.getOrElse(A.empty<string>)
-  );
-
-const profileLiterals = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosProfile) => ReadonlyArray<OntologyLanguageLiteral>
-): ReadonlyArray<OntologyLanguageLiteral> =>
-  pipe(ontologyClass.skosProfile, O.map(select), O.getOrElse(A.empty<OntologyLanguageLiteral>));
-
-const conceptReferences = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosConceptProfile) => ReadonlyArray<OntologyReference>
-): ReadonlyArray<OntologyReference> =>
-  pipe(
-    ontologyClass.skosProfile,
-    O.flatMap((profile) => (profile.kind === "concept" ? O.some(select(profile)) : O.none())),
-    O.getOrElse(A.empty<OntologyReference>)
-  );
-
-const schemeReferences = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosConceptSchemeProfile) => ReadonlyArray<OntologyReference>
-): ReadonlyArray<OntologyReference> =>
-  pipe(
-    ontologyClass.skosProfile,
-    O.flatMap((profile) => (profile.kind === "conceptScheme" ? O.some(select(profile)) : O.none())),
-    O.getOrElse(A.empty<OntologyReference>)
   );
 
 const languageLiteralStatements = (

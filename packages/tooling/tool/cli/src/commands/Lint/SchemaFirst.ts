@@ -17,6 +17,7 @@ import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
+import { optionalProp } from "../../internal/cli/OptionRecord.js";
 import type { TypeElementTypes } from "ts-morph";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
@@ -293,9 +294,6 @@ const isActiveRuleAdvisory =
   (entry: SchemaFirstInventoryEntry): boolean =>
     entry.ruleId === ruleId && entry.status === "advisory";
 
-const optionalProp = <Key extends string, Value>(key: Key, value: O.Option<Value>): { readonly [K in Key]?: Value } =>
-  O.isSome(value) ? ({ [key]: value.value } as { readonly [K in Key]?: Value }) : {};
-
 const renderPolicyFindingLine = Effect.fn("renderPolicyFindingLine")(function* (finding: SchemaFirstPolicyFinding) {
   const encoded = yield* encodePolicyFinding(finding);
   const rendered = yield* stringifyJsonLine.run(O.some(encoded), {});
@@ -555,16 +553,14 @@ const propertyNameText = (property: import("ts-morph").PropertyAssignment): O.Op
     O.filter(Str.isNonEmpty)
   );
 
-const fieldNameTokens = (fieldName: string): ReadonlyArray<string> =>
-  pipe(
-    fieldName,
-    Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
-    Str.replace(/[^A-Za-z0-9]+/g, " "),
-    Str.trim,
-    Str.split(/\s+/),
-    A.map(Str.toLowerCase),
-    A.filter(Str.isNonEmpty)
-  );
+const fieldNameTokens: (fieldName: string) => ReadonlyArray<string> = flow(
+  Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+  Str.replace(/[^A-Za-z0-9]+/g, " "),
+  Str.trim,
+  Str.split(/\s+/),
+  A.map(Str.toLowerCase),
+  A.filter(Str.isNonEmpty)
+);
 
 const isNumericDomainFieldName = (fieldName: string): boolean =>
   A.some(fieldNameTokens(fieldName), (token) =>
@@ -1261,6 +1257,225 @@ const mergeInventory = (
   });
 };
 
+type SchemaFirstLintFindings = {
+  readonly missingEntries: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly staleEntries: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly enforcedCandidates: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly boundaryCodecAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly defaultsAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly staticApiAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly equivalenceAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly precisionAuditAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly arbitraryTestsAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly numericDomainAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+  readonly activeAdvisories: ReadonlyArray<SchemaFirstInventoryEntry>;
+};
+
+const inventoryEntriesByKey = (
+  entries: ReadonlyArray<SchemaFirstInventoryEntry>
+): HashMap.HashMap<string, SchemaFirstInventoryEntry> =>
+  HashMap.fromIterable(
+    A.map(entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+  );
+
+const trackedInventoryEntriesByKey = (
+  existingDocument: O.Option<SchemaFirstInventoryDocument>
+): HashMap.HashMap<string, SchemaFirstInventoryEntry> =>
+  O.match(existingDocument, {
+    onNone: HashMap.empty<string, SchemaFirstInventoryEntry>,
+    onSome: (document) => inventoryEntriesByKey(document.entries),
+  });
+
+const inventoryEntriesAbsentFrom = (
+  entries: ReadonlyArray<SchemaFirstInventoryEntry>,
+  entriesByKey: HashMap.HashMap<string, SchemaFirstInventoryEntry>
+): ReadonlyArray<SchemaFirstInventoryEntry> =>
+  A.filter(entries, (entry) => !HashMap.has(entriesByKey, makeEntryKey(entry)));
+
+const staleInventoryEntries = (
+  existingDocument: O.Option<SchemaFirstInventoryDocument>,
+  liveByKey: HashMap.HashMap<string, SchemaFirstInventoryEntry>
+): ReadonlyArray<SchemaFirstInventoryEntry> =>
+  pipe(
+    existingDocument,
+    O.map((document) => inventoryEntriesAbsentFrom(document.entries, liveByKey)),
+    O.getOrElse(A.empty<SchemaFirstInventoryEntry>)
+  );
+
+const collectSchemaFirstLintFindings = (
+  liveDocument: SchemaFirstInventoryDocument,
+  existingDocument: O.Option<SchemaFirstInventoryDocument>,
+  mergedDocument: SchemaFirstInventoryDocument
+): SchemaFirstLintFindings => {
+  const liveByKey = inventoryEntriesByKey(liveDocument.entries);
+  const trackedByKey = trackedInventoryEntriesByKey(existingDocument);
+  const missingEntries = inventoryEntriesAbsentFrom(liveDocument.entries, trackedByKey);
+  const staleEntries = staleInventoryEntries(existingDocument, liveByKey);
+  const boundaryCodecAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-boundary-codec"));
+  const defaultsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-defaults"));
+  const staticApiAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-static-api"));
+  const equivalenceAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-equivalence"));
+  const precisionAuditAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-precision-audit"));
+  const arbitraryTestsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-arbitrary-tests"));
+  const numericDomainAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-numeric-domain"));
+
+  return {
+    missingEntries,
+    staleEntries,
+    enforcedCandidates: A.filter(mergedDocument.entries, (entry) => entry.status === "candidate"),
+    boundaryCodecAdvisories,
+    defaultsAdvisories,
+    staticApiAdvisories,
+    equivalenceAdvisories,
+    precisionAuditAdvisories,
+    arbitraryTestsAdvisories,
+    numericDomainAdvisories,
+    activeAdvisories: [
+      ...boundaryCodecAdvisories,
+      ...defaultsAdvisories,
+      ...staticApiAdvisories,
+      ...equivalenceAdvisories,
+      ...precisionAuditAdvisories,
+      ...arbitraryTestsAdvisories,
+      ...numericDomainAdvisories,
+    ],
+  };
+};
+
+const makeSchemaFirstLintSummary = (
+  liveDocument: SchemaFirstInventoryDocument,
+  mergedDocument: SchemaFirstInventoryDocument,
+  literalKitConstAssertionViolations: ReadonlyArray<LiteralKitConstAssertionViolation>,
+  findings: SchemaFirstLintFindings,
+  options: SchemaFirstLintOptions
+): SchemaFirstLintSummary =>
+  SchemaFirstLintSummary.make({
+    liveEntries: liveDocument.entries.length,
+    trackedEntries: mergedDocument.entries.length,
+    missingEntries: findings.missingEntries.length,
+    staleEntries: findings.staleEntries.length,
+    enforcedCandidates: findings.enforcedCandidates.length,
+    literalKitConstAssertions: literalKitConstAssertionViolations.length,
+    boundaryCodecAdvisories: findings.boundaryCodecAdvisories.length,
+    defaultsAdvisories: findings.defaultsAdvisories.length,
+    staticApiAdvisories: findings.staticApiAdvisories.length,
+    equivalenceAdvisories: findings.equivalenceAdvisories.length,
+    precisionAuditAdvisories: findings.precisionAuditAdvisories.length,
+    arbitraryTestsAdvisories: findings.arbitraryTestsAdvisories.length,
+    numericDomainAdvisories: findings.numericDomainAdvisories.length,
+    wroteInventory: options.write,
+  });
+
+const logSchemaFirstSummary = Effect.fn("logSchemaFirstSummary")(function* (summary: SchemaFirstLintSummary) {
+  yield* Console.log(`[schema-first] live_entries=${summary.liveEntries}`);
+  yield* Console.log(`[schema-first] tracked_entries=${summary.trackedEntries}`);
+  yield* Console.log(`[schema-first] missing_entries=${summary.missingEntries}`);
+  yield* Console.log(`[schema-first] stale_entries=${summary.staleEntries}`);
+  yield* Console.log(`[schema-first] enforced_candidates=${summary.enforcedCandidates}`);
+  yield* Console.log(`[schema-first] literal_kit_const_assertions=${summary.literalKitConstAssertions}`);
+  yield* Console.log(`[schema-first] sfv4_boundary_codec_advisories=${summary.boundaryCodecAdvisories}`);
+  yield* Console.log(`[schema-first] sfv4_defaults_advisories=${summary.defaultsAdvisories}`);
+  yield* Console.log(`[schema-first] sfv4_static_api_advisories=${summary.staticApiAdvisories}`);
+  yield* Console.log(`[schema-first] sfv4_equivalence_advisories=${summary.equivalenceAdvisories}`);
+  yield* Console.log(`[schema-first] sfv4_precision_audit_advisories=${summary.precisionAuditAdvisories}`);
+  yield* Console.log(`[schema-first] sfv4_arbitrary_tests_advisories=${summary.arbitraryTestsAdvisories}`);
+  yield* Console.log(`[schema-first] sfv4_numeric_domain_advisories=${summary.numericDomainAdvisories}`);
+  if (summary.wroteInventory) {
+    yield* Console.log(`[schema-first] wrote ${INVENTORY_PATH}`);
+  }
+});
+
+const logMissingEntries = Effect.fn("logMissingEntries")(function* (entries: ReadonlyArray<SchemaFirstInventoryEntry>) {
+  if (entries.length > 0) {
+    yield* Console.error("[schema-first] untracked live findings:");
+    for (const entry of entries) {
+      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
+      yield* logPolicyFinding(inventoryEntryFinding(entry, entry.reason, missingEntryRemediation(entry)));
+    }
+  }
+});
+
+const logStaleEntries = Effect.fn("logStaleEntries")(function* (entries: ReadonlyArray<SchemaFirstInventoryEntry>) {
+  if (entries.length > 0) {
+    yield* Console.error("[schema-first] stale inventory entries:");
+    for (const entry of entries) {
+      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}]`);
+      yield* logPolicyFinding(
+        inventoryEntryFinding(
+          entry,
+          "Stale schema-first inventory entry is no longer present in the live scan.",
+          "Run bun run beep lint schema-first --write after confirming the source removal or rename."
+        )
+      );
+    }
+  }
+});
+
+const logEnforcedCandidates = Effect.fn("logEnforcedCandidates")(function* (
+  entries: ReadonlyArray<SchemaFirstInventoryEntry>
+) {
+  if (entries.length > 0) {
+    yield* Console.error("[schema-first] repo still contains candidate findings:");
+    for (const entry of entries) {
+      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
+      yield* logPolicyFinding(
+        inventoryEntryFinding(
+          entry,
+          entry.reason,
+          "Model the exported data with an annotated schema or record a justified exception in standards/schema-first.inventory.jsonc."
+        )
+      );
+    }
+  }
+});
+
+const logLiteralKitConstAssertionViolations = Effect.fn("logLiteralKitConstAssertionViolations")(function* (
+  violations: ReadonlyArray<LiteralKitConstAssertionViolation>
+) {
+  if (violations.length > 0) {
+    yield* Console.error("[schema-first] redundant LiteralKit const assertions:");
+    for (const violation of violations) {
+      yield* Console.error(
+        `- ${violation.file}:${violation.line} arg${violation.argument} [literal-kit-const-assertion] Inline LiteralKit array arguments do not need as const.`
+      );
+      yield* logPolicyFinding(literalKitConstAssertionFinding(violation));
+    }
+  }
+});
+
+const logActiveAdvisories = Effect.fn("logActiveAdvisories")(function* (
+  entries: ReadonlyArray<SchemaFirstInventoryEntry>
+) {
+  if (entries.length > 0) {
+    yield* Console.error("[schema-first] repo still contains advisory findings:");
+    for (const entry of entries) {
+      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
+      yield* logPolicyFinding(
+        inventoryEntryFinding(
+          entry,
+          entry.reason,
+          "Resolve the schema-first advisory or move the entry to exception with a documented reason."
+        )
+      );
+    }
+  }
+});
+
+const schemaFirstLintHasFailures = (
+  options: SchemaFirstLintOptions,
+  findings: SchemaFirstLintFindings,
+  literalKitConstAssertionViolations: ReadonlyArray<LiteralKitConstAssertionViolation>
+): boolean =>
+  A.some(
+    [
+      findings.enforcedCandidates.length,
+      literalKitConstAssertionViolations.length,
+      findings.activeAdvisories.length,
+      ...(options.write ? [] : [findings.missingEntries.length, findings.staleEntries.length]),
+    ],
+    (count) => count > 0
+  );
+
 /**
  * Run schema-first inventory verification against the committed baseline.
  *
@@ -1276,132 +1491,31 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
   const literalKitConstAssertionViolations = yield* collectLiteralKitConstAssertionViolations();
   const existingDocument = yield* readInventoryDocument();
   const mergedDocument = mergeInventory(liveDocument, existingDocument);
-
-  const liveByKey = HashMap.fromIterable(
-    A.map(liveDocument.entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+  const findings = collectSchemaFirstLintFindings(liveDocument, existingDocument, mergedDocument);
+  const summary = makeSchemaFirstLintSummary(
+    liveDocument,
+    mergedDocument,
+    literalKitConstAssertionViolations,
+    findings,
+    options
   );
-  const trackedByKey = pipe(
-    existingDocument,
-    O.map((document) =>
-      HashMap.fromIterable(
-        A.map(document.entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
-      )
-    ),
-    O.getOrElse(HashMap.empty<string, SchemaFirstInventoryEntry>)
-  );
-
-  const missingEntries = pipe(
-    liveDocument.entries,
-    A.filter((entry) => !HashMap.has(trackedByKey, makeEntryKey(entry)))
-  );
-  const staleEntries = pipe(
-    O.map(existingDocument, (document) =>
-      A.filter(document.entries, (entry) => !HashMap.has(liveByKey, makeEntryKey(entry)))
-    ),
-    O.getOrElse(A.empty<SchemaFirstInventoryEntry>)
-  );
-  const enforcedCandidates = A.filter(mergedDocument.entries, (entry) => entry.status === "candidate");
-  const boundaryCodecAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-boundary-codec"));
-  const defaultsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-defaults"));
-  const staticApiAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-static-api"));
-  const equivalenceAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-equivalence"));
-  const precisionAuditAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-precision-audit"));
-  const arbitraryTestsAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-arbitrary-tests"));
-  const numericDomainAdvisories = A.filter(mergedDocument.entries, isActiveRuleAdvisory("SFV4-numeric-domain"));
 
   if (options.write) {
     yield* writeInventoryDocument(mergedDocument);
   }
 
-  yield* Console.log(`[schema-first] live_entries=${liveDocument.entries.length}`);
-  yield* Console.log(`[schema-first] tracked_entries=${mergedDocument.entries.length}`);
-  yield* Console.log(`[schema-first] missing_entries=${missingEntries.length}`);
-  yield* Console.log(`[schema-first] stale_entries=${staleEntries.length}`);
-  yield* Console.log(`[schema-first] enforced_candidates=${enforcedCandidates.length}`);
-  yield* Console.log(`[schema-first] literal_kit_const_assertions=${literalKitConstAssertionViolations.length}`);
-  yield* Console.log(`[schema-first] sfv4_boundary_codec_advisories=${boundaryCodecAdvisories.length}`);
-  yield* Console.log(`[schema-first] sfv4_defaults_advisories=${defaultsAdvisories.length}`);
-  yield* Console.log(`[schema-first] sfv4_static_api_advisories=${staticApiAdvisories.length}`);
-  yield* Console.log(`[schema-first] sfv4_equivalence_advisories=${equivalenceAdvisories.length}`);
-  yield* Console.log(`[schema-first] sfv4_precision_audit_advisories=${precisionAuditAdvisories.length}`);
-  yield* Console.log(`[schema-first] sfv4_arbitrary_tests_advisories=${arbitraryTestsAdvisories.length}`);
-  yield* Console.log(`[schema-first] sfv4_numeric_domain_advisories=${numericDomainAdvisories.length}`);
-  if (options.write) {
-    yield* Console.log(`[schema-first] wrote ${INVENTORY_PATH}`);
-  }
+  yield* logSchemaFirstSummary(summary);
+  yield* logMissingEntries(findings.missingEntries);
+  yield* logStaleEntries(findings.staleEntries);
+  yield* logEnforcedCandidates(findings.enforcedCandidates);
+  yield* logLiteralKitConstAssertionViolations(literalKitConstAssertionViolations);
+  yield* logActiveAdvisories(findings.activeAdvisories);
 
-  if (missingEntries.length > 0) {
-    yield* Console.error("[schema-first] untracked live findings:");
-    for (const entry of missingEntries) {
-      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
-      yield* logPolicyFinding(inventoryEntryFinding(entry, entry.reason, missingEntryRemediation(entry)));
-    }
-  }
-
-  if (staleEntries.length > 0) {
-    yield* Console.error("[schema-first] stale inventory entries:");
-    for (const entry of staleEntries) {
-      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}]`);
-      yield* logPolicyFinding(
-        inventoryEntryFinding(
-          entry,
-          "Stale schema-first inventory entry is no longer present in the live scan.",
-          "Run bun run beep lint schema-first --write after confirming the source removal or rename."
-        )
-      );
-    }
-  }
-
-  if (enforcedCandidates.length > 0) {
-    yield* Console.error("[schema-first] repo still contains candidate findings:");
-    for (const entry of enforcedCandidates) {
-      yield* Console.error(`- ${entry.file} :: ${entry.symbol} [${entry.kind}] ${entry.reason}`);
-      yield* logPolicyFinding(
-        inventoryEntryFinding(
-          entry,
-          entry.reason,
-          "Model the exported data with an annotated schema or record a justified exception in standards/schema-first.inventory.jsonc."
-        )
-      );
-    }
-  }
-
-  if (literalKitConstAssertionViolations.length > 0) {
-    yield* Console.error("[schema-first] redundant LiteralKit const assertions:");
-    for (const violation of literalKitConstAssertionViolations) {
-      yield* Console.error(
-        `- ${violation.file}:${violation.line} arg${violation.argument} [literal-kit-const-assertion] Inline LiteralKit array arguments do not need as const.`
-      );
-      yield* logPolicyFinding(literalKitConstAssertionFinding(violation));
-    }
-  }
-
-  const hasFailures = options.write
-    ? enforcedCandidates.length > 0 || literalKitConstAssertionViolations.length > 0
-    : missingEntries.length > 0 ||
-      staleEntries.length > 0 ||
-      enforcedCandidates.length > 0 ||
-      literalKitConstAssertionViolations.length > 0;
-  if (hasFailures) {
+  if (schemaFirstLintHasFailures(options, findings, literalKitConstAssertionViolations)) {
     return yield* failWithReportedExit("schema-first: inventory enforcement failed.");
   }
 
-  return SchemaFirstLintSummary.make({
-    liveEntries: liveDocument.entries.length,
-    trackedEntries: mergedDocument.entries.length,
-    missingEntries: missingEntries.length,
-    staleEntries: staleEntries.length,
-    enforcedCandidates: enforcedCandidates.length,
-    literalKitConstAssertions: literalKitConstAssertionViolations.length,
-    boundaryCodecAdvisories: boundaryCodecAdvisories.length,
-    defaultsAdvisories: defaultsAdvisories.length,
-    staticApiAdvisories: staticApiAdvisories.length,
-    equivalenceAdvisories: equivalenceAdvisories.length,
-    precisionAuditAdvisories: precisionAuditAdvisories.length,
-    arbitraryTestsAdvisories: arbitraryTestsAdvisories.length,
-    numericDomainAdvisories: numericDomainAdvisories.length,
-    wroteInventory: options.write,
-  });
+  return summary;
 });
 
 /**

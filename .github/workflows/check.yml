@@ -56,6 +56,11 @@ jobs:
             timeout_minutes: 20
             uses_turbo: "true"
             install_typos: "true"
+          - id: lint-policy
+            name: Lint Policy
+            timeout_minutes: 25
+            uses_turbo: "false"
+            install_typos: "true"
           - id: repo-sanity
             name: Repo Sanity
             timeout_minutes: 15
@@ -180,6 +185,9 @@ jobs:
           case "${{ matrix.id }}" in
             lint)
               bun run lint -- "${turbo_args[@]}"
+              ;;
+            lint-policy)
+              bun run beep lint policy
               ;;
             repo-sanity)
               bun run audit:github repo-sanity

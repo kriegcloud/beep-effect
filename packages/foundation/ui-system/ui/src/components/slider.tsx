@@ -2,6 +2,7 @@
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 import { A } from "@beep/utils";
+import * as P from "effect/Predicate";
 import { cn } from "../lib/index.ts";
 
 const sliderValues = (
@@ -13,7 +14,7 @@ const sliderValues = (
     return value;
   }
 
-  if (typeof value === "number") {
+  if (P.isNumber(value)) {
     return A.make(value);
   }
 
@@ -21,7 +22,7 @@ const sliderValues = (
     return defaultValue;
   }
 
-  if (typeof defaultValue === "number") {
+  if (P.isNumber(defaultValue)) {
     return A.make(defaultValue);
   }
 

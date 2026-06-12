@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3bf96a963dc38e9b76650b2dc0d7c909b23b55d200260792aa5ee622606cb4b5",
+    "digest": "5f140e603d008065c482ee8d3b4190dea971ffdfb56b9c8498f0a2042be2eba5",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -102,8 +102,8 @@
       },
       {
         "path": "packages/foundation/primitive/data/src/internal/data/mime-types/index.ts",
-        "sha256": "8f842036061a991c8a1c1d6b86498b064e0b5034d507ba81b7c3990e1db0ae1d",
-        "bytes": 9548
+        "sha256": "a85adc285829e68f140128c5c07beb65301ea81eda2b6f18f0d440ccf368a963",
+        "bytes": 9510
       },
       {
         "path": "packages/foundation/primitive/data/src/internal/data/mime-types/misc.ts",

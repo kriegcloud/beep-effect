@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@beep/ui/components/pop
 import { cn } from "@beep/ui/lib/utils";
 import { make as makeScopedAtom, useAtom } from "@effect/atom-react";
 import { CalendarBlankIcon } from "@phosphor-icons/react";
+import * as P from "effect/Predicate";
 import { Atom } from "effect/unstable/reactivity";
 
 const DATE_FORMAT = {
@@ -62,7 +63,7 @@ function DatePickerInner(props: DatePickerProps) {
   const [state, setState] = useAtom(DatePickerScope.use());
   // Detect controlledness by prop presence so a parent that starts controlled
   // with `value={undefined}` (and any later reset to `undefined`) is honored.
-  const isControlled = Object.hasOwn(props, "value");
+  const isControlled = P.hasProperty(props, "value");
   const selected = isControlled ? value : state.internalValue;
 
   const handleSelect = (date: Date | undefined) => {

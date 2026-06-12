@@ -73,27 +73,52 @@ export interface UsptoShape {
   readonly searchApplications: (query: string) => Effect.Effect<ReadonlyArray<UsptoApplicationMetadata>, UsptoError>;
 }
 
-const MetadataEnvelope = S.Struct({
-  patentFileWrapperDataBag: S.Array(
-    S.Struct({
-      applicationMetaData: S.Record(S.String, S.Unknown).pipe(S.optionalKey),
-      applicationNumberText: S.optionalKey(S.String),
-    })
-  ).pipe(S.optionalKey),
-});
+class MetadataEnvelopeWrapper extends S.Class<MetadataEnvelopeWrapper>($I`MetadataEnvelopeWrapper`)(
+  {
+    applicationMetaData: S.Record(S.String, S.Unknown).pipe(S.optionalKey),
+    applicationNumberText: S.optionalKey(S.String),
+  },
+  $I.annote("MetadataEnvelopeWrapper", {
+    description: "USPTO file-wrapper metadata row carried inside an application response envelope.",
+  })
+) {}
 
-const ContinuityEnvelope = S.Struct({
-  patentFileWrapperDataBag: S.Array(
-    S.Struct({
-      childContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
-      parentContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
-    })
-  ).pipe(S.optionalKey),
-});
+class MetadataEnvelope extends S.Class<MetadataEnvelope>($I`MetadataEnvelope`)(
+  {
+    patentFileWrapperDataBag: S.Array(MetadataEnvelopeWrapper).pipe(S.optionalKey),
+  },
+  $I.annote("MetadataEnvelope", {
+    description: "USPTO file-wrapper response envelope containing application metadata records.",
+  })
+) {}
 
-const DocumentsEnvelope = S.Struct({
-  documentBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
-});
+class ContinuityEnvelopeWrapper extends S.Class<ContinuityEnvelopeWrapper>($I`ContinuityEnvelopeWrapper`)(
+  {
+    childContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
+    parentContinuityBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
+  },
+  $I.annote("ContinuityEnvelopeWrapper", {
+    description: "USPTO continuity row carried inside a continuity response envelope.",
+  })
+) {}
+
+class ContinuityEnvelope extends S.Class<ContinuityEnvelope>($I`ContinuityEnvelope`)(
+  {
+    patentFileWrapperDataBag: S.Array(ContinuityEnvelopeWrapper).pipe(S.optionalKey),
+  },
+  $I.annote("ContinuityEnvelope", {
+    description: "USPTO continuity response envelope containing parent and child continuity records.",
+  })
+) {}
+
+class DocumentsEnvelope extends S.Class<DocumentsEnvelope>($I`DocumentsEnvelope`)(
+  {
+    documentBag: S.Array(S.Record(S.String, S.Unknown)).pipe(S.optionalKey),
+  },
+  $I.annote("DocumentsEnvelope", {
+    description: "USPTO file-wrapper response envelope containing document records.",
+  })
+) {}
 
 const decodeMetadataEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(MetadataEnvelope));
 const decodeContinuityEnvelopeJson = S.decodeUnknownEffect(S.fromJsonString(ContinuityEnvelope));

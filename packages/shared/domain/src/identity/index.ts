@@ -8,6 +8,7 @@
 import { $SharedDomainId } from "@beep/identity";
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { IdentityComposer as IdentityComposerType } from "@beep/identity";
@@ -38,7 +39,7 @@ type IdentityComposerCandidate = ((...args: ReadonlyArray<unknown>) => unknown) 
 };
 
 const hasFunctionMember = (value: IdentityComposerCandidate, key: IdentityComposerMethod): boolean =>
-  typeof value[key] === "function";
+  P.isFunction(value[key]);
 
 const hasIdentityMembers = (value: IdentityComposerCandidate, identifier: string): boolean =>
   value.value === identifier && A.every(identityComposerMethodKeys, (key) => hasFunctionMember(value, key));
@@ -79,7 +80,7 @@ const passesIdentityComposerSmokeTest = (value: IdentityComposerCandidate, ident
  * @since 0.0.0
  */
 export const isIdentityComposer = (value: unknown): value is IdentityComposerType<string> => {
-  if (typeof value !== "function") {
+  if (!P.isFunction(value)) {
     return false;
   }
 
@@ -87,7 +88,7 @@ export const isIdentityComposer = (value: unknown): value is IdentityComposerTyp
   const identifier = candidate.identifier;
 
   return (
-    typeof identifier === "string" &&
+    P.isString(identifier) &&
     Str.isNonEmpty(identifier) &&
     pipe(identifier, Str.startsWith("@beep")) &&
     hasIdentityMembers(candidate, identifier) &&

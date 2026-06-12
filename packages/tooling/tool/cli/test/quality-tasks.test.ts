@@ -20,6 +20,7 @@ import {
   QualityTaskStep,
   qualityProfileConfigForTesting,
   reviewFixDocgenLocalArgsForTesting,
+  rootLintPolicyStepsForTesting,
   rootQualityStepsForTesting,
   runQualityTask,
   runQualityTaskStepGroupForTesting,
@@ -56,24 +57,28 @@ const isQualityTaskGroupFailed = S.is(QualityTaskGroupFailed);
 const isString = (value: unknown): value is string => typeof value === "string";
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
+  Effect.scoped(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const tmpDir = yield* fs.makeTempDirectory();
-      const previousCwd = process.cwd();
+      const originalCwd = process.cwd();
+      const repositoryPath = yield* fs.makeTempDirectory();
 
-      process.chdir(tmpDir);
-      yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
+      yield* Effect.sync(() => {
+        process.chdir(repositoryPath);
+      });
+      yield* fs.makeDirectory(path.join(repositoryPath, ".git"), { recursive: true });
+      yield* Effect.addFinalizer(() =>
+        Effect.gen(function* () {
+          yield* Effect.sync(() => {
+            process.chdir(originalCwd);
+          });
+          yield* fs.remove(repositoryPath, { force: true, recursive: true }).pipe(Effect.orDie);
+        })
+      );
 
-      return { fs, previousCwd, tmpDir } as const;
-    }),
-    () => use,
-    ({ fs, previousCwd, tmpDir }) =>
-      Effect.gen(function* () {
-        process.chdir(previousCwd);
-        yield* fs.remove(tmpDir, { recursive: true });
-      })
+      return yield* use;
+    })
   ).pipe(provideScopedLayer(PlatformLayer));
 
 const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
@@ -692,6 +697,34 @@ describe("quality task adapter", () => {
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
   });
 
+  it("plans repo-wide root lint policy without the aggregate lint lane", () => {
+    const steps = rootLintPolicyStepsForTesting("/repo");
+
+    expect(A.map(steps, (step) => step.label)).toEqual([
+      "lint:effect-imports",
+      "lint:terse-effect",
+      "lint:effect-fn",
+      "lint:native-runtime",
+      "lint:dual-arity",
+      "lint:allowlist",
+      "lint:tsgo-rules",
+      "lint:package-test-imports",
+      "lint:reflection-artifacts",
+      "lint:schema-first",
+      "lint:deprecated-apis",
+      "lint:jsdoc",
+      "lint:jsdoc-module-tags",
+      "lint:docgen",
+      "lint:spell",
+      "lint:markdown",
+      "lint:circular",
+      "lint:tooling-tagged-errors",
+      "lint:clones",
+      "lint:typos",
+    ]);
+    expect(steps.find((step) => step.label === "lint:jsdoc")?.args).toEqual(["eslint", ".", "--max-warnings=0"]);
+  });
+
   it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
     const step = lintFixChangedStepForTesting("/repo", ["packages/example/src/index.ts"]);
 
@@ -1033,6 +1066,7 @@ describe("quality task adapter", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "circular"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "deprecated-apis"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "package-test-imports"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["lint", "policy"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
   });
 

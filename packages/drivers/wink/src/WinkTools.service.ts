@@ -103,20 +103,18 @@ const buildCreateCorpusParameters = (params: {
     ),
   ]);
 
-const tokenBagOfWords = (tokens: ReadonlyArray<Token>): Record<string, number> =>
-  pipe(
-    tokens,
-    A.filter(isWordLikeToken),
-    A.reduce(emptyTermBag, (bag, token) => {
-      const term = normalizeTerm(token);
-      return Str.isEmpty(term)
-        ? bag
-        : {
-            ...bag,
-            [term]: (bag[term] ?? 0) + 1,
-          };
-    })
-  );
+const tokenBagOfWords: (tokens: ReadonlyArray<Token>) => Record<string, number> = flow(
+  A.filter(isWordLikeToken),
+  A.reduce(emptyTermBag, (bag, token) => {
+    const term = normalizeTerm(token);
+    return Str.isEmpty(term)
+      ? bag
+      : {
+          ...bag,
+          [term]: (bag[term] ?? 0) + 1,
+        };
+  })
+);
 
 const tokenToAi = (token: Token) => ({
   end: token.end,
@@ -812,7 +810,7 @@ export const WinkNlpToolkitLive: Layer.Layer<
             )(resolvedAlgorithm);
           const toCandidateTokens = flow(
             A.filter<Token>(isWordLikeToken),
-            A.map((token) => pipe(normalizedTokenText(token), Str.trim, Str.toLowerCase)),
+            A.map(flow(normalizedTokenText, Str.trim, Str.toLowerCase)),
             A.filter((token) => Str.length(token) >= minimumLength)
           );
 

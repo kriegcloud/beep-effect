@@ -1,16 +1,13 @@
 import { lintCommand } from "@beep/repo-cli";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
-
-const provideScopedLayer =
-  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
-  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
-    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+import { withTempWorkingDirectory } from "./support/CommandTest.js";
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
@@ -24,23 +21,6 @@ const expectReportedFailure = (exit: Exit.Exit<unknown, unknown>) => {
 };
 
 const testLayer = Layer.mergeAll(NodeServices.layer, FsUtilsLive.pipe(Layer.provide(NodeServices.layer)));
-
-const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const tmpDir = yield* fs.makeTempDirectory();
-      const previousCwd = process.cwd();
-      process.chdir(tmpDir);
-      return { fs, previousCwd, tmpDir } as const;
-    }),
-    () => use,
-    ({ fs, previousCwd, tmpDir }) =>
-      Effect.gen(function* () {
-        process.chdir(previousCwd);
-        yield* fs.remove(tmpDir, { recursive: true });
-      })
-  );
 
 const writeCompletedGoal = Effect.fn("writeCompletedGoal")(function* (slug: string, reflectionRequired = true) {
   const fs = yield* FileSystem.FileSystem;
@@ -83,6 +63,29 @@ const writeReflection = Effect.fn("writeReflection")(function* (slug: string, fi
   yield* fs.writeFileString(path.join("goals", slug, "history", "reflections", file), body);
 });
 
+type ReflectionLintFixture = {
+  readonly reflectionRequired?: boolean;
+  readonly reflection?: {
+    readonly body: string;
+    readonly file: string;
+  };
+};
+
+const runReflectionLintFixture = Effect.fn("runReflectionLintFixture")(function* (fixture: ReflectionLintFixture = {}) {
+  yield* writeCompletedGoal("example", fixture.reflectionRequired ?? true);
+  if (fixture.reflection !== undefined) {
+    yield* writeReflection("example", fixture.reflection.file, fixture.reflection.body);
+  }
+  return yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+});
+
+const expectReflectionLintSuccess = Effect.fn("expectReflectionLintSuccess")(function* (
+  fixture: ReflectionLintFixture
+) {
+  const exit = yield* runReflectionLintFixture(fixture);
+  expect(Exit.isSuccess(exit)).toBe(true);
+});
+
 describe("reflection-artifacts lint command", { concurrent: false }, () => {
   it(
     "blocks a reflectionRequired completed goal with no reflection artifact",
@@ -90,8 +93,7 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            yield* writeCompletedGoal("example");
-            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+            const exit = yield* runReflectionLintFixture();
             expectReportedFailure(exit);
           })
         ).pipe(provideScopedLayer(testLayer))
@@ -104,11 +106,8 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
     () =>
       Effect.runPromise(
         withTempWorkingDirectory(
-          Effect.gen(function* () {
-            yield* writeCompletedGoal("example");
-            yield* writeReflection("example", "2026-06-09-claude.md", VALID_REFLECTION);
-            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
-            expect(Exit.isSuccess(exit)).toBe(true);
+          expectReflectionLintSuccess({
+            reflection: { body: VALID_REFLECTION, file: "2026-06-09-claude.md" },
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -120,11 +119,8 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
     () =>
       Effect.runPromise(
         withTempWorkingDirectory(
-          Effect.gen(function* () {
-            yield* writeCompletedGoal("example");
-            yield* writeReflection("example", "2026-06-09-claude.md", VALID_REFLECTION_CRLF);
-            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
-            expect(Exit.isSuccess(exit)).toBe(true);
+          expectReflectionLintSuccess({
+            reflection: { body: VALID_REFLECTION_CRLF, file: "2026-06-09-claude.md" },
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -137,9 +133,9 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            yield* writeCompletedGoal("example");
-            yield* writeReflection("example", "2026-06-09-claude.md", "# no frontmatter here\n");
-            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
+            const exit = yield* runReflectionLintFixture({
+              reflection: { body: "# no frontmatter here\n", file: "2026-06-09-claude.md" },
+            });
             expectReportedFailure(exit);
           })
         ).pipe(provideScopedLayer(testLayer))
@@ -148,14 +144,13 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
   );
 
   it(
-    "reports advisory-only findings for completed goals without reflectionRequired",
+    "blocks completed goals without reflectionRequired when no reflection artifact exists",
     () =>
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            yield* writeCompletedGoal("example", false);
-            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
-            expect(Exit.isSuccess(exit)).toBe(true);
+            const exit = yield* runReflectionLintFixture({ reflectionRequired: false });
+            expectReportedFailure(exit);
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -167,11 +162,9 @@ describe("reflection-artifacts lint command", { concurrent: false }, () => {
     () =>
       Effect.runPromise(
         withTempWorkingDirectory(
-          Effect.gen(function* () {
-            yield* writeCompletedGoal("example", false);
-            yield* writeReflection("example", "2026-06-09-claude.md", VALID_REFLECTION);
-            const exit = yield* Effect.exit(runLintCommand(["reflection-artifacts"]));
-            expect(Exit.isSuccess(exit)).toBe(true);
+          expectReflectionLintSuccess({
+            reflectionRequired: false,
+            reflection: { body: VALID_REFLECTION, file: "2026-06-09-claude.md" },
           })
         ).pipe(provideScopedLayer(testLayer))
       ),

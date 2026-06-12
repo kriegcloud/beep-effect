@@ -176,10 +176,7 @@ function extname(path: string) {
 const extensions = R.empty<MimeType, FileExtension[]>();
 const types = R.empty<FileExtension, MimeType>();
 
-const normalizeLookupExtension = Fn.flow(
-  (input: string) => extname(`x.${input}`),
-  (extension) => pipe(extension, Str.toLowerCase, Str.substring(1))
-);
+const normalizeLookupExtension = Fn.flow((input: string) => extname(`x.${input}`), Str.toLowerCase, Str.substring(1));
 const returnFalse = (): false => false;
 
 function hasTypeForExtension(extension: string, types: Record<FileExtension, MimeType>): extension is FileExtension {

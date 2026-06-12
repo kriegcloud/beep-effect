@@ -362,6 +362,7 @@ export type FallowFailureEnvelope =
  * Internal decoded Fallow report envelope discriminated by status.
  *
  * @internal
+ * @returns Schema union for decoded Fallow report envelopes.
  * @category schema
  * @since 0.0.0
  */

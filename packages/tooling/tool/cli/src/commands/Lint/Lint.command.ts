@@ -19,6 +19,7 @@ import { ChildProcess } from "effect/unstable/process";
 import madge from "madge";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
 import { printLines } from "../../internal/cli/Printer.js";
+import { runRootLintPolicyTask } from "../Quality/Tasks.js";
 import { LintCircularAnalysisError, LintFileDiscoveryError } from "./Lint.errors.js";
 import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
 import { lintReflectionArtifactsCommand } from "./ReflectionArtifact.ts";
@@ -612,6 +613,20 @@ const lintDeprecatedApisCommand = Command.make("deprecated-apis", {}, runDepreca
 );
 
 /**
+ * Lint command for repo-wide root policy checks.
+ *
+ * @example
+ * ```ts
+ * console.log("bun run beep lint policy")
+ * ```
+ * @category cli-commands
+ * @since 0.0.0
+ */
+const lintPolicyCommand = Command.make("policy", {}, () => runRootLintPolicyTask).pipe(
+  Command.withDescription("Run repo-wide lint policy checks")
+);
+
+/**
  * Lint command for enforcing tagged error usage.
  *
  * @example
@@ -655,6 +670,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     "- bun run beep lint circular",
     "- bun run beep lint deprecated-apis",
     "- bun run beep lint package-test-imports",
+    "- bun run beep lint policy",
     "- bun run beep lint reflection-artifacts",
     "- bun run beep lint schema-first",
     "- bun run beep lint schema-topology",
@@ -667,6 +683,7 @@ export const lintCommand = Command.make("lint", {}, () =>
     lintCircularCommand,
     lintDeprecatedApisCommand,
     lintPackageTestImportsCommand,
+    lintPolicyCommand,
     lintReflectionArtifactsCommand,
     lintSchemaFirstCommand,
     lintSchemaTopologyCommand,

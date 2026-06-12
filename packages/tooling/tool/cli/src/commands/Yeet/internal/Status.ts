@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { DateTime, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { DateTime, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -219,11 +219,13 @@ const decodePrCloseoutReport = S.decodeUnknownEffect(S.fromJsonString(PrCloseout
 const decodeGhStatusPullRequest = S.decodeUnknownEffect(S.fromJsonString(GhStatusPullRequest));
 const decodeGhStatusChecks = S.decodeUnknownEffect(S.fromJsonString(S.Array(GhStatusCheck)));
 
-const sortedUniquePaths = (paths: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(paths, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+const sortedUniquePaths: (paths: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.filter(Str.isNonEmpty),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
-const pathListFromNulOutput = (output: string): ReadonlyArray<string> =>
-  pipe(Str.split("\0")(output), sortedUniquePaths);
+const pathListFromNulOutput: (output: string) => ReadonlyArray<string> = flow(Str.split("\0"), sortedUniquePaths);
 
 /**
  * Return the status artifact path for a Yeet run context.

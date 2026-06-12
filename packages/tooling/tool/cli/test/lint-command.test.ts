@@ -1,53 +1,22 @@
 import { lintCommand } from "@beep/repo-cli";
 import { FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { provideScopedLayer } from "@beep/test-utils";
 import { NodeServices } from "@effect/platform-node";
-import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { describe, expect, it } from "vitest";
-
-const provideScopedLayer =
-  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
-  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
-    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+import { expectReportedExit, withTempWorkingDirectory } from "./support/CommandTest.js";
 
 const runLintCommand = Command.runWith(lintCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-
-const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
-  expect(Exit.isFailure(exit)).toBe(true);
-  if (Exit.isFailure(exit)) {
-    const error = Cause.squash(exit.cause);
-    expect(Runtime.getErrorExitCode(error)).toBe(exitCode);
-    expect(Runtime.getErrorReported(error)).toBe(false);
-  }
-};
 
 const testLayer = Layer.mergeAll(
   NodeServices.layer,
   TestConsole.layer,
   FsUtilsLive.pipe(Layer.provide(NodeServices.layer))
 );
-
-const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
-  Effect.acquireUseRelease(
-    Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const tmpDir = yield* fs.makeTempDirectory();
-      const previousCwd = process.cwd();
-
-      process.chdir(tmpDir);
-
-      return { fs, previousCwd, tmpDir } as const;
-    }),
-    () => use,
-    ({ fs, previousCwd, tmpDir }) =>
-      Effect.gen(function* () {
-        process.chdir(previousCwd);
-        yield* fs.remove(tmpDir, { recursive: true });
-      })
-  );
 
 const writePackage = Effect.fn(function* (packageDir: string, packageName: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -62,6 +31,69 @@ const writePackage = Effect.fn(function* (packageDir: string, packageName: strin
       type: "module",
     })}\n`
   );
+});
+
+const writeSchemaFirstFileFixture = Effect.fn("writeSchemaFirstFileFixture")(function* (
+  relativePath: string,
+  sourceLines: ReadonlyArray<string>
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* fs.writeFileString(
+    "package.json",
+    `${encodeJson({
+      name: "@beep/test-root",
+      private: true,
+      type: "module",
+      workspaces: ["packages/*"],
+    })}\n`
+  );
+  yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
+  yield* fs.makeDirectory(path.dirname(relativePath), { recursive: true });
+  yield* fs.writeFileString(relativePath, sourceLines.join("\n"));
+});
+
+const writeSchemaFirstSourceFixture = Effect.fn("writeSchemaFirstSourceFixture")(function* (
+  sourceLines: ReadonlyArray<string>
+) {
+  yield* writeSchemaFirstFileFixture("packages/example/src/Example.ts", sourceLines);
+});
+
+const writePrecisionAuditInventory = Effect.fn("writePrecisionAuditInventory")(function* (
+  status: "advisory" | "exception",
+  reason: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* fs.makeDirectory("standards");
+  yield* fs.writeFileString(
+    path.join("standards", "schema-first.inventory.jsonc"),
+    `${encodeJson({
+      version: 1,
+      generatedOn: "2026-06-08",
+      scope: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+      entries: [
+        {
+          file: "packages/example/src/Example.ts",
+          symbol: "Contact.email",
+          kind: "schema-policy-advisory",
+          status,
+          ruleId: "SFV4-precision-audit",
+          line: 3,
+          owner: "@beep/example",
+          reason,
+        },
+      ],
+    })}\n`
+  );
+});
+
+const runSchemaFirstAndExpectNoErrors = Effect.fn("runSchemaFirstAndExpectNoErrors")(function* () {
+  yield* runLintCommand(["schema-first"]);
+  const errorLines = yield* TestConsole.errorLines;
+  expect(errorLines).toEqual([]);
 });
 
 describe("lint command file discovery", () => {
@@ -136,24 +168,12 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              `import { LiteralKit } from "@beep/schema";\nconst Status = LiteralKit(["active", "inactive"] as const);\nvoid Status;\n`
-            );
+            yield* writeSchemaFirstSourceFixture([
+              'import { LiteralKit } from "@beep/schema";',
+              'const Status = LiteralKit(["active", "inactive"] as const);',
+              "void Status;",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -181,29 +201,14 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstSourceFixture([
+              'import { LiteralKit } from "@beep/schema";',
+              'const Status = LiteralKit(["active", "inactive"]);',
+              "void Status;",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              `import { LiteralKit } from "@beep/schema";\nconst Status = LiteralKit(["active", "inactive"]);\nvoid Status;\n`
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -216,32 +221,15 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
-                "  timeoutMs: S.Number,",
-                "  accountId: S.Number,",
-                "  retryCount: S.Int,",
-                "}) {}",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+              "  timeoutMs: S.Number,",
+              "  accountId: S.Number,",
+              "  retryCount: S.Int,",
+              "}) {}",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -270,37 +258,20 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                "const JobEvent = S.TaggedUnion({});",
-                'export const render = (event: { readonly _tag: "Created" | "Failed"; readonly id?: string; readonly reason?: string }) => {',
-                "  switch (event._tag) {",
-                '    case "Created":',
-                '      return event.id ?? "";',
-                '    case "Failed":',
-                '      return event.reason ?? "";',
-                "  }",
-                "};",
-                "void JobEvent;",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              "const JobEvent = S.TaggedUnion({});",
+              'export const render = (event: { readonly _tag: "Created" | "Failed"; readonly id?: string; readonly reason?: string }) => {',
+              "  switch (event._tag) {",
+              '    case "Created":',
+              '      return event.id ?? "";',
+              '    case "Failed":',
+              '      return event.reason ?? "";',
+              "  }",
+              "};",
+              "void JobEvent;",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -329,30 +300,13 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class Contact extends S.Class<Contact>("Contact")({',
-                "  email: S.String,",
-                "}) {}",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class Contact extends S.Class<Contact>("Contact")({',
+              "  email: S.String,",
+              "}) {}",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -381,36 +335,16 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstSourceFixture([
+              'import { Email } from "@beep/schema";',
+              'import * as S from "effect/Schema";',
+              'export class Contact extends S.Class<Contact>("Contact")({',
+              "  email: Email,",
+              "}) {}",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import { Email } from "@beep/schema";',
-                'import * as S from "effect/Schema";',
-                'export class Contact extends S.Class<Contact>("Contact")({',
-                "  email: Email,",
-                "}) {}",
-                "",
-              ].join("\n")
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -423,50 +357,16 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class Contact extends S.Class<Contact>("Contact")({',
-                "  email: S.String,",
-                "}) {}",
-                "",
-              ].join("\n")
-            );
-            yield* fs.makeDirectory("standards");
-            yield* fs.writeFileString(
-              path.join("standards", "schema-first.inventory.jsonc"),
-              `${encodeJson({
-                version: 1,
-                generatedOn: "2026-06-08",
-                scope: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
-                entries: [
-                  {
-                    file: "packages/example/src/Example.ts",
-                    symbol: "Contact.email",
-                    kind: "schema-policy-advisory",
-                    status: "exception",
-                    ruleId: "SFV4-precision-audit",
-                    line: 3,
-                    owner: "@beep/example",
-                    reason: "External protocol preserves raw email text before domain validation.",
-                  },
-                ],
-              })}\n`
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class Contact extends S.Class<Contact>("Contact")({',
+              "  email: S.String,",
+              "}) {}",
+              "",
+            ]);
+            yield* writePrecisionAuditInventory(
+              "exception",
+              "External protocol preserves raw email text before domain validation."
             );
 
             yield* runLintCommand(["schema-first"]);
@@ -482,38 +382,62 @@ describe("schema-first lint command", { concurrent: false }, () => {
   );
 
   it(
+    "blocks tracked active schema-first advisories",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class Contact extends S.Class<Contact>("Contact")({',
+              "  email: S.String,",
+              "}) {}",
+              "",
+            ]);
+            yield* writePrecisionAuditInventory(
+              "advisory",
+              'Broad string field "email" should use @beep/schema Email, a local precise email schema, or a documented external-protocol exception.'
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const logLines = yield* TestConsole.logLines;
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(logLines).toContain("[schema-first] sfv4_precision_audit_advisories=1");
+            expect(errorLines).toContain("[schema-first] repo still contains advisory findings:");
+            expect(errorLines).toContain(
+              '- packages/example/src/Example.ts :: Contact.email [schema-policy-advisory] Broad string field "email" should use @beep/schema Email, a local precise email schema, or a documented external-protocol exception.'
+            );
+            const structuredIssueLine =
+              '[schema-first:issue] {"category":"schema-first-policy","ruleId":"SFV4-precision-audit",' +
+              '"severity":"warning","file":"packages/example/src/Example.ts","line":3,' +
+              '"symbol":"Contact.email",' +
+              '"message":"Broad string field \\"email\\" should use @beep/schema Email, a local precise email schema, or a documented external-protocol exception.",' +
+              '"remediation":"Resolve the schema-first advisory or move the entry to exception with a documented reason."}';
+            expect(errorLines).toContain(structuredIssueLine);
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
     "reports untracked SFV4 arbitrary-tests static-only schema test advisories",
     () =>
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "test", "Example.test.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
-                "export const staticChecks = [",
-                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
-                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
-                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
-                "];",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+              'import * as S from "effect/Schema";',
+              "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+              "export const staticChecks = [",
+              '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+              '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+              '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+              "];",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -542,41 +466,21 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+              'import * as fc from "fast-check";',
+              'import * as S from "effect/Schema";',
+              "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+              "const WorkerArbitrary = S.toArbitrary(Worker);",
+              "export const staticChecks = [",
+              '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+              '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+              '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+              "];",
+              "export const property = fc.property(WorkerArbitrary, (worker) => worker.retryCount === Math.trunc(worker.retryCount));",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "test", "Example.test.ts"),
-              [
-                'import * as fc from "fast-check";',
-                'import * as S from "effect/Schema";',
-                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
-                "const WorkerArbitrary = S.toArbitrary(Worker);",
-                "export const staticChecks = [",
-                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
-                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
-                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
-                "];",
-                "export const property = fc.property(WorkerArbitrary, (worker) => worker.retryCount === Math.trunc(worker.retryCount));",
-                "",
-              ].join("\n")
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -589,35 +493,18 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "test", "Example.test.ts"),
-              [
-                'import * as fc from "fast-check";',
-                'import * as S from "effect/Schema";',
-                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
-                "export const staticChecks = [",
-                '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
-                '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
-                '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
-                "];",
-                'export const property = fc.property(fc.string(), (id) => typeof id === "string");',
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+              'import * as fc from "fast-check";',
+              'import * as S from "effect/Schema";',
+              "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+              "export const staticChecks = [",
+              '  S.decodeUnknownEffect(Worker)({ id: "a", retryCount: 1 }),',
+              '  S.decodeUnknownEffect(Worker)({ id: "b", retryCount: 2 }),',
+              '  S.encodeEffect(Worker)({ id: "c", retryCount: 3 }),',
+              "];",
+              'export const property = fc.property(fc.string(), (id) => typeof id === "string");',
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -638,35 +525,18 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "test", "Example.test.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'class Worker extends S.Class<Worker>("Worker")({ id: S.String }) {',
-                "  static readonly decodeUnknownSync = S.decodeUnknownSync(Worker);",
-                "}",
-                "export const staticChecks = [",
-                '  Worker.decodeUnknownSync({ id: "a" }),',
-                '  Worker.decodeUnknownSync({ id: "b" }),',
-                '  Worker.decodeUnknownSync({ id: "c" }),',
-                "];",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstFileFixture("packages/example/test/Example.test.ts", [
+              'import * as S from "effect/Schema";',
+              'class Worker extends S.Class<Worker>("Worker")({ id: S.String }) {',
+              "  static readonly decodeUnknownSync = S.decodeUnknownSync(Worker);",
+              "}",
+              "export const staticChecks = [",
+              '  Worker.decodeUnknownSync({ id: "a" }),',
+              '  Worker.decodeUnknownSync({ id: "b" }),',
+              '  Worker.decodeUnknownSync({ id: "c" }),',
+              "];",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -687,33 +557,16 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "test"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "test", "Sync.test.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
-                "export const staticChecks = [",
-                '  S.decodeUnknownSync(Worker)({ id: "a", retryCount: 1 }),',
-                '  S.decodeSync(Worker)({ id: "b", retryCount: 2 }),',
-                '  S.encodeSync(Worker)({ id: "c", retryCount: 3 }),',
-                "];",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstFileFixture("packages/example/test/Sync.test.ts", [
+              'import * as S from "effect/Schema";',
+              "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+              "export const staticChecks = [",
+              '  S.decodeUnknownSync(Worker)({ id: "a", retryCount: 1 }),',
+              '  S.decodeSync(Worker)({ id: "b", retryCount: 2 }),',
+              '  S.encodeSync(Worker)({ id: "c", retryCount: 3 }),',
+              "];",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -741,38 +594,18 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              "const JobEvent = S.TaggedUnion({});",
+              "export const render = (event: unknown) =>",
+              "  JobEvent.match(event, {",
+              '    Created: () => "created",',
+              '    Failed: () => "failed",',
+              "  });",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                "const JobEvent = S.TaggedUnion({});",
-                "export const render = (event: unknown) =>",
-                "  JobEvent.match(event, {",
-                '    Created: () => "created",',
-                '    Failed: () => "failed",',
-                "  });",
-                "",
-              ].join("\n")
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -785,32 +618,15 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class Worker extends S.Class<Worker>("Worker")({',
-                "  id: S.String,",
-                "  name: S.String,",
-                "}) {}",
-                "export const equals = (left: Worker, right: Worker) => left.id === right.id && left.name === right.name;",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class Worker extends S.Class<Worker>("Worker")({',
+              "  id: S.String,",
+              "  name: S.String,",
+              "}) {}",
+              "export const equals = (left: Worker, right: Worker) => left.id === right.id && left.name === right.name;",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -839,37 +655,17 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class Worker extends S.Class<Worker>("Worker")({',
+              "  id: S.String,",
+              "  name: S.String,",
+              "}) {}",
+              "export const equals = S.toEquivalence(Worker);",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class Worker extends S.Class<Worker>("Worker")({',
-                "  id: S.String,",
-                "  name: S.String,",
-                "}) {}",
-                "export const equals = S.toEquivalence(Worker);",
-                "",
-              ].join("\n")
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -882,24 +678,12 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              ["export const parseConfig = (text: string) => {", "  return JSON.parse(text);", "};", ""].join("\n")
-            );
+            yield* writeSchemaFirstSourceFixture([
+              "export const parseConfig = (text: string) => {",
+              "  return JSON.parse(text);",
+              "};",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -928,33 +712,13 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              "export const decodeConfig = S.decodeUnknownEffect(S.UnknownFromJsonString);",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                "export const decodeConfig = S.decodeUnknownEffect(S.UnknownFromJsonString);",
-                "",
-              ].join("\n")
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -967,31 +731,14 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
-
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
-                "  timeoutMs: S.Finite,",
-                "}) {}",
-                "export const runWorker = (params = { timeoutMs: 5000 }) => params.timeoutMs;",
-                "",
-              ].join("\n")
-            );
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+              "  timeoutMs: S.Finite,",
+              "}) {}",
+              "export const runWorker = (params = { timeoutMs: 5000 }) => params.timeoutMs;",
+              "",
+            ]);
 
             const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
 
@@ -1020,37 +767,17 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            yield* writeSchemaFirstSourceFixture([
+              'import { Effect } from "effect";',
+              'import * as S from "effect/Schema";',
+              'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+              "  timeoutMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(5000))),",
+              "}) {}",
+              "export const runWorker = (params = WorkerOptions.make({})) => params.timeoutMs;",
+              "",
+            ]);
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import { Effect } from "effect";',
-                'import * as S from "effect/Schema";',
-                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
-                "  timeoutMs: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(5000))),",
-                "}) {}",
-                "export const runWorker = (params = WorkerOptions.make({})) => params.timeoutMs;",
-                "",
-              ].join("\n")
-            );
-
-            yield* runLintCommand(["schema-first"]);
-
-            const errorLines = yield* TestConsole.errorLines;
-            expect(errorLines).toEqual([]);
+            yield* runSchemaFirstAndExpectNoErrors();
           })
         ).pipe(provideScopedLayer(testLayer))
       ),
@@ -1063,38 +790,26 @@ describe("schema-first lint command", { concurrent: false }, () => {
       Effect.runPromise(
         withTempWorkingDirectory(
           Effect.gen(function* () {
+            yield* writeSchemaFirstSourceFixture([
+              'import * as S from "effect/Schema";',
+              'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
+              "  timeoutMs: S.Number,",
+              "  retryCount: S.Int,",
+              "}) {}",
+              "",
+            ]);
+
             const fs = yield* FileSystem.FileSystem;
             const path = yield* Path.Path;
 
-            yield* fs.writeFileString(
-              "package.json",
-              `${encodeJson({
-                name: "@beep/test-root",
-                private: true,
-                type: "module",
-                workspaces: ["packages/*"],
-              })}\n`
-            );
-            yield* fs.writeFileString("tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`);
-            yield* fs.makeDirectory(path.join("packages", "example", "src"), { recursive: true });
-            yield* fs.writeFileString(
-              path.join("packages", "example", "src", "Example.ts"),
-              [
-                'import * as S from "effect/Schema";',
-                'export class WorkerOptions extends S.Class<WorkerOptions>("WorkerOptions")({',
-                "  timeoutMs: S.Number,",
-                "  retryCount: S.Int,",
-                "}) {}",
-                "",
-              ].join("\n")
-            );
-
             yield* fs.makeDirectory("standards");
-            yield* runLintCommand(["schema-first", "--write"]);
+            const exit = yield* Effect.exit(runLintCommand(["schema-first", "--write"]));
 
             const inventory = yield* fs.readFileString(path.join("standards", "schema-first.inventory.jsonc"));
             const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
             expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain("[schema-first] repo still contains advisory findings:");
             expect(inventory).toContain('"ruleId": "SFV4-numeric-domain"');
             expect(inventory).toContain('"symbol": "WorkerOptions.timeoutMs"');
             expect(inventory).not.toContain("retryCount");

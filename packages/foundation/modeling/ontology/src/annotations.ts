@@ -303,14 +303,12 @@ export const optionalLanguageLiterals = (
 const firstStringOption = (first: O.Option<string>, second: O.Option<string>): O.Option<string> =>
   pipe([first, second], O.firstSomeOf);
 
-export const humanizedTermName = (termName: OntologyTermName): string =>
-  pipe(
-    termName,
-    Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
-    Str.replace(/[._-]+/g, " "),
-    Str.replace(/\s+/g, " "),
-    Str.trim
-  );
+export const humanizedTermName: (termName: OntologyTermName) => string = flow(
+  Str.replace(/([a-z0-9])([A-Z])/g, "$1 $2"),
+  Str.replace(/[._-]+/g, " "),
+  Str.replace(/\s+/g, " "),
+  Str.trim
+);
 
 export const classLabel = (termName: OntologyTermName): string =>
   pipe(humanizedTermName(termName), (label) => `${Str.toUpperCase(Str.slice(0, 1)(label))}${Str.slice(1)(label)}`);

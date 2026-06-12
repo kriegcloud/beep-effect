@@ -1,10 +1,15 @@
 import { $OntologyId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema/LiteralKit";
-import { Effect, pipe } from "effect";
+import { Effect, flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import {
+  skosConceptReferences as conceptReferences,
+  skosProfileLiterals as profileLiterals,
+  skosSchemeReferences as schemeReferences,
+} from "./skos.js";
 import type {
   AssembledOntology,
   AssembledOntologyClass,
@@ -12,9 +17,6 @@ import type {
   IRI,
   OntologyLanguageLiteral,
   OntologyReference,
-  OntologySkosConceptProfile,
-  OntologySkosConceptSchemeProfile,
-  OntologySkosProfile,
 } from "../model.js";
 
 const $I = $OntologyId.create("projections/markdown");
@@ -48,9 +50,9 @@ type NormalizedMarkdownOptions = {
 const normalizeOptions = (options: MarkdownOptionsInput = {}): NormalizedMarkdownOptions =>
   OntologyMarkdownProjectionOptions.make(options);
 
-const markdownText = (value: string): string => pipe(value, Str.replace(/([\\`*_{}[\]()#+\-.!|>~])/g, "\\$1"));
+const markdownText: (value: string) => string = Str.replace(/([\\`*_{}[\]()#+\-.!|>~])/g, "\\$1");
 
-const obsidianAlias = (value: string): string => pipe(value, Str.replaceAll("|", "\\|"), Str.replaceAll("]", "\\]"));
+const obsidianAlias: (value: string) => string = flow(Str.replaceAll("|", "\\|"), Str.replaceAll("]", "\\]"));
 
 const iriSlug = (iri: IRI): string => {
   const slug = pipe(iri, Str.replace(/[^A-Za-z0-9]+/g, "-"), Str.replace(/^-+|-+$/g, ""), Str.toLowerCase);
@@ -92,10 +94,12 @@ const languageLiteral = (literal: OntologyLanguageLiteral): string =>
     O.getOrElse(() => markdownText(literal.value))
   );
 
-const languageLiteralList = (values: ReadonlyArray<OntologyLanguageLiteral>): string =>
-  pipe(values, A.map(languageLiteral), A.join(", "));
+const languageLiteralList: (values: ReadonlyArray<OntologyLanguageLiteral>) => string = flow(
+  A.map(languageLiteral),
+  A.join(", ")
+);
 
-const stringList = (values: ReadonlyArray<string>): string => pipe(values, A.map(markdownText), A.join(", "));
+const stringList: (values: ReadonlyArray<string>) => string = flow(A.map(markdownText), A.join(", "));
 
 const referenceList = (values: ReadonlyArray<OntologyReference>, options: NormalizedMarkdownOptions): string =>
   pipe(
@@ -118,32 +122,6 @@ const optionalReferenceBullet = (
   options: NormalizedMarkdownOptions
 ): ReadonlyArray<string> =>
   A.length(value) === 0 ? A.empty<string>() : [bullet(label, referenceList(value, options))];
-
-const profileLiterals = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosProfile) => ReadonlyArray<OntologyLanguageLiteral>
-): ReadonlyArray<OntologyLanguageLiteral> =>
-  pipe(ontologyClass.skosProfile, O.map(select), O.getOrElse(A.empty<OntologyLanguageLiteral>));
-
-const conceptReferences = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosConceptProfile) => ReadonlyArray<OntologyReference>
-): ReadonlyArray<OntologyReference> =>
-  pipe(
-    ontologyClass.skosProfile,
-    O.flatMap((profile) => (profile.kind === "concept" ? O.some(select(profile)) : O.none())),
-    O.getOrElse(A.empty<OntologyReference>)
-  );
-
-const schemeReferences = (
-  ontologyClass: AssembledOntologyClass,
-  select: (profile: OntologySkosConceptSchemeProfile) => ReadonlyArray<OntologyReference>
-): ReadonlyArray<OntologyReference> =>
-  pipe(
-    ontologyClass.skosProfile,
-    O.flatMap((profile) => (profile.kind === "conceptScheme" ? O.some(select(profile)) : O.none())),
-    O.getOrElse(A.empty<OntologyReference>)
-  );
 
 const classTypes = (ontologyClass: AssembledOntologyClass): string =>
   pipe(

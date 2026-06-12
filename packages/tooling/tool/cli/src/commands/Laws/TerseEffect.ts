@@ -610,10 +610,10 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     let fileTouched = false;
     let fileMutated = false;
     let fileHasBlockingCandidate = false;
-    let fileHasInformationalCandidate = false;
+    const fileHasInformationalCandidate = false;
     let fileHasRewritableCandidate = false;
     let fileBlockingFindings = A.empty<string>();
-    let fileInformationalFindings = A.empty<string>();
+    const fileInformationalFindings = A.empty<string>();
     let fileRewritableFindings = A.empty<string>();
     const thunkHelperAliases = getImportedThunkHelperAliases(sourceFile);
     const arrowFunctions = A.sort(
@@ -667,13 +667,11 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       }
 
       if (isFlowCandidate(arrowFunction)) {
+        const finding = findingText(sourceFile, sourceFilePath, "flow-candidate", arrowFunction);
         flowCandidatesDetected += 1;
         fileTouched = true;
-        fileHasInformationalCandidate = true;
-        fileInformationalFindings = A.append(
-          fileInformationalFindings,
-          findingText(sourceFile, sourceFilePath, "flow-candidate", arrowFunction)
-        );
+        fileHasBlockingCandidate = true;
+        fileBlockingFindings = A.append(fileBlockingFindings, finding);
       }
     }
 
@@ -769,6 +767,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     options.strictCheck &&
     (helpersSimplified > 0 ||
       thunkHelpersSimplified > 0 ||
+      flowCandidatesDetected > 0 ||
       optionObjectCompactionCandidatesDetected > 0 ||
       conditionalOptionalObjectSpreadCandidatesDetected > 0 ||
       nestedOptionMatchCandidatesDetected > 0 ||

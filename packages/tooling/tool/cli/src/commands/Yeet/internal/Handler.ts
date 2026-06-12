@@ -8,7 +8,7 @@
 import { createHash } from "node:crypto";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { Console, DateTime, Effect, FileSystem, Order, Path, pipe, Ref, Result } from "effect";
+import { Console, DateTime, Effect, FileSystem, flow, Order, Path, pipe, Ref, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -359,11 +359,13 @@ const commandFailure = (result: RepoStepRunResult, message: string): YeetCommand
 
 const zeroGitSha = "0000000000000000000000000000000000000000" as const;
 
-const sortedUniquePaths = (paths: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(paths, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+const sortedUniquePaths: (paths: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.filter(Str.isNonEmpty),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
-const gitPathListFromNulOutput = (output: string): ReadonlyArray<string> =>
-  pipe(output, Str.split("\0"), sortedUniquePaths);
+const gitPathListFromNulOutput: (output: string) => ReadonlyArray<string> = flow(Str.split("\0"), sortedUniquePaths);
 
 const prePushLocalShasFromStdin = (input: string): ReadonlyArray<string> =>
   pipe(
@@ -411,13 +413,11 @@ const publishUpstreamMismatchWarning = (branch: string, upstream: string): O.Opt
         `[yeet] warning: branch "${branch}" tracks "${upstream}"; publish will push HEAD to ${expectedPublishUpstream(branch)}.`
       );
 
-const formatPublishPaths = (paths: ReadonlyArray<string>): string =>
-  pipe(
-    paths,
-    sortedUniquePaths,
-    A.map((filePath) => `  - ${filePath}`),
-    A.join("\n")
-  );
+const formatPublishPaths: (paths: ReadonlyArray<string>) => string = flow(
+  sortedUniquePaths,
+  A.map((filePath) => `  - ${filePath}`),
+  A.join("\n")
+);
 
 const PUBLISH_PATH_EXAMPLE_LIMIT = 10;
 
@@ -1667,8 +1667,10 @@ export const collectDiffFingerprintForTesting = collectDiffFingerprint;
 const currentCommitSha = (context: RepoRunContext) =>
   runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
 
-const proofCommandForSteps = (steps: ReadonlyArray<RepoPlanStep>): string =>
-  pipe(steps, A.map(commandTextForStep), A.join(" && "));
+const proofCommandForSteps: (steps: ReadonlyArray<RepoPlanStep>) => string = flow(
+  A.map(commandTextForStep),
+  A.join(" && ")
+);
 
 const hashText = (text: string): string => createHash("sha256").update(text).digest("hex");
 
@@ -2134,6 +2136,22 @@ const runVerifyMode = Effect.fn("Yeet.runVerifyMode")(function* (
   return yield* emptyPlanResult(context);
 });
 
+const runRequiredPhase = Effect.fn("Yeet.runRequiredPhase")(function* (
+  context: RepoRunContext,
+  steps: ReadonlyArray<RepoPlanStep>,
+  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
+  failureMessage: string
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const results = yield* runPhase(context, steps, recorder);
+  if (A.some(results, (result) => result.exitCode !== 0)) {
+    return yield* failWithIssueArtifacts(context, steps, results, failureMessage);
+  }
+});
+
 const shouldSkipCommitForReusablePublish = Effect.fn("Yeet.shouldSkipCommitForReusablePublish")(function* (
   context: RepoRunContext,
   options: YeetRunOptions
@@ -2400,10 +2418,7 @@ const runMonitorPhase = Effect.fn("Yeet.runMonitorPhase")(function* (
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
-  const monitorResults = yield* runPhase(context, monitorSteps, recorder);
-  if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(context, monitorSteps, monitorResults, failureMessage);
-  }
+  yield* runRequiredPhase(context, monitorSteps, recorder, failureMessage);
 });
 
 const runPublishMonitorAndResult = Effect.fn("Yeet.runPublishMonitorAndResult")(function* (

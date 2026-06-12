@@ -57,6 +57,118 @@
       "reason": "The repo export catalog Quality command internal generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
       "owner": "@beep/repo-cli",
       "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/canvas/src/App.tsx",
+      "kind": "new-map-set",
+      "reason": "The Canvas React runtime keeps local native Map instances for ephemeral viewport/template lookup state used by React rendering, not persisted domain modeling.",
+      "owner": "@beep/canvas",
+      "issue": "CANVAS-REACT-EPHEMERAL-MAP"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/drivers/box/scripts/generate.ts",
+      "kind": "new-map-set",
+      "reason": "The Box OpenAPI generator script uses native Set and Map collections for deterministic one-shot code generation indexes before emitting package source.",
+      "owner": "@beep/box",
+      "issue": "BOX-OPENAPI-GENERATOR-NATIVE-COLLECTIONS"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
+      "kind": "new-map-set",
+      "reason": "Semantic schema metadata traversal needs WeakSet identity tracking to avoid retaining visited schema nodes while preventing recursive graph cycles.",
+      "owner": "@beep/modeling-rdf",
+      "issue": "RDF-SCHEMA-METADATA-WEAKSET-TRAVERSAL"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/ui-system/ui/src/components/chart.tsx",
+      "kind": "native-error",
+      "reason": "The React chart hook throws a native Error for a missing provider context, matching React hook invariant conventions rather than typed Effect error flow.",
+      "owner": "@beep/ui-system",
+      "issue": "UI-REACT-HOOK-INVARIANT-ERROR"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
+      "kind": "new-map-set",
+      "reason": "Repo codegraph lookup builds native Set indexes for in-memory graph traversal and deduplication over generated catalog data.",
+      "owner": "@beep/repo-codegraph",
+      "issue": "REPO-CODEGRAPH-LOOKUP-NATIVE-SET"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+      "kind": "array-static",
+      "reason": "Reuse analysis materializes native Map and Set values at algorithm and reporting boundaries where JavaScript collection iteration order is the compatibility contract.",
+      "owner": "@beep/repo-utils",
+      "issue": "REUSE-ANALYSIS-NATIVE-COLLECTIONS"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
+      "kind": "new-map-set",
+      "reason": "Reuse analysis uses native Map and Set indexes for token windows, duplicate grouping, and report deduplication in a bounded tooling algorithm.",
+      "owner": "@beep/repo-utils",
+      "issue": "REUSE-ANALYSIS-NATIVE-COLLECTIONS"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
+      "kind": "new-map-set",
+      "reason": "Token similarity computes set intersections over token bags using native Set semantics inside a bounded scoring helper.",
+      "owner": "@beep/repo-utils",
+      "issue": "REUSE-TOKEN-SIMILARITY-NATIVE-SET"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
+      "kind": "new-map-set",
+      "reason": "Docgen quality aggregation uses native Set indexes to deduplicate generated documentation findings before rendering CLI output.",
+      "owner": "@beep/repo-cli",
+      "issue": "DOCGEN-QUALITY-NATIVE-SET"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+      "kind": "new-map-set",
+      "reason": "Schema-first lint uses native Set traversal state while inspecting ts-morph AST nodes to avoid recursion and duplicate advisory emission.",
+      "owner": "@beep/repo-cli",
+      "issue": "SCHEMA-FIRST-LINT-AST-TRAVERSAL-SET"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.recyclebin.ts",
+      "kind": "new-map-set",
+      "reason": "Corpus recycle-bin pairing uses native Map indexes to match metadata and content entries by libpff pair key inside bounded CLI scan output, not persisted domain state.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-CORPUS-RECYCLEBIN-PAIRING-INDEXES"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+      "kind": "new-map-set",
+      "reason": "Corpus CLI catalog, organize, and enrich flows use native Map and Set indexes for JSONL restoration joins, duplicate suppression, version grouping, and identifier candidate aggregation at tooling boundaries.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-CORPUS-NATIVE-COLLECTION-INDEXES"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+      "kind": "object-method",
+      "reason": "Corpus CLI client-map loading iterates decoded JSON object entries at the manifest boundary before normalizing labels into a local lookup map.",
+      "owner": "@beep/repo-cli",
+      "issue": "REPO-CLI-CORPUS-CLIENT-MAP-OBJECT-ENTRIES"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "kind": "date-static",
+      "reason": "Fallow quality parses ISO timestamps from prior tool reports at the CLI boundary to sort and summarize historical quality envelopes.",
+      "owner": "@beep/repo-cli",
+      "issue": "FALLOW-QUALITY-REPORT-TIMESTAMP-PARSE"
     }
   ]
 }

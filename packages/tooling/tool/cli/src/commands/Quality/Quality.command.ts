@@ -189,6 +189,8 @@ const gibibytes = (bytes: number): number => Math.round((bytes / 1024 / 1024 / 1
 /**
  * Return static quality scheduling settings for a hardware profile.
  *
+ * @param profile - Quality hardware profile to map to scheduling settings.
+ * @returns Static quality scheduling configuration for the profile.
  * @example
  * ```ts
  * import { qualityProfileConfigForTesting } from "@beep/repo-cli/test/Quality"
@@ -232,6 +234,8 @@ export const qualityProfileConfigForTesting = (profile: QualityHardwareProfile):
 /**
  * Detect the quality hardware profile from host facts.
  *
+ * @param input - Host and CI facts used for profile detection.
+ * @returns Detected quality profile with derived scheduling configuration.
  * @example
  * ```ts
  * import { detectQualityProfileForTesting } from "@beep/repo-cli/test/Quality"
@@ -2443,7 +2447,7 @@ export const runJSDocQuality = Effect.fn("QualityScriptCommands.runJSDocQuality"
 const runQualityProgram = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<void, E, R> =>
   effect.pipe(Effect.asVoid);
 
-const variadicStrings = (values: ReadonlyArray<unknown>): ReadonlyArray<string> => pipe(values, A.filter(P.isString));
+const variadicStrings: (values: ReadonlyArray<unknown>) => ReadonlyArray<string> = A.filter(P.isString);
 
 const renderQualityProfileConfigLines = (config: QualityProfileConfig): ReadonlyArray<string> => [
   `profile=${config.profile}`,

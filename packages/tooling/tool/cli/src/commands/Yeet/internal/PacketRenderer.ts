@@ -8,7 +8,7 @@
 import { Md } from "@beep/md";
 import { Order } from "effect";
 import * as A from "effect/Array";
-import { pipe } from "effect/Function";
+import { flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import type { RenderError } from "@beep/md";
@@ -73,33 +73,31 @@ const categoryBlocks = (issues: ReadonlyArray<QualityIssue>) =>
     })
   );
 
-const repairPaths = (issues: ReadonlyArray<QualityIssue>): ReadonlyArray<string> =>
-  pipe(
-    issues,
-    A.map((issue) => issue.remediation ?? `Fix ${issue.category} from ${issueLocation(issue)}`),
-    A.dedupe,
-    A.sort(Order.String),
-    A.take(10)
-  );
+const repairPaths: (issues: ReadonlyArray<QualityIssue>) => ReadonlyArray<string> = flow(
+  A.map((issue) => issue.remediation ?? `Fix ${issue.category} from ${issueLocation(issue)}`),
+  A.dedupe,
+  A.sort(Order.String),
+  A.take(10)
+);
 
-const routingLines = (issues: ReadonlyArray<QualityIssue>): ReadonlyArray<string> =>
-  pipe(
-    issues,
-    A.flatMap((issue) => A.map(issue.routing, (route) => `${route.skill}: ${route.reason}`)),
-    A.dedupe,
-    A.sort(Order.String)
-  );
+const routingLines: (issues: ReadonlyArray<QualityIssue>) => ReadonlyArray<string> = flow(
+  A.flatMap((issue) => A.map(issue.routing, (route) => `${route.skill}: ${route.reason}`)),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
-const affectedFileLines = (issues: ReadonlyArray<QualityIssue>): ReadonlyArray<string> =>
-  pipe(
-    issues,
-    A.map((issue) => `${issueLocation(issue)} (${issue.category}, ${issue.id})`),
-    A.dedupe,
-    A.sort(Order.String)
-  );
+const affectedFileLines: (issues: ReadonlyArray<QualityIssue>) => ReadonlyArray<string> = flow(
+  A.map((issue) => `${issueLocation(issue)} (${issue.category}, ${issue.id})`),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
-const verificationCommands = (issues: ReadonlyArray<QualityIssue>): ReadonlyArray<string> =>
-  pipe(issues, A.map(issueCommand), A.getSomes, A.dedupe, A.sort(Order.String));
+const verificationCommands: (issues: ReadonlyArray<QualityIssue>) => ReadonlyArray<string> = flow(
+  A.map(issueCommand),
+  A.getSomes,
+  A.dedupe,
+  A.sort(Order.String)
+);
 
 const noIssueBlocks = [
   Md.h2("Status"),
