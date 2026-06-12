@@ -1,0 +1,66 @@
+# Atlas
+
+Living map of the product vision: the outcomes we are steering toward, the
+capability bricks already built, and every exploration's place in the tree.
+This is the first file a cold session should read.
+
+Navigation only — no doctrine. Load-bearing prose belongs in `docs/product/`,
+`goals/<slug>/SPEC.md`, or `standards/`; this file links to it. Updated at
+every exploration stage transition.
+
+## Outcomes
+
+The durable "why" behind explorations. Seeded from
+[`goals/agentic-professional-runtime`](../goals/agentic-professional-runtime/README.md)
+(the active product-definition authority).
+
+- **Local-first agentic professional runtime** — a governed workspace where a
+  professional brings their own agent clients, tools, data sources, and model
+  credentials; every durable assertion carries evidence, provenance,
+  lifecycle, and cost. Vision prose:
+  [`product-vision-law-practice.md`](../goals/agentic-professional-runtime/docs/product-vision-law-practice.md).
+- **Agentic solo IP law practice** (sole active vertical) — capture context,
+  propose work, maintain evidence-backed practice memory, automate safe office
+  loops, keep legal judgment under attorney approval.
+- **Agent control plane** — `apps/professional-desktop` as the workbench where
+  the professional directs, reviews, and approves agent work.
+
+## Capability Bricks
+
+The lego pieces already built. Authoritative inventories (link, never copy):
+
+- [`standards/repo-exports.catalog.md`](../standards/repo-exports.catalog.md) —
+  canonical export lookup (refresh: `bun run repo-exports:catalog`).
+- [`graphify-out/wiki/index.md`](../graphify-out/wiki/index.md) — knowledge-graph
+  communities and god nodes (`graphify query "<question>"`).
+- Package families: `packages/{foundation,shared,drivers,tooling}` (substrate),
+  `packages/{workspace,agent-capability,epistemic,law-practice,wealth-management,canvas,architecture-lab,installer}`
+  (slices), `apps/*` (runtimes).
+
+## Explorations
+
+### Active
+
+- [`agent-chat-interface`](./agent-chat-interface/README.md) — stage:
+  **research** — Lexical-based rich chat input + thread surface for the
+  professional-desktop control plane. Next: external landscape research
+  (lobe-editor deep dive, Lexical ecosystem, competitor chat UX).
+
+### Proposed
+
+- `atlas-synthesis` — the grand-vision exercise: full capability inventory +
+  outcome decomposition to give this Atlas real substance and break the
+  vision into sequenced explorations/goals. Run after `agent-chat-interface`
+  proves the pipeline end-to-end.
+
+### Parked
+
+(none)
+
+### Graduated
+
+(none yet)
+
+### Killed
+
+(none yet — epitaphs go here, one line each)

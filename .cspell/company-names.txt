@@ -25,3 +25,5 @@ vercel
 zepai
 Zock
 Zocks
+CompuLaw
+tldraw

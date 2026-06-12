@@ -14,5 +14,8 @@ Tracked, authored documentation for the beep-effect monorepo.
 ## Rules
 
 - Authored documents live here and are committed like code.
+- Product vision prose graduates into `docs/product/` from the fuzzy front end
+  in [`explorations/`](../explorations/README.md); raw brainstorm and research
+  material lives in exploration packets, not under `docs/`.
 - Never hand-edit anything under `docs/generated/` — it is overwritten by `beep docgen aggregate` (the `--clean` flag removes only `docs/generated/`).
 - A future docs site (e.g. a `@beep/docs` app in the style of <https://effect-ts.github.io/effect/>) should consume `docs/generated/` as its content source.

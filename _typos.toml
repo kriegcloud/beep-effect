@@ -49,6 +49,9 @@ HPE = "HPE"
 
 [files]
 extend-exclude = [
+  # Exploration capture files are verbatim, append-only human dumps
+  # (explorations/README.md conventions) — never spell-gated.
+  "explorations/*/CAPTURE.md",
   "bun.lock",
   "*.snap",
   ".repos/**",
