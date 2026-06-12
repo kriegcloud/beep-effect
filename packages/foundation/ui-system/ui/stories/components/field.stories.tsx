@@ -15,6 +15,11 @@ import { Input } from "@beep/ui/components/input";
 import { Textarea } from "@beep/ui/components/textarea";
 import { expect, userEvent, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { SyntheticEvent } from "react";
+
+const preventSubmit = (event: SyntheticEvent<HTMLFormElement>): void => {
+  event.preventDefault();
+};
 
 /**
  * The `Field` family composes accessible form layouts. `Field` is the per-control wrapper
@@ -185,7 +190,7 @@ export const Separated: Story = {
 /** A realistic complete composition: a multi-section payment form built from the full Field family. */
 export const CompleteForm: Story = {
   render: () => (
-    <form className="w-full max-w-md">
+    <form className="w-full max-w-md" onSubmit={preventSubmit}>
       <FieldGroup>
         <FieldSet>
           <FieldLegend>Payment method</FieldLegend>

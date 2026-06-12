@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a7b91c791143380d06e511d4f63cf4a4d8625b3e2d06ea6ca27943dbbdb6ec86",
+    "digest": "166a5e8cb068af0272f4affac62302c05626e86e6518a659b258de9d61fe6ff1",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -277,8 +277,8 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sha256": "f97a93709fe91eb7a763de4b729a2ca1f5e56e71d391ec629cae8814f4c2e165",
-        "bytes": 45042
+        "sha256": "3b9a3e00e12656f9f03bfc57e0bc52496e0d9626bcd4ef3dd0fce64da976e3c8",
+        "bytes": 45194
       },
       {
         "path": "packages/tooling/library/repo-utils/src/schemas/PackageJsonTools.ts",
@@ -891,7 +891,7 @@
         "symbolName": "decodePackageJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1349,
+        "sourceLine": 1352,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`.",
         "categories": [
           "validation"
@@ -918,7 +918,7 @@
         "symbolName": "decodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1384,
+        "sourceLine": 1387,
         "summary": "Decode an unknown value into a strict `PackageJson` as an Effect.",
         "categories": [
           "validation"
@@ -945,7 +945,7 @@
         "symbolName": "decodePackageJsonExit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1367,
+        "sourceLine": 1370,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`,",
         "categories": [
           "validation"
@@ -1259,7 +1259,7 @@
         "symbolName": "encodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1404,
+        "sourceLine": 1407,
         "summary": "Encode a strict `PackageJson` value back to its encoded form as an Effect.",
         "categories": [
           "validation"
@@ -1286,7 +1286,7 @@
         "symbolName": "encodePackageJsonPrettyEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1446,
+        "sourceLine": 1449,
         "summary": "Encode a strict `PackageJson` value to a pretty-printed JSON string.",
         "categories": [
           "validation"
@@ -1313,7 +1313,7 @@
         "symbolName": "encodePackageJsonToJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1425,
+        "sourceLine": 1428,
         "summary": "Encode a strict `PackageJson` value to a compact JSON string as an Effect.",
         "categories": [
           "validation"
@@ -2222,7 +2222,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 966,
+        "sourceLine": 969,
         "summary": "Type-safe schema for npm package.json files.",
         "categories": [
           "validation"
@@ -2247,7 +2247,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1008,
+        "sourceLine": 1011,
         "summary": "Namespace helpers for the strict npm package-json schema.",
         "categories": [
           "models"
@@ -2297,7 +2297,7 @@
         "symbolName": "PackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 988,
+        "sourceLine": 991,
         "summary": "Type-safe schema for this repo's package.json files.",
         "categories": [
           "validation"
@@ -2322,7 +2322,7 @@
         "symbolName": "PackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1037,
+        "sourceLine": 1040,
         "summary": "Namespace helpers for the repo-aware package-json schema.",
         "categories": [
           "models"
@@ -6269,7 +6269,7 @@
         "symbolName": "decodePackageJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1349,
+        "sourceLine": 1352,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`.",
         "categories": [
           "validation"
@@ -6296,7 +6296,7 @@
         "symbolName": "decodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1384,
+        "sourceLine": 1387,
         "summary": "Decode an unknown value into a strict `PackageJson` as an Effect.",
         "categories": [
           "validation"
@@ -6323,7 +6323,7 @@
         "symbolName": "decodePackageJsonExit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1367,
+        "sourceLine": 1370,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`,",
         "categories": [
           "validation"
@@ -6637,7 +6637,7 @@
         "symbolName": "encodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1404,
+        "sourceLine": 1407,
         "summary": "Encode a strict `PackageJson` value back to its encoded form as an Effect.",
         "categories": [
           "validation"
@@ -6664,7 +6664,7 @@
         "symbolName": "encodePackageJsonPrettyEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1446,
+        "sourceLine": 1449,
         "summary": "Encode a strict `PackageJson` value to a pretty-printed JSON string.",
         "categories": [
           "validation"
@@ -6691,7 +6691,7 @@
         "symbolName": "encodePackageJsonToJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1425,
+        "sourceLine": 1428,
         "summary": "Encode a strict `PackageJson` value to a compact JSON string as an Effect.",
         "categories": [
           "validation"
@@ -7600,7 +7600,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 966,
+        "sourceLine": 969,
         "summary": "Type-safe schema for npm package.json files.",
         "categories": [
           "validation"
@@ -7625,7 +7625,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1008,
+        "sourceLine": 1011,
         "summary": "Namespace helpers for the strict npm package-json schema.",
         "categories": [
           "models"
@@ -7675,7 +7675,7 @@
         "symbolName": "PackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 988,
+        "sourceLine": 991,
         "summary": "Type-safe schema for this repo's package.json files.",
         "categories": [
           "validation"
@@ -7700,7 +7700,7 @@
         "symbolName": "PackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1037,
+        "sourceLine": 1040,
         "summary": "Namespace helpers for the repo-aware package-json schema.",
         "categories": [
           "models"
@@ -33557,7 +33557,7 @@
         "symbolName": "Author",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 296,
+        "sourceLine": 299,
         "summary": "The package author field.",
         "categories": [
           "validation"
@@ -33582,7 +33582,7 @@
         "symbolName": "Author",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1079,
+        "sourceLine": 1082,
         "summary": "Runtime type for {@link Author}.",
         "categories": [
           "models"
@@ -33607,7 +33607,7 @@
         "symbolName": "Bin",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 413,
+        "sourceLine": 416,
         "summary": "Schema for the `bin` field.",
         "categories": [
           "validation"
@@ -33632,7 +33632,7 @@
         "symbolName": "Bin",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1157,
+        "sourceLine": 1160,
         "summary": "Runtime type for {@link Bin}.",
         "categories": [
           "models"
@@ -33657,7 +33657,7 @@
         "symbolName": "Browser",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 432,
+        "sourceLine": 435,
         "summary": "Schema for the `browser` field.",
         "categories": [
           "validation"
@@ -33682,7 +33682,7 @@
         "symbolName": "Browser",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1170,
+        "sourceLine": 1173,
         "summary": "Runtime type for {@link Browser}.",
         "categories": [
           "models"
@@ -33707,7 +33707,7 @@
         "symbolName": "Bugs",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 373,
+        "sourceLine": 376,
         "summary": "Schema for the `bugs` field.",
         "categories": [
           "validation"
@@ -33732,7 +33732,7 @@
         "symbolName": "Bugs",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1131,
+        "sourceLine": 1134,
         "summary": "Runtime type for {@link Bugs}.",
         "categories": [
           "models"
@@ -33784,7 +33784,7 @@
         "symbolName": "BundleDependencies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 536,
+        "sourceLine": 539,
         "summary": "Schema for the `bundleDependencies` / `bundledDependencies` fields.",
         "categories": [
           "validation"
@@ -33809,7 +33809,7 @@
         "symbolName": "BundleDependencies",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1222,
+        "sourceLine": 1225,
         "summary": "Runtime type for {@link BundleDependencies}.",
         "categories": [
           "models"
@@ -33961,7 +33961,7 @@
         "symbolName": "Contributors",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 315,
+        "sourceLine": 318,
         "summary": "The package contributors field.",
         "categories": [
           "validation"
@@ -33986,7 +33986,7 @@
         "symbolName": "Contributors",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1092,
+        "sourceLine": 1095,
         "summary": "Runtime type for {@link Contributors}.",
         "categories": [
           "models"
@@ -34038,7 +34038,7 @@
         "symbolName": "decodePackageJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1349,
+        "sourceLine": 1352,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`.",
         "categories": [
           "validation"
@@ -34065,7 +34065,7 @@
         "symbolName": "decodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1384,
+        "sourceLine": 1387,
         "summary": "Decode an unknown value into a strict `PackageJson` as an Effect.",
         "categories": [
           "validation"
@@ -34092,7 +34092,7 @@
         "symbolName": "decodePackageJsonExit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1367,
+        "sourceLine": 1370,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`,",
         "categories": [
           "validation"
@@ -34302,7 +34302,7 @@
         "symbolName": "DevEngineDependency",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 615,
+        "sourceLine": 618,
         "summary": "Schema for a development environment requirement entry.",
         "categories": [
           "validation"
@@ -34327,7 +34327,7 @@
         "symbolName": "DevEngineDependency",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1261,
+        "sourceLine": 1264,
         "summary": "Runtime type for {@link DevEngineDependency}.",
         "categories": [
           "models"
@@ -34352,7 +34352,7 @@
         "symbolName": "DevEngines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 657,
+        "sourceLine": 660,
         "summary": "Schema for the `devEngines` field.",
         "categories": [
           "validation"
@@ -34377,7 +34377,7 @@
         "symbolName": "DevEngines",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1274,
+        "sourceLine": 1277,
         "summary": "Runtime type for {@link DevEngines}.",
         "categories": [
           "models"
@@ -34427,7 +34427,7 @@
         "symbolName": "Directories",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 473,
+        "sourceLine": 476,
         "summary": "Schema for the `directories` field.",
         "categories": [
           "validation"
@@ -34452,7 +34452,7 @@
         "symbolName": "Directories",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1183,
+        "sourceLine": 1186,
         "summary": "Runtime type for {@link Directories}.",
         "categories": [
           "models"
@@ -34554,7 +34554,7 @@
         "symbolName": "encodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1404,
+        "sourceLine": 1407,
         "summary": "Encode a strict `PackageJson` value back to its encoded form as an Effect.",
         "categories": [
           "validation"
@@ -34581,7 +34581,7 @@
         "symbolName": "encodePackageJsonPrettyEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1446,
+        "sourceLine": 1449,
         "summary": "Encode a strict `PackageJson` value to a pretty-printed JSON string.",
         "categories": [
           "validation"
@@ -34608,7 +34608,7 @@
         "symbolName": "encodePackageJsonToJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1425,
+        "sourceLine": 1428,
         "summary": "Encode a strict `PackageJson` value to a compact JSON string as an Effect.",
         "categories": [
           "validation"
@@ -34716,7 +34716,7 @@
         "symbolName": "Funding",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 393,
+        "sourceLine": 396,
         "summary": "Schema for the `funding` field.",
         "categories": [
           "validation"
@@ -34741,7 +34741,7 @@
         "symbolName": "Funding",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1144,
+        "sourceLine": 1147,
         "summary": "Runtime type for {@link Funding}.",
         "categories": [
           "models"
@@ -34974,7 +34974,7 @@
         "symbolName": "Maintainers",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 334,
+        "sourceLine": 337,
         "summary": "The package maintainers field.",
         "categories": [
           "validation"
@@ -34999,7 +34999,7 @@
         "symbolName": "Maintainers",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1105,
+        "sourceLine": 1108,
         "summary": "Runtime type for {@link Maintainers}.",
         "categories": [
           "models"
@@ -35024,7 +35024,7 @@
         "symbolName": "Man",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 498,
+        "sourceLine": 501,
         "summary": "Schema for the `man` field.",
         "categories": [
           "validation"
@@ -35049,7 +35049,7 @@
         "symbolName": "Man",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1196,
+        "sourceLine": 1199,
         "summary": "Runtime type for {@link Man}.",
         "categories": [
           "models"
@@ -35180,7 +35180,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 966,
+        "sourceLine": 969,
         "summary": "Type-safe schema for npm package.json files.",
         "categories": [
           "validation"
@@ -35205,7 +35205,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1008,
+        "sourceLine": 1011,
         "summary": "Namespace helpers for the strict npm package-json schema.",
         "categories": [
           "models"
@@ -35255,7 +35255,7 @@
         "symbolName": "PackageExports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 725,
+        "sourceLine": 728,
         "summary": "Schema for the `exports` field.",
         "categories": [
           "validation"
@@ -35280,7 +35280,7 @@
         "symbolName": "PackageExports",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1287,
+        "sourceLine": 1290,
         "summary": "Runtime type for {@link PackageExports}.",
         "categories": [
           "models"
@@ -35305,7 +35305,7 @@
         "symbolName": "PackageImports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 797,
+        "sourceLine": 800,
         "summary": "Schema for the `imports` field.",
         "categories": [
           "validation"
@@ -35330,7 +35330,7 @@
         "symbolName": "PackageImports",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1300,
+        "sourceLine": 1303,
         "summary": "Runtime type for {@link PackageImports}.",
         "categories": [
           "models"
@@ -35355,7 +35355,7 @@
         "symbolName": "PackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 988,
+        "sourceLine": 991,
         "summary": "Type-safe schema for this repo's package.json files.",
         "categories": [
           "validation"
@@ -35380,7 +35380,7 @@
         "symbolName": "PackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1037,
+        "sourceLine": 1040,
         "summary": "Namespace helpers for the repo-aware package-json schema.",
         "categories": [
           "models"
@@ -35455,7 +35455,7 @@
         "symbolName": "PeerDependenciesMeta",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 555,
+        "sourceLine": 558,
         "summary": "Schema for the `peerDependenciesMeta` field.",
         "categories": [
           "validation"
@@ -35480,7 +35480,7 @@
         "symbolName": "PeerDependenciesMeta",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1235,
+        "sourceLine": 1238,
         "summary": "Runtime type for {@link PeerDependenciesMeta}.",
         "categories": [
           "models"
@@ -35505,7 +35505,7 @@
         "symbolName": "Person",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 276,
+        "sourceLine": 279,
         "summary": "A person involved with the package, represented as a string or structured object.",
         "categories": [
           "validation"
@@ -35530,7 +35530,7 @@
         "symbolName": "Person",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1066,
+        "sourceLine": 1069,
         "summary": "Runtime type for {@link Person}.",
         "categories": [
           "models"
@@ -35555,7 +35555,7 @@
         "symbolName": "PublishConfig",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 875,
+        "sourceLine": 878,
         "summary": "Schema for the `publishConfig` field.",
         "categories": [
           "validation"
@@ -35580,7 +35580,7 @@
         "symbolName": "PublishConfig",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1326,
+        "sourceLine": 1329,
         "summary": "Runtime type for {@link PublishConfig}.",
         "categories": [
           "models"
@@ -35605,7 +35605,7 @@
         "symbolName": "Repository",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 353,
+        "sourceLine": 356,
         "summary": "Schema for the `repository` field.",
         "categories": [
           "validation"
@@ -35630,7 +35630,7 @@
         "symbolName": "Repository",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1118,
+        "sourceLine": 1121,
         "summary": "Runtime type for {@link Repository}.",
         "categories": [
           "models"
@@ -35655,7 +35655,7 @@
         "symbolName": "SideEffects",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 517,
+        "sourceLine": 520,
         "summary": "Schema for the `sideEffects` field.",
         "categories": [
           "validation"
@@ -35680,7 +35680,7 @@
         "symbolName": "SideEffects",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1209,
+        "sourceLine": 1212,
         "summary": "Runtime type for {@link SideEffects}.",
         "categories": [
           "models"
@@ -36036,7 +36036,7 @@
         "symbolName": "TypesVersions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 577,
+        "sourceLine": 580,
         "summary": "Schema for the `typesVersions` field.",
         "categories": [
           "validation"
@@ -36061,7 +36061,7 @@
         "symbolName": "TypesVersions",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1248,
+        "sourceLine": 1251,
         "summary": "Runtime type for {@link TypesVersions}.",
         "categories": [
           "models"
@@ -36111,7 +36111,7 @@
         "symbolName": "Workspaces",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 855,
+        "sourceLine": 858,
         "summary": "Schema for the `workspaces` field.",
         "categories": [
           "validation"
@@ -36136,7 +36136,7 @@
         "symbolName": "Workspaces",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1313,
+        "sourceLine": 1316,
         "summary": "Runtime type for {@link Workspaces}.",
         "categories": [
           "models"
@@ -36394,7 +36394,7 @@
         "symbolName": "Author",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 296,
+        "sourceLine": 299,
         "summary": "The package author field.",
         "categories": [
           "validation"
@@ -36419,7 +36419,7 @@
         "symbolName": "Author",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1079,
+        "sourceLine": 1082,
         "summary": "Runtime type for {@link Author}.",
         "categories": [
           "models"
@@ -36444,7 +36444,7 @@
         "symbolName": "Bin",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 413,
+        "sourceLine": 416,
         "summary": "Schema for the `bin` field.",
         "categories": [
           "validation"
@@ -36469,7 +36469,7 @@
         "symbolName": "Bin",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1157,
+        "sourceLine": 1160,
         "summary": "Runtime type for {@link Bin}.",
         "categories": [
           "models"
@@ -36494,7 +36494,7 @@
         "symbolName": "Browser",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 432,
+        "sourceLine": 435,
         "summary": "Schema for the `browser` field.",
         "categories": [
           "validation"
@@ -36519,7 +36519,7 @@
         "symbolName": "Browser",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1170,
+        "sourceLine": 1173,
         "summary": "Runtime type for {@link Browser}.",
         "categories": [
           "models"
@@ -36544,7 +36544,7 @@
         "symbolName": "Bugs",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 373,
+        "sourceLine": 376,
         "summary": "Schema for the `bugs` field.",
         "categories": [
           "validation"
@@ -36569,7 +36569,7 @@
         "symbolName": "Bugs",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1131,
+        "sourceLine": 1134,
         "summary": "Runtime type for {@link Bugs}.",
         "categories": [
           "models"
@@ -36594,7 +36594,7 @@
         "symbolName": "BundleDependencies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 536,
+        "sourceLine": 539,
         "summary": "Schema for the `bundleDependencies` / `bundledDependencies` fields.",
         "categories": [
           "validation"
@@ -36619,7 +36619,7 @@
         "symbolName": "BundleDependencies",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1222,
+        "sourceLine": 1225,
         "summary": "Runtime type for {@link BundleDependencies}.",
         "categories": [
           "models"
@@ -36644,7 +36644,7 @@
         "symbolName": "Contributors",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 315,
+        "sourceLine": 318,
         "summary": "The package contributors field.",
         "categories": [
           "validation"
@@ -36669,7 +36669,7 @@
         "symbolName": "Contributors",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1092,
+        "sourceLine": 1095,
         "summary": "Runtime type for {@link Contributors}.",
         "categories": [
           "models"
@@ -36694,7 +36694,7 @@
         "symbolName": "decodePackageJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1349,
+        "sourceLine": 1352,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`.",
         "categories": [
           "validation"
@@ -36721,7 +36721,7 @@
         "symbolName": "decodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1384,
+        "sourceLine": 1387,
         "summary": "Decode an unknown value into a strict `PackageJson` as an Effect.",
         "categories": [
           "validation"
@@ -36748,7 +36748,7 @@
         "symbolName": "decodePackageJsonExit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1367,
+        "sourceLine": 1370,
         "summary": "Synchronously decode an unknown value into a strict `PackageJson`,",
         "categories": [
           "validation"
@@ -36775,7 +36775,7 @@
         "symbolName": "DevEngineDependency",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 615,
+        "sourceLine": 618,
         "summary": "Schema for a development environment requirement entry.",
         "categories": [
           "validation"
@@ -36800,7 +36800,7 @@
         "symbolName": "DevEngineDependency",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1261,
+        "sourceLine": 1264,
         "summary": "Runtime type for {@link DevEngineDependency}.",
         "categories": [
           "models"
@@ -36825,7 +36825,7 @@
         "symbolName": "DevEngines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 657,
+        "sourceLine": 660,
         "summary": "Schema for the `devEngines` field.",
         "categories": [
           "validation"
@@ -36850,7 +36850,7 @@
         "symbolName": "DevEngines",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1274,
+        "sourceLine": 1277,
         "summary": "Runtime type for {@link DevEngines}.",
         "categories": [
           "models"
@@ -36875,7 +36875,7 @@
         "symbolName": "Directories",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 473,
+        "sourceLine": 476,
         "summary": "Schema for the `directories` field.",
         "categories": [
           "validation"
@@ -36900,7 +36900,7 @@
         "symbolName": "Directories",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1183,
+        "sourceLine": 1186,
         "summary": "Runtime type for {@link Directories}.",
         "categories": [
           "models"
@@ -36925,7 +36925,7 @@
         "symbolName": "encodePackageJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1404,
+        "sourceLine": 1407,
         "summary": "Encode a strict `PackageJson` value back to its encoded form as an Effect.",
         "categories": [
           "validation"
@@ -36952,7 +36952,7 @@
         "symbolName": "encodePackageJsonPrettyEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1446,
+        "sourceLine": 1449,
         "summary": "Encode a strict `PackageJson` value to a pretty-printed JSON string.",
         "categories": [
           "validation"
@@ -36979,7 +36979,7 @@
         "symbolName": "encodePackageJsonToJsonEffect",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1425,
+        "sourceLine": 1428,
         "summary": "Encode a strict `PackageJson` value to a compact JSON string as an Effect.",
         "categories": [
           "validation"
@@ -37006,7 +37006,7 @@
         "symbolName": "Funding",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 393,
+        "sourceLine": 396,
         "summary": "Schema for the `funding` field.",
         "categories": [
           "validation"
@@ -37031,7 +37031,7 @@
         "symbolName": "Funding",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1144,
+        "sourceLine": 1147,
         "summary": "Runtime type for {@link Funding}.",
         "categories": [
           "models"
@@ -37056,7 +37056,7 @@
         "symbolName": "Maintainers",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 334,
+        "sourceLine": 337,
         "summary": "The package maintainers field.",
         "categories": [
           "validation"
@@ -37081,7 +37081,7 @@
         "symbolName": "Maintainers",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1105,
+        "sourceLine": 1108,
         "summary": "Runtime type for {@link Maintainers}.",
         "categories": [
           "models"
@@ -37106,7 +37106,7 @@
         "symbolName": "Man",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 498,
+        "sourceLine": 501,
         "summary": "Schema for the `man` field.",
         "categories": [
           "validation"
@@ -37131,7 +37131,7 @@
         "symbolName": "Man",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1196,
+        "sourceLine": 1199,
         "summary": "Runtime type for {@link Man}.",
         "categories": [
           "models"
@@ -37156,7 +37156,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 966,
+        "sourceLine": 969,
         "summary": "Type-safe schema for npm package.json files.",
         "categories": [
           "validation"
@@ -37181,7 +37181,7 @@
         "symbolName": "NpmPackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1008,
+        "sourceLine": 1011,
         "summary": "Namespace helpers for the strict npm package-json schema.",
         "categories": [
           "models"
@@ -37206,7 +37206,7 @@
         "symbolName": "PackageExports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 725,
+        "sourceLine": 728,
         "summary": "Schema for the `exports` field.",
         "categories": [
           "validation"
@@ -37231,7 +37231,7 @@
         "symbolName": "PackageExports",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1287,
+        "sourceLine": 1290,
         "summary": "Runtime type for {@link PackageExports}.",
         "categories": [
           "models"
@@ -37256,7 +37256,7 @@
         "symbolName": "PackageImports",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 797,
+        "sourceLine": 800,
         "summary": "Schema for the `imports` field.",
         "categories": [
           "validation"
@@ -37281,7 +37281,7 @@
         "symbolName": "PackageImports",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1300,
+        "sourceLine": 1303,
         "summary": "Runtime type for {@link PackageImports}.",
         "categories": [
           "models"
@@ -37306,7 +37306,7 @@
         "symbolName": "PackageJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 988,
+        "sourceLine": 991,
         "summary": "Type-safe schema for this repo's package.json files.",
         "categories": [
           "validation"
@@ -37331,7 +37331,7 @@
         "symbolName": "PackageJson",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1037,
+        "sourceLine": 1040,
         "summary": "Namespace helpers for the repo-aware package-json schema.",
         "categories": [
           "models"
@@ -37356,7 +37356,7 @@
         "symbolName": "PeerDependenciesMeta",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 555,
+        "sourceLine": 558,
         "summary": "Schema for the `peerDependenciesMeta` field.",
         "categories": [
           "validation"
@@ -37381,7 +37381,7 @@
         "symbolName": "PeerDependenciesMeta",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1235,
+        "sourceLine": 1238,
         "summary": "Runtime type for {@link PeerDependenciesMeta}.",
         "categories": [
           "models"
@@ -37406,7 +37406,7 @@
         "symbolName": "Person",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 276,
+        "sourceLine": 279,
         "summary": "A person involved with the package, represented as a string or structured object.",
         "categories": [
           "validation"
@@ -37431,7 +37431,7 @@
         "symbolName": "Person",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1066,
+        "sourceLine": 1069,
         "summary": "Runtime type for {@link Person}.",
         "categories": [
           "models"
@@ -37456,7 +37456,7 @@
         "symbolName": "PublishConfig",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 875,
+        "sourceLine": 878,
         "summary": "Schema for the `publishConfig` field.",
         "categories": [
           "validation"
@@ -37481,7 +37481,7 @@
         "symbolName": "PublishConfig",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1326,
+        "sourceLine": 1329,
         "summary": "Runtime type for {@link PublishConfig}.",
         "categories": [
           "models"
@@ -37506,7 +37506,7 @@
         "symbolName": "Repository",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 353,
+        "sourceLine": 356,
         "summary": "Schema for the `repository` field.",
         "categories": [
           "validation"
@@ -37531,7 +37531,7 @@
         "symbolName": "Repository",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1118,
+        "sourceLine": 1121,
         "summary": "Runtime type for {@link Repository}.",
         "categories": [
           "models"
@@ -37556,7 +37556,7 @@
         "symbolName": "SideEffects",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 517,
+        "sourceLine": 520,
         "summary": "Schema for the `sideEffects` field.",
         "categories": [
           "validation"
@@ -37581,7 +37581,7 @@
         "symbolName": "SideEffects",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1209,
+        "sourceLine": 1212,
         "summary": "Runtime type for {@link SideEffects}.",
         "categories": [
           "models"
@@ -37606,7 +37606,7 @@
         "symbolName": "TypesVersions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 577,
+        "sourceLine": 580,
         "summary": "Schema for the `typesVersions` field.",
         "categories": [
           "validation"
@@ -37631,7 +37631,7 @@
         "symbolName": "TypesVersions",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1248,
+        "sourceLine": 1251,
         "summary": "Runtime type for {@link TypesVersions}.",
         "categories": [
           "models"
@@ -37656,7 +37656,7 @@
         "symbolName": "Workspaces",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 855,
+        "sourceLine": 858,
         "summary": "Schema for the `workspaces` field.",
         "categories": [
           "validation"
@@ -37681,7 +37681,7 @@
         "symbolName": "Workspaces",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-        "sourceLine": 1313,
+        "sourceLine": 1316,
         "summary": "Runtime type for {@link Workspaces}.",
         "categories": [
           "models"

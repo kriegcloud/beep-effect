@@ -35,21 +35,6 @@ const makeOipContactHttpApiRouteLive = (submit: SubmitContact) =>
     handlers.handle("submit", ({ payload }) => submit(payload).pipe(Effect.flatMap(contactHttpApiResponse)))
   );
 
-/**
- * Server implementation layer for the OIP contact HttpApi group.
- *
- * @example
- * ```ts
- * import { OipContactHttpApiRouteLive } from "@beep/oip-web/app/api/contact/ContactHttpApiRoute"
- *
- * console.log(OipContactHttpApiRouteLive)
- * ```
- *
- * @category layers
- * @since 0.0.0
- */
-// export const OipContactHttpApiRouteLive = makeOipContactHttpApiRouteLive(submitContact);
-
 const makeOipContactHttpApiAppLayer = (submit: SubmitContact) =>
   HttpApiBuilder.layer(OipHttpApi).pipe(
     Layer.provideMerge(makeOipContactHttpApiRouteLive(submit)),

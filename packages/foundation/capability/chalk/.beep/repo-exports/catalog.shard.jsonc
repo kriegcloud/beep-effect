@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "545fbb4330718c13a1a28903e84bb2666b86c9aca28269d62f9cbf626deec646",
+    "digest": "538bd622eb971addccc6f8c4aa8cf31d9df970013ddb4155163e1ada0d9ed172",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-        "sha256": "5c82e2ea184df32c31ec5446dcf66729382dcbefb47b8f37ab2c4f6d910d9b15",
-        "bytes": 10035
+        "sha256": "328f913963036b7c62426a4cc3fbdecede956a43836b2cb6918384a6e67e1cd9",
+        "bytes": 10849
       },
       {
         "path": "packages/foundation/capability/chalk/src/internal/ChalkSchema.ts",
@@ -3935,7 +3935,7 @@
         "symbolName": "ChalkState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-        "sourceLine": 29,
+        "sourceLine": 65,
         "summary": "",
         "categories": [],
         "since": [],
@@ -3952,7 +3952,7 @@
         "symbolName": "makeCreateChalk",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-        "sourceLine": 317,
+        "sourceLine": 353,
         "summary": "Create a Chalk instance factory from detected default color support.",
         "categories": [
           "constructors"

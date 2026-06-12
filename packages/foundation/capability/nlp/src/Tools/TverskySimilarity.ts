@@ -36,24 +36,25 @@ class TverskySimilarityParameters extends S.Class<TverskySimilarityParameters>($
   })
 ) {}
 
-const TverskySimilaritySuccess = S.Struct({
-  alpha: UnitInterval.annotateKey({
-    description: "Applied alpha parameter",
-  }),
-  beta: UnitInterval.annotateKey({
-    description: "Applied beta parameter",
-  }),
-  method: S.Literal("set.tversky").annotateKey({
-    description: "The similarity method used",
-  }),
-  score: UnitInterval.annotateKey({
-    description: "Similarity score from 0 (no overlap) to 1 (identical sets)",
-  }),
-}).pipe(
-  $I.annoteSchema("TverskySimilaritySuccess", {
+class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`TverskySimilaritySuccess`)(
+  {
+    alpha: UnitInterval.annotateKey({
+      description: "Applied alpha parameter",
+    }),
+    beta: UnitInterval.annotateKey({
+      description: "Applied beta parameter",
+    }),
+    method: S.Literal("set.tversky").annotateKey({
+      description: "The similarity method used",
+    }),
+    score: UnitInterval.annotateKey({
+      description: "Similarity score from 0 (no overlap) to 1 (identical sets)",
+    }),
+  },
+  $I.annote("TverskySimilaritySuccess", {
     description: "Asymmetric Tversky similarity score and applied parameter values.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for asymmetric Tversky similarity
@@ -86,5 +87,5 @@ export const TverskySimilarity = Tool.make("TverskySimilarity", {
   failure: AiToolError,
   failureMode: "return",
   parameters: TverskySimilarityParameters,
-  success: TverskySimilaritySuccess,
+  success: S.toEncoded(TverskySimilaritySuccess),
 });

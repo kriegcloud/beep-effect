@@ -51,6 +51,14 @@ const monitorFlag = Flag.boolean("monitor").pipe(
   Flag.withDescription("Monitor hosted PR checks after publish instead of stopping at push")
 );
 
+const summaryFlag = Flag.boolean("summary").pipe(
+  Flag.withDescription("Print a compact operator summary after monitor or closeout reads")
+);
+
+const remoteFlag = Flag.boolean("remote").pipe(
+  Flag.withDescription("Include live GitHub PR and check data in yeet status")
+);
+
 const tierFlag = Flag.choiceWithValue("tier", [
   ["full", "full"],
   ["review-fix", "review-fix"],
@@ -193,6 +201,12 @@ const publishFlags = {
   reuseVerified: reuseVerifiedFlag,
   stagedOnly: stagedOnlyFlag,
   startPrEarly: startPrEarlyFlag,
+  summary: summaryFlag,
+} as const;
+
+const monitorFlags = {
+  ...sharedFlags,
+  summary: summaryFlag,
 } as const;
 
 const closeoutFlags = {
@@ -205,6 +219,12 @@ const closeoutFlags = {
   requireReviewComments: requireReviewCommentsFlag,
   resolveThreads: resolveThreadsFlag,
   retriggerGreptile: retriggerGreptileFlag,
+  summary: summaryFlag,
+} as const;
+
+const statusFlags = {
+  ...sharedFlags,
+  remote: remoteFlag,
 } as const;
 
 type SharedOptions = {
@@ -221,6 +241,7 @@ type SharedOptions = {
   readonly noEdit?: boolean;
   readonly pr?: boolean;
   readonly pushOnly?: boolean;
+  readonly remote?: boolean;
   readonly replyBody?: string;
   readonly replyThread?: string;
   readonly requireGreptileIssues?: number;
@@ -231,6 +252,7 @@ type SharedOptions = {
   readonly reuseVerified?: boolean;
   readonly stagedOnly?: boolean;
   readonly startPrEarly?: boolean;
+  readonly summary?: boolean;
   readonly tier?: YeetProofTier;
 };
 
@@ -248,6 +270,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       noEdit: options.noEdit ?? false,
       pr: options.pr ?? false,
       pushOnly: options.pushOnly ?? false,
+      remote: options.remote ?? false,
       replyBody: options.replyBody ?? "",
       replyThread: options.replyThread ?? "",
       requireGreptileIssues: options.requireGreptileIssues ?? -1,
@@ -258,6 +281,7 @@ const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly mess
       reuseVerified: options.reuseVerified ?? false,
       stagedOnly: options.stagedOnly ?? false,
       startPrEarly: options.startPrEarly ?? false,
+      summary: options.summary ?? false,
       tier: options.tier ?? "full",
     })
   );
@@ -274,12 +298,16 @@ const yeetPublishCommand = Command.make("publish", publishFlags, (options) => ru
   Command.withDescription("Commit reviewed staged changes, prove the commit, then push")
 );
 
-const yeetMonitorCommand = Command.make("monitor", sharedFlags, (options) => runYeetMode("monitor", options)).pipe(
+const yeetMonitorCommand = Command.make("monitor", monitorFlags, (options) => runYeetMode("monitor", options)).pipe(
   Command.withDescription("Monitor hosted PR checks for the current branch")
 );
 
 const yeetCloseoutCommand = Command.make("closeout", closeoutFlags, (options) => runYeetMode("closeout", options)).pipe(
   Command.withDescription("Inspect PR review threads and bot gates for merge closeout")
+);
+
+const yeetStatusCommand = Command.make("status", statusFlags, (options) => runYeetMode("status", options)).pipe(
+  Command.withDescription("Summarize local Yeet operator status for the current branch")
 );
 
 const yeetPrePushHookCommand = Command.make("pre-push-hook", sharedFlags, (options) =>
@@ -341,6 +369,7 @@ export const yeetCommand = Command.make("yeet", publishFlags, (options) => runYe
     yeetPublishCommand,
     yeetMonitorCommand,
     yeetCloseoutCommand,
+    yeetStatusCommand,
     yeetPrePushHookCommand,
     yeetFallowFeedbackCommand,
     yeetFallowFixtureCheckCommand,

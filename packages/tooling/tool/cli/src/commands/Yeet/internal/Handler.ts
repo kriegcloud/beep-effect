@@ -27,6 +27,13 @@ import {
   TurboWorkspacePackage,
 } from "../../../internal/repo-run/index.js";
 import { YeetCommandError } from "../Yeet.errors.js";
+import {
+  artifactDirForContext,
+  runIdForContext,
+  runArtifactPathForContext as runOutputPathForContext,
+  runStatePathForContext,
+  safeArtifactName,
+} from "./ArtifactPaths.js";
 import { PrCloseoutOptions, runPrCloseout } from "./Closeout.js";
 import { renderPackageQualityPacketMarkdown } from "./PacketRenderer.js";
 import {
@@ -44,6 +51,7 @@ import {
   QualityIssueRouting,
   qualityIssuesFromStepResult,
 } from "./QualityIssueIndex.js";
+import { collectYeetStatus, renderYeetStatusSummary, writeYeetStatusSnapshot } from "./Status.js";
 import { buildYeetVerdict, YeetBaseFreshness, YeetExecutedStep, YeetStashState } from "./Verdict.js";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type { RepoPlanStep, RepoRunPlan } from "../../../internal/repo-run/index.js";
@@ -152,6 +160,7 @@ const shouldCollectAffectedFeedbackTasks = (mode: YeetRunMode): boolean =>
     repair: () => true,
     verify: () => false,
     monitor: () => false,
+    status: () => false,
     "pre-push-hook": () => false,
   });
 
@@ -191,6 +200,7 @@ const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullReq
  *   plan: true,
  *   pr: false,
  *   pushOnly: false,
+ *   remote: false,
  *   replyBody: "",
  *   replyThread: "",
  *   requireGreptileIssues: -1,
@@ -200,6 +210,7 @@ const decodeGhPullRequestView = S.decodeUnknownEffect(S.fromJsonString(GhPullReq
  *   retriggerGreptile: false,
  *   reuseVerified: false,
  *   stagedOnly: false,
+ *   summary: false,
  *   startPrEarly: false,
  *   tier: "full"
  * })
@@ -225,6 +236,7 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     plan: S.Boolean,
     pr: S.Boolean,
     pushOnly: S.Boolean,
+    remote: S.Boolean,
     replyBody: S.String,
     replyThread: S.String,
     requireGreptileIssues: S.Finite,
@@ -234,6 +246,7 @@ export class YeetRunOptions extends S.Class<YeetRunOptions>($I`YeetRunOptions`)(
     retriggerGreptile: S.Boolean,
     reuseVerified: S.Boolean,
     stagedOnly: S.Boolean,
+    summary: S.Boolean,
     startPrEarly: S.Boolean,
     tier: YeetProofTier,
   },
@@ -343,11 +356,6 @@ const commandFailure = (result: RepoStepRunResult, message: string): YeetCommand
     command: result.commandText,
     exitCode: result.exitCode === 0 ? 1 : result.exitCode,
   });
-
-const safeArtifactName = (value: string): string =>
-  pipe(value, Str.replace(/[^a-zA-Z0-9._-]+/gu, "_"), Str.replace(/^_+|_+$/gu, ""), (name) =>
-    Str.isNonEmpty(name) ? name : "repo"
-  );
 
 const zeroGitSha = "0000000000000000000000000000000000000000" as const;
 
@@ -1559,6 +1567,22 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
     });
   }
 
+  if (options.mode === "status") {
+    if (options.remote) {
+      yield* refreshBaseRef(repoRoot, options.base);
+    }
+    return RepoRunContext.make({
+      repoRoot,
+      cwd: process.cwd(),
+      base: options.base,
+      head: options.head,
+      branch,
+      packetDir: options.packetDir,
+      originalArgv: [],
+      turbo: emptyTurboPlanSnapshot([]),
+    });
+  }
+
   yield* refreshBaseRef(repoRoot, options.base);
   const turbo = yield* collectTurboPlanSnapshot(repoRoot, options);
 
@@ -1574,23 +1598,6 @@ export const hydrateYeetRunContext = Effect.fn("Yeet.hydrateYeetRunContext")(fun
   });
 });
 
-const artifactDirForContext = Effect.fn("Yeet.artifactDirForContext")(function* (
-  context: RepoRunContext
-): Effect.fn.Return<string, never, Path.Path> {
-  const path = yield* Path.Path;
-  return path.isAbsolute(context.packetDir) ? context.packetDir : path.join(context.repoRoot, context.packetDir);
-});
-
-const runIdForContext = (context: RepoRunContext): string => safeArtifactName(context.branch);
-
-const runStatePathForContext = Effect.fn("Yeet.runStatePathForContext")(function* (
-  context: RepoRunContext
-): Effect.fn.Return<string, never, Path.Path> {
-  const path = yield* Path.Path;
-  const artifactDir = yield* artifactDirForContext(context);
-  return path.join(artifactDir, "runs", runIdForContext(context), "state.json");
-});
-
 const proofLockPathForContext = Effect.fn("Yeet.proofLockPathForContext")(function* (
   context: RepoRunContext
 ): Effect.fn.Return<string, never, Path.Path> {
@@ -1599,21 +1606,47 @@ const proofLockPathForContext = Effect.fn("Yeet.proofLockPathForContext")(functi
   return path.join(artifactDir, "quality-lock");
 });
 
-const runOutputPathForContext = Effect.fn("Yeet.runOutputPathForContext")(function* (
+const readFingerprintFileBytes = Effect.fn("Yeet.readFingerprintFileBytes")(function* (
+  filePath: string
+): Effect.fn.Return<Uint8Array, YeetCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs
+    .readFile(filePath)
+    .pipe(Effect.mapError(YeetCommandError.new(`Failed to read Yeet fingerprint artifact ${filePath}.`)));
+});
+
+const collectGitDiffBytes = Effect.fn("Yeet.collectGitDiffBytes")(function* (
   context: RepoRunContext,
+  args: ReadonlyArray<string>,
   fileName: string
-): Effect.fn.Return<string, never, Path.Path> {
+): Effect.fn.Return<
+  Uint8Array,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const artifactDir = yield* artifactDirForContext(context);
-  return path.join(artifactDir, "runs", runIdForContext(context), fileName);
+  const diffPath = yield* runOutputPathForContext(context, `fingerprint-${process.pid}-${fileName}.patch`);
+  yield* fs
+    .makeDirectory(path.dirname(diffPath), { recursive: true })
+    .pipe(Effect.mapError(YeetCommandError.new(`Failed to create Yeet fingerprint directory for ${diffPath}.`)));
+
+  return yield* Effect.gen(function* () {
+    yield* runGitOutput(context.repoRoot, ["diff", "--binary", `--output=${diffPath}`, ...args]);
+    return yield* readFingerprintFileBytes(diffPath);
+  }).pipe(Effect.ensuring(fs.remove(diffPath).pipe(Effect.ignore)));
 });
 
 const collectDiffFingerprint = Effect.fn("Yeet.collectDiffFingerprint")(function* (
   context: RepoRunContext
-): Effect.fn.Return<string, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
+): Effect.fn.Return<
+  string,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const status = yield* runGitOutput(context.repoRoot, ["status", "--short"]);
-  const unstagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--binary", "HEAD"]);
-  const stagedDiff = yield* runGitOutput(context.repoRoot, ["diff", "--cached", "--binary"]);
+  const unstagedDiff = yield* collectGitDiffBytes(context, ["HEAD"], "worktree");
+  const stagedDiff = yield* collectGitDiffBytes(context, ["--cached"], "index");
   return createHash("sha256")
     .update(status)
     .update("\0")
@@ -1622,6 +1655,14 @@ const collectDiffFingerprint = Effect.fn("Yeet.collectDiffFingerprint")(function
     .update(stagedDiff)
     .digest("hex");
 });
+
+/**
+ * Collect the reusable-proof fingerprint for the current Git worktree.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const collectDiffFingerprintForTesting = collectDiffFingerprint;
 
 const currentCommitSha = (context: RepoRunContext) =>
   runGitOutput(context.repoRoot, ["rev-parse", "HEAD"]).pipe(Effect.map(Str.trim));
@@ -1792,18 +1833,53 @@ const writeVerifiedState = Effect.fn("Yeet.writeVerifiedState")(function* (
   yield* writeTextFile(statePath, `${yield* renderJson(state)}\n`);
 });
 
+const legacyRunStatePathForContext = Effect.fn("Yeet.legacyRunStatePathForContext")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "runs", safeArtifactName(context.branch), "state.json");
+});
+
+const verifiedStateArtifactForPath =
+  (path: string) =>
+  (text: string): Readonly<{ readonly path: string; readonly text: string }> => ({ path, text });
+
 const loadVerifiedState = Effect.fn("Yeet.loadVerifiedState")(function* (
   context: RepoRunContext
 ): Effect.fn.Return<YeetRunState, YeetCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const statePath = yield* runStatePathForContext(context);
-  const text = yield* fs
-    .readFileString(statePath)
-    .pipe(Effect.mapError(YeetCommandError.new(`No reusable Yeet proof state found at ${statePath}.`)));
-  return yield* decodeYeetRunState(text).pipe(
-    Effect.mapError(YeetCommandError.new(`Failed to decode reusable Yeet proof state at ${statePath}.`))
+  const legacyStatePath = yield* legacyRunStatePathForContext(context);
+  const readState = (path: string) =>
+    fs
+      .readFileString(path)
+      .pipe(
+        Effect.map(verifiedStateArtifactForPath(path)),
+        Effect.map(O.some),
+        Effect.orElseSucceed(O.none<{ readonly path: string; readonly text: string }>)
+      );
+  const primary = yield* readState(statePath);
+  const selected = O.isSome(primary) ? primary : yield* readState(legacyStatePath);
+  if (O.isNone(selected)) {
+    const fallbackDetail = legacyStatePath === statePath ? "" : ` or legacy path ${legacyStatePath}`;
+    return yield* YeetCommandError.make({
+      message: `No reusable Yeet proof state found at ${statePath}${fallbackDetail}.`,
+      exitCode: 1,
+    });
+  }
+  return yield* decodeYeetRunState(selected.value.text).pipe(
+    Effect.mapError(YeetCommandError.new(`Failed to decode reusable Yeet proof state at ${selected.value.path}.`))
   );
 });
+
+/**
+ * Expose proof-state loading for upgrade compatibility tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const loadVerifiedStateForTesting = loadVerifiedState;
 
 const assertReusableVerifiedState = Effect.fn("Yeet.assertReusableVerifiedState")(function* (
   context: RepoRunContext
@@ -2192,17 +2268,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
       yield* writeVerifiedState(plan.context, "full", fullSteps);
       yield* validatePostCommitProofDidNotChangeWorktree(plan.context, postCommitProofChangedAfterEarlyPushMessage);
 
-      const monitorResults = yield* runPhase(plan.context, monitorSteps, recorder);
-      if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
-        return yield* failWithIssueArtifacts(
-          plan.context,
-          monitorSteps,
-          monitorResults,
-          "yeet publish monitor phase failed."
-        );
-      }
-
-      return yield* publishResult(plan.context, !skipCommit);
+      return yield* runPublishMonitorAndResult(plan.context, monitorSteps, recorder, options, skipCommit);
     }
 
     if (!options.reuseVerified) {
@@ -2236,17 +2302,7 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
       );
     }
 
-    const monitorResults = yield* runPhase(plan.context, monitorSteps, recorder);
-    if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
-      return yield* failWithIssueArtifacts(
-        plan.context,
-        monitorSteps,
-        monitorResults,
-        "yeet publish monitor phase failed."
-      );
-    }
-
-    return yield* publishResult(plan.context, !skipCommit);
+    return yield* runPublishMonitorAndResult(plan.context, monitorSteps, recorder, options, skipCommit);
   });
 
   return yield* pipe(
@@ -2307,15 +2363,81 @@ const runPrePushHookMode = Effect.fn("Yeet.runPrePushHookMode")(function* (
 const runMonitorMode = Effect.fn("Yeet.runMonitorMode")(function* (
   context: RepoRunContext,
   monitorSteps: ReadonlyArray<RepoPlanStep>,
-  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>
+  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
+  options: YeetRunOptions
 ): Effect.fn.Return<
   YeetRunResult,
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
+  yield* runMonitorPhase(context, monitorSteps, recorder, "yeet monitor failed.");
+  if (options.summary) {
+    yield* printOperatorStatusSummary(context, true);
+  }
+  return yield* emptyPlanResult(context);
+});
+
+const printOperatorStatusSummary = Effect.fn("Yeet.printOperatorStatusSummary")(function* (
+  context: RepoRunContext,
+  remote: boolean
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const snapshot = yield* collectYeetStatus(context, remote);
+  yield* writeYeetStatusSnapshot(snapshot);
+  yield* Console.log(renderYeetStatusSummary(snapshot));
+});
+
+const runMonitorPhase = Effect.fn("Yeet.runMonitorPhase")(function* (
+  context: RepoRunContext,
+  monitorSteps: ReadonlyArray<RepoPlanStep>,
+  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
+  failureMessage: string
+): Effect.fn.Return<
+  void,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
   const monitorResults = yield* runPhase(context, monitorSteps, recorder);
   if (A.some(monitorResults, (result) => result.exitCode !== 0)) {
-    return yield* failWithIssueArtifacts(context, monitorSteps, monitorResults, "yeet monitor failed.");
+    return yield* failWithIssueArtifacts(context, monitorSteps, monitorResults, failureMessage);
+  }
+});
+
+const runPublishMonitorAndResult = Effect.fn("Yeet.runPublishMonitorAndResult")(function* (
+  context: RepoRunContext,
+  monitorSteps: ReadonlyArray<RepoPlanStep>,
+  recorder: Ref.Ref<ReadonlyArray<YeetExecutedStep>>,
+  options: YeetRunOptions,
+  skipCommit: boolean
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  yield* runMonitorPhase(context, monitorSteps, recorder, "yeet publish monitor phase failed.");
+  if (options.summary && !A.isReadonlyArrayEmpty(monitorSteps)) {
+    yield* printOperatorStatusSummary(context, true);
+  }
+  return yield* publishResult(context, !skipCommit);
+});
+
+const runStatusMode = Effect.fn("Yeet.runStatusMode")(function* (
+  context: RepoRunContext,
+  options: YeetRunOptions
+): Effect.fn.Return<
+  YeetRunResult,
+  YeetCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const snapshot = yield* collectYeetStatus(context, options.remote);
+  yield* writeYeetStatusSnapshot(snapshot);
+  if (options.json) {
+    yield* printCommandJson(snapshot).pipe(Effect.mapError(YeetCommandError.new("Failed to print yeet status JSON.")));
+  } else {
+    yield* Console.log(renderYeetStatusSummary(snapshot));
   }
   return yield* emptyPlanResult(context);
 });
@@ -2344,6 +2466,9 @@ const runCloseoutMode = Effect.fn("Yeet.runCloseoutMode")(function* (
   const reportPath = yield* runOutputPathForContext(context, "pr-closeout.json");
   yield* writeTextFile(reportPath, `${yield* renderJson(report)}\n`);
   yield* Console.log(`[yeet] PR closeout report written to ${reportPath}`);
+  if (options.summary) {
+    yield* printOperatorStatusSummary(context, true);
+  }
 
   if (A.isReadonlyArrayEmpty(report.issues)) {
     return yield* emptyPlanResult(context);
@@ -2470,26 +2595,31 @@ const runPlanExecution = Effect.fn("Yeet.runPlanExecution")(function* (
           recorder,
           extras
         ),
-      monitor: () => runMonitorMode(plan.context, monitorSteps, recorder),
+      monitor: () => runMonitorMode(plan.context, monitorSteps, recorder, options),
       closeout: () => runCloseoutMode(plan.context, options),
+      status: () => runStatusMode(plan.context, options),
       "pre-push-hook": () => runPrePushHookMode(plan.context),
     });
   });
 
   return yield* execution.pipe(
     Effect.tapError((error) =>
-      writeRunVerdict(plan, options, recorder, extras, "failure", error.message, O.none()).pipe(Effect.ignore)
+      options.mode === "status"
+        ? Effect.void
+        : writeRunVerdict(plan, options, recorder, extras, "failure", error.message, O.none()).pipe(Effect.ignore)
     ),
     Effect.tap((result) =>
-      writeRunVerdict(
-        plan,
-        options,
-        recorder,
-        extras,
-        "success",
-        `yeet ${options.mode} succeeded.`,
-        O.some(result)
-      ).pipe(Effect.ignore)
+      options.mode === "status"
+        ? Effect.void
+        : writeRunVerdict(
+            plan,
+            options,
+            recorder,
+            extras,
+            "success",
+            `yeet ${options.mode} succeeded.`,
+            O.some(result)
+          ).pipe(Effect.ignore)
     )
   );
 });
@@ -2571,6 +2701,7 @@ export const runYeet = Effect.fn("Yeet.runYeet")(function* (
       noEdit: options.noEdit,
       pr: options.pr,
       pushOnly: options.pushOnly,
+      remote: options.remote,
       startPrEarly: options.startPrEarly,
       tier: options.tier,
     })
@@ -2602,6 +2733,7 @@ export const buildYeetRunPlanForTesting = (options: {
   readonly noEdit?: boolean;
   readonly pr?: boolean;
   readonly pushOnly?: boolean;
+  readonly remote?: boolean;
   readonly startPrEarly?: boolean;
   readonly tier?: YeetProofTier;
 }): RepoRunPlan =>
@@ -2617,6 +2749,7 @@ export const buildYeetRunPlanForTesting = (options: {
       noEdit: options.noEdit ?? false,
       pr: options.pr ?? false,
       pushOnly: options.pushOnly ?? false,
+      remote: options.remote ?? false,
       startPrEarly: options.startPrEarly ?? false,
       tier: options.tier ?? "full",
     })
@@ -2647,6 +2780,7 @@ export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): 
     plan: false,
     pr: false,
     pushOnly: false,
+    remote: false,
     replyBody: "",
     replyThread: "",
     requireGreptileIssues: -1,
@@ -2656,6 +2790,7 @@ export const defaultYeetRunOptions = (overrides: Partial<YeetRunOptions> = {}): 
     retriggerGreptile: false,
     reuseVerified: false,
     stagedOnly: false,
+    summary: false,
     startPrEarly: false,
     tier: "full",
     ...overrides,

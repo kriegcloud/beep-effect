@@ -1,6 +1,11 @@
 import { NativeSelect, NativeSelectOptGroup, NativeSelectOption } from "@beep/ui/components/native-select";
 import { expect, fn, userEvent, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { SyntheticEvent } from "react";
+
+const preventSubmit = (event: SyntheticEvent<HTMLFormElement>): void => {
+  event.preventDefault();
+};
 
 /**
  * `NativeSelect` is a styled wrapper around the platform `<select>` element, adding a trailing
@@ -175,7 +180,7 @@ export const Multiple: Story = {
 /** A realistic complete composition: a labeled select with grouped options inside a form layout. */
 export const CompleteForm: Story = {
   render: () => (
-    <form className="flex w-full max-w-xs flex-col gap-2">
+    <form className="flex w-full max-w-xs flex-col gap-2" onSubmit={preventSubmit}>
       <label htmlFor="timezone-select" className="font-medium text-sm">
         Timezone
       </label>
