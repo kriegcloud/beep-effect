@@ -1,5 +1,79 @@
 # effect
 
+## 4.0.0-beta.83
+
+### Patch Changes
+
+- [#2394](https://github.com/Effect-TS/effect-smol/pull/2394) [`1f2e8ce`](https://github.com/Effect-TS/effect-smol/commit/1f2e8ceef09e0a791c850ed2ade01f97089596f9) Thanks @IMax153! - Fix published HttpApi declaration files by exporting schema metadata types referenced by public declarations.
+
+## 4.0.0-beta.82
+
+### Patch Changes
+
+- [#2391](https://github.com/Effect-TS/effect-smol/pull/2391) [`193690b`](https://github.com/Effect-TS/effect-smol/commit/193690b642ea802bbed40d663bd677251bbe9dc3) Thanks @IMax153! - Fix HttpApiEndpoint endpoint error inference when success schemas include streams.
+
+## 4.0.0-beta.81
+
+### Patch Changes
+
+- [#2387](https://github.com/Effect-TS/effect-smol/pull/2387) [`93cb4f8`](https://github.com/Effect-TS/effect-smol/commit/93cb4f8fbfb9e07cb9dc86ce6b155fd1f8167914) Thanks @gcanti! - `Config.withDefault` now only recovers from missing data for literal/union
+  schemas. Invalid present values now propagate validation errors instead of
+  using the default, closes [#2384](https://github.com/Effect-TS/effect-smol/issues/2384).
+
+- [#2388](https://github.com/Effect-TS/effect-smol/pull/2388) [`60341d9`](https://github.com/Effect-TS/effect-smol/commit/60341d9ca744d0473ce3fab621ca9bd225af3a39) Thanks @gcanti! - `Config.withDefault` no longer recovers from schema filter failures. A filter
+  failure means a present value reached refinement checks, so using the default
+  could hide invalid configuration values.
+
+- [#2389](https://github.com/Effect-TS/effect-smol/pull/2389) [`1105ab5`](https://github.com/Effect-TS/effect-smol/commit/1105ab56cb724212f7ea7b431396ce82e8fd0484) Thanks @gcanti! - Fix `Schema.toTaggedUnion(...).isAnyOf` narrowing for custom discriminant keys, closes [#2386](https://github.com/Effect-TS/effect-smol/issues/2386).
+
+  Previously, the type predicate always extracted union members by `_tag`, even
+  when `toTaggedUnion` was created with a different discriminant key. Runtime
+  behavior already used the supplied key, so this aligns the type-level narrowing
+  with the existing runtime behavior.
+
+- [#2270](https://github.com/Effect-TS/effect-smol/pull/2270) [`4500fbf`](https://github.com/Effect-TS/effect-smol/commit/4500fbfe00763d8a72af6e5d6c5988e8bd4ade36) Thanks @IMax153! - Add HTTP API streaming response support
+
+## 4.0.0-beta.80
+
+### Patch Changes
+
+- [#2205](https://github.com/Effect-TS/effect-smol/pull/2205) [`d944330`](https://github.com/Effect-TS/effect-smol/commit/d94433090ee03f426d43e13b883abae4494e55e6) Thanks @lloydrichards! - add support for merging external events into `Prompt.custom` render loops via an optional `events` dequeue and `receive` handler.
+
+  The prompt races user input against events from the dequeue, allowing background events to trigger re-renders without waiting for a keypress:
+
+  ```ts
+  const eventQueue = yield * Queue.make<number>();
+
+  const prompt = Prompt.custom(
+    { count: 0 },
+    Queue.asDequeue(eventQueue), // <-- provide the event queue as a dequeue to the prompt
+    {
+      render: (state) => Effect.succeed(`Count: ${state.count}`),
+      process: (input, state) =>
+        Effect.succeed(
+          Match.value(input).pipe(
+            // handle user input
+            Match.tag("Input", () => Action.Submit({ value: state.count })),
+            // handle external events from the queue
+            Match.tag("Event", (input) =>
+              Action.NextFrame({ state: { count: state.count + input.value } }),
+            ),
+            Match.exhaustive,
+          ),
+        ),
+      clear: () => Effect.succeed(""),
+    },
+  );
+  ```
+
+- [#2369](https://github.com/Effect-TS/effect-smol/pull/2369) [`f48659f`](https://github.com/Effect-TS/effect-smol/commit/f48659fdcc84930ebc1e5b45b540c0f973389182) Thanks @gcanti! - Round fractional durations symmetrically when normalizing to nanoseconds.
+
+- [#2373](https://github.com/Effect-TS/effect-smol/pull/2373) [`7652aaa`](https://github.com/Effect-TS/effect-smol/commit/7652aaa3bdbc39f241fe58b54b9a43b713e22e12) Thanks @StarpTech! - Stream.fromReadableStream: swallow the `reader.cancel()` rejection in the finalizer. Cancelling the reader of an already-errored ReadableStream rejects with the stored error, which turned the typed `onError` failure into a defect.
+
+- [#2371](https://github.com/Effect-TS/effect-smol/pull/2371) [`98630b7`](https://github.com/Effect-TS/effect-smol/commit/98630b7c8f679c352ba6796636c85688fa009d8d) Thanks @gcanti! - Emit `Schema.ObjectKeyword` as an object-or-array JSON Schema union.
+
+- [#2376](https://github.com/Effect-TS/effect-smol/pull/2376) [`90ae23c`](https://github.com/Effect-TS/effect-smol/commit/90ae23cf07284da5e1bcd9dffa882e85df7e617b) Thanks @fubhy! - Add `Graph.successors` and `Graph.predecessors`, deprecate `Graph.neighborsDirected`, and fix graph algorithm edge cases around reversal, undirected edge queries, shortest-path weight validation, topological sort initials, and strongly connected components.
+
 ## 4.0.0-beta.79
 
 ### Patch Changes
