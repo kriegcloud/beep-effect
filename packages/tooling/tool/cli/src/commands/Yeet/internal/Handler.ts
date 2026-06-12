@@ -1833,18 +1833,53 @@ const writeVerifiedState = Effect.fn("Yeet.writeVerifiedState")(function* (
   yield* writeTextFile(statePath, `${yield* renderJson(state)}\n`);
 });
 
+const legacyRunStatePathForContext = Effect.fn("Yeet.legacyRunStatePathForContext")(function* (
+  context: RepoRunContext
+): Effect.fn.Return<string, never, Path.Path> {
+  const path = yield* Path.Path;
+  const artifactDir = yield* artifactDirForContext(context);
+  return path.join(artifactDir, "runs", safeArtifactName(context.branch), "state.json");
+});
+
+const verifiedStateArtifactForPath =
+  (path: string) =>
+  (text: string): Readonly<{ readonly path: string; readonly text: string }> => ({ path, text });
+
 const loadVerifiedState = Effect.fn("Yeet.loadVerifiedState")(function* (
   context: RepoRunContext
 ): Effect.fn.Return<YeetRunState, YeetCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const statePath = yield* runStatePathForContext(context);
-  const text = yield* fs
-    .readFileString(statePath)
-    .pipe(Effect.mapError(YeetCommandError.new(`No reusable Yeet proof state found at ${statePath}.`)));
-  return yield* decodeYeetRunState(text).pipe(
-    Effect.mapError(YeetCommandError.new(`Failed to decode reusable Yeet proof state at ${statePath}.`))
+  const legacyStatePath = yield* legacyRunStatePathForContext(context);
+  const readState = (path: string) =>
+    fs
+      .readFileString(path)
+      .pipe(
+        Effect.map(verifiedStateArtifactForPath(path)),
+        Effect.map(O.some),
+        Effect.orElseSucceed(O.none<{ readonly path: string; readonly text: string }>)
+      );
+  const primary = yield* readState(statePath);
+  const selected = O.isSome(primary) ? primary : yield* readState(legacyStatePath);
+  if (O.isNone(selected)) {
+    const fallbackDetail = legacyStatePath === statePath ? "" : ` or legacy path ${legacyStatePath}`;
+    return yield* YeetCommandError.make({
+      message: `No reusable Yeet proof state found at ${statePath}${fallbackDetail}.`,
+      exitCode: 1,
+    });
+  }
+  return yield* decodeYeetRunState(selected.value.text).pipe(
+    Effect.mapError(YeetCommandError.new(`Failed to decode reusable Yeet proof state at ${selected.value.path}.`))
   );
 });
+
+/**
+ * Expose proof-state loading for upgrade compatibility tests.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export const loadVerifiedStateForTesting = loadVerifiedState;
 
 const assertReusableVerifiedState = Effect.fn("Yeet.assertReusableVerifiedState")(function* (
   context: RepoRunContext

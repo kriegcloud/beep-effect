@@ -17,6 +17,7 @@ import {
   jsonObjectTextFromMixedOutputForTesting,
   knownSubLaneRemediationFromOutput,
   latestGreptileSummaryForTesting,
+  loadVerifiedStateForTesting,
   overlappingBasePathsForTesting,
   PrCloseoutOptions,
   PrCloseoutReport,
@@ -69,6 +70,7 @@ const PlatformLayer = Layer.mergeAll(
   FileSystemLayer,
   NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(FileSystemLayer))
 );
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
 const runGit = (cwd: string, args: ReadonlyArray<string>) =>
   Effect.sync(() => {
@@ -567,6 +569,39 @@ describe("yeet planner", () => {
           expect(first).toMatch(/^[a-f0-9]{64}$/u);
           expect(second).toMatch(/^[a-f0-9]{64}$/u);
           expect(second).not.toBe(first);
+        })
+      )
+    ));
+
+  it("loads reusable proof state from the legacy sanitized run directory", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tempContext = RepoRunContext.make({ ...context, cwd: tmpDir, repoRoot: tmpDir });
+          const legacyStatePath = path.join(tmpDir, ".beep/yeet/runs/repo-cli-yeet/state.json");
+          yield* fs.makeDirectory(path.dirname(legacyStatePath), { recursive: true });
+          const legacyStateJson = yield* encodeJson({
+            schemaVersion: "yeet-run-state/v1",
+            artifactDir: path.join(tmpDir, ".beep/yeet"),
+            base: tempContext.base,
+            branch: tempContext.branch,
+            commitSha: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            diffFingerprint: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            head: tempContext.head,
+            proofCommand: "bun run beep quality github-checks pre-push",
+            proofTier: "full",
+            runId: "repo-cli-yeet",
+            verifiedAt: "2026-06-12T00:00:00.000Z",
+            laneProofs: [],
+          });
+          yield* fs.writeFileString(legacyStatePath, `${legacyStateJson}\n`);
+
+          const state = yield* loadVerifiedStateForTesting(tempContext);
+
+          expect(state.runId).toBe("repo-cli-yeet");
+          expect(state.branch).toBe(tempContext.branch);
         })
       )
     ));
