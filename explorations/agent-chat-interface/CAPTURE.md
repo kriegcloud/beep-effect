@@ -1,8 +1,10 @@
 # Capture
 
 <!--
-Migrated 2026-06-12 from docs/research/BRAINSTORM.md (content verbatim; only
-image/app link paths adjusted for the new location). Append-only from here.
+Seeded 2026-06-12 from the author's working draft docs/research/BRAINSTORM.md
+(a staged, never-merged file — no deletion appears in history because it never
+landed on main). Content verbatim; only image/app link paths adjusted for this
+location. Append-only from here.
 -->
 
 ## 2026-06-12

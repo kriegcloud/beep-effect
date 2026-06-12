@@ -655,8 +655,8 @@
     "semantic_hash": "6bbdafb8becfedc235cc1f11521d2a65"
   },
   "cspell.json": {
-    "mtime": 1781254623.0808468,
-    "ast_hash": "c16706187a768a83ef8d069e61632178",
+    "mtime": 1781266046.8332434,
+    "ast_hash": "a4b0f9e9a3374ec25bf1eca21d089cb4",
     "semantic_hash": ""
   },
   "eslint.config.mjs": {
@@ -10040,7 +10040,7 @@
     "semantic_hash": "ec70cc91a43031b41cd4439b2c35a72f"
   },
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts": {
-    "mtime": 1781263044.8580263,
+    "mtime": 1781263189.485167,
     "ast_hash": "cb8cc7f0a9376fa86b935d827b040647",
     "semantic_hash": ""
   },
@@ -12055,13 +12055,13 @@
     "semantic_hash": "aa3831316364a1f45793b6776238177c"
   },
   ".cspell/company-names.txt": {
-    "mtime": 1780971025.784245,
-    "ast_hash": "f9f13fdcd04b8b3f39d2f8f0567ee6ed",
-    "semantic_hash": "f9f13fdcd04b8b3f39d2f8f0567ee6ed"
+    "mtime": 1781264154.6520457,
+    "ast_hash": "ba72ada8335a7e01517721e8e8925df7",
+    "semantic_hash": ""
   },
   ".cspell/custom-words.txt": {
-    "mtime": 1781185849.221605,
-    "ast_hash": "0b9fb2e6769b9c882534f3831bcf5f68",
+    "mtime": 1781264173.7408025,
+    "ast_hash": "95251aadd11a9ebb65f6735a8a093c13",
     "semantic_hash": ""
   },
   ".cspell/effect-terms.txt": {
@@ -16300,8 +16300,8 @@
     "semantic_hash": ""
   },
   ".changeset/fast-spoons-repair.md": {
-    "mtime": 1781263045.7230606,
-    "ast_hash": "2ee28f1e1b449ccc2dd97fdcc6c2bc1f",
+    "mtime": 1781266054.2435374,
+    "ast_hash": "54b2118e4e52b86d9093e9be3f59bb24",
     "semantic_hash": ""
   },
   ".claude/skills/explore/SKILL.md": {
@@ -16310,18 +16310,18 @@
     "semantic_hash": ""
   },
   "explorations/AGENTS.md": {
-    "mtime": 1781263045.7230606,
-    "ast_hash": "23f921654c2df5506a2a7f27fc1e71ec",
+    "mtime": 1781266672.3418937,
+    "ast_hash": "51773d4fd367629a5dcd5bce91061cf4",
     "semantic_hash": ""
   },
   "explorations/ATLAS.md": {
-    "mtime": 1781263045.7243109,
-    "ast_hash": "510f5f5595df0ce8b1c6b4c1e095e1ea",
+    "mtime": 1781266056.6046312,
+    "ast_hash": "030f5f86371bc5d4f121eb539dc3fceb",
     "semantic_hash": ""
   },
   "explorations/CLAUDE.md": {
-    "mtime": 1781263045.7230606,
-    "ast_hash": "23f921654c2df5506a2a7f27fc1e71ec",
+    "mtime": 1781266672.3418937,
+    "ast_hash": "51773d4fd367629a5dcd5bce91061cf4",
     "semantic_hash": ""
   },
   "explorations/EXAMPLE.md": {
@@ -16335,8 +16335,8 @@
     "semantic_hash": ""
   },
   "explorations/README.md": {
-    "mtime": 1781263045.7243109,
-    "ast_hash": "914e8e70b56ce915918d00cc82df8c74",
+    "mtime": 1781266060.2147744,
+    "ast_hash": "c24a20d2ec66f9eec09cc5acc10e4631",
     "semantic_hash": ""
   },
   "explorations/_template/BRIEF.md": {
@@ -16370,8 +16370,8 @@
     "semantic_hash": ""
   },
   "explorations/agent-chat-interface/CAPTURE.md": {
-    "mtime": 1781263045.7244291,
-    "ast_hash": "f6cfaf4aa341941b960f7aff9ab7c648",
+    "mtime": 1781266675.635023,
+    "ast_hash": "6fd65c1ec86e79550d8922f8f9653111",
     "semantic_hash": ""
   },
   "explorations/agent-chat-interface/DECISIONS.md": {

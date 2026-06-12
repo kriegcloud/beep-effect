@@ -9,7 +9,7 @@ crystallize this."
 
 Full convention: [`README.md`](./README.md) (stages, statuses, manifest
 schema, graduation contract). Operating procedure: the `/explore` skill
-(`.claude/skills/explore/SKILL.md`). Portfolio map: [`ATLAS.md`](./ATLAS.md)
+(`../.claude/skills/explore/SKILL.md`). Portfolio map: [`ATLAS.md`](./ATLAS.md)
 — read it first in a cold session. Worked example of the whole flow, both
 voices: [`EXAMPLE.md`](./EXAMPLE.md).
 
