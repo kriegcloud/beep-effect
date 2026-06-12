@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-05-01
-- **Updated:** 2026-05-01
+- **Updated:** 2026-06-11
 
 ## Mission
 
@@ -63,6 +63,15 @@ not two separate platforms.
   client, or private firm data stays outside the repository.
 
 ## Product Proofs
+
+### Status Amendment (2026-06-11)
+
+Law is the sole active product vertical. The wealth-management vertical is
+demoted to a dormant proof fixture: its packages and paired P3 fixtures stay
+in-repo so the runtime-spine proof keeps exercising two domain languages, but
+no wealth-specific product work is planned. Roadmap and vision surfaces treat
+the law practice as the only live vertical. The capability-lane vision map
+lives in `docs/vision-map.html`.
 
 ### Agentic Solo Practice Law Firm
 

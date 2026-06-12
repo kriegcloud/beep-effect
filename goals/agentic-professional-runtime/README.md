@@ -16,6 +16,9 @@ The runtime is the center of gravity. The Law Firm and Todox products are the
 first two proofs that force the shared kernel, slice topology, local native app,
 data model, and agent integration story to become concrete.
 
+Status note (2026-06-11): law is the sole active vertical; wealth-management
+is demoted to a dormant proof fixture (see the SPEC status amendment).
+
 ## Read This First
 
 ### Root
@@ -27,6 +30,8 @@ data model, and agent integration story to become concrete.
 
 ### Product Docs
 
+- [docs/vision-map.html](./docs/vision-map.html) - interactive capability-lane
+  vision map (open in a browser)
 - [docs/product-vision-law-practice.md](./docs/product-vision-law-practice.md)
 - [docs/product-vision-todox.md](./docs/product-vision-todox.md)
 - [docs/product-feature-map.md](./docs/product-feature-map.md)
@@ -98,6 +103,8 @@ This initiative references existing packets without merging them:
 - `goals/knowledge-workspace`
 - `goals/ip-law-knowledge-graph`
 - `goals/canonical-slice-factory`
+- `goals/oppold-corpus-pipeline` — salvages and organizes the real practice
+  corpus that feeds this runtime's corpus-ingestion lane (added 2026-06-11)
 
 Those packets remain source context and evidence. This packet is the active
 authority for the professional runtime product direction.
