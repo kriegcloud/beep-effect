@@ -65,39 +65,29 @@ import * as Str from "effect/String";
 import { FastCheck as fc } from "effect/testing";
 import { describe, expect, it } from "vitest";
 
-const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-const PlatformLayer = Layer.mergeAll(
-  FileSystemLayer,
-  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(FileSystemLayer))
+const PlatformLayer = NodeChildProcessSpawner.layer.pipe(
+  Layer.provideMerge(Layer.mergeAll(NodeFileSystem.layer, NodePath.layer))
 );
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
-const runGit = (cwd: string, args: ReadonlyArray<string>) =>
+const spawnGit = (cwd: string, args: ReadonlyArray<string>) =>
   Effect.sync(() => {
-    const result = Bun.spawnSync(["git", ...args], {
+    const command = ["git", ...args] as const;
+    const result = Bun.spawnSync(command, {
       cwd,
       stderr: "pipe",
       stdout: "pipe",
     });
 
     if (result.exitCode !== 0) {
-      throw new Error(`git ${A.join(args, " ")} failed: ${result.stderr.toString()}`);
-    }
-  });
-
-const runGitCapture = (cwd: string, args: ReadonlyArray<string>) =>
-  Effect.sync(() => {
-    const result = Bun.spawnSync(["git", ...args], {
-      cwd,
-      stderr: "pipe",
-      stdout: "pipe",
-    });
-
-    if (result.exitCode !== 0) {
-      throw new Error(`git ${A.join(args, " ")} failed: ${result.stderr.toString()}`);
+      throw new Error(`${A.join(command, " ")} failed: ${result.stderr.toString()}`);
     }
     return result.stdout.toString();
   });
+
+const runGit = (cwd: string, args: ReadonlyArray<string>) => spawnGit(cwd, args).pipe(Effect.asVoid);
+
+const runGitCapture = spawnGit;
 
 const runGitStatus = (cwd: string) => runGitCapture(cwd, ["status", "--porcelain"]).pipe(Effect.map(Str.trim));
 
