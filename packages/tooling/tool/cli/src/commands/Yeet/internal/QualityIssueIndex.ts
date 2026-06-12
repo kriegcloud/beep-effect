@@ -440,6 +440,12 @@ const knownSubLaneHints: ReadonlyArray<KnownSubLaneHint> = [
     remediation: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
   },
   {
+    needle: "unknown word found",
+    subCategory: "cspell",
+    category: "lint-tool",
+    remediation: "Run `bun run cspell` or update the spelling dictionary for intentional terms.",
+  },
+  {
     needle: "terse-effect",
     subCategory: "terse-effect",
     category: "repo-law",
@@ -524,12 +530,74 @@ const knownSubLaneHintFromText = (text: string): O.Option<KnownSubLaneHint> =>
     O.map((match) => match.hint)
   );
 
+const FAILURE_HINT_WINDOW_RADIUS = 12;
+
+interface FailureHintSlices {
+  readonly prefix: O.Option<string>;
+  readonly windows: ReadonlyArray<string>;
+}
+
+const lineIndicatesFailure = (line: string): boolean => {
+  const normalized = Str.toLowerCase(line);
+  return (
+    Str.includes("failed")(normalized) ||
+    Str.includes("failure")(normalized) ||
+    Str.includes("error")(normalized) ||
+    Str.includes("exit code")(normalized) ||
+    Str.includes("timed out")(normalized)
+  );
+};
+
+const outputFailureHintSlices = (text: string): FailureHintSlices => {
+  const lines = pipe(text, Str.replace(/\r\n/gu, "\n"), Str.split("\n"));
+  const failureEntries = pipe(
+    lines,
+    A.map((line, index) => ({ index, line })),
+    A.filter((entry) => lineIndicatesFailure(entry.line))
+  );
+  return {
+    prefix: pipe(
+      failureEntries,
+      A.findLast(() => true),
+      O.map((entry) => pipe(lines, A.take(entry.index + 1), A.join("\n")))
+    ),
+    windows: pipe(
+      failureEntries,
+      A.map((entry) => {
+        const start = Math.max(0, entry.index - FAILURE_HINT_WINDOW_RADIUS);
+        return pipe(lines, A.drop(start), A.take(entry.index - start + 1), A.join("\n"));
+      })
+    ),
+  };
+};
+
+const knownSubLaneHintFromFailureSlices = (slices: FailureHintSlices): O.Option<KnownSubLaneHint> => {
+  if (A.isReadonlyArrayEmpty(slices.windows)) {
+    return O.none();
+  }
+  return pipe(
+    slices.windows,
+    A.reduce(O.none<KnownSubLaneHint>(), (matched, window) =>
+      O.isSome(matched) ? matched : knownSubLaneHintFromText(window)
+    ),
+    O.orElse(() => pipe(slices.prefix, O.flatMap(knownSubLaneHintFromText)))
+  );
+};
+
 const knownSubLaneHintFromOutput = (output: string | undefined): O.Option<KnownSubLaneHint> => {
   const normalized = Str.toLowerCase(output ?? "");
   const tail = normalized.slice(-KNOWN_SUB_LANE_TAIL_CHARS);
+  const failureSlices = outputFailureHintSlices(normalized);
   return pipe(
-    knownSubLaneHintFromText(tail),
-    O.orElse(() => knownSubLaneHintFromText(normalized))
+    knownSubLaneHintFromFailureSlices(failureSlices),
+    O.orElse(() =>
+      A.isReadonlyArrayEmpty(failureSlices.windows)
+        ? pipe(
+            knownSubLaneHintFromText(tail),
+            O.orElse(() => knownSubLaneHintFromText(normalized))
+          )
+        : O.none()
+    )
   );
 };
 
