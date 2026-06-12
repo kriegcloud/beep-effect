@@ -14,6 +14,9 @@ Ship reliable code with effect first and schema first patterns.
 - Keep quality gates passing.
 - For local docgen edit loops, prefer `bun run docgen:local`; reserve
   `bun run docgen` for the explicit full repo docgen proof.
+- `docs/` is tracked authored documentation (see `docs/README.md`); the docgen
+  aggregate lands in gitignored `docs/generated/`, and `docs/_internal/` is
+  private and must never be committed (public repo).
 - Before recreating shared helpers, schemas, utilities, models, or known symbols,
   search `standards/repo-exports.catalog.md` or
   `standards/repo-exports.catalog.jsonc`; refresh with

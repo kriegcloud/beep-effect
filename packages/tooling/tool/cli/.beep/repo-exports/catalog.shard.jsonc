@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "11808633aeb3c64c2cc001bd34f4cbea94d82175dc3ce465192b9123cae13fca",
+    "digest": "0780d3044c16eaaf51feeb3cc0f5b83b19df1dac854d01eb090457acd571e370",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -167,8 +167,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sha256": "8660b44ff58c1a44ae3b728442ead859f2a81ec2195e518e656d4d85532ce1e6",
-        "bytes": 41212
+        "sha256": "c6d760f7e2285c734b2a1e218daea174681e419a0ea980cc4b090db4455feff1",
+        "bytes": 41222
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
@@ -177,13 +177,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Local.ts",
-        "sha256": "8f48938231e4ce640bab0c2d1d2cce5a50e28b0b2ce8eaeb2fdb6ebce8112eff",
-        "bytes": 31487
+        "sha256": "672c34a0f2f8350a4f612ea25d19e5099baf034f37398b4b561c2198d7e10abe",
+        "bytes": 31497
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-        "sha256": "05667edafa7e9a52b8a85ff4068bca6d85749f1b6668de6ca9446d65f4e24582",
-        "bytes": 58127
+        "sha256": "3701868d6675087c22964865b7f6c0ec0b5104e5f003e97e55a83960a596433a",
+        "bytes": 58142
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
@@ -202,8 +202,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docs/Docs.aggregate.ts",
-        "sha256": "4149fc19055c0004e0560f0e29868b36675acc7976aaf2e23844e9da83b4bda6",
-        "bytes": 3397
+        "sha256": "ae92bdb70f487f82750e27c0ae4449a8286fd17d516d3391718eaa8f23ce4802",
+        "bytes": 3445
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docs/Docs.command.ts",
@@ -422,8 +422,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Purge/Purge.command.ts",
-        "sha256": "2548617b8de42c11b2ee7e7b3b9742bf5ad8a01985caea2ec271537f075f1bbd",
-        "bytes": 7331
+        "sha256": "b95daa57298aebad54babbc142488f73c9a0867635f8f7f6d3aa4d1552dffc25",
+        "bytes": 7341
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
@@ -6970,7 +6970,7 @@
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
         "sourceLine": 1451,
-        "summary": "Aggregate generated package docs into the current root docs layout.",
+        "summary": "Aggregate generated package docs into the root docs/generated layout.",
         "categories": [
           "models"
         ],
@@ -6983,7 +6983,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/operations ./commands/docgen/internal/operations aggregategenerateddocs const aggregate generated package docs into the current root docs layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/operations ./commands/docgen/internal/operations aggregategenerateddocs const aggregate generated package docs into the root docs/generated layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -8977,8 +8977,8 @@
         "symbolName": "docsAggregateCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docs/Docs.aggregate.ts",
-        "sourceLine": 75,
-        "summary": "Aggregate generated package docs into the root `docs/` layout.",
+        "sourceLine": 77,
+        "summary": "Aggregate generated package docs into the root `docs/generated/` layout.",
         "categories": [
           "utilities"
         ],
@@ -8990,7 +8990,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docs/docs.aggregate ./commands/docs/docs.aggregate docsaggregatecommand const aggregate generated package docs into the root `docs/` layout. utilities packages/tooling/tool/cli/src/commands/docs/docs.aggregate.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docs/docs.aggregate ./commands/docs/docs.aggregate docsaggregatecommand const aggregate generated package docs into the root `docs/generated/` layout. utilities packages/tooling/tool/cli/src/commands/docs/docs.aggregate.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -37477,7 +37477,7 @@
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
         "sourceLine": 1451,
-        "summary": "Aggregate generated package docs into the current root docs layout.",
+        "summary": "Aggregate generated package docs into the root docs/generated layout.",
         "categories": [
           "models"
         ],
@@ -37490,7 +37490,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen aggregategenerateddocs const aggregate generated package docs into the current root docs layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen aggregategenerateddocs const aggregate generated package docs into the root docs/generated layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
       },
       {
         "packageName": "@beep/repo-cli",

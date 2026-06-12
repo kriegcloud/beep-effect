@@ -1441,7 +1441,7 @@ export const generateAnalysisReport: {
 export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string => jsonText(analysis);
 
 /**
- * Aggregate generated package docs into the current root docs layout.
+ * Aggregate generated package docs into the root docs/generated layout.
  *
  * @param options - Aggregate configuration for the docs copy step, including the clean flag and optional package selector.
  * @returns Per-package aggregation results using the current nested layout.
@@ -1464,7 +1464,7 @@ export const aggregateGeneratedDocs: (options?: {
   const repoRoot = yield* findRepoRoot();
   yield* assertNoOrphanDocgenConfigPaths(repoRoot);
 
-  const docsRoot = path.join(repoRoot, "docs");
+  const docsRoot = path.join(repoRoot, "docs", "generated");
   const selectedPackage = P.isUndefined(options?.package)
     ? undefined
     : yield* resolveDocgenWorkspacePackage(options.package, { rootDir: repoRoot });

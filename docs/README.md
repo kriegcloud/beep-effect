@@ -1,0 +1,18 @@
+# docs
+
+Tracked, authored documentation for the beep-effect monorepo.
+
+## Layout
+
+| Path | Tracked | Purpose |
+| --- | --- | --- |
+| `docs/*.md` | yes | Repo-level identity documents (mission, story). |
+| `docs/product/` | yes | Per-product specs and PRDs (one named file per product — no generic `PRD.md`). |
+| `docs/generated/` | **no** (gitignored) | Docgen aggregate output. Produced by `bun run docgen` / `bun run docs:aggregate`; safe to delete, regenerable. |
+| `docs/_internal/` | **no** (gitignored) | Private working notes. This repository is public — never commit anything under `_internal/`. |
+
+## Rules
+
+- Authored documents live here and are committed like code.
+- Never hand-edit anything under `docs/generated/` — it is overwritten by `beep docgen aggregate` (the `--clean` flag removes only `docs/generated/`).
+- A future docs site (e.g. a `@beep/docs` app in the style of <https://effect-ts.github.io/effect/>) should consume `docs/generated/` as its content source.
