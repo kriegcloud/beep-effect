@@ -1,40 +1,40 @@
-# Graph Report - beep-effect  (2026-06-12)
+# Graph Report - beep-effect2-pr237  (2026-06-12)
 
 ## Corpus Check
-- 3132 files · ~2,423,013 words
+- 3143 files · ~2,431,424 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 46627 nodes · 55036 edges · 2895 communities (2426 shown, 469 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 908 edges (avg confidence: 0.82)
+- 46135 nodes · 54420 edges · 2770 communities (2390 shown, 380 thin omitted)
+- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 909 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f653c60b`
+- Built from commit: `554bf715`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Agent Capability ACPRPC|Agent Capability ACP/RPC]]
-- [[_COMMUNITY_BabelReactPhoenix Tooling|Babel/React/Phoenix Tooling]]
-- [[_COMMUNITY_AI Metrics CLI|AI Metrics CLI]]
-- [[_COMMUNITY_Firecrawl Integration|Firecrawl Integration]]
-- [[_COMMUNITY_Media & File Processing|Media & File Processing]]
-- [[_COMMUNITY_Vision File-Ops Pipeline|Vision File-Ops Pipeline]]
-- [[_COMMUNITY_Shared Schema Kit|Shared Schema Kit]]
-- [[_COMMUNITY_Workspace Domain|Workspace Domain]]
-- [[_COMMUNITY_Architecture Lab Domain|Architecture Lab Domain]]
-- [[_COMMUNITY_Epistemic Domain|Epistemic Domain]]
-- [[_COMMUNITY_Schema Kit (Primitives)|Schema Kit (Primitives)]]
-- [[_COMMUNITY_Law Practice Domain|Law Practice Domain]]
-- [[_COMMUNITY_Wealth Management Domain|Wealth Management Domain]]
-- [[_COMMUNITY_Canvas Domain|Canvas Domain]]
-- [[_COMMUNITY_Installer Domain|Installer Domain]]
-- [[_COMMUNITY_Agent Capability Domain|Agent Capability Domain]]
-- [[_COMMUNITY_Schema Kit (Shared II)|Schema Kit (Shared II)]]
-- [[_COMMUNITY_Repo Quality CLI|Repo Quality CLI]]
-- [[_COMMUNITY_Shared Utils & Schema|Shared Utils & Schema]]
-- [[_COMMUNITY_NLP & Ontology Graph|NLP & Ontology Graph]]
+- [[_COMMUNITY_Community 0|Community 0]]
+- [[_COMMUNITY_Community 1|Community 1]]
+- [[_COMMUNITY_Community 2|Community 2]]
+- [[_COMMUNITY_Community 3|Community 3]]
+- [[_COMMUNITY_Community 4|Community 4]]
+- [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 6|Community 6]]
+- [[_COMMUNITY_Community 7|Community 7]]
+- [[_COMMUNITY_Community 8|Community 8]]
+- [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 13|Community 13]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
+- [[_COMMUNITY_Community 19|Community 19]]
 - [[_COMMUNITY_Community 20|Community 20]]
 - [[_COMMUNITY_Community 21|Community 21]]
 - [[_COMMUNITY_Community 22|Community 22]]
@@ -2105,7 +2105,6 @@
 - [[_COMMUNITY_Community 2282|Community 2282]]
 - [[_COMMUNITY_Community 2283|Community 2283]]
 - [[_COMMUNITY_Community 2284|Community 2284]]
-- [[_COMMUNITY_Community 2285|Community 2285]]
 - [[_COMMUNITY_Community 2286|Community 2286]]
 - [[_COMMUNITY_Community 2287|Community 2287]]
 - [[_COMMUNITY_Community 2288|Community 2288]]
@@ -2153,10 +2152,8 @@
 - [[_COMMUNITY_Community 2330|Community 2330]]
 - [[_COMMUNITY_Community 2331|Community 2331]]
 - [[_COMMUNITY_Community 2332|Community 2332]]
-- [[_COMMUNITY_Community 2333|Community 2333]]
 - [[_COMMUNITY_Community 2334|Community 2334]]
 - [[_COMMUNITY_Community 2335|Community 2335]]
-- [[_COMMUNITY_Community 2336|Community 2336]]
 - [[_COMMUNITY_Community 2337|Community 2337]]
 - [[_COMMUNITY_Community 2338|Community 2338]]
 - [[_COMMUNITY_Community 2339|Community 2339]]
@@ -2164,7 +2161,6 @@
 - [[_COMMUNITY_Community 2341|Community 2341]]
 - [[_COMMUNITY_Community 2342|Community 2342]]
 - [[_COMMUNITY_Community 2343|Community 2343]]
-- [[_COMMUNITY_Community 2344|Community 2344]]
 - [[_COMMUNITY_Community 2345|Community 2345]]
 - [[_COMMUNITY_Community 2346|Community 2346]]
 - [[_COMMUNITY_Community 2347|Community 2347]]
@@ -2290,7 +2286,6 @@
 - [[_COMMUNITY_Community 2467|Community 2467]]
 - [[_COMMUNITY_Community 2468|Community 2468]]
 - [[_COMMUNITY_Community 2469|Community 2469]]
-- [[_COMMUNITY_Community 2470|Community 2470]]
 - [[_COMMUNITY_Community 2471|Community 2471]]
 - [[_COMMUNITY_Community 2472|Community 2472]]
 - [[_COMMUNITY_Community 2473|Community 2473]]
@@ -2328,7 +2323,6 @@
 - [[_COMMUNITY_Community 2505|Community 2505]]
 - [[_COMMUNITY_Community 2506|Community 2506]]
 - [[_COMMUNITY_Community 2507|Community 2507]]
-- [[_COMMUNITY_Community 2508|Community 2508]]
 - [[_COMMUNITY_Community 2509|Community 2509]]
 - [[_COMMUNITY_Community 2510|Community 2510]]
 - [[_COMMUNITY_Community 2511|Community 2511]]
@@ -2517,7 +2511,6 @@
 - [[_COMMUNITY_Community 2698|Community 2698]]
 - [[_COMMUNITY_Community 2699|Community 2699]]
 - [[_COMMUNITY_Community 2700|Community 2700]]
-- [[_COMMUNITY_Community 2701|Community 2701]]
 - [[_COMMUNITY_Community 2702|Community 2702]]
 - [[_COMMUNITY_Community 2703|Community 2703]]
 - [[_COMMUNITY_Community 2704|Community 2704]]
@@ -2535,169 +2528,50 @@
 - [[_COMMUNITY_Community 2716|Community 2716]]
 - [[_COMMUNITY_Community 2717|Community 2717]]
 - [[_COMMUNITY_Community 2724|Community 2724]]
-- [[_COMMUNITY_Community 2726|Community 2726]]
 - [[_COMMUNITY_Community 2727|Community 2727]]
-- [[_COMMUNITY_Community 2728|Community 2728]]
 - [[_COMMUNITY_Community 2729|Community 2729]]
 - [[_COMMUNITY_Community 2730|Community 2730]]
-- [[_COMMUNITY_Community 2731|Community 2731]]
-- [[_COMMUNITY_Community 2732|Community 2732]]
 - [[_COMMUNITY_Community 2733|Community 2733]]
 - [[_COMMUNITY_Community 2734|Community 2734]]
 - [[_COMMUNITY_Community 2735|Community 2735]]
 - [[_COMMUNITY_Community 2736|Community 2736]]
-- [[_COMMUNITY_Community 2737|Community 2737]]
 - [[_COMMUNITY_Community 2738|Community 2738]]
 - [[_COMMUNITY_Community 2739|Community 2739]]
 - [[_COMMUNITY_Community 2740|Community 2740]]
-- [[_COMMUNITY_Community 2741|Community 2741]]
 - [[_COMMUNITY_Community 2742|Community 2742]]
 - [[_COMMUNITY_Community 2743|Community 2743]]
 - [[_COMMUNITY_Community 2744|Community 2744]]
-- [[_COMMUNITY_Community 2745|Community 2745]]
-- [[_COMMUNITY_Community 2746|Community 2746]]
-- [[_COMMUNITY_Community 2747|Community 2747]]
-- [[_COMMUNITY_Community 2748|Community 2748]]
-- [[_COMMUNITY_Community 2749|Community 2749]]
 - [[_COMMUNITY_Community 2750|Community 2750]]
 - [[_COMMUNITY_Community 2751|Community 2751]]
-- [[_COMMUNITY_Community 2752|Community 2752]]
-- [[_COMMUNITY_Community 2753|Community 2753]]
 - [[_COMMUNITY_Community 2754|Community 2754]]
-- [[_COMMUNITY_Community 2755|Community 2755]]
 - [[_COMMUNITY_Community 2756|Community 2756]]
-- [[_COMMUNITY_Community 2757|Community 2757]]
-- [[_COMMUNITY_Community 2758|Community 2758]]
-- [[_COMMUNITY_Community 2759|Community 2759]]
-- [[_COMMUNITY_Community 2760|Community 2760]]
-- [[_COMMUNITY_Community 2761|Community 2761]]
-- [[_COMMUNITY_Community 2762|Community 2762]]
-- [[_COMMUNITY_Community 2763|Community 2763]]
-- [[_COMMUNITY_Community 2764|Community 2764]]
-- [[_COMMUNITY_Community 2765|Community 2765]]
 - [[_COMMUNITY_Community 2766|Community 2766]]
-- [[_COMMUNITY_Community 2767|Community 2767]]
-- [[_COMMUNITY_Community 2768|Community 2768]]
-- [[_COMMUNITY_Community 2769|Community 2769]]
-- [[_COMMUNITY_Community 2770|Community 2770]]
-- [[_COMMUNITY_Community 2771|Community 2771]]
-- [[_COMMUNITY_Community 2772|Community 2772]]
-- [[_COMMUNITY_Community 2773|Community 2773]]
-- [[_COMMUNITY_Community 2774|Community 2774]]
-- [[_COMMUNITY_Community 2775|Community 2775]]
-- [[_COMMUNITY_Community 2776|Community 2776]]
-- [[_COMMUNITY_Community 2777|Community 2777]]
-- [[_COMMUNITY_Community 2778|Community 2778]]
 - [[_COMMUNITY_Community 2779|Community 2779]]
-- [[_COMMUNITY_Community 2780|Community 2780]]
-- [[_COMMUNITY_Community 2781|Community 2781]]
-- [[_COMMUNITY_Community 2782|Community 2782]]
-- [[_COMMUNITY_Community 2783|Community 2783]]
-- [[_COMMUNITY_Community 2784|Community 2784]]
-- [[_COMMUNITY_Community 2785|Community 2785]]
-- [[_COMMUNITY_Community 2786|Community 2786]]
-- [[_COMMUNITY_Community 2787|Community 2787]]
 - [[_COMMUNITY_Community 2788|Community 2788]]
-- [[_COMMUNITY_Community 2789|Community 2789]]
-- [[_COMMUNITY_Community 2790|Community 2790]]
-- [[_COMMUNITY_Community 2791|Community 2791]]
 - [[_COMMUNITY_Community 2792|Community 2792]]
-- [[_COMMUNITY_Community 2793|Community 2793]]
 - [[_COMMUNITY_Community 2794|Community 2794]]
-- [[_COMMUNITY_Community 2795|Community 2795]]
-- [[_COMMUNITY_Community 2796|Community 2796]]
-- [[_COMMUNITY_Community 2797|Community 2797]]
 - [[_COMMUNITY_Community 2798|Community 2798]]
-- [[_COMMUNITY_Community 2799|Community 2799]]
-- [[_COMMUNITY_Community 2800|Community 2800]]
-- [[_COMMUNITY_Community 2801|Community 2801]]
-- [[_COMMUNITY_Community 2802|Community 2802]]
-- [[_COMMUNITY_Community 2803|Community 2803]]
-- [[_COMMUNITY_Community 2804|Community 2804]]
-- [[_COMMUNITY_Community 2805|Community 2805]]
-- [[_COMMUNITY_Community 2806|Community 2806]]
-- [[_COMMUNITY_Community 2807|Community 2807]]
-- [[_COMMUNITY_Community 2808|Community 2808]]
 - [[_COMMUNITY_Community 2809|Community 2809]]
-- [[_COMMUNITY_Community 2810|Community 2810]]
-- [[_COMMUNITY_Community 2811|Community 2811]]
-- [[_COMMUNITY_Community 2812|Community 2812]]
-- [[_COMMUNITY_Community 2813|Community 2813]]
-- [[_COMMUNITY_Community 2814|Community 2814]]
-- [[_COMMUNITY_Community 2815|Community 2815]]
-- [[_COMMUNITY_Community 2816|Community 2816]]
-- [[_COMMUNITY_Community 2817|Community 2817]]
-- [[_COMMUNITY_Community 2818|Community 2818]]
 - [[_COMMUNITY_Community 2819|Community 2819]]
-- [[_COMMUNITY_Community 2820|Community 2820]]
 - [[_COMMUNITY_Community 2821|Community 2821]]
-- [[_COMMUNITY_Community 2822|Community 2822]]
 - [[_COMMUNITY_Community 2823|Community 2823]]
-- [[_COMMUNITY_Community 2824|Community 2824]]
-- [[_COMMUNITY_Community 2825|Community 2825]]
-- [[_COMMUNITY_Community 2826|Community 2826]]
-- [[_COMMUNITY_Community 2827|Community 2827]]
-- [[_COMMUNITY_Community 2828|Community 2828]]
-- [[_COMMUNITY_Community 2829|Community 2829]]
-- [[_COMMUNITY_Community 2830|Community 2830]]
-- [[_COMMUNITY_Community 2831|Community 2831]]
-- [[_COMMUNITY_Community 2832|Community 2832]]
 - [[_COMMUNITY_Community 2833|Community 2833]]
-- [[_COMMUNITY_Community 2834|Community 2834]]
 - [[_COMMUNITY_Community 2835|Community 2835]]
 - [[_COMMUNITY_Community 2836|Community 2836]]
-- [[_COMMUNITY_Community 2837|Community 2837]]
-- [[_COMMUNITY_Community 2838|Community 2838]]
-- [[_COMMUNITY_Community 2839|Community 2839]]
-- [[_COMMUNITY_Community 2840|Community 2840]]
-- [[_COMMUNITY_Community 2841|Community 2841]]
-- [[_COMMUNITY_Community 2842|Community 2842]]
 - [[_COMMUNITY_Community 2843|Community 2843]]
 - [[_COMMUNITY_Community 2845|Community 2845]]
 - [[_COMMUNITY_Community 2846|Community 2846]]
 - [[_COMMUNITY_Community 2849|Community 2849]]
 - [[_COMMUNITY_Community 2850|Community 2850]]
-- [[_COMMUNITY_Community 2851|Community 2851]]
-- [[_COMMUNITY_Community 2852|Community 2852]]
 - [[_COMMUNITY_Community 2853|Community 2853]]
-- [[_COMMUNITY_Community 2854|Community 2854]]
 - [[_COMMUNITY_Community 2855|Community 2855]]
 - [[_COMMUNITY_Community 2856|Community 2856]]
-- [[_COMMUNITY_Community 2857|Community 2857]]
-- [[_COMMUNITY_Community 2858|Community 2858]]
 - [[_COMMUNITY_Community 2859|Community 2859]]
 - [[_COMMUNITY_Community 2860|Community 2860]]
-- [[_COMMUNITY_Community 2861|Community 2861]]
 - [[_COMMUNITY_Community 2862|Community 2862]]
 - [[_COMMUNITY_Community 2863|Community 2863]]
 - [[_COMMUNITY_Community 2864|Community 2864]]
-- [[_COMMUNITY_Community 2865|Community 2865]]
-- [[_COMMUNITY_Community 2866|Community 2866]]
-- [[_COMMUNITY_Community 2867|Community 2867]]
-- [[_COMMUNITY_Community 2868|Community 2868]]
-- [[_COMMUNITY_Community 2869|Community 2869]]
-- [[_COMMUNITY_Community 2870|Community 2870]]
-- [[_COMMUNITY_Community 2871|Community 2871]]
-- [[_COMMUNITY_Community 2872|Community 2872]]
 - [[_COMMUNITY_Community 2873|Community 2873]]
-- [[_COMMUNITY_Community 2874|Community 2874]]
-- [[_COMMUNITY_Community 2875|Community 2875]]
-- [[_COMMUNITY_Community 2876|Community 2876]]
-- [[_COMMUNITY_Community 2877|Community 2877]]
-- [[_COMMUNITY_Community 2878|Community 2878]]
-- [[_COMMUNITY_Community 2879|Community 2879]]
-- [[_COMMUNITY_Community 2880|Community 2880]]
-- [[_COMMUNITY_Community 2881|Community 2881]]
-- [[_COMMUNITY_Community 2882|Community 2882]]
-- [[_COMMUNITY_Community 2883|Community 2883]]
-- [[_COMMUNITY_Community 2884|Community 2884]]
-- [[_COMMUNITY_Community 2885|Community 2885]]
-- [[_COMMUNITY_Community 2886|Community 2886]]
-- [[_COMMUNITY_Community 2887|Community 2887]]
-- [[_COMMUNITY_Community 2888|Community 2888]]
-- [[_COMMUNITY_Community 2889|Community 2889]]
-- [[_COMMUNITY_Community 2890|Community 2890]]
-- [[_COMMUNITY_Community 2891|Community 2891]]
 - [[_COMMUNITY_Community 2892|Community 2892]]
 - [[_COMMUNITY_Community 2893|Community 2893]]
 - [[_COMMUNITY_Community 2894|Community 2894]]
@@ -2827,85 +2701,85 @@
 - **OIP IP-Law Firm Site Visual Assets (Brand Lockups + Patent Matter Figures)** — matter_figs_midwest_karavan_figure, matter_figs_precision_planting_figure, oip_oip_lockup_horizontal_dark_mark, oip_oip_lockup_horizontal_mark [INFERRED 0.75]
 - **OIP (Oppold IP Law) Core Brand Identity Asset Set** — oip_oip_mark_dark_svg, oip_oip_mark_svg, oip_oip_og_dark_png, oip_oip_og_png [INFERRED 0.85]
 
-## Communities (2895 total, 469 thin omitted)
+## Communities (2770 total, 380 thin omitted)
 
-### Community 0 - "Agent Capability ACP/RPC"
+### Community 0 - "Community 0"
 Cohesion: 0.01
 Nodes (400): paths, @beep/acp, @beep/acp/agent, @beep/acp/client, @beep/acp/errors, @beep/acp/protocol, @beep/acp/rpc, @beep/acp/schema (+392 more)
 
-### Community 1 - "Babel/React/Phoenix Tooling"
+### Community 1 - "Community 1"
 Cohesion: 0.01
 Nodes (215): catalog, @1password/connect, ai, @arizeai/phoenix-client, @babel/cli, @babel/code-frame, @babel/core, babel-plugin-annotate-pure-calls (+207 more)
 
-### Community 2 - "AI Metrics CLI"
+### Community 2 - "Community 2"
 Cohesion: 0.01
 Nodes (188): AiMetricsArchiveDrillRow, AiMetricsProgramError, allFlag, archiveCommand, archiveDrillCommand, beforeFlag, benchmarkCaseAddCommand, benchmarkCaseCommand (+180 more)
 
-### Community 3 - "Firecrawl Integration"
+### Community 3 - "Community 3"
 Cohesion: 0.01
 Nodes (194): failureFields, FirecrawlActiveCrawlsData, FirecrawlAgentFailure, FirecrawlAgentPayload, FirecrawlAgentRequest, FirecrawlAgentResponseData, FirecrawlAgentStatus, FirecrawlAgentStatusData (+186 more)
 
-### Community 4 - "Media & File Processing"
+### Community 4 - "Community 4"
 Cohesion: 0.01
 Nodes (174): paths, @beep/chalk, @beep/colors, @beep/duckdb, @beep/face-detection, @beep/ffmpeg, @beep/file-processing, @beep/file-processing/Artifact (+166 more)
 
-### Community 5 - "Vision File-Ops Pipeline"
+### Community 5 - "Community 5"
 Cohesion: 0.01
 Nodes (137): formatIndex, normalizeOutputExtension(), roundCandidateMetric(), decodeArchivePoorCandidatesOptions, decodeCreateCaptionFilesOptions, decodeCropBordersOptions, decodeDetectBordersOptions, decodeDetectFacesOptions (+129 more)
 
-### Community 6 - "Shared Schema Kit"
+### Community 6 - "Community 6"
 Cohesion: 0.01
 Nodes (155): paths, @beep/identity, @beep/identity/packages, @beep/schema, @beep/schema/AbortSignal, @beep/schema/Age, @beep/schema/ArrayOf, @beep/schema/BigDecimal (+147 more)
 
-### Community 7 - "Workspace Domain"
+### Community 7 - "Community 7"
 Cohesion: 0.01
 Nodes (149): @beep/workspace-domain, @beep/workspace-domain/entities, @beep/workspace-domain/entities/ApprovalGate, @beep/workspace-domain/entities/CandidateDraft, @beep/workspace-domain/entities/CandidateProject, @beep/workspace-domain/entities/CandidateTask, @beep/workspace-domain/entities/ContextPacket, @beep/workspace-domain/entities/EmailArtifact (+141 more)
 
-### Community 8 - "Architecture Lab Domain"
+### Community 8 - "Community 8"
 Cohesion: 0.01
 Nodes (146): @beep/architecture-lab-domain, @beep/architecture-lab-domain/aggregates, @beep/architecture-lab-domain/aggregates/WorkItem, @beep/architecture-lab-domain/entities, @beep/architecture-lab-domain/entities/Worker, @beep/architecture-lab-domain/identity, @beep/architecture-lab-domain/identity/ArchitectureLab, @beep/architecture-lab-domain/values (+138 more)
 
-### Community 9 - "Epistemic Domain"
+### Community 9 - "Community 9"
 Cohesion: 0.01
 Nodes (145): @beep/epistemic-domain, @beep/epistemic-domain/entities, @beep/epistemic-domain/entities/Activity, @beep/epistemic-domain/entities/CandidateClaim, @beep/epistemic-domain/entities/Evidence, @beep/epistemic-domain/entities/UsageRecord, @beep/epistemic-domain/values, @beep/epistemic-domain/values/ClaimLifecycle (+137 more)
 
-### Community 10 - "Schema Kit (Primitives)"
+### Community 10 - "Community 10"
 Cohesion: 0.01
 Nodes (145): paths, @beep/identity, @beep/identity/packages, @beep/schema, @beep/schema/AbortSignal, @beep/schema/Age, @beep/schema/ArrayOf, @beep/schema/BigDecimal (+137 more)
 
-### Community 11 - "Law Practice Domain"
+### Community 11 - "Community 11"
 Cohesion: 0.01
 Nodes (143): @beep/law-practice-domain, @beep/law-practice-domain/entities, @beep/law-practice-domain/entities/LegalClient, @beep/law-practice-domain/entities/LegalContact, @beep/law-practice-domain/entities/Matter, @beep/law-practice-domain/entities/PatentAsset, paths, @beep/identity (+135 more)
 
-### Community 12 - "Wealth Management Domain"
+### Community 12 - "Community 12"
 Cohesion: 0.01
 Nodes (143): @beep/wealth-management-domain, @beep/wealth-management-domain/entities, @beep/wealth-management-domain/entities/Account, @beep/wealth-management-domain/entities/Household, @beep/wealth-management-domain/entities/Party, @beep/wealth-management-domain/entities/WealthClient, paths, @beep/identity (+135 more)
 
-### Community 13 - "Canvas Domain"
+### Community 13 - "Community 13"
 Cohesion: 0.01
 Nodes (142): @beep/canvas-domain, @beep/canvas-domain/aggregates, @beep/canvas-domain/aggregates/CanvasProject, @beep/canvas-domain/identity, @beep/canvas-domain/identity/Canvas, paths, @beep/identity, @beep/identity/packages (+134 more)
 
-### Community 14 - "Installer Domain"
+### Community 14 - "Community 14"
 Cohesion: 0.01
 Nodes (142): @beep/installer-domain, @beep/installer-domain/aggregates, @beep/installer-domain/entities, @beep/installer-domain/identity, @beep/installer-domain/values, paths, @beep/identity, @beep/identity/packages (+134 more)
 
-### Community 15 - "Agent Capability Domain"
+### Community 15 - "Community 15"
 Cohesion: 0.01
 Nodes (141): @beep/agent-capability-domain, @beep/agent-capability-domain/entities, @beep/agent-capability-domain/entities/Agent, @beep/agent-capability-domain/entities/Skill, paths, @beep/identity, @beep/identity/packages, @beep/schema (+133 more)
 
-### Community 16 - "Schema Kit (Shared II)"
+### Community 16 - "Community 16"
 Cohesion: 0.01
 Nodes (140): paths, @beep/identity, @beep/identity/packages, @beep/schema, @beep/schema/AbortSignal, @beep/schema/Age, @beep/schema/ArrayOf, @beep/schema/BigDecimal (+132 more)
 
-### Community 17 - "Repo Quality CLI"
+### Community 17 - "Community 17"
 Cohesion: 0.02
 Nodes (142): qualityFallowCommand, AffectedRepoExportsCatalogPlan, affectedRepoExportsCatalogPlanForTesting, bunAuditCommand, bunRunLane(), bunxLane(), changedPathsDiffFilter, changedPathsForRange (+134 more)
 
-### Community 18 - "Shared Utils & Schema"
+### Community 18 - "Community 18"
 Cohesion: 0.01
 Nodes (138): @beep/utils, paths, @beep/identity, @beep/identity/packages, @beep/schema, @beep/schema/AbortSignal, @beep/schema/Age, @beep/schema/ArrayOf (+130 more)
 
-### Community 19 - "NLP & Ontology Graph"
+### Community 19 - "Community 19"
 Cohesion: 0.01
 Nodes (135): paths, @beep/identity, @beep/identity/packages, @beep/nlp, @beep/nlp/Algebra, @beep/nlp/Backend, @beep/nlp/Core, @beep/nlp/Graph (+127 more)
 
@@ -2943,7 +2817,7 @@ Nodes (130): paths, @beep/identity, @beep/identity/packages, @beep/schema, @beep
 
 ### Community 28 - "Community 28"
 Cohesion: 0.02
-Nodes (121): ByteLength, ByteOffset, ColumnNumber, ContentHash, ContentHashFromBytes, ContentHashFromSourceText, decodeContentHashEffect, decodeContentHashFromBytesEffect (+113 more)
+Nodes (150): ByteLength, ByteOffset, ColumnNumber, ContentHash, ContentHashFromBytes, ContentHashFromSourceText, decodeContentHashEffect, decodeContentHashFromBytesEffect (+142 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.02
@@ -3035,7 +2909,7 @@ Nodes (118): paths, @beep/identity, @beep/identity/packages, @beep/rdf, @beep/sc
 
 ### Community 51 - "Community 51"
 Cohesion: 0.02
-Nodes (99): arraysEqual(), BeepScopedPackageName, buildAdjacency(), buildCanonicalSyncpackSources(), buildCanonicalTstycheTestFileMatch(), buildPackageSubpathAliasTargets(), buildSourceOnlySubpathAliasTargets(), buildWorkspaceDescriptors (+91 more)
+Nodes (107): isExcludedFile(), makeAllowlistKey(), isExcludedTypeScriptSourcePath(), toPosixPath(), arraysEqual(), BeepScopedPackageName, buildAdjacency(), buildCanonicalSyncpackSources() (+99 more)
 
 ### Community 52 - "Community 52"
 Cohesion: 0.02
@@ -3127,23 +3001,23 @@ Nodes (115): exports, ./AbortSignal, ./Age, ./ArrayOf, ./BigDecimal, ./BinaryFil
 
 ### Community 74 - "Community 74"
 Cohesion: 0.02
-Nodes (111): acquireFullProofLock, artifactDirForContext, assertReusableVerifiedState, assessBaseFreshness, balancedObjectTextEndingAt(), blockedMonitorBranches, buildPrBody, buildYeetRunPlanForTesting() (+103 more)
+Nodes (114): acquireFullProofLock, assertReusableVerifiedState, assessBaseFreshness, balancedObjectTextEndingAt(), blockedMonitorBranches, buildPrBody, buildYeetRunPlanForTesting(), collectAffectedFeedbackTasks (+106 more)
 
 ### Community 75 - "Community 75"
 Cohesion: 0.02
 Nodes (94): AgentEffectivenessAiMetricsSection, AgentEffectivenessAnnotationCheckFinding, AgentEffectivenessAnnotationCheckReport, agentEffectivenessAnnotationCheckReportToJson, AgentEffectivenessAnnotationPlan, AgentEffectivenessAnnotationPlanInput, agentEffectivenessAnnotationPlanToJson, AgentEffectivenessAnnotationValue (+86 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.03
-Nodes (70): ArchivedSidecarEntry, ArchivePoorCandidatesManifest, ArchivePoorCandidatesManifestOptions, ArchivePoorCandidatesManifestSummary, ArchivePoorCandidatesOptions, ArchivePoorCandidatesPlan, ArchivePoorCandidatesSkippedReason, ArchivePoorCandidatesSummary (+62 more)
+Cohesion: 0.04
+Nodes (68): ArchivedSidecarEntry, ArchivePoorCandidatesEntry, ArchivePoorCandidatesManifest, ArchivePoorCandidatesManifestOptions, ArchivePoorCandidatesManifestSummary, ArchivePoorCandidatesOptions, ArchivePoorCandidatesPlan, ArchivePoorCandidatesSkippedReason (+60 more)
 
 ### Community 77 - "Community 77"
-Cohesion: 0.03
-Nodes (80): App(), $I, LoadState, $I, Badge(), badgeVariants, AsLink, Count (+72 more)
+Cohesion: 0.02
+Nodes (86): App(), $I, LoadState, $I, Badge(), badgeVariants, AsLink, Count (+78 more)
 
 ### Community 78 - "Community 78"
 Cohesion: 0.03
-Nodes (86): buildCatalogEntry(), candidateFromPattern(), canonicalizeRelativePath(), catalogEntryKeywords(), catalogScopeSelector(), cloneCandidateFromCluster(), CloneRecord, collectCatalogEntriesForScope() (+78 more)
+Nodes (108): $I, REUSE_CANDIDATE_KINDS, ReuseCandidate, ReuseCandidateKind, ReuseCatalogEntry, ReuseCatalogOrigin, ReuseFindResult, ReuseInventory (+100 more)
 
 ### Community 79 - "Community 79"
 Cohesion: 0.02
@@ -3151,7 +3025,7 @@ Nodes (86): decodeJsoncUnknownText(), decodeJsoncUnknownTextExit, decodeTSConfig
 
 ### Community 80 - "Community 80"
 Cohesion: 0.02
-Nodes (128): COEPResponseHeader, COEPResponseHeaderEncoded, CoepValue, CoepValueBase, CrossOriginEmbedderPolicyHeader, CrossOriginEmbedderPolicyOption, CrossOriginEmbedderPolicyOptionBase, headerName (+120 more)
+Nodes (116): COEPResponseHeader, COEPResponseHeaderEncoded, CoepValue, CoepValueBase, CrossOriginEmbedderPolicyHeader, CrossOriginEmbedderPolicyOption, CrossOriginEmbedderPolicyOptionBase, headerName (+108 more)
 
 ### Community 81 - "Community 81"
 Cohesion: 0.02
@@ -3170,8 +3044,8 @@ Cohesion: 0.02
 Nodes (3): $schema, testFileMatch, tsconfig
 
 ### Community 85 - "Community 85"
-Cohesion: 0.05
-Nodes (39): AcceptedProofFile, acceptedProofFiles, aggregateRoles, ArchitectureOperationConflictPolicy, ArchitectureOperationKind, ArchitectureOperationSource, ArchitectureOperationWriteMode, ArchitecturePlanTarget (+31 more)
+Cohesion: 0.04
+Nodes (74): AcceptedProofFile, acceptedProofFiles, aggregateRoles, ArchitectureOperationConflictPolicy, ArchitectureOperationKind, ArchitectureOperationSource, ArchitectureOperationWriteMode, ArchitecturePlanTarget (+66 more)
 
 ### Community 86 - "Community 86"
 Cohesion: 0.04
@@ -3203,19 +3077,19 @@ Nodes (35): dropdownArrowVariants, ActionButtons, Default, Disabled, GroupedCont
 
 ### Community 93 - "Community 93"
 Cohesion: 0.03
-Nodes (74): analyzeSolidBorders, assessImageCandidate, BorderDetectionThresholds, BorderLineStats, borderSides, borderWidthForSide(), borderX(), borderY() (+66 more)
+Nodes (76): analyzeSolidBorders, assessImageCandidate, BorderDetectionThresholds, BorderLineStats, borderSides, borderWidthForSide(), borderX(), borderY() (+68 more)
 
 ### Community 94 - "Community 94"
 Cohesion: 0.03
-Nodes (69): authorLogin(), botAuthoredReviewThreadCount(), botCommentCount(), caseSensitiveTokens(), closedPageInfo, closeoutGateStates(), closeoutGateStatesForTesting(), closeoutIssue() (+61 more)
+Nodes (68): authorLogin(), botAuthoredReviewThreadCount(), botCommentCount(), caseSensitiveTokens(), closedPageInfo, closeoutGateStates(), closeoutGateStatesForTesting(), closeoutIssue() (+60 more)
 
 ### Community 95 - "Community 95"
 Cohesion: 0.03
 Nodes (64): allFlag, allow24GbFallbackFlag, allowPublicRunpodTemplateSearchFlag, changedFilesFlag, checkFlag, cleanFlag, confirmRunpodEvalFlag, docgenAggregateCommand (+56 more)
 
 ### Community 96 - "Community 96"
-Cohesion: 0.06
-Nodes (54): CyclicDependencyError, $I, DomainError, $I, $I, NoSuchFileError, decodePackageJsonEffect(), decodePackageJsonUnknownEffect (+46 more)
+Cohesion: 0.05
+Nodes (58): CyclicDependencyError, $I, DomainError, $I, $I, NoSuchFileError, printQualityProfileConfig(), printQualityProfileDetection() (+50 more)
 
 ### Community 97 - "Community 97"
 Cohesion: 0.03
@@ -3226,8 +3100,8 @@ Cohesion: 0.03
 Nodes (64): normalizeSlashes(), ActiveExportMapEntry, allExports(), analyzePackage, buildPackageCatalogShard, buildRepoExportsCatalog, buildRepoExportsCatalogFromShards, capturesForPattern() (+56 more)
 
 ### Community 99 - "Community 99"
-Cohesion: 0.06
-Nodes (30): addConceptCommand, addRoleCommand, architectureAddCommand, architectureApplyCommand, architectureCheckCommand, architectureCreateCommand, architecturePlanCommand, createPackageCommand (+22 more)
+Cohesion: 0.03
+Nodes (61): addConceptCommand, addRoleCommand, architectureAddCommand, architectureApplyCommand, architectureCheckCommand, architectureCreateCommand, architecturePlanCommand, createPackageCommand (+53 more)
 
 ### Community 100 - "Community 100"
 Cohesion: 0.05
@@ -3235,11 +3109,11 @@ Nodes (60): $I, ProposeCandidateOutputSet, CandidateOutputSet, $I, RuntimeActivi
 
 ### Community 101 - "Community 101"
 Cohesion: 0.03
-Nodes (56): aggregatePackages, buildDocgenLocalPlan, buildDocgenLocalPlanWithRepoRoot, buildPlanFromChangedFiles, buildPlanFromPackage, byPackagePathAscending, bySelectedPackagePathAscending, checkPackageDocumentation (+48 more)
+Nodes (57): aggregatePackages, buildDocgenLocalPlan, buildDocgenLocalPlanWithRepoRoot, buildPlanFromChangedFiles, buildPlanFromPackage, byPackagePathAscending, bySelectedPackagePathAscending, checkPackageDocumentation (+49 more)
 
 ### Community 102 - "Community 102"
 Cohesion: 0.04
-Nodes (68): analyzeExport(), analyzeModuleFileoverview(), analyzeReExports(), analyzeSourceFile(), byDocsOutputPathAscending, byIssueAscending, byRelativePathAscending, categoryIssueMessages (+60 more)
+Nodes (67): analyzeExport(), analyzeModuleFileoverview(), analyzeReExports(), analyzeSourceFile(), byDocsOutputPathAscending, byIssueAscending, byRelativePathAscending, categoryIssueMessages (+59 more)
 
 ### Community 103 - "Community 103"
 Cohesion: 0.09
@@ -3254,12 +3128,12 @@ Cohesion: 0.04
 Nodes (46): appendMutableNodeType(), byJsonLdPropertyValueAscending, byMutableNodeIdAscending, byNodeIdentifierAscending, byRecordEntryKeyAscending(), compactLiteralValue, compactNode, compactPropertyEntry() (+38 more)
 
 ### Community 106 - "Community 106"
-Cohesion: 0.04
-Nodes (50): CliReportedExit, failWithReportedExit(), $I, aggregateDocs, cleanFlag, docsAggregateCommand, filterFlag, packageFlag (+42 more)
+Cohesion: 0.03
+Nodes (54): CliReportedExit, failWithReportedExit(), $I, boundariesCommand, checkBoundaryConfig, FallowBoundaryConfig, FallowBoundaryRule, FallowBoundaryZone (+46 more)
 
 ### Community 107 - "Community 107"
 Cohesion: 0.05
-Nodes (60): dirFlag, fpsFlag, imageExtractFramesCommand, imageExtractFramesDirCommand, manifestFlag, outDirFlag, overwriteFlag, prefixFlag (+52 more)
+Nodes (60): dirFlag, fpsFlag, imageCommand, imageExtractFramesCommand, imageExtractFramesDirCommand, manifestFlag, outDirFlag, overwriteFlag (+52 more)
 
 ### Community 108 - "Community 108"
 Cohesion: 0.06
@@ -3267,7 +3141,7 @@ Nodes (41): decodeJsonLdDocumentFromJson, JsonLdStreamParseServiceLive, encodeJs
 
 ### Community 109 - "Community 109"
 Cohesion: 0.03
-Nodes (51): DocgenQualityFindingCode, analyzeDocgenQualityWorkerEval, AnalyzeDocgenQualityWorkerEvalOptions, CodexSdkModule, CodexSdkPackageMetadata, compactPolicyExcerpt, decodeCodexSdkPackageMetadataJson, decodeDocgenQualityReportForWorkerEval() (+43 more)
+Nodes (52): DocgenQualityFindingCode, AnalyzeDocgenQualityWorkerEvalOptions, CodexSdkModule, CodexSdkPackageMetadata, compactPolicyExcerpt, decodeCodexSdkPackageMetadataJson, decodeDocgenQualityReportForWorkerEval(), decodeQualityReportJson (+44 more)
 
 ### Community 110 - "Community 110"
 Cohesion: 0.05
@@ -3279,7 +3153,7 @@ Nodes (57): makeCreateChalk(), BackgroundColorName, backgroundColorNameValues, C
 
 ### Community 112 - "Community 112"
 Cohesion: 0.03
-Nodes (50): DocgenQualityReport, DocgenQualityWorkerEvalReport, DocgenQualityWorkerEvalScope, AcquiredRunpodPod, acquireRunpodPod, cleanupRunpodPod, decodeOllamaTagsResponse, DEFAULT_RUNPOD_READINESS_TIMEOUT (+42 more)
+Nodes (49): DocgenQualityReport, analyzeDocgenQualityWorkerEval, AcquiredRunpodPod, acquireRunpodPod, cleanupRunpodPod, decodeOllamaTagsResponse, DEFAULT_RUNPOD_READINESS_TIMEOUT, defaultQualityWorkerRunpodEvalOtlpBaseUrl() (+41 more)
 
 ### Community 113 - "Community 113"
 Cohesion: 0.03
@@ -3302,8 +3176,8 @@ Cohesion: 0.05
 Nodes (56): AgentProvider, AgentStreamEmitter, createWorktree, CreateWorktreeOptions, CreateWorktreeResult, createWorktreeScoped, $I, Worktree (+48 more)
 
 ### Community 118 - "Community 118"
-Cohesion: 0.05
-Nodes (35): candidateIdFlag, cloneCheckFlag, cloneFuzzyFlag, cloneMinSimilarityFlag, cloneWriteFlag, ensureRepoExportsCatalogFresh, fileFlag, lookupFromFlag (+27 more)
+Cohesion: 0.03
+Nodes (67): CliJsonError, encodeCommandJson, encodeJson, $I, printCommandJson, buildCloneDocument(), byEntryId, CloneBaselineDocument (+59 more)
 
 ### Community 119 - "Community 119"
 Cohesion: 0.03
@@ -3342,8 +3216,8 @@ Cohesion: 0.05
 Nodes (52): backupDirectoryNameFromEpochMillisForTesting(), backupGraphitiData, backupTimestamp(), booleanEnvValue, checkProxyHealth, checkProxyHealthUrl, collectOptionalOutput(), collectStepOutput() (+44 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.02
-Nodes (87): CardinalDirection, CardinalDirectionAbbrev, $I, hasBody, HttpMethod, HttpMethodValue, $I, NoBody (+79 more)
+Cohesion: 0.03
+Nodes (79): CardinalDirection, CardinalDirectionAbbrev, $I, HttpProtocol, $I, AllLiteralsMapped, attachHelperDescriptors(), buildMatch() (+71 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.04
@@ -3351,7 +3225,7 @@ Nodes (49): argAfter(), artifactFileNames, auditAllMode, auditAllProofArtifacts,
 
 ### Community 130 - "Community 130"
 Cohesion: 0.06
-Nodes (55): classLabel(), createOntologyIdentity(), decodeLanguageTagResult, draftAnnotationExtras(), draftMetadataComment, firstStringOption(), humanizedTermName(), $I (+47 more)
+Nodes (56): classLabel(), createOntologyIdentity(), decodeLanguageTagResult, draftAnnotationExtras(), draftMetadataComment, firstStringOption(), humanizedTermName(), $I (+48 more)
 
 ### Community 131 - "Community 131"
 Cohesion: 0.06
@@ -3363,7 +3237,7 @@ Nodes (37): DisambiguatedLiteralPatternOptionChoice, EmptyPatternChoice, EntityP
 
 ### Community 133 - "Community 133"
 Cohesion: 0.06
-Nodes (46): buildYeetRunPlan, bunRunStep(), closeoutPrContextStep(), closeoutReviewGateStep(), closeoutSteps(), commitStep(), DEFAULT_YEET_PACKET_DIR, earlyPushStep() (+38 more)
+Nodes (49): buildYeetRunPlan, bunRunStep(), closeoutPrContextStep(), closeoutReviewGateStep(), closeoutSteps(), commitStep(), DEFAULT_YEET_PACKET_DIR, earlyPushStep() (+41 more)
 
 ### Community 134 - "Community 134"
 Cohesion: 0.04
@@ -3426,8 +3300,8 @@ Cohesion: 0.06
 Nodes (49): DefineValue, DictValue, ExternsValue, $I, ImplicitCastValue, NoaliasValue, NocollapseValue, NocompileValue (+41 more)
 
 ### Community 149 - "Community 149"
-Cohesion: 0.05
-Nodes (35): agentEffectivenessCommand, aiMetricsCommand, architectureCommand, rootCommand, createPackageCommand, createPackageCommand, docgenCommand, boundariesCommand (+27 more)
+Cohesion: 0.04
+Nodes (48): agentEffectivenessCommand, aiMetricsCommand, architectureCommand, codegenCommand, decodeJSImportPathResult, decodeTypeScriptSourceFileNameResult, discoverModules, $I (+40 more)
 
 ### Community 150 - "Community 150"
 Cohesion: 0.06
@@ -3502,8 +3376,8 @@ Cohesion: 0.11
 Nodes (18): scripts, audit, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix, beep:test (+10 more)
 
 ### Community 168 - "Community 168"
-Cohesion: 0.04
-Nodes (82): VERSION, classJsonLdType(), classNodeToAssembledClass(), classToJsonLdNode(), conceptReferences(), hasJsonLdClassType(), iriEquivalence, jsonLdClassTypes() (+74 more)
+Cohesion: 0.06
+Nodes (41): classJsonLdType(), classNodeToAssembledClass(), classToJsonLdNode(), conceptReferences(), hasJsonLdClassType(), iriEquivalence, jsonLdClassTypes(), jsonLdDefinitionToPlainDefinition() (+33 more)
 
 ### Community 169 - "Community 169"
 Cohesion: 0.04
@@ -3547,15 +3421,15 @@ Nodes (47): $schema, supportForTags, @alpha, @beta, @category, @decorator, @defa
 
 ### Community 179 - "Community 179"
 Cohesion: 0.02
-Nodes (64): VERSION, AbortSig, $I, BigDecimalFromNumber, $I, CommaSeparatedList, $I, normalizeBooleanString (+56 more)
+Nodes (73): BunGlobConstructor, canConstructMatcher(), getBunGlobConstructor(), Glob, GlobArbitraryValues, GlobChecks, $I, isBunGlobConstructor() (+65 more)
 
 ### Community 180 - "Community 180"
-Cohesion: 0.06
-Nodes (41): ButtonGroup(), ButtonGroupSeparator(), ButtonGroupText(), buttonGroupVariants, Default, IconToolbar, NestedGroups, SplitButton (+33 more)
+Cohesion: 0.12
+Nodes (23): Item(), ItemActions(), ItemContent(), ItemDescription(), ItemFooter(), ItemGroup(), ItemHeader(), ItemMedia() (+15 more)
 
 ### Community 181 - "Community 181"
 Cohesion: 0.03
-Nodes (103): Input(), NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList(), NavigationMenuPositioner() (+95 more)
+Nodes (98): Input(), Progress(), ProgressIndicator(), ProgressLabel(), ProgressTrack(), ProgressValue(), Complete, CustomRange (+90 more)
 
 ### Community 182 - "Community 182"
 Cohesion: 0.05
@@ -3682,8 +3556,8 @@ Cohesion: 0.06
 Nodes (34): byCategory, findSubsequenceIndex(), getPrintables(), getSourceLinkPath(), $I, Markdown, pathSegments(), print (+26 more)
 
 ### Community 213 - "Community 213"
-Cohesion: 0.04
-Nodes (49): ProjectSchema, SyncDataRunMode, SyncDataRunModeKit, SyncDataSourceFormat, SyncDataSourceFormatKit, SyncDataTarget, SyncDataTargetCsv, SyncDataTargetJson (+41 more)
+Cohesion: 0.05
+Nodes (31): allFlag, checkFlag, decodeCsvText, decodeJsonText, decodeXmlText, defaultCsvParserOptions, dryRunFlag, failOnChangedTargets() (+23 more)
 
 ### Community 214 - "Community 214"
 Cohesion: 0.05
@@ -3730,8 +3604,8 @@ Cohesion: 0.07
 Nodes (33): JsonFromString, Date, DateTimeFromDateWithNow, DateTimeFromNumberWithNow, DateTimeInsert, DateTimeInsertFromDate, DateTimeInsertFromNumber, DateTimeUpdate (+25 more)
 
 ### Community 225 - "Community 225"
-Cohesion: 0.07
-Nodes (30): buildDocgenAliasSource, buildDocgenExamplesPaths(), buildDocgenSubpathAliasTargets(), CanonicalDocgenConfig, CanonicalDocgenConfigInput, CanonicalDocgenExamplesCompilerOptions, cloneStringArray(), createCanonicalDocgenConfig (+22 more)
+Cohesion: 0.09
+Nodes (21): buildDocgenAliasSource, buildDocgenExamplesPaths(), buildDocgenSubpathAliasTargets(), CanonicalDocgenConfig, CanonicalDocgenConfigInput, CanonicalDocgenExamplesCompilerOptions, cloneStringArray(), createCanonicalDocgenConfig (+13 more)
 
 ### Community 226 - "Community 226"
 Cohesion: 0.06
@@ -3754,8 +3628,8 @@ Cohesion: 0.05
 Nodes (39): @beep/architecture-lab-config, @beep/architecture-lab-config/aggregates/WorkItem, @beep/architecture-lab-config/layer, @beep/architecture-lab-config/public, @beep/architecture-lab-config/secrets, @beep/architecture-lab-config/server, @beep/architecture-lab-config/test, @beep/identity (+31 more)
 
 ### Community 231 - "Community 231"
-Cohesion: 0.05
-Nodes (33): aliasTargetsForTarget(), byPackagePathAscending, checkConfigNeedsUpdate, checkConfigNeedsUpdateForTarget, checkConfigNeedsUpdateForTargets, ConfigUpdateBatchResult, ConfigUpdateResult, ConfigUpdateTarget (+25 more)
+Cohesion: 0.06
+Nodes (30): byPackagePathAscending, checkConfigNeedsUpdate, checkConfigNeedsUpdateForTarget, checkConfigNeedsUpdateForTargets, ConfigUpdateBatchResult, ConfigUpdateResult, ConfigUpdateTarget, ConfigUpdateTargetResult (+22 more)
 
 ### Community 232 - "Community 232"
 Cohesion: 0.05
@@ -3774,8 +3648,8 @@ Cohesion: 0.06
 Nodes (31): fileSizeBytes(), collectJsonlFiles, statOption, isWithinSizeWindow(), AiMetricsHashSaltStatus, makeAiMetricsSourceAttribution, resolveAiMetricsHashSaltStatus(), AiMetricsDiscoveredSource (+23 more)
 
 ### Community 236 - "Community 236"
-Cohesion: 0.05
-Nodes (56): YeetRunOptions, YeetRunResult, affectedFileLines(), categoryBlocks(), noIssueBlocks, renderPackageQualityPacketDocument(), renderPackageQualityPacketMarkdown(), repairPaths() (+48 more)
+Cohesion: 0.07
+Nodes (39): decodeSchemaFirstPolicyOutput, diagnosticIssueFromLine(), FailureHintSlices, fallbackIssueFromResult(), fallbackIssuesFromResult(), filteredPackageNamesForStep(), $I, issueBase() (+31 more)
 
 ### Community 237 - "Community 237"
 Cohesion: 0.07
@@ -3787,7 +3661,7 @@ Nodes (31): boundaryAdvice(), boundaryCitations, entryImportOrder, FromPackageRe
 
 ### Community 239 - "Community 239"
 Cohesion: 0.06
-Nodes (35): Browser, encodePackageJsonEffect, NpmPackageJson, PackageExports, PackageImports, PeerDependenciesMeta, PublishConfig, TypesVersions (+27 more)
+Nodes (37): Browser, encodePackageJsonEffect, NpmPackageJson, PackageExports, PackageImports, PeerDependenciesMeta, PublishConfig, TypesVersions (+29 more)
 
 ### Community 240 - "Community 240"
 Cohesion: 0.07
@@ -3815,7 +3689,7 @@ Nodes (33): AppHandle, String, CommandResult, Display, Into, Path, PathBuf, R (+
 
 ### Community 246 - "Community 246"
 Cohesion: 0.06
-Nodes (33): ArtifactExtension, ArtifactId, artifactIdTextEncoder, ArtifactLocator, ArtifactLocatorKind, ArtifactName, ArtifactReference, ContentDigest (+25 more)
+Nodes (32): ArtifactExtension, ArtifactId, artifactIdTextEncoder, ArtifactLocator, ArtifactLocatorKind, ArtifactName, ArtifactReference, ContentDigest (+24 more)
 
 ### Community 247 - "Community 247"
 Cohesion: 0.08
@@ -3834,8 +3708,8 @@ Cohesion: 0.06
 Nodes (32): DualArityRulesOptions, ALIAS_RULES, EffectImportRulesOptions, EffectImportRulesSummary, $I, INCLUDED_GLOBS, ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES, runEffectImportRules (+24 more)
 
 ### Community 251 - "Community 251"
-Cohesion: 0.06
-Nodes (35): OpenAiCompat chat completion schemas, makeFromProvider, OpenAiCompatClient, beep, family, default, dependencies, @beep/identity (+27 more)
+Cohesion: 0.07
+Nodes (32): beep, family, default, dependencies, @beep/identity, @beep/schema, @beep/utils, effect (+24 more)
 
 ### Community 252 - "Community 252"
 Cohesion: 0.06
@@ -3882,8 +3756,8 @@ Cohesion: 0.07
 Nodes (24): Document, DocumentId, DocumentIndex, filterDocument(), filterSentence(), $I, rebuildSentence, $I (+16 more)
 
 ### Community 263 - "Community 263"
-Cohesion: 0.03
-Nodes (61): anyOf, anyOf, anyOf, anyOf, anyOf, anyOf, anyOf, anyOf (+53 more)
+Cohesion: 0.05
+Nodes (42): PrCloseoutReport, YeetRunOptions, YeetRunResult, YeetRunMode, QualityIssueAttribution, QualityIssueConfidence, QualityIssueIndex, QualityIssueRouting (+34 more)
 
 ### Community 264 - "Community 264"
 Cohesion: 0.03
@@ -4022,8 +3896,8 @@ Cohesion: 0.07
 Nodes (30): beep, family, dependencies, @beep/identity, @beep/schema, @beep/utils, effect, description (+22 more)
 
 ### Community 298 - "Community 298"
-Cohesion: 0.11
-Nodes (29): conceptReferences(), escapeTurtleLiteral(), languageLiteralStatements(), profileLiterals(), projectTurtle(), renderClass(), renderClassTypes(), renderPredicate() (+21 more)
+Cohesion: 0.10
+Nodes (32): conceptReferences(), escapeTurtleLiteral(), languageLiteralStatements(), profileLiterals(), projectTurtle(), renderClass(), renderClassTypes(), renderPredicate() (+24 more)
 
 ### Community 299 - "Community 299"
 Cohesion: 0.08
@@ -4039,7 +3913,7 @@ Nodes (26): BaseEntity, BaseEntityAttachmentError, BaseEntityCore, EntityFieldsF
 
 ### Community 302 - "Community 302"
 Cohesion: 0.04
-Nodes (49): runYeet, allowStaleBaseFlag, amendFlag, baseFlag, botsFlag, closeoutFlags, expectArgsFlag, expectCommandFlag (+41 more)
+Nodes (54): runYeet, allowStaleBaseFlag, amendFlag, baseFlag, botsFlag, closeoutFlags, expectArgsFlag, expectCommandFlag (+46 more)
 
 ### Community 303 - "Community 303"
 Cohesion: 0.06
@@ -4082,8 +3956,8 @@ Cohesion: 0.06
 Nodes (32): paths, @beep/architecture-lab-config, @beep/architecture-lab-config/aggregates/WorkItem, @beep/architecture-lab-config/layer, @beep/architecture-lab-config/public, @beep/architecture-lab-config/secrets, @beep/architecture-lab-config/server, @beep/architecture-lab-config/test (+24 more)
 
 ### Community 313 - "Community 313"
-Cohesion: 0.15
-Nodes (22): Batch 1 Config Inventory, Batch 1 Docgen Cost Model, Batch 1 Duplicate Proof Work, Batch 1 Quality Command Map, CI Timing And Setup Cost (explorer report), Canonical full quality proof, Docgen package proof manifest reuse, End-to-End Green lane (+14 more)
+Cohesion: 0.14
+Nodes (23): Batch 1 Config Inventory, Batch 1 Docgen Cost Model, Batch 1 Duplicate Proof Work, Batch 1 Quality Command Map, CI Timing And Setup Cost (explorer report), Canonical full quality proof, Docgen package proof manifest reuse, End-to-End Green lane (+15 more)
 
 ### Community 314 - "Community 314"
 Cohesion: 0.09
@@ -4142,8 +4016,8 @@ Cohesion: 0.04
 Nodes (45): Branded Primitive, 🏷️ CATEGORY ANNOTATION, Compilation Standards, Conditional Tags (Present Only When They Add Information), 🚨 CRITICAL REQUIREMENTS, 🛠️ CUSTOM TAG REGISTRATION, 🤖 CUSTOM TAGS FOR AGENT CONTEXT, `@deprecated` — With Required Migration Target (+37 more)
 
 ### Community 328 - "Community 328"
-Cohesion: 0.10
-Nodes (35): bullet(), classTypes(), conceptReferences(), $I, iriSlug(), languageLiteralList(), markdownLink(), MarkdownOptionsInput (+27 more)
+Cohesion: 0.12
+Nodes (30): bullet(), classTypes(), conceptReferences(), $I, iriSlug(), languageLiteralList(), markdownLink(), MarkdownOptionsInput (+22 more)
 
 ### Community 329 - "Community 329"
 Cohesion: 0.08
@@ -4170,12 +4044,12 @@ Cohesion: 0.18
 Nodes (10): @beep/nlp, Consumers (record + gate), Development, Installation, License, Modules, Tokenization With A Driver, Tool Export (+2 more)
 
 ### Community 335 - "Community 335"
-Cohesion: 0.05
-Nodes (38): assertAdvisoryEnvelopes, categoryForFallow(), decodeFallowEnvelopeJson, decodeFallowFixtureDocumentJsonc, decodePlanText, decodeQualityIssueIndexJson, decodeRepoRunPlanJson, encodeQualityIssueIndexJson (+30 more)
+Cohesion: 0.06
+Nodes (35): assertAdvisoryEnvelopes, categoryForFallow(), decodeFallowEnvelopeJson, decodeFallowFixtureDocumentJsonc, decodePlanText, decodeQualityIssueIndexJson, decodeRepoRunPlanJson, encodeQualityIssueIndexJson (+27 more)
 
 ### Community 336 - "Community 336"
-Cohesion: 0.20
-Nodes (9): description, files, homepage, license, name, private, sideEffects, type (+1 more)
+Cohesion: 0.06
+Nodes (37): beep, family, kind, bin, beep-sandbox, dependencies, @beep/identity, @beep/schema (+29 more)
 
 ### Community 337 - "Community 337"
 Cohesion: 0.08
@@ -4186,8 +4060,8 @@ Cohesion: 0.07
 Nodes (20): CanvasCommandBridge, CanvasCommandName, CanvasCommandPersistence, CanvasHealthStatus, CanvasProjectUseCasesShape, commandSurface, decodeCanvasScene(), $I (+12 more)
 
 ### Community 339 - "Community 339"
-Cohesion: 0.07
-Nodes (28): ByPath, Class, ClassNewOptions, defaultProcess, Doc, DocEntry, DocgenError, DocgenErrorTypeId (+20 more)
+Cohesion: 0.06
+Nodes (29): ByPath, Class, ClassNewOptions, Constant, defaultProcess, Doc, DocEntry, DocgenError (+21 more)
 
 ### Community 340 - "Community 340"
 Cohesion: 0.04
@@ -4243,7 +4117,7 @@ Nodes (15): contains, endsWith, equivalence, mapPostfix, mapPrefix, postfix, pos
 
 ### Community 353 - "Community 353"
 Cohesion: 0.07
-Nodes (30): $ref, additionalProperties, type, definitions, @beep/repo-docgen/Configuration/ConfigurationSchema, TSConfigCompilerOptionsSemantic, TSConfigLibNames, TSConfigPaths (+22 more)
+Nodes (31): jsonLdDocumentToOntologyResult(), Annotations, DCTERMS_SOURCE, decodeOntologyClassMetadataResult, decodeOntologyDatatypePredicateMetadataResult, decodeOntologyDefinitionMetadataResult, decodeOntologyObjectPredicateMetadataResult, decodeUriResult (+23 more)
 
 ### Community 354 - "Community 354"
 Cohesion: 0.09
@@ -4326,12 +4200,12 @@ Cohesion: 0.06
 Nodes (40): @beep/agent-capability-domain (CHANGELOG), @beep/agent-capability-domain package, @beep/agent-capability-domain (README), @beep/agent-capability-use-cases (CHANGELOG), @beep/agent-capability-use-cases package, Agentic Professional Runtime proof, db-admin Agent Notes, ArchitectureLabMigrationTarget (+32 more)
 
 ### Community 374 - "Community 374"
-Cohesion: 0.08
-Nodes (23): ArchitectureOperation, ArchitectureOperationCheck, ArchitectureOperationCheckStatus, ArchitecturePackageRole, CanonicalSliceOperationPlan, OperationPlanApplyResult, OperationPlanCheckResult, WriteFileOperation (+15 more)
+Cohesion: 0.14
+Nodes (18): NavigationMenu(), NavigationMenuContent(), NavigationMenuIndicator(), NavigationMenuItem(), NavigationMenuLink(), NavigationMenuList(), NavigationMenuPositioner(), NavigationMenuTrigger() (+10 more)
 
 ### Community 375 - "Community 375"
 Cohesion: 0.03
-Nodes (46): CauseTaggedErrorAnnotation, CauseTaggedErrorCombinedFields, CauseTaggedErrorConstructorArgs, CauseTaggedErrorCtor, CauseTaggedErrorExtrasInput, CauseTaggedErrorFields, CauseTaggedErrorInstance, CauseTaggedErrorLike (+38 more)
+Nodes (54): CauseTaggedErrorAnnotation, CauseTaggedErrorCombinedFields, CauseTaggedErrorConstructorArgs, CauseTaggedErrorCtor, CauseTaggedErrorExtrasInput, CauseTaggedErrorFields, CauseTaggedErrorInstance, CauseTaggedErrorLike (+46 more)
 
 ### Community 376 - "Community 376"
 Cohesion: 0.09
@@ -4378,8 +4252,8 @@ Cohesion: 0.09
 Nodes (22): App(), LoadState, CanvasAppAtoms, canvasAppAtomsCache, CanvasAppScope, CanvasCommandBridge, CanvasCommandRequest, CanvasCommandResult (+14 more)
 
 ### Community 387 - "Community 387"
-Cohesion: 0.22
-Nodes (9): dependencies, @beep/identity, @beep/nlp, @beep/schema, @beep/utils, effect, wink-eng-lite-web-model, wink-nlp (+1 more)
+Cohesion: 0.12
+Nodes (15): ProjectSchema, SyncDataRunMode, SyncDataRunModeKit, SyncDataSourceFormat, SyncDataSourceFormatKit, SyncDataTarget, SyncDataTargetCsv, SyncDataTargetJson (+7 more)
 
 ### Community 388 - "Community 388"
 Cohesion: 0.05
@@ -4402,8 +4276,8 @@ Cohesion: 0.10
 Nodes (18): BunYamlRuntime, getBunYamlParse(), getGlobalYamlRuntime(), loadYamlModule(), makeParseYaml, makeParseYamlForSchema, YamlModule, YamlModuleLoader (+10 more)
 
 ### Community 393 - "Community 393"
-Cohesion: 0.09
-Nodes (20): DetectFileOperation, DetectionResult, ExportArchiveOperation, ExtractFileOperation, FileProcessingOperationError, FileProcessingOperationErrorReason, $I, ProcessFileOperation (+12 more)
+Cohesion: 0.06
+Nodes (33): DetectFileOperation, DetectionResult, ExportArchiveOperation, ExtractFileOperation, FileProcessingOperationError, FileProcessingOperationErrorReason, $I, ProcessFileOperation (+25 more)
 
 ### Community 394 - "Community 394"
 Cohesion: 0.09
@@ -4454,8 +4328,8 @@ Cohesion: 0.08
 Nodes (26): examplesCompilerOptions, allowImportingTsExtensions, allowJs, declaration, declarationMap, erasableSyntaxOnly, exactOptionalPropertyTypes, jsx (+18 more)
 
 ### Community 406 - "Community 406"
-Cohesion: 0.06
-Nodes (37): @beep/epistemic-domain, 0.1.0, 0.1.1, @beep/identity, Minor Changes, Patch Changes, Patch Changes, 0.0.1 (+29 more)
+Cohesion: 0.07
+Nodes (29): OpenAiCompat chat completion schemas, makeFromProvider, OpenAiCompatClient, @beep/openai-compat, Development, Installation, License, Public Surface (+21 more)
 
 ### Community 407 - "Community 407"
 Cohesion: 0.10
@@ -4646,8 +4520,8 @@ Cohesion: 0.08
 Nodes (26): examplesCompilerOptions, allowImportingTsExtensions, allowJs, declaration, declarationMap, erasableSyntaxOnly, exactOptionalPropertyTypes, jsx (+18 more)
 
 ### Community 454 - "Community 454"
-Cohesion: 0.10
-Nodes (18): computeNearMissClusters(), distinctPackageCount, makeUnionFind(), normalizedDeclarationSignature(), fnv1a32(), jaccardSimilarity(), lshBandKeys(), minhashSignature() (+10 more)
+Cohesion: 0.14
+Nodes (9): normalizedDeclarationSignature(), tokenShingles(), InfrastructureLayer, PlatformLayer, sigOf(), InfrastructureLayer, keyOf(), PlatformLayer (+1 more)
 
 ### Community 455 - "Community 455"
 Cohesion: 0.08
@@ -4734,8 +4608,8 @@ Cohesion: 0.08
 Nodes (26): examplesCompilerOptions, allowImportingTsExtensions, allowJs, declaration, declarationMap, erasableSyntaxOnly, exactOptionalPropertyTypes, jsx (+18 more)
 
 ### Community 476 - "Community 476"
-Cohesion: 0.17
-Nodes (11): beep, family, description, files, homepage, license, name, private (+3 more)
+Cohesion: 0.06
+Nodes (34): beep, family, dependencies, @beep/identity, @beep/nlp, @beep/schema, @beep/utils, effect (+26 more)
 
 ### Community 477 - "Community 477"
 Cohesion: 0.08
@@ -4747,7 +4621,7 @@ Nodes (22): evidenceAnchorToWebAnnotation(), evidenceSelectorToWebAnnotationSele
 
 ### Community 479 - "Community 479"
 Cohesion: 0.17
-Nodes (30): description, post, post, post, openapi, paths, /endpoints/{endpointId}/update, /networkvolumes (+22 more)
+Nodes (17): Agent-Effectiveness Doctor Trust Gate, AI-Metrics Forwarder, AI-Metrics Labels And Benchmarks, AI-Metrics Weekly Reports / Scorecards, beep ai-metrics CLI, beep docgen quality-worker-eval, beep docgen quality-worker-eval-runpod, @beep/duckdb (+9 more)
 
 ### Community 480 - "Community 480"
 Cohesion: 0.05
@@ -4846,8 +4720,8 @@ Cohesion: 0.14
 Nodes (18): EncodedAbsenceKind, absenceKindFor(), AstAbsence, encodedAstFor(), EncodedFieldShape, EncodedFieldShapeMember, EntityFieldInputError, EntitySchemaAttachmentError (+10 more)
 
 ### Community 504 - "Community 504"
-Cohesion: 0.08
-Nodes (33): Docgen Operations boundary example, FileGenerationPlanService example, GraphitiProxyConfig defaulting example, VersionSync Models tagged-union example, @beep/schema shared primitives, MappedLiteralKit, TaggedErrorClass, Schema anti-patterns and replacements (+25 more)
+Cohesion: 0.07
+Nodes (38): Docgen Operations boundary example, FileGenerationPlanService example, GraphitiProxyConfig defaulting example, VersionSync Models tagged-union example, @beep/schema shared primitives, MappedLiteralKit, Reuse shared primitives before inventing, TaggedErrorClass (+30 more)
 
 ### Community 505 - "Community 505"
 Cohesion: 0.11
@@ -4886,8 +4760,8 @@ Cohesion: 0.10
 Nodes (17): appendDocument(), BM25Accessor, BM25VectorizerFactory, BM25VectorizerInstance, decodeStringArray(), $I, isStringArray(), learnDocumentState() (+9 more)
 
 ### Community 514 - "Community 514"
-Cohesion: 0.16
-Nodes (31): description, get, get, get, post, description, operationId, parameters (+23 more)
+Cohesion: 0.12
+Nodes (16): Acceptance Criteria, Boundaries, Branch And Worktree, Deferred Lanes, Dupes, Fallow Advisory Ratchets Spec, Fix Preview, Flags (+8 more)
 
 ### Community 515 - "Community 515"
 Cohesion: 0.06
@@ -4946,8 +4820,8 @@ Cohesion: 0.09
 Nodes (22): scripts, audit, babel, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix (+14 more)
 
 ### Community 529 - "Community 529"
-Cohesion: 0.13
-Nodes (23): aliasedCategoryOption(), appendCategorySeparator(), CANONICAL_JSDOC_CATEGORIES, canonicalCategoryOption(), CategoryCharacterKind, charCodeAt(), $I, isAcceptedJSDocCategory() (+15 more)
+Cohesion: 0.16
+Nodes (21): aliasedCategoryOption(), appendCategorySeparator(), CANONICAL_JSDOC_CATEGORIES, canonicalCategoryOption(), CategoryCharacterKind, charCodeAt(), $I, isAcceptedJSDocCategory() (+13 more)
 
 ### Community 530 - "Community 530"
 Cohesion: 0.14
@@ -4966,8 +4840,8 @@ Cohesion: 0.09
 Nodes (19): PlatformLayer, TestLayer, MOCK_ROOT, pathApi, PlatformLayer, TestLayer, compilerOptions, erasableSyntaxOnly (+11 more)
 
 ### Community 534 - "Community 534"
-Cohesion: 0.13
-Nodes (20): Activity First-Class PROV-O Activity Table, Audit & Policy Bounded Context, BaseEntity Invariant Fields, BitemporalMixin Four-Clock Time Model, Capability BYOS Bounded Context, Claim Atomic Unit of Knowledge, @beep/domain-foundation Package, Epistemic Runtime (The Moat) (+12 more)
+Cohesion: 0.22
+Nodes (11): Activity First-Class PROV-O Activity Table, Audit & Policy Bounded Context, BaseEntity Invariant Fields, BitemporalMixin Four-Clock Time Model, Capability BYOS Bounded Context, @beep/domain-foundation Package, Principal Tagged-Union Actor Reference, PROV-O Universal Entity Base Alignment (+3 more)
 
 ### Community 535 - "Community 535"
 Cohesion: 0.09
@@ -5026,8 +4900,8 @@ Cohesion: 0.10
 Nodes (21): scripts, audit, babel, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix (+13 more)
 
 ### Community 549 - "Community 549"
-Cohesion: 0.08
-Nodes (23): codexCommand, qualityReviewFixLoopCommand, runCodexQualityReviewFixLoop, textEncoder, CodexCommandError, CodexCommandErrorOptions, $I, docsCommand (+15 more)
+Cohesion: 0.09
+Nodes (22): aggregateDocs, cleanFlag, docsAggregateCommand, filterFlag, packageFlag, resolveAggregateSelector, docsCommand, docsFindCommand (+14 more)
 
 ### Community 550 - "Community 550"
 Cohesion: 0.13
@@ -5050,8 +4924,8 @@ Cohesion: 0.10
 Nodes (21): scripts, audit, babel, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix (+13 more)
 
 ### Community 555 - "Community 555"
-Cohesion: 0.15
-Nodes (13): Agent Effectiveness Loop Specification, Completion Criteria, Created / Updated, Follow-Up Goals, Inputs, Mission, Owner, Ownership (+5 more)
+Cohesion: 0.08
+Nodes (23): Agent Effectiveness Privacy Contract, Agent Effectiveness Loop, Current Recommendation, Implemented Phase 1 Commands, Mission, Reading Order, Research Artifacts, Starting Point (+15 more)
 
 ### Community 556 - "Community 556"
 Cohesion: 0.11
@@ -5094,8 +4968,8 @@ Cohesion: 0.12
 Nodes (28): @beep/shared-config (package), @beep/shared-config, Belongs Here, Does Not Belong Here, Exports, @beep/shared-domain (package), BaseEntity (shared entity kernel), EntityId / Identity.Shared (+20 more)
 
 ### Community 566 - "Community 566"
-Cohesion: 0.10
-Nodes (25): Local SKOS-like constants in @beep/ontology (cleanup-on-touch), Effect JSON Schema Metadata research, includeAnnotationKey whitelist (avoid broad ()=>true annotation leak), PackageJsonTools repo precedent for derived JSON Schema, S.toJsonSchemaDocument API (draft-2020-12 Document), FOLIO IRI resolver with format suffixes (jsonld, xml, markdown, html), @beep/ontology (SKOS profile, projections, Markdown docs, sidecars), @beep/rdf (RDF-safe values, vocab constants, pure syntax) (+17 more)
+Cohesion: 0.12
+Nodes (20): Local SKOS-like constants in @beep/ontology (cleanup-on-touch), FOLIO IRI resolver with format suffixes (jsonld, xml, markdown, html), @beep/ontology (SKOS profile, projections, Markdown docs, sidecars), @beep/rdf (RDF-safe values, vocab constants, pure syntax), @beep/semantic-web (runtime validation, reasoners, capability services), Goal, Deterministic Markdown documentation projection (portable + Obsidian wikilink), Keep v1 in existing foundation modeling packages, no new package (+12 more)
 
 ### Community 567 - "Community 567"
 Cohesion: 0.10
@@ -5126,8 +5000,8 @@ Cohesion: 0.10
 Nodes (20): scripts, audit, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix, beep:test (+12 more)
 
 ### Community 574 - "Community 574"
-Cohesion: 0.08
-Nodes (29): SourceText, Symbol, SymbolKind, TsMorphDiagnostic, ScopeSymbolEntry, byDiagnosticCodeAscending, byDiagnosticStartColumnAscending, byDiagnosticStartLineAscending (+21 more)
+Cohesion: 0.12
+Nodes (15): Acceptance Criteria, Constraints, E1 - Local-first `yeet status`, E2 - Opt-in compact summaries, E3 - Failure-local remediation hints, E4 - Skill text update, Exception Ledger, Non-Goals (+7 more)
 
 ### Community 575 - "Community 575"
 Cohesion: 0.21
@@ -5182,8 +5056,8 @@ Cohesion: 0.11
 Nodes (19): scripts, audit, babel, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix (+11 more)
 
 ### Community 588 - "Community 588"
-Cohesion: 0.08
-Nodes (24): AsyncResult lifecycle type, Effect Atom state primitive, AtomRpc typed RPC service atoms, AtomRuntime service bridge, Banned React hooks law, Reactivity key-based invalidation, Canonical A/O/P/R/S import aliases law, Schema-first source-of-truth law (+16 more)
+Cohesion: 0.07
+Nodes (26): AsyncResult lifecycle type, Effect Atom state primitive, AtomRpc typed RPC service atoms, AtomRuntime service bridge, Banned React hooks law, Reactivity key-based invalidation, Canonical A/O/P/R/S import aliases law, EF-13 Discriminated union schemas (+18 more)
 
 ### Community 589 - "Community 589"
 Cohesion: 0.17
@@ -5314,8 +5188,8 @@ Cohesion: 0.11
 Nodes (19): scripts, audit, babel, beep:audit, beep:build, beep:check, beep:lint, beep:lint:fix (+11 more)
 
 ### Community 621 - "Community 621"
-Cohesion: 0.08
-Nodes (24): 10) Observability and metrics, 10b) Boundary logging with Cause, 10c) Process entrypoint teardown, 11) Duration values, 12) Nullish schemas to Option, 13) Dual helper APIs, 14) JSON parse / stringify with Schema, 15) Runtime boundary for running effects (+16 more)
+Cohesion: 0.06
+Nodes (32): 10) Observability and metrics, 10b) Boundary logging with Cause, 10c) Process entrypoint teardown, 11) Duration values, 12) Nullish schemas to Option, 13) Dual helper APIs, 14) JSON parse / stringify with Schema, 15) Runtime boundary for running effects (+24 more)
 
 ### Community 622 - "Community 622"
 Cohesion: 0.10
@@ -5355,11 +5229,11 @@ Nodes (17): bootstrapRootConfig, bootstrapWorkspace, decodeTsconfigPaths, decode
 
 ### Community 631 - "Community 631"
 Cohesion: 0.08
-Nodes (29): Cross-concept escape hatches, Hexagonal Vertical Slices (doctrine), Vertical+Hexagonal hybrid rationale, Forbidden Effect dependencies in domain R channel, Pure does not mean Effect-free, Rich Domain Model (doctrine), Rich versus anemic domain model, BaseEntity.Class composer (+21 more)
+Nodes (27): Cross-concept escape hatches, Hexagonal Vertical Slices (doctrine), Vertical+Hexagonal hybrid rationale, Forbidden Effect dependencies in domain R channel, Pure does not mean Effect-free, Rich Domain Model (doctrine), Rich versus anemic domain model, BaseEntity.Class composer (+19 more)
 
 ### Community 632 - "Community 632"
-Cohesion: 0.12
-Nodes (18): HubSpot Forms preferred, CRM upsert fallback, Cloudflare owns DNS for oip.law, Deferred dedicated OIP AWS organization, Vercel Git deployments + Pulumi IaC recommendation, CSP B+ tradeoff (next.config.ts unsafe-inline for App Router scripts), Managed-first lean production posture, OPIP-to-OIP rename cutover (oip.law canonical, opip.law legacy redirect), Closure Rules (+10 more)
+Cohesion: 0.11
+Nodes (24): HubSpot Forms preferred, CRM upsert fallback, Sanity CMS + HubSpot CRM + Vercel analytics recommendation, Spam controls (honeypot + minimum elapsed-time), Cloudflare owns DNS for oip.law, Deferred dedicated OIP AWS organization, Vercel Git deployments + Pulumi IaC recommendation, App-local Effect Schema content contracts, @beep/oip-web app (+16 more)
 
 ### Community 633 - "Community 633"
 Cohesion: 0.11
@@ -5398,8 +5272,8 @@ Cohesion: 0.14
 Nodes (16): dueDateToneClassName(), formatDate(), priorityConfig, shortDateFormatter, Completed, Default, Detailed, Selected (+8 more)
 
 ### Community 642 - "Community 642"
-Cohesion: 0.09
-Nodes (22): Agent Context Lifting Rules, Category Conventions, Class schemas (S.Class, Model.Class, TaggedErrorClass), Conditional Tag Rules, Escalation, Forbidden Patterns in Examples, Import Aliases in Examples, JSDoc Annotation Specialist (+14 more)
+Cohesion: 0.06
+Nodes (31): Agent Context Lifting Rules, Category Conventions, Class schemas (S.Class, Model.Class, TaggedErrorClass), Conditional tag correctness, Conditional Tag Rules, Custom tag registration, Escalation, Final compilation (+23 more)
 
 ### Community 643 - "Community 643"
 Cohesion: 0.17
@@ -5410,8 +5284,8 @@ Cohesion: 0.11
 Nodes (17): appleSourceIds, gnomeSourceIds, kdeSourceIds, KeyboardShortcutCategoryValues, KeyboardShortcutCommandLabelValues, KeyboardShortcutCommandNameValues, KeyboardShortcutDataValues, KeyboardShortcutPlatformValues (+9 more)
 
 ### Community 645 - "Community 645"
-Cohesion: 0.07
-Nodes (30): properties, type, type, type, type, anyOf, anyOf, type (+22 more)
+Cohesion: 0.17
+Nodes (12): aliasTargetsForTarget(), defaultAliasTargetsForPackage(), buildCanonicalAliasTargets, buildDocgenAliasTargets, BuildDocgenAliasTargetsOptions, CanonicalAliasTargets, EXPORT_CONDITION_PRIORITY, firstRelativeDotPath() (+4 more)
 
 ### Community 646 - "Community 646"
 Cohesion: 0.07
@@ -5550,8 +5424,8 @@ Cohesion: 0.12
 Nodes (16): $I, JSONValue, TurbopackIgnoredIssue, TurbopackLoaderBuiltinCondition, TurbopackLoaderItem, TurbopackLoaderItemConfig, TurbopackLoaderOptions, TurbopackModuleType (+8 more)
 
 ### Community 680 - "Community 680"
-Cohesion: 0.18
-Nodes (14): VERSION, $I, makeTikaError(), TikaError, TikaErrorReason, classifyExtension, decodeSourceText(), deferredExtractionFormats (+6 more)
+Cohesion: 0.16
+Nodes (15): processEngineFor(), VERSION, $I, makeTikaError(), TikaError, TikaErrorReason, classifyExtension, decodeSourceText() (+7 more)
 
 ### Community 681 - "Community 681"
 Cohesion: 0.12
@@ -5582,8 +5456,8 @@ Cohesion: 0.10
 Nodes (20): Schema-first domain models, Effect.acquireUseRelease resource management, IdentityComposer $I annotation helper, No type assertions (as any/never/unknown), S.TaggedErrorClass structured errors, cspell effect-terms dictionary, 🚨 CRITICAL FORBIDDEN PATTERNS, 🔧 DEVELOPMENT WORKFLOW PATTERNS (+12 more)
 
 ### Community 688 - "Community 688"
-Cohesion: 0.11
-Nodes (17): Ports Point Inward, Adapters Point Outward, EF-2 Absence is Option, EF-4 Canonical A/O/P/R/S imports, Boundary/Domain/Runtime three-layer model, Effect-laws Allowlist Contract, Definition, Effect-First Development, LLM Review Checklist (+9 more)
+Cohesion: 0.06
+Nodes (33): Ports Point Inward, Adapters Point Outward, EF-2 Absence is Option, EF-4 Canonical A/O/P/R/S imports, Boundary/Domain/Runtime three-layer model, Effect-laws Allowlist Contract, Copy-Paste Templates, Definition, Effect-First Development (+25 more)
 
 ### Community 689 - "Community 689"
 Cohesion: 0.18
@@ -5662,8 +5536,8 @@ Cohesion: 0.17
 Nodes (13): BoxApiFailureContext, BoxErrorOptions, BoxErrorOptionsInput, BoxErrorReason, causeLabel(), causeLabelFromInput(), $I, readContextInfo() (+5 more)
 
 ### Community 708 - "Community 708"
-Cohesion: 0.22
-Nodes (12): causeFromUnknown(), httpClientCauseLabel(), $I, isRunpodOperationDescriptor, readProperty(), readString, RunpodDocsErrorOptions, RunpodDocsErrorReason (+4 more)
+Cohesion: 0.17
+Nodes (15): causeFromUnknown(), httpClientCauseLabel(), $I, isRunpodOperationDescriptor, readProperty(), readString, RunpodDocsErrorOptions, RunpodDocsErrorReason (+7 more)
 
 ### Community 709 - "Community 709"
 Cohesion: 0.15
@@ -5682,12 +5556,12 @@ Cohesion: 0.07
 Nodes (29): 05 - Implementation Phases, Acceptance Criteria, Acceptance Criteria, Acceptance Criteria, Acceptance Criteria, Critical File Modifications by Phase, Delegation Strategy Table, Deliverables (+21 more)
 
 ### Community 713 - "Community 713"
-Cohesion: 0.09
-Nodes (26): architecture-lab-proof Agent Guide, @beep/architecture-lab-proof, Development, Installation, License, Usage, architecture-lab WorkItem Contract Proof, Agentic Professional Runtime Goal (+18 more)
+Cohesion: 0.16
+Nodes (16): Apps, beep-effect, Contributing & Quality, Drivers Family, Foundation Family, Hexagonal Vertical Slice Architecture, How the Repo Works, License (+8 more)
 
 ### Community 714 - "Community 714"
-Cohesion: 0.16
-Nodes (15): canvas Agent Guide, Canvas Tauri Command Bridge, @beep/canvas Tauri Shell, Bitemporal Attribution Evidence Trail, Capture Consolidation Algorithm, FalkorDB Time-Tracking Graph, Federated IP Law Knowledge Graph, HubSpot CRM Integration (+7 more)
+Cohesion: 0.20
+Nodes (12): Agentic Professional Runtime Goal, Bitemporal Attribution Evidence Trail, Capture Consolidation Algorithm, FalkorDB Time-Tracking Graph, Federated IP Law Knowledge Graph, HubSpot CRM Integration, AI Narrative Drafting Malpractice Firewall, Picture-in-Picture Liquid Glass Overlay (+4 more)
 
 ### Community 715 - "Community 715"
 Cohesion: 0.12
@@ -5778,8 +5652,8 @@ Cohesion: 0.14
 Nodes (13): BiomeJsoncDocument, BiomeSchemaState, BiomeSchemaUrl, BiomeSchemaUrlToVersion, buildBiomeReport(), decodeExactVersion, decodeSchemaVersion, exactVersionFromSpecifier() (+5 more)
 
 ### Community 737 - "Community 737"
-Cohesion: 0.12
-Nodes (18): @context, @id, @context, activityType, agents, @base, featureType, foaf (+10 more)
+Cohesion: 0.19
+Nodes (11): affectedFileLines(), categoryBlocks(), noIssueBlocks, renderPackageQualityPacketDocument(), renderPackageQualityPacketMarkdown(), repairPaths(), routingLines(), verificationCommands() (+3 more)
 
 ### Community 738 - "Community 738"
 Cohesion: 0.13
@@ -5798,8 +5672,8 @@ Cohesion: 0.13
 Nodes (13): baseFields, BaseModel, ChildFromMapped, { Class, Field, FieldExcept, FieldOnly, Struct, Union, extract, fieldEvolve }, FromMapped, Nested, OverrideChild, Parent (+5 more)
 
 ### Community 742 - "Community 742"
-Cohesion: 0.14
-Nodes (10): context, contextWithTasks(), FileSystemLayer, PlatformLayer, runGitCapture(), runGitOutputLines(), runGitStatus(), turboPackage() (+2 more)
+Cohesion: 0.11
+Nodes (14): context, contextWithTasks(), encodeJson, initTrackedFileRepo, PlatformLayer, prePushStep, runGit(), spawnGit() (+6 more)
 
 ### Community 743 - "Community 743"
 Cohesion: 0.07
@@ -6062,8 +5936,8 @@ Cohesion: 0.15
 Nodes (12): TSCategoryTag, CategoryValue, DocumentValue, ExpandValue, GroupValue, HiddenValue, $I, InlineValue (+4 more)
 
 ### Community 808 - "Community 808"
-Cohesion: 0.08
-Nodes (24): beep, family, kind, description, devDependencies, @beep/test-utils, @effect/vitest, @types/bun (+16 more)
+Cohesion: 0.15
+Nodes (12): beep, family, kind, description, files, homepage, license, name (+4 more)
 
 ### Community 809 - "Community 809"
 Cohesion: 0.15
@@ -6126,8 +6000,8 @@ Cohesion: 0.15
 Nodes (12): beep, family, kind, description, files, homepage, license, name (+4 more)
 
 ### Community 824 - "Community 824"
-Cohesion: 0.08
-Nodes (27): Core Bet (modularity over low ceremony), Architecture Philosophy, Preserving optionality via slice isolation, Role Suffixes vocabulary, @beep/schema namespace-first concept topology, Topology Is Compressed Context, Access, Policy, And Error Kinds, beep-effect Architecture Standard (+19 more)
+Cohesion: 0.06
+Nodes (33): Core Bet (modularity over low ceremony), Architecture Philosophy, Preserving optionality via slice isolation, Role Suffixes vocabulary, @beep/schema namespace-first concept topology, Topology Is Compressed Context, Access, Policy, And Error Kinds, beep-effect Architecture Standard (+25 more)
 
 ### Community 825 - "Community 825"
 Cohesion: 0.17
@@ -6158,24 +6032,24 @@ Cohesion: 0.07
 Nodes (33): cache, description, env, extends (Package Configuration only), inputs, Interaction with `global.inputs`, interactive, interruptible (+25 more)
 
 ### Community 832 - "Community 832"
-Cohesion: 0.11
-Nodes (24): categoryForRole, exportsForRole(), extraExportForRole, packageNameForRole(), packageShellAgentsContent(), packageShellDependenciesForRole(), packageShellDescriptionForRole(), packageShellDevDependenciesForRole() (+16 more)
+Cohesion: 0.19
+Nodes (12): ButtonGroup(), ButtonGroupSeparator(), ButtonGroupText(), buttonGroupVariants, Default, IconToolbar, NestedGroups, SplitButton (+4 more)
 
 ### Community 833 - "Community 833"
 Cohesion: 0.20
 Nodes (10): ScrollArea(), ScrollBar(), artworks, BothAxes, Default, Horizontal, NoOverflow, Story (+2 more)
 
 ### Community 834 - "Community 834"
-Cohesion: 0.06
-Nodes (27): Agent Effectiveness Loop Plan, Phase 0 - Research Bootstrap, Phase 1 - Agent-Effectiveness Doctor And Annotation Plan, Phase 2 - Phoenix-Native Enrichment, Phase 3 - Repo Workflow Integration, Verification Posture, Agent Effectiveness Privacy Contract, Agent Effectiveness Loop (+19 more)
+Cohesion: 0.08
+Nodes (22): Annotation Plan Dry Run, AI-Metrics Privacy Contract (Redaction/Hash-Only), Aggregate State, Audit Readout, Feature Availability, Live Availability, Live Phoenix State Audit, Projects (+14 more)
 
 ### Community 835 - "Community 835"
 Cohesion: 0.18
 Nodes (10): Spinner(), Bold, Colored, Default, InButton, Large, Sizes, Small (+2 more)
 
 ### Community 836 - "Community 836"
-Cohesion: 0.12
-Nodes (17): codegenCommand, decodeJSImportPathResult, decodeTypeScriptSourceFileNameResult, discoverModules, $I, InternalDirectoryName, isInternalDirectoryName, isRootIndexFileName (+9 more)
+Cohesion: 0.14
+Nodes (12): defaultValue, formatFrameGuardValue, FrameGuardAllowFrom, FrameGuardAllowFromConfig, FrameGuardHeader, FrameGuardMode, FrameGuardModeBase, FrameGuardOption (+4 more)
 
 ### Community 837 - "Community 837"
 Cohesion: 0.17
@@ -6278,8 +6152,8 @@ Cohesion: 0.09
 Nodes (24): Activity, Agent, ApprovalGate, Artifact, Candidate Write Flow, Connector, Core Entities, Data Model: Shared Core (+16 more)
 
 ### Community 862 - "Community 862"
-Cohesion: 0.12
-Nodes (16): Copy-Paste Templates, Template: Config + redacted secret, Template: Decode unknown at API edge, Template: Dual helper (data-first + data-last), Template: Effect-returning function constructor, Template: Isolated layer provide, Template: JSON boundary without native JSON APIs, Template: Match, LiteralKit([/* ... */]).$match or effect/Schema TaggedUnion over switch (+8 more)
+Cohesion: 0.20
+Nodes (10): VERSION, ontologyJsonLdContext(), projectJsonLdContext(), projectJsonLdOntology(), Ontology, getOntologyKeyMetadata(), getOntologyMetadata(), isOntologyClassAnnotationDraft (+2 more)
 
 ### Community 863 - "Community 863"
 Cohesion: 0.12
@@ -6306,12 +6180,12 @@ Cohesion: 0.20
 Nodes (9): BINARY_FILE_EXTENSION_MEMBERS, BinaryFileExtension, binaryFileExtensionOptions, binaryFileExtensionSet, extractNormalizedExtension(), hasBinaryExtension(), $I, isBinaryFileExtension() (+1 more)
 
 ### Community 869 - "Community 869"
-Cohesion: 0.12
-Nodes (17): @context, @id, @context, activityType, agents, @base, featureType, foaf (+9 more)
+Cohesion: 0.20
+Nodes (9): Current Phase, Latest Evidence, Launch, Mission, Notes, Read This First, Relationship To Other Packets, Status (+1 more)
 
 ### Community 870 - "Community 870"
-Cohesion: 0.15
-Nodes (13): Progress(), ProgressIndicator(), ProgressLabel(), ProgressTrack(), ProgressValue(), Complete, CustomRange, Default (+5 more)
+Cohesion: 0.22
+Nodes (8): Agent Effectiveness Loop Plan, Phase 0 - Research Bootstrap, Phase 1 - Agent-Effectiveness Doctor And Annotation Plan, Phase 2 - Phoenix-Native Enrichment, Phase 3 - Repo Workflow Integration, Verification Posture, goals/agent-effectiveness-phoenix-enrichment, goals/agent-effectiveness-workflow-integration
 
 ### Community 871 - "Community 871"
 Cohesion: 0.17
@@ -6366,7 +6240,7 @@ Cohesion: 0.09
 Nodes (22): Cache Equation (fingerprint inputs to outputs), Cache Restoration, Turborepo Caching, Example Flow, FULL TURBO (Cache Hit Replay), Global Hash Inputs, How `global.inputs` Changes the Hash Equation, How Turborepo Caching Works (+14 more)
 
 ### Community 884 - "Community 884"
-Cohesion: 0.24
+Cohesion: 0.19
 Nodes (7): FormalMonthNameValues, MonthISOValues, MonthNameValues, MonthNumberValues, FormalWeekNameValues, WeekNameValues, formalizeValues()
 
 ### Community 885 - "Community 885"
@@ -6438,8 +6312,8 @@ Cohesion: 0.09
 Nodes (23): Account, Claim Examples, Client, ContactMechanism, Core Relationships, Data Model: Wealth Management Overlay, Email Cash Request, Entities (+15 more)
 
 ### Community 902 - "Community 902"
-Cohesion: 0.18
-Nodes (6): Networks, CurrencyCode, CurrencyCodeData, FileExtension, MimeType, TimezoneName
+Cohesion: 0.15
+Nodes (7): TimezoneNameValues, Networks, CurrencyCode, CurrencyCodeData, FileExtension, MimeType, TimezoneName
 
 ### Community 903 - "Community 903"
 Cohesion: 0.18
@@ -6559,7 +6433,7 @@ Nodes (9): description, files, homepage, license, name, private, sideEffects, ty
 
 ### Community 933 - "Community 933"
 Cohesion: 0.04
-Nodes (45): @beep/repo-configs, DocsESLintConfig (JSDoc/TSDoc lint surface), Governance data (allowlist snapshot, native-runtime hotspots), @beep/test-utils, vitest & @effect/vitest testing utilities, 0.0.1, 0.0.2, @beep/repo-docgen (+37 more)
+Nodes (49): @beep/test-utils, vitest & @effect/vitest testing utilities, 0.0.1, 0.0.2, @beep/colors, Patch Changes, Patch Changes, 0.1.0 (+41 more)
 
 ### Community 934 - "Community 934"
 Cohesion: 0.08
@@ -6582,8 +6456,8 @@ Cohesion: 0.38
 Nodes (10): exports, ./core, ./core/internal/*, ./core/internal/dirty, ./core/internal/weak-registry, ./internal/*, ./package.json, ./react (+2 more)
 
 ### Community 939 - "Community 939"
-Cohesion: 0.13
-Nodes (13): $I, REUSE_CANDIDATE_KINDS, ReuseCandidate, ReuseCandidateKind, ReuseCatalogEntry, ReuseCatalogOrigin, ReuseFindResult, ReuseInventory (+5 more)
+Cohesion: 0.22
+Nodes (8): Current Decisions, Fallow Advisory Ratchets, Launch, Mission, Ratchet Order, Read This First, Status, Verification
 
 ### Community 940 - "Community 940"
 Cohesion: 0.20
@@ -6782,12 +6656,12 @@ Cohesion: 0.22
 Nodes (8): references, compilerOptions, outDir, rootDir, types, extends, include, $schema
 
 ### Community 991 - "Community 991"
-Cohesion: 0.14
-Nodes (13): DeferredSelectedStrategy, FileFormatFamily, FileProcessingCapability, FileProcessingEngineDescriptor, FileProcessingEngineFamily, FileProcessingOperationKind, FileProcessingSkipReason, FileProcessingSupportDisposition (+5 more)
+Cohesion: 0.25
+Nodes (9): Claim Atomic Unit of Knowledge, Epistemic Runtime (The Moat), Evidence Span-Based Source, IntegrityMixin Tamper-Evident Hash Chain, KnowledgeGraph Read Model, Barman et al. (2026) No Escape Theorem, Read Models (Materialized Projections), SyncMixin Local-First HLC (+1 more)
 
 ### Community 992 - "Community 992"
-Cohesion: 0.31
-Nodes (4): TimezoneNameValues, CurrencyCodeDataPublished, CurrencyCodeDataSourceUrl, CurrencyCodeDataValues
+Cohesion: 0.70
+Nodes (3): CurrencyCodeDataPublished, CurrencyCodeDataSourceUrl, CurrencyCodeDataValues
 
 ### Community 993 - "Community 993"
 Cohesion: 0.22
@@ -7018,8 +6892,8 @@ Cohesion: 0.22
 Nodes (8): compilerOptions, outDir, rootDir, types, extends, include, references, $schema
 
 ### Community 1050 - "Community 1050"
-Cohesion: 0.13
-Nodes (16): @context, agents, @base, foaf, surveyreg, survtypes, thing, featureType (+8 more)
+Cohesion: 0.22
+Nodes (8): Current Blockers, P0 - Grounding, P1 - Packet, P2 - `yeet status`, P3 - Summaries + Hints, P4 - Docs + Proof, P5 - Closeout, Yeet Operator Clarity Plan
 
 ### Community 1051 - "Community 1051"
 Cohesion: 0.22
@@ -7090,8 +6964,8 @@ Cohesion: 0.09
 Nodes (21): A. Preflight Review (Architectural Convergence), B. Scope Gate: Bootstrap Surface Lock, @beep/canvas Implementation Plan, C.1 Domain layer recovery, C.2 Use-cases and protocol contracts, C.3 Server layer repair, C.4 Package boundary & workspace wiring, C.5 Exit Criteria for P0 (+13 more)
 
 ### Community 1068 - "Community 1068"
-Cohesion: 0.33
-Nodes (5): 0.0.1, 0.0.2, @beep/chalk, Patch Changes, Patch Changes
+Cohesion: 0.25
+Nodes (7): architecture-lab-proof Agent Guide, @beep/architecture-lab-proof, Development, Installation, License, Usage, architecture-lab WorkItem Contract Proof
 
 ### Community 1069 - "Community 1069"
 Cohesion: 0.22
@@ -7234,8 +7108,8 @@ Cohesion: 0.32
 Nodes (8): exports, ./internal/*, ./package.json, ./packages, publishConfig, access, exports, provenance
 
 ### Community 1104 - "Community 1104"
-Cohesion: 0.17
-Nodes (13): buildCloneDocument(), byEntryId, CloneBaselineDocument, CloneBaselineEntry, decodeDocument, diffCloneBaseline(), encodeDocument, $I (+5 more)
+Cohesion: 0.36
+Nodes (7): artifactDirForContext, artifactNameHash(), runArtifactPathForContext, runIdForContext(), runStatePathForContext(), safeArtifactName(), RepoRunContext
 
 ### Community 1105 - "Community 1105"
 Cohesion: 0.08
@@ -7542,8 +7416,8 @@ Cohesion: 0.14
 Nodes (16): Global Dependency Blast Radius, Yeet Duplicate Feedback Before Full Proof, Local Changed-File SAST Scoping, CI-Only PR Dependency Review, audit:github pre-push Full Proof Surface, globalDependencies Universal-vs-Task Reclassification, RQT Task Inventory (rqt-001..rqt-012), Batch 3: Yeet Fast Monitor (+8 more)
 
 ### Community 1186 - "Community 1186"
-Cohesion: 0.24
-Nodes (11): isDefaultPlanTarget(), isPackageIndexFile(), isPackageLevelFile(), isPackageScaffoldFile(), proofFileMatchesDomainKind(), renderAcceptedTemplate(), replacementPairs(), sourceConceptForPath() (+3 more)
+Cohesion: 0.25
+Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, @beep/architecture-lab-tables Agent Guide, Contributor Checklist, Quick Recipes
 
 ### Community 1187 - "Community 1187"
 Cohesion: 0.29
@@ -7670,8 +7544,8 @@ Cohesion: 0.33
 Nodes (6): devDependencies, bun-types, @effect/openapi-generator, @effect/platform-node, @effect/vitest, @types/node
 
 ### Community 1221 - "Community 1221"
-Cohesion: 0.24
-Nodes (10): printAddIndex(), printArchitectureIndex(), printCreateIndex(), printLines, printDocgenIndex(), printQualityProfileConfig(), printQualityProfileDetection(), renderQualityProfileConfigLines() (+2 more)
+Cohesion: 0.29
+Nodes (6): CommaSeparatedList, $I, normalizeBooleanString, NormalizedBooleanString, TrimmedNonEmptyText, truthyBooleanString
 
 ### Community 1222 - "Community 1222"
 Cohesion: 0.33
@@ -7890,8 +7764,8 @@ Cohesion: 0.40
 Nodes (4): encoder, makeHandle(), makeStream(), TestChildProcessSpawnerLive
 
 ### Community 1278 - "Community 1278"
-Cohesion: 0.31
-Nodes (14): description, description, description, operationId, parameters, responses, summary, tags (+6 more)
+Cohesion: 0.33
+Nodes (6): Agent Effectiveness Workflow Integration, Current Recommendation, Mission, Reading Order, Starting Point, Status
 
 ### Community 1279 - "Community 1279"
 Cohesion: 0.33
@@ -7958,8 +7832,8 @@ Cohesion: 0.40
 Nodes (5): @beep/infra (CHANGELOG), IntelliJ shared index config, Arize Phoenix (ai-metrics tool), beep-effect-ai-metrics Pulumi project, Pulumi ai-metrics dankserver stack
 
 ### Community 1298 - "Community 1298"
-Cohesion: 0.20
-Nodes (10): TSConfigCompilerPlugins, properties, required, allOf, type, name, description, items (+2 more)
+Cohesion: 0.33
+Nodes (6): canvas Agent Guide, Canvas Tauri Command Bridge, @beep/canvas Tauri Shell, All-Local Capture Daemon, Tauri 2.x + React + Effect-TS Shell, Effect-First Pillar
 
 ### Community 1299 - "Community 1299"
 Cohesion: 0.60
@@ -8102,8 +7976,8 @@ Cohesion: 0.11
 Nodes (17): Repo Quality Convergence (initiative), P0 - Evidence Packet, P1 - Known Blockers, P2 - Guardrails And Tests, P3 - Proof And Review, Repo Quality Convergence Plan, Current Score, Mission (+9 more)
 
 ### Community 1340 - "Community 1340"
-Cohesion: 0.24
-Nodes (9): Reuse shared primitives before inventing, repo-exports.catalog.jsonc (machine-readable catalog), repo-exports.catalog.md (human-readable catalog), Repo Exports Catalog, Canonical Lookup, Duplicate-Avoidance Rule, Freshness, Repo Symbol Discovery (+1 more)
+Cohesion: 0.28
+Nodes (8): repo-exports.catalog.jsonc (machine-readable catalog), repo-exports.catalog.md (human-readable catalog), Repo Exports Catalog, Canonical Lookup, Duplicate-Avoidance Rule, Freshness, Repo Symbol Discovery, What The Catalog Means
 
 ### Community 1341 - "Community 1341"
 Cohesion: 0.40
@@ -8254,8 +8128,8 @@ Cohesion: 0.50
 Nodes (4): repository, directory, type, url
 
 ### Community 1381 - "Community 1381"
-Cohesion: 0.15
-Nodes (13): content, description, content, description, schema, application/json, text/html, requestBody (+5 more)
+Cohesion: 0.33
+Nodes (5): Execution Notes, Fallow Advisory Ratchets Plan, Phases, Status, Verification Commands
 
 ### Community 1382 - "Community 1382"
 Cohesion: 0.67
@@ -8578,8 +8452,8 @@ Cohesion: 0.50
 Nodes (3): exclude, $schema, srcLink
 
 ### Community 1468 - "Community 1468"
-Cohesion: 0.17
-Nodes (10): 0.0.1, 0.0.2, @beep/colors, Patch Changes, Patch Changes, 0.0.1, 0.0.2, @beep/postgres (+2 more)
+Cohesion: 0.40
+Nodes (5): 0.0.1, 0.0.2, @beep/postgres, Patch Changes, Patch Changes
 
 ### Community 1469 - "Community 1469"
 Cohesion: 0.50
@@ -8862,8 +8736,8 @@ Cohesion: 0.67
 Nodes (3): publishConfig, access, provenance
 
 ### Community 1560 - "Community 1560"
-Cohesion: 0.29
-Nodes (8): isExcludedFile(), makeAllowlistKey(), isExcludedTypeScriptSourcePath(), toPosixPath(), normalizeRelativeRef(), relativeFromRoot(), resolveTargetWorkspacesForPackageSync(), workspaceContainsPath()
+Cohesion: 0.33
+Nodes (6): First Proof, Local Docgen Lane, Mission, Reading Order, Repo Quality Acceleration, Status
 
 ### Community 1561 - "Community 1561"
 Cohesion: 0.67
@@ -9042,8 +8916,8 @@ Cohesion: 0.22
 Nodes (8): @beep/box Claude Guide, @beep/box Box Driver, @beep/box, Development, Installation, License, Streaming Payload Schemas, Usage
 
 ### Community 1659 - "Community 1659"
-Cohesion: 0.12
-Nodes (16): @beep/md per-package quality packets, QualityIssueIndex, RepoRunContext, Current Repo Evidence, Decisions Locked So Far, Implementation Note: Task-Aware Feedback Filters, Post-Compaction Turbo Research Pass, Product Direction (+8 more)
+Cohesion: 0.13
+Nodes (15): @beep/md per-package quality packets, QualityIssueIndex, Current Repo Evidence, Decisions Locked So Far, Implementation Note: Task-Aware Feedback Filters, Post-Compaction Turbo Research Pass, Product Direction, Research Shape To Resume (+7 more)
 
 ### Community 1661 - "Community 1661"
 Cohesion: 0.17
@@ -9098,8 +8972,8 @@ Cohesion: 0.28
 Nodes (7): CryptoTxnHash, CryptoTxnHashChecks, CryptoTxnHashRedacted, decodeCanonicalBase58(), $I, isCanonicalCryptoTxnHash(), isCanonicalSolanaSignature()
 
 ### Community 1690 - "Community 1690"
-Cohesion: 0.24
-Nodes (6): CodexSmokeResult, $I, runCodexSmoke, CodexRunnerError, CodexRunnerStage, $I
+Cohesion: 0.40
+Nodes (6): collectManagerMethods(), methodHasDeprecatedTag(), toIdentifier(), typeNameText(), typeReferencesNonJson(), unwrapPromise()
 
 ### Community 1691 - "Community 1691"
 Cohesion: 0.13
@@ -9314,8 +9188,8 @@ Cohesion: 0.23
 Nodes (9): emptyHeroVideoState, HeroVideo(), heroVideoAutoplayAtom, heroVideoElementAtom, heroVideoKey(), heroVideoPlayingAtom, HeroVideoState, heroVideoStateAtom (+1 more)
 
 ### Community 1744 - "Community 1744"
-Cohesion: 0.22
-Nodes (9): BunGlobConstructor, canConstructMatcher(), getBunGlobConstructor(), Glob, GlobArbitraryValues, GlobChecks, $I, isBunGlobConstructor() (+1 more)
+Cohesion: 0.60
+Nodes (5): Effect JSON Schema Metadata research, includeAnnotationKey whitelist (avoid broad ()=>true annotation leak), PackageJsonTools repo precedent for derived JSON Schema, S.toJsonSchemaDocument API (draft-2020-12 Document), Effect JSON Schema sidecars (S.toJsonSchemaDocument, non-RDF metadata)
 
 ### Community 1745 - "Community 1745"
 Cohesion: 0.17
@@ -9323,7 +9197,7 @@ Nodes (11): Adding to Inherited Arrays with `$TURBO_EXTENDS$`, Always Prefer Pac
 
 ### Community 1746 - "Community 1746"
 Cohesion: 0.07
-Nodes (34): Annotation Plan Dry Run, Agent-Effectiveness Doctor Trust Gate, agent-effectiveness-loop Parent Goal, Dry-Run-Default Confirmation-Gated Phoenix Write Principle, Agent Effectiveness Phoenix Enrichment Plan, Phase 0 - Goal Bootstrap, Phase 1 - First Enrichment Slice, Phase 2 - Expansion (+26 more)
+Nodes (25): agent-effectiveness-loop Parent Goal, Dry-Run-Default Confirmation-Gated Phoenix Write Principle, Agent Effectiveness Phoenix Enrichment Plan, Phase 0 - Goal Bootstrap, Phase 1 - First Enrichment Slice, Phase 2 - Expansion, Agent Effectiveness Phoenix Enrichment Specification, Completion Criteria (+17 more)
 
 ### Community 1747 - "Community 1747"
 Cohesion: 0.18
@@ -9466,8 +9340,8 @@ Cohesion: 0.10
 Nodes (20): Browser shows certificate warning with --https, Bypassing portless, CLI Reference, Environment variables, Framework not respecting PORT, How It Works, HTTP/2 + HTTPS, Installation (+12 more)
 
 ### Community 2000 - "Community 2000"
-Cohesion: 0.22
-Nodes (9): Acceptance Criteria, Architecture Decisions, Deferred Backlog, Executive Decision, Inputs, Phase 1 Contract, Ranked Implementation Plan, Status (+1 more)
+Cohesion: 0.40
+Nodes (4): Decisions, Doctrine Classification, Grounding Record, Predecessor Evidence
 
 ### Community 2168 - "Community 2168"
 Cohesion: 0.18
@@ -9494,8 +9368,8 @@ Cohesion: 0.18
 Nodes (10): Completion Standard, Current Progress, Overview, Read This First, Status, Unified AI Toolchain, V1: Schema Truth Layer, V2: Safe Operation And Automation (+2 more)
 
 ### Community 2174 - "Community 2174"
-Cohesion: 0.22
-Nodes (9): Conditional tag correctness, Custom tag registration, Final compilation, Import and pattern correctness, Post-Pass Checklist, Required tag presence, Schema annotation requirements, TSDoc grammar correctness (+1 more)
+Cohesion: 0.40
+Nodes (5): devDependencies, @beep/test-utils, @effect/vitest, @types/bun, @types/node
 
 ### Community 2175 - "Community 2175"
 Cohesion: 0.20
@@ -9510,8 +9384,8 @@ Cohesion: 0.20
 Nodes (9): 0.0.1, 0.0.2, 0.0.3, 0.0.4, @beep/canvas, Patch Changes, Patch Changes, Patch Changes (+1 more)
 
 ### Community 2178 - "Community 2178"
-Cohesion: 0.17
-Nodes (11): @context, agents, @base, foaf, surveyreg, thing, featureType, id (+3 more)
+Cohesion: 0.50
+Nodes (4): repository, directory, type, url
 
 ### Community 2180 - "Community 2180"
 Cohesion: 0.20
@@ -9598,8 +9472,8 @@ Cohesion: 0.20
 Nodes (10): Best Practices, Boundaries (Experimental), Caching, CI/CD, CLI, Configuration, Environment Variables, Filtering (+2 more)
 
 ### Community 2201 - "Community 2201"
-Cohesion: 0.17
-Nodes (11): @context, agents, @base, foaf, surveyreg, survtypes, thing, featureType (+3 more)
+Cohesion: 0.67
+Nodes (3): publishConfig, access, provenance
 
 ### Community 2202 - "Community 2202"
 Cohesion: 0.13
@@ -9654,8 +9528,8 @@ Cohesion: 0.22
 Nodes (8): Doctrine that backs the plan (no change needed), F1 — `canImportUtils` must also exclude `foundation/primitive` (RESOLVED, SPEC amended), F2 — Object → Struct/Record is struct-op replacement, not schema authoring (RESOLVED, SPEC amended), F3 — wrapper-precedence is user convention, not standards doctrine (ACCEPTED, no change), F4 — repo-wide scope is a superset of the "domain logic" ban (ACCEPTED, no change), Findings, Net effect on the plan, Phase 1.5 — grill-with-docs findings
 
 ### Community 2216 - "Community 2216"
-Cohesion: 0.15
-Nodes (21): main(), collectDeclarationNames(), collectDeclarations(), collectManagerMethods(), collectManagerProperties(), collectNonJsonDeclarationNames(), declarationFromStatement(), declarationName() (+13 more)
+Cohesion: 0.21
+Nodes (15): main(), collectDeclarationNames(), collectDeclarations(), collectManagerProperties(), collectNonJsonDeclarationNames(), declarationFromStatement(), declarationName(), hasExportModifier() (+7 more)
 
 ### Community 2217 - "Community 2217"
 Cohesion: 0.13
@@ -9786,16 +9660,16 @@ Cohesion: 0.25
 Nodes (7): 0.0.1, 0.0.2, 0.0.3, @beep/acp, Patch Changes, Patch Changes, Patch Changes
 
 ### Community 2249 - "Community 2249"
-Cohesion: 0.11
-Nodes (22): @beep/repo-codegraph, Catalog facts authoritative over embedding/graph hints, RepoExportsCatalog model, Package-local import policy (beep.importPolicy), Deterministic repo export lookup (lookupRepoExports), @beep/repo-cli (CLI surface for lookup), @beep/repo-cli, ai-metrics command (transcript/Phoenix/mirror/retention) (+14 more)
+Cohesion: 0.06
+Nodes (37): @beep/repo-codegraph, Catalog facts authoritative over embedding/graph hints, RepoExportsCatalog model, Package-local import policy (beep.importPolicy), Deterministic repo export lookup (lookupRepoExports), @beep/repo-cli (CLI surface for lookup), @beep/repo-configs, DocsESLintConfig (JSDoc/TSDoc lint surface) (+29 more)
 
 ### Community 2250 - "Community 2250"
 Cohesion: 0.22
 Nodes (9): addRequestBody(), connectSocket, failUnexpectedRequestPayload(), hasRequestPayload(), hasUnexpectedBinaryPayload(), hasUnexpectedJsonPayload(), hasUnexpectedMultipartPayload(), makeWebSocketEvents() (+1 more)
 
 ### Community 2251 - "Community 2251"
-Cohesion: 0.51
-Nodes (11): patch, patch, description, operationId, parameters, requestBody, responses, summary (+3 more)
+Cohesion: 0.67
+Nodes (3): makeRunModeFlags(), resolveRunMode(), resolveRunModeFlags
 
 ### Community 2252 - "Community 2252"
 Cohesion: 0.25
@@ -9809,10 +9683,6 @@ Nodes (10): AiToolError, @beep/wink, Development, Installation, License, Observa
 Cohesion: 0.18
 Nodes (10): Acceptance Criteria, Constraints, Exception Ledger, Non-Goals, Objective, Schema-First Zero Actionables Spec, Source Hierarchy, Stop Conditions (+2 more)
 
-### Community 2255 - "Community 2255"
-Cohesion: 0.20
-Nodes (9): endedAtTime, id, provType, used, id, links, provType, wasAttributedTo (+1 more)
-
 ### Community 2256 - "Community 2256"
 Cohesion: 0.25
 Nodes (7): @beep/box Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
@@ -9824,10 +9694,6 @@ Nodes (7): Canonical Slice Factory, Current Contract, Mission, Reading Order, Re
 ### Community 2258 - "Community 2258"
 Cohesion: 0.22
 Nodes (8): @beep/oip-web Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, This is NOT the Next.js you know, Verifications
-
-### Community 2259 - "Community 2259"
-Cohesion: 0.20
-Nodes (9): endedAtTime, generated, AgentType, id, response, type, prov:type, startedAtTime (+1 more)
 
 ### Community 2260 - "Community 2260"
 Cohesion: 0.25
@@ -9882,8 +9748,8 @@ Cohesion: 0.25
 Nodes (7): 0.0.1, 0.0.2, 0.0.3, @beep/codedank-web, Patch Changes, Patch Changes, Patch Changes
 
 ### Community 2273 - "Community 2273"
-Cohesion: 0.15
-Nodes (12): Phase 0 - Baseline And Parallel Exploration, Phase 1 - Low-Risk Orchestration Wins, Phase 2 - Repo-Cli Quality Orchestration, Phase 3 - Docgen And Metadata-Aware Selectivity, Repo Quality Acceleration Plan, Verification Posture, First Proof, Local Docgen Lane (+4 more)
+Cohesion: 0.33
+Nodes (6): Phase 0 - Baseline And Parallel Exploration, Phase 1 - Low-Risk Orchestration Wins, Phase 2 - Repo-Cli Quality Orchestration, Phase 3 - Docgen And Metadata-Aware Selectivity, Repo Quality Acceleration Plan, Verification Posture
 
 ### Community 2274 - "Community 2274"
 Cohesion: 0.22
@@ -9892,10 +9758,6 @@ Nodes (8): Codex Security Findings (2026-06), Current Phase, Latest Evidence, La
 ### Community 2275 - "Community 2275"
 Cohesion: 0.22
 Nodes (8): Current Decisions, Fallow Debt Burn-Down, Launch, Mission, Read This First, Status, Verification, Work Queue
-
-### Community 2276 - "Community 2276"
-Cohesion: 0.25
-Nodes (7): @beep/architecture-lab-config Agent Guide, Contributor Checklist, Quick Recipes, Laws, Purpose & Fit, Surface Map, Verifications
 
 ### Community 2277 - "Community 2277"
 Cohesion: 0.25
@@ -9929,17 +9791,13 @@ Nodes (7): @beep/canvas-domain Agent Guide, Contributor Checklist, Laws, Purpose
 Cohesion: 0.25
 Nodes (7): 0.0.3, @beep/canvas-domain, Patch Changes, Patch Changes, 0.0.1, 0.0.2, Patch Changes
 
-### Community 2285 - "Community 2285"
-Cohesion: 0.25
-Nodes (7): Add Here, @beep/shared-domain Agent Guide, Keep Out, Laws, Purpose & Fit, Surface Map, Verifications
-
 ### Community 2286 - "Community 2286"
 Cohesion: 0.25
-Nodes (7): @beep/architecture-lab-domain Agent Guide, Contributor Checklist, Quick Recipes, Laws, Purpose & Fit, Surface Map, Verifications
+Nodes (7): @beep/architecture-lab-domain Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
 ### Community 2287 - "Community 2287"
-Cohesion: 0.12
-Nodes (14): @beep/chalk, Development, Installation, License, Usage, @beep/shared-domain, Belongs Here, Does Not Belong Here (+6 more)
+Cohesion: 0.10
+Nodes (16): @beep/chalk, Development, Installation, License, Usage, @beep/epistemic-domain, @beep/shared-domain, Belongs Here (+8 more)
 
 ### Community 2288 - "Community 2288"
 Cohesion: 0.25
@@ -10030,12 +9888,8 @@ Cohesion: 0.25
 Nodes (7): Architecture, @beep/md, Core Modules, Dependencies, Design Decisions, Related, Usage Patterns
 
 ### Community 2310 - "Community 2310"
-Cohesion: 0.29
-Nodes (7): Closure Goal, Closure Notes, Deferred Decisions, OIP Web Production Hardening, Overview, Read This First, Status
-
-### Community 2311 - "Community 2311"
-Cohesion: 0.22
-Nodes (6): Encoded, Float16Arr, Float16ArrayField, Float16ArrayFromArray, $I, UnsupportedFloat16ArrayRuntimeError
+Cohesion: 0.16
+Nodes (11): Closure Rules, Implementation Status, OIP Web Production Hardening Plan, Proof Commands, Closure Goal, Closure Notes, Deferred Decisions, OIP Web Production Hardening (+3 more)
 
 ### Community 2312 - "Community 2312"
 Cohesion: 0.29
@@ -10057,10 +9911,6 @@ Nodes (6): Codex Security Findings (2026-06), Guardrails, Minimal Verification, 
 Cohesion: 0.25
 Nodes (7): @beep/ai-provider-cli Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2317 - "Community 2317"
-Cohesion: 0.22
-Nodes (8): @beep/oip-web Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, This is NOT the Next.js you know, Verifications
-
 ### Community 2318 - "Community 2318"
 Cohesion: 0.25
 Nodes (7): @beep/ai-sync Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
@@ -10079,7 +9929,7 @@ Nodes (8): Current Phase, Latest Evidence, Launch, Mission, Notes, Read This Fir
 
 ### Community 2322 - "Community 2322"
 Cohesion: 0.25
-Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, @beep/architecture-lab-use-cases Agent Guide, Contributor Checklist, Quick Recipes
+Nodes (7): @beep/architecture-lab-use-cases Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
 ### Community 2323 - "Community 2323"
 Cohesion: 0.25
@@ -10111,7 +9961,7 @@ Nodes (5): Codex Security Findings (2026-06) Plan, Execution Notes, Phases, Stat
 
 ### Community 2330 - "Community 2330"
 Cohesion: 0.25
-Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, Add Here, @beep/shared-server Agent Guide, Keep Out
+Nodes (7): Add Here, @beep/shared-server Agent Guide, Keep Out, Laws, Purpose & Fit, Surface Map, Verifications
 
 ### Community 2331 - "Community 2331"
 Cohesion: 0.33
@@ -10121,10 +9971,6 @@ Nodes (5): Execution Notes, Fallow Debt Burn-Down Plan, Phases, Status, Verifica
 Cohesion: 0.25
 Nodes (7): Add Here, Keep Out, Laws, Purpose & Fit, Surface Map, Verifications, @beep/workspace-tables Agent Guide
 
-### Community 2333 - "Community 2333"
-Cohesion: 0.25
-Nodes (7): @beep/ai-provider-cli Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
-
 ### Community 2334 - "Community 2334"
 Cohesion: 0.33
 Nodes (5): CSF-001: Redacted High Severity Finding, Current-HEAD Triage, Metadata, Public Patch Status, Public Summary
@@ -10132,10 +9978,6 @@ Nodes (5): CSF-001: Redacted High Severity Finding, Current-HEAD Triage, Metadat
 ### Community 2335 - "Community 2335"
 Cohesion: 0.33
 Nodes (5): CSF-002: Redacted High Severity Finding, Current-HEAD Triage, Metadata, Public Patch Status, Public Summary
-
-### Community 2336 - "Community 2336"
-Cohesion: 0.25
-Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, Add Here, @beep/shared-use-cases Agent Guide, Keep Out
 
 ### Community 2337 - "Community 2337"
 Cohesion: 0.25
@@ -10164,10 +10006,6 @@ Nodes (7): graphify reference: extra exports and benchmark, Step 6b - Wiki (only
 ### Community 2343 - "Community 2343"
 Cohesion: 0.33
 Nodes (5): CSF-004: Redacted Medium Severity Finding, Current-HEAD Triage, Metadata, Public Patch Status, Public Summary
-
-### Community 2344 - "Community 2344"
-Cohesion: 0.25
-Nodes (7): @beep/repo-codegraph Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
 ### Community 2345 - "Community 2345"
 Cohesion: 0.25
@@ -10462,8 +10300,8 @@ Cohesion: 0.29
 Nodes (6): @beep/repo-codegraph, Development, License, Purpose, Source Of Truth, Usage
 
 ### Community 2418 - "Community 2418"
-Cohesion: 0.20
-Nodes (10): @beep/observability, @beep/observability, dependencies, @beep/identity, @beep/observability, @beep/schema, @beep/utils, effect (+2 more)
+Cohesion: 0.33
+Nodes (6): dependencies, @beep/identity, @beep/observability, @beep/schema, @beep/utils, effect
 
 ### Community 2419 - "Community 2419"
 Cohesion: 0.33
@@ -10565,10 +10403,6 @@ Nodes (7): @beep/md Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Qui
 Cohesion: 0.25
 Nodes (7): @beep/nlp-mcp Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2445 - "Community 2445"
-Cohesion: 0.22
-Nodes (8): @beep/sanity Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications, Sanity service (Sanity, SanityQueryRequest, SanityQueryResponse)
-
 ### Community 2446 - "Community 2446"
 Cohesion: 0.29
 Nodes (6): Current Readiness, Primary Sources, Review Status, Schema-First V4 Capabilities, Scratch References, Why This Matters
@@ -10639,7 +10473,7 @@ Nodes (5): @beep/architecture-lab-client, Installation, Usage, Development, Lice
 
 ### Community 2463 - "Community 2463"
 Cohesion: 0.25
-Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, @beep/architecture-lab-ui Agent Guide, Contributor Checklist, Quick Recipes
+Nodes (7): @beep/architecture-lab-ui Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
 ### Community 2464 - "Community 2464"
 Cohesion: 0.33
@@ -10664,10 +10498,6 @@ Nodes (6): Adoption And Consumer Integration, Adoption Consequence, Bootstrap Wo
 ### Community 2469 - "Community 2469"
 Cohesion: 0.33
 Nodes (5): @beep/agent-capability-domain, 0.0.1, 0.0.2, Patch Changes, Patch Changes
-
-### Community 2470 - "Community 2470"
-Cohesion: 0.25
-Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, Add Here, @beep/shared-ui Agent Guide, Keep Out
 
 ### Community 2471 - "Community 2471"
 Cohesion: 0.33
@@ -10800,10 +10630,6 @@ Nodes (5): 0.0.1, 0.0.2, Patch Changes, @beep/shared-ui, Patch Changes
 ### Community 2505 - "Community 2505"
 Cohesion: 0.33
 Nodes (5): 0.0.1, 0.0.2, Patch Changes, Patch Changes, @beep/workspace-tables
-
-### Community 2508 - "Community 2508"
-Cohesion: 0.25
-Nodes (8): email, name, url, info, contact, description, title, version
 
 ### Community 2509 - "Community 2509"
 Cohesion: 0.33
@@ -11433,25 +11259,13 @@ Nodes (7): @beep/tika Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Q
 Cohesion: 0.25
 Nodes (7): @beep/xai Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2701 - "Community 2701"
-Cohesion: 0.29
-Nodes (6): @context, @base, id, provenance, type, wasGeneratedBy
-
 ### Community 2724 - "Community 2724"
 Cohesion: 0.25
 Nodes (7): @beep/architecture-lab-domain Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2726 - "Community 2726"
-Cohesion: 0.25
-Nodes (8): 21) Precise recovery by tag, 22) Expected failures vs defects, 23) Layer isolation when sharing is unsafe, Effect-First Development (Canonical), Non-Negotiable Laws, Source of Truth References, Verify, Zero-Fail Memory Rule
-
 ### Community 2727 - "Community 2727"
 Cohesion: 0.67
 Nodes (4): decodeJsonOption, parseWebSocketMessage(), rawDataToBytes(), rawDataToText()
-
-### Community 2728 - "Community 2728"
-Cohesion: 0.25
-Nodes (7): @beep/file-processing Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
 ### Community 2729 - "Community 2729"
 Cohesion: 0.40
@@ -11461,17 +11275,9 @@ Nodes (5): Phase 2a: Core (ships with Phase 2), Phase 2b: Rich Content, Phase 2c
 Cohesion: 0.67
 Nodes (3): peerDependencies, react, react-dom
 
-### Community 2731 - "Community 2731"
-Cohesion: 0.29
-Nodes (6): computedHash, source, sourceType, skills, shadcn, version
-
-### Community 2732 - "Community 2732"
-Cohesion: 0.25
-Nodes (7): @beep/form Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
-
 ### Community 2733 - "Community 2733"
-Cohesion: 0.10
-Nodes (22): Sanity CMS + HubSpot CRM + Vercel analytics recommendation, Spam controls (honeypot + minimum elapsed-time), App-local Effect Schema content contracts, @beep/oip-web app, @beep/ui stays product-agnostic UI foundation, Faithful refactor of Claude-designed prototype (not blank-page redesign), Closure Goal Command, Content Rules (+14 more)
+Cohesion: 0.14
+Nodes (12): Closure Goal Command, Content Rules, Implementation Status, OIP Web Launch Plan, Proof Commands, UI Rules, Closure Goal, Launch Notes (+4 more)
 
 ### Community 2734 - "Community 2734"
 Cohesion: 0.25
@@ -11485,10 +11291,6 @@ Nodes (7): @beep/konva Agent Guide, Contributor Checklist, Laws, Purpose & Fit, 
 Cohesion: 0.25
 Nodes (7): @beep/libpff Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2737 - "Community 2737"
-Cohesion: 0.40
-Nodes (4): acceptedOracle, excludedSurfaces, includedSurfaces, schemaVersion
-
 ### Community 2738 - "Community 2738"
 Cohesion: 0.25
 Nodes (7): @beep/md Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
@@ -11501,10 +11303,6 @@ Nodes (4): OWL_CLASS, OWL_DATATYPE_PROPERTY, OWL_NAMESPACE, OWL_OBJECT_PROPERTY
 Cohesion: 0.25
 Nodes (7): @beep/nlp-mcp Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2741 - "Community 2741"
-Cohesion: 0.40
-Nodes (4): featureType, id, provType, wasGeneratedBy
-
 ### Community 2742 - "Community 2742"
 Cohesion: 0.50
 Nodes (3): @beep/law-practice-domain, Runtime proof (law-practice context), Schema-first Effect Schema modeling discipline
@@ -11516,10 +11314,6 @@ Nodes (7): @beep/onepassword-cli Agent Guide, Contributor Checklist, Laws, Purpo
 ### Community 2744 - "Community 2744"
 Cohesion: 0.25
 Nodes (7): @beep/openai-compat Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
-
-### Community 2749 - "Community 2749"
-Cohesion: 0.25
-Nodes (7): Laws, Purpose & Fit, Surface Map, Verifications, @beep/architecture-lab-server Agent Guide, Contributor Checklist, Quick Recipes
 
 ### Community 2750 - "Community 2750"
 Cohesion: 0.25
@@ -11557,10 +11351,6 @@ Nodes (7): Add Here, Keep Out, Laws, Purpose & Fit, Surface Map, Verifications, 
 Cohesion: 0.25
 Nodes (7): @beep/repo-codegraph Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2795 - "Community 2795"
-Cohesion: 0.25
-Nodes (8): isControlCode(), isCsiFinalCode(), isCsiIntermediateCode(), isCsiParameterCode(), isEscFinalCode(), sanitizeTerminalText(), skipCsiSequence(), skipOscSequence()
-
 ### Community 2798 - "Community 2798"
 Cohesion: 0.25
 Nodes (7): @beep/runpod Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
@@ -11593,14 +11383,6 @@ Nodes (7): @beep/wink Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Q
 Cohesion: 0.25
 Nodes (7): @beep/xai Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2837 - "Community 2837"
-Cohesion: 0.29
-Nodes (7): Agent Effectiveness Phoenix Enrichment Specification, Completion Criteria, Constraints, Inputs, Mission, Scope, Status
-
-### Community 2842 - "Community 2842"
-Cohesion: 0.29
-Nodes (7): Agent Effectiveness Workflow Integration Specification, Completion Criteria, Constraints, Inputs, Mission, Scope, Status
-
 ### Community 2845 - "Community 2845"
 Cohesion: 0.29
 Nodes (7): @beep/postgres Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
@@ -11609,21 +11391,9 @@ Nodes (7): @beep/postgres Agent Guide, Contributor Checklist, Laws, Purpose & Fi
 Cohesion: 0.29
 Nodes (7): @beep/postgres Agent Guide, Contributor Checklist, Laws, Purpose & Fit, Quick Recipes, Surface Map, Verifications
 
-### Community 2851 - "Community 2851"
-Cohesion: 0.29
-Nodes (7): dependencies, @beep/identity, @beep/schema, @beep/utils, @clack/prompts, effect, @effect/platform-node
-
-### Community 2852 - "Community 2852"
-Cohesion: 0.38
-Nodes (7): exports, ./internal/*, ./package.json, publishConfig, access, exports, provenance
-
 ### Community 2853 - "Community 2853"
 Cohesion: 0.33
 Nodes (6): Agent Effectiveness Phoenix Enrichment, Current Recommendation, Mission, Reading Order, Starting Point, Status
-
-### Community 2854 - "Community 2854"
-Cohesion: 0.33
-Nodes (5): CliJsonError, encodeCommandJson, encodeJson, $I, printCommandJson
 
 ### Community 2855 - "Community 2855"
 Cohesion: 0.33
@@ -11633,14 +11403,6 @@ Nodes (6): Play optimization, Projection modes, Replay Projection Engine, Scrub 
 Cohesion: 0.33
 Nodes (5): @beep/postgres, Development, Installation, License, Usage
 
-### Community 2857 - "Community 2857"
-Cohesion: 0.33
-Nodes (6): bin, beep-sandbox, publishConfig, access, bin, provenance
-
-### Community 2858 - "Community 2858"
-Cohesion: 0.33
-Nodes (6): Canonical File-Role Anchors, Canonical Roots And Names, Family And Kind Dependency Rules, Non-Slice Family Grammar, Required Metadata, Slice Consumption Rules
-
 ### Community 2859 - "Community 2859"
 Cohesion: 0.40
 Nodes (3): AiMetricsCommandError, AiMetricsStatusExit, $I
@@ -11648,10 +11410,6 @@ Nodes (3): AiMetricsCommandError, AiMetricsStatusExit, $I
 ### Community 2860 - "Community 2860"
 Cohesion: 0.60
 Nodes (3): makeDrizzle, PostgresClient, Postgres SQLSTATE model (PgErrorCode/PgErrorName)
-
-### Community 2861 - "Community 2861"
-Cohesion: 0.60
-Nodes (5): exports, ./bin, ./internal/*, ./package.json, exports
 
 ### Community 2862 - "Community 2862"
 Cohesion: 0.50
@@ -11664,38 +11422,6 @@ Nodes (4): devDependencies, @beep/test-utils, @effect/vitest, @types/node
 ### Community 2864 - "Community 2864"
 Cohesion: 0.50
 Nodes (4): repository, directory, type, url
-
-### Community 2865 - "Community 2865"
-Cohesion: 0.50
-Nodes (4): repository, directory, type, url
-
-### Community 2866 - "Community 2866"
-Cohesion: 0.50
-Nodes (4): Escalation, Fast Rules, Schema-First Development, Workflow
-
-### Community 2867 - "Community 2867"
-Cohesion: 0.50
-Nodes (4): repository, directory, type, url
-
-### Community 2868 - "Community 2868"
-Cohesion: 0.67
-Nodes (3): externalDocs, description, url
-
-### Community 2869 - "Community 2869"
-Cohesion: 0.67
-Nodes (3): beep, family, kind
-
-### Community 2870 - "Community 2870"
-Cohesion: 0.67
-Nodes (3): devDependencies, @effect/vitest, @types/node
-
-### Community 2871 - "Community 2871"
-Cohesion: 0.67
-Nodes (3): RunpodError, Runpod, RunpodShape
-
-### Community 2872 - "Community 2872"
-Cohesion: 0.67
-Nodes (3): devDependencies, @effect/vitest, @types/node
 
 ## Ambiguous Edges - Review These
 - `orb-background-component.md` → `SKILL.md`  [AMBIGUOUS]
@@ -11710,9 +11436,9 @@ Nodes (3): devDependencies, @effect/vitest, @types/node
   packages/agent-capability/domain/README.md · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **31685 isolated node(s):** `$schema`, `changelog`, `commit`, `fixed`, `linked` (+31680 more)
+- **31442 isolated node(s):** `$schema`, `changelog`, `commit`, `fixed`, `linked` (+31437 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **469 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **380 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -11727,7 +11453,7 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: shares_data_with) - confidence is low._
 - **What is the exact relationship between `ArchitectureLabMigrationTarget` and `Agentic Professional Runtime proof`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `cn()` connect `Community 181` to `Community 641`, `Community 131`, `Community 516`, `Community 389`, `Community 517`, `Community 2184`, `Community 2444`, `Community 141`, `Community 540`, `Community 796`, `Community 797`, `Community 671`, `Community 928`, `Community 929`, `Community 541`, `Community 798`, `Community 1195`, `Community 1071`, `Community 689`, `Community 690`, `Community 180`, `Community 564`, `Community 186`, `Community 318`, `Community 1087`, `Community 833`, `Community 835`, `Community 843`, `Community 203`, `Community 717`, `Community 77`, `Community 718`, `Community 591`, `Community 589`, `Community 1742`, `Community 92`, `Community 358`, `Community 870`, `Community 377`, `Community 749`, `Community 750`, `Community 110`, `Community 751`, `Community 114`, `Community 888`, `Community 247`, `Community 376`, `Community 889`?**
-  _High betweenness centrality (0.018) - this node is a cross-community bridge._
-- **Why does `Dual()` connect `Community 333` to `Community 1192`, `Community 1619`, `Community 204`, `Community 309`?**
+- **Why does `cn()` connect `Community 181` to `Community 641`, `Community 131`, `Community 516`, `Community 389`, `Community 517`, `Community 2184`, `Community 2444`, `Community 141`, `Community 540`, `Community 796`, `Community 797`, `Community 671`, `Community 928`, `Community 929`, `Community 541`, `Community 798`, `Community 1195`, `Community 1071`, `Community 689`, `Community 690`, `Community 564`, `Community 180`, `Community 186`, `Community 318`, `Community 1087`, `Community 832`, `Community 833`, `Community 835`, `Community 843`, `Community 203`, `Community 717`, `Community 77`, `Community 718`, `Community 591`, `Community 589`, `Community 1742`, `Community 92`, `Community 358`, `Community 377`, `Community 749`, `Community 750`, `Community 110`, `Community 751`, `Community 114`, `Community 888`, `Community 374`, `Community 247`, `Community 376`, `Community 889`?**
   _High betweenness centrality (0.017) - this node is a cross-community bridge._
+- **Why does `Dual()` connect `Community 333` to `Community 1192`, `Community 1619`, `Community 204`, `Community 309`?**
+  _High betweenness centrality (0.015) - this node is a cross-community bridge._
