@@ -123,7 +123,7 @@ jobs:
 
             if [[ -z "$changed_files" ]]; then
               should_run=false
-            elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/|^packages/|^infra/|^docs/|/docgen\.json$|\.(ts|tsx|mts|cts|md)$)'; then
+            elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/|^packages/|^infra/|/docgen\.json$|\.(ts|tsx|mts|cts|md)$)'; then
               should_run=false
             elif printf "%s\n" "$changed_files" | grep -Eq '(^packages/tooling/tool/docgen/|^packages/tooling/tool/cli/src/commands/Docgen/|^(\.bun-version|bun\.lock|package\.json|turbo\.json|tsconfig(\..*)?\.json)$)'; then
               docgen_mode=full

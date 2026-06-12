@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0780d3044c16eaaf51feeb3cc0f5b83b19df1dac854d01eb090457acd571e370",
+    "digest": "50b2ef21fb9125cf57888fb6ca1f83dccfd8ee708dad41cdd7711d7342db0f0d",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -182,8 +182,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-        "sha256": "3701868d6675087c22964865b7f6c0ec0b5104e5f003e97e55a83960a596433a",
-        "bytes": 58142
+        "sha256": "a97a3b016517eb41a7075434907dcc4cc1bfbbed4bc032d5977250d34bdd4c8a",
+        "bytes": 58145
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
@@ -6970,7 +6970,7 @@
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
         "sourceLine": 1451,
-        "summary": "Aggregate generated package docs into the root docs/generated layout.",
+        "summary": "Aggregate generated package docs into the root `docs/generated/` layout.",
         "categories": [
           "models"
         ],
@@ -6983,7 +6983,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/operations ./commands/docgen/internal/operations aggregategenerateddocs const aggregate generated package docs into the root docs/generated layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/operations ./commands/docgen/internal/operations aggregategenerateddocs const aggregate generated package docs into the root `docs/generated/` layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -37477,7 +37477,7 @@
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
         "sourceLine": 1451,
-        "summary": "Aggregate generated package docs into the root docs/generated layout.",
+        "summary": "Aggregate generated package docs into the root `docs/generated/` layout.",
         "categories": [
           "models"
         ],
@@ -37490,7 +37490,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen aggregategenerateddocs const aggregate generated package docs into the root docs/generated layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen aggregategenerateddocs const aggregate generated package docs into the root `docs/generated/` layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
       },
       {
         "packageName": "@beep/repo-cli",

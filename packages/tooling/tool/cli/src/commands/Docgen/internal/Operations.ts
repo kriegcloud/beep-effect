@@ -1441,7 +1441,7 @@ export const generateAnalysisReport: {
 export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string => jsonText(analysis);
 
 /**
- * Aggregate generated package docs into the root docs/generated layout.
+ * Aggregate generated package docs into the root `docs/generated/` layout.
  *
  * @param options - Aggregate configuration for the docs copy step, including the clean flag and optional package selector.
  * @returns Per-package aggregation results using the current nested layout.
