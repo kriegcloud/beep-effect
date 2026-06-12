@@ -7,7 +7,6 @@
 - **package.json** (16 connections) — `packages/foundation/modeling/md/package.json`
 - **scripts** (13 connections) — `packages/foundation/modeling/md/package.json`
 - **exports** (8 connections) — `packages/foundation/modeling/md/package.json`
-- **exports** (8 connections) — `packages/foundation/modeling/md/package.json`
 - **dependencies** (5 connections) — `packages/foundation/modeling/md/package.json`
 - **publishConfig** (4 connections) — `packages/foundation/modeling/md/package.json`
 - **repository** (4 connections) — `packages/foundation/modeling/md/package.json`
