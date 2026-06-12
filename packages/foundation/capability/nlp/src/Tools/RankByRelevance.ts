@@ -38,15 +38,16 @@ class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`Ra
   })
 ) {}
 
-const RankByRelevanceSuccess = S.Struct({
-  ranked: S.Array(AiRankedText),
-  returned: S.Finite,
-  totalTexts: S.Finite,
-}).pipe(
-  $I.annoteSchema("RankByRelevanceSuccess", {
+class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRelevanceSuccess`)(
+  {
+    ranked: S.Array(AiRankedText),
+    returned: S.Finite,
+    totalTexts: S.Finite,
+  },
+  $I.annote("RankByRelevanceSuccess", {
     description: "Ranked relevance results and source-text count metadata.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for ranking candidate texts by
@@ -77,5 +78,5 @@ export const RankByRelevance = Tool.make("RankByRelevance", {
   failure: AiToolError,
   failureMode: "return",
   parameters: RankByRelevanceParameters,
-  success: RankByRelevanceSuccess,
+  success: S.toEncoded(RankByRelevanceSuccess),
 });

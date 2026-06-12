@@ -110,6 +110,21 @@ const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
 ];
 
 describe("Secure header schemas", () => {
+  it("derives cross-origin option examples directly from the source schema", () => {
+    const optionArbitrary = S.toArbitrary(CrossOriginEmbedderPolicyOption);
+
+    fc.assert(
+      fc.property(optionArbitrary, (option) => {
+        expectHeader(
+          S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)(option),
+          "Cross-Origin-Embedder-Policy",
+          P.isString(option) ? option : undefined
+        );
+      }),
+      { numRuns: 25 }
+    );
+  });
+
   for (const testCase of crossOriginCases) {
     describe(testCase.label, () => {
       it("decodes undefined and false to a disabled header", () => {

@@ -24,14 +24,15 @@ class SentencesParameters extends S.Class<SentencesParameters>($I`SentencesParam
   })
 ) {}
 
-const SentencesSuccess = S.Struct({
-  sentenceCount: S.Finite,
-  sentences: S.Array(AiSentence),
-}).pipe(
-  $I.annoteSchema("SentencesSuccess", {
+class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
+  {
+    sentenceCount: S.Finite,
+    sentences: S.Array(AiSentence),
+  },
+  $I.annote("SentencesSuccess", {
     description: "Sentence segmentation result and the total number of detected sentences.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for splitting text into sentence
@@ -60,5 +61,5 @@ export const Sentences = Tool.make("Sentences", {
   failure: AiToolError,
   failureMode: "return",
   parameters: SentencesParameters,
-  success: SentencesSuccess,
+  success: S.toEncoded(SentencesSuccess),
 });

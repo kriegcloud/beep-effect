@@ -75,7 +75,7 @@ export const Default: Story = {
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline">Cancel</Button>} />
-          <Button type="submit">Save changes</Button>
+          <Button type="button">Save changes</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "153add3ce496a466291105b99cd129d0692425001d985be1462187b74efffd45",
+    "digest": "5d8a284f794c8ad3e293306a25a234aab719bf554f56d82a32681f403854c469",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,18 @@
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/index.ts",
-        "sha256": "7f7e3980753c578358698d2a4f44de277139db5f68ff089885b64574acc39b7a",
-        "bytes": 408
+        "sha256": "0e9c2be2161e9d03fbe641bc30fe98b9d6edfb09c0055b20f8593759a9fc0a62",
+        "bytes": 524
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/Layer.ts",
         "sha256": "2d236a85d4b26fb94038c408bc1b6e6abdd5bdae4bd02d117eb9e37a6f77dd07",
         "bytes": 1071
+      },
+      {
+        "path": "packages/tooling/test-kit/test-utils/src/Schema.ts",
+        "sha256": "e25c4e4a9b1d8fe1510530c60d91da3dfcb21125e8fa2745812e8cf3ffe396af",
+        "bytes": 1309
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
@@ -66,14 +71,41 @@
       "@beep/test-utils",
       "@beep/test-utils/index",
       "@beep/test-utils/Layer",
+      "@beep/test-utils/Schema",
       "@beep/test-utils/SqlTest"
     ],
     "counts": {
-      "publicExportEntries": 60,
-      "uniqueSymbols": 20,
-      "sourceFiles": 3
+      "publicExportEntries": 63,
+      "uniqueSymbols": 21,
+      "sourceFiles": 4
     },
     "exports": [
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
+        "symbolName": "assertSchemaArbitraryDecodesToSelf",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
+        "sourceLine": 30,
+        "summary": "Assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . assertschemaarbitrarydecodestoself const assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation. schema packages/tooling/test-kit/test-utils/src/schema.ts"
+      },
       {
         "packageName": "@beep/test-utils",
         "packagePath": "packages/tooling/test-kit/test-utils",
@@ -581,6 +613,32 @@
           "@since"
         ],
         "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . testdatabaseinfoshape class runtime metadata for an ephemeral integration-test database instance. models packages/tooling/test-kit/test-utils/src/sqltest.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
+        "symbolName": "assertSchemaArbitraryDecodesToSelf",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
+        "sourceLine": 30,
+        "summary": "Assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index assertschemaarbitrarydecodestoself const assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation. schema packages/tooling/test-kit/test-utils/src/schema.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -1116,6 +1174,32 @@
           "@since"
         ],
         "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/layer ./layer providescopedlayer const provide a layer to an effect inside a scoped lifetime. layers packages/tooling/test-kit/test-utils/src/layer.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils/Schema",
+        "exportSubpath": "./Schema",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
+        "symbolName": "assertSchemaArbitraryDecodesToSelf",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Schema.ts",
+        "sourceLine": 30,
+        "summary": "Assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation.",
+        "categories": [
+          "schema"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/schema ./schema assertschemaarbitrarydecodestoself const assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation. schema packages/tooling/test-kit/test-utils/src/schema.ts"
       },
       {
         "packageName": "@beep/test-utils",

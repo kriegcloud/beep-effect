@@ -151,34 +151,37 @@ const BeepPackageFamily = LiteralKit(["foundation", "drivers", "tooling"]).pipe(
   })
 );
 
-const BeepFoundationMetadata = S.Struct({
-  family: S.Literal("foundation"),
-  kind: BeepFoundationKind,
-}).pipe(
-  $I.annoteSchema("BeepFoundationMetadata", {
+class BeepFoundationMetadata extends S.Class<BeepFoundationMetadata>($I`BeepFoundationMetadata`)(
+  {
+    family: S.Literal("foundation"),
+    kind: BeepFoundationKind,
+  },
+  $I.annote("BeepFoundationMetadata", {
     title: "Beep Foundation Metadata",
     description: "Repo-local package metadata for foundation packages.",
   })
-);
+) {}
 
-const BeepDriverMetadata = S.Struct({
-  family: S.Literal("drivers"),
-}).pipe(
-  $I.annoteSchema("BeepDriverMetadata", {
+class BeepDriverMetadata extends S.Class<BeepDriverMetadata>($I`BeepDriverMetadata`)(
+  {
+    family: S.Literal("drivers"),
+  },
+  $I.annote("BeepDriverMetadata", {
     title: "Beep Driver Metadata",
     description: "Repo-local package metadata for flat driver packages.",
   })
-);
+) {}
 
-const BeepToolingMetadata = S.Struct({
-  family: S.Literal("tooling"),
-  kind: BeepToolingKind,
-}).pipe(
-  $I.annoteSchema("BeepToolingMetadata", {
+class BeepToolingMetadata extends S.Class<BeepToolingMetadata>($I`BeepToolingMetadata`)(
+  {
+    family: S.Literal("tooling"),
+    kind: BeepToolingKind,
+  },
+  $I.annote("BeepToolingMetadata", {
     title: "Beep Tooling Metadata",
     description: "Repo-local package metadata for tooling packages.",
   })
-);
+) {}
 
 const BeepPackageMetadata = BeepPackageFamily.mapMembers(
   Tuple.evolve([() => BeepFoundationMetadata, () => BeepDriverMetadata, () => BeepToolingMetadata])

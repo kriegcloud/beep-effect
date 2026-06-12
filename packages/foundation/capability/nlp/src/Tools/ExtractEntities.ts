@@ -28,26 +28,27 @@ class ExtractEntitiesParameters extends S.Class<ExtractEntitiesParameters>($I`Ex
   })
 ) {}
 
-const ExtractEntitiesSuccess = S.Struct({
-  allEntities: S.Array(AiEntity).annotateKey({
-    description: "Combined built-in and custom entity matches",
-  }),
-  allEntityCount: S.Finite,
-  customEntities: S.Array(AiEntity).annotateKey({
-    description: "Custom learned entity matches",
-  }),
-  customEntityCount: S.Finite,
-  customEntityTypes: S.Array(S.String),
-  entities: S.Array(AiEntity).annotateKey({
-    description: "Built-in entity matches",
-  }),
-  entityCount: S.Finite,
-  entityTypes: S.Array(S.String),
-}).pipe(
-  $I.annoteSchema("ExtractEntitiesSuccess", {
+class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractEntitiesSuccess`)(
+  {
+    allEntities: S.Array(AiEntity).annotateKey({
+      description: "Combined built-in and custom entity matches",
+    }),
+    allEntityCount: S.Finite,
+    customEntities: S.Array(AiEntity).annotateKey({
+      description: "Custom learned entity matches",
+    }),
+    customEntityCount: S.Finite,
+    customEntityTypes: S.Array(S.String),
+    entities: S.Array(AiEntity).annotateKey({
+      description: "Built-in entity matches",
+    }),
+    entityCount: S.Finite,
+    entityTypes: S.Array(S.String),
+  },
+  $I.annote("ExtractEntitiesSuccess", {
     description: "Entity extraction result including built-in entities and optional learned custom entities.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for extracting built-in and custom
@@ -78,5 +79,5 @@ export const ExtractEntities = Tool.make("ExtractEntities", {
   failure: AiToolError,
   failureMode: "return",
   parameters: ExtractEntitiesParameters,
-  success: ExtractEntitiesSuccess,
+  success: S.toEncoded(ExtractEntitiesSuccess),
 });

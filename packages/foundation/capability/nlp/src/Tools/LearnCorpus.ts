@@ -40,18 +40,19 @@ class LearnCorpusParameters extends S.Class<LearnCorpusParameters>($I`LearnCorpu
   })
 ) {}
 
-const LearnCorpusSuccess = S.Struct({
-  corpusId: S.String,
-  learnedCount: NonNegativeInt,
-  reindexRequired: S.Boolean,
-  skippedCount: NonNegativeInt,
-  totalDocuments: NonNegativeInt,
-  vocabularySize: NonNegativeInt,
-}).pipe(
-  $I.annoteSchema("LearnCorpusSuccess", {
+class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSuccess`)(
+  {
+    corpusId: S.String,
+    learnedCount: NonNegativeInt,
+    reindexRequired: S.Boolean,
+    skippedCount: NonNegativeInt,
+    totalDocuments: NonNegativeInt,
+    vocabularySize: NonNegativeInt,
+  },
+  $I.annote("LearnCorpusSuccess", {
     description: "Learning result summary for an incremental corpus update.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for incrementally learning documents
@@ -82,5 +83,5 @@ export const LearnCorpus = Tool.make("LearnCorpus", {
   failure: AiToolError,
   failureMode: "return",
   parameters: LearnCorpusParameters,
-  success: LearnCorpusSuccess,
+  success: S.toEncoded(LearnCorpusSuccess),
 });

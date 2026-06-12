@@ -12,6 +12,8 @@ import * as Exit from "effect/Exit";
 import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
 
+const AnnotatedDocumentArbitrary = S.toArbitrary(Contract.AnnotatedDocument);
+
 const sampleProvenance = Contract.Provenance.make({
   generatedBy: "wink-nlp",
   source: "doc-1",
@@ -74,6 +76,22 @@ describe("AnnotatedDocument round-trip", () => {
       expect(decoded.relations.every((r) => typeof r.provenance.timestamp === "number")).toBe(true);
     })
   );
+
+  it("schema-derived documents encode and decode through the production contract", () => {
+    fc.assert(
+      fc.property(AnnotatedDocumentArbitrary, (document) => {
+        const decoded = Effect.runSync(
+          Effect.gen(function* () {
+            const encoded = yield* S.encodeUnknownEffect(Contract.AnnotatedDocument)(document);
+            return yield* S.decodeUnknownEffect(Contract.AnnotatedDocument)(encoded);
+          })
+        );
+
+        expect(decoded).toEqual(document);
+      }),
+      { numRuns: 25 }
+    );
+  });
 });
 
 describe("Span", () => {

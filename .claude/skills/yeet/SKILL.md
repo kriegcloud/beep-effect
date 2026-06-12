@@ -116,6 +116,27 @@ bun run beep yeet publish --push-only --reuse-verified
 bun run beep yeet monitor
 ```
 
+- Read the local Yeet operator state before scanning logs. This is local-only
+  by default and reads branch/worktree state plus the latest Yeet artifacts:
+
+```bash
+bun run beep yeet status
+bun run beep yeet status --json
+```
+
+- Include live GitHub PR/check/mergeability data only when you need it:
+
+```bash
+bun run beep yeet status --remote
+```
+
+- Print compact operator summaries for hosted monitor or closeout flows:
+
+```bash
+bun run beep yeet monitor --summary
+bun run beep yeet closeout --summary --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0
+```
+
 - Inspect hosted review/bot closeout gates for the current branch PR:
 
 ```bash
@@ -136,6 +157,8 @@ bun run beep yeet repair --plan --json
 bun run beep yeet verify --plan --json
 bun run beep yeet verify --tier review-fix --plan --json
 bun run beep yeet publish --message "type(scope): summary" --plan --json
+bun run beep yeet status --remote --plan --json
+bun run beep yeet monitor --summary --plan --json
 bun run beep yeet closeout --plan --json
 ```
 
@@ -144,18 +167,21 @@ bun run beep yeet closeout --plan --json
 1. Run `bun run beep yeet repair` when local changes need deterministic fixers,
    docgen, repo-export catalog repair, or affected feedback.
 2. Stage the reviewed files explicitly.
-3. Run `bun run beep yeet publish --message "type(scope): summary"`.
-4. If no pull request exists for the pushed branch, prefer publishing with
+3. Run `bun run beep yeet status` when you need a compact local readiness
+   snapshot before publishing.
+4. Run `bun run beep yeet publish --message "type(scope): summary"`.
+5. If no pull request exists for the pushed branch, prefer publishing with
    `--pr` so Yeet creates a ready PR from the commit log and local proof
    summary; `gh pr create --draft --fill` remains the manual fallback.
-5. Run `bun run beep yeet monitor` for hosted checks.
-6. Run `bun run beep yeet closeout --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0`
+6. Run `bun run beep yeet monitor --summary` for hosted checks when compact
+   operator output is enough; omit `--summary` when you need the full stream.
+7. Run `bun run beep yeet closeout --summary --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0`
    to inspect unresolved actionable review threads and review-bot gates.
-7. Use `bun run beep yeet verify --tier review-fix` while fixing PR comments,
+8. Use `bun run beep yeet verify --tier review-fix` while fixing PR comments,
    then use normal Yeet publish or the exact-match amend retry when appropriate.
-8. Address failed checks or actionable review comments with follow-up commits
+9. Address failed checks or actionable review comments with follow-up commits
    through the same Yeet publish path.
-9. Mark the PR ready only when checks are green, there are no unresolved
+10. Mark the PR ready only when checks are green, there are no unresolved
    actionable review threads, and GitHub reports the branch as mergeable or not
    conflicted.
 
@@ -195,7 +221,9 @@ the authoritative gates.
 - Every non-plan Yeet run writes `.beep/yeet/runs/<branch>/verdict.json`
   (`yeet-verdict/v1`): outcome, per-lane status, repair command for each
   failed lane, packet paths, staged-only stash identity, and base-freshness
-  data. Read the verdict before scanning logs.
+  data. Read `yeet status` or the verdict before scanning logs. `yeet status`
+  is observational and writes `.beep/yeet/runs/<branch>/status.json` instead of
+  replacing the latest verdict.
 - Failure packets land under `.beep/yeet/packets/` with the quality-issue
   index at `.beep/yeet/quality-issue-index.json`.
 - The local pre-push proof includes `changeset status --since=origin/main`
@@ -239,8 +267,10 @@ the authoritative gates.
   stale-base refusals. Intent refusals print a summarized path list on stderr;
   the full list lives in the packet. Known sub-lane hints cover cspell, typos,
   terse-effect, dual-arity, repo-export catalog, docgen, changeset status,
-  secrets, SAST, security, and Nix. Prefer the suggested repair command in the
-  packet (or `verdict.json`) over rerunning the whole loop blindly.
+  secrets, SAST, security, and Nix. Hint selection prefers output near the
+  actual failure marker before falling back to broad log scanning. Prefer the
+  suggested repair command in `yeet status`, the packet, or `verdict.json` over
+  rerunning the whole loop blindly.
 - Root composite lanes prefer streaming accumulation where child commands are
   independent. For example, root `lint` streams the Turbo/Biome aggregate and
   then still runs repo-law policy lints, so one lint-family failure does not

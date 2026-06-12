@@ -11,9 +11,16 @@ export default defineConfig({
   ],
   test: {
     name: "storybook",
+    fileParallelism: false,
+    maxConcurrency: 1,
+    maxWorkers: 1,
+    sequence: {
+      concurrent: false,
+    },
     setupFiles: [fileURLToPath(new URL("vitest.storybook.setup.ts", import.meta.url))],
     browser: {
       enabled: true,
+      fileParallelism: false,
       headless: true,
       provider: playwright({}),
       instances: [{ browser: "chromium" }],

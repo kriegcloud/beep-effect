@@ -76,5 +76,5 @@ export const PhoneticMatch = Tool.make("PhoneticMatch", {
   failure: AiToolError,
   failureMode: "return",
   parameters: PhoneticMatchParameters,
-  success: AiPhoneticMatch,
+  success: S.toEncoded(AiPhoneticMatch),
 });

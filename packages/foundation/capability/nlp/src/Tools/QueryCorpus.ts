@@ -33,30 +33,31 @@ class QueryCorpusParameters extends S.Class<QueryCorpusParameters>($I`QueryCorpu
   })
 ) {}
 
-const QueryCorpusSuccess = S.Struct({
-  corpusId: S.String.annotateKey({
-    description: "Corpus identifier used for the query.",
-  }),
-  method: S.Literal("vector.cosine").annotateKey({
-    description: "Similarity method used to rank corpus documents.",
-  }),
-  query: S.String.annotateKey({
-    description: "Original query text used for ranking.",
-  }),
-  ranked: S.Array(AiCorpusRankedDocument).annotateKey({
-    description: "Ranked documents returned from the corpus query.",
-  }),
-  returned: S.Finite.annotateKey({
-    description: "Number of ranked documents returned in this response.",
-  }),
-  totalDocuments: S.Finite.annotateKey({
-    description: "Total number of learned documents available in the corpus.",
-  }),
-}).pipe(
-  $I.annoteSchema("QueryCorpusSuccess", {
+class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSuccess`)(
+  {
+    corpusId: S.String.annotateKey({
+      description: "Corpus identifier used for the query.",
+    }),
+    method: S.Literal("vector.cosine").annotateKey({
+      description: "Similarity method used to rank corpus documents.",
+    }),
+    query: S.String.annotateKey({
+      description: "Original query text used for ranking.",
+    }),
+    ranked: S.Array(AiCorpusRankedDocument).annotateKey({
+      description: "Ranked documents returned from the corpus query.",
+    }),
+    returned: S.Finite.annotateKey({
+      description: "Number of ranked documents returned in this response.",
+    }),
+    totalDocuments: S.Finite.annotateKey({
+      description: "Total number of learned documents available in the corpus.",
+    }),
+  },
+  $I.annote("QueryCorpusSuccess", {
     description: "Ranked corpus query results and result-count metadata.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for querying a learned corpus session
@@ -88,5 +89,5 @@ export const QueryCorpus = Tool.make("QueryCorpus", {
   failure: AiToolError,
   failureMode: "return",
   parameters: QueryCorpusParameters,
-  success: QueryCorpusSuccess,
+  success: S.toEncoded(QueryCorpusSuccess),
 });

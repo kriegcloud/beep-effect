@@ -89,7 +89,14 @@ export class Position extends S.Class<Position>($I`Position`)({
   static readonly new: {
     (line: number, column: number): Position;
     (column: number): (line: number) => Position;
-  } = dual(2, (line: number, column: number): Position => Position.make({ column, line }));
+  } = dual(
+    2,
+    (line: number, column: number): Position =>
+      Position.make({
+        column,
+        line,
+      })
+  );
 }
 
 /**
@@ -210,7 +217,12 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry =>
-      DocEntry.make({ name, doc, signature: options.signature, position: options.position })
+      DocEntry.make({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+      })
   );
 }
 
@@ -241,8 +253,7 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
  * @category models
  * @since 0.0.0
  */
-export class Class extends S.Class<Class>($I`Class`)({
-  _tag: S.tag("Class"),
+export class Class extends S.TaggedClass<Class>($I`Class`)("Class", {
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -301,8 +312,7 @@ export class Class extends S.Class<Class>($I`Class`)({
  * @category models
  * @since 0.0.0
  */
-export class Interface extends S.Class<Interface>($I`Interface`)({
-  _tag: S.tag("Interface"),
+export class Interface extends S.TaggedClass<Interface>($I`Interface`)("Interface", {
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -322,7 +332,12 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): Interface =>
-      Interface.make({ name, doc, signature: options.signature, position: options.position })
+      Interface.make({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+      })
   );
 }
 
@@ -350,8 +365,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
  * @category models
  * @since 0.0.0
  */
-export class Function extends S.Class<Function>($I`Function`)({
-  _tag: S.tag("Function"),
+export class Function extends S.TaggedClass<Function>($I`Function`)("Function", {
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -371,7 +385,12 @@ export class Function extends S.Class<Function>($I`Function`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): Function =>
-      Function.make({ name, doc, signature: options.signature, position: options.position })
+      Function.make({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+      })
   );
 }
 
@@ -399,8 +418,7 @@ export class Function extends S.Class<Function>($I`Function`)({
  * @category models
  * @since 0.0.0
  */
-export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
-  _tag: S.tag("TypeAlias"),
+export class TypeAlias extends S.TaggedClass<TypeAlias>($I`TypeAlias`)("TypeAlias", {
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -420,7 +438,12 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias =>
-      TypeAlias.make({ name, doc, signature: options.signature, position: options.position })
+      TypeAlias.make({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+      })
   );
 }
 
@@ -448,8 +471,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
  * @category models
  * @since 0.0.0
  */
-export class Constant extends S.Class<Constant>($I`Constant`)({
-  _tag: S.tag("Constant"),
+export class Constant extends S.TaggedClass<Constant>($I`Constant`)("Constant", {
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -469,7 +491,12 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
   } = dual(
     3,
     (name: string, doc: Doc, options: SignaturePositionOptions): Constant =>
-      Constant.make({ name, doc, signature: options.signature, position: options.position })
+      Constant.make({
+        name,
+        doc,
+        signature: options.signature,
+        position: options.position,
+      })
   );
 }
 
@@ -506,8 +533,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  * @category models
  * @since 0.0.0
  */
-export class Export extends S.Class<Export>($I`Export`)({
-  _tag: S.tag("Export"),
+export class Export extends S.TaggedClass<Export>($I`Export`)("Export", {
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -564,8 +590,7 @@ export class Export extends S.Class<Export>($I`Export`)({
  * @category models
  * @since 0.0.0
  */
-export class Namespace extends S.Class<Namespace>($I`Namespace`)({
-  _tag: S.tag("Namespace"),
+export class Namespace extends S.TaggedClass<Namespace>($I`Namespace`)("Namespace", {
   name: S.String,
   doc: Doc,
   position: Position,
@@ -706,7 +731,11 @@ export class File extends S.Class<File>($I`File`)({
     (content: string, options: FileNewOptions): (path: string) => File;
   } = dual(3, (path: string, content: string, options: FileNewOptions): File => {
     const isOverwritable = options.isOverwritable ?? false;
-    return File.make({ path, content, isOverwritable });
+    return File.make({
+      path,
+      content,
+      isOverwritable,
+    });
   });
 }
 
