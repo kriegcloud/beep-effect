@@ -109,6 +109,27 @@ export {
   codexCommand,
 } from "./commands/Codex/index.js";
 /**
+ * Corpus curation command group.
+ *
+ * @category cli-commands
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Corpus curation command group.
+   *
+   * @example
+   * ```ts
+   * import { corpusCommand } from "@beep/repo-cli"
+   *
+   * console.log(corpusCommand)
+   * ```
+   * @category cli-commands
+   * @since 0.0.0
+   */
+  corpusCommand,
+} from "./commands/Corpus/index.js";
+/**
  * Package scaffolding command for creating new workspace packages.
  *
  * @category cli-commands

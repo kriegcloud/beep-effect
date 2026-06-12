@@ -65,6 +65,9 @@
       "@beep/repo-cli/commands/Codex": [
         "../../../../packages/tooling/tool/cli/src/commands/Codex/index.ts"
       ],
+      "@beep/repo-cli/commands/Corpus": [
+        "../../../../packages/tooling/tool/cli/src/commands/Corpus/index.ts"
+      ],
       "@beep/repo-cli/commands/CreatePackage": [
         "../../../../packages/tooling/tool/cli/src/commands/CreatePackage/index.ts"
       ],
@@ -585,6 +588,8 @@
       ],
       "@beep/tika": ["../../../../packages/drivers/tika/src/index.ts"],
       "@beep/tika/*": ["../../../../packages/drivers/tika/src/*.ts"],
+      "@beep/uspto": ["../../../../packages/drivers/uspto/src/index.ts"],
+      "@beep/uspto/*": ["../../../../packages/drivers/uspto/src/*.ts"],
       "@beep/utils": [
         "../../../../packages/foundation/modeling/utils/src/index.ts"
       ],

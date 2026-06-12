@@ -430,6 +430,38 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "ContinuityEnvelope",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/uspto",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "DocumentsEnvelope",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/uspto",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "MetadataEnvelope",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/uspto",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/drivers/uspto/src/Uspto.service.ts",
+      "symbol": "UsptoShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/uspto",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/wink/src/Wink.service.ts",
       "symbol": "WinkEngineRuntimeState",
       "kind": "exported-type-literal",
@@ -2053,6 +2085,14 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/test-utils",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
+      "symbol": "CorpusCommandServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {

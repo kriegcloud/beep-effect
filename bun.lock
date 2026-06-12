@@ -696,6 +696,8 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/platform-node": "catalog:",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -816,6 +818,23 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/uspto": {
+      "name": "@beep/uspto",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1532,6 +1551,7 @@
         "@beep/schema": "workspace:^",
         "@beep/test-utils": "workspace:^",
         "@beep/tika": "workspace:^",
+        "@beep/uspto": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/platform-bun": "catalog:",
         "@effect/platform-node": "catalog:",
@@ -2256,6 +2276,8 @@
     "@beep/types": ["@beep/types@workspace:packages/foundation/primitive/types"],
 
     "@beep/ui": ["@beep/ui@workspace:packages/foundation/ui-system/ui"],
+
+    "@beep/uspto": ["@beep/uspto@workspace:packages/drivers/uspto"],
 
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 

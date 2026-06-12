@@ -1,7 +1,17 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-08",
+  "generatedOn": "2026-06-11",
   "entries": [
+    {
+      "id": "reuse-clone:106:1b46bfa60220fba4",
+      "title": "Structural clone of TikaError across 2 packages",
+      "occurrences": 2,
+      "packages": 2,
+      "members": [
+        "packages/drivers/tika/src/Tika.errors.ts#TikaError",
+        "packages/drivers/uspto/src/Uspto.errors.ts#UsptoError"
+      ]
+    },
     {
       "id": "reuse-clone:50:3716dfdbaca45d3c",
       "title": "Structural clone of model across 3 packages",

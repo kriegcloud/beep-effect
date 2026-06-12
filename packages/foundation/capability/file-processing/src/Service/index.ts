@@ -16,7 +16,13 @@ import { Context, Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import { FileProcessingOperationError as OperationError } from "../Operation/index.ts";
-import type { ArchiveExportResult, ExtractionResult, ProcessFileResult } from "@beep/file-processing/Extraction";
+import type {
+  ArchiveExportResult,
+  ExtractionResult,
+  FileProcessingFailureRecord,
+  ProcessFileResult,
+  SourceProcessingRecord,
+} from "@beep/file-processing/Extraction";
 import type {
   DetectFileOperation,
   DetectionResult,
@@ -175,6 +181,33 @@ const detectWithAvailableEngine = Effect.fn("FileProcessingService.detectWithAva
     "engine-unavailable",
     `No file-processing detection engine is available for preference "${operation.preference.engine}".`
   );
+});
+
+/**
+ * Fold per-source processing outcomes into their source and failure records.
+ *
+ * @example
+ * ```ts
+ * import { collectSourceOutcomeRecords } from "@beep/file-processing/Service"
+ *
+ * const records = collectSourceOutcomeRecords([])
+ * console.log(records.sourceRecords.length)
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const collectSourceOutcomeRecords = (
+  outcomes: ReadonlyArray<{
+    readonly failure: O.Option<FileProcessingFailureRecord>;
+    readonly sourceRecord: SourceProcessingRecord;
+  }>
+): {
+  readonly failureRecords: Array<FileProcessingFailureRecord>;
+  readonly sourceRecords: Array<SourceProcessingRecord>;
+} => ({
+  failureRecords: A.flatMap(outcomes, (outcome) => O.toArray(outcome.failure)),
+  sourceRecords: A.map(outcomes, (outcome) => outcome.sourceRecord),
 });
 
 /**
