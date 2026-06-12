@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { createHash } from "node:crypto";
 import { Effect, Path, pipe } from "effect";
 import * as Str from "effect/String";
 import type { RepoRunContext } from "../../../internal/repo-run/index.js";
@@ -28,6 +29,8 @@ export const safeArtifactName = (value: string): string =>
     Str.isNonEmpty(name) ? name : "repo"
   );
 
+const artifactNameHash = (value: string): string => createHash("sha256").update(value).digest("hex").slice(0, 12);
+
 /**
  * Return the stable Yeet run id for a repo run context.
  *
@@ -42,7 +45,8 @@ export const safeArtifactName = (value: string): string =>
  * @category utilities
  * @since 0.0.0
  */
-export const runIdForContext = (context: RepoRunContext): string => safeArtifactName(context.branch);
+export const runIdForContext = (context: RepoRunContext): string =>
+  `${safeArtifactName(context.branch)}-${artifactNameHash(context.branch)}`;
 
 /**
  * Resolve the Yeet artifact directory for a repo run context.

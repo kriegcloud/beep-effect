@@ -42,11 +42,16 @@ export {
  * @since 0.0.0
  */
 export {
+  collectYeetStatus,
+  renderYeetStatusSummary,
+  writeYeetStatusSnapshot,
   YeetStatusArtifact,
   YeetStatusArtifactState,
   YeetStatusRemote,
   YeetStatusSnapshot,
   YeetStatusWorktree,
+  yeetStatusNextCommandForTesting,
+  yeetStatusPathForTesting,
 } from "./internal/Status.js";
 /**
  * Yeet quality feedback and publish command.

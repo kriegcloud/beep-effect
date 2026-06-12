@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b3efa85060b55e63247f111edd494faa62226f6312b21b83b84ee27dea90c815",
+    "digest": "98f495af31e6ff9d3a1b31bb1fe0d583740f9af9b724eaf54236da9ad91c1c74",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -432,8 +432,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "7df03e005aea5fad49d36e12e53e5aa7ba11398997e87b2a3f3b3f721b4e59dc",
-        "bytes": 81805
+        "sha256": "399ae4181f7c7cf8d33edbe28a68a2dcfa69c4901cc13eb21508ec9f8089629d",
+        "bytes": 81606
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -672,13 +672,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
-        "sha256": "0234e39984ecf7ac28204953a04ff0ab01fcd56b9e26005a7b79733b8204c556",
-        "bytes": 1181
+        "sha256": "c0cebfe41cd4a20aeb54da9fe0e5f0541b0fcadd24a7501d43c495d89d898c57",
+        "bytes": 1319
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/ArtifactPaths.ts",
-        "sha256": "8a102d892f3c53cd0ca56749920d0f092c14bd4be91cef87da8a81943872859a",
-        "bytes": 3510
+        "sha256": "52ffa1260a1122052d730dd2590b2878e2a16cbd171804077cd4de22b2ea8ef0",
+        "bytes": 3711
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
@@ -692,8 +692,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "54f76368d67265d633fc7d795fcb351b72b8ac39eea1daa99b9abea65f4cecee",
-        "bytes": 96339
+        "sha256": "9cfe41acd993995787098a78d82ab5adf502272d0da1b1d2517deab1d8baece4",
+        "bytes": 96318
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -702,18 +702,18 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "7c3f61a789109b52e78f68ff4fe0573524295c49dc0fb799ec6e98f36e80b5c3",
-        "bytes": 19210
+        "sha256": "60fd67554806c2b4bcb57ca9017f83dd03893e42921c63c338441d530fc4cf83",
+        "bytes": 19657
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sha256": "f807f93400fdc1ef7b0b4def41e82b1b9f0174828cf81c6c2cdb44d316cea3c1",
-        "bytes": 33397
+        "sha256": "76cee2afab17e9f6482fddef29b4b0e38e995534820423c13a0e26409bf41d66",
+        "bytes": 34041
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
-        "sha256": "68fc7c1ee71a791f82f37df6e10e896e71fc8eb953c4bd15ecc14917d0851b66",
-        "bytes": 21945
+        "sha256": "6b06c28435b9f685707237fe4c2e3bc9efb31104294589dfc15f28ea218423f5",
+        "bytes": 21903
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Verdict.ts",
@@ -817,8 +817,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
-        "sha256": "1735e018f9439d44d425bc740a23770f062e2337a913719c90c91e975fae675d",
-        "bytes": 587
+        "sha256": "910dbf34a6c537deac62d47afa37909816242ac524a1e1b096773fbe0124436c",
+        "bytes": 534
       }
     ]
   },
@@ -983,7 +983,7 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1922,
+      "publicExportEntries": 1932,
       "uniqueSymbols": 740,
       "sourceFiles": 156
     },
@@ -27947,7 +27947,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2340,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28724,7 +28724,7 @@
         "symbolName": "fallowCiUploadDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2117,
+        "sourceLine": 2112,
         "summary": "Return Fallow CI upload diagnostics for contract tests.",
         "categories": [
           "testing"
@@ -28749,7 +28749,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2340,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -28824,7 +28824,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2340,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -35922,6 +35922,31 @@
         "importSpecifier": "@beep/repo-cli/commands/Yeet",
         "exportSubpath": "./commands/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "collectYeetStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 499,
+        "summary": "Collect a local-first Yeet operator status snapshot.",
+        "categories": [
+          "diagnostics"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet collectyeetstatus const collect a local-first yeet operator status snapshot. diagnostics packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
         "symbolName": "PackageQualityReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
@@ -36218,6 +36243,58 @@
         "importSpecifier": "@beep/repo-cli/commands/Yeet",
         "exportSubpath": "./commands/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "renderYeetStatusSummary",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 564,
+        "summary": "Render a concise human-readable Yeet status block.",
+        "categories": [
+          "formatting"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet renderyeetstatussummary const render a concise human-readable yeet status block. formatting packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "writeYeetStatusSnapshot",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 599,
+        "summary": "Write a Yeet status snapshot to its status artifact path.",
+        "categories": [
+          "diagnostics"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet writeyeetstatussnapshot const write a yeet status snapshot to its status artifact path. diagnostics packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
@@ -36441,6 +36518,54 @@
         "importSpecifier": "@beep/repo-cli/commands/Yeet",
         "exportSubpath": "./commands/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "yeetStatusNextCommandForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 629,
+        "summary": "Expose next-command selection to focused tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet yeetstatusnextcommandfortesting const expose next-command selection to focused tests. testing packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "yeetStatusPathForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 621,
+        "summary": "Expose the status artifact path helper to focused tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet yeetstatuspathfortesting const expose the status artifact path helper to focused tests. testing packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet",
+        "exportSubpath": "./commands/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
         "symbolName": "YeetStatusRemote",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
@@ -36508,6 +36633,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet ./commands/yeet yeetstatusworktree class local git worktree counts used by `yeet status`. models packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "collectYeetStatus",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 499,
+        "summary": "Collect a local-first Yeet operator status snapshot.",
+        "categories": [
+          "diagnostics"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index collectyeetstatus const collect a local-first yeet operator status snapshot. diagnostics packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -36812,6 +36962,58 @@
         "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
         "exportSubpath": "./commands/Yeet/index",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "renderYeetStatusSummary",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 564,
+        "summary": "Render a concise human-readable Yeet status block.",
+        "categories": [
+          "formatting"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index renderyeetstatussummary const render a concise human-readable yeet status block. formatting packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "writeYeetStatusSnapshot",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 599,
+        "summary": "Write a Yeet status snapshot to its status artifact path.",
+        "categories": [
+          "diagnostics"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index writeyeetstatussnapshot const write a yeet status snapshot to its status artifact path. diagnostics packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
         "symbolName": "yeetCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/Yeet.command.ts",
@@ -37027,6 +37229,54 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index yeetstatusartifactstate type status of an optional yeet artifact read. type-level packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "yeetStatusNextCommandForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 629,
+        "summary": "Expose next-command selection to focused tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index yeetstatusnextcommandfortesting const expose next-command selection to focused tests. testing packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Yeet/index",
+        "exportSubpath": "./commands/Yeet/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Yeet/index.ts",
+        "symbolName": "yeetStatusPathForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Status.ts",
+        "sourceLine": 621,
+        "summary": "Expose the status artifact path helper to focused tests.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/yeet/index ./commands/yeet/index yeetstatuspathfortesting const expose the status artifact path helper to focused tests. testing packages/tooling/tool/cli/src/commands/yeet/internal/status.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -43177,7 +43427,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2340,
+        "sourceLine": 2335,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -46566,7 +46816,7 @@
         "symbolName": "buildQualityIssueIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 1024,
+        "sourceLine": 1046,
         "summary": "Build a schema-first issue index from normalized issues.",
         "categories": [
           "constructors"
@@ -46593,7 +46843,7 @@
         "symbolName": "buildYeetRunPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 630,
+        "sourceLine": 644,
         "summary": "Build the publish-mode yeet run plan.",
         "categories": [
           "workflows"
@@ -46620,7 +46870,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2691,
+        "sourceLine": 2690,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -46646,7 +46896,7 @@
         "symbolName": "buildYeetRunPlanWithMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 589,
+        "sourceLine": 603,
         "summary": "Build a yeet run plan for a specific mode.",
         "categories": [
           "workflows"
@@ -46797,7 +47047,7 @@
         "symbolName": "collectDiffFingerprintForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1666,
+        "sourceLine": 1665,
         "summary": "Collect the reusable-proof fingerprint for the current Git worktree.",
         "categories": [
           "testing"
@@ -46921,7 +47171,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2732,
+        "sourceLine": 2731,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -47329,7 +47579,7 @@
         "symbolName": "knownSubLaneRemediationFromOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 598,
+        "sourceLine": 620,
         "summary": "Return the remediation command for a known failed sub-lane found in broad",
         "categories": [
           "utilities"
@@ -47601,7 +47851,7 @@
         "symbolName": "proofLockDispositionForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1720,
+        "sourceLine": 1719,
         "summary": "Decide whether an existing proof lock is stale, active, or unreadable.",
         "categories": [
           "testing"
@@ -47968,7 +48218,7 @@
         "symbolName": "qualityIssuesFromStepResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
-        "sourceLine": 965,
+        "sourceLine": 987,
         "summary": "Convert a failed step result into quality issues.",
         "categories": [
           "parsing"
@@ -48651,7 +48901,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2639,
+        "sourceLine": 2638,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -48678,7 +48928,7 @@
         "symbolName": "shouldSkipCommitForReusablePublishForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2153,
+        "sourceLine": 2152,
         "summary": "Decide whether a reusable publish should skip the commit phase.",
         "categories": [
           "testing"
@@ -49049,7 +49299,7 @@
         "symbolName": "yeetPlanPhases",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 660,
+        "sourceLine": 674,
         "summary": "Return plan phases in execution order.",
         "categories": [
           "utilities"
@@ -49075,7 +49325,7 @@
         "symbolName": "YeetProofLockStateForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1694,
+        "sourceLine": 1693,
         "summary": "Proof-lock state schema exposed for lock-disposition tests.",
         "categories": [
           "testing"

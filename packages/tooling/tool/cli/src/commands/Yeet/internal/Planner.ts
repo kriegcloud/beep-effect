@@ -479,9 +479,23 @@ const statusRemoteStep = (context: RepoRunContext): RepoPlanStep =>
     verification: "current-branch-pr-status",
   });
 
+const statusRemoteChecksStep = (context: RepoRunContext): RepoPlanStep =>
+  RepoPlanStep.make({
+    id: "status:03-remote-checks",
+    label: "status:remote-checks",
+    phase: "monitor",
+    command: "gh",
+    args: ["pr", "checks", "--json", "name,state,bucket"],
+    cwd: context.repoRoot,
+    scope: "repo",
+    mutability: "readonly",
+    resume: "never",
+    verification: "current-branch-pr-checks",
+  });
+
 const statusSteps = (context: RepoRunContext, options: YeetRunPlanModeOptions): ReadonlyArray<RepoPlanStep> => [
   statusLocalStep(context),
-  ...(options.remote ? [statusRemoteStep(context)] : []),
+  ...(options.remote ? [statusRemoteStep(context), statusRemoteChecksStep(context)] : []),
 ];
 
 const publishSteps = (

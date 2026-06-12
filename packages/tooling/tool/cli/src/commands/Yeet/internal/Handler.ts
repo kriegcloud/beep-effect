@@ -1606,22 +1606,21 @@ const proofLockPathForContext = Effect.fn("Yeet.proofLockPathForContext")(functi
   return path.join(artifactDir, "quality-lock");
 });
 
-const hashFileBytes = Effect.fn("Yeet.hashFileBytes")(function* (
+const readFingerprintFileBytes = Effect.fn("Yeet.readFingerprintFileBytes")(function* (
   filePath: string
-): Effect.fn.Return<string, YeetCommandError, FileSystem.FileSystem> {
+): Effect.fn.Return<Uint8Array, YeetCommandError, FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
-  const bytes = yield* fs
+  return yield* fs
     .readFile(filePath)
     .pipe(Effect.mapError(YeetCommandError.new(`Failed to read Yeet fingerprint artifact ${filePath}.`)));
-  return createHash("sha256").update(bytes).digest("hex");
 });
 
-const collectGitDiffHash = Effect.fn("Yeet.collectGitDiffHash")(function* (
+const collectGitDiffBytes = Effect.fn("Yeet.collectGitDiffBytes")(function* (
   context: RepoRunContext,
   args: ReadonlyArray<string>,
   fileName: string
 ): Effect.fn.Return<
-  string,
+  Uint8Array,
   YeetCommandError,
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
@@ -1634,7 +1633,7 @@ const collectGitDiffHash = Effect.fn("Yeet.collectGitDiffHash")(function* (
 
   return yield* Effect.gen(function* () {
     yield* runGitOutput(context.repoRoot, ["diff", "--binary", `--output=${diffPath}`, ...args]);
-    return yield* hashFileBytes(diffPath);
+    return yield* readFingerprintFileBytes(diffPath);
   }).pipe(Effect.ensuring(fs.remove(diffPath).pipe(Effect.ignore)));
 });
 
@@ -1646,8 +1645,8 @@ const collectDiffFingerprint = Effect.fn("Yeet.collectDiffFingerprint")(function
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const status = yield* runGitOutput(context.repoRoot, ["status", "--short"]);
-  const unstagedDiff = yield* collectGitDiffHash(context, ["HEAD"], "worktree");
-  const stagedDiff = yield* collectGitDiffHash(context, ["--cached"], "index");
+  const unstagedDiff = yield* collectGitDiffBytes(context, ["HEAD"], "worktree");
+  const stagedDiff = yield* collectGitDiffBytes(context, ["--cached"], "index");
   return createHash("sha256")
     .update(status)
     .update("\0")

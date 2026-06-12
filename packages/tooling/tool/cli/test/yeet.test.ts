@@ -15,6 +15,7 @@ import {
   greptileRetriggerCommentForTesting,
   inferGreptileIssueCountForTesting,
   jsonObjectTextFromMixedOutputForTesting,
+  knownSubLaneRemediationFromOutput,
   latestGreptileSummaryForTesting,
   overlappingBasePathsForTesting,
   PrCloseoutOptions,
@@ -433,12 +434,18 @@ describe("yeet planner", () => {
         remotePlan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["status:local", "status:remote-pr"]);
+    ).toEqual(["status:local", "status:remote-pr", "status:remote-checks"]);
     expect(findStep(remotePlan.steps, "status:remote-pr").args).toEqual([
       "pr",
       "view",
       "--json",
       "number,url,state,mergeable,mergeStateStatus,isDraft,reviewDecision",
+    ]);
+    expect(findStep(remotePlan.steps, "status:remote-checks").args).toEqual([
+      "pr",
+      "checks",
+      "--json",
+      "name,state,bucket",
     ]);
   });
 
@@ -1235,6 +1242,20 @@ describe("yeet quality issue index", () => {
     });
     expect(issues[0]?.subCategory).not.toBe("nix");
     expect(issues[0]?.remediation).toBeUndefined();
+  });
+
+  it("extracts a sub-lane hint from the failure prefix before unrelated success tail", () => {
+    const remediation = knownSubLaneRemediationFromOutput(
+      "Unknown word found: operator\n" +
+        pipe(
+          A.makeBy(16, (index) => `context line ${index}`),
+          A.join("\n")
+        ) +
+        "\nfull:pre-push failed with exit code 1.\nsecurity:nix completed successfully"
+    );
+
+    expect(O.isSome(remediation)).toBe(true);
+    expect(O.getOrUndefined(remediation)).toContain("cspell");
   });
 
   it("extracts the changeset sub-lane hint with the empty-changeset remedy", () => {

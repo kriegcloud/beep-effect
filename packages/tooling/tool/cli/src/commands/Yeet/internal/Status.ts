@@ -223,7 +223,7 @@ const sortedUniquePaths = (paths: ReadonlyArray<string>): ReadonlyArray<string> 
   pipe(paths, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
 
 const pathListFromNulOutput = (output: string): ReadonlyArray<string> =>
-  pipe(Str.split("\0")(output), A.map(Str.trim), sortedUniquePaths);
+  pipe(Str.split("\0")(output), sortedUniquePaths);
 
 /**
  * Return the status artifact path for a Yeet run context.
@@ -386,7 +386,7 @@ const collectRemoteChecks = Effect.fn("YeetStatus.collectRemoteChecks")(function
     ["pr", "checks", "--json", "name,state,bucket"],
     context.repoRoot
   ).pipe(Effect.mapError(YeetCommandError.new("Failed to inspect PR checks for yeet status.")));
-  if (result.exitCode !== 0 || result.truncated) {
+  if (result.truncated) {
     return O.none();
   }
   return yield* decodeGhStatusChecks(result.output).pipe(Effect.map(O.some), Effect.orElseSucceed(O.none));

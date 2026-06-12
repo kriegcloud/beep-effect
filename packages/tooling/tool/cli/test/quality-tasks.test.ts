@@ -476,7 +476,6 @@ describe("quality task adapter", () => {
       uses: "actions/upload-artifact@v4",
       with: {
         "if-no-files-found": "error",
-        "include-hidden-files": "true",
         path: ".beep/fallow/**",
       },
     };
@@ -486,7 +485,6 @@ describe("quality task adapter", () => {
       "missing upload of complete Fallow output tree: .beep/fallow/**",
       "missing actions/upload-artifact step",
       "missing if-no-files-found: error",
-      "missing include-hidden-files: true",
     ]);
     expect(
       fallowCiUploadDiagnosticsForTesting(true, ["actions/upload-artifact@v4"], [uploadStep], ".beep/fallow", "error")
