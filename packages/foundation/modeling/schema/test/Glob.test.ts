@@ -2,6 +2,7 @@ import * as GlobModule from "@beep/schema/Glob";
 import { Glob } from "@beep/schema/Glob";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("Glob", () => {
   const decode = S.decodeUnknownSync(Glob);
@@ -42,6 +43,19 @@ describe("Glob", () => {
     });
 
     expect(() => S.decodeUnknownSync(Payload)({ glob: "src\\**\\*.ts" })).toThrow(`at ["glob"]`);
+  });
+
+  it("derives portable glob patterns from the source schema arbitrary", () => {
+    const arbitrary = S.toArbitrary(Glob);
+    const isGlob = S.is(Glob);
+
+    fc.assert(
+      fc.property(arbitrary, (pattern) => {
+        expect(isGlob(pattern)).toBe(true);
+        expect(decode(pattern)).toBe(pattern);
+      }),
+      { numRuns: 25 }
+    );
   });
 
   it("exposes the canonical namespace module schema role", () => {

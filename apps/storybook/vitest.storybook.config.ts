@@ -18,6 +18,7 @@ export default defineConfig({
       concurrent: false,
     },
     setupFiles: [fileURLToPath(new URL("vitest.storybook.setup.ts", import.meta.url))],
+    fileParallelism: false,
     browser: {
       enabled: true,
       fileParallelism: false,

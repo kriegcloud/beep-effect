@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "935507cfe4f8ccc9c3dc2c00c0db0aed1aa75e56d3be125bd67f970d4fb2787c",
+    "digest": "0328877d970638f0ea2f43264928b9eb69ea8ff34d10afa41e1641ba9c3808c9",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -67,8 +67,8 @@
       },
       {
         "path": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sha256": "df6fea50f78b3b60602ee180670bc93e6ff654efff2e7fa767ee747f4c3a6c90",
-        "bytes": 21943
+        "sha256": "08506ad048fc642720bfc8a91ce427ff1fd5ac99509a1a9a33873cd3fca30ade",
+        "bytes": 22139
       },
       {
         "path": "packages/tooling/tool/docgen/src/index.ts",
@@ -87,8 +87,8 @@
       },
       {
         "path": "packages/tooling/tool/docgen/src/Printer.ts",
-        "sha256": "e13bb691aa4088ed692675db29b35e073cc5ad432be4ca19464777e20ce5cf91",
-        "bytes": 15370
+        "sha256": "fac12bece8290a4f4bdda39638425c160c4b26c440c108006f2b574da8ed24f6",
+        "bytes": 15931
       },
       {
         "path": "packages/tooling/tool/docgen/src/ProofManifest.ts",
@@ -115,7 +115,7 @@
       "@beep/repo-docgen/ProofManifest"
     ],
     "counts": {
-      "publicExportEntries": 86,
+      "publicExportEntries": 87,
       "uniqueSymbols": 74,
       "sourceFiles": 11
     },
@@ -852,7 +852,7 @@
         "symbolName": "ByPath",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 675,
+        "sourceLine": 700,
         "summary": "A comparator function for sorting `Module` objects by their file path,",
         "categories": [
           "utilities"
@@ -877,7 +877,7 @@
         "symbolName": "Class",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 244,
+        "sourceLine": 256,
         "summary": "Represents a documented class and its emitted member structure.",
         "categories": [
           "models"
@@ -902,7 +902,7 @@
         "symbolName": "Constant",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 451,
+        "sourceLine": 474,
         "summary": "Represents a documented exported constant declaration.",
         "categories": [
           "models"
@@ -927,7 +927,7 @@
         "symbolName": "Doc",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 115,
+        "sourceLine": 122,
         "summary": "Represents normalized JSDoc metadata for a documented symbol.",
         "categories": [
           "models"
@@ -952,7 +952,7 @@
         "symbolName": "DocEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 193,
+        "sourceLine": 200,
         "summary": "Represents a named documented API member with source and signature metadata.",
         "categories": [
           "models"
@@ -977,7 +977,7 @@
         "symbolName": "DocgenError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 751,
+        "sourceLine": 780,
         "summary": "Typed error used throughout docgen parsing and generation operations.",
         "categories": [
           "models"
@@ -1002,7 +1002,7 @@
         "symbolName": "DocgenErrorTypeId",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 724,
+        "sourceLine": 753,
         "summary": "Unique symbol used to brand docgen-specific errors.",
         "categories": [
           "symbols"
@@ -1027,7 +1027,7 @@
         "symbolName": "DocgenErrorTypeId",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 737,
+        "sourceLine": 766,
         "summary": "Type-level alias for the unique docgen error branding symbol.",
         "categories": [
           "symbols"
@@ -1052,7 +1052,7 @@
         "symbolName": "Export",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 509,
+        "sourceLine": 536,
         "summary": "These are manual exports, like:",
         "categories": [
           "models"
@@ -1077,7 +1077,7 @@
         "symbolName": "File",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 691,
+        "sourceLine": 716,
         "summary": "Represents a file which can be optionally overwritable.",
         "categories": [
           "models"
@@ -1102,7 +1102,7 @@
         "symbolName": "Function",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 353,
+        "sourceLine": 368,
         "summary": "Represents a documented function declaration or function-valued export.",
         "categories": [
           "models"
@@ -1127,7 +1127,7 @@
         "symbolName": "Interface",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 304,
+        "sourceLine": 315,
         "summary": "Represents a documented interface declaration.",
         "categories": [
           "models"
@@ -1152,7 +1152,7 @@
         "symbolName": "Module",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 614,
+        "sourceLine": 639,
         "summary": "Represents a fully parsed module ready for validation and printing.",
         "categories": [
           "models"
@@ -1177,7 +1177,7 @@
         "symbolName": "Namespace",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 567,
+        "sourceLine": 593,
         "summary": "Represents a documented namespace and its nested exported members.",
         "categories": [
           "models"
@@ -1227,7 +1227,7 @@
         "symbolName": "Process",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 787,
+        "sourceLine": 816,
         "summary": "Represents a handle to the currently executing process.",
         "categories": [
           "services"
@@ -1252,7 +1252,7 @@
         "symbolName": "TypeAlias",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/docgen/src/Domain.ts",
-        "sourceLine": 402,
+        "sourceLine": 421,
         "summary": "Represents a documented type alias declaration.",
         "categories": [
           "models"
@@ -1785,7 +1785,7 @@
         "symbolName": "prettify",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Printer.ts",
-        "sourceLine": 499,
+        "sourceLine": 523,
         "summary": "`prettier` is optional in this repo-local port; returning the markdown",
         "categories": [
           "formatting"
@@ -1812,7 +1812,7 @@
         "symbolName": "print",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/Printer.ts",
-        "sourceLine": 376,
+        "sourceLine": 400,
         "summary": "Renders a single documented entity into markdown.",
         "categories": [
           "formatting"
@@ -1838,9 +1838,9 @@
         "exportSubpath": "./Printer",
         "exportedFromPath": "packages/tooling/tool/docgen/src/Printer.ts",
         "symbolName": "Printable",
-        "exportKind": "type",
+        "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/Printer.ts",
-        "sourceLine": 30,
+        "sourceLine": 34,
         "summary": "Union of documented entities that the markdown printer can render.",
         "categories": [
           "formatting"
@@ -1854,7 +1854,32 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-docgen packages/tooling/tool/docgen @beep/repo-docgen/printer ./printer printable type union of documented entities that the markdown printer can render. formatting packages/tooling/tool/docgen/src/printer.ts"
+        "searchText": "@beep/repo-docgen packages/tooling/tool/docgen @beep/repo-docgen/printer ./printer printable const union of documented entities that the markdown printer can render. formatting packages/tooling/tool/docgen/src/printer.ts"
+      },
+      {
+        "packageName": "@beep/repo-docgen",
+        "packagePath": "packages/tooling/tool/docgen",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-docgen/Printer",
+        "exportSubpath": "./Printer",
+        "exportedFromPath": "packages/tooling/tool/docgen/src/Printer.ts",
+        "symbolName": "Printable",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/tool/docgen/src/Printer.ts",
+        "sourceLine": 61,
+        "summary": "Companion type for {@link Printable}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-docgen packages/tooling/tool/docgen @beep/repo-docgen/printer ./printer printable type companion type for {@link printable} models packages/tooling/tool/docgen/src/printer.ts"
       },
       {
         "packageName": "@beep/repo-docgen",
@@ -1866,7 +1891,7 @@
         "symbolName": "printFrontMatter",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/Printer.ts",
-        "sourceLine": 471,
+        "sourceLine": 495,
         "summary": "Builds the front matter used for a generated module documentation page.",
         "categories": [
           "formatting"
@@ -1893,7 +1918,7 @@
         "symbolName": "printModule",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/Printer.ts",
-        "sourceLine": 424,
+        "sourceLine": 448,
         "summary": "Renders a parsed module into markdown grouped by documentation category.",
         "categories": [
           "formatting"

@@ -30,13 +30,14 @@ class ExtractKeywordsParameters extends S.Class<ExtractKeywordsParameters>($I`Ex
   })
 ) {}
 
-const ExtractKeywordsSuccess = S.Struct({
-  keywords: S.Array(AiKeyword),
-}).pipe(
-  $I.annoteSchema("ExtractKeywordsSuccess", {
+class ExtractKeywordsSuccess extends S.Class<ExtractKeywordsSuccess>($I`ExtractKeywordsSuccess`)(
+  {
+    keywords: S.Array(AiKeyword),
+  },
+  $I.annote("ExtractKeywordsSuccess", {
     description: "Ranked keyword entries extracted from the input text.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for extracting ranked keyword terms
@@ -66,5 +67,5 @@ export const ExtractKeywords = Tool.make("ExtractKeywords", {
   failure: AiToolError,
   failureMode: "return",
   parameters: ExtractKeywordsParameters,
-  success: ExtractKeywordsSuccess,
+  success: S.toEncoded(ExtractKeywordsSuccess),
 });

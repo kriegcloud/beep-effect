@@ -1,41 +1,15 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-09",
+  "generatedOn": "2026-06-11",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
-  "enforcedRoots": [
-    "packages/tooling/tool/cli/src",
-    "packages/tooling/library/repo-utils/src/FsUtils.ts",
-    "packages/tooling/library/repo-utils/src/UniqueDeps.ts",
-    "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts"
-  ],
   "entries": [
-    {
-      "file": "apps/oip-web/src/contact/ContactSubmission.model.ts",
-      "symbol": "ContactSubmissionFormPayload.email",
-      "kind": "schema-policy-advisory",
-      "status": "exception",
-      "ruleId": "SFV4-precision-audit",
-      "line": 183,
-      "owner": "@beep/oip-web",
-      "reason": "Raw browser FormData staging payload intentionally preserves submitted email text before ContactSubmission performs domain email normalization and validation."
-    },
-    {
-      "file": "apps/oip-web/test/oip-web.test.tsx",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 208,
-      "owner": "@beep/oip-web",
-      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
-    },
     {
       "file": "infra/src/OipWeb.ts",
       "symbol": "OipWebRuntimeSecrets",
       "kind": "exported-type-literal",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/infra",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/agent-capability/domain/src/entities/Agent/Agent.model.ts",
@@ -185,153 +159,9 @@
       "file": "packages/drivers/box/src/Box.config.ts",
       "symbol": "BoxCcgConfigShape",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxChunkedUploadReducerPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxChunkedUploadReducerPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxCreateUserAvatarPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxCreateUserAvatarPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxDownloadFilePayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxDownloadFilePayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxDownloadZipPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxDownloadZipPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetEventStreamPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetEventStreamPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetFileThumbnailByIdPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetFileThumbnailByIdPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetUserAvatarPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetUserAvatarPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetZipDownloadContentPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxGetZipDownloadContentPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxPartAccumulator",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxPartAccumulatorSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Internal S.Struct field block feeds an S.Class constructor and stays tied to the class model."
     },
     {
       "file": "packages/drivers/box/src/Box.streaming.ts",
@@ -340,102 +170,6 @@
       "status": "exception",
       "owner": "@beep/box",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadBigFilePayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadBigFilePayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFilePartByUrlPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFilePartByUrlPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFilePartPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFilePartPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFilePayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFilePayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFileVersionPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadFileVersionPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadWithPreflightCheckPayload",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/drivers/box/src/Box.streaming.ts",
-      "symbol": "BoxUploadWithPreflightCheckPayloadSchema",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/box",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/drivers/drizzle/src/Drizzle.service.ts",
@@ -539,121 +273,121 @@
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "CountJsonlParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "CountLinesParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "ExtractMatchesParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "FilterLinesParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "LoadJsonParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "LoadJsonlParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "LoadLinesParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "LoadTextParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "ProcessFileParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "ReadJsonlParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "ReadLinesParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "SampleJsonlParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "SampleLinesParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "TextStatsParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/nlp-mcp/src/StreamingTools.ts",
       "symbol": "ValidateJsonlParameters",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp-mcp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/drivers/openai-compat/src/OpenAiCompatClient.service.ts",
@@ -699,9 +433,9 @@
       "file": "packages/drivers/wink/src/Wink.service.ts",
       "symbol": "WinkEngineRuntimeState",
       "kind": "exported-type-literal",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/wink",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/drivers/wink/src/WinkVectorizer.service.ts",
@@ -734,14 +468,6 @@
       "status": "exception",
       "owner": "@beep/chalk",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
-      "symbol": "ChalkState",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/chalk",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/foundation/capability/file-processing/src/Service/index.ts",
@@ -995,9 +721,9 @@
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
       "symbol": "StoredResult",
       "kind": "exported-interface",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
@@ -1131,9 +857,9 @@
       "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
       "symbol": "TypedTextSchema",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Generic schema factory returns a parameterized S.Struct and stays tracked as an exception."
     },
     {
       "file": "packages/foundation/capability/nlp/src/Operations/Definition.ts",
@@ -1144,310 +870,12 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Tools/BagOfWords.ts",
-      "symbol": "BagOfWordsSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts",
-      "symbol": "BowCosineSimilaritySuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts",
-      "symbol": "ChunkBySentencesSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts",
-      "symbol": "DeleteCorpusSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts",
-      "symbol": "ExtractEntitiesSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts",
-      "symbol": "ExtractKeywordsSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts",
-      "symbol": "LearnCorpusSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts",
-      "symbol": "LearnCustomEntitiesSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/NGrams.ts",
-      "symbol": "NGramsSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/Paragraphize.ts",
-      "symbol": "ParagraphizeSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts",
-      "symbol": "QueryCorpusSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts",
-      "symbol": "RankByRelevanceSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/RemoveStopWords.ts",
-      "symbol": "RemoveStopWordsSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/Sentences.ts",
-      "symbol": "SentencesSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/Stem.ts",
-      "symbol": "StemSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts",
-      "symbol": "TextSimilaritySuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/Tokenize.ts",
-      "symbol": "TokenizeSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
       "file": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",
       "symbol": "ExportedTool",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/nlp",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/TransformText.ts",
-      "symbol": "TransformTextSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts",
-      "symbol": "TverskySimilaritySuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/WordCount.ts",
-      "symbol": "WordCountSuccess",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiAnalysis",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiCorpusConfig",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiCorpusIdf",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiCorpusMatrixShape",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiCorpusRankedDocument",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiCorpusStats",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiCorpusSummary",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiDocumentStats",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiEntity",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiKeyword",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiNGram",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiPhoneticMatch",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiRankedText",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiSentence",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiSentenceChunk",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-      "symbol": "AiToken",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/nlp",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/test/Handoff/Contract.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 57,
-      "owner": "@beep/nlp",
-      "reason": "Schema-heavy test file has 9 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/foundation/capability/sandbox/src/Agent.provider.ts",
@@ -1525,9 +953,9 @@
       "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
       "symbol": "InteractiveExecOptions",
       "kind": "exported-interface",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/sandbox",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
@@ -1682,16 +1110,6 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/semantic-web/test/IRI.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 7,
-      "owner": "@beep/semantic-web",
-      "reason": "Schema-heavy test file has 4 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/identity/src/Id.ts",
       "symbol": "IdentityComposer",
       "kind": "exported-interface",
@@ -1770,22 +1188,6 @@
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Color/Color.shared.ts",
-      "symbol": "OklchEncoded",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/schema",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/src/Color/Color.shared.ts",
-      "symbol": "RgbEncoded",
-      "kind": "exported-type-literal",
-      "status": "candidate",
-      "owner": "@beep/schema",
-      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
     },
     {
       "file": "packages/foundation/modeling/schema/src/Csp/Csp.schema.ts",
@@ -2246,26 +1648,6 @@
       "reason": "Exception: meta-test of the Fn/ThunkOf/AnyFn schema combinator over function values (declareConstructor with self-identity equivalence); no structural data for S.toArbitrary to generate or round-trip."
     },
     {
-      "file": "packages/foundation/modeling/schema/test/Glob.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 7,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/Graph.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 9,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 33 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -2304,16 +1686,6 @@
       "line": 9,
       "owner": "@beep/schema",
       "reason": "Exception: meta-test of the destructiveTransform combinator using test-local illustrative schemas; lossy decode + passthrough encode has no round-trip law and no domain source schema."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/TypedArrays.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 12,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 9 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/foundation/modeling/utils/src/Errors.ts",
@@ -2359,9 +1731,9 @@
       "file": "packages/foundation/ui-system/form/src/core/Field.ts",
       "symbol": "valueSchema",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/form",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Function-local S.Struct wrappers used for transient decode envelopes stay tracked as exceptions."
     },
     {
       "file": "packages/foundation/ui-system/form/src/core/FieldState.ts",
@@ -2383,9 +1755,9 @@
       "file": "packages/foundation/ui-system/form/src/core/FormAtoms.ts",
       "symbol": "FieldAtoms",
       "kind": "exported-interface",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/form",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/foundation/ui-system/form/src/core/FormAtoms.ts",
@@ -2527,9 +1899,9 @@
       "file": "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",
       "symbol": "LocalDateFields",
       "kind": "object-struct-schema",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/shared-domain",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+      "reason": "Internal S.Struct field block feeds an S.Class constructor and stays tied to the class model."
     },
     {
       "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -2546,30 +1918,6 @@
       "status": "exception",
       "owner": "@beep/repo-utils",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-      "symbol": "BeepDriverMetadata",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/repo-utils",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-      "symbol": "BeepFoundationMetadata",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/repo-utils",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
-      "symbol": "BeepToolingMetadata",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/repo-utils",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
       "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
@@ -2676,16 +2024,6 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "packages/tooling/library/repo-utils/test/schemas/PackageJson.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 306,
-      "owner": "@beep/repo-utils",
-      "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
       "symbol": "PgliteSqlTestLayerOptions",
       "kind": "exported-interface",
@@ -2697,9 +2035,9 @@
       "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
       "symbol": "PgliteTestcontainerResource",
       "kind": "exported-interface",
-      "status": "candidate",
+      "status": "exception",
       "owner": "@beep/test-utils",
-      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",

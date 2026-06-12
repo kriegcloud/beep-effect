@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "9d56899cba7683498eef373ac407ecf4a1a29d7ea91b80ddd39cb87aabe204bf",
+    "digest": "11808633aeb3c64c2cc001bd34f4cbea94d82175dc3ce465192b9123cae13fca",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -382,8 +382,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-        "sha256": "b75b2099cdf75f564dff306e77f992abb810454242e829b0aa84fa58dee640ae",
-        "bytes": 440
+        "sha256": "f3bd6a2f45311e93768496239911f5d01257b399c440c840838e862b0d806285",
+        "bytes": 606
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts",
@@ -407,8 +407,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sha256": "e0cb10a80ceccb95e6d6cad151566822b86d38715dbc4970050fbe67585caa63",
-        "bytes": 49142
+        "sha256": "7ac7bc8b52eb398d1b3f0efea20f7d32ccdcf848103b4c795b96e3c04523f52c",
+        "bytes": 54999
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts",
@@ -677,8 +677,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "be0e4e3de77cdf5e2b8bd5383499a94fc580e0a643cd71ad36c46e3233027f8a",
-        "bytes": 41168
+        "sha256": "039d531bfd960b894d6feac3ca84b530f3523cf85badfe68bbf29372aa618295",
+        "bytes": 41388
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
@@ -973,8 +973,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1895,
-      "uniqueSymbols": 728,
+      "publicExportEntries": 1898,
+      "uniqueSymbols": 729,
       "sourceFiles": 154
     },
     "exports": [
@@ -26990,6 +26990,33 @@
         "packageName": "@beep/repo-cli",
         "packagePath": "packages/tooling/tool/cli",
         "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Lint",
+        "exportSubpath": "./commands/Lint",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
+        "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "sourceLine": 993,
+        "summary": "Test whether source text contains schema-derived arbitrary coverage.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint ./commands/lint sourcetexthasschemaarbitrarypropertycoverage const test whether source text contains schema-derived arbitrary coverage. utilities packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
         "importSpecifier": "@beep/repo-cli/commands/Lint/index",
         "exportSubpath": "./commands/Lint/index",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
@@ -27187,6 +27214,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/index ./commands/lint/index schematopologyviolation class schema topology lint violation. models packages/tooling/tool/cli/src/commands/lint/schematopology.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Lint/index",
+        "exportSubpath": "./commands/Lint/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
+        "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "sourceLine": 993,
+        "summary": "Test whether source text contains schema-derived arbitrary coverage.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/index ./commands/lint/index sourcetexthasschemaarbitrarypropertycoverage const test whether source text contains schema-derived arbitrary coverage. utilities packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -27400,7 +27454,7 @@
         "symbolName": "lintSchemaFirstCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1273,
+        "sourceLine": 1417,
         "summary": "Repo-wide schema-first lint command.",
         "categories": [
           "utilities"
@@ -27425,7 +27479,7 @@
         "symbolName": "runSchemaFirstLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1127,
+        "sourceLine": 1274,
         "summary": "Run schema-first inventory verification against the committed baseline.",
         "categories": [
           "utilities"
@@ -27450,7 +27504,7 @@
         "symbolName": "SchemaFirstInventoryEntry",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 196,
+        "sourceLine": 193,
         "summary": "Namespace for {@link SchemaFirstInventoryEntry} companion types.",
         "categories": [
           "models"
@@ -27464,6 +27518,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/schemafirst ./commands/lint/schemafirst schemafirstinventoryentry namespace namespace for {@link schemafirstinventoryentry} companion types. models packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Lint/SchemaFirst",
+        "exportSubpath": "./commands/Lint/SchemaFirst",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "sourceLine": 993,
+        "summary": "Test whether source text contains schema-derived arbitrary coverage.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/schemafirst ./commands/lint/schemafirst sourcetexthasschemaarbitrarypropertycoverage const test whether source text contains schema-derived arbitrary coverage. utilities packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -48108,7 +48189,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 1206,
+        "sourceLine": 1208,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"

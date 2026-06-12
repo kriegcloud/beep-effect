@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "069a5564ff4eb88958b5700ceeee3672ac53719b669d04e7103aabf9221b30e9",
+    "digest": "2473c258af8f3dcc38848e1eccf36bddd0c768e59001c4485341356808b59dca",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -182,8 +182,8 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sha256": "74e2dd51341e8fb5db27cff4f0f502cfdf02726b45aa1c9bd2d6bfd4bf999523",
-        "bytes": 10473
+        "sha256": "879d9bc6e7bb590f7330dbc6407589a9d3e1af217bd9de0c36ba41c7c959448d",
+        "bytes": 10749
       },
       {
         "path": "packages/foundation/capability/nlp/src/Handoff/index.ts",
@@ -252,58 +252,58 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sha256": "87236989e1d780f3d8f78af24604965cb4a2f824fec2817f4d3b220373841139",
-        "bytes": 20809
+        "sha256": "682120db6148cf3615c2848223529775d85529b4ea7465c00bde8198f4c34718",
+        "bytes": 21491
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/Analyze.ts",
-        "sha256": "87311b82a66ef4a0ac52aedc3345ff003e5451612cc2a908913f08bd0179e03c",
-        "bytes": 1540
+        "sha256": "80515445abe23881ac3228402ca8737b30e7782eff5791123ed8c62aa1108c82",
+        "bytes": 1553
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/BagOfWords.ts",
-        "sha256": "30f9c356dd9c29774ffa57f8e804215f00c65cb6fe3a4212ac4091dcc24f4041",
-        "bytes": 1767
+        "sha256": "6a09480db1fe8c7b03f06915b25b51194f51e424dd3c1f0261248cf66f33d60a",
+        "bytes": 1828
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts",
-        "sha256": "6f9b38167bfb33b809f6f8c0ed0699261c1c599b7a8a0b5b09fa9767c3bf1d6b",
-        "bytes": 2340
+        "sha256": "70ba246f36ceb9d7fb54f1f7b61b604068b9c109656eba5230a76516f2398baf",
+        "bytes": 2425
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts",
-        "sha256": "f5e2feddd6b8f2cbdabb6b685c63c0891306f8a7aaac4bce63e67b387f07afed",
-        "bytes": 2294
+        "sha256": "c3e7199a4bb1f89baaf3ed1c8b8f8acbfc2c50ab8cde12dc8fc7d7cfd784dd6a",
+        "bytes": 2367
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/CorpusStats.ts",
-        "sha256": "d5d0cf077a2f116fcba047b7dc4bc23ddf236ee8bc8452d946f08cd287b80a20",
-        "bytes": 2072
+        "sha256": "03a5c313114aed922dc8f0d156ececa174260811482591b8751acaea90520570",
+        "bytes": 2085
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/CreateCorpus.ts",
-        "sha256": "925316bc2068bbb397aa6f0e77a32fb98544ebe194b0a1538838c5562dcb1538",
-        "bytes": 2738
+        "sha256": "cf8df314acf4c993f8e5429c3b6d8c3811ae7ea64f60d8ab8b31f32a06b5b2a0",
+        "bytes": 2751
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts",
-        "sha256": "790ce5dae0a287b893c3b24fdaad9df82c7595bc6bb0e89b499e73d5179e9de6",
-        "bytes": 1724
+        "sha256": "117500dd66b29b2cb394b1e786dcbcaa974348e17b1609f4992517ee4a0b9ac5",
+        "bytes": 1787
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/DocumentStats.ts",
-        "sha256": "643cd41afe11779e5c77a68c85103c99285e0e0108adbbec861acd610e9ffeba",
-        "bytes": 1627
+        "sha256": "690071266428beae3484dc8b6e86a63fa6bd8826fb03745731680a03e7851fd4",
+        "bytes": 1640
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts",
-        "sha256": "ee7b7eed1aec1e63ba41de3732757c9b7bd259faabe807367817e50f1df13faf",
-        "bytes": 2592
+        "sha256": "a73f6d535f4c63cff5e64601ca9ee39b38091b066961c6bf09d386432a922f24",
+        "bytes": 2685
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts",
-        "sha256": "238d63cad6ce0dda8505c28414da08c5973c66d52cd627c334d045c02bf5e889",
-        "bytes": 2087
+        "sha256": "25ea369c03b2036f6b7b0583ccbb395963f2ec0f5ccd6e2ac2c2480baffdacac",
+        "bytes": 2154
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/index.ts",
@@ -312,18 +312,18 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts",
-        "sha256": "ba8cb5819a98d5e5b1ab1e53f23911a9d46bfa69cd95c8c617da057edadeeb7e",
-        "bytes": 2626
+        "sha256": "59a5e596acd43f4798e2f15271340017ebccf5cc177cbfc20bf1518525f5e4a6",
+        "bytes": 2695
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts",
-        "sha256": "cb3a282add256c422d4da9ebbea8bba37d3112482b1996e39737b3cf36822b59",
-        "bytes": 3811
+        "sha256": "0ab92413ee52e85fa1c0900eb3f8ec8b64b6d5a321bbcd02605a9c598bd6ad06",
+        "bytes": 3894
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/NGrams.ts",
-        "sha256": "9c93e30d6daee57fc6f9608bc4ea7544aa571acee8de24f16445694f31098a37",
-        "bytes": 2734
+        "sha256": "6236627f2620dec3ad7806c65f5c2330314e3002962e01514b65208b5501fcdf",
+        "bytes": 2791
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/NlpToolkit.ts",
@@ -332,48 +332,48 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/Paragraphize.ts",
-        "sha256": "19a124fb57f74afed07592904ad8334bce33e78d6a192142f4614ad74ca4991b",
-        "bytes": 1747
+        "sha256": "601aae33764da07175fc93e27ae4ed9786420b0e7c412c557f207eead2c97869",
+        "bytes": 1810
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/PhoneticMatch.ts",
-        "sha256": "cc9979ada93bd76ba747bdf2bd2a32e3703f5b36f6d126de5e72aad521be0d5b",
-        "bytes": 2551
+        "sha256": "e00888db29654fea5b083ecfba03664bbb4c74be2998451e40d399539de1ae4b",
+        "bytes": 2564
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts",
-        "sha256": "3a770bb826a3d311aff4ab4e87a452b5485010debf88ff9fee2b70e1e387f258",
-        "bytes": 2904
+        "sha256": "c30e850c45099e2b9b6b3568ca2c8026dc7b993eaf15c2fd823ff8b426acbe47",
+        "bytes": 2997
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts",
-        "sha256": "5db35e0322b6f00618d3c865bf7bfbaa95662f448346a0374701b76467072469",
-        "bytes": 2417
+        "sha256": "42d58e2ab31931f27e0036fa7f4c8ba3420d4f2330cee94266a2590634599bcc",
+        "bytes": 2488
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/RemoveStopWords.ts",
-        "sha256": "7428d7fc00847c4bfcf288052bada4771e7101f3267a7acc42328a2cf45b60ce",
-        "bytes": 1846
+        "sha256": "73a59d163c92ed9c5bb70d4e32413301fcd261526c883c88f1401117e452b633",
+        "bytes": 1917
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/Sentences.ts",
-        "sha256": "40791c16c6af6ed40b5d0716f8da1bcc20b2c2082ba537047fd6e7b5a03594c3",
-        "bytes": 1762
+        "sha256": "4f7d539d5ebe58afa8df4f353c79dbade3b301f7712b3756b0c65bb91d900ae9",
+        "bytes": 1819
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/Stem.ts",
-        "sha256": "a4d0f7b148f16e00932036b8948a41abdc0ec7928a8624446836b1fa5c83a04b",
-        "bytes": 1527
+        "sha256": "2b1b09242a75454ed0be0cff17a869207afb6eb846f0a897a96a89ca3d3dac01",
+        "bytes": 1574
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts",
-        "sha256": "9a32e02e3843413e11c14da031bd86385b3c36ffaed6693d266028e1ccf3474a",
-        "bytes": 2259
+        "sha256": "ba78645abb462bf2a28882ed2d6fe76f4fbe07b217ad539546edc0c0cd48a4de",
+        "bytes": 2334
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/Tokenize.ts",
-        "sha256": "3b89d6b691d5ed50298a6e43d5e6d8ca07dc5090112286ca77c24d094188445e",
-        "bytes": 1768
+        "sha256": "40de854f1422564041a72a53da32788278e97b201d7f61ba2dfb50bb2afb564f",
+        "bytes": 1823
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",
@@ -382,18 +382,18 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/TransformText.ts",
-        "sha256": "aec9b8964a3d57bd145b5ba2a4aa84e9db0694657683ffb62b720772db3c07ff",
-        "bytes": 3007
+        "sha256": "1aebfcec3d260b4cf141a9237e5c09ae4fd1004011392f7ad9ca9531f0d5282c",
+        "bytes": 3084
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts",
-        "sha256": "c9f79e7881fcab6e1a7cbb61f62f31da93cd0d807593e072cda656004cb5d76d",
-        "bytes": 2844
+        "sha256": "4cd247dd841c5a6f5a31c7a353bc08622fb48155012b418e6b1c42880392209f",
+        "bytes": 2937
       },
       {
         "path": "packages/foundation/capability/nlp/src/Tools/WordCount.ts",
-        "sha256": "7f31204f192ad7eb1537284a7d134ba9cac58f995666045c60ca572edf2f69f7",
-        "bytes": 1659
+        "sha256": "05eedc9e9e4e3b0e861d13de9867a5cca9484074d90bb4eb2a1e7558674b247b",
+        "bytes": 1716
       },
       {
         "path": "packages/foundation/capability/nlp/src/VariantText.ts",
@@ -16840,7 +16840,7 @@
         "symbolName": "AnnotatedDocument",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 357,
+        "sourceLine": 367,
         "summary": "The top-level handoff envelope: a fully annotated document — its chunks,",
         "categories": [
           "models"
@@ -16939,7 +16939,7 @@
         "symbolName": "Entity",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 297,
+        "sourceLine": 307,
         "summary": "An entity: a canonical thing referred to by one or more {@link Mention}s. Its",
         "categories": [
           "models"
@@ -17013,7 +17013,7 @@
         "symbolName": "makeProvenance",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 384,
+        "sourceLine": 394,
         "summary": "Build a {@link Provenance} stamped with the current time (effectful: reads",
         "categories": [
           "constructors"
@@ -17038,7 +17038,7 @@
         "symbolName": "Mention",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 269,
+        "sourceLine": 279,
         "summary": "A surface mention occurrence: where a span of text within a chunk refers to",
         "categories": [
           "models"
@@ -17112,7 +17112,7 @@
         "symbolName": "Provenance",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 215,
+        "sourceLine": 225,
         "summary": "PROV-O-aligned provenance for a piece of derived annotation: where it came",
         "categories": [
           "models"
@@ -17137,7 +17137,7 @@
         "symbolName": "Relation",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 326,
+        "sourceLine": 336,
         "summary": "A directed relation between two {@link Entity}s. Its `type` is a GENERIC",
         "categories": [
           "models"
@@ -17236,7 +17236,7 @@
         "symbolName": "Span",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 197,
+        "sourceLine": 207,
         "summary": "Runtime type of {@link Span}.",
         "categories": [
           "models"
@@ -17260,7 +17260,7 @@
         "symbolName": "TextChunk",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
-        "sourceLine": 242,
+        "sourceLine": 252,
         "summary": "A contiguous chunk of source text at a given granularity, with its span and",
         "categories": [
           "models"
@@ -20044,9 +20044,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiAnalysis",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 137,
+        "sourceLine": 138,
         "summary": "Output schema for a composite linguistic analysis of a text.",
         "categories": [
           "tool-schemas"
@@ -20059,7 +20059,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aianalysis const output schema for a composite linguistic analysis of a text. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aianalysis class output schema for a composite linguistic analysis of a text. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20069,9 +20069,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiCorpusConfig",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 493,
+        "sourceLine": 503,
         "summary": "Output schema for the resolved BM25 configuration of a managed corpus.",
         "categories": [
           "tool-schemas"
@@ -20084,7 +20084,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusconfig const output schema for the resolved bm25 configuration of a managed corpus. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusconfig class output schema for the resolved bm25 configuration of a managed corpus. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20094,9 +20094,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiCorpusIdf",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 597,
+        "sourceLine": 610,
         "summary": "Output schema for an inverse document frequency value in a corpus.",
         "categories": [
           "tool-schemas"
@@ -20109,7 +20109,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusidf const output schema for an inverse document frequency value in a corpus. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusidf class output schema for an inverse document frequency value in a corpus. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20119,9 +20119,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiCorpusMatrixShape",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 628,
+        "sourceLine": 642,
         "summary": "Output schema for the dimensions of an optional document-term matrix.",
         "categories": [
           "tool-schemas"
@@ -20134,7 +20134,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusmatrixshape const output schema for the dimensions of an optional document-term matrix. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusmatrixshape class output schema for the dimensions of an optional document-term matrix. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20144,9 +20144,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiCorpusRankedDocument",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 565,
+        "sourceLine": 577,
         "summary": "Output schema for one ranked document returned from a corpus query.",
         "categories": [
           "tool-schemas"
@@ -20159,7 +20159,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusrankeddocument const output schema for one ranked document returned from a corpus query. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusrankeddocument class output schema for one ranked document returned from a corpus query. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20169,9 +20169,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiCorpusStats",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 665,
+        "sourceLine": 680,
         "summary": "Output schema for detailed corpus diagnostics and retrieval statistics.",
         "categories": [
           "tool-schemas"
@@ -20184,7 +20184,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusstats const output schema for detailed corpus diagnostics and retrieval statistics. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpusstats class output schema for detailed corpus diagnostics and retrieval statistics. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20194,9 +20194,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiCorpusSummary",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 529,
+        "sourceLine": 540,
         "summary": "Output schema for a managed corpus session summary.",
         "categories": [
           "tool-schemas"
@@ -20209,7 +20209,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpussummary const output schema for a managed corpus session summary. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aicorpussummary class output schema for a managed corpus session summary. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20219,9 +20219,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiDocumentStats",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 242,
+        "sourceLine": 246,
         "summary": "Output schema for high-level document statistics.",
         "categories": [
           "tool-schemas"
@@ -20234,7 +20234,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aidocumentstats const output schema for high-level document statistics. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aidocumentstats class output schema for high-level document statistics. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20244,9 +20244,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiEntity",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 348,
+        "sourceLine": 355,
         "summary": "Output schema for an extracted named entity.",
         "categories": [
           "tool-schemas"
@@ -20259,7 +20259,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aientity const output schema for an extracted named entity. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aientity class output schema for an extracted named entity. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20269,9 +20269,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiKeyword",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 209,
+        "sourceLine": 212,
         "summary": "Output schema for a keyword candidate and its importance score.",
         "categories": [
           "tool-schemas"
@@ -20284,7 +20284,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aikeyword const output schema for a keyword candidate and its importance score. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aikeyword class output schema for a keyword candidate and its importance score. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20294,9 +20294,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiNGram",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 384,
+        "sourceLine": 392,
         "summary": "Output schema for an extracted n-gram and its frequency count.",
         "categories": [
           "tool-schemas"
@@ -20309,7 +20309,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aingram const output schema for an extracted n-gram and its frequency count. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aingram class output schema for an extracted n-gram and its frequency count. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20319,9 +20319,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiPhoneticMatch",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 418,
+        "sourceLine": 427,
         "summary": "Output schema for phonetic overlap between two text inputs.",
         "categories": [
           "tool-schemas"
@@ -20334,7 +20334,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aiphoneticmatch const output schema for phonetic overlap between two text inputs. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aiphoneticmatch class output schema for phonetic overlap between two text inputs. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20344,9 +20344,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiRankedText",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 312,
+        "sourceLine": 318,
         "summary": "Output schema for one ranked text candidate.",
         "categories": [
           "tool-schemas"
@@ -20359,7 +20359,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas airankedtext const output schema for one ranked text candidate. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas airankedtext class output schema for one ranked text candidate. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20369,9 +20369,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiSentence",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 175,
+        "sourceLine": 177,
         "summary": "Output schema for a detected sentence with source offsets and token count.",
         "categories": [
           "tool-schemas"
@@ -20384,7 +20384,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aisentence const output schema for a detected sentence with source offsets and token count. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aisentence class output schema for a detected sentence with source offsets and token count. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20394,9 +20394,9 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiSentenceChunk",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 278,
+        "sourceLine": 283,
         "summary": "Output schema for a sentence-aligned text chunk.",
         "categories": [
           "tool-schemas"
@@ -20409,7 +20409,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aisentencechunk const output schema for a sentence-aligned text chunk. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aisentencechunk class output schema for a sentence-aligned text chunk. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20419,7 +20419,7 @@
         "exportSubpath": "./Tools/_schemas",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "symbolName": "AiToken",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
         "sourceLine": 82,
         "summary": "Output schema for one token emitted by tokenization-oriented tools.",
@@ -20434,7 +20434,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aitoken const output schema for one token emitted by tokenization-oriented tools. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/tools/_schemas ./tools/_schemas aitoken class output schema for one token emitted by tokenization-oriented tools. tool-schemas packages/foundation/capability/nlp/src/tools/_schemas.ts"
       },
       {
         "packageName": "@beep/nlp",
@@ -20446,7 +20446,7 @@
         "symbolName": "AiToolError",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/_schemas.ts",
-        "sourceLine": 456,
+        "sourceLine": 466,
         "summary": "Structured failure schema returned by AI-facing NLP tools.",
         "categories": [
           "tool-schemas"
@@ -20496,7 +20496,7 @@
         "symbolName": "BagOfWords",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/BagOfWords.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Defines the agent-facing tool contract for computing a bag-of-words",
         "categories": [
           "tools"
@@ -20521,7 +20521,7 @@
         "symbolName": "BowCosineSimilarity",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/BowCosineSimilarity.ts",
-        "sourceLine": 68,
+        "sourceLine": 69,
         "summary": "Defines the agent-facing tool contract for comparing two texts by",
         "categories": [
           "tools"
@@ -20546,7 +20546,7 @@
         "symbolName": "ChunkBySentences",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/ChunkBySentences.ts",
-        "sourceLine": 66,
+        "sourceLine": 67,
         "summary": "Defines the agent-facing tool contract for splitting text into chunks that",
         "categories": [
           "tools"
@@ -20621,7 +20621,7 @@
         "symbolName": "DeleteCorpus",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/DeleteCorpus.ts",
-        "sourceLine": 57,
+        "sourceLine": 58,
         "summary": "Defines the agent-facing tool contract for deleting a managed corpus session",
         "categories": [
           "tools"
@@ -20671,7 +20671,7 @@
         "symbolName": "ExtractEntities",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/ExtractEntities.ts",
-        "sourceLine": 76,
+        "sourceLine": 77,
         "summary": "Defines the agent-facing tool contract for extracting built-in and custom",
         "categories": [
           "tools"
@@ -20696,7 +20696,7 @@
         "symbolName": "ExtractKeywords",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/ExtractKeywords.ts",
-        "sourceLine": 64,
+        "sourceLine": 65,
         "summary": "Defines the agent-facing tool contract for extracting ranked keyword terms",
         "categories": [
           "tools"
@@ -21846,7 +21846,7 @@
         "symbolName": "LearnCorpus",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/LearnCorpus.ts",
-        "sourceLine": 80,
+        "sourceLine": 81,
         "summary": "Defines the agent-facing tool contract for incrementally learning documents",
         "categories": [
           "tools"
@@ -21871,7 +21871,7 @@
         "symbolName": "LearnCustomEntities",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/LearnCustomEntities.ts",
-        "sourceLine": 98,
+        "sourceLine": 99,
         "summary": "Defines the agent-facing tool contract for learning custom entity patterns",
         "categories": [
           "tools"
@@ -21896,7 +21896,7 @@
         "symbolName": "NGrams",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/NGrams.ts",
-        "sourceLine": 86,
+        "sourceLine": 87,
         "summary": "Defines the agent-facing tool contract for extracting fixed-size character",
         "categories": [
           "tools"
@@ -21971,7 +21971,7 @@
         "symbolName": "Paragraphize",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/Paragraphize.ts",
-        "sourceLine": 58,
+        "sourceLine": 59,
         "summary": "Defines the agent-facing tool contract for splitting text into paragraphs on",
         "categories": [
           "tools"
@@ -22021,7 +22021,7 @@
         "symbolName": "QueryCorpus",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/QueryCorpus.ts",
-        "sourceLine": 86,
+        "sourceLine": 87,
         "summary": "Defines the agent-facing tool contract for querying a learned corpus session",
         "categories": [
           "tools"
@@ -22046,7 +22046,7 @@
         "symbolName": "RankByRelevance",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/RankByRelevance.ts",
-        "sourceLine": 75,
+        "sourceLine": 76,
         "summary": "Defines the agent-facing tool contract for ranking candidate texts by",
         "categories": [
           "tools"
@@ -22071,7 +22071,7 @@
         "symbolName": "RemoveStopWords",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/RemoveStopWords.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Defines the agent-facing tool contract for removing stop words from text and",
         "categories": [
           "tools"
@@ -22096,7 +22096,7 @@
         "symbolName": "Sentences",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/Sentences.ts",
-        "sourceLine": 58,
+        "sourceLine": 59,
         "summary": "Defines the agent-facing tool contract for splitting text into sentence",
         "categories": [
           "tools"
@@ -22121,7 +22121,7 @@
         "symbolName": "Stem",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/Stem.ts",
-        "sourceLine": 58,
+        "sourceLine": 59,
         "summary": "Defines the agent-facing tool contract for reducing word tokens to their",
         "categories": [
           "tools"
@@ -22146,7 +22146,7 @@
         "symbolName": "TextSimilarity",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/TextSimilarity.ts",
-        "sourceLine": 68,
+        "sourceLine": 69,
         "summary": "Defines the agent-facing tool contract for comparing two texts with BM25",
         "categories": [
           "tools"
@@ -22171,7 +22171,7 @@
         "symbolName": "Tokenize",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/Tokenize.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Defines the agent-facing tool contract for tokenizing text into annotated",
         "categories": [
           "tools"
@@ -22271,7 +22271,7 @@
         "symbolName": "TransformText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/TransformText.ts",
-        "sourceLine": 94,
+        "sourceLine": 95,
         "summary": "Defines the agent-facing tool contract for applying ordered text",
         "categories": [
           "tools"
@@ -22296,7 +22296,7 @@
         "symbolName": "TverskySimilarity",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/TverskySimilarity.ts",
-        "sourceLine": 83,
+        "sourceLine": 84,
         "summary": "Defines the agent-facing tool contract for asymmetric Tversky similarity",
         "categories": [
           "tools"
@@ -22321,7 +22321,7 @@
         "symbolName": "WordCount",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Tools/WordCount.ts",
-        "sourceLine": 58,
+        "sourceLine": 59,
         "summary": "Defines the agent-facing tool contract for counting word-like tokens and",
         "categories": [
           "tools"

@@ -39,11 +39,16 @@ const $I = $SchemaId.create("Float64Array");
  */
 export const Float64Arr = S.instanceOf<globalThis.Float64ArrayConstructor, globalThis.Float64Array>(
   globalThis.Float64Array
-).pipe(
-  $I.annoteSchema("Float64Arr", {
-    description: "A schema that validates native Float64Array instances.",
+)
+  .annotate({
+    toArbitrary: () => (fc) =>
+      fc.array(fc.integer({ max: 1_000, min: -1_000 }), { maxLength: 8 }).map((values) => new Float64Array(values)),
   })
-);
+  .pipe(
+    $I.annoteSchema("Float64Arr", {
+      description: "A schema that validates native Float64Array instances.",
+    })
+  );
 
 /**
  * Type for {@link Float64Arr}.

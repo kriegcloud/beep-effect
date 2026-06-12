@@ -454,12 +454,6 @@ describe("schema-first lint command", { concurrent: false }, () => {
                 version: 1,
                 generatedOn: "2026-06-08",
                 scope: ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
-                enforcedRoots: [
-                  "packages/tooling/tool/cli/src",
-                  "packages/tooling/library/repo-utils/src/FsUtils.ts",
-                  "packages/tooling/library/repo-utils/src/UniqueDeps.ts",
-                  "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts",
-                ],
                 entries: [
                   {
                     file: "packages/example/src/Example.ts",
@@ -1104,6 +1098,61 @@ describe("schema-first lint command", { concurrent: false }, () => {
             expect(inventory).toContain('"ruleId": "SFV4-numeric-domain"');
             expect(inventory).toContain('"symbol": "WorkerOptions.timeoutMs"');
             expect(inventory).not.toContain("retryCount");
+          })
+        ).pipe(provideScopedLayer(testLayer))
+      ),
+    5_000
+  );
+
+  it(
+    "does not suppress S.Struct candidates when a same-named field variable feeds an unrelated class",
+    () =>
+      Effect.runPromise(
+        withTempWorkingDirectory(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const exampleSourceDir = path.join("packages", "example", "src");
+            const workspaceFiles: ReadonlyArray<readonly [string, string]> = [
+              [
+                "package.json",
+                `${encodeJson({
+                  name: "@beep/test-root",
+                  private: true,
+                  type: "module",
+                  workspaces: ["packages/*"],
+                })}\n`,
+              ],
+              ["tsconfig.json", `${encodeJson({ compilerOptions: {} })}\n`],
+            ];
+
+            yield* Effect.forEach(workspaceFiles, ([filePath, contents]) => fs.writeFileString(filePath, contents), {
+              discard: true,
+            });
+            yield* fs.makeDirectory(exampleSourceDir, { recursive: true });
+            yield* fs.writeFileString(
+              path.join(exampleSourceDir, "Example.ts"),
+              [
+                'import * as S from "effect/Schema";',
+                "const buildClass = () => {",
+                "  const fields = { id: S.String };",
+                '  return S.Class<any>("Worker")(fields);',
+                "};",
+                "const fields = S.Struct({ id: S.String });",
+                "void buildClass;",
+                "void fields;",
+                "",
+              ].join("\n")
+            );
+
+            const exit = yield* Effect.exit(runLintCommand(["schema-first"]));
+
+            const errorLines = yield* TestConsole.errorLines;
+            expectReportedExit(exit);
+            expect(errorLines).toContain("[schema-first] untracked live findings:");
+            expect(errorLines).toContain(
+              "- packages/example/src/Example.ts :: fields [object-struct-schema] Object schema should prefer an annotated S.Class over S.Struct."
+            );
           })
         ).pipe(provideScopedLayer(testLayer))
       ),

@@ -256,21 +256,30 @@ jobs:
           echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
           echo "base_fetch_status=$fetch_status" >> "$GITHUB_OUTPUT"
 
-      - name: Free runner disk for Fallow advisory envelopes
+      - name: Free runner disk for Fallow
         if: runner.os == 'Linux'
         shell: bash
         run: |
           set -euo pipefail
+          # This job only runs Fallow advisory envelope generation after setup.
+          # Keep cleanup narrow and thresholded so runner image/toolchain changes
+          # cannot silently affect later steps when disk pressure is absent.
           echo "Disk before cleanup:"
           df -h /
-          sudo rm -rf \
-            /opt/ghc \
-            /usr/local/.ghcup \
-            /usr/local/lib/android \
-            /usr/local/share/boost \
-            /usr/share/dotnet
-          sudo apt-get clean
-          docker system prune --all --force --volumes || true
+          available_kb="$(df --output=avail / | tail -n 1 | tr -d ' ')"
+          min_available_kb=$((12 * 1024 * 1024))
+
+          if (( available_kb < min_available_kb )); then
+            sudo rm -rf \
+              /opt/ghc \
+              /usr/local/.ghcup \
+              /usr/local/lib/android \
+              /usr/local/share/boost \
+              /usr/share/dotnet
+            sudo apt-get clean
+          else
+            echo "Skipping disk cleanup; available space is above threshold."
+          fi
           echo "Disk after cleanup:"
           df -h /
 
@@ -283,6 +292,9 @@ jobs:
       - name: Run Fallow advisory envelopes
         id: fallow
         shell: bash
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
         run: |
           set -euo pipefail
 
@@ -325,19 +337,26 @@ jobs:
           }
 
           blocking_status=0
-          for lane in audit dead-code; do
-            if run_blocking_fallow "$lane"; then
-              :
-            else
-              status=$?
-              if (( blocking_status == 0 )); then
-                blocking_status=$status
-              fi
-            fi
+          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+            case "$lane" in
+              audit|dead-code)
+                if run_blocking_fallow "$lane"; then
+                  :
+                else
+                  status=$?
+                  if (( blocking_status == 0 )); then
+                    blocking_status=$status
+                  fi
+                fi
+                ;;
+              *)
+                run_advisory_fallow "$lane"
+                ;;
+            esac
           done
 
-          for lane in dupes health boundaries flags security fix-preview; do
-            run_advisory_fallow "$lane"
+          for lane in audit dead-code; do
+            test -s ".beep/fallow/${lane}.json"
           done
 
           {
@@ -357,14 +376,10 @@ jobs:
           set -euo pipefail
 
           for lane in audit dead-code; do
-            bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
-              --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
-              --expect-subcommand "$lane" \
-              --expect-report-path ".beep/fallow/${lane}.json" \
-              --require-raw-output
+            test -s ".beep/fallow/${lane}.json"
           done
 
-          for lane in dupes health boundaries flags security fix-preview; do
+          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
             bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
               --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
               --expect-subcommand "$lane" \

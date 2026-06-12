@@ -52,20 +52,21 @@ class TransformTextParameters extends S.Class<TransformTextParameters>($I`Transf
   })
 ) {}
 
-const TransformTextSuccess = S.Struct({
-  /** List of operations that were applied */
-  operationsApplied: S.Array(S.String).annotateKey({
-    description: "List of operations that were applied",
-  }),
-  /** The transformed text */
-  result: S.String.annotateKey({
-    description: "The transformed text",
-  }),
-}).pipe(
-  $I.annoteSchema("TransformTextSuccess", {
+class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTextSuccess`)(
+  {
+    /** List of operations that were applied */
+    operationsApplied: S.Array(S.String).annotateKey({
+      description: "List of operations that were applied",
+    }),
+    /** The transformed text */
+    result: S.String.annotateKey({
+      description: "The transformed text",
+    }),
+  },
+  $I.annote("TransformTextSuccess", {
     description: "Transformed text and the ordered operations that were applied.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for applying ordered text
@@ -96,5 +97,5 @@ export const TransformText = Tool.make("TransformText", {
   failure: AiToolError,
   failureMode: "return",
   parameters: TransformTextParameters,
-  success: TransformTextSuccess,
+  success: S.toEncoded(TransformTextSuccess),
 });

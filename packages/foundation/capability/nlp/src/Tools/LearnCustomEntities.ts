@@ -59,17 +59,18 @@ class LearnCustomEntitiesParameters extends S.Class<LearnCustomEntitiesParameter
   })
 ) {}
 
-const LearnCustomEntitiesSuccess = S.Struct({
-  entityNames: S.Array(S.String),
-  groupName: S.String,
-  learnedEntityCount: S.Finite,
-  mode: LearnCustomEntitiesMode,
-  totalEntityCount: S.Finite,
-}).pipe(
-  $I.annoteSchema("LearnCustomEntitiesSuccess", {
+class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`LearnCustomEntitiesSuccess`)(
+  {
+    entityNames: S.Array(S.String),
+    groupName: S.String,
+    learnedEntityCount: S.Finite,
+    mode: LearnCustomEntitiesMode,
+    totalEntityCount: S.Finite,
+  },
+  $I.annote("LearnCustomEntitiesSuccess", {
     description: "Learning result summary for custom entity definitions.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for learning custom entity patterns
@@ -100,5 +101,5 @@ export const LearnCustomEntities = Tool.make("LearnCustomEntities", {
   failure: AiToolError,
   failureMode: "return",
   parameters: LearnCustomEntitiesParameters,
-  success: LearnCustomEntitiesSuccess,
+  success: S.toEncoded(LearnCustomEntitiesSuccess),
 });

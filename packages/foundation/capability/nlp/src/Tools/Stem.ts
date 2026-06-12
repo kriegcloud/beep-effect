@@ -24,14 +24,15 @@ class StemParameters extends S.Class<StemParameters>($I`StemParameters`)(
   })
 ) {}
 
-const StemSuccess = S.Struct({
-  count: S.Finite,
-  stems: S.Array(S.String),
-}).pipe(
-  $I.annoteSchema("StemSuccess", {
+class StemSuccess extends S.Class<StemSuccess>($I`StemSuccess`)(
+  {
+    count: S.Finite,
+    stems: S.Array(S.String),
+  },
+  $I.annote("StemSuccess", {
     description: "Reduce word tokens to their stems.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for reducing word tokens to their
@@ -60,5 +61,5 @@ export const Stem = Tool.make("Stem", {
   failure: AiToolError,
   failureMode: "return",
   parameters: StemParameters,
-  success: StemSuccess,
+  success: S.toEncoded(StemSuccess),
 });

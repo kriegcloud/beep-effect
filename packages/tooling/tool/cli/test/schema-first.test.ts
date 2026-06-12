@@ -1,3 +1,4 @@
+import { sourceTextHasSchemaArbitraryPropertyCoverage } from "@beep/repo-cli/commands/Lint";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
@@ -81,5 +82,51 @@ describe("packages/tooling/tool/cli schema-first models", () => {
       isExcludedTypeScriptSourcePath("packages/foundation/modeling/schema/docs/examples/src-Yaml.ts-example.ts")
     ).toBe(true);
     expect(isExcludedTypeScriptSourcePath("packages/foundation/modeling/schema/src/Yaml.ts")).toBe(false);
+  });
+
+  it("recognizes repo-owned schema arbitrary helpers as schema-derived property coverage", () => {
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        [
+          'import * as S from "effect/Schema";',
+          'import { assertSchemaArbitraryDecodesToSelf } from "@beep/test-utils";',
+          "const Worker = S.Struct({ id: S.String, retryCount: S.Int });",
+          "assertSchemaArbitraryDecodesToSelf(Worker);",
+        ].join("\n")
+      )
+    ).toBe(true);
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage("fc.property(fc.string(), (value) => value.length >= 0);")
+    ).toBe(false);
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        [
+          'import * as fc from "fast-check";',
+          'import * as S from "effect/Schema";',
+          "const Worker = S.Struct({ id: S.String });",
+          "const WorkerArbitrary = S.toArbitraryLazy(Worker);",
+          "fc.property(WorkerArbitrary, (worker) => typeof worker.id === 'string');",
+        ].join("\n")
+      )
+    ).toBe(true);
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        [
+          'import * as fc from "fast-check";',
+          'import * as S from "effect/Schema";',
+          "const Worker = S.Struct({ id: S.String });",
+          "const WorkerArbitrary = S.toArbitrary(Worker);",
+          "fc.property(fc.array(WorkerArbitrary), (workers) => workers.every((worker) => typeof worker.id === 'string'));",
+        ].join("\n")
+      )
+    ).toBe(true);
+    expect(sourceTextHasSchemaArbitraryPropertyCoverage("const WorkerArbitrary = S.toArbitraryLazy(Worker);")).toBe(
+      false
+    );
+    expect(
+      sourceTextHasSchemaArbitraryPropertyCoverage(
+        'import { assertSchemaArbitraryDecodesToSelf } from "@beep/test-utils";'
+      )
+    ).toBe(false);
   });
 });

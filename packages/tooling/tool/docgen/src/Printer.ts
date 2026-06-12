@@ -5,15 +5,19 @@
  * @since 0.0.0
  */
 
+import { $RepoDocgenId } from "@beep/identity/packages";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Effect, Layer, Match, Order, pipe } from "effect";
 import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Configuration from "./Configuration.js";
+import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
-import type * as Domain from "./Domain.js";
+
+const $I = $RepoDocgenId.create("Printer");
 
 /**
  * Union of documented entities that the markdown printer can render.
@@ -27,14 +31,34 @@ import type * as Domain from "./Domain.js";
  * @category formatting
  * @since 0.0.0
  */
-export type Printable =
-  | Domain.Class
-  | Domain.Constant
-  | Domain.Export
-  | Domain.Function
-  | Domain.Interface
-  | Domain.TypeAlias
-  | Domain.Namespace;
+export const Printable = S.Union([
+  Domain.Class,
+  Domain.Constant,
+  Domain.Export,
+  Domain.Function,
+  Domain.Interface,
+  Domain.TypeAlias,
+  Domain.Namespace,
+]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("Printable", {
+    description: "Union of documented entities that the markdown printer can render.",
+  })
+);
+
+/**
+ * Companion type for {@link Printable}
+ *
+ * @example
+ * ```ts
+ * import { Printable } from "@beep/repo-docgen/Printer";
+ *
+ * type ExamplePrintable = Printable
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type Printable = typeof Printable.Type;
 
 const Markdown = {
   bold: (content: string) => `**${content}**`,

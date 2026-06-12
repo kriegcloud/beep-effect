@@ -7,6 +7,7 @@
 
 import { Buffer } from "node:buffer";
 import { Readable } from "node:stream";
+import { $BoxId } from "@beep/identity";
 import { Cause, Effect, Exit, Queue, Result, Stream } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -15,6 +16,30 @@ import { BoxError } from "./Box.errors.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import { decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
+
+const $I = $BoxId.create("Box.streaming");
+
+const BoxByteEffectStream = S.declare<Stream.Stream<Uint8Array, BoxError, never>>(
+  (value): value is Stream.Stream<Uint8Array, BoxError, never> => Stream.isStream(value),
+  $I.annote("BoxByteEffectStream", {
+    description: "Effect Stream byte input accepted by Box upload adapters.",
+  })
+);
+
+const BoxByteInputValue = S.Union([
+  S.Uint8Array,
+  S.instanceOf(
+    Readable,
+    $I.annote("BoxReadableInput", {
+      description: "Node readable byte input accepted by Box upload adapters.",
+    })
+  ),
+  BoxByteEffectStream,
+]).pipe(
+  $I.annoteSchema("BoxByteInput", {
+    description: "Byte input accepted by Box upload adapters.",
+  })
+);
 
 /**
  * Byte input accepted by Box upload adapters.
@@ -31,7 +56,7 @@ import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
  * @category models
  * @since 0.0.0
  */
-export type BoxByteInput = Uint8Array | Readable | Stream.Stream<Uint8Array, BoxError, never>;
+export type BoxByteInput = typeof BoxByteInputValue.Type;
 
 /**
  * Byte stream returned by Box download adapters.
@@ -63,13 +88,71 @@ export type BoxByteStream = Stream.Stream<Uint8Array, BoxError, never>;
  * @category models
  * @since 0.0.0
  */
-export type BoxPartAccumulator = {
-  readonly fileHash: unknown;
-  readonly fileSize: number;
-  readonly lastIndex: number;
-  readonly parts: readonly M.UploadPart[];
-  readonly uploadPartUrl: string;
-};
+export class BoxPartAccumulator extends S.Class<BoxPartAccumulator>($I`BoxPartAccumulator`)(
+  {
+    fileHash: S.Unknown,
+    fileSize: S.Finite,
+    lastIndex: S.Finite,
+    parts: M.UploadPart.pipe(S.Array),
+    uploadPartUrl: S.String,
+  },
+  $I.annote("BoxPartAccumulator", {
+    description: "Technical accumulator used by the Box chunked-upload reducer helper.",
+  })
+) {}
+
+class BoxCreateUserAvatarRequestBody extends S.Class<BoxCreateUserAvatarRequestBody>(
+  $I`BoxCreateUserAvatarRequestBody`
+)(
+  {
+    pic: BoxByteInputValue,
+    picFileName: S.String.pipe(S.optionalKey),
+    picContentType: S.String.pipe(S.optionalKey),
+  },
+  $I.annote("BoxCreateUserAvatarRequestBody", {
+    description: "Create-user-avatar request body with a runtime byte input.",
+  })
+) {}
+
+class BoxUploadFileVersionRequestBody extends S.Class<BoxUploadFileVersionRequestBody>(
+  $I`BoxUploadFileVersionRequestBody`
+)(
+  {
+    attributes: M.UploadFileVersionRequestBodyAttributesField,
+    file: BoxByteInputValue,
+    fileFileName: S.String.pipe(S.optionalKey),
+    fileContentType: S.String.pipe(S.optionalKey),
+  },
+  $I.annote("BoxUploadFileVersionRequestBody", {
+    description: "Upload-file-version request body with a runtime byte input.",
+  })
+) {}
+
+class BoxUploadFileRequestBody extends S.Class<BoxUploadFileRequestBody>($I`BoxUploadFileRequestBody`)(
+  {
+    attributes: M.UploadFileRequestBodyAttributesField,
+    file: BoxByteInputValue,
+    fileFileName: S.String.pipe(S.optionalKey),
+    fileContentType: S.String.pipe(S.optionalKey),
+  },
+  $I.annote("BoxUploadFileRequestBody", {
+    description: "Upload-file request body with a runtime byte input.",
+  })
+) {}
+
+class BoxUploadWithPreflightCheckRequestBody extends S.Class<BoxUploadWithPreflightCheckRequestBody>(
+  $I`BoxUploadWithPreflightCheckRequestBody`
+)(
+  {
+    attributes: M.UploadWithPreflightCheckRequestBodyAttributesField,
+    file: BoxByteInputValue,
+    fileFileName: S.String.pipe(S.optionalKey),
+    fileContentType: S.String.pipe(S.optionalKey),
+  },
+  $I.annote("BoxUploadWithPreflightCheckRequestBody", {
+    description: "Upload-with-preflight-check request body with a runtime byte input.",
+  })
+) {}
 
 /**
  * Payload for `avatars.createUserAvatar`.
@@ -84,13 +167,16 @@ export type BoxPartAccumulator = {
  * @category models
  * @since 0.0.0
  */
-export type BoxCreateUserAvatarPayload = {
-  readonly optionalsInput?: M.CreateUserAvatarOptionalsInput;
-  readonly requestBody: Omit<M.CreateUserAvatarRequestBody, "pic"> & {
-    readonly pic: BoxByteInput;
-  };
-  readonly userId: string;
-};
+export class BoxCreateUserAvatarPayload extends S.Class<BoxCreateUserAvatarPayload>($I`BoxCreateUserAvatarPayload`)(
+  {
+    optionalsInput: M.CreateUserAvatarOptionalsInput.pipe(S.optionalKey),
+    requestBody: BoxCreateUserAvatarRequestBody,
+    userId: S.String,
+  },
+  $I.annote("BoxCreateUserAvatarPayload", {
+    description: "Payload for avatars.createUserAvatar.",
+  })
+) {}
 
 /**
  * Payload for `avatars.getUserAvatar`.
@@ -106,10 +192,15 @@ export type BoxCreateUserAvatarPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxGetUserAvatarPayload = {
-  readonly optionalsInput?: M.GetUserAvatarOptionalsInput;
-  readonly userId: string;
-};
+export class BoxGetUserAvatarPayload extends S.Class<BoxGetUserAvatarPayload>($I`BoxGetUserAvatarPayload`)(
+  {
+    optionalsInput: M.GetUserAvatarOptionalsInput.pipe(S.optionalKey),
+    userId: S.String,
+  },
+  $I.annote("BoxGetUserAvatarPayload", {
+    description: "Payload for avatars.getUserAvatar.",
+  })
+) {}
 
 /**
  * Payload for `downloads.downloadFile`.
@@ -125,10 +216,15 @@ export type BoxGetUserAvatarPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxDownloadFilePayload = {
-  readonly fileId: string;
-  readonly optionalsInput?: M.DownloadFileOptionalsInput;
-};
+export class BoxDownloadFilePayload extends S.Class<BoxDownloadFilePayload>($I`BoxDownloadFilePayload`)(
+  {
+    fileId: S.String,
+    optionalsInput: M.DownloadFileOptionalsInput.pipe(S.optionalKey),
+  },
+  $I.annote("BoxDownloadFilePayload", {
+    description: "Payload for downloads.downloadFile.",
+  })
+) {}
 
 /**
  * Payload for `files.getFileThumbnailById`.
@@ -144,11 +240,18 @@ export type BoxDownloadFilePayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxGetFileThumbnailByIdPayload = {
-  readonly extension: M.GetFileThumbnailByIdExtension;
-  readonly fileId: string;
-  readonly optionalsInput?: M.GetFileThumbnailByIdOptionalsInput;
-};
+export class BoxGetFileThumbnailByIdPayload extends S.Class<BoxGetFileThumbnailByIdPayload>(
+  $I`BoxGetFileThumbnailByIdPayload`
+)(
+  {
+    extension: M.GetFileThumbnailByIdExtension,
+    fileId: S.String,
+    optionalsInput: M.GetFileThumbnailByIdOptionalsInput.pipe(S.optionalKey),
+  },
+  $I.annote("BoxGetFileThumbnailByIdPayload", {
+    description: "Payload for files.getFileThumbnailById.",
+  })
+) {}
 
 /**
  * Payload for `uploads.uploadFileVersion`.
@@ -163,13 +266,16 @@ export type BoxGetFileThumbnailByIdPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxUploadFileVersionPayload = {
-  readonly fileId: string;
-  readonly optionalsInput?: M.UploadFileVersionOptionalsInput;
-  readonly requestBody: Omit<M.UploadFileVersionRequestBody, "file"> & {
-    readonly file: BoxByteInput;
-  };
-};
+export class BoxUploadFileVersionPayload extends S.Class<BoxUploadFileVersionPayload>($I`BoxUploadFileVersionPayload`)(
+  {
+    fileId: S.String,
+    optionalsInput: M.UploadFileVersionOptionalsInput.pipe(S.optionalKey),
+    requestBody: BoxUploadFileVersionRequestBody,
+  },
+  $I.annote("BoxUploadFileVersionPayload", {
+    description: "Payload for uploads.uploadFileVersion.",
+  })
+) {}
 
 /**
  * Payload for `uploads.uploadFile`.
@@ -184,12 +290,15 @@ export type BoxUploadFileVersionPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxUploadFilePayload = {
-  readonly optionalsInput?: M.UploadFileOptionalsInput;
-  readonly requestBody: Omit<M.UploadFileRequestBody, "file"> & {
-    readonly file: BoxByteInput;
-  };
-};
+export class BoxUploadFilePayload extends S.Class<BoxUploadFilePayload>($I`BoxUploadFilePayload`)(
+  {
+    optionalsInput: M.UploadFileOptionalsInput.pipe(S.optionalKey),
+    requestBody: BoxUploadFileRequestBody,
+  },
+  $I.annote("BoxUploadFilePayload", {
+    description: "Payload for uploads.uploadFile.",
+  })
+) {}
 
 /**
  * Payload for `uploads.uploadWithPreflightCheck`.
@@ -204,12 +313,17 @@ export type BoxUploadFilePayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxUploadWithPreflightCheckPayload = {
-  readonly optionalsInput?: M.UploadWithPreflightCheckOptionalsInput;
-  readonly requestBody: Omit<M.UploadWithPreflightCheckRequestBody, "file"> & {
-    readonly file: BoxByteInput;
-  };
-};
+export class BoxUploadWithPreflightCheckPayload extends S.Class<BoxUploadWithPreflightCheckPayload>(
+  $I`BoxUploadWithPreflightCheckPayload`
+)(
+  {
+    optionalsInput: M.UploadWithPreflightCheckOptionalsInput.pipe(S.optionalKey),
+    requestBody: BoxUploadWithPreflightCheckRequestBody,
+  },
+  $I.annote("BoxUploadWithPreflightCheckPayload", {
+    description: "Payload for uploads.uploadWithPreflightCheck.",
+  })
+) {}
 
 /**
  * Payload for `chunkedUploads.uploadFilePartByUrl`.
@@ -224,12 +338,19 @@ export type BoxUploadWithPreflightCheckPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxUploadFilePartByUrlPayload = {
-  readonly headersInput: M.UploadFilePartByUrlHeadersInput;
-  readonly optionalsInput?: M.UploadFilePartByUrlOptionalsInput;
-  readonly requestBody: BoxByteInput;
-  readonly url: string;
-};
+export class BoxUploadFilePartByUrlPayload extends S.Class<BoxUploadFilePartByUrlPayload>(
+  $I`BoxUploadFilePartByUrlPayload`
+)(
+  {
+    headersInput: M.UploadFilePartByUrlHeadersInput,
+    optionalsInput: M.UploadFilePartByUrlOptionalsInput.pipe(S.optionalKey),
+    requestBody: BoxByteInputValue,
+    url: S.String,
+  },
+  $I.annote("BoxUploadFilePartByUrlPayload", {
+    description: "Payload for chunkedUploads.uploadFilePartByUrl.",
+  })
+) {}
 
 /**
  * Payload for `chunkedUploads.uploadFilePart`.
@@ -244,12 +365,17 @@ export type BoxUploadFilePartByUrlPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxUploadFilePartPayload = {
-  readonly headersInput: M.UploadFilePartHeadersInput;
-  readonly optionalsInput?: M.UploadFilePartOptionalsInput;
-  readonly requestBody: BoxByteInput;
-  readonly uploadSessionId: string;
-};
+export class BoxUploadFilePartPayload extends S.Class<BoxUploadFilePartPayload>($I`BoxUploadFilePartPayload`)(
+  {
+    headersInput: M.UploadFilePartHeadersInput,
+    optionalsInput: M.UploadFilePartOptionalsInput.pipe(S.optionalKey),
+    requestBody: BoxByteInputValue,
+    uploadSessionId: S.String,
+  },
+  $I.annote("BoxUploadFilePartPayload", {
+    description: "Payload for chunkedUploads.uploadFilePart.",
+  })
+) {}
 
 /**
  * Payload for `chunkedUploads.reducer`.
@@ -264,10 +390,17 @@ export type BoxUploadFilePartPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxChunkedUploadReducerPayload = {
-  readonly acc: BoxPartAccumulator;
-  readonly chunk: BoxByteInput;
-};
+export class BoxChunkedUploadReducerPayload extends S.Class<BoxChunkedUploadReducerPayload>(
+  $I`BoxChunkedUploadReducerPayload`
+)(
+  {
+    acc: BoxPartAccumulator,
+    chunk: BoxByteInputValue,
+  },
+  $I.annote("BoxChunkedUploadReducerPayload", {
+    description: "Payload for chunkedUploads.reducer.",
+  })
+) {}
 
 /**
  * Payload for `chunkedUploads.uploadBigFile`.
@@ -282,12 +415,17 @@ export type BoxChunkedUploadReducerPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxUploadBigFilePayload = {
-  readonly file: BoxByteInput;
-  readonly fileName: string;
-  readonly fileSize: number;
-  readonly parentFolderId: string;
-};
+export class BoxUploadBigFilePayload extends S.Class<BoxUploadBigFilePayload>($I`BoxUploadBigFilePayload`)(
+  {
+    file: BoxByteInputValue,
+    fileName: S.String,
+    fileSize: S.Finite,
+    parentFolderId: S.String,
+  },
+  $I.annote("BoxUploadBigFilePayload", {
+    description: "Payload for chunkedUploads.uploadBigFile.",
+  })
+) {}
 
 /**
  * Payload for `events.getEventStream`.
@@ -303,10 +441,15 @@ export type BoxUploadBigFilePayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxGetEventStreamPayload = {
-  readonly headersInput?: M.GetEventStreamHeadersInput;
-  readonly queryParams?: M.GetEventStreamQueryParams;
-};
+export class BoxGetEventStreamPayload extends S.Class<BoxGetEventStreamPayload>($I`BoxGetEventStreamPayload`)(
+  {
+    headersInput: M.GetEventStreamHeadersInput.pipe(S.optionalKey),
+    queryParams: M.GetEventStreamQueryParams.pipe(S.optionalKey),
+  },
+  $I.annote("BoxGetEventStreamPayload", {
+    description: "Payload for events.getEventStream.",
+  })
+) {}
 
 /**
  * Payload for `zipDownloads.getZipDownloadContent`.
@@ -322,10 +465,17 @@ export type BoxGetEventStreamPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxGetZipDownloadContentPayload = {
-  readonly downloadUrl: string;
-  readonly optionalsInput?: M.GetZipDownloadContentOptionalsInput;
-};
+export class BoxGetZipDownloadContentPayload extends S.Class<BoxGetZipDownloadContentPayload>(
+  $I`BoxGetZipDownloadContentPayload`
+)(
+  {
+    downloadUrl: S.String,
+    optionalsInput: M.GetZipDownloadContentOptionalsInput.pipe(S.optionalKey),
+  },
+  $I.annote("BoxGetZipDownloadContentPayload", {
+    description: "Payload for zipDownloads.getZipDownloadContent.",
+  })
+) {}
 
 /**
  * Payload for `zipDownloads.downloadZip`.
@@ -340,10 +490,15 @@ export type BoxGetZipDownloadContentPayload = {
  * @category models
  * @since 0.0.0
  */
-export type BoxDownloadZipPayload = {
-  readonly optionalsInput?: M.DownloadZipOptionalsInput;
-  readonly requestBody: M.ZipDownloadRequest;
-};
+export class BoxDownloadZipPayload extends S.Class<BoxDownloadZipPayload>($I`BoxDownloadZipPayload`)(
+  {
+    optionalsInput: M.DownloadZipOptionalsInput.pipe(S.optionalKey),
+    requestBody: M.ZipDownloadRequest,
+  },
+  $I.annote("BoxDownloadZipPayload", {
+    description: "Payload for zipDownloads.downloadZip.",
+  })
+) {}
 
 /**
  * Hand-written streaming operation groups for the Box SDK.
@@ -390,93 +545,6 @@ export type BoxStreamingOperations = {
     readonly getZipDownloadContent: (payload: BoxGetZipDownloadContentPayload) => BoxByteStream;
   };
 };
-
-const BoxCreateUserAvatarPayloadSchema = S.Struct({
-  optionalsInput: M.CreateUserAvatarOptionalsInput.pipe(S.optionalKey),
-  requestBody: M.CreateUserAvatarRequestBody,
-  userId: S.String,
-});
-
-const BoxGetUserAvatarPayloadSchema = S.Struct({
-  optionalsInput: M.GetUserAvatarOptionalsInput.pipe(S.optionalKey),
-  userId: S.String,
-});
-
-const BoxDownloadFilePayloadSchema = S.Struct({
-  fileId: S.String,
-  optionalsInput: M.DownloadFileOptionalsInput.pipe(S.optionalKey),
-});
-
-const BoxGetFileThumbnailByIdPayloadSchema = S.Struct({
-  extension: M.GetFileThumbnailByIdExtension,
-  fileId: S.String,
-  optionalsInput: M.GetFileThumbnailByIdOptionalsInput.pipe(S.optionalKey),
-});
-
-const BoxUploadFileVersionPayloadSchema = S.Struct({
-  fileId: S.String,
-  optionalsInput: M.UploadFileVersionOptionalsInput.pipe(S.optionalKey),
-  requestBody: M.UploadFileVersionRequestBody,
-});
-
-const BoxUploadFilePayloadSchema = S.Struct({
-  optionalsInput: M.UploadFileOptionalsInput.pipe(S.optionalKey),
-  requestBody: M.UploadFileRequestBody,
-});
-
-const BoxUploadWithPreflightCheckPayloadSchema = S.Struct({
-  optionalsInput: M.UploadWithPreflightCheckOptionalsInput.pipe(S.optionalKey),
-  requestBody: M.UploadWithPreflightCheckRequestBody,
-});
-
-const BoxUploadFilePartByUrlPayloadSchema = S.Struct({
-  headersInput: M.UploadFilePartByUrlHeadersInput,
-  optionalsInput: M.UploadFilePartByUrlOptionalsInput.pipe(S.optionalKey),
-  requestBody: S.Unknown,
-  url: S.String,
-});
-
-const BoxUploadFilePartPayloadSchema = S.Struct({
-  headersInput: M.UploadFilePartHeadersInput,
-  optionalsInput: M.UploadFilePartOptionalsInput.pipe(S.optionalKey),
-  requestBody: S.Unknown,
-  uploadSessionId: S.String,
-});
-
-const BoxPartAccumulatorSchema = S.Struct({
-  fileHash: S.Unknown,
-  fileSize: S.Finite,
-  lastIndex: S.Finite,
-  parts: M.UploadPart.pipe(S.Array),
-  uploadPartUrl: S.String,
-});
-
-const BoxChunkedUploadReducerPayloadSchema = S.Struct({
-  acc: BoxPartAccumulatorSchema,
-  chunk: S.Unknown,
-});
-
-const BoxUploadBigFilePayloadSchema = S.Struct({
-  file: S.Unknown,
-  fileName: S.String,
-  fileSize: S.Finite,
-  parentFolderId: S.String,
-});
-
-const BoxGetEventStreamPayloadSchema = S.Struct({
-  headersInput: M.GetEventStreamHeadersInput.pipe(S.optionalKey),
-  queryParams: M.GetEventStreamQueryParams.pipe(S.optionalKey),
-});
-
-const BoxGetZipDownloadContentPayloadSchema = S.Struct({
-  downloadUrl: S.String,
-  optionalsInput: M.GetZipDownloadContentOptionalsInput.pipe(S.optionalKey),
-});
-
-const BoxDownloadZipPayloadSchema = S.Struct({
-  optionalsInput: M.DownloadZipOptionalsInput.pipe(S.optionalKey),
-  requestBody: M.ZipDownloadRequest,
-});
 
 const readProperty = (value: unknown, key: PropertyKey): unknown =>
   P.isObject(value)
@@ -816,24 +884,19 @@ const runEventStreamSdkCall = <Payload>(
 export const makeStreamingOperations = (client: unknown): BoxStreamingOperations => ({
   avatars: {
     createUserAvatar: (payload) =>
-      runJsonSdkCall(
-        "avatars.createUserAvatar",
-        BoxCreateUserAvatarPayloadSchema,
-        M.UserAvatar,
-        payload,
-        (decoded, signal) =>
-          byteInputToReadable("avatars.createUserAvatar", decoded.requestBody.pic).pipe(
-            Effect.flatMap((pic) =>
-              invokeSdkPromise(client, "avatars", "createUserAvatar", "avatars.createUserAvatar", [
-                decoded.userId,
-                { ...decoded.requestBody, pic },
-                mergeCancellation(decoded.optionalsInput, signal),
-              ])
-            )
+      runJsonSdkCall("avatars.createUserAvatar", BoxCreateUserAvatarPayload, M.UserAvatar, payload, (decoded, signal) =>
+        byteInputToReadable("avatars.createUserAvatar", decoded.requestBody.pic).pipe(
+          Effect.flatMap((pic) =>
+            invokeSdkPromise(client, "avatars", "createUserAvatar", "avatars.createUserAvatar", [
+              decoded.userId,
+              { ...decoded.requestBody, pic },
+              mergeCancellation(decoded.optionalsInput, signal),
+            ])
           )
+        )
       ),
     getUserAvatar: (payload) =>
-      runByteStreamSdkCall("avatars.getUserAvatar", BoxGetUserAvatarPayloadSchema, payload, (decoded, signal) =>
+      runByteStreamSdkCall("avatars.getUserAvatar", BoxGetUserAvatarPayload, payload, (decoded, signal) =>
         invokeSdkPromise(client, "avatars", "getUserAvatar", "avatars.getUserAvatar", [
           decoded.userId,
           mergeCancellation(decoded.optionalsInput, signal),
@@ -842,41 +905,31 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
   },
   chunkedUploads: {
     reducer: (payload) =>
-      runJsonSdkCall(
-        "chunkedUploads.reducer",
-        BoxChunkedUploadReducerPayloadSchema,
-        BoxPartAccumulatorSchema,
-        payload,
-        (decoded) =>
-          byteInputToReadable("chunkedUploads.reducer", decoded.chunk).pipe(
-            Effect.flatMap((chunk) =>
-              invokeSdkPromise(client, "chunkedUploads", "reducer", "chunkedUploads.reducer", [decoded.acc, chunk])
-            )
+      runJsonSdkCall("chunkedUploads.reducer", BoxChunkedUploadReducerPayload, BoxPartAccumulator, payload, (decoded) =>
+        byteInputToReadable("chunkedUploads.reducer", decoded.chunk).pipe(
+          Effect.flatMap((chunk) =>
+            invokeSdkPromise(client, "chunkedUploads", "reducer", "chunkedUploads.reducer", [decoded.acc, chunk])
           )
+        )
       ),
     uploadBigFile: (payload) =>
-      runJsonSdkCall(
-        "chunkedUploads.uploadBigFile",
-        BoxUploadBigFilePayloadSchema,
-        M.FileFull,
-        payload,
-        (decoded, signal) =>
-          byteInputToReadable("chunkedUploads.uploadBigFile", decoded.file).pipe(
-            Effect.flatMap((file) =>
-              invokeSdkPromise(client, "chunkedUploads", "uploadBigFile", "chunkedUploads.uploadBigFile", [
-                file,
-                decoded.fileName,
-                decoded.fileSize,
-                decoded.parentFolderId,
-                signal,
-              ])
-            )
+      runJsonSdkCall("chunkedUploads.uploadBigFile", BoxUploadBigFilePayload, M.FileFull, payload, (decoded, signal) =>
+        byteInputToReadable("chunkedUploads.uploadBigFile", decoded.file).pipe(
+          Effect.flatMap((file) =>
+            invokeSdkPromise(client, "chunkedUploads", "uploadBigFile", "chunkedUploads.uploadBigFile", [
+              file,
+              decoded.fileName,
+              decoded.fileSize,
+              decoded.parentFolderId,
+              signal,
+            ])
           )
+        )
       ),
     uploadFilePart: (payload) =>
       runJsonSdkCall(
         "chunkedUploads.uploadFilePart",
-        BoxUploadFilePartPayloadSchema,
+        BoxUploadFilePartPayload,
         M.UploadedPart,
         payload,
         (decoded, signal) =>
@@ -894,7 +947,7 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
     uploadFilePartByUrl: (payload) =>
       runJsonSdkCall(
         "chunkedUploads.uploadFilePartByUrl",
-        BoxUploadFilePartByUrlPayloadSchema,
+        BoxUploadFilePartByUrlPayload,
         M.UploadedPart,
         payload,
         (decoded, signal) =>
@@ -912,7 +965,7 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
   },
   downloads: {
     downloadFile: (payload) =>
-      runByteStreamSdkCall("downloads.downloadFile", BoxDownloadFilePayloadSchema, payload, (decoded, signal) =>
+      runByteStreamSdkCall("downloads.downloadFile", BoxDownloadFilePayload, payload, (decoded, signal) =>
         invokeSdkPromise(client, "downloads", "downloadFile", "downloads.downloadFile", [
           decoded.fileId,
           mergeCancellation(decoded.optionalsInput, signal),
@@ -921,7 +974,7 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
   },
   events: {
     getEventStream: (payload) =>
-      runEventStreamSdkCall("events.getEventStream", BoxGetEventStreamPayloadSchema, payload, (decoded) =>
+      runEventStreamSdkCall("events.getEventStream", BoxGetEventStreamPayload, payload, (decoded) =>
         invokeSdkSync(client, "events", "getEventStream", "events.getEventStream", [
           decoded.queryParams,
           decoded.headersInput,
@@ -930,21 +983,17 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
   },
   files: {
     getFileThumbnailById: (payload) =>
-      runByteStreamSdkCall(
-        "files.getFileThumbnailById",
-        BoxGetFileThumbnailByIdPayloadSchema,
-        payload,
-        (decoded, signal) =>
-          invokeSdkPromise(client, "files", "getFileThumbnailById", "files.getFileThumbnailById", [
-            decoded.fileId,
-            decoded.extension,
-            mergeCancellation(decoded.optionalsInput, signal),
-          ])
+      runByteStreamSdkCall("files.getFileThumbnailById", BoxGetFileThumbnailByIdPayload, payload, (decoded, signal) =>
+        invokeSdkPromise(client, "files", "getFileThumbnailById", "files.getFileThumbnailById", [
+          decoded.fileId,
+          decoded.extension,
+          mergeCancellation(decoded.optionalsInput, signal),
+        ])
       ),
   },
   uploads: {
     uploadFile: (payload) =>
-      runJsonSdkCall("uploads.uploadFile", BoxUploadFilePayloadSchema, M.Files, payload, (decoded, signal) =>
+      runJsonSdkCall("uploads.uploadFile", BoxUploadFilePayload, M.Files, payload, (decoded, signal) =>
         byteInputToReadable("uploads.uploadFile", decoded.requestBody.file).pipe(
           Effect.flatMap((file) =>
             invokeSdkPromise(client, "uploads", "uploadFile", "uploads.uploadFile", [
@@ -955,26 +1004,21 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
         )
       ),
     uploadFileVersion: (payload) =>
-      runJsonSdkCall(
-        "uploads.uploadFileVersion",
-        BoxUploadFileVersionPayloadSchema,
-        M.Files,
-        payload,
-        (decoded, signal) =>
-          byteInputToReadable("uploads.uploadFileVersion", decoded.requestBody.file).pipe(
-            Effect.flatMap((file) =>
-              invokeSdkPromise(client, "uploads", "uploadFileVersion", "uploads.uploadFileVersion", [
-                decoded.fileId,
-                { ...decoded.requestBody, file },
-                mergeCancellation(decoded.optionalsInput, signal),
-              ])
-            )
+      runJsonSdkCall("uploads.uploadFileVersion", BoxUploadFileVersionPayload, M.Files, payload, (decoded, signal) =>
+        byteInputToReadable("uploads.uploadFileVersion", decoded.requestBody.file).pipe(
+          Effect.flatMap((file) =>
+            invokeSdkPromise(client, "uploads", "uploadFileVersion", "uploads.uploadFileVersion", [
+              decoded.fileId,
+              { ...decoded.requestBody, file },
+              mergeCancellation(decoded.optionalsInput, signal),
+            ])
           )
+        )
       ),
     uploadWithPreflightCheck: (payload) =>
       runJsonSdkCall(
         "uploads.uploadWithPreflightCheck",
-        BoxUploadWithPreflightCheckPayloadSchema,
+        BoxUploadWithPreflightCheckPayload,
         M.Files,
         payload,
         (decoded, signal) =>
@@ -990,7 +1034,7 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
   },
   zipDownloads: {
     downloadZip: (payload) =>
-      runByteStreamSdkCall("zipDownloads.downloadZip", BoxDownloadZipPayloadSchema, payload, (decoded, signal) =>
+      runByteStreamSdkCall("zipDownloads.downloadZip", BoxDownloadZipPayload, payload, (decoded, signal) =>
         invokeSdkPromise(client, "zipDownloads", "downloadZip", "zipDownloads.downloadZip", [
           decoded.requestBody,
           mergeCancellation(decoded.optionalsInput, signal),
@@ -999,7 +1043,7 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
     getZipDownloadContent: (payload) =>
       runByteStreamSdkCall(
         "zipDownloads.getZipDownloadContent",
-        BoxGetZipDownloadContentPayloadSchema,
+        BoxGetZipDownloadContentPayload,
         payload,
         (decoded, signal) =>
           invokeSdkPromise(client, "zipDownloads", "getZipDownloadContent", "zipDownloads.getZipDownloadContent", [

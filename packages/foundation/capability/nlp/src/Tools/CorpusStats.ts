@@ -63,5 +63,5 @@ export const CorpusStats = Tool.make("CorpusStats", {
   failure: AiToolError,
   failureMode: "return",
   parameters: CorpusStatsParameters,
-  success: AiCorpusStats,
+  success: S.toEncoded(AiCorpusStats),
 });
