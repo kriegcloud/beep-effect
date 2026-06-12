@@ -72,7 +72,7 @@ const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
 const spawnGit = (cwd: string, args: ReadonlyArray<string>) =>
   Effect.sync(() => {
-    const command = ["git", ...args] as const;
+    const command: Array<string> = ["git", ...args];
     const result = Bun.spawnSync(command, {
       cwd,
       stderr: "pipe",
