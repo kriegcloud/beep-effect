@@ -25,7 +25,10 @@ Drive the pipeline with the `/explore` skill
 Six stages. Files appear only when their stage begins, so opening a packet
 costs nothing more than dumping thoughts into `CAPTURE.md`. Stages may loop
 (align surfaces a research gap; shaping reopens a decision); the manifest
-records the furthest stage reached.
+records the furthest stage reached. A later-stage artifact may be pre-seeded
+when its content lands early (e.g. a decision recorded in `DECISIONS.md`
+before align formally starts) — the manifest `stage` remains the authoritative
+resume point, not file presence.
 
 ```mermaid
 flowchart TD

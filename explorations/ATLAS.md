@@ -44,7 +44,7 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 - [`agent-chat-interface`](./agent-chat-interface/README.md) — stage:
   **research** — Lexical-based rich chat input + thread surface for the
   professional-desktop control plane. Next: external landscape research
-  (lobe-editor deep dive, Lexical ecosystem, competitor chat UX).
+  (lobe-editor deep dive, Lexical ecosystem, chat-input UX comparisons).
 
 ### Proposed
 
