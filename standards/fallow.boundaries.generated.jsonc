@@ -1666,6 +1666,7 @@
           "@beep/rdf",
           "@beep/schema",
           "@beep/semantic-web",
+          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
@@ -1673,6 +1674,7 @@
           "@beep/rdf",
           "@beep/schema",
           "@beep/semantic-web",
+          "@beep/test-utils",
           "@beep/utils"
         ]
       },
