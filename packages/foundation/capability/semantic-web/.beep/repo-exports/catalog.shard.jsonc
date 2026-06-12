@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7224d010c58b17cfacae2d002f88739f731e5db24cb724c4d3c89198c1b73fe2",
+    "digest": "418328e1b2d8fe1b25dc7092c00deda30d02fb8c8859d08402145a1124e13086",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/capability/semantic-web/package.json",
-        "sha256": "f660de77a8903814fcf80958ce215beece607bf8eba3b989a2b90978a2082c72",
-        "bytes": 2310
+        "sha256": "ef0babab5ebe0f9878a370bad950aea8a218c1d2a6bb841219585c4984c22ac0",
+        "bytes": 2349
       },
       {
         "path": "packages/foundation/capability/semantic-web/src/adapters/canonicalization.ts",
@@ -240,7 +240,7 @@
         "symbolName": "AbsoluteIRI",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 936,
+        "sourceLine": 971,
         "summary": "RFC 3987 `absolute-IRI` schema without a fragment component.",
         "categories": [
           "validation"
@@ -265,7 +265,7 @@
         "symbolName": "AbsoluteIRI",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 957,
+        "sourceLine": 996,
         "summary": "RFC 3987 `absolute-IRI` syntax without a fragment component.",
         "categories": [
           "models"
@@ -290,7 +290,7 @@
         "symbolName": "IRI",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 974,
+        "sourceLine": 1013,
         "summary": "RFC 3987 `IRI` schema.",
         "categories": [
           "validation"
@@ -315,7 +315,7 @@
         "symbolName": "IRI",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 995,
+        "sourceLine": 1038,
         "summary": "RFC 3987 `IRI` syntax.",
         "categories": [
           "models"
@@ -340,7 +340,7 @@
         "symbolName": "IRIReference",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 860,
+        "sourceLine": 887,
         "summary": "RFC 3987 `IRI-reference` schema, including absolute and relative forms.",
         "categories": [
           "validation"
@@ -365,7 +365,7 @@
         "symbolName": "IRIReference",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 881,
+        "sourceLine": 912,
         "summary": "RFC 3987 `IRI-reference` syntax, including absolute and relative forms.",
         "categories": [
           "models"
@@ -390,7 +390,7 @@
         "symbolName": "RelativeIRIReference",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 898,
+        "sourceLine": 929,
         "summary": "RFC 3987 `irelative-ref` schema.",
         "categories": [
           "validation"
@@ -415,7 +415,7 @@
         "symbolName": "RelativeIRIReference",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 919,
+        "sourceLine": 954,
         "summary": "RFC 3987 `irelative-ref` syntax.",
         "categories": [
           "models"
@@ -1202,7 +1202,7 @@
         "symbolName": "AbsoluteIRI",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 936,
+        "sourceLine": 971,
         "summary": "RFC 3987 `absolute-IRI` schema without a fragment component.",
         "categories": [
           "validation"
@@ -1227,7 +1227,7 @@
         "symbolName": "AbsoluteIRI",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 957,
+        "sourceLine": 996,
         "summary": "RFC 3987 `absolute-IRI` syntax without a fragment component.",
         "categories": [
           "models"
@@ -1252,7 +1252,7 @@
         "symbolName": "IRI",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 974,
+        "sourceLine": 1013,
         "summary": "RFC 3987 `IRI` schema.",
         "categories": [
           "validation"
@@ -1277,7 +1277,7 @@
         "symbolName": "IRI",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 995,
+        "sourceLine": 1038,
         "summary": "RFC 3987 `IRI` syntax.",
         "categories": [
           "models"
@@ -1302,7 +1302,7 @@
         "symbolName": "IRIReference",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 860,
+        "sourceLine": 887,
         "summary": "RFC 3987 `IRI-reference` schema, including absolute and relative forms.",
         "categories": [
           "validation"
@@ -1327,7 +1327,7 @@
         "symbolName": "IRIReference",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 881,
+        "sourceLine": 912,
         "summary": "RFC 3987 `IRI-reference` syntax, including absolute and relative forms.",
         "categories": [
           "models"
@@ -1352,7 +1352,7 @@
         "symbolName": "RelativeIRIReference",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 898,
+        "sourceLine": 929,
         "summary": "RFC 3987 `irelative-ref` schema.",
         "categories": [
           "validation"
@@ -1377,7 +1377,7 @@
         "symbolName": "RelativeIRIReference",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 919,
+        "sourceLine": 954,
         "summary": "RFC 3987 `irelative-ref` syntax.",
         "categories": [
           "models"
@@ -1402,7 +1402,7 @@
         "symbolName": "AbsoluteIRI",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 936,
+        "sourceLine": 971,
         "summary": "RFC 3987 `absolute-IRI` schema without a fragment component.",
         "categories": [
           "validation"
@@ -1427,7 +1427,7 @@
         "symbolName": "AbsoluteIRI",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 957,
+        "sourceLine": 996,
         "summary": "RFC 3987 `absolute-IRI` syntax without a fragment component.",
         "categories": [
           "models"
@@ -1452,7 +1452,7 @@
         "symbolName": "IRI",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 974,
+        "sourceLine": 1013,
         "summary": "RFC 3987 `IRI` schema.",
         "categories": [
           "validation"
@@ -1477,7 +1477,7 @@
         "symbolName": "IRI",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 995,
+        "sourceLine": 1038,
         "summary": "RFC 3987 `IRI` syntax.",
         "categories": [
           "models"
@@ -1502,7 +1502,7 @@
         "symbolName": "IRIReference",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 860,
+        "sourceLine": 887,
         "summary": "RFC 3987 `IRI-reference` schema, including absolute and relative forms.",
         "categories": [
           "validation"
@@ -1527,7 +1527,7 @@
         "symbolName": "IRIReference",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 881,
+        "sourceLine": 912,
         "summary": "RFC 3987 `IRI-reference` syntax, including absolute and relative forms.",
         "categories": [
           "models"
@@ -1552,7 +1552,7 @@
         "symbolName": "RelativeIRIReference",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 898,
+        "sourceLine": 929,
         "summary": "RFC 3987 `irelative-ref` schema.",
         "categories": [
           "validation"
@@ -1577,7 +1577,7 @@
         "symbolName": "RelativeIRIReference",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/rdf/src/Iri.ts",
-        "sourceLine": 919,
+        "sourceLine": 954,
         "summary": "RFC 3987 `irelative-ref` syntax.",
         "categories": [
           "models"

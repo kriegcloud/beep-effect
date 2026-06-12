@@ -30,15 +30,16 @@ class ChunkBySentencesParameters extends S.Class<ChunkBySentencesParameters>($I`
   })
 ) {}
 
-const ChunkBySentencesSuccess = S.Struct({
-  chunkCount: S.Finite,
-  chunks: S.Array(AiSentenceChunk),
-  originalSentenceCount: S.Finite,
-}).pipe(
-  $I.annoteSchema("ChunkBySentencesSuccess", {
+class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkBySentencesSuccess`)(
+  {
+    chunkCount: S.Finite,
+    chunks: S.Array(AiSentenceChunk),
+    originalSentenceCount: S.Finite,
+  },
+  $I.annote("ChunkBySentencesSuccess", {
     description: "Sentence-aligned text chunks and their source sentence counts.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for splitting text into chunks that
@@ -68,5 +69,5 @@ export const ChunkBySentences = Tool.make("ChunkBySentences", {
   failure: AiToolError,
   failureMode: "return",
   parameters: ChunkBySentencesParameters,
-  success: ChunkBySentencesSuccess,
+  success: S.toEncoded(ChunkBySentencesSuccess),
 });

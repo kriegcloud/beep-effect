@@ -5,6 +5,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { Clock, ConfigProvider, Effect, Exit, Layer } from "effect";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 import { Atom } from "effect/unstable/reactivity";
 import * as React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -166,6 +167,12 @@ const oipRuntimeKvsAtom = Atom.kvs({
   runtime: oipBrowserRuntime,
   schema: S.String,
 });
+const OipSiteContentArbitrary = S.toArbitrary(OipSiteContent);
+const ContactSubmissionFormPayloadArbitrary = S.toArbitrary(ContactSubmissionFormPayload);
+const encodeOipSiteContent = S.encodeSync(OipSiteContent);
+const decodeOipSiteContent = S.decodeUnknownSync(OipSiteContent);
+const encodeContactSubmissionFormPayload = S.encodeSync(ContactSubmissionFormPayload);
+const decodeContactSubmissionFormPayload = S.decodeUnknownSync(ContactSubmissionFormPayload);
 
 function OipRuntimeKvsHarness() {
   const [value, setValue] = useAtom(oipRuntimeKvsAtom);
@@ -200,6 +207,19 @@ describe("@beep/oip-web", { concurrent: false }, () => {
     const result = decodeOipSiteContentResult(oipSiteContent);
 
     expect(Result.isSuccess(result)).toBe(true);
+  });
+
+  it("derives valid OIP content and contact form values from production schemas", { timeout: 20_000 }, () => {
+    fc.assert(
+      fc.property(OipSiteContentArbitrary, ContactSubmissionFormPayloadArbitrary, (content, payload) => {
+        const encodedContent = encodeOipSiteContent(content);
+        const encodedPayload = encodeContactSubmissionFormPayload(payload);
+
+        expect(decodeOipSiteContent(encodedContent)).toEqual(content);
+        expect(decodeContactSubmissionFormPayload(encodedPayload)).toEqual(payload);
+      }),
+      { numRuns: 100 }
+    );
   });
 
   it("exposes schema class-local decoders beside compatibility exports", () =>
@@ -494,6 +514,27 @@ describe("@beep/oip-web", { concurrent: false }, () => {
       expect(Exit.isFailure(submittedAtExit)).toBe(true);
     }));
 
+  it("rejects malformed contact form payloads at the browser wire schema", () => {
+    const decodeFormPayload = S.decodeUnknownExit(ContactSubmissionFormPayload);
+
+    expect(
+      Exit.isFailure(
+        decodeFormPayload({
+          ...validContactPayload(),
+          message: "short",
+        })
+      )
+    ).toBe(true);
+    expect(
+      Exit.isFailure(
+        decodeFormPayload({
+          ...validContactPayload(),
+          name: "T",
+        })
+      )
+    ).toBe(true);
+  });
+
   it("exposes an Effect HttpApi contract and Atom client for contact submissions", () => {
     const submitContactMutation = OipContactHttpApiClient.mutation("contact", "submit");
 
@@ -535,7 +576,7 @@ describe("@beep/oip-web", { concurrent: false }, () => {
   it("converts contact FormData into the shared submission payload", () => {
     const payload = contactSubmissionPayloadFromFormData(contactFormData());
 
-    expect(payload.email).toBe("TOM@EXAMPLE.COM");
+    expect(payload.email).toBe("tom@example.com");
     expect(payload.message).toBe("I would like help protecting a new machine design.");
     expect(payload.name).toBe("Thomas Oppold");
     expect(payload.submittedAt).toBeGreaterThan(0);
@@ -661,6 +702,24 @@ describe("@beep/oip-web", { concurrent: false }, () => {
           });
         })
       ));
+
+  it("returns a JSON rejected response for unreadable contact route submissions", () =>
+    POST(
+      new Request("https://oip.law/api/contact", {
+        body: "{",
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      })
+    ).then((response) =>
+      response.json().then((body) => {
+        expect(response.status).toBe(400);
+        expect(response.headers.get("content-type")).toContain("application/json");
+        expect(body).toEqual({
+          message: "The submission could not be accepted.",
+          status: "rejected",
+        });
+      })
+    ));
 
   it("redirects malformed browser form submissions without calling submit", () => {
     const formData = contactFormData();

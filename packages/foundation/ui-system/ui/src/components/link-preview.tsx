@@ -223,7 +223,7 @@ const canFetchMetadata = (href: string): boolean => {
   }
 
   try {
-    const target = new URL(href, runtimeWindow.location.href);
+    const target = new URL(href);
     return target.origin === runtimeWindow.location.origin;
   } catch {
     return false;

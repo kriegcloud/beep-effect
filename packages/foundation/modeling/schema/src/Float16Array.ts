@@ -79,11 +79,22 @@ export const isFloat16Array = (u: unknown): u is Float16Array<ArrayBufferLike> =
  * console.log(value.length); // 3
  * ```
  */
-export const Float16Arr = S.declare(isFloat16Array).pipe(
-  $I.annoteSchema("Float16Arr", {
-    description: "A schema that validates native Float16Array instances.",
+export const Float16Arr = S.declare(isFloat16Array)
+  .annotate({
+    toArbitrary: () => (fc) =>
+      fc
+        .array(fc.integer({ max: 1_000, min: -1_000 }), { maxLength: 8 })
+        .map((values) =>
+          P.isUndefined(float16ArrayConstructor)
+            ? unsupportedFloat16ArrayRuntime()
+            : (new float16ArrayConstructor(values) as Float16Array<ArrayBufferLike>)
+        ),
   })
-);
+  .pipe(
+    $I.annoteSchema("Float16Arr", {
+      description: "A schema that validates native Float16Array instances.",
+    })
+  );
 
 /**
  * Type for {@link Float16Arr}.

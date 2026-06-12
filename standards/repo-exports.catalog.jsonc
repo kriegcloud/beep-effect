@@ -26,9 +26,9 @@
     "packagesWithPublicExports": 83,
     "packagesWithoutPublicExports": 7,
     "missingWorkspaceMetadata": 4,
-    "importSpecifiers": 1100,
-    "publicExportEntries": 28424,
-    "uniquePackageSymbols": 10162
+    "importSpecifiers": 1101,
+    "publicExportEntries": 28431,
+    "uniquePackageSymbols": 10164
   },
   "packages": [
     {

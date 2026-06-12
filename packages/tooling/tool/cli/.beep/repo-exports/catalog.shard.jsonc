@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f716587b2a6fc7f66eecc61fffa99b4694e211f910f350c09c1e7794ddff14e9",
+    "digest": "b3efa85060b55e63247f111edd494faa62226f6312b21b83b84ee27dea90c815",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -382,8 +382,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
-        "sha256": "b75b2099cdf75f564dff306e77f992abb810454242e829b0aa84fa58dee640ae",
-        "bytes": 440
+        "sha256": "f3bd6a2f45311e93768496239911f5d01257b399c440c840838e862b0d806285",
+        "bytes": 606
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts",
@@ -407,8 +407,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sha256": "e0cb10a80ceccb95e6d6cad151566822b86d38715dbc4970050fbe67585caa63",
-        "bytes": 49142
+        "sha256": "7ac7bc8b52eb398d1b3f0efea20f7d32ccdcf848103b4c795b96e3c04523f52c",
+        "bytes": 54999
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/SchemaTopology.ts",
@@ -487,8 +487,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "3e74cb30498a461c904bd2869426bd64125891aceca2997dcac94b14f5846000",
-        "bytes": 104458
+        "sha256": "0cd31bd62a3cee34724b23a688eee13b843b2858156a3db447f710f355e848f9",
+        "bytes": 104825
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -682,8 +682,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "be0e4e3de77cdf5e2b8bd5383499a94fc580e0a643cd71ad36c46e3233027f8a",
-        "bytes": 41168
+        "sha256": "039d531bfd960b894d6feac3ca84b530f3523cf85badfe68bbf29372aa618295",
+        "bytes": 41388
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
@@ -983,8 +983,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 1919,
-      "uniqueSymbols": 739,
+      "publicExportEntries": 1922,
+      "uniqueSymbols": 740,
       "sourceFiles": 156
     },
     "exports": [
@@ -1348,7 +1348,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2931,
+        "sourceLine": 2941,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -27000,6 +27000,33 @@
         "packageName": "@beep/repo-cli",
         "packagePath": "packages/tooling/tool/cli",
         "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Lint",
+        "exportSubpath": "./commands/Lint",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
+        "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "sourceLine": 993,
+        "summary": "Test whether source text contains schema-derived arbitrary coverage.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint ./commands/lint sourcetexthasschemaarbitrarypropertycoverage const test whether source text contains schema-derived arbitrary coverage. utilities packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
         "importSpecifier": "@beep/repo-cli/commands/Lint/index",
         "exportSubpath": "./commands/Lint/index",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
@@ -27197,6 +27224,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/index ./commands/lint/index schematopologyviolation class schema topology lint violation. models packages/tooling/tool/cli/src/commands/lint/schematopology.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Lint/index",
+        "exportSubpath": "./commands/Lint/index",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/index.ts",
+        "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "sourceLine": 993,
+        "summary": "Test whether source text contains schema-derived arbitrary coverage.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/index ./commands/lint/index sourcetexthasschemaarbitrarypropertycoverage const test whether source text contains schema-derived arbitrary coverage. utilities packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -27410,7 +27464,7 @@
         "symbolName": "lintSchemaFirstCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1273,
+        "sourceLine": 1417,
         "summary": "Repo-wide schema-first lint command.",
         "categories": [
           "utilities"
@@ -27435,7 +27489,7 @@
         "symbolName": "runSchemaFirstLint",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 1127,
+        "sourceLine": 1274,
         "summary": "Run schema-first inventory verification against the committed baseline.",
         "categories": [
           "utilities"
@@ -27460,7 +27514,7 @@
         "symbolName": "SchemaFirstInventoryEntry",
         "exportKind": "namespace",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
-        "sourceLine": 196,
+        "sourceLine": 193,
         "summary": "Namespace for {@link SchemaFirstInventoryEntry} companion types.",
         "categories": [
           "models"
@@ -27474,6 +27528,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/schemafirst ./commands/lint/schemafirst schemafirstinventoryentry namespace namespace for {@link schemafirstinventoryentry} companion types. models packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Lint/SchemaFirst",
+        "exportSubpath": "./commands/Lint/SchemaFirst",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "symbolName": "sourceTextHasSchemaArbitraryPropertyCoverage",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/SchemaFirst.ts",
+        "sourceLine": 993,
+        "summary": "Test whether source text contains schema-derived arbitrary coverage.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/lint/schemafirst ./commands/lint/schemafirst sourcetexthasschemaarbitrarypropertycoverage const test whether source text contains schema-derived arbitrary coverage. utilities packages/tooling/tool/cli/src/commands/lint/schemafirst.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -27841,7 +27922,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2931,
+        "sourceLine": 2941,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -28718,7 +28799,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2931,
+        "sourceLine": 2941,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29343,7 +29424,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2582,
+        "sourceLine": 2592,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -29369,7 +29450,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1640,
+        "sourceLine": 1650,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -29421,7 +29502,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2514,
+        "sourceLine": 2524,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -29447,7 +29528,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 933,
+        "sourceLine": 943,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -29599,7 +29680,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1049,
+        "sourceLine": 1059,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29626,7 +29707,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 984,
+        "sourceLine": 994,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -29653,7 +29734,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1019,
+        "sourceLine": 1029,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29680,7 +29761,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1034,
+        "sourceLine": 1044,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -29732,7 +29813,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 907,
+        "sourceLine": 917,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -29759,7 +29840,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2931,
+        "sourceLine": 2941,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -29934,7 +30015,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1109,
+        "sourceLine": 1119,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -29988,7 +30069,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1977,
+        "sourceLine": 1987,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -30015,7 +30096,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1332,
+        "sourceLine": 1342,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -30042,7 +30123,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2297,
+        "sourceLine": 2307,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -30068,7 +30149,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2220,
+        "sourceLine": 2230,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -30094,7 +30175,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2414,
+        "sourceLine": 2424,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -30119,7 +30200,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2332,
+        "sourceLine": 2342,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -30146,7 +30227,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2023,
+        "sourceLine": 2033,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -30173,7 +30254,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1786,
+        "sourceLine": 1796,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -30199,7 +30280,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2119,
+        "sourceLine": 2129,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -41576,7 +41657,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2582,
+        "sourceLine": 2592,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -41750,7 +41831,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1640,
+        "sourceLine": 1650,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -42382,7 +42463,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2514,
+        "sourceLine": 2524,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -42408,7 +42489,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 933,
+        "sourceLine": 943,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -42560,7 +42641,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1049,
+        "sourceLine": 1059,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -42587,7 +42668,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 984,
+        "sourceLine": 994,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -42614,7 +42695,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1019,
+        "sourceLine": 1029,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -42641,7 +42722,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1034,
+        "sourceLine": 1044,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -43044,7 +43125,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 907,
+        "sourceLine": 917,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -43071,7 +43152,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2931,
+        "sourceLine": 2941,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -43573,7 +43654,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1109,
+        "sourceLine": 1119,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -43679,7 +43760,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1977,
+        "sourceLine": 1987,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -43706,7 +43787,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1332,
+        "sourceLine": 1342,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -43733,7 +43814,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2297,
+        "sourceLine": 2307,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -43759,7 +43840,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2220,
+        "sourceLine": 2230,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -43785,7 +43866,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2414,
+        "sourceLine": 2424,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -44017,7 +44098,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2332,
+        "sourceLine": 2342,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -44069,7 +44150,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2023,
+        "sourceLine": 2033,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -44096,7 +44177,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1786,
+        "sourceLine": 1796,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -44122,7 +44203,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2119,
+        "sourceLine": 2129,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -48492,7 +48573,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 1206,
+        "sourceLine": 1208,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"

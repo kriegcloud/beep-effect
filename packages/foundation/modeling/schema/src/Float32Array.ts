@@ -39,11 +39,16 @@ const $I = $SchemaId.create("Float32Array");
  */
 export const Float32Arr = S.instanceOf<globalThis.Float32ArrayConstructor, globalThis.Float32Array>(
   globalThis.Float32Array
-).pipe(
-  $I.annoteSchema("Float32Arr", {
-    description: "A schema that validates native Float32Array instances.",
+)
+  .annotate({
+    toArbitrary: () => (fc) =>
+      fc.array(fc.integer({ max: 1_000, min: -1_000 }), { maxLength: 8 }).map((values) => new Float32Array(values)),
   })
-);
+  .pipe(
+    $I.annoteSchema("Float32Arr", {
+      description: "A schema that validates native Float32Array instances.",
+    })
+  );
 
 /**
  * Type for {@link Float32Arr}.

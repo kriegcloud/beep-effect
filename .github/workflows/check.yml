@@ -256,6 +256,27 @@ jobs:
           echo "base_ref=$base_ref" >> "$GITHUB_OUTPUT"
           echo "base_fetch_status=$fetch_status" >> "$GITHUB_OUTPUT"
 
+      - name: Free runner disk for Fallow
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This job only needs the monorepo toolchain plus Fallow. The shared
+          # setup step can exhaust the default runner image when cleanup is
+          # skipped, so clear the large preinstalled stacks before installing.
+          echo "Disk before cleanup:"
+          df -h /
+          sudo rm -rf \
+            /opt/ghc \
+            /usr/local/.ghcup \
+            /usr/local/lib/android \
+            /usr/local/share/boost \
+            /usr/share/dotnet
+          sudo apt-get clean
+          docker system prune --all --force --volumes || true
+          echo "Disk after cleanup:"
+          df -h /
+
       - name: Setup monorepo CI
         uses: ./.github/actions/setup-monorepo-ci
         with:
@@ -265,6 +286,9 @@ jobs:
       - name: Run Fallow advisory envelopes
         id: fallow
         shell: bash
+        env:
+          TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+          TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
         run: |
           set -euo pipefail
 
@@ -307,19 +331,26 @@ jobs:
           }
 
           blocking_status=0
-          for lane in audit dead-code; do
-            if run_blocking_fallow "$lane"; then
-              :
-            else
-              status=$?
-              if (( blocking_status == 0 )); then
-                blocking_status=$status
-              fi
-            fi
+          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+            case "$lane" in
+              audit|dead-code)
+                if run_blocking_fallow "$lane"; then
+                  :
+                else
+                  status=$?
+                  if (( blocking_status == 0 )); then
+                    blocking_status=$status
+                  fi
+                fi
+                ;;
+              *)
+                run_advisory_fallow "$lane"
+                ;;
+            esac
           done
 
-          for lane in dupes health boundaries flags security fix-preview; do
-            run_advisory_fallow "$lane"
+          for lane in audit dead-code; do
+            test -s ".beep/fallow/${lane}.json"
           done
 
           {
@@ -339,14 +370,10 @@ jobs:
           set -euo pipefail
 
           for lane in audit dead-code; do
-            bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
-              --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
-              --expect-subcommand "$lane" \
-              --expect-report-path ".beep/fallow/${lane}.json" \
-              --require-raw-output
+            test -s ".beep/fallow/${lane}.json"
           done
 
-          for lane in dupes health boundaries flags security fix-preview; do
+          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
             bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
               --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
               --expect-subcommand "$lane" \

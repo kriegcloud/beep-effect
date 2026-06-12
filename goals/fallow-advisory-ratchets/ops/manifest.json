@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "fallow-advisory-ratchets",
+    "title": "Fallow Advisory Ratchets",
+    "status": "active",
+    "created": "2026-06-11",
+    "updated": "2026-06-11",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/fallow-advisory-ratchets",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/fallow-quality-enforcement/SPEC.md",
+    "goals/fallow-quality-enforcement/research/feature-matrix.jsonc",
+    "goals/fallow-advisory-ratchets/README.md",
+    "goals/fallow-advisory-ratchets/SPEC.md",
+    "goals/fallow-advisory-ratchets/PLAN.md",
+    "goals/fallow-advisory-ratchets/GOAL.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/fallow-advisory-ratchets/GOAL.md"
+    }
+  ],
+  "relatedPackets": [
+    {
+      "id": "fallow-quality-enforcement",
+      "path": "goals/fallow-quality-enforcement",
+      "relationship": "follow-up-after-completed-promotion"
+    },
+    {
+      "id": "fallow-zero-dead-code",
+      "path": "goals/fallow-zero-dead-code",
+      "relationship": "blocking-promotion-precedent"
+    }
+  ],
+  "requiredArtifacts": [
+    "goals/fallow-advisory-ratchets/GOAL.md",
+    "goals/fallow-advisory-ratchets/README.md",
+    "goals/fallow-advisory-ratchets/SPEC.md",
+    "goals/fallow-advisory-ratchets/PLAN.md",
+    "goals/fallow-advisory-ratchets/tasks/tasks.jsonc",
+    "goals/fallow-advisory-ratchets/tasks/tasks.schema.json",
+    "goals/fallow-advisory-ratchets/ops/validate-packet.ts",
+    "goals/fallow-quality-enforcement/research/feature-matrix.jsonc",
+    "standards/clone.inventory.jsonc",
+    "standards/fallow.boundaries.generated.jsonc",
+    "standards/fallow.boundaries.provenance.jsonc"
+  ],
+  "phases": [
+    { "id": "P0", "name": "Packet Authoring", "status": "done" },
+    { "id": "P1", "name": "Dupes Ratchet", "status": "done" },
+    { "id": "P2", "name": "Health Ratchet", "status": "seeded" },
+    {
+      "id": "P3",
+      "name": "Boundary And Flags Policy",
+      "status": "in-progress"
+    },
+    { "id": "P4", "name": "Guardrails And Close", "status": "seeded" }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/fallow-advisory-ratchets/GOAL.md)\" -le 4000",
+    "bun goals/fallow-advisory-ratchets/ops/validate-packet.ts",
+    "bun goals/fallow-quality-enforcement/ops/validate-packet.ts",
+    "bun run beep quality fallow boundaries config-check --check",
+    "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes",
+    "bun run beep reuse clones --check",
+    "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts",
+    "bun run beep laws effect-fn --check",
+    "bun run beep quality repo-exports-catalog --package-shard --package @beep/repo-cli --check",
+    "bun run beep quality repo-exports-catalog --from-shards --check",
+    "git diff --check -- goals/fallow-advisory-ratchets"
+  ],
+  "stopConditions": [
+    "Do not remove Knip.",
+    "Do not run non-dry-run fallow fix.",
+    "Do not make runtime coverage blocking.",
+    "Do not encode architecture meaning in Fallow config before doctrine.",
+    "Do not promote lanes with unresolved false positives or doctrine gaps."
+  ]
+}

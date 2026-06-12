@@ -24,14 +24,15 @@ class WordCountParameters extends S.Class<WordCountParameters>($I`WordCountParam
   })
 ) {}
 
-const WordCountSuccess = S.Struct({
-  characterCount: S.Finite,
-  wordCount: S.Finite,
-}).pipe(
-  $I.annoteSchema("WordCountSuccess", {
+class WordCountSuccess extends S.Class<WordCountSuccess>($I`WordCountSuccess`)(
+  {
+    characterCount: S.Finite,
+    wordCount: S.Finite,
+  },
+  $I.annote("WordCountSuccess", {
     description: "Count word-like tokens and characters in text.",
   })
-);
+) {}
 
 /**
  * Defines the agent-facing tool contract for counting word-like tokens and
@@ -60,5 +61,5 @@ export const WordCount = Tool.make("WordCount", {
   failure: AiToolError,
   failureMode: "return",
   parameters: WordCountParameters,
-  success: WordCountSuccess,
+  success: S.toEncoded(WordCountSuccess),
 });
