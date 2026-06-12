@@ -272,7 +272,7 @@
       {
         "name": "@beep/md",
         "patterns": [
-          "packages/foundation/capability/md/src/**"
+          "packages/foundation/modeling/md/src/**"
         ]
       },
       {

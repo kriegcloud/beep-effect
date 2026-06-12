@@ -4,9 +4,9 @@
 
 ## Key Concepts
 
-- **Md.tst.ts** (3 connections) — `packages/foundation/capability/md/dtslint/Md.tst.ts`
-- **BytesAdapter** (1 connections) — `packages/foundation/capability/md/dtslint/Md.tst.ts`
-- **RenderPacket** (1 connections) — `packages/foundation/capability/md/dtslint/Md.tst.ts`
+- **Md.tst.ts** (3 connections) — `packages/foundation/modeling/md/dtslint/Md.tst.ts`
+- **BytesAdapter** (1 connections) — `packages/foundation/modeling/md/dtslint/Md.tst.ts`
+- **RenderPacket** (1 connections) — `packages/foundation/modeling/md/dtslint/Md.tst.ts`
 
 ## Relationships
 
@@ -14,7 +14,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/dtslint/Md.tst.ts`
+- `packages/foundation/modeling/md/dtslint/Md.tst.ts`
 
 ## Audit Trail
 

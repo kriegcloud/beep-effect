@@ -704,7 +704,7 @@
       "triageWeight": "clean"
     },
     "@beep/md": {
-      "path": "packages/foundation/capability/md",
+      "path": "packages/foundation/modeling/md",
       "sanitized": "beep__md",
       "canImportUtils": true,
       "discovery": "done",

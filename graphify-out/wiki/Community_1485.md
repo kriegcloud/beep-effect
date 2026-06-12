@@ -4,10 +4,10 @@
 
 ## Key Concepts
 
-- **asBlockArray()** (4 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **asBlock()** (3 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **isBlockInputArray()** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
-- **p** (2 connections) — `packages/foundation/capability/md/src/Md.ts`
+- **asBlockArray()** (4 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **asBlock()** (3 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **isBlockInputArray()** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
+- **p** (2 connections) — `packages/foundation/modeling/md/src/Md.ts`
 
 ## Relationships
 
@@ -15,7 +15,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/src/Md.ts`
+- `packages/foundation/modeling/md/src/Md.ts`
 
 ## Audit Trail
 

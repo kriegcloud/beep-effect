@@ -4,7 +4,7 @@ Date: 2026-06-08
 
 ## Completed
 
-- Remediated `packages/foundation/capability/md/test/Md.test.ts` from the
+- Remediated `packages/foundation/modeling/md/test/Md.test.ts` from the
   `SFV4-arbitrary-tests` advisory inventory.
 - Added a property test deriving `Inline`, `Block`, and `Document` values from
   the existing `@beep/md/Md.model` source schemas with `S.toArbitrary(...)`.
@@ -33,9 +33,9 @@ Markdown AST can generate valid documents for this focused law.
 ## Verification
 
 ```sh
-cd packages/foundation/capability/md && bun run test -- Md.test.ts
-cd packages/foundation/capability/md && bun run check
-cd packages/foundation/capability/md && bun run lint
+cd packages/foundation/modeling/md && bun run test -- Md.test.ts
+cd packages/foundation/modeling/md && bun run check
+cd packages/foundation/modeling/md && bun run lint
 bun run beep lint schema-first --write
 bun run beep lint schema-first
 ```

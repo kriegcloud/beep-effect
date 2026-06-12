@@ -115,7 +115,7 @@ Status: in progress. First Wave 3 pilots completed for
 `packages/foundation/modeling/schema/test/HttpHeaders.test.ts`,
 `packages/foundation/modeling/schema/test/Csv.test.ts`,
 `packages/foundation/modeling/schema/test/LocalDate.test.ts`,
-`packages/foundation/capability/md/test/Md.test.ts`,
+`packages/foundation/modeling/md/test/Md.test.ts`,
 `packages/foundation/capability/file-processing/test/FileProcessing.test.ts`,
 `packages/foundation/capability/nlp/test/Graph/Schema.test.ts`,
 `packages/foundation/capability/nlp/test/PatternCore.test.ts`,

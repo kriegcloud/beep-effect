@@ -178,20 +178,16 @@
       ],
       "@beep/libpff": ["../../../../packages/drivers/libpff/src/index.ts"],
       "@beep/libpff/*": ["../../../../packages/drivers/libpff/src/*.ts"],
-      "@beep/md": [
-        "../../../../packages/foundation/capability/md/src/index.ts"
-      ],
-      "@beep/md/Md": [
-        "../../../../packages/foundation/capability/md/src/Md.ts"
-      ],
+      "@beep/md": ["../../../../packages/foundation/modeling/md/src/index.ts"],
+      "@beep/md/Md": ["../../../../packages/foundation/modeling/md/src/Md.ts"],
       "@beep/md/Md.model": [
-        "../../../../packages/foundation/capability/md/src/Md.model.ts"
+        "../../../../packages/foundation/modeling/md/src/Md.model.ts"
       ],
       "@beep/md/Md.render": [
-        "../../../../packages/foundation/capability/md/src/Md.render.ts"
+        "../../../../packages/foundation/modeling/md/src/Md.render.ts"
       ],
       "@beep/md/Md.utils": [
-        "../../../../packages/foundation/capability/md/src/Md.utils.ts"
+        "../../../../packages/foundation/modeling/md/src/Md.utils.ts"
       ],
       "@beep/observability": [
         "../../../../packages/foundation/capability/observability/src/index.ts"

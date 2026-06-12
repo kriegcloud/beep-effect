@@ -4,10 +4,10 @@
 
 ## Key Concepts
 
-- **docgen.json** (4 connections) — `packages/foundation/capability/md/docgen.json`
-- **exclude** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **$schema** (1 connections) — `packages/foundation/capability/md/docgen.json`
-- **srcLink** (1 connections) — `packages/foundation/capability/md/docgen.json`
+- **docgen.json** (4 connections) — `packages/foundation/modeling/md/docgen.json`
+- **exclude** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **$schema** (1 connections) — `packages/foundation/modeling/md/docgen.json`
+- **srcLink** (1 connections) — `packages/foundation/modeling/md/docgen.json`
 
 ## Relationships
 
@@ -15,7 +15,7 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/docgen.json`
+- `packages/foundation/modeling/md/docgen.json`
 
 ## Audit Trail
 

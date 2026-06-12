@@ -4,9 +4,9 @@
 
 ## Key Concepts
 
-- **@beep/md** (3 connections) — `packages/foundation/capability/md/README.md`
-- **Result-returning pure render contract** (2 connections) — `packages/foundation/capability/md/ai-context.md`
-- **Trusted raw HTML adapter boundary** (1 connections) — `packages/foundation/capability/md/ai-context.md`
+- **@beep/md** (3 connections) — `packages/foundation/modeling/md/README.md`
+- **Result-returning pure render contract** (2 connections) — `packages/foundation/modeling/md/ai-context.md`
+- **Trusted raw HTML adapter boundary** (1 connections) — `packages/foundation/modeling/md/ai-context.md`
 
 ## Relationships
 
@@ -14,8 +14,8 @@
 
 ## Source Files
 
-- `packages/foundation/capability/md/README.md`
-- `packages/foundation/capability/md/ai-context.md`
+- `packages/foundation/modeling/md/README.md`
+- `packages/foundation/modeling/md/ai-context.md`
 
 ## Audit Trail
 

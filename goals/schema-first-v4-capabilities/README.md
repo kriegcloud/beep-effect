@@ -142,7 +142,7 @@ namespace.
 round-trips.
 `OrganizationDisplay.test.ts` derives browser-safe display/form payloads and
 proves UI codec stability plus the primary-label law.
-`packages/foundation/capability/md/test/Md.test.ts` derives Markdown AST
+`packages/foundation/modeling/md/test/Md.test.ts` derives Markdown AST
 inline/block/document values and proves schema codec plus renderer handoff
 stability.
 `FileProcessing.test.ts` derives file-processing artifact and operation payloads

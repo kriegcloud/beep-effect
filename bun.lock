@@ -962,20 +962,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/foundation/capability/md": {
-      "name": "@beep/md",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/foundation/capability/nlp": {
       "name": "@beep/nlp",
       "version": "0.0.2",
@@ -1063,6 +1049,20 @@
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
         "type-fest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/md": {
+      "name": "@beep/md",
+      "version": "0.0.2",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
       },
     },
     "packages/foundation/modeling/messages": {
@@ -2201,7 +2201,7 @@
 
     "@beep/libpff": ["@beep/libpff@workspace:packages/drivers/libpff"],
 
-    "@beep/md": ["@beep/md@workspace:packages/foundation/capability/md"],
+    "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
 
     "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 
