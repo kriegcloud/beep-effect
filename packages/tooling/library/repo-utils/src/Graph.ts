@@ -237,7 +237,7 @@ const buildCyclePath = (
     stack = remaining;
 
     // Get outgoing neighbors that are within the SCC
-    const neighbors = G.neighborsDirected(graph, current.node, "outgoing");
+    const neighbors = G.successors(graph, current.node);
     for (const neighbor of neighbors) {
       if (!MutableHashSet.has(memberSet, neighbor)) continue;
 

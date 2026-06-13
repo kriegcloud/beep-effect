@@ -2,16 +2,21 @@
 
 ## Status
 
-Status: `pending`
+Status: `in-progress`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Inspect source hierarchy and confirm scope; run the Md ↔ Lexical lossiness check. | Required facts and blockers are recorded; codec profile documented. |
-| P1 Implement | pending | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
-| P2 Verify | pending | Run required checks and capture evidence (incl. Storybook fixture-turn proof). | Verification is green or blockers are documented. |
+| P0 Research | complete | Inspect source hierarchy and confirm scope; run the Md ↔ Lexical lossiness check. | Required facts and blockers are recorded; codec profile documented. |
+| P1 Implement | complete | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
+| P2 Verify | in-progress | Run required checks and capture evidence (incl. Storybook fixture-turn proof). | Verification is green or blockers are documented. |
 | P3 Close | pending | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
+
+Evidence: [`history/2026-06-12-implementation-evidence.md`](./history/2026-06-12-implementation-evidence.md)
+— codec profile locked (see `@beep/lexical-schema` README "Lossiness
+profile"), all package gates green, storybook fixture-turn play test passing
+in chromium.
 
 ## P3 Closeout Checklist
 

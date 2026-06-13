@@ -84,6 +84,7 @@ export const DeprecatedApisESLintConfig: DeprecatedApisESLintConfigShape = [
             "packages/foundation/*/*/test/fixtures/*.ts",
             "packages/foundation/ui-system/ui/.storybook/*.ts",
             "packages/foundation/ui-system/ui/.storybook/*.tsx",
+            "packages/foundation/ui-system/*/stories/*.stories.tsx",
             "packages/foundation/ui-system/ui/stories/components/*.stories.tsx",
             "packages/tooling/*/*/scripts/*.ts",
             "packages/tooling/library/repo-utils/test/fixtures/tsmorph-late-file/src/extra.ts",

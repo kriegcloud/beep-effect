@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../../modeling/lexical/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/md/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/utils/tsconfig.json"
+    },
+    {
+      "path": "../ui/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/identity/tsconfig.json"
+    }
+  ]
+}

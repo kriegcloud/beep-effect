@@ -615,7 +615,7 @@
     "semantic_hash": "05e86848a241958d3f30443577dfedaa"
   },
   "apps/storybook/package.json": {
-    "mtime": 1781243954.9704297,
+    "mtime": 1781312561.3548229,
     "ast_hash": "378e93730bdfc0ebd0aac2aabee9cab5",
     "semantic_hash": ""
   },
@@ -625,9 +625,9 @@
     "semantic_hash": "0592226f90dd46113589044682e2d1f6"
   },
   "apps/storybook/tsconfig.stories.json": {
-    "mtime": 1780806981.7637572,
-    "ast_hash": "a4ed37850084702cca55afc50299e6db",
-    "semantic_hash": "a4ed37850084702cca55afc50299e6db"
+    "mtime": 1781307471.7939363,
+    "ast_hash": "427c4f243ac4059d398f8e755ac584c5",
+    "semantic_hash": ""
   },
   "apps/storybook/vercel.json": {
     "mtime": 1780806981.7637572,
@@ -4825,8 +4825,8 @@
     "semantic_hash": "7b93dc79a35316811cf143ec47b1b84b"
   },
   "packages/foundation/modeling/identity/src/packages.ts": {
-    "mtime": 1781266096.0347939,
-    "ast_hash": "748e9af853c37bed73cc826081abe72c",
+    "mtime": 1781311001.7009752,
+    "ast_hash": "1012c1f73b12764f1104e3d466a2dcc8",
     "semantic_hash": ""
   },
   "packages/foundation/modeling/identity/test/Identity.test.ts": {
@@ -9920,9 +9920,9 @@
     "semantic_hash": "b101cd297f014be2be09dbd1d2e5be03"
   },
   "packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts": {
-    "mtime": 1780591783.4836614,
-    "ast_hash": "388b24cb1dbbb506dbc698180ccecad3",
-    "semantic_hash": "388b24cb1dbbb506dbc698180ccecad3"
+    "mtime": 1781314189.303801,
+    "ast_hash": "6e87998cc5e1f5771d087eb04f293c2a",
+    "semantic_hash": ""
   },
   "packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts": {
     "mtime": 1780408245.2133172,
@@ -9975,7 +9975,7 @@
     "semantic_hash": "ec70cc91a43031b41cd4439b2c35a72f"
   },
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts": {
-    "mtime": 1781301991.2905476,
+    "mtime": 1781314483.3435361,
     "ast_hash": "cb8cc7f0a9376fa86b935d827b040647",
     "semantic_hash": ""
   },
@@ -10305,8 +10305,8 @@
     "semantic_hash": "3f9788f222fa835863e32928c65bb7fd"
   },
   "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts": {
-    "mtime": 1781266096.0383883,
-    "ast_hash": "56b7487a0550dfd6a17c922c345b8ab9",
+    "mtime": 1781312803.5944264,
+    "ast_hash": "0a86ae278eedf6360fc66a4b739dc5e7",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts": {
@@ -11085,8 +11085,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/tsconfig-sync.test.ts": {
-    "mtime": 1781302449.3105917,
-    "ast_hash": "3c32cdce4e646b6c68eb16e30c4ccb68",
+    "mtime": 1781311082.1551661,
+    "ast_hash": "105af8e6524ad2fb0a84d035771e7d5f",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/tsconfig.json": {
@@ -11600,13 +11600,13 @@
     "semantic_hash": "425d89819ab8af44cd74d620f476de0e"
   },
   "tsconfig.json": {
-    "mtime": 1781301504.7594228,
-    "ast_hash": "cba6a79798ee60e30fac003c2ba25b49",
+    "mtime": 1781312592.5740607,
+    "ast_hash": "817b18027cbdabaf1508e96bba1781ee",
     "semantic_hash": ""
   },
   "tsconfig.packages.json": {
-    "mtime": 1781301504.7594228,
-    "ast_hash": "63e78c323e2418ec04874626815ca789",
+    "mtime": 1781305827.3149087,
+    "ast_hash": "ec9f4b175144a049bf6965d9ae97c2f0",
     "semantic_hash": ""
   },
   "tsconfig.quality.json": {
@@ -11615,8 +11615,8 @@
     "semantic_hash": "166eb56c6620d38f55b39e1c2fd36237"
   },
   "tsconfig.quality.packages.json": {
-    "mtime": 1781301504.7594228,
-    "ast_hash": "3ed9ffdbcf0229558c42e33f868f05f9",
+    "mtime": 1781305827.3149087,
+    "ast_hash": "5b8142b90bc2d8ff892e4a1237968638",
     "semantic_hash": ""
   },
   "tsdoc.json": {
@@ -14880,8 +14880,8 @@
     "semantic_hash": "80f3274cb34b1e72b424498a57de06d8"
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1781301504.7584229,
-    "ast_hash": "4fb5ec39f8fe9b8e7e67dc88740d147d",
+    "mtime": 1781314237.5527287,
+    "ast_hash": "a761c11d64e5ca7308814d8ec6482c32",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {
@@ -16390,8 +16390,8 @@
     "semantic_hash": ""
   },
   "scratchpad/Lexical.schemas.ts": {
-    "mtime": 1781305234.7453334,
-    "ast_hash": "54a2302456788db17af4e1eea32a6a99",
+    "mtime": 1781305653.9780312,
+    "ast_hash": "77ddcf5faf25cc85efe4871d6732aee1",
     "semantic_hash": ""
   },
   "explorations/agent-chat-interface/BRIEF.md": {
@@ -16430,13 +16430,13 @@
     "semantic_hash": ""
   },
   "goals/rich-text-foundation/PLAN.md": {
-    "mtime": 1781302985.449732,
-    "ast_hash": "e9b7948c4351312b302e2cb12fc1baf9",
+    "mtime": 1781307679.739155,
+    "ast_hash": "80d7f9635567b14ebc281c2c281b7eab",
     "semantic_hash": ""
   },
   "goals/rich-text-foundation/README.md": {
-    "mtime": 1781302974.6433058,
-    "ast_hash": "96c1700f86281bb514cd47b0004592bd",
+    "mtime": 1781307713.4554873,
+    "ast_hash": "2001fcc7f7839e0e70e2acbde7ec06c4",
     "semantic_hash": ""
   },
   "goals/rich-text-foundation/SPEC.md": {
@@ -16462,6 +16462,166 @@
   "goals/workspace-thread-domain/SPEC.md": {
     "mtime": 1781303026.8393645,
     "ast_hash": "33d687698a41bc34869fc824a6be0184",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/docgen.json": {
+    "mtime": 1781305997.8046644,
+    "ast_hash": "dc03fc96fae9db6a44521c2c1f202e95",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/package.json": {
+    "mtime": 1781305966.734434,
+    "ast_hash": "7a1dba75a312b3350fccb8cddf39ee7f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/src/index.ts": {
+    "mtime": 1781306958.5876563,
+    "ast_hash": "62589a30ea5df7f84ceb27efc1b477ad",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/tsconfig.json": {
+    "mtime": 1781305997.8046644,
+    "ast_hash": "ab2e9d8121c4cf4b9778b1bf54d2c80f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/tsconfig.test.json": {
+    "mtime": 1781305810.9549594,
+    "ast_hash": "445ae3f1eb648ce23520f79c6353585d",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/vitest.config.ts": {
+    "mtime": 1781305810.9552827,
+    "ast_hash": "83561337e8b747f41ddc46db5feafc1a",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/docgen.json": {
+    "mtime": 1781312592.5740607,
+    "ast_hash": "56ccedbc0fe71b2a23f80c37ae83658d",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/package.json": {
+    "mtime": 1781312546.39623,
+    "ast_hash": "015da40d0c389c719fec42a6efa88ee5",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/src/index.ts": {
+    "mtime": 1781307240.9578114,
+    "ast_hash": "ba21b50ffbc9fa889552bb3db1d0415e",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/tsconfig.json": {
+    "mtime": 1781312592.5740607,
+    "ast_hash": "4f2cf67cbec393b7c3658b0f82fc1a7f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/tsconfig.test.json": {
+    "mtime": 1781305823.4026914,
+    "ast_hash": "445ae3f1eb648ce23520f79c6353585d",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/vitest.config.ts": {
+    "mtime": 1781305823.4030085,
+    "ast_hash": "83561337e8b747f41ddc46db5feafc1a",
+    "semantic_hash": ""
+  },
+  "scratchpad/Lexical.schemas.type-test.ts": {
+    "mtime": 1781305678.0729878,
+    "ast_hash": "3a4b0cfe8006444f6853df9e5497f9c4",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/AGENTS.md": {
+    "mtime": 1781305810.95026,
+    "ast_hash": "4865cded23f5e9f52ecbe4ee3975f982",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/CLAUDE.md": {
+    "mtime": 1781305810.95026,
+    "ast_hash": "4865cded23f5e9f52ecbe4ee3975f982",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/README.md": {
+    "mtime": 1781306982.4135976,
+    "ast_hash": "9c36fa817e270bbf83e4b8c88ee244fa",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/AGENTS.md": {
+    "mtime": 1781305823.3977535,
+    "ast_hash": "9e5b6cc2fc9fdb69b731f0ce0d4f6e66",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/CLAUDE.md": {
+    "mtime": 1781305823.3977535,
+    "ast_hash": "9e5b6cc2fc9fdb69b731f0ce0d4f6e66",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/README.md": {
+    "mtime": 1781307282.1654391,
+    "ast_hash": "52ed9c3c63cbf786729875b3bc2121cd",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/dtslint/Lexical.tst.ts": {
+    "mtime": 1781306958.5896564,
+    "ast_hash": "3dcf9218b35910a2f4174d1686a4da5f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/src/Lexical.codec.ts": {
+    "mtime": 1781314224.8842225,
+    "ast_hash": "559a7a4c039ed6edcee6b9f11ad2480f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/src/Lexical.model.ts": {
+    "mtime": 1781306958.5976567,
+    "ast_hash": "50fc8362976345bc7d738a2f25058665",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/test/Lexical.codec.test.ts": {
+    "mtime": 1781308882.98069,
+    "ast_hash": "ae1a02892643818ed6b2f6f9a8b926ca",
+    "semantic_hash": ""
+  },
+  "packages/foundation/modeling/lexical/test/Lexical.model.test.ts": {
+    "mtime": 1781312856.9265406,
+    "ast_hash": "1ee777083eccfbd875b1d77995bfc172",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx": {
+    "mtime": 1781307240.9588115,
+    "ast_hash": "8e580a7dacb03ccc6efa5d935c16710c",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/src/composer.tsx": {
+    "mtime": 1781314140.6858578,
+    "ast_hash": "d1d621e25314552aae010e7eda63a413",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/src/nodes.ts": {
+    "mtime": 1781314135.6726575,
+    "ast_hash": "9589e88b0542fc6f16bf81fa6b9615a1",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/src/theme.ts": {
+    "mtime": 1781307154.9714148,
+    "ast_hash": "2fd5a22dade19257d6fd8d3f5d2cd799",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/src/viewer.tsx": {
+    "mtime": 1781314138.086754,
+    "ast_hash": "89f809dbf49396f933422c8c8b03953c",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/stories/editor-composer.stories.tsx": {
+    "mtime": 1781307305.5493639,
+    "ast_hash": "2abc0d8a01d47f2c528d81ac1be39c0e",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/stories/editor-viewer.stories.tsx": {
+    "mtime": 1781307471.7969363,
+    "ast_hash": "914d2e93fc82a2b6468d84a3781889f3",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/test/editor-nodes.test.ts": {
+    "mtime": 1781312890.4528697,
+    "ast_hash": "ad96db3c479f39f3047cddc51a22e572",
     "semantic_hash": ""
   }
 }

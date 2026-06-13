@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "42808d2c188469f58d1872b6815a8dd5b3dbd47281732a088557e30bcf4baeec",
+    "digest": "ebce107a7c191894c749cb7ffc9d4bfb7fb4661dc64acc2307a00ba62e0d97f3",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -177,8 +177,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts",
-        "sha256": "d525063cbdf13a56f610a97d9cbd044b19400ba4d03e7d0eda21817c67b82e87",
-        "bytes": 52422
+        "sha256": "a70be2debf7c0101424b24398b9d6a7a32ec0c50fb29efd1d4b9ab3a71e07255",
+        "bytes": 52682
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/CreatePackage/index.ts",
@@ -607,8 +607,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sha256": "ce0b0e333ab578c3e85eadcbca3192ace4c0e88ba5d4f4980b88d3e15fe900b5",
-        "bytes": 63704
+        "sha256": "1d9cc52f0954b250d2bb8bd1af8acf70eb4267e47db3d28026a04f182f0fe197",
+        "bytes": 64048
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.errors.ts",
@@ -1541,7 +1541,7 @@
         "symbolName": "tsconfigSyncCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1846,
+        "sourceLine": 1848,
         "summary": "CLI command for synchronizing root and workspace tsconfig state.",
         "categories": [
           "use-cases"
@@ -10273,7 +10273,7 @@
         "symbolName": "createPackageCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts",
-        "sourceLine": 798,
+        "sourceLine": 799,
         "summary": "CLI command that scaffolds a new package with templates, a Schema-validated",
         "categories": [
           "use-cases"
@@ -36866,7 +36866,7 @@
         "symbolName": "PlannedFileChange",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 521,
+        "sourceLine": 522,
         "summary": "A planned file change with transformed file content.",
         "categories": [
           "models"
@@ -36892,7 +36892,7 @@
         "symbolName": "PlannedFileChange",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 544,
+        "sourceLine": 545,
         "summary": "A planned file change with transformed file content.",
         "categories": [
           "models"
@@ -36943,7 +36943,7 @@
         "symbolName": "syncTsconfigAtRoot",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1706,
+        "sourceLine": 1707,
         "summary": "Synchronize tsconfig references and root aliases under a specific repository root.",
         "categories": [
           "utilities"
@@ -36970,7 +36970,7 @@
         "symbolName": "TsconfigSyncChange",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 392,
+        "sourceLine": 393,
         "summary": "A single planned file change.",
         "categories": [
           "models"
@@ -36996,7 +36996,7 @@
         "symbolName": "TsconfigSyncChange",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 415,
+        "sourceLine": 416,
         "summary": "A single planned file change.",
         "categories": [
           "models"
@@ -37020,7 +37020,7 @@
         "symbolName": "tsconfigSyncCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1846,
+        "sourceLine": 1848,
         "summary": "CLI command for synchronizing root and workspace tsconfig state.",
         "categories": [
           "use-cases"
@@ -37145,7 +37145,7 @@
         "symbolName": "TsconfigSyncResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 591,
+        "sourceLine": 592,
         "summary": "Result emitted after a sync run.",
         "categories": [
           "models"
@@ -37171,7 +37171,7 @@
         "symbolName": "TsconfigSyncResult",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 606,
+        "sourceLine": 607,
         "summary": "Result emitted after a sync run.",
         "categories": [
           "models"
@@ -37195,7 +37195,7 @@
         "symbolName": "TsconfigSyncRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 250,
+        "sourceLine": 251,
         "summary": "Runtime options for executing tsconfig sync at a repo root.",
         "categories": [
           "models"
@@ -37221,7 +37221,7 @@
         "symbolName": "TsconfigSyncRunOptions",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 268,
+        "sourceLine": 269,
         "summary": "Runtime options for executing tsconfig sync at a repo root.",
         "categories": [
           "models"
@@ -37245,7 +37245,7 @@
         "symbolName": "TsconfigSyncSection",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 281,
+        "sourceLine": 282,
         "summary": "Sync change section categories.",
         "categories": [
           "models"
@@ -37270,7 +37270,7 @@
         "symbolName": "TsconfigSyncSection",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 301,
+        "sourceLine": 302,
         "summary": "Sync change section categories.",
         "categories": [
           "models"
@@ -37294,7 +37294,7 @@
         "symbolName": "TsconfigWithPaths",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 704,
+        "sourceLine": 705,
         "summary": "Minimal tsconfig shape containing optional `compilerOptions.paths`.",
         "categories": [
           "models"
@@ -37319,7 +37319,7 @@
         "symbolName": "TsconfigWithReferences",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 684,
+        "sourceLine": 685,
         "summary": "Minimal tsconfig shape containing optional `references`.",
         "categories": [
           "models"
@@ -37344,7 +37344,7 @@
         "symbolName": "WorkspaceDescriptor",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 627,
+        "sourceLine": 628,
         "summary": "Workspace package descriptor with metadata for tsconfig synchronization.",
         "categories": [
           "models"
@@ -37396,7 +37396,7 @@
         "symbolName": "PlannedFileChange",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 521,
+        "sourceLine": 522,
         "summary": "A planned file change with transformed file content.",
         "categories": [
           "models"
@@ -37422,7 +37422,7 @@
         "symbolName": "PlannedFileChange",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 544,
+        "sourceLine": 545,
         "summary": "A planned file change with transformed file content.",
         "categories": [
           "models"
@@ -37473,7 +37473,7 @@
         "symbolName": "syncTsconfigAtRoot",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1706,
+        "sourceLine": 1707,
         "summary": "Synchronize tsconfig references and root aliases under a specific repository root.",
         "categories": [
           "utilities"
@@ -37500,7 +37500,7 @@
         "symbolName": "TsconfigSyncChange",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 392,
+        "sourceLine": 393,
         "summary": "A single planned file change.",
         "categories": [
           "models"
@@ -37526,7 +37526,7 @@
         "symbolName": "TsconfigSyncChange",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 415,
+        "sourceLine": 416,
         "summary": "A single planned file change.",
         "categories": [
           "models"
@@ -37550,7 +37550,7 @@
         "symbolName": "tsconfigSyncCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1846,
+        "sourceLine": 1848,
         "summary": "CLI command for synchronizing root and workspace tsconfig state.",
         "categories": [
           "use-cases"
@@ -37675,7 +37675,7 @@
         "symbolName": "TsconfigSyncResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 591,
+        "sourceLine": 592,
         "summary": "Result emitted after a sync run.",
         "categories": [
           "models"
@@ -37701,7 +37701,7 @@
         "symbolName": "TsconfigSyncResult",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 606,
+        "sourceLine": 607,
         "summary": "Result emitted after a sync run.",
         "categories": [
           "models"
@@ -37725,7 +37725,7 @@
         "symbolName": "TsconfigSyncRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 250,
+        "sourceLine": 251,
         "summary": "Runtime options for executing tsconfig sync at a repo root.",
         "categories": [
           "models"
@@ -37751,7 +37751,7 @@
         "symbolName": "TsconfigSyncRunOptions",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 268,
+        "sourceLine": 269,
         "summary": "Runtime options for executing tsconfig sync at a repo root.",
         "categories": [
           "models"
@@ -37775,7 +37775,7 @@
         "symbolName": "TsconfigSyncSection",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 281,
+        "sourceLine": 282,
         "summary": "Sync change section categories.",
         "categories": [
           "models"
@@ -37800,7 +37800,7 @@
         "symbolName": "TsconfigSyncSection",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 301,
+        "sourceLine": 302,
         "summary": "Sync change section categories.",
         "categories": [
           "models"
@@ -37824,7 +37824,7 @@
         "symbolName": "TsconfigWithPaths",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 704,
+        "sourceLine": 705,
         "summary": "Minimal tsconfig shape containing optional `compilerOptions.paths`.",
         "categories": [
           "models"
@@ -37849,7 +37849,7 @@
         "symbolName": "TsconfigWithReferences",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 684,
+        "sourceLine": 685,
         "summary": "Minimal tsconfig shape containing optional `references`.",
         "categories": [
           "models"
@@ -37874,7 +37874,7 @@
         "symbolName": "WorkspaceDescriptor",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 627,
+        "sourceLine": 628,
         "summary": "Workspace package descriptor with metadata for tsconfig synchronization.",
         "categories": [
           "models"
@@ -37926,7 +37926,7 @@
         "symbolName": "PlannedFileChange",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 521,
+        "sourceLine": 522,
         "summary": "A planned file change with transformed file content.",
         "categories": [
           "models"
@@ -37952,7 +37952,7 @@
         "symbolName": "PlannedFileChange",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 544,
+        "sourceLine": 545,
         "summary": "A planned file change with transformed file content.",
         "categories": [
           "models"
@@ -38003,7 +38003,7 @@
         "symbolName": "syncTsconfigAtRoot",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1706,
+        "sourceLine": 1707,
         "summary": "Synchronize tsconfig references and root aliases under a specific repository root.",
         "categories": [
           "utilities"
@@ -38030,7 +38030,7 @@
         "symbolName": "TsconfigSyncChange",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 392,
+        "sourceLine": 393,
         "summary": "A single planned file change.",
         "categories": [
           "models"
@@ -38056,7 +38056,7 @@
         "symbolName": "TsconfigSyncChange",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 415,
+        "sourceLine": 416,
         "summary": "A single planned file change.",
         "categories": [
           "models"
@@ -38080,7 +38080,7 @@
         "symbolName": "tsconfigSyncCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 1846,
+        "sourceLine": 1848,
         "summary": "CLI command for synchronizing root and workspace tsconfig state.",
         "categories": [
           "use-cases"
@@ -38130,7 +38130,7 @@
         "symbolName": "TsconfigSyncResult",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 591,
+        "sourceLine": 592,
         "summary": "Result emitted after a sync run.",
         "categories": [
           "models"
@@ -38156,7 +38156,7 @@
         "symbolName": "TsconfigSyncResult",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 606,
+        "sourceLine": 607,
         "summary": "Result emitted after a sync run.",
         "categories": [
           "models"
@@ -38180,7 +38180,7 @@
         "symbolName": "TsconfigSyncRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 250,
+        "sourceLine": 251,
         "summary": "Runtime options for executing tsconfig sync at a repo root.",
         "categories": [
           "models"
@@ -38206,7 +38206,7 @@
         "symbolName": "TsconfigSyncRunOptions",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 268,
+        "sourceLine": 269,
         "summary": "Runtime options for executing tsconfig sync at a repo root.",
         "categories": [
           "models"
@@ -38230,7 +38230,7 @@
         "symbolName": "TsconfigSyncSection",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 281,
+        "sourceLine": 282,
         "summary": "Sync change section categories.",
         "categories": [
           "models"
@@ -38255,7 +38255,7 @@
         "symbolName": "TsconfigSyncSection",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 301,
+        "sourceLine": 302,
         "summary": "Sync change section categories.",
         "categories": [
           "models"
@@ -38279,7 +38279,7 @@
         "symbolName": "TsconfigWithPaths",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 704,
+        "sourceLine": 705,
         "summary": "Minimal tsconfig shape containing optional `compilerOptions.paths`.",
         "categories": [
           "models"
@@ -38304,7 +38304,7 @@
         "symbolName": "TsconfigWithReferences",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 684,
+        "sourceLine": 685,
         "summary": "Minimal tsconfig shape containing optional `references`.",
         "categories": [
           "models"
@@ -38329,7 +38329,7 @@
         "symbolName": "WorkspaceDescriptor",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/TsconfigSync/TsconfigSync.command.ts",
-        "sourceLine": 627,
+        "sourceLine": 628,
         "summary": "Workspace package descriptor with metadata for tsconfig synchronization.",
         "categories": [
           "models"

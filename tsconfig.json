@@ -1158,7 +1158,33 @@
         "./packages/tooling/tool/cli/src/commands/Corpus/index.ts"
       ],
       "@beep/uspto": ["./packages/drivers/uspto/src/index.ts"],
-      "@beep/uspto/*": ["./packages/drivers/uspto/src/*"]
+      "@beep/uspto/*": [
+        "./packages/drivers/uspto/src/*"
+      ],
+      "@beep/lexical-schema": [
+        "./packages/foundation/modeling/lexical/src/index.ts"
+      ],
+      "@beep/lexical-schema/*": [
+        "./packages/foundation/modeling/lexical/src/*"
+      ],
+      "@beep/editor": [
+        "./packages/foundation/ui-system/editor/src/index.ts"
+      ],
+      "@beep/editor/artifact-ref-node": [
+        "./packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      ],
+      "@beep/editor/composer": [
+        "./packages/foundation/ui-system/editor/src/composer.tsx"
+      ],
+      "@beep/editor/nodes": [
+        "./packages/foundation/ui-system/editor/src/nodes.ts"
+      ],
+      "@beep/editor/theme": [
+        "./packages/foundation/ui-system/editor/src/theme.ts"
+      ],
+      "@beep/editor/viewer": [
+        "./packages/foundation/ui-system/editor/src/viewer.tsx"
+      ]
     }
   }
 }

@@ -151,7 +151,9 @@ const generatedComposers = $I.compose(
   "libpff",
   "box",
   "firecrawl",
-  "uspto"
+  "uspto",
+  "lexical-schema",
+  "editor"
 );
 
 const composers = {
@@ -1710,3 +1712,35 @@ export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = compos
  * @category configuration
  */
 export const $UsptoId: Identity.IdentityComposer<"@beep/uspto"> = composers.$UsptoId;
+
+/**
+ * Identity composer for `@beep/lexical-schema`.
+ *
+ * @example
+ * ```typescript
+ * import { $LexicalSchemaId } from "@beep/identity"
+ *
+ * const id = $LexicalSchemaId.make("LexicalSchema")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $LexicalSchemaId: Identity.IdentityComposer<"@beep/lexical-schema"> = composers.$LexicalSchemaId;
+
+/**
+ * Identity composer for `@beep/editor`.
+ *
+ * @example
+ * ```typescript
+ * import { $EditorId } from "@beep/identity"
+ *
+ * const id = $EditorId.make("Editor")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$EditorId;

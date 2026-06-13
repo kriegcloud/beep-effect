@@ -746,7 +746,8 @@ const resolveIdentityPackagesFilePath = Effect.fn(function* (repoRoot: string) {
 const ensureIdentityPackageRegistration = Effect.fn(function* (identityPackagesFilePath: string, packageName: string) {
   const tsMorphService = yield* TSMorphService;
   return yield* tsMorphService.updateSourceFile(identityPackagesFilePath, (sourceFile) => {
-    const composersDeclaration = sourceFile.getVariableDeclarationOrThrow("composers");
+    const composersDeclaration =
+      sourceFile.getVariableDeclaration("generatedComposers") ?? sourceFile.getVariableDeclarationOrThrow("composers");
     const composersCall = composersDeclaration.getInitializerIfKindOrThrow(SyntaxKind.CallExpression);
     const existingSegments = pipe(
       composersCall.getArguments(),
@@ -833,6 +834,9 @@ export const createPackageCommand = Command.make(
       Flag.withDescription("Skip the default bun.lock refresh after package creation")
     ),
   },
+  // Pre-existing complexity debt: this handler predates the fallow audit gate
+  // and only re-entered the diff via a one-line registry fix (2026-06-12).
+  // fallow-ignore-next-line complexity
   Effect.fn(function* (config) {
     const {
       name,

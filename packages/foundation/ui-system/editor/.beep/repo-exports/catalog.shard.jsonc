@@ -1,0 +1,569 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "861c89b20ffcd76e52be8f608548f15f580bda11874f33dae826b40e00647aeb",
+    "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/package.json",
+        "sha256": "8e21f3d5714ba602bc6b642a4f2a239250b8da392dfb77999c2b80977f0c6881",
+        "bytes": 3299
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sha256": "e73491fda3cfedc4460314befbeefa25675e1e3e23162122cf16cd243e6f934a",
+        "bytes": 3776
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "sha256": "fd6644884f887dd70047dea8a2c4a4970abbfc760c6298897526b680d2513cd8",
+        "bytes": 4170
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/index.ts",
+        "sha256": "5724f364e90f01507491ff4af88e48ca0c565eff4c4cb267ff4927da50205b23",
+        "bytes": 1777
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/nodes.ts",
+        "sha256": "ec65368e038a387f2c6f90be192139bfdafa33d7f11d88c1188005eb327152d6",
+        "bytes": 1309
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/theme.ts",
+        "sha256": "d4802d89524e17ea4aa3e99f70e524908c7286f4a842a852bd3563ace9efbdfe",
+        "bytes": 532
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/viewer.tsx",
+        "sha256": "0afb1788a2c25d3b3147c455783e37fb2d143295c00fec13545f906f17a6ab05",
+        "bytes": 1986
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/editor",
+    "packagePath": "packages/foundation/ui-system/editor",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/editor",
+      "@beep/editor/artifact-ref-node",
+      "@beep/editor/composer",
+      "@beep/editor/nodes",
+      "@beep/editor/theme",
+      "@beep/editor/viewer"
+    ],
+    "counts": {
+      "publicExportEntries": 19,
+      "uniqueSymbols": 10,
+      "sourceFiles": 6
+    },
+    "exports": [
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "$createArtifactRefNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 116,
+        "summary": "Create an {@link ArtifactRefNode}.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . $createartifactrefnode const create an {@link artifactrefnode}. constructors packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "$isArtifactRefNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 132,
+        "summary": "Type guard for {@link ArtifactRefNode}.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . $isartifactrefnode const type guard for {@link artifactrefnode}. guards packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "ArtifactRefNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 38,
+        "summary": "Block-level decorator node referencing a runtime artifact.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . artifactrefnode class block-level decorator node referencing a runtime artifact. components packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "EditorComposer",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "sourceLine": 78,
+        "summary": "Editable Lexical composer over the `@beep/lexical-schema` v1 node",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . editorcomposer function editable lexical composer over the `@beep/lexical-schema` v1 node components packages/foundation/ui-system/editor/src/composer.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "editorNodes",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/nodes.ts",
+        "sourceLine": 35,
+        "summary": "The Lexical node classes matching the `@beep/lexical-schema` v1 union.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . editornodes const the lexical node classes matching the `@beep/lexical-schema` v1 union. configuration packages/foundation/ui-system/editor/src/nodes.ts"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "editorTheme",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts",
+        "sourceLine": 21,
+        "summary": "Editor theme theme value.",
+        "categories": [
+          "themes"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . editortheme const editor theme theme value. themes packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "EditorViewer",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/viewer.tsx",
+        "sourceLine": 47,
+        "summary": "Read-only Lexical viewer over the `@beep/lexical-schema` v1 node",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . editorviewer function read-only lexical viewer over the `@beep/lexical-schema` v1 node components packages/foundation/ui-system/editor/src/viewer.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "markdownTransformers",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "sourceLine": 48,
+        "summary": "The markdown shortcut transformers registered by {@link EditorComposer} —",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . markdowntransformers const the markdown shortcut transformers registered by {@link editorcomposer} — configuration packages/foundation/ui-system/editor/src/composer.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "SerializedArtifactRefNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 23,
+        "summary": "Serialized wire shape of {@link ArtifactRefNode} — pinned to the",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . serializedartifactrefnode type serialized wire shape of {@link artifactrefnode} — pinned to the models packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/index.ts",
+        "sourceLine": 23,
+        "summary": "Package version.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . version const package version. configuration packages/foundation/ui-system/editor/src/index.ts"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/artifact-ref-node",
+        "exportSubpath": "./artifact-ref-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "symbolName": "$createArtifactRefNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 116,
+        "summary": "Create an {@link ArtifactRefNode}.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/artifact-ref-node ./artifact-ref-node $createartifactrefnode const create an {@link artifactrefnode}. constructors packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/artifact-ref-node",
+        "exportSubpath": "./artifact-ref-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "symbolName": "$isArtifactRefNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 132,
+        "summary": "Type guard for {@link ArtifactRefNode}.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/artifact-ref-node ./artifact-ref-node $isartifactrefnode const type guard for {@link artifactrefnode}. guards packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/artifact-ref-node",
+        "exportSubpath": "./artifact-ref-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "symbolName": "ArtifactRefNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 38,
+        "summary": "Block-level decorator node referencing a runtime artifact.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/artifact-ref-node ./artifact-ref-node artifactrefnode class block-level decorator node referencing a runtime artifact. components packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/artifact-ref-node",
+        "exportSubpath": "./artifact-ref-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "symbolName": "SerializedArtifactRefNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
+        "sourceLine": 23,
+        "summary": "Serialized wire shape of {@link ArtifactRefNode} — pinned to the",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/artifact-ref-node ./artifact-ref-node serializedartifactrefnode type serialized wire shape of {@link artifactrefnode} — pinned to the models packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/composer",
+        "exportSubpath": "./composer",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "symbolName": "EditorComposer",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "sourceLine": 78,
+        "summary": "Editable Lexical composer over the `@beep/lexical-schema` v1 node",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/composer ./composer editorcomposer function editable lexical composer over the `@beep/lexical-schema` v1 node components packages/foundation/ui-system/editor/src/composer.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/composer",
+        "exportSubpath": "./composer",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "symbolName": "markdownTransformers",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/composer.tsx",
+        "sourceLine": 48,
+        "summary": "The markdown shortcut transformers registered by {@link EditorComposer} —",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/composer ./composer markdowntransformers const the markdown shortcut transformers registered by {@link editorcomposer} — configuration packages/foundation/ui-system/editor/src/composer.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/nodes",
+        "exportSubpath": "./nodes",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/nodes.ts",
+        "symbolName": "editorNodes",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/nodes.ts",
+        "sourceLine": 35,
+        "summary": "The Lexical node classes matching the `@beep/lexical-schema` v1 union.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/nodes ./nodes editornodes const the lexical node classes matching the `@beep/lexical-schema` v1 union. configuration packages/foundation/ui-system/editor/src/nodes.ts"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/theme",
+        "exportSubpath": "./theme",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/theme.ts",
+        "symbolName": "editorTheme",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts",
+        "sourceLine": 21,
+        "summary": "Editor theme theme value.",
+        "categories": [
+          "themes"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/theme ./theme editortheme const editor theme theme value. themes packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/viewer",
+        "exportSubpath": "./viewer",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/viewer.tsx",
+        "symbolName": "EditorViewer",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/viewer.tsx",
+        "sourceLine": 47,
+        "summary": "Read-only Lexical viewer over the `@beep/lexical-schema` v1 node",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/viewer ./viewer editorviewer function read-only lexical viewer over the `@beep/lexical-schema` v1 node components packages/foundation/ui-system/editor/src/viewer.tsx"
+      }
+    ]
+  }
+}

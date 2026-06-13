@@ -37,13 +37,16 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — inspect the proof repo's `shared/lexical-schema.ts` and
-`shared/assistant-schema.ts`, the `@beep/ui` editor-00 substrate, and run the
-Md ↔ Lexical lossiness check before locking the codec profile.
+P2 Verify → P3 Close — both packages landed (`@beep/lexical-schema`,
+`@beep/editor`), the codec lossiness profile is locked and documented, and
+the storybook fixture-turn proof passes; full repo quality gates running.
 
 ## Latest Evidence
 
-Not started.
+[`history/2026-06-12-implementation-evidence.md`](./history/2026-06-12-implementation-evidence.md)
+— schema tests 12/12, dtslint 32/32 vs lexical 0.45, headless editor
+round-trip 1/1, storybook play tests 464/464 incl.
+`Editor/EditorViewer > Assistant Turn` (chromium).
 
 ## Notes
 

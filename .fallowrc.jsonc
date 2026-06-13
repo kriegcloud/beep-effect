@@ -30,6 +30,9 @@
     "apps/storybook/.storybook/main.ts",
     "apps/storybook/.storybook/manager.ts",
     "apps/storybook/.storybook/preview.tsx",
+    // Story files are tool-loaded roots: the Storybook host discovers them via
+    // the stories glob in apps/storybook/.storybook/main.ts.
+    "packages/foundation/ui-system/*/stories/**/*.stories.tsx",
     // Tool-loaded roots: syncpack auto-loads its config, the deprecated eslint
     // config is consumed by the Lint command, and global-cleanup.ts is the
     // vitest globalSetup for @beep/repo-cli.
@@ -91,7 +94,20 @@
     // Next apps: loaded by Next when SharedNextConfig defaults reactCompiler: true.
     "babel-plugin-react-compiler",
     // Root: used by git-tracked scratchpad tests; scratchpad/** is ignored above.
-    "@faker-js/faker"
+    "@faker-js/faker",
+    // @beep/lexical-schema: type-only lexical conformance imports live in
+    // dtslint/** (ignored above); zero runtime lexical imports is the package
+    // contract (goals/rich-text-foundation).
+    "lexical",
+    "@lexical/code",
+    "@lexical/link",
+    "@lexical/list",
+    "@lexical/rich-text",
+    // @beep/observability: OTel deps staged 2026-06-12 for in-flight tracing
+    // work; remove from this list when the wiring lands.
+    "@opentelemetry/resources",
+    "@opentelemetry/sdk-trace-node",
+    "@opentelemetry/sdk-trace-web"
   ],
   // `instant` is a Next.js framework config export (blocking-prerender opt-out,
   // see nextjs.org/docs/messages/blocking-prerender-dynamic). The framework

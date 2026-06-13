@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3ae786e4c3a8cca60157c84d9ef4af746ccbceebc6fb8a0cacc783b5f8a945ff",
+    "digest": "4afc19ed315a33d64162ce65d14a5da72a7736fb24714bc0e808a34e07c9f567",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts",
-        "sha256": "7a06940d61a11b6a264c36a9cdaa8b55c096fa10199940f4a7296e2e4a4c09e9",
-        "bytes": 3244
+        "sha256": "6c8beea0d8d005183d2037384241f3967abdbb9e3966e294d051e6608c91ebd1",
+        "bytes": 3313
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts",

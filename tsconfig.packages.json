@@ -181,6 +181,9 @@
       "path": "packages/foundation/modeling/identity"
     },
     {
+      "path": "packages/foundation/modeling/lexical"
+    },
+    {
       "path": "packages/foundation/modeling/md"
     },
     {
@@ -203,6 +206,9 @@
     },
     {
       "path": "packages/foundation/primitive/types"
+    },
+    {
+      "path": "packages/foundation/ui-system/editor"
     },
     {
       "path": "packages/foundation/ui-system/form"

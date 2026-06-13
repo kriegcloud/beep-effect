@@ -27,7 +27,8 @@ export const ElementFormat = LiteralKit([
 	"justify",
 	"",
 ]).pipe($I.annoteSchema("ElementFormat", {
-	description: "",
+	description:
+		"Lexical element alignment token used by block-level nodes; the empty string preserves Lexical's default alignment sentinel.",
 }));
 
 /**
@@ -57,7 +58,7 @@ export const Direction = LiteralKit([
 	"ltr",
 	"rtl",
 ]).pipe($I.annoteSchema("Direction", {
-	description: "",
+	description: "Lexical text direction token for left-to-right and right-to-left element layout.",
 }));
 
 /**
@@ -89,7 +90,7 @@ export const TextMode = LiteralKit([
 	"token",
 	"segmented",
 ]).pipe($I.annoteSchema("TextMode", {
-	description: "",
+	description: "Lexical text node editability mode: normal text, indivisible token text, or segmented text.",
 }));
 
 /**
@@ -119,13 +120,14 @@ export type TextMode = typeof TextMode.Type;
  */
 export class BaseNode extends S.Class<BaseNode>($I`BaseNode`)({
 	version: S.Finite.annotateKey({
-		description: "Node schema version, informational; lexical defaults to 1",
+		description: "Serialized Lexical node schema version; Lexical currently writes version 1 for built-in nodes.",
 	}),
 	"$": S.Record(S.String, S.Unknown).pipe(S.OptionFromOptionalKey, S.annotateKey({
-		description: "NODE_STATE_KEY — arbitrary NodeState persisted with the node",
+		description:
+			"Optional NODE_STATE_KEY payload containing arbitrary persisted Lexical NodeState values keyed by state name.",
 	})),
 }, $I.annote("BaseNode", {
-	description: "Base fields shared by every serialized lexical node",
+	description: "Schema base for every serialized Lexical node, including versioning and optional NodeState metadata.",
 })) {
 }
 
@@ -149,7 +151,7 @@ export declare namespace BaseNode {
  */
 const NodeChildren = S.Array(S.suspend((): S.Codec<LexicalNode.Type, LexicalNode.Encoded> => LexicalNode))
 	.pipe($I.annoteSchema("NodeChildren", {
-		description: "Children of a lexical node",
+		description: "Ordered recursive child node list for serialized Lexical element nodes.",
 	}));
 
 /**
@@ -164,19 +166,21 @@ const NodeChildren = S.Array(S.suspend((): S.Codec<LexicalNode.Type, LexicalNode
  */
 export class ElementNode extends BaseNode.extend<ElementNode>($I`ElementNode`)({
 	children: NodeChildren.annotateKey({
-		description: "Child nodes in document order (recursive)",
+		description: "Child nodes in document order, recursively decoded through the LexicalNode tagged union.",
 	}),
-	direction: S.OptionFromNullOr(Direction).annotateKey({description: "Text direction, null when unset"}),
-	format: ElementFormat.annotateKey({description: "Block alignment format"}),
-	indent: S.Finite.annotateKey({description: "Indentation level"}),
+	direction: S.OptionFromNullOr(Direction).annotateKey({
+		description: "Optional text direction decoded from Lexical's nullable direction field.",
+	}),
+	format: ElementFormat.annotateKey({description: "Block alignment format token applied to the element."}),
+	indent: S.Finite.annotateKey({description: "Lexical indentation depth for nested block layout."}),
 	textFormat: S.Finite.pipe(S.OptionFromOptionalKey, S.annotateKey({
-		description: "TextFormatType bitmask applied to newly inserted text",
+		description: "Optional TextFormatType bitmask applied to newly inserted text within the element.",
 	})),
 	textStyle: S.String.pipe(S.OptionFromOptionalKey, S.annotateKey({
-		description: "CSS style applied to newly inserted text",
+		description: "Optional CSS declaration string applied to newly inserted text within the element.",
 	})),
 }, $I.annote("ElementNode", {
-	description: "Base fields shared by element (container) nodes",
+	description: "Base schema for serialized Lexical container nodes that own ordered child nodes.",
 })) {
 }
 
@@ -232,12 +236,12 @@ export declare namespace ElementNode {
  * @since 0.0.0
  */
 export class TextBase extends BaseNode.extend<TextBase>($I`TextBase`)({
-	detail: S.Finite.annotateKey({description: "TextDetailType bitmask"}),
-	format: S.Finite.annotateKey({description: "TextFormatType bitmask (bold=1, italic=2, ...)"}),
-	mode: TextMode.annotateKey({description: "Text node mode"}),
-	style: S.String.annotateKey({description: "Inline CSS style"}),
-	text: S.String.annotateKey({description: "The text content"}),
-}, $I.annote("TextBase", {description: "Base fields shared by text-like leaf nodes"})) {
+	detail: S.Finite.annotateKey({description: "TextDetailType bitmask for directionless, composing, and token details."}),
+	format: S.Finite.annotateKey({description: "TextFormatType bitmask for inline marks such as bold, italic, and code."}),
+	mode: TextMode.annotateKey({description: "Lexical editing mode for this text node."}),
+	style: S.String.annotateKey({description: "Inline CSS declaration string serialized on the text node."}),
+	text: S.String.annotateKey({description: "Plain text payload stored by the Lexical text node."}),
+}, $I.annote("TextBase", {description: "Base schema for serialized Lexical text-like leaf nodes."})) {
 }
 
 /**
@@ -279,10 +283,10 @@ export declare namespace TextBase {
 export class TextNode extends TextBase.extend<TextNode>($I`TextNode`)(
 	{
 		type: S.tag("text").annotateKey({
-			description: "",
+			description: "Lexical discriminator for ordinary text leaf nodes.",
 		})
 	},
-	$I.annote("TextNode", {description: ""})
+	$I.annote("TextNode", {description: "Serialized Lexical TextNode carrying editable plain text content."})
 ) {
 	static readonly toText = (e: TextNode.Type) => e.text
 }
@@ -297,11 +301,14 @@ export declare namespace TextNode {
 	}
 }
 
-export class TabNode extends TextBase.extend<TabNode>("TabNode")({
-	type: S.tag("tab").annotateKey({
-		description: ""
-	}),
-}) {
+export class TabNode extends TextBase.extend<TabNode>($I`TabNode`)(
+	{
+		type: S.tag("tab").annotateKey({
+			description: "Lexical discriminator for tab text leaf nodes.",
+		}),
+	},
+	$I.annote("TabNode", {description: "Serialized Lexical TabNode represented as a text-like leaf."})
+) {
 	static readonly toText = (e: TabNode.Type) => e.text
 }
 
@@ -315,11 +322,14 @@ export declare namespace TabNode {
 	}
 }
 
-export class LineBreakNode extends BaseNode.extend<LineBreakNode>($I`LineBreakNode`)({
-	type: S.tag("linebreak").annotateKey({
-		description: ""
-	}),
-}) {
+export class LineBreakNode extends BaseNode.extend<LineBreakNode>($I`LineBreakNode`)(
+	{
+		type: S.tag("linebreak").annotateKey({
+			description: "Lexical discriminator for explicit line break leaf nodes.",
+		}),
+	},
+	$I.annote("LineBreakNode", {description: "Serialized Lexical LineBreakNode that contributes a newline to plain text."})
+) {
 	static readonly toText = (_e: LineBreakNode.Type) => "\n"
 }
 
@@ -338,9 +348,14 @@ export declare namespace LineBreakNode {
 // Element nodes
 // ---------------------------------------------------------------------------
 
-export class RootNode extends ElementNode.extend<RootNode>("RootNode")({
-	type: S.tag("root"),
-}) {
+export class RootNode extends ElementNode.extend<RootNode>($I`RootNode`)(
+	{
+		type: S.tag("root").annotateKey({
+			description: "Lexical discriminator for the editor state's root element.",
+		}),
+	},
+	$I.annote("RootNode", {description: "Serialized Lexical RootNode at the top of an editor state tree."})
+) {
 	static readonly toText = (e: RootNode.Type) => childText(e.children)
 }
 
@@ -354,10 +369,14 @@ export declare namespace RootNode {
 	}
 }
 
-export class ParagraphNode extends ElementNode.extend<ParagraphNode>("ParagraphNode")({
-	type: S.tag("paragraph"),
-}) {
-
+export class ParagraphNode extends ElementNode.extend<ParagraphNode>($I`ParagraphNode`)(
+	{
+		type: S.tag("paragraph").annotateKey({
+			description: "Lexical discriminator for paragraph block elements.",
+		}),
+	},
+	$I.annote("ParagraphNode", {description: "Serialized Lexical ParagraphNode containing inline and decorator children."})
+) {
 	static readonly toText = (e: ParagraphNode.Type) => `${childText(e.children)}\n`
 }
 
@@ -372,17 +391,24 @@ export declare namespace ParagraphNode {
 }
 
 /** @lexical/rich-text */
-export class HeadingNode extends ElementNode.extend<HeadingNode>("HeadingNode")({
-	type: S.tag("heading"),
-	tag: S.Literals([
-		"h1",
-		"h2",
-		"h3",
-		"h4",
-		"h5",
-		"h6",
-	]),
-}) {
+export class HeadingNode extends ElementNode.extend<HeadingNode>($I`HeadingNode`)(
+	{
+		type: S.tag("heading").annotateKey({
+			description: "Lexical discriminator for rich-text heading elements.",
+		}),
+		tag: S.Literals([
+			"h1",
+			"h2",
+			"h3",
+			"h4",
+			"h5",
+			"h6",
+		]).annotateKey({
+			description: "HTML heading level tag serialized by Lexical for this heading node.",
+		}),
+	},
+	$I.annote("HeadingNode", {description: "Serialized @lexical/rich-text HeadingNode with an h1 through h6 level."})
+) {
 	static readonly toText = (e: HeadingNode.Type) => `${childText(e.children)}\n`
 }
 
@@ -399,10 +425,14 @@ export declare namespace HeadingNode {
 }
 
 /** @lexical/rich-text */
-export class QuoteNode extends ElementNode.extend<QuoteNode>("QuoteNode")({
-	type: S.tag("quote"),
-}) {
-
+export class QuoteNode extends ElementNode.extend<QuoteNode>($I`QuoteNode`)(
+	{
+		type: S.tag("quote").annotateKey({
+			description: "Lexical discriminator for rich-text quote block elements.",
+		}),
+	},
+	$I.annote("QuoteNode", {description: "Serialized @lexical/rich-text QuoteNode containing quoted block children."})
+) {
 	static readonly toText = (e: QuoteNode.Type) => `${childText(e.children)}\n`
 }
 
@@ -417,21 +447,26 @@ export declare namespace QuoteNode {
 }
 
 /** @lexical/list */
-export class ListNode extends ElementNode.extend<ListNode>("ListNode")({
-	type: S.tag("list"),
-	listType: S.Literals([
-		"number",
-		"bullet",
-		"check",
-	]).annotateKey({
-		description: "List semantics",
-	}),
-	start: S.Finite.annotateKey({description: "Starting number for ordered lists"}),
-	tag: S.Literals([
-		"ul",
-		"ol",
-	]).annotateKey({description: "HTML list tag"}),
-}) {
+export class ListNode extends ElementNode.extend<ListNode>($I`ListNode`)(
+	{
+		type: S.tag("list").annotateKey({
+			description: "Lexical discriminator for list container elements.",
+		}),
+		listType: S.Literals([
+			"number",
+			"bullet",
+			"check",
+		]).annotateKey({
+			description: "Lexical list semantics: ordered number list, unordered bullet list, or check list.",
+		}),
+		start: S.Finite.annotateKey({description: "Starting ordinal for ordered lists."}),
+		tag: S.Literals([
+			"ul",
+			"ol",
+		]).annotateKey({description: "Rendered HTML list tag associated with the Lexical list."}),
+	},
+	$I.annote("ListNode", {description: "Serialized @lexical/list ListNode containing list item children."})
+) {
 	static readonly toText = (e: ListNode.Type) => `${childText(e.children)}\n`
 }
 
@@ -452,13 +487,18 @@ export declare namespace ListNode {
 }
 
 /** @lexical/list — `checked` is `boolean | undefined` in lexical */
-export class ListItemNode extends ElementNode.extend<ListItemNode>("ListItemNode")({
-	type: S.tag("listitem"),
-	checked: S.OptionFromOptional(S.Boolean).annotateKey({
-		description: "Checkbox state for check lists; undefined otherwise",
-	}),
-	value: S.Finite.annotateKey({description: "Ordinal value within the list"}),
-}) {
+export class ListItemNode extends ElementNode.extend<ListItemNode>($I`ListItemNode`)(
+	{
+		type: S.tag("listitem").annotateKey({
+			description: "Lexical discriminator for list item elements.",
+		}),
+		checked: S.OptionFromOptional(S.Boolean).annotateKey({
+			description: "Optional checkbox state for check-list items; absent for ordinary bullet or numbered items.",
+		}),
+		value: S.Finite.annotateKey({description: "Ordinal value of the item within its parent list."}),
+	},
+	$I.annote("ListItemNode", {description: "Serialized @lexical/list ListItemNode with optional check-list state."})
+) {
 	static readonly toText = (e: ListItemNode.Type) => `- ${childText(e.children)}\n`
 }
 
@@ -477,12 +517,21 @@ export declare namespace ListItemNode {
 }
 
 /** @lexical/link — shared, untagged base (lexical: AutoLinkNode extends LinkNode) */
-export class LinkBase extends ElementNode.extend<LinkBase>("LinkBase")({
-	url: S.String,
-	rel: S.OptionFromOptionalNullOr(S.String),
-	target: S.OptionFromOptionalNullOr(S.String),
-	title: S.OptionFromOptionalNullOr(S.String),
-}) {
+export class LinkBase extends ElementNode.extend<LinkBase>($I`LinkBase`)(
+	{
+		url: S.String.annotateKey({description: "Destination URL serialized by the Lexical link node."}),
+		rel: S.OptionFromOptionalNullOr(S.String).annotateKey({
+			description: "Optional HTML rel attribute decoded from omitted, undefined, or null link metadata.",
+		}),
+		target: S.OptionFromOptionalNullOr(S.String).annotateKey({
+			description: "Optional HTML target attribute decoded from omitted, undefined, or null link metadata.",
+		}),
+		title: S.OptionFromOptionalNullOr(S.String).annotateKey({
+			description: "Optional HTML title attribute decoded from omitted, undefined, or null link metadata.",
+		}),
+	},
+	$I.annote("LinkBase", {description: "Shared serialized field schema for Lexical link and autolink element nodes."})
+) {
 }
 
 export declare namespace LinkBase {
@@ -501,9 +550,14 @@ export declare namespace LinkBase {
 	}
 }
 
-export class LinkNode extends LinkBase.extend<LinkNode>("LinkNode")({
-	type: S.tag("link"),
-}) {
+export class LinkNode extends LinkBase.extend<LinkNode>($I`LinkNode`)(
+	{
+		type: S.tag("link").annotateKey({
+			description: "Lexical discriminator for standard link elements.",
+		}),
+	},
+	$I.annote("LinkNode", {description: "Serialized @lexical/link LinkNode with URL and optional HTML link attributes."})
+) {
 	static readonly toText = (e: LinkNode.Type) => childText(e.children)
 }
 
@@ -517,10 +571,17 @@ export declare namespace LinkNode {
 	}
 }
 
-export class AutoLinkNode extends LinkBase.extend<AutoLinkNode>("AutoLinkNode")({
-	type: S.tag("autolink"),
-	isUnlinked: S.OptionFromOptionalKey(S.Boolean),
-}) {
+export class AutoLinkNode extends LinkBase.extend<AutoLinkNode>($I`AutoLinkNode`)(
+	{
+		type: S.tag("autolink").annotateKey({
+			description: "Lexical discriminator for automatically detected link elements.",
+		}),
+		isUnlinked: S.OptionFromOptionalKey(S.Boolean).annotateKey({
+			description: "Optional Lexical flag indicating the autolink was manually unlinked by the user.",
+		}),
+	},
+	$I.annote("AutoLinkNode", {description: "Serialized @lexical/link AutoLinkNode with optional unlink state."})
+) {
 	static readonly toText = (e: AutoLinkNode.Type) => childText(e.children)
 }
 
@@ -537,11 +598,20 @@ export declare namespace AutoLinkNode {
 }
 
 /** @lexical/code — `language: string | null | undefined` */
-export class CodeNode extends ElementNode.extend<CodeNode>("CodeNode")({
-	type: S.tag("code"),
-	language: S.OptionFromOptionalNullOr(S.String),
-	theme: S.OptionFromOptionalKey(S.String),
-}) {
+export class CodeNode extends ElementNode.extend<CodeNode>($I`CodeNode`)(
+	{
+		type: S.tag("code").annotateKey({
+			description: "Lexical discriminator for code block elements.",
+		}),
+		language: S.OptionFromOptionalNullOr(S.String).annotateKey({
+			description: "Optional code language decoded from omitted, undefined, or null Lexical code metadata.",
+		}),
+		theme: S.OptionFromOptionalKey(S.String).annotateKey({
+			description: "Optional code theme identifier written by code-highlighting integrations.",
+		}),
+	},
+	$I.annote("CodeNode", {description: "Serialized @lexical/code CodeNode containing code block children and metadata."})
+) {
 	static readonly toText = (e: CodeNode.Type) => "```\n" + childText(e.children) + "\n```\n"
 }
 
@@ -563,10 +633,15 @@ export declare namespace CodeNode {
  * Custom DecoratorNode (src/nodes/MermaidNode.tsx) — we own this serialized
  * shape; modeled on the lexical playground's EquationNode.
  */
-export class MermaidNode extends BaseNode.extend<MermaidNode>("MermaidNode")({
-	type: S.tag("mermaid"),
-	source: S.String.annotateKey({description: "Mermaid diagram source text"}),
-}) {
+export class MermaidNode extends BaseNode.extend<MermaidNode>($I`MermaidNode`)(
+	{
+		type: S.tag("mermaid").annotateKey({
+			description: "Custom discriminator for serialized Mermaid diagram decorator nodes.",
+		}),
+		source: S.String.annotateKey({description: "Mermaid diagram source text stored in the decorator node."}),
+	},
+	$I.annote("MermaidNode", {description: "Custom serialized decorator node for Mermaid diagram source blocks."})
+) {
 	static readonly toText = (e: MermaidNode.Type) => "```mermaid\n" + e.source + "\n```\n"
 }
 
@@ -586,11 +661,16 @@ export declare namespace MermaidNode {
  * Custom DecoratorBlockNode (src/nodes/YouTubeNode.tsx) — mirrors the lexical
  * playground's SerializedYouTubeNode (DecoratorBlockNode adds `format`).
  */
-export class YouTubeNode extends BaseNode.extend<YouTubeNode>("YouTubeNode")({
-	type: S.tag("youtube"),
-	videoID: S.String.annotateKey({description: "The 11-character YouTube video id"}),
-	format: ElementFormat.annotateKey({description: "Block alignment format"}),
-}) {
+export class YouTubeNode extends BaseNode.extend<YouTubeNode>($I`YouTubeNode`)(
+	{
+		type: S.tag("youtube").annotateKey({
+			description: "Custom discriminator for serialized YouTube embed decorator nodes.",
+		}),
+		videoID: S.String.annotateKey({description: "The 11-character YouTube video id for the embedded video."}),
+		format: ElementFormat.annotateKey({description: "Block alignment token applied to the embedded video."}),
+	},
+	$I.annote("YouTubeNode", {description: "Custom serialized decorator block node for YouTube video embeds."})
+) {
 	static readonly toText = (e: YouTubeNode.Type) => `https://www.youtube.com/watch?v=${e.videoID}\n`
 }
 
@@ -609,17 +689,32 @@ export declare namespace YouTubeNode {
 }
 
 /** @lexical/table — mirrors SerializedTableCellNode (headerState: 0..3 bitmask) */
-export class TableCellNode extends ElementNode.extend<TableCellNode>("TableCellNode")({
-	type: S.tag("tablecell"),
-	headerState: S.Finite.annotateKey({
-		description: "TableCellHeaderState bitmask: 0 none, 1 row header, 2 column header, 3 both",
-	}),
-	colSpan: S.OptionFromOptionalKey(S.Finite),
-	rowSpan: S.OptionFromOptionalKey(S.Finite),
-	width: S.OptionFromOptionalKey(S.Finite),
-	backgroundColor: S.OptionFromOptionalNullOr(S.String),
-	verticalAlign: S.OptionFromOptionalKey(S.String),
-}) {
+export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCellNode`)(
+	{
+		type: S.tag("tablecell").annotateKey({
+			description: "Lexical discriminator for table cell elements.",
+		}),
+		headerState: S.Finite.annotateKey({
+			description: "TableCellHeaderState bitmask: 0 none, 1 row header, 2 column header, 3 both.",
+		}),
+		colSpan: S.OptionFromOptionalKey(S.Finite).annotateKey({
+			description: "Optional number of columns spanned by this table cell.",
+		}),
+		rowSpan: S.OptionFromOptionalKey(S.Finite).annotateKey({
+			description: "Optional number of rows spanned by this table cell.",
+		}),
+		width: S.OptionFromOptionalKey(S.Finite).annotateKey({
+			description: "Optional rendered width for this table cell.",
+		}),
+		backgroundColor: S.OptionFromOptionalNullOr(S.String).annotateKey({
+			description: "Optional cell background color decoded from omitted, undefined, or null table metadata.",
+		}),
+		verticalAlign: S.OptionFromOptionalKey(S.String).annotateKey({
+			description: "Optional CSS vertical-align value for table cell content.",
+		}),
+	},
+	$I.annote("TableCellNode", {description: "Serialized @lexical/table TableCellNode with span and styling metadata."})
+) {
 	static readonly toText = (e: TableCellNode.Type) => childText(e.children)
 }
 
@@ -646,10 +741,17 @@ export declare namespace TableCellNode {
 }
 
 /** @lexical/table — mirrors SerializedTableRowNode */
-export class TableRowNode extends ElementNode.extend<TableRowNode>("TableRowNode")({
-	type: S.tag("tablerow"),
-	height: S.OptionFromOptionalKey(S.Finite),
-}) {
+export class TableRowNode extends ElementNode.extend<TableRowNode>($I`TableRowNode`)(
+	{
+		type: S.tag("tablerow").annotateKey({
+			description: "Lexical discriminator for table row elements.",
+		}),
+		height: S.OptionFromOptionalKey(S.Finite).annotateKey({
+			description: "Optional rendered height for the table row.",
+		}),
+	},
+	$I.annote("TableRowNode", {description: "Serialized @lexical/table TableRowNode containing table cell children."})
+) {
 	static readonly toText = (e: TableRowNode.Type) => `${childText(e.children)}\n`
 }
 
@@ -666,21 +768,26 @@ export declare namespace TableRowNode {
 }
 
 /** @lexical/table — mirrors SerializedTableNode */
-export class TableNode extends ElementNode.extend<TableNode>("TableNode")({
-	type: S.tag("table"),
-	colWidths: S.Finite.pipe(S.Array, S.OptionFromOptionalKey).annotateKey({
-		description: ""
-	}),
-	rowStriping: S.OptionFromOptionalKey(S.Boolean).annotateKey({
-		description: ""
-	}),
-	frozenColumnCount: S.OptionFromOptionalKey(S.Finite).annotateKey({
-		description: ""
-	}),
-	frozenRowCount: S.OptionFromOptionalKey(S.Finite).annotateKey({
-		description: ""
-	}),
-}) {
+export class TableNode extends ElementNode.extend<TableNode>($I`TableNode`)(
+	{
+		type: S.tag("table").annotateKey({
+			description: "Lexical discriminator for table elements.",
+		}),
+		colWidths: S.Finite.pipe(S.Array, S.OptionFromOptionalKey).annotateKey({
+			description: "Optional ordered column width list for table layout preservation.",
+		}),
+		rowStriping: S.OptionFromOptionalKey(S.Boolean).annotateKey({
+			description: "Optional flag indicating alternating row striping should be rendered.",
+		}),
+		frozenColumnCount: S.OptionFromOptionalKey(S.Finite).annotateKey({
+			description: "Optional number of frozen leading columns in the table view.",
+		}),
+		frozenRowCount: S.OptionFromOptionalKey(S.Finite).annotateKey({
+			description: "Optional number of frozen leading rows in the table view.",
+		}),
+	},
+	$I.annote("TableNode", {description: "Serialized @lexical/table TableNode with layout preservation metadata."})
+) {
 	static readonly toText = (e: TableNode.Type) => `${childText(e.children)}\n`
 }
 
@@ -726,7 +833,12 @@ export const LexicalNode = S.Union([
 	TableNode,
 	TableRowNode,
 	TableCellNode,
-]).pipe(S.toTaggedUnion("type"));
+]).pipe(
+	S.toTaggedUnion("type"),
+	$I.annoteSchema("LexicalNode", {
+		description: "Tagged union of all supported serialized Lexical node variants keyed by the `type` discriminator.",
+	}),
+);
 
 export declare namespace LexicalNode {
 	export type Type =
@@ -772,13 +884,29 @@ export declare namespace LexicalNode {
 // ---------------------------------------------------------------------------
 
 /** Mirrors `SerializedEditorState`. */
-export class SerializedEditorState extends S.Class<SerializedEditorState>("SerializedEditorState")({
-	root: RootNode,
-}) {
+export class SerializedEditorState extends S.Class<SerializedEditorState>($I`SerializedEditorState`)({
+	root: RootNode.annotateKey({
+		description: "Root node of the serialized Lexical editor state tree.",
+	}),
+}, $I.annote("SerializedEditorState", {
+	description: "Serialized Lexical editor state envelope containing the root node tree.",
+})) {
+}
+
+export declare namespace SerializedEditorState {
+	export interface Type {
+		readonly root: RootNode.Type
+	}
+
+	export interface Encoded {
+		readonly root: RootNode.Encoded
+	}
 }
 
 /** Same schema, but encoding directly to/from a JSON string (for DB storage). */
-export const EditorStateFromJson = S.fromJsonString(SerializedEditorState)
+export const EditorStateFromJson = S.fromJsonString(SerializedEditorState).pipe($I.annoteSchema("EditorStateFromJson", {
+	description: "JSON string codec for persisted serialized Lexical editor state payloads.",
+}))
 
 // ---------------------------------------------------------------------------
 // Plain-text extraction (prompt construction)

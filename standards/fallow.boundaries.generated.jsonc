@@ -174,6 +174,12 @@
         ]
       },
       {
+        "name": "@beep/editor",
+        "patterns": [
+          "packages/foundation/ui-system/editor/src/**"
+        ]
+      },
+      {
         "name": "@beep/epistemic-domain",
         "patterns": [
           "packages/epistemic/domain/src/**"
@@ -261,6 +267,12 @@
         "name": "@beep/law-practice-domain",
         "patterns": [
           "packages/law-practice/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/lexical-schema",
+        "patterns": [
+          "packages/foundation/modeling/lexical/src/**"
         ]
       },
       {
@@ -996,6 +1008,23 @@
         ]
       },
       {
+        "from": "@beep/editor",
+        "allow": [
+          "@beep/editor",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/ui",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/editor",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/epistemic-domain",
         "allow": [
           "@beep/epistemic-domain",
@@ -1216,6 +1245,23 @@
           "@beep/law-practice-domain",
           "@beep/schema",
           "@beep/shared-domain"
+        ]
+      },
+      {
+        "from": "@beep/lexical-schema",
+        "allow": [
+          "@beep/identity",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {

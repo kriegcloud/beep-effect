@@ -6,6 +6,7 @@ import * as O from "@beep/utils/Option";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
+import * as NodeServices from "@effect/platform-node/NodeServices";
 import { Effect, FileSystem, Layer, Order, Path } from "effect";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
@@ -13,7 +14,7 @@ import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
 
 const runTsconfigSyncCommand = Command.runWith(tsconfigSyncCommand, { version: "0.0.0" });
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeServices.layer);
 const TestLayer = Layer.mergeAll(
   PlatformLayer,
   NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(PlatformLayer)),
