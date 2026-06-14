@@ -34,10 +34,10 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/agent-capability/domain"
+      "path": "packages/agents/domain"
     },
     {
-      "path": "packages/agent-capability/use-cases"
+      "path": "packages/agents/use-cases"
     },
     {
       "path": "packages/architecture-lab/client"
@@ -80,6 +80,9 @@
     },
     {
       "path": "packages/drivers/ai-provider-cli"
+    },
+    {
+      "path": "packages/drivers/anthropic"
     },
     {
       "path": "packages/drivers/box"

@@ -1,0 +1,416 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "27a42d6758fd05fb1808483dc4ea509feda56b4718918de6c523bb8422852688",
+    "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
+      {
+        "path": "packages/agents/domain/package.json",
+        "sha256": "6e6de3b8b2c9bc326c912d59f9fd6878672dc13f14c0c3df8baa7d4be0922c71",
+        "bytes": 1866
+      },
+      {
+        "path": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
+        "sha256": "5566dd295f92a76a47af027e3cb89bfc76b0b248ab503bd40d039caba260c441",
+        "bytes": 1736
+      },
+      {
+        "path": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sha256": "a55e5a122933d7d434274445a5972e7829186083e2340c31171218d8181d6d3e",
+        "bytes": 975
+      },
+      {
+        "path": "packages/agents/domain/src/entities/Agent/index.ts",
+        "sha256": "5376276cde3e90c67c366c77d7ae3813808375a5feaea3167402aee34d6f35c2",
+        "bytes": 526
+      },
+      {
+        "path": "packages/agents/domain/src/entities/index.ts",
+        "sha256": "9a3caeaade7ee2a281711776000a934a360e327ff22e0c882b7686a9291b7f61",
+        "bytes": 531
+      },
+      {
+        "path": "packages/agents/domain/src/entities/Skill/index.ts",
+        "sha256": "e40ba3258ec49839380d9d1bf1daf0564d32abef72d5e35147ebb0b1d6226997",
+        "bytes": 297
+      },
+      {
+        "path": "packages/agents/domain/src/entities/Skill/Skill.model.ts",
+        "sha256": "720e4ab3ee8d1638ab2be1adf6081d493d750740d6e915857271d4989be939dc",
+        "bytes": 1094
+      },
+      {
+        "path": "packages/agents/domain/src/index.ts",
+        "sha256": "8e076716a66e2848572226942cf4cd7d58656923be3c451f473159b62728faed",
+        "bytes": 544
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/agents-domain",
+    "packagePath": "packages/agents/domain",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/agents-domain",
+      "@beep/agents-domain/entities",
+      "@beep/agents-domain/entities/Agent",
+      "@beep/agents-domain/entities/Skill"
+    ],
+    "counts": {
+      "publicExportEntries": 13,
+      "uniqueSymbols": 4,
+      "sourceFiles": 7
+    },
+    "exports": [
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "Agent",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
+        "sourceLine": 30,
+        "summary": "Agent definition available to the runtime proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . agent class agent definition available to the runtime proof. models packages/agents/domain/src/entities/agent/agent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "AgentMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sourceLine": 26,
+        "summary": "Agent mode used by the deterministic proof.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . agentmode const agent mode used by the deterministic proof. schemas packages/agents/domain/src/entities/agent/agent.values.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "AgentMode",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sourceLine": 46,
+        "summary": "Runtime type for {@link AgentMode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . agentmode type runtime type for {@link agentmode}. models packages/agents/domain/src/entities/agent/agent.values.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "Entities",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/agents/domain/src/entities/index.ts",
+        "sourceLine": 21,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . entities sourcefile packages/agents/domain/src/entities/index.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "Skill",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/entities/Skill/Skill.model.ts",
+        "sourceLine": 28,
+        "summary": "Skill definition used by an agent.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . skill class skill definition used by an agent. models packages/agents/domain/src/entities/skill/skill.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/agents/domain/src/entities/index.ts",
+        "symbolName": "Agent",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
+        "sourceLine": 30,
+        "summary": "Agent definition available to the runtime proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities ./entities agent class agent definition available to the runtime proof. models packages/agents/domain/src/entities/agent/agent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/agents/domain/src/entities/index.ts",
+        "symbolName": "AgentMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sourceLine": 26,
+        "summary": "Agent mode used by the deterministic proof.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities ./entities agentmode const agent mode used by the deterministic proof. schemas packages/agents/domain/src/entities/agent/agent.values.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/agents/domain/src/entities/index.ts",
+        "symbolName": "AgentMode",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sourceLine": 46,
+        "summary": "Runtime type for {@link AgentMode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities ./entities agentmode type runtime type for {@link agentmode}. models packages/agents/domain/src/entities/agent/agent.values.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/agents/domain/src/entities/index.ts",
+        "symbolName": "Skill",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/entities/Skill/Skill.model.ts",
+        "sourceLine": 28,
+        "summary": "Skill definition used by an agent.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities ./entities skill class skill definition used by an agent. models packages/agents/domain/src/entities/skill/skill.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities/Agent",
+        "exportSubpath": "./entities/Agent",
+        "exportedFromPath": "packages/agents/domain/src/entities/Agent/index.ts",
+        "symbolName": "Agent",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
+        "sourceLine": 30,
+        "summary": "Agent definition available to the runtime proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities/agent ./entities/agent agent class agent definition available to the runtime proof. models packages/agents/domain/src/entities/agent/agent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities/Agent",
+        "exportSubpath": "./entities/Agent",
+        "exportedFromPath": "packages/agents/domain/src/entities/Agent/index.ts",
+        "symbolName": "AgentMode",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sourceLine": 26,
+        "summary": "Agent mode used by the deterministic proof.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities/agent ./entities/agent agentmode const agent mode used by the deterministic proof. schemas packages/agents/domain/src/entities/agent/agent.values.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities/Agent",
+        "exportSubpath": "./entities/Agent",
+        "exportedFromPath": "packages/agents/domain/src/entities/Agent/index.ts",
+        "symbolName": "AgentMode",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/entities/Agent/Agent.values.ts",
+        "sourceLine": 46,
+        "summary": "Runtime type for {@link AgentMode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities/agent ./entities/agent agentmode type runtime type for {@link agentmode}. models packages/agents/domain/src/entities/agent/agent.values.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/entities/Skill",
+        "exportSubpath": "./entities/Skill",
+        "exportedFromPath": "packages/agents/domain/src/entities/Skill/index.ts",
+        "symbolName": "Skill",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/entities/Skill/Skill.model.ts",
+        "sourceLine": 28,
+        "summary": "Skill definition used by an agent.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities/skill ./entities/skill skill class skill definition used by an agent. models packages/agents/domain/src/entities/skill/skill.model.ts"
+      }
+    ]
+  }
+}

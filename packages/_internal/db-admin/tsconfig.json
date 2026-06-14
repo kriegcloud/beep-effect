@@ -19,6 +19,9 @@
     },
     {
       "path": "../../tooling/test-kit/test-utils/tsconfig.json"
+    },
+    {
+      "path": "../../workspace/tables/tsconfig.json"
     }
   ]
 }

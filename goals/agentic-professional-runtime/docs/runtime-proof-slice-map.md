@@ -34,7 +34,7 @@ Owns:
 `Project`, `Task`, and `ApprovalGate` are shared runtime work concepts.
 Vertical slices provide context; they do not own the shared work queue.
 
-### agent-capability
+### agents
 
 Owns:
 

@@ -1,0 +1,12 @@
+{
+  "runs": [
+    {
+      "date": "2026-06-09T02:17:23.051798+00:00",
+      "subagent_tokens": 3535638,
+      "files": 3043,
+      "note": "Claude-subagent semantic extraction (combined in/out)"
+    }
+  ],
+  "total_input_tokens": 3535638,
+  "total_output_tokens": 0
+}

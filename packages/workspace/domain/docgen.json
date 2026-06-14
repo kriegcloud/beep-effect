@@ -55,6 +55,15 @@
       "@beep/workspace-domain/entities/EmailArtifact": [
         "../../../packages/workspace/domain/src/entities/EmailArtifact/index.ts"
       ],
+      "@beep/workspace-domain/entities/Message": [
+        "../../../packages/workspace/domain/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Thread": [
+        "../../../packages/workspace/domain/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Turn": [
+        "../../../packages/workspace/domain/src/entities/Turn/index.ts"
+      ],
       "@beep/workspace-domain/entities/Workspace": [
         "../../../packages/workspace/domain/src/entities/Workspace/index.ts"
       ],
@@ -75,6 +84,17 @@
       ],
       "@beep/identity/packages": [
         "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/md": ["../../../packages/foundation/modeling/md/src/index.ts"],
+      "@beep/md/Md": ["../../../packages/foundation/modeling/md/src/Md.ts"],
+      "@beep/md/Md.model": [
+        "../../../packages/foundation/modeling/md/src/Md.model.ts"
+      ],
+      "@beep/md/Md.render": [
+        "../../../packages/foundation/modeling/md/src/Md.render.ts"
+      ],
+      "@beep/md/Md.utils": [
+        "../../../packages/foundation/modeling/md/src/Md.utils.ts"
       ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
@@ -450,8 +470,8 @@
       "@beep/shared-domain/identity": [
         "../../../packages/shared/domain/src/identity.ts"
       ],
-      "@beep/shared-domain/identity/AgentCapability": [
-        "../../../packages/shared/domain/src/identity/AgentCapability.ts"
+      "@beep/shared-domain/identity/Agents": [
+        "../../../packages/shared/domain/src/identity/Agents.ts"
       ],
       "@beep/shared-domain/identity/Epistemic": [
         "../../../packages/shared/domain/src/identity/Epistemic.ts"

@@ -8,7 +8,7 @@ operational concepts such as Codex/Claude/OpenClaw transcript ingestion,
 benchmark scorecards, local/tailnet install specs, generated local Phoenix
 compose smoke targets, redacted OTLP span projections, structured labels,
 recorded benchmark runs, and weekly config-impact reports. Product usage
-records in `agent-capability` or `epistemic` should map to this package only
+records in `agents` or `epistemic` should map to this package only
 through explicit adapter code when a proof benchmark needs to compare the two
 worlds.
 

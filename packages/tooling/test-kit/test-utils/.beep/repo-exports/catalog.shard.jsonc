@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "5d8a284f794c8ad3e293306a25a234aab719bf554f56d82a32681f403854c469",
+    "digest": "38bd6475ea8c86c53f6b6c623ab462d10c9aebdf0ee9e669bebb2aa10421c9a6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -31,9 +31,14 @@
         "bytes": 2709
       },
       {
+        "path": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sha256": "0fd6dfa6af3162e7d418725272f42290a4d01945678f7a66c78499e3d604bbd3",
+        "bytes": 1756
+      },
+      {
         "path": "packages/tooling/test-kit/test-utils/src/index.ts",
-        "sha256": "0e9c2be2161e9d03fbe641bc30fe98b9d6edfb09c0055b20f8593759a9fc0a62",
-        "bytes": 524
+        "sha256": "6b6edf3652aa37d11af6c56a5b61ea8d8363c996da513462ba28442789345911",
+        "bytes": 634
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/Layer.ts",
@@ -69,15 +74,16 @@
     "status": "has-public-exports",
     "importSpecifiers": [
       "@beep/test-utils",
+      "@beep/test-utils/Entity",
       "@beep/test-utils/index",
       "@beep/test-utils/Layer",
       "@beep/test-utils/Schema",
       "@beep/test-utils/SqlTest"
     ],
     "counts": {
-      "publicExportEntries": 63,
-      "uniqueSymbols": 21,
-      "sourceFiles": 4
+      "publicExportEntries": 69,
+      "uniqueSymbols": 23,
+      "sourceFiles": 5
     },
     "exports": [
       {
@@ -105,6 +111,32 @@
           "@since"
         ],
         "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . assertschemaarbitrarydecodestoself const assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation. schema packages/tooling/test-kit/test-utils/src/schema.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
+        "symbolName": "baseEntityFixtureInput",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sourceLine": 54,
+        "summary": "Build the common BaseEntity fields used by model decode tests.",
+        "categories": [
+          "entity"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . baseentityfixtureinput const build the common baseentity fields used by model decode tests. entity packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -571,6 +603,31 @@
         "importSpecifier": "@beep/test-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
+        "symbolName": "systemPrincipal",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sourceLine": 35,
+        "summary": "Runtime system principal used by deterministic entity fixture rows.",
+        "categories": [
+          "entity"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . systemprincipal const runtime system principal used by deterministic entity fixture rows. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
         "symbolName": "TestDatabaseInfo",
         "exportKind": "class",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
@@ -618,6 +675,57 @@
         "packageName": "@beep/test-utils",
         "packagePath": "packages/tooling/test-kit/test-utils",
         "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils/Entity",
+        "exportSubpath": "./Entity",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "symbolName": "baseEntityFixtureInput",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sourceLine": 54,
+        "summary": "Build the common BaseEntity fields used by model decode tests.",
+        "categories": [
+          "entity"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/entity ./entity baseentityfixtureinput const build the common baseentity fields used by model decode tests. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils/Entity",
+        "exportSubpath": "./Entity",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "symbolName": "systemPrincipal",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sourceLine": 35,
+        "summary": "Runtime system principal used by deterministic entity fixture rows.",
+        "categories": [
+          "entity"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/entity ./entity systemprincipal const runtime system principal used by deterministic entity fixture rows. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
         "importSpecifier": "@beep/test-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
@@ -639,6 +747,32 @@
           "@since"
         ],
         "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index assertschemaarbitrarydecodestoself const assert that a schema-derived arbitrary only emits values accepted by the same schema without transformation. schema packages/tooling/test-kit/test-utils/src/schema.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
+        "symbolName": "baseEntityFixtureInput",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sourceLine": 54,
+        "summary": "Build the common BaseEntity fields used by model decode tests.",
+        "categories": [
+          "entity"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index baseentityfixtureinput const build the common baseentity fields used by model decode tests. entity packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -1097,6 +1231,31 @@
           "@since"
         ],
         "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index sqltesthooks interface optional database setup hooks executed after the driver layer has been built. models packages/tooling/test-kit/test-utils/src/sqltest.ts"
+      },
+      {
+        "packageName": "@beep/test-utils",
+        "packagePath": "packages/tooling/test-kit/test-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/test-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/test-kit/test-utils/src/index.ts",
+        "symbolName": "systemPrincipal",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/test-kit/test-utils/src/Entity.ts",
+        "sourceLine": 35,
+        "summary": "Runtime system principal used by deterministic entity fixture rows.",
+        "categories": [
+          "entity"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index systemprincipal const runtime system principal used by deterministic entity fixture rows. entity packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",

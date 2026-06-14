@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ebce107a7c191894c749cb7ffc9d4bfb7fb4661dc64acc2307a00ba62e0d97f3",
+    "digest": "f44e3ea5d2e7c2c81db2472f986875156155045739fef566b85842ec76e626a4",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -77,8 +77,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sha256": "9f828081bf7aa52cba2a0886440e74651f5ab6aa61351dc0175549e979194b35",
-        "bytes": 80819
+        "sha256": "2144552e6ab5dc6e14e03ff1ef61f65bc7b3c78e1e2db220d35c733c64d2693c",
+        "bytes": 81206
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts",
@@ -177,8 +177,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts",
-        "sha256": "a70be2debf7c0101424b24398b9d6a7a32ec0c50fb29efd1d4b9ab3a71e07255",
-        "bytes": 52682
+        "sha256": "c08caf00ba0bf3c0bda43e795a0bbc8ad0797d97c0050c69b5aa4bece1df3120",
+        "bytes": 55906
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/CreatePackage/index.ts",
@@ -417,8 +417,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/Lint.command.ts",
-        "sha256": "cad829a6e4c5ceb248db8cf07da6d6c9242ceeb8eab1cb8cd70e6d49a48c28f2",
-        "bytes": 23433
+        "sha256": "9915a5e2221e6369a57f1de50d0d5633ec0e976df7c3d1a152c8d30514475233",
+        "bytes": 23423
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/Lint.errors.ts",
@@ -2636,7 +2636,7 @@
         "symbolName": "decodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2608,
+        "sourceLine": 2620,
         "summary": "Decode operation-plan JSON text.",
         "categories": [
           "codecs"
@@ -2686,7 +2686,7 @@
         "symbolName": "encodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2595,
+        "sourceLine": 2607,
         "summary": "Encode an operation plan as JSON text.",
         "categories": [
           "codecs"
@@ -2761,7 +2761,7 @@
         "symbolName": "makeArchitectureOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2484,
+        "sourceLine": 2496,
         "summary": "Build a write-capable operation plan from the accepted WorkItem proof files.",
         "categories": [
           "constructors"
@@ -2786,7 +2786,7 @@
         "symbolName": "makeArchitecturePackageOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2563,
+        "sourceLine": 2575,
         "summary": "Build a shell-only slice role package operation plan.",
         "categories": [
           "constructors"
@@ -2811,7 +2811,7 @@
         "symbolName": "makeCanonicalSliceOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2434,
+        "sourceLine": 2446,
         "summary": "Build the canonical architecture lab WorkItem operation plan.",
         "categories": [
           "constructors"
@@ -3682,7 +3682,7 @@
         "symbolName": "decodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2608,
+        "sourceLine": 2620,
         "summary": "Decode operation-plan JSON text.",
         "categories": [
           "codecs"
@@ -3732,7 +3732,7 @@
         "symbolName": "encodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2595,
+        "sourceLine": 2607,
         "summary": "Encode an operation plan as JSON text.",
         "categories": [
           "codecs"
@@ -3807,7 +3807,7 @@
         "symbolName": "makeArchitectureOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2484,
+        "sourceLine": 2496,
         "summary": "Build a write-capable operation plan from the accepted WorkItem proof files.",
         "categories": [
           "constructors"
@@ -3832,7 +3832,7 @@
         "symbolName": "makeArchitecturePackageOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2563,
+        "sourceLine": 2575,
         "summary": "Build a shell-only slice role package operation plan.",
         "categories": [
           "constructors"
@@ -3857,7 +3857,7 @@
         "symbolName": "makeCanonicalSliceOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2434,
+        "sourceLine": 2446,
         "summary": "Build the canonical architecture lab WorkItem operation plan.",
         "categories": [
           "constructors"
@@ -4628,7 +4628,7 @@
         "symbolName": "decodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2608,
+        "sourceLine": 2620,
         "summary": "Decode operation-plan JSON text.",
         "categories": [
           "codecs"
@@ -4678,7 +4678,7 @@
         "symbolName": "encodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2595,
+        "sourceLine": 2607,
         "summary": "Encode an operation plan as JSON text.",
         "categories": [
           "codecs"
@@ -4753,7 +4753,7 @@
         "symbolName": "makeArchitectureOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2484,
+        "sourceLine": 2496,
         "summary": "Build a write-capable operation plan from the accepted WorkItem proof files.",
         "categories": [
           "constructors"
@@ -4778,7 +4778,7 @@
         "symbolName": "makeArchitecturePackageOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2563,
+        "sourceLine": 2575,
         "summary": "Build a shell-only slice role package operation plan.",
         "categories": [
           "constructors"
@@ -4803,7 +4803,7 @@
         "symbolName": "makeCanonicalSliceOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2434,
+        "sourceLine": 2446,
         "summary": "Build the canonical architecture lab WorkItem operation plan.",
         "categories": [
           "constructors"
@@ -10273,7 +10273,7 @@
         "symbolName": "createPackageCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts",
-        "sourceLine": 799,
+        "sourceLine": 848,
         "summary": "CLI command that scaffolds a new package with templates, a Schema-validated",
         "categories": [
           "use-cases"
@@ -10325,7 +10325,7 @@
         "symbolName": "TemplateContext",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts",
-        "sourceLine": 483,
+        "sourceLine": 532,
         "summary": "Variables passed into every template during package scaffolding.",
         "categories": [
           "models"

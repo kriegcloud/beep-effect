@@ -7,7 +7,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@beep/ui/components/breadcrumb";
-import { House } from "@phosphor-icons/react";
+import { HouseIcon } from "@phosphor-icons/react";
 import { expect, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -163,7 +163,7 @@ export const WithIcon: Story = {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink href="#home" className="inline-flex items-center gap-1.5">
-            <House className="size-4" />
+            <HouseIcon className="size-4" />
             Home
           </BreadcrumbLink>
         </BreadcrumbItem>

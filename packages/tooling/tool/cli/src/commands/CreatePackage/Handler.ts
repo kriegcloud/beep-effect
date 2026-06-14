@@ -250,6 +250,19 @@ const PACKAGE_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   }),
 ];
 
+const STORIES_TSCONFIG_TEMPLATE_SPEC = TemplateSpec.make({
+  templateName: "tsconfig.stories.json.hbs",
+  outputPath: "tsconfig.stories.json",
+});
+const STORIES_DIRECTORY_TSCONFIG_TEMPLATE_SPEC = TemplateSpec.make({
+  templateName: "stories-tsconfig.json.hbs",
+  outputPath: "stories/tsconfig.json",
+});
+const STORIES_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
+  STORIES_TSCONFIG_TEMPLATE_SPEC,
+  STORIES_DIRECTORY_TSCONFIG_TEMPLATE_SPEC,
+];
+
 const NEXTJS_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   TemplateSpec.make({
     templateName: "app-next-tsconfig.json.hbs",
@@ -346,14 +359,26 @@ const TAURI_APP_TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   TemplateSpec.make({ templateName: "app-real-AGENTS.md.hbs", outputPath: "AGENTS.md" }),
 ];
 
-const templateSpecsFor: (appKind: O.Option<AppKind>) => ReadonlyArray<TemplateSpec> = O.match({
-  onNone: () => PACKAGE_TEMPLATE_SPECS,
-  onSome: (kind) => {
-    if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_TEMPLATE_SPECS;
-    if (appKindEquivalence(kind, "tauri")) return TAURI_APP_TEMPLATE_SPECS;
-    return PACKAGE_TEMPLATE_SPECS;
-  },
-});
+const packageTemplateSpecsFor = (withStoriesTsconfig: boolean): ReadonlyArray<TemplateSpec> =>
+  withStoriesTsconfig
+    ? pipe(A.make(PACKAGE_TEMPLATE_SPECS, STORIES_TEMPLATE_SPECS), A.flatten)
+    : PACKAGE_TEMPLATE_SPECS;
+
+const templateSpecsFor: (appKind: O.Option<AppKind>, withStoriesTsconfig: boolean) => ReadonlyArray<TemplateSpec> = (
+  appKind,
+  withStoriesTsconfig
+) =>
+  pipe(
+    appKind,
+    O.match({
+      onNone: () => packageTemplateSpecsFor(withStoriesTsconfig),
+      onSome: (kind) => {
+        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_TEMPLATE_SPECS;
+        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_TEMPLATE_SPECS;
+        return packageTemplateSpecsFor(withStoriesTsconfig);
+      },
+    })
+  );
 
 /**
  * Ordered list of all generated files for dry-run and summary output.
@@ -376,6 +401,9 @@ const PACKAGE_FILES = [
   "vitest.config.ts",
   "docs/index.md",
 ] as const;
+const STORIES_TSCONFIG_FILE = "tsconfig.stories.json" as const;
+const STORIES_DIRECTORY_TSCONFIG_FILE = "stories/tsconfig.json" as const;
+const STORIES_TSCONFIG_FILES = [STORIES_TSCONFIG_FILE, STORIES_DIRECTORY_TSCONFIG_FILE] as const;
 
 const NEXTJS_APP_FILES = [
   "package.json",
@@ -414,14 +442,24 @@ const TAURI_APP_FILES = [
   "CLAUDE.md -> AGENTS.md (symlink)",
 ] as const;
 
-const filesFor: (appKind: O.Option<AppKind>) => ReadonlyArray<string> = O.match({
-  onNone: () => PACKAGE_FILES,
-  onSome: (kind) => {
-    if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_FILES;
-    if (appKindEquivalence(kind, "tauri")) return TAURI_APP_FILES;
-    return PACKAGE_FILES;
-  },
-});
+const packageFilesFor = (withStoriesTsconfig: boolean): ReadonlyArray<string> =>
+  withStoriesTsconfig ? pipe(A.make(PACKAGE_FILES, STORIES_TSCONFIG_FILES), A.flatten) : PACKAGE_FILES;
+
+const filesFor: (appKind: O.Option<AppKind>, withStoriesTsconfig: boolean) => ReadonlyArray<string> = (
+  appKind,
+  withStoriesTsconfig
+) =>
+  pipe(
+    appKind,
+    O.match({
+      onNone: () => packageFilesFor(withStoriesTsconfig),
+      onSome: (kind) => {
+        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_FILES;
+        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_FILES;
+        return packageFilesFor(withStoriesTsconfig);
+      },
+    })
+  );
 
 /**
  * Root-relative directories created for each package.
@@ -430,17 +468,28 @@ const filesFor: (appKind: O.Option<AppKind>) => ReadonlyArray<string> = O.match(
  * @since 0.0.0
  */
 const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
+const STORIES_DIRECTORIES = ["stories"] as const;
 const NEXTJS_APP_DIRECTORIES = ["src", "src/app", "test"] as const;
 const TAURI_APP_DIRECTORIES = ["src", "test", "src-tauri", "src-tauri/capabilities", "src-tauri/src"] as const;
 
-const directoriesFor: (appKind: O.Option<AppKind>) => ReadonlyArray<string> = O.match({
-  onNone: () => PACKAGE_DIRECTORIES,
-  onSome: (kind) => {
-    if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_DIRECTORIES;
-    if (appKindEquivalence(kind, "tauri")) return TAURI_APP_DIRECTORIES;
-    return PACKAGE_DIRECTORIES;
-  },
-});
+const packageDirectoriesFor = (withStoriesTsconfig: boolean): ReadonlyArray<string> =>
+  withStoriesTsconfig ? pipe(A.make(PACKAGE_DIRECTORIES, STORIES_DIRECTORIES), A.flatten) : PACKAGE_DIRECTORIES;
+
+const directoriesFor: (appKind: O.Option<AppKind>, withStoriesTsconfig: boolean) => ReadonlyArray<string> = (
+  appKind,
+  withStoriesTsconfig
+) =>
+  pipe(
+    appKind,
+    O.match({
+      onNone: () => packageDirectoriesFor(withStoriesTsconfig),
+      onSome: (kind) => {
+        if (appKindEquivalence(kind, "nextjs")) return NEXTJS_APP_DIRECTORIES;
+        if (appKindEquivalence(kind, "tauri")) return TAURI_APP_DIRECTORIES;
+        return packageDirectoriesFor(withStoriesTsconfig);
+      },
+    })
+  );
 
 const gitkeepFilesFor = (appKind: O.Option<AppKind>): ReadonlyArray<PlannedFile> =>
   O.isSome(appKind) && !appKindEquivalence(appKind.value, "runtime-proof")
@@ -833,6 +882,11 @@ export const createPackageCommand = Command.make(
     skipLockfile: Flag.boolean("skip-lockfile").pipe(
       Flag.withDescription("Skip the default bun.lock refresh after package creation")
     ),
+    withStoriesTsconfig: Flag.boolean("with-stories-tsconfig").pipe(
+      Flag.withDescription(
+        "Generate tsconfig.stories.json and wire beep:check:stories for foundation/ui-system packages"
+      )
+    ),
   },
   // Pre-existing complexity debt: this handler predates the fallow audit gate
   // and only re-entered the diff via a one-line registry fix (2026-06-12).
@@ -849,6 +903,7 @@ export const createPackageCommand = Command.make(
       description,
       dryRun,
       skipLockfile,
+      withStoriesTsconfig,
     } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
@@ -968,6 +1023,21 @@ export const createPackageCommand = Command.make(
       O.firstSomeOf
     );
 
+    if (
+      withStoriesTsconfig &&
+      !(
+        packageTypeEquivalence(packageType, "library") &&
+        O.isSome(requestedPackageFamily) &&
+        packageFamilyEquivalence(requestedPackageFamily.value, "foundation") &&
+        O.isSome(foundationKind) &&
+        Str.equivalence(foundationKind.value, "ui-system")
+      )
+    ) {
+      return yield* DomainError.make({
+        message: `--with-stories-tsconfig is only valid for --family foundation --kind ui-system package scaffolds.`,
+      });
+    }
+
     // ── Validate package name ─────────────────────────────────────────
     if (!isPackageName(name)) {
       return yield* DomainError.make({
@@ -1060,7 +1130,7 @@ export const createPackageCommand = Command.make(
       yield* printLines([
         `[dry-run] Directory: ${outputDir}`,
         `[dry-run] Files:`,
-        ...A.map(filesFor(appKind), (file) => `  - ${file}`),
+        ...A.map(filesFor(appKind, withStoriesTsconfig), (file) => `  - ${file}`),
         `[dry-run] Root bootstrap updates:`,
         `  - package.json workspaces: ${workspaceEntryNeeded ? `Add "${packagePath}"` : "SKIP (already covered by an existing workspace entry)"}`,
         `  - ${shouldRegisterIdentity ? identityPackagesFilePath : "@beep/identity package registration"}: ${
@@ -1103,7 +1173,7 @@ export const createPackageCommand = Command.make(
     const templateFiles = yield* templateService.renderTemplates(
       TemplateRenderRequest.make({
         templateDir,
-        templates: templateSpecsFor(appKind),
+        templates: templateSpecsFor(appKind, withStoriesTsconfig),
         context: { ...ctx },
       })
     );
@@ -1120,13 +1190,14 @@ export const createPackageCommand = Command.make(
       description,
       packagePath,
       packageMetadata,
-      appKind
+      appKind,
+      withStoriesTsconfig
     );
 
     const plan = fileGenerationPlanService.createPlan(
       FileGenerationPlanInput.make({
         outputDir,
-        directories: directoriesFor(appKind),
+        directories: directoriesFor(appKind, withStoriesTsconfig),
         files: pipe(
           A.make(
             A.of(
@@ -1175,7 +1246,7 @@ export const createPackageCommand = Command.make(
     yield* printLines([
       `Created package @beep/${name} at ${outputDir}`,
       `Files created:`,
-      ...A.map(filesFor(appKind), (file) => `  - ${file}`),
+      ...A.map(filesFor(appKind, withStoriesTsconfig), (file) => `  - ${file}`),
     ]);
     if (workspaceUpdated || identityUpdated || syncResult.changedFiles > 0 || lockfileRefreshed || skipLockfile) {
       yield* Console.log(`\nRepo registration and config sync:`);
@@ -1230,6 +1301,7 @@ export const createPackageCommand = Command.make(
  * @param description - Human-readable package description for the `"description"` field.
  * @param packagePath - Package path relative to repo root (e.g. `"packages/tooling/library/my-utils"`).
  * @param appKind - Optional app scaffold kind. Real app kinds generate framework manifests without package exports.
+ * @param withStoriesTsconfig - Whether to add package-local Storybook story typechecking scripts.
  * @returns A JSON string (with trailing newline) ready to be written to disk.
  * @category utilities
  * @since 0.0.0
@@ -1240,9 +1312,10 @@ const generatePackageJson: (
   description: string,
   packagePath: string,
   packageMetadata: O.Option<BeepPackageMetadata>,
-  appKind: O.Option<AppKind>
+  appKind: O.Option<AppKind>,
+  withStoriesTsconfig: boolean
 ) => Effect.Effect<string, DomainError | S.SchemaError> = Effect.fn(
-  function* (name, type, description, packagePath, packageMetadata, appKind) {
+  function* (name, type, description, packagePath, packageMetadata, appKind, withStoriesTsconfig) {
     const rootRelative = toRootRelative(packagePath);
     const babelScript = "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps";
     const baseManifest = {
@@ -1357,6 +1430,15 @@ const generatePackageJson: (
       dependencies["@effect/platform-node"] = "catalog:";
     }
 
+    const checkScript = withStoriesTsconfig
+      ? "tsgo -b tsconfig.json && bun run beep:check:tests && bun run beep:check:stories"
+      : "tsgo -b tsconfig.json && bun run beep:check:tests";
+    const storyCheckScripts = withStoriesTsconfig
+      ? {
+          "beep:check:stories": "tsc -p tsconfig.stories.json --noEmit",
+        }
+      : {};
+
     const pkg = {
       ...baseManifest,
       ...(O.isSome(packageMetadata)
@@ -1388,8 +1470,9 @@ const generatePackageJson: (
         "beep:audit":
           "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
         "beep:build": "tsc -b tsconfig.json && bun run babel",
-        "beep:check": "tsgo -b tsconfig.json && bun run beep:check:tests",
+        "beep:check": checkScript,
         "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit",
+        ...storyCheckScripts,
         "beep:lint": "biome check .",
         "beep:lint:fix": "biome check . --write",
         "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",

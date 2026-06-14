@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "861c89b20ffcd76e52be8f608548f15f580bda11874f33dae826b40e00647aeb",
+    "digest": "d33b5bbb85b1edfbea8aa078ad625595beab4be362ade5f9decf7b43d6184286",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/ui-system/editor/package.json",
-        "sha256": "8e21f3d5714ba602bc6b642a4f2a239250b8da392dfb77999c2b80977f0c6881",
-        "bytes": 3299
+        "sha256": "f9757dee997088544e11ded0b616c850effdb5c48373ad61f9106752553e2253",
+        "bytes": 3396
       },
       {
         "path": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",

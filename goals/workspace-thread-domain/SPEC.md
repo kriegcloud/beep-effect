@@ -6,7 +6,7 @@ The runtime spine's conversation model is implemented as workspace-slice
 domain + persistence on local-first PGlite: Thread / Turn / Message entities
 (Turn as aggregate with ordered typed items; branching as parent-turn
 lineage), Drizzle tables, `db-admin` migrations proven against PGlite, a thin
-`drivers/anthropic` package, the `agent-capability` → `agents` slice rename,
+`drivers/anthropic` package, the legacy `agent-capability` → `agents` slice rename,
 and the epistemic-slice `UsageRecord` entity with its turn-finalization
 append path.
 
@@ -30,7 +30,7 @@ reference (read-only): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/`
 - No candidate-state gating of thread content: turns persist as
   authoritative conversational record; proposal blocks (deferred packet)
   route through `ProposeCandidateOutputSet`.
-- No standalone repo-wide rename sweep: the `agents` rename happens inside
+- No standalone repo-wide rename sweep: the legacy `agent-capability` → `agents` rename happens inside
   this packet, cleanup-on-touch.
 
 ## Source Hierarchy
@@ -52,7 +52,7 @@ Higher sources outrank lower sources when they conflict.
   and tables (existing packages; entities are new).
 - `packages/epistemic/*` — `UsageRecord` entity (new).
 - `packages/drivers/anthropic` (**new**: `@beep/anthropic`).
-- `packages/agent-capability/*` → `packages/agents/*` rename (+ dependent
+- legacy `packages/agent-capability/*` → `packages/agents/*` rename (+ dependent
   import updates and `goals/agentic-professional-runtime/SPEC.md`
   slice-table amendment).
 - `packages/_internal/db-admin` — migrations for the new tables.

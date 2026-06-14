@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "dfae97a254666f1b03c4e99dbc86dfd6f5a00157d02b7a9285d9277b315278d9",
+    "digest": "e11f7ef98c3737d2755059f5485f2ff633805a55ce134ae2eb9021ffd2b16eb9",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/epistemic/domain/package.json",
-        "sha256": "476115a724c027ea32bad5f9bb4643e23bb0381e640df74b669135e77c9bc5d8",
-        "bytes": 2129
+        "sha256": "9cdc8511cd1356badb324fff71c255eb1ad49de48b29fced0e52ed656eab3d40",
+        "bytes": 2168
       },
       {
         "path": "packages/epistemic/domain/src/entities/Activity/Activity.model.ts",
@@ -67,8 +67,8 @@
       },
       {
         "path": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
-        "sha256": "e67b94cfa94cb3dd80f13076db877ffb75f848a6bd19c39984c53c3fc1cb5402",
-        "bytes": 1260
+        "sha256": "75cb65f17e28e745c8b47a190d27a2412c83adce43f81a8b6f427c29a66918c4",
+        "bytes": 4092
       },
       {
         "path": "packages/epistemic/domain/src/index.ts",
@@ -123,8 +123,8 @@
       "@beep/epistemic-domain/values/ClaimLifecycle"
     ],
     "counts": {
-      "publicExportEntries": 18,
-      "uniqueSymbols": 5,
+      "publicExportEntries": 24,
+      "uniqueSymbols": 7,
       "sourceFiles": 13
     },
     "exports": [
@@ -152,6 +152,31 @@
           "@since"
         ],
         "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . activity class provenance activity produced by the runtime proof. models packages/epistemic/domain/src/entities/activity/activity.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "appendTurnFinalizationUsageRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 131,
+        "summary": "Build the UsageRecord appended for a finalized turn.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . appendturnfinalizationusagerecord const build the usagerecord appended for a finalized turn. constructors packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -260,11 +285,11 @@
         "importSpecifier": "@beep/epistemic-domain",
         "exportSubpath": ".",
         "exportedFromPath": "packages/epistemic/domain/src/index.ts",
-        "symbolName": "UsageRecord",
+        "symbolName": "TurnFinalizationUsageAppend",
         "exportKind": "class",
         "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
-        "sourceLine": 29,
-        "summary": "Usage attribution record for a fixture agent run.",
+        "sourceLine": 106,
+        "summary": "Boundary command for appending turn-finalization usage attribution.",
         "categories": [
           "models"
         ],
@@ -276,7 +301,32 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . usagerecord class usage attribution record for a fixture agent run. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . turnfinalizationusageappend class boundary command for appending turn-finalization usage attribution. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "UsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 32,
+        "summary": "Usage attribution record for model, tool, or agent work.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . usagerecord class usage attribution record for model, tool, or agent work. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -302,6 +352,31 @@
           "@since"
         ],
         "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities activity class provenance activity produced by the runtime proof. models packages/epistemic/domain/src/entities/activity/activity.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
+        "symbolName": "appendTurnFinalizationUsageRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 131,
+        "summary": "Build the UsageRecord appended for a finalized turn.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities appendturnfinalizationusagerecord const build the usagerecord appended for a finalized turn. constructors packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -360,11 +435,11 @@
         "importSpecifier": "@beep/epistemic-domain/entities",
         "exportSubpath": "./entities",
         "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
-        "symbolName": "UsageRecord",
+        "symbolName": "TurnFinalizationUsageAppend",
         "exportKind": "class",
         "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
-        "sourceLine": 29,
-        "summary": "Usage attribution record for a fixture agent run.",
+        "sourceLine": 106,
+        "summary": "Boundary command for appending turn-finalization usage attribution.",
         "categories": [
           "models"
         ],
@@ -376,7 +451,32 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities usagerecord class usage attribution record for a fixture agent run. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities turnfinalizationusageappend class boundary command for appending turn-finalization usage attribution. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/index.ts",
+        "symbolName": "UsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 32,
+        "summary": "Usage attribution record for model, tool, or agent work.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities usagerecord class usage attribution record for model, tool, or agent work. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -460,11 +560,36 @@
         "importSpecifier": "@beep/epistemic-domain/entities/UsageRecord",
         "exportSubpath": "./entities/UsageRecord",
         "exportedFromPath": "packages/epistemic/domain/src/entities/UsageRecord/index.ts",
-        "symbolName": "UsageRecord",
+        "symbolName": "appendTurnFinalizationUsageRecord",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 131,
+        "summary": "Build the UsageRecord appended for a finalized turn.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/usagerecord ./entities/usagerecord appendturnfinalizationusagerecord const build the usagerecord appended for a finalized turn. constructors packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities/UsageRecord",
+        "exportSubpath": "./entities/UsageRecord",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/UsageRecord/index.ts",
+        "symbolName": "TurnFinalizationUsageAppend",
         "exportKind": "class",
         "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
-        "sourceLine": 29,
-        "summary": "Usage attribution record for a fixture agent run.",
+        "sourceLine": 106,
+        "summary": "Boundary command for appending turn-finalization usage attribution.",
         "categories": [
           "models"
         ],
@@ -476,7 +601,32 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/usagerecord ./entities/usagerecord usagerecord class usage attribution record for a fixture agent run. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/usagerecord ./entities/usagerecord turnfinalizationusageappend class boundary command for appending turn-finalization usage attribution. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/entities/UsageRecord",
+        "exportSubpath": "./entities/UsageRecord",
+        "exportedFromPath": "packages/epistemic/domain/src/entities/UsageRecord/index.ts",
+        "symbolName": "UsageRecord",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/UsageRecord/UsageRecord.model.ts",
+        "sourceLine": 32,
+        "summary": "Usage attribution record for model, tool, or agent work.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/usagerecord ./entities/usagerecord usagerecord class usage attribution record for model, tool, or agent work. models packages/epistemic/domain/src/entities/usagerecord/usagerecord.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",

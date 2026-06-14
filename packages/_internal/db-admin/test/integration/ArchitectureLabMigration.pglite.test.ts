@@ -98,6 +98,143 @@ if (!shouldRunPgliteIntegration) {
             SELECT display_name FROM architecture_lab_worker ORDER BY id ASC
           `;
 
+          yield* sql`
+            INSERT INTO workspace_thread (
+              created_at,
+              created_by_principal,
+              org_id,
+              row_version,
+              schema_version,
+              source,
+              updated_at,
+              updated_by_principal,
+              title,
+              workspace_id,
+              entity_type,
+              id
+            )
+            VALUES (
+              0,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              1,
+              1,
+              '0.1.0',
+              'Application',
+              0,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              'Matter intake',
+              1,
+              'WorkspaceThread',
+              10
+            )
+          `;
+          yield* sql`
+            INSERT INTO workspace_turn (
+              created_at,
+              created_by_principal,
+              org_id,
+              row_version,
+              schema_version,
+              source,
+              updated_at,
+              updated_by_principal,
+              items,
+              parent_turn_id,
+              thread_id,
+              turn_index,
+              entity_type,
+              id
+            )
+            VALUES (
+              0,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              1,
+              1,
+              '0.1.0',
+              'Application',
+              0,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              '[{"itemType":"message","messageId":20}]'::jsonb,
+              NULL,
+              10,
+              0,
+              'WorkspaceTurn',
+              11
+            ),
+            (
+              1,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              1,
+              1,
+              '0.1.0',
+              'Application',
+              1,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              '[{"itemType":"message","messageId":21}]'::jsonb,
+              11,
+              10,
+              1,
+              'WorkspaceTurn',
+              12
+            )
+          `;
+          yield* sql`
+            INSERT INTO workspace_message (
+              created_at,
+              created_by_principal,
+              org_id,
+              row_version,
+              schema_version,
+              source,
+              updated_at,
+              updated_by_principal,
+              content,
+              role,
+              thread_id,
+              turn_id,
+              entity_type,
+              id
+            )
+            VALUES (
+              0,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              1,
+              1,
+              '0.1.0',
+              'Application',
+              0,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              '{"_tag":"document","children":[{"_tag":"p","children":[{"_tag":"text","value":"Hello"}]}]}'::jsonb,
+              'user',
+              10,
+              11,
+              'WorkspaceMessage',
+              20
+            ),
+            (
+              1,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              1,
+              1,
+              '0.1.0',
+              'Application',
+              1,
+              '{"kind":"System","component":"WorkspaceThreadDomain"}'::jsonb,
+              '{"_tag":"document","children":[{"_tag":"p","children":[{"_tag":"text","value":"Branched"}]}]}'::jsonb,
+              'assistant',
+              10,
+              12,
+              'WorkspaceMessage',
+              21
+            )
+          `;
+          const turnRows = yield* sql<{ readonly id: number; readonly parent_turn_id: number | null }>`
+            SELECT id, parent_turn_id FROM workspace_turn ORDER BY id ASC
+          `;
+          const messageRows = yield* sql<{ readonly role: string }>`
+            SELECT role FROM workspace_message ORDER BY id ASC
+          `;
+
           expect(
             pipe(
               rows,
@@ -110,6 +247,16 @@ if (!shouldRunPgliteIntegration) {
               A.map((row) => row.display_name)
             )
           ).toEqual(["Ada Lovelace"]);
+          expect(turnRows).toEqual([
+            { id: 11, parent_turn_id: null },
+            { id: 12, parent_turn_id: 11 },
+          ]);
+          expect(
+            pipe(
+              messageRows,
+              A.map((row) => row.role)
+            )
+          ).toEqual(["user", "assistant"]);
         }),
         120_000
       );

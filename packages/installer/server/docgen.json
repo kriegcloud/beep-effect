@@ -117,8 +117,8 @@
       "@beep/shared-domain/identity": [
         "../../../packages/shared/domain/src/identity.ts"
       ],
-      "@beep/shared-domain/identity/AgentCapability": [
-        "../../../packages/shared/domain/src/identity/AgentCapability.ts"
+      "@beep/shared-domain/identity/Agents": [
+        "../../../packages/shared/domain/src/identity/Agents.ts"
       ],
       "@beep/shared-domain/identity/Epistemic": [
         "../../../packages/shared/domain/src/identity/Epistemic.ts"

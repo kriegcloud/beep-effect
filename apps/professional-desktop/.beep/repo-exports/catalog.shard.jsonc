@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2582184b4de614e56ad792646315d5d25fcbb1d716fe088cbd265e0b92a01679",
+    "digest": "c1870af0c9f3378fdd89ae28b3b871d936d0ada3c23183a51c148721d8ce2a77",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -22,8 +22,8 @@
       },
       {
         "path": "apps/professional-desktop/src/App.tsx",
-        "sha256": "a74cb81222635362b6864cd82b59a2d45e7e8d2ca4a53e7a13442833fc88c759",
-        "bytes": 11461
+        "sha256": "6806563e300ca995818c70b7acda6696b7b3db678519fa7b4e232a0195178ac4",
+        "bytes": 11441
       },
       {
         "path": "apps/professional-desktop/src/main.tsx",

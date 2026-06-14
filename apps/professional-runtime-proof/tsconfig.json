@@ -7,23 +7,21 @@
     "outDir": "dist",
     "rootDir": "../..",
     "paths": {
-      "@beep/agent-capability-domain": [
-        "../../packages/agent-capability/domain/src/index.ts"
+      "@beep/agents-domain": ["../../packages/agents/domain/src/index.ts"],
+      "@beep/agents-domain/entities/Agent": [
+        "../../packages/agents/domain/src/entities/Agent/index.ts"
       ],
-      "@beep/agent-capability-domain/entities/Agent": [
-        "../../packages/agent-capability/domain/src/entities/Agent/index.ts"
+      "@beep/agents-use-cases": [
+        "../../packages/agents/use-cases/src/index.ts"
       ],
-      "@beep/agent-capability-use-cases": [
-        "../../packages/agent-capability/use-cases/src/index.ts"
+      "@beep/agents-use-cases/public": [
+        "../../packages/agents/use-cases/src/public.ts"
       ],
-      "@beep/agent-capability-use-cases/public": [
-        "../../packages/agent-capability/use-cases/src/public.ts"
+      "@beep/agents-use-cases/proof": [
+        "../../packages/agents/use-cases/src/proof.ts"
       ],
-      "@beep/agent-capability-use-cases/proof": [
-        "../../packages/agent-capability/use-cases/src/proof.ts"
-      ],
-      "@beep/agent-capability-use-cases/test": [
-        "../../packages/agent-capability/use-cases/src/test.ts"
+      "@beep/agents-use-cases/test": [
+        "../../packages/agents/use-cases/src/test.ts"
       ],
       "@beep/epistemic-domain": [
         "../../packages/epistemic/domain/src/index.ts"
@@ -83,8 +81,8 @@
       "@beep/shared-domain/entity/primitives": [
         "../../packages/shared/domain/src/entity/primitives.ts"
       ],
-      "@beep/shared-domain/identity/AgentCapability": [
-        "../../packages/shared/domain/src/identity/AgentCapability.ts"
+      "@beep/shared-domain/identity/Agents": [
+        "../../packages/shared/domain/src/identity/Agents.ts"
       ],
       "@beep/shared-domain/identity/Epistemic": [
         "../../packages/shared/domain/src/identity/Epistemic.ts"
@@ -146,10 +144,10 @@
   },
   "references": [
     {
-      "path": "../../packages/agent-capability/domain/tsconfig.json"
+      "path": "../../packages/agents/domain/tsconfig.json"
     },
     {
-      "path": "../../packages/agent-capability/use-cases/tsconfig.json"
+      "path": "../../packages/agents/use-cases/tsconfig.json"
     },
     {
       "path": "../../packages/epistemic/domain/tsconfig.json"

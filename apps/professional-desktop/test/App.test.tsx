@@ -12,7 +12,7 @@ describe.concurrent("Professional Desktop app", () => {
     expect(screen.getByRole("heading", { name: "Professional Desktop" })).toBeInTheDocument();
     return waitFor(() => expect(screen.getByText("@beep/professional-desktop")).toBeInTheDocument()).then(() => {
       expect(screen.getAllByText("Preview mode is active in the web shell.").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("agent-capability").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("agents").length).toBeGreaterThan(0);
       expect(screen.getAllByText("workspace").length).toBeGreaterThan(0);
     });
   });

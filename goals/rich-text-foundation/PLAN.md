@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `in-progress`
+Status: `complete`
 
 ## Phases
 
@@ -10,13 +10,14 @@ Status: `in-progress`
 | --- | --- | --- | --- |
 | P0 Research | complete | Inspect source hierarchy and confirm scope; run the Md ↔ Lexical lossiness check. | Required facts and blockers are recorded; codec profile documented. |
 | P1 Implement | complete | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
-| P2 Verify | in-progress | Run required checks and capture evidence (incl. Storybook fixture-turn proof). | Verification is green or blockers are documented. |
-| P3 Close | pending | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
+| P2 Verify | complete | Run required checks and capture evidence (incl. Storybook fixture-turn proof). | Verification is green or blockers are documented. |
+| P3 Close | complete | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
 
-Evidence: [`history/2026-06-12-implementation-evidence.md`](./history/2026-06-12-implementation-evidence.md)
-— codec profile locked (see `@beep/lexical-schema` README "Lossiness
-profile"), all package gates green, storybook fixture-turn play test passing
-in chromium.
+Evidence:
+[`history/2026-06-13-verification-closeout.md`](./history/2026-06-13-verification-closeout.md)
+- final `bun run beep yeet verify` succeeded; direct Storybook browser proof
+for `editor-viewer` and `editor-composer` also passed. Implementation details:
+[`history/2026-06-12-implementation-evidence.md`](./history/2026-06-12-implementation-evidence.md).
 
 ## P3 Closeout Checklist
 
@@ -47,4 +48,6 @@ test "$(wc -m < goals/rich-text-foundation/GOAL.md)" -le 4000
 jq . goals/rich-text-foundation/ops/manifest.json
 rg -n "rich-text-foundation|GOAL.md|agentLaunchers|packetAnchorDocument" goals/rich-text-foundation
 git diff --check -- goals/rich-text-foundation
+bun run beep lint reflection-artifacts
+bun run beep yeet verify
 ```

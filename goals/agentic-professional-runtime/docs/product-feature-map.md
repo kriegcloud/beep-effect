@@ -13,10 +13,10 @@ the vertical slice.
 |---|---|---|
 | Client and matter intake | Capture prospect/client details, matter purpose, conflict notes, and initial evidence. | tenancy, workspace, epistemic |
 | IP asset workspace | Track patents, trademarks, copyrights, licenses, and contract assets as matter-linked context. | workspace, law-practice |
-| Drafting support | Produce candidate patent, contract, email, and memo drafts with cited source context. | workspace, agent-capability, epistemic |
+| Drafting support | Produce candidate patent, contract, email, and memo drafts with cited source context. | workspace, agents, epistemic |
 | Contract review | Extract obligations, risks, definitions, parties, deadlines, and candidate comments. | workspace, epistemic, law-practice |
 | Filing/docket awareness | Reference official filing and deadline systems without replacing them. | law-practice, connectors |
-| Autonomous office secretary | Schedule meetings, prepare reminders, triage inbox, and draft follow-ups. | workspace, agent-capability |
+| Autonomous office secretary | Schedule meetings, prepare reminders, triage inbox, and draft follow-ups. | workspace, agents |
 | Practice memory | Preserve prior work product, client preferences, legal positions, and source evidence. | epistemic |
 
 ## Todox Features
@@ -26,9 +26,9 @@ the vertical slice.
 | Client meeting prep | Assemble household, goal, account, holding, prior thread, and recent communication context. | workspace, wealth-management, epistemic |
 | Email and statement triage | Turn advisor inbox items and private investment statements into candidate claims and tasks. | workspace, epistemic |
 | Advisor task queue | Extract concrete follow-ups with assignee, due date, evidence, and approval state. | workspace |
-| Compliance review | Flag draft communications or agent output against firm policy and evidence. | epistemic, agent-capability |
-| Skill marketplace | Let users author skills, teams share them, and organizations approve promoted versions. | agent-capability, tenancy |
-| Model and cost attribution | Track provider, model, credential, actor, activity, tokens, latency, and cost. | agent-capability, epistemic |
+| Compliance review | Flag draft communications or agent output against firm policy and evidence. | epistemic, agents |
+| Skill marketplace | Let users author skills, teams share them, and organizations approve promoted versions. | agents, tenancy |
+| Model and cost attribution | Track provider, model, credential, actor, activity, tokens, latency, and cost. | agents, epistemic |
 | Household memory | Preserve client intent changes, supersessions, and source spans over time. | wealth-management, epistemic |
 
 ## Similarity Pressure

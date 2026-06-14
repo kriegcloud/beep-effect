@@ -6,4 +6,17 @@
  * @since 0.0.0
  */
 
-export * from "@beep/architecture-lab-tables/tables";
+/**
+ * Architecture lab Drizzle schema export.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export { DbSchema as ArchitectureLabDbSchema } from "@beep/architecture-lab-tables/tables";
+/**
+ * Workspace Drizzle schema export.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export { DbSchema as WorkspaceDbSchema } from "@beep/workspace-tables";

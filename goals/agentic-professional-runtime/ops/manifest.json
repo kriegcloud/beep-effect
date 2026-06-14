@@ -24,7 +24,7 @@
       "dataModel": "docs/data-model-wealth-management.md"
     }
   ],
-  "runtimeSlices": ["tenancy", "workspace", "agent-capability", "epistemic"],
+  "runtimeSlices": ["tenancy", "workspace", "agents", "epistemic"],
   "verticalSlices": ["law-practice", "wealth-management"],
   "documents": {
     "root": ["README.md", "SPEC.md", "PLAN.md"],
@@ -72,8 +72,8 @@
     "approvalPolicy": "strict-candidate-review",
     "sdkBoundary": "context-packets-plus-candidate-writes",
     "implementation": {
-      "sdkContractPackage": "packages/agent-capability/use-cases",
-      "fixtureRunnerSubpath": "@beep/agent-capability-use-cases/test",
+      "sdkContractPackage": "packages/agents/use-cases",
+      "fixtureRunnerSubpath": "@beep/agents-use-cases/test",
       "proofHarness": "apps/professional-runtime-proof",
       "testCommand": "bun run --cwd apps/professional-runtime-proof test",
       "storage": "in-memory-test-only",
@@ -160,8 +160,8 @@
         "packages/shared/domain",
         "packages/workspace/domain",
         "packages/epistemic/domain",
-        "packages/agent-capability/domain",
-        "packages/agent-capability/use-cases",
+        "packages/agents/domain",
+        "packages/agents/use-cases",
         "packages/law-practice/domain",
         "packages/wealth-management/domain",
         "apps/professional-runtime-proof"

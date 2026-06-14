@@ -615,8 +615,8 @@
     "semantic_hash": "05e86848a241958d3f30443577dfedaa"
   },
   "apps/storybook/package.json": {
-    "mtime": 1781307329.5850704,
-    "ast_hash": "8105645ecda37d034ff5642678670f15",
+    "mtime": 1781312561.3548229,
+    "ast_hash": "378e93730bdfc0ebd0aac2aabee9cab5",
     "semantic_hash": ""
   },
   "apps/storybook/tsconfig.json": {
@@ -760,8 +760,8 @@
     "semantic_hash": "aa07350c9f02cad3144e382bfd1bfb52"
   },
   "package.json": {
-    "mtime": 1781302316.188345,
-    "ast_hash": "133ca04754488a8ddf06c27cf0a5226f",
+    "mtime": 1781321096.7816877,
+    "ast_hash": "2ca8fb1fcd4d268142615519351991a6",
     "semantic_hash": ""
   },
   "packages/_internal/db-admin/docgen.json": {
@@ -4825,8 +4825,8 @@
     "semantic_hash": "7b93dc79a35316811cf143ec47b1b84b"
   },
   "packages/foundation/modeling/identity/src/packages.ts": {
-    "mtime": 1781305823.4817567,
-    "ast_hash": "91748dae9266f562ef186ad99c34afec",
+    "mtime": 1781311001.7009752,
+    "ast_hash": "1012c1f73b12764f1104e3d466a2dcc8",
     "semantic_hash": ""
   },
   "packages/foundation/modeling/identity/test/Identity.test.ts": {
@@ -7290,8 +7290,8 @@
     "semantic_hash": "e23ee02940a43ade5fac7f40549f2097"
   },
   "packages/foundation/ui-system/ui/package.json": {
-    "mtime": 1781243955.0144324,
-    "ast_hash": "4b52b854bd509b45e04af8a563f3ac71",
+    "mtime": 1781320293.6249578,
+    "ast_hash": "36e2bde0c77390545d1d1db7978f9aa9",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/ui/postcss.config.mjs": {
@@ -9385,9 +9385,9 @@
     "semantic_hash": "6002f3a4c9caad1a3e7fd2bd6ad0944c"
   },
   "packages/tooling/library/repo-utils/src/Graph.ts": {
-    "mtime": 1780099188.8521101,
-    "ast_hash": "919bc7464c344df1afe9ced7b116982c",
-    "semantic_hash": "919bc7464c344df1afe9ced7b116982c"
+    "mtime": 1781315860.8133512,
+    "ast_hash": "55ad3d1ab48aa5fac7bc3c4698eb4e57",
+    "semantic_hash": ""
   },
   "packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts": {
     "mtime": 1780099188.8523433,
@@ -9920,9 +9920,9 @@
     "semantic_hash": "b101cd297f014be2be09dbd1d2e5be03"
   },
   "packages/tooling/policy-pack/repo-configs/src/eslint/DeprecatedApisESLintConfig.ts": {
-    "mtime": 1780591783.4836614,
-    "ast_hash": "388b24cb1dbbb506dbc698180ccecad3",
-    "semantic_hash": "388b24cb1dbbb506dbc698180ccecad3"
+    "mtime": 1781314189.303801,
+    "ast_hash": "6e87998cc5e1f5771d087eb04f293c2a",
+    "semantic_hash": ""
   },
   "packages/tooling/policy-pack/repo-configs/src/eslint/DocsESLintConfig.ts": {
     "mtime": 1780408245.2133172,
@@ -9975,7 +9975,7 @@
     "semantic_hash": "ec70cc91a43031b41cd4439b2c35a72f"
   },
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts": {
-    "mtime": 1781301991.2905476,
+    "mtime": 1781321155.8210196,
     "ast_hash": "cb8cc7f0a9376fa86b935d827b040647",
     "semantic_hash": ""
   },
@@ -10305,8 +10305,8 @@
     "semantic_hash": "3f9788f222fa835863e32928c65bb7fd"
   },
   "packages/tooling/tool/cli/src/commands/CreatePackage/Handler.ts": {
-    "mtime": 1781305802.4199216,
-    "ast_hash": "9073f2826fe9afbfa73a12eac9cee453",
+    "mtime": 1781321332.8090098,
+    "ast_hash": "f6afc5d4e7414f051c4e435b163153d9",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts": {
@@ -10960,9 +10960,9 @@
     "semantic_hash": "278cccd6676a00cc15f2d0ba5fb943a0"
   },
   "packages/tooling/tool/cli/test/create-package.test.ts": {
-    "mtime": 1780591783.4846613,
-    "ast_hash": "31238b9ca22912319c74acffaebb166a",
-    "semantic_hash": "31238b9ca22912319c74acffaebb166a"
+    "mtime": 1781321320.0895073,
+    "ast_hash": "e58789d3f7677d389b7a20ee3088ee9a",
+    "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/docgen.test.ts": {
     "mtime": 1781266096.0402339,
@@ -11085,8 +11085,8 @@
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/tsconfig-sync.test.ts": {
-    "mtime": 1781302449.3105917,
-    "ast_hash": "3c32cdce4e646b6c68eb16e30c4ccb68",
+    "mtime": 1781311082.1551661,
+    "ast_hash": "105af8e6524ad2fb0a84d035771e7d5f",
     "semantic_hash": ""
   },
   "packages/tooling/tool/cli/test/tsconfig.json": {
@@ -11600,8 +11600,8 @@
     "semantic_hash": "425d89819ab8af44cd74d620f476de0e"
   },
   "tsconfig.json": {
-    "mtime": 1781305827.3149087,
-    "ast_hash": "c02c43845332a2c17262324d3be6d4ef",
+    "mtime": 1781312592.5740607,
+    "ast_hash": "817b18027cbdabaf1508e96bba1781ee",
     "semantic_hash": ""
   },
   "tsconfig.packages.json": {
@@ -14880,8 +14880,8 @@
     "semantic_hash": "80f3274cb34b1e72b424498a57de06d8"
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1781307575.4580336,
-    "ast_hash": "81f11bf25f1ba520b6daf69117df3861",
+    "mtime": 1781315906.3961635,
+    "ast_hash": "a761c11d64e5ca7308814d8ec6482c32",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {
@@ -16320,8 +16320,8 @@
     "semantic_hash": ""
   },
   "packages/foundation/modeling/md/src/Md.model.ts": {
-    "mtime": 1781301504.7487335,
-    "ast_hash": "f392ac1d2d1edbf051843889201f1396",
+    "mtime": 1781319905.2216003,
+    "ast_hash": "a3323404e5e502b1ffc9bae636dd6cda",
     "semantic_hash": ""
   },
   "packages/foundation/modeling/md/src/Md.render.ts": {
@@ -16430,13 +16430,13 @@
     "semantic_hash": ""
   },
   "goals/rich-text-foundation/PLAN.md": {
-    "mtime": 1781302985.449732,
-    "ast_hash": "e9b7948c4351312b302e2cb12fc1baf9",
+    "mtime": 1781307679.739155,
+    "ast_hash": "80d7f9635567b14ebc281c2c281b7eab",
     "semantic_hash": ""
   },
   "goals/rich-text-foundation/README.md": {
-    "mtime": 1781302974.6433058,
-    "ast_hash": "96c1700f86281bb514cd47b0004592bd",
+    "mtime": 1781307713.4554873,
+    "ast_hash": "2001fcc7f7839e0e70e2acbde7ec06c4",
     "semantic_hash": ""
   },
   "goals/rich-text-foundation/SPEC.md": {
@@ -16495,13 +16495,13 @@
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/docgen.json": {
-    "mtime": 1781305997.8046644,
-    "ast_hash": "32a76cfbcc3ac61ace0610b9dce5f728",
+    "mtime": 1781312592.5740607,
+    "ast_hash": "56ccedbc0fe71b2a23f80c37ae83658d",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/package.json": {
-    "mtime": 1781307119.3940094,
-    "ast_hash": "a277484994611ad70eb027befe3c9b45",
+    "mtime": 1781320297.6471167,
+    "ast_hash": "73d297b4eb7a79c37e9bd22f3e1f4082",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/src/index.ts": {
@@ -16510,8 +16510,8 @@
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/tsconfig.json": {
-    "mtime": 1781305997.8046644,
-    "ast_hash": "374a19a76e01c931356df92ea53660a5",
+    "mtime": 1781312592.5740607,
+    "ast_hash": "4f2cf67cbec393b7c3658b0f82fc1a7f",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/tsconfig.test.json": {
@@ -16565,23 +16565,23 @@
     "semantic_hash": ""
   },
   "packages/foundation/modeling/lexical/src/Lexical.codec.ts": {
-    "mtime": 1781306958.5986567,
-    "ast_hash": "73b44e5b00115cf07869d250c3fadd14",
+    "mtime": 1781320889.373,
+    "ast_hash": "fff0847c498d42e80877f4a1138c133f",
     "semantic_hash": ""
   },
   "packages/foundation/modeling/lexical/src/Lexical.model.ts": {
-    "mtime": 1781306958.5976567,
-    "ast_hash": "50fc8362976345bc7d738a2f25058665",
+    "mtime": 1781320889.363,
+    "ast_hash": "37edd4ed1ed20c4cf93ca32d641e7ba9",
     "semantic_hash": ""
   },
   "packages/foundation/modeling/lexical/test/Lexical.codec.test.ts": {
-    "mtime": 1781306958.5916564,
-    "ast_hash": "5bc00beadabf2c5d3b204a97561a25dc",
+    "mtime": 1781308882.98069,
+    "ast_hash": "ae1a02892643818ed6b2f6f9a8b926ca",
     "semantic_hash": ""
   },
   "packages/foundation/modeling/lexical/test/Lexical.model.test.ts": {
-    "mtime": 1781306958.5906565,
-    "ast_hash": "eff85b949f9029dfea56af9efdc387ad",
+    "mtime": 1781312856.9265406,
+    "ast_hash": "1ee777083eccfbd875b1d77995bfc172",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx": {
@@ -16590,13 +16590,13 @@
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/src/composer.tsx": {
-    "mtime": 1781307240.9598114,
-    "ast_hash": "e591831d68f19ee53d8f6918e9771978",
+    "mtime": 1781314140.6858578,
+    "ast_hash": "d1d621e25314552aae010e7eda63a413",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/src/nodes.ts": {
-    "mtime": 1781307240.9578114,
-    "ast_hash": "055cb282c6b8310d09d5ce7d0a34af65",
+    "mtime": 1781314135.6726575,
+    "ast_hash": "9589e88b0542fc6f16bf81fa6b9615a1",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/src/theme.ts": {
@@ -16605,8 +16605,8 @@
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/src/viewer.tsx": {
-    "mtime": 1781307240.9598114,
-    "ast_hash": "48e25599f11318fde56ac1b77349dd8a",
+    "mtime": 1781314138.086754,
+    "ast_hash": "89f809dbf49396f933422c8c8b03953c",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/stories/editor-composer.stories.tsx": {
@@ -16620,8 +16620,53 @@
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/editor/test/editor-nodes.test.ts": {
-    "mtime": 1781307240.9588115,
-    "ast_hash": "32fa5d87ec1f6f818b63ecd460ca899f",
+    "mtime": 1781312890.4528697,
+    "ast_hash": "ad96db3c479f39f3047cddc51a22e572",
+    "semantic_hash": ""
+  },
+  "scratchpad/lexical/Heading/Heading.schemas.ts": {
+    "mtime": 1781316337.489,
+    "ast_hash": "afb0ed169ff19efc41317d739fdef6f9",
+    "semantic_hash": ""
+  },
+  "scratchpad/lexical/Heading/index.ts": {
+    "mtime": 1781316337.496,
+    "ast_hash": "85571e29f8b0583f46c09e590ebf6a5d",
+    "semantic_hash": ""
+  },
+  "scratchpad/lexical/List/LIst.schemas.ts": {
+    "mtime": 1781316608.195,
+    "ast_hash": "61a52f501ff72de729ccb4e6f50f6a60",
+    "semantic_hash": ""
+  },
+  "scratchpad/lexical/List/index.ts": {
+    "mtime": 1781315866.5625796,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "scratchpad/lexical/index.ts": {
+    "mtime": 1781316337.498,
+    "ast_hash": "2b2f47796a99a4bc8c66334b5059252a",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/tsconfig.stories.json": {
+    "mtime": 1781320287.9307327,
+    "ast_hash": "41a83946b5247a8074f8098a3f86f48f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/ui/tsconfig.stories.json": {
+    "mtime": 1781320282.195506,
+    "ast_hash": "41a83946b5247a8074f8098a3f86f48f",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/editor/stories/tsconfig.json": {
+    "mtime": 1781321274.379702,
+    "ast_hash": "5d9a006592f69ff60044747bc04d25ab",
+    "semantic_hash": ""
+  },
+  "packages/foundation/ui-system/ui/stories/tsconfig.json": {
+    "mtime": 1781321274.379702,
+    "ast_hash": "5d9a006592f69ff60044747bc04d25ab",
     "semantic_hash": ""
   }
 }

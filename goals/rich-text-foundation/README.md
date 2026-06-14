@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -37,16 +37,22 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P2 Verify → P3 Close — both packages landed (`@beep/lexical-schema`,
-`@beep/editor`), the codec lossiness profile is locked and documented, and
-the storybook fixture-turn proof passes; full repo quality gates running.
+Complete. Both packages landed (`@beep/lexical-schema`, `@beep/editor`), the
+codec lossiness profile is locked and documented, the Storybook fixture-turn
+proof passes, and full Yeet verification is green.
 
 ## Latest Evidence
 
-[`history/2026-06-12-implementation-evidence.md`](./history/2026-06-12-implementation-evidence.md)
-— schema tests 12/12, dtslint 32/32 vs lexical 0.45, headless editor
-round-trip 1/1, storybook play tests 464/464 incl.
-`Editor/EditorViewer > Assistant Turn` (chromium).
+[`history/2026-06-13-verification-closeout.md`](./history/2026-06-13-verification-closeout.md)
+- `bun run beep yeet verify` succeeded; verdict
+`.beep/yeet/runs/beep_editor-15abc31b98cb/verdict.json` records
+`fallow-advisory-feedback` and `full:pre-push` passed. Direct Storybook browser
+proof also passed for `editor-viewer` and `editor-composer`.
+
+Implementation details remain in
+[`history/2026-06-12-implementation-evidence.md`](./history/2026-06-12-implementation-evidence.md):
+schema tests 14/14, dtslint 32/32 vs Lexical 0.45, headless editor round-trip
+1/1, and Storybook assistant-turn proof in Chromium.
 
 ## Notes
 

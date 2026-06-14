@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0d35e715d77886d7bbe907413f894327874a5a1508595ca31d720adbf3eb871c",
+    "digest": "a80d4b66cfa35a588387cba1c964a2f3960253df6d2bfa0e36edbbd1969232a7",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sha256": "219792b44916e76fdd020d8ae42ee79945952d63c962bd3789f52f47ea7da564",
-        "bytes": 18965
+        "sha256": "56b8f5132987ed7fb327f947b37ae1339d44fd53955dfda3d7bcbbd21c8f7f86",
+        "bytes": 19179
       },
       {
         "path": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sha256": "8b83534e8754b15f4262dec2652c7beaf785b06801a6b6d34a64214e62bd7616",
-        "bytes": 34630
+        "sha256": "27b3a1a859377d85c2ecb8648226125b893f1466c042a9a7fb2391795d9eb23e",
+        "bytes": 34943
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -69,7 +69,7 @@
       "@beep/lexical-schema/Lexical.model"
     ],
     "counts": {
-      "publicExportEntries": 164,
+      "publicExportEntries": 167,
       "uniqueSymbols": 32,
       "sourceFiles": 3
     },
@@ -207,7 +207,7 @@
         "symbolName": "blockToLexical",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 248,
+        "sourceLine": 261,
         "summary": "Lift one Md block into its serialized Lexical node.",
         "categories": [
           "combinators"
@@ -331,7 +331,7 @@
         "symbolName": "documentToEditorState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 346,
+        "sourceLine": 388,
         "summary": "Lift a full Md document into a serialized Lexical editor state.",
         "categories": [
           "combinators"
@@ -356,7 +356,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1352,
+        "sourceLine": 1368,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -381,7 +381,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 509,
+        "sourceLine": 577,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -406,7 +406,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1408,
+        "sourceLine": 1424,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -654,7 +654,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1238,
+        "sourceLine": 1254,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -667,6 +667,31 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . lexicalnode namespace companion namespace for {@link lexicalnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "LexicalNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1246,
+        "summary": "{@inheritDoc LexicalNode}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . lexicalnode type {@inheritdoc lexicalnode} models packages/foundation/modeling/lexical/src/lexical.model.ts"
       },
       {
         "packageName": "@beep/lexical-schema",
@@ -974,7 +999,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 468,
+        "sourceLine": 539,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -999,7 +1024,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1376,
+        "sourceLine": 1392,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -1171,7 +1196,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1299,
+        "sourceLine": 1315,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -1196,7 +1221,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1312,
+        "sourceLine": 1328,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -1565,7 +1590,7 @@
         "symbolName": "blockToLexical",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 248,
+        "sourceLine": 261,
         "summary": "Lift one Md block into its serialized Lexical node.",
         "categories": [
           "combinators"
@@ -1689,7 +1714,7 @@
         "symbolName": "documentToEditorState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 346,
+        "sourceLine": 388,
         "summary": "Lift a full Md document into a serialized Lexical editor state.",
         "categories": [
           "combinators"
@@ -1714,7 +1739,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1352,
+        "sourceLine": 1368,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -1739,7 +1764,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 509,
+        "sourceLine": 577,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -1764,7 +1789,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1408,
+        "sourceLine": 1424,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -2012,7 +2037,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1238,
+        "sourceLine": 1254,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -2025,6 +2050,31 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index lexicalnode namespace companion namespace for {@link lexicalnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "LexicalNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1246,
+        "summary": "{@inheritDoc LexicalNode}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index lexicalnode type {@inheritdoc lexicalnode} models packages/foundation/modeling/lexical/src/lexical.model.ts"
       },
       {
         "packageName": "@beep/lexical-schema",
@@ -2332,7 +2382,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 468,
+        "sourceLine": 539,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -2357,7 +2407,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1376,
+        "sourceLine": 1392,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -2529,7 +2579,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1299,
+        "sourceLine": 1315,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -2554,7 +2604,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1312,
+        "sourceLine": 1328,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -2825,7 +2875,7 @@
         "symbolName": "blockToLexical",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 248,
+        "sourceLine": 261,
         "summary": "Lift one Md block into its serialized Lexical node.",
         "categories": [
           "combinators"
@@ -2850,7 +2900,7 @@
         "symbolName": "documentToEditorState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 346,
+        "sourceLine": 388,
         "summary": "Lift a full Md document into a serialized Lexical editor state.",
         "categories": [
           "combinators"
@@ -2875,7 +2925,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 509,
+        "sourceLine": 577,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -2900,7 +2950,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 468,
+        "sourceLine": 539,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -3122,7 +3172,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1352,
+        "sourceLine": 1368,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -3147,7 +3197,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1408,
+        "sourceLine": 1424,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -3395,7 +3445,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1238,
+        "sourceLine": 1254,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -3408,6 +3458,31 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model lexicalnode namespace companion namespace for {@link lexicalnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "LexicalNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1246,
+        "summary": "{@inheritDoc LexicalNode}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model lexicalnode type {@inheritdoc lexicalnode} models packages/foundation/modeling/lexical/src/lexical.model.ts"
       },
       {
         "packageName": "@beep/lexical-schema",
@@ -3715,7 +3790,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1376,
+        "sourceLine": 1392,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -3887,7 +3962,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1299,
+        "sourceLine": 1315,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -3912,7 +3987,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1312,
+        "sourceLine": 1328,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"

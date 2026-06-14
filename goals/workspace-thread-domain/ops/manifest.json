@@ -3,13 +3,13 @@
   "initiative": {
     "id": "workspace-thread-domain",
     "title": "Workspace Thread Domain",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-12",
-    "updated": "2026-06-12",
+    "updated": "2026-06-13",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/workspace-thread-domain",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -37,22 +37,22 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Implement",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
@@ -60,7 +60,8 @@
     "jq . goals/workspace-thread-domain/ops/manifest.json",
     "rg -n \"workspace-thread-domain|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/workspace-thread-domain",
     "git diff --check -- goals/workspace-thread-domain",
-    "bun run beep lint reflection-artifacts"
+    "bun run beep lint reflection-artifacts",
+    "bun run beep yeet verify"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",

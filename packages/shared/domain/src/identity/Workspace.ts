@@ -276,3 +276,117 @@ export const ContextPacketId = make("context_packet", {
  * @since 0.0.0
  */
 export type ContextPacketId = typeof ContextPacketId.Type;
+
+/**
+ * Thread entity identifier.
+ *
+ * @example
+ * ```ts
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ *
+ * console.log(Workspace.ThreadId.entityType)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export const ThreadId = make("thread", {
+  description: "Identifier for a durable workspace conversation thread.",
+});
+
+/**
+ * Runtime type for {@link ThreadId}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id: Workspace.ThreadId = yield* S.decodeUnknownEffect(Workspace.ThreadId)(1)
+ *   return id
+ * })
+ * console.log(program)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export type ThreadId = typeof ThreadId.Type;
+
+/**
+ * Turn entity identifier.
+ *
+ * @example
+ * ```ts
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ *
+ * console.log(Workspace.TurnId.entityType)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export const TurnId = make("turn", {
+  description: "Identifier for a workspace conversation turn aggregate.",
+});
+
+/**
+ * Runtime type for {@link TurnId}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id: Workspace.TurnId = yield* S.decodeUnknownEffect(Workspace.TurnId)(1)
+ *   return id
+ * })
+ * console.log(program)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export type TurnId = typeof TurnId.Type;
+
+/**
+ * Message entity identifier.
+ *
+ * @example
+ * ```ts
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ *
+ * console.log(Workspace.MessageId.entityType)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export const MessageId = make("message", {
+  description: "Identifier for md-aligned workspace message content.",
+});
+
+/**
+ * Runtime type for {@link MessageId}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id: Workspace.MessageId = yield* S.decodeUnknownEffect(Workspace.MessageId)(1)
+ *   return id
+ * })
+ * console.log(program)
+ * ```
+ *
+ * @category entity-ids
+ * @since 0.0.0
+ */
+export type MessageId = typeof MessageId.Type;

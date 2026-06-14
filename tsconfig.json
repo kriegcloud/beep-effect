@@ -105,17 +105,17 @@
       "@beep/professional-runtime-proof": [
         "./apps/professional-runtime-proof/src/index.ts"
       ],
-      "@beep/agent-capability-domain": [
-        "./packages/agent-capability/domain/src/index.ts"
+      "@beep/agents-domain": [
+        "./packages/agents/domain/src/index.ts"
       ],
-      "@beep/agent-capability-use-cases": [
-        "./packages/agent-capability/use-cases/src/index.ts"
+      "@beep/agents-use-cases": [
+        "./packages/agents/use-cases/src/index.ts"
       ],
-      "@beep/agent-capability-use-cases/public": [
-        "./packages/agent-capability/use-cases/src/public.ts"
+      "@beep/agents-use-cases/public": [
+        "./packages/agents/use-cases/src/public.ts"
       ],
-      "@beep/agent-capability-use-cases/test": [
-        "./packages/agent-capability/use-cases/src/test.ts"
+      "@beep/agents-use-cases/test": [
+        "./packages/agents/use-cases/src/test.ts"
       ],
       "@beep/epistemic-domain": ["./packages/epistemic/domain/src/index.ts"],
       "@beep/law-practice-domain": [
@@ -243,14 +243,14 @@
       "@beep/shared-ui/entities/Organization": [
         "./packages/shared/ui/src/entities/Organization/index.ts"
       ],
-      "@beep/agent-capability-domain/entities": [
-        "./packages/agent-capability/domain/src/entities/index.ts"
+      "@beep/agents-domain/entities": [
+        "./packages/agents/domain/src/entities/index.ts"
       ],
-      "@beep/agent-capability-domain/entities/Agent": [
-        "./packages/agent-capability/domain/src/entities/Agent/index.ts"
+      "@beep/agents-domain/entities/Agent": [
+        "./packages/agents/domain/src/entities/Agent/index.ts"
       ],
-      "@beep/agent-capability-domain/entities/Skill": [
-        "./packages/agent-capability/domain/src/entities/Skill/index.ts"
+      "@beep/agents-domain/entities/Skill": [
+        "./packages/agents/domain/src/entities/Skill/index.ts"
       ],
       "@beep/epistemic-domain/entities": [
         "./packages/epistemic/domain/src/entities/index.ts"
@@ -324,6 +324,15 @@
       "@beep/workspace-domain/entities/EmailArtifact": [
         "./packages/workspace/domain/src/entities/EmailArtifact/index.ts"
       ],
+      "@beep/workspace-domain/entities/Message": [
+        "./packages/workspace/domain/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Thread": [
+        "./packages/workspace/domain/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Turn": [
+        "./packages/workspace/domain/src/entities/Turn/index.ts"
+      ],
       "@beep/workspace-domain/entities/Workspace": [
         "./packages/workspace/domain/src/entities/Workspace/index.ts"
       ],
@@ -354,8 +363,8 @@
       "@beep/shared-domain/entity/primitives": [
         "./packages/shared/domain/src/entity/primitives.ts"
       ],
-      "@beep/shared-domain/identity/AgentCapability": [
-        "./packages/shared/domain/src/identity/AgentCapability.ts"
+      "@beep/shared-domain/identity/Agents": [
+        "./packages/shared/domain/src/identity/Agents.ts"
       ],
       "@beep/shared-domain/identity/Epistemic": [
         "./packages/shared/domain/src/identity/Epistemic.ts"
@@ -372,8 +381,8 @@
       "@beep/shared-domain/identity/Workspace": [
         "./packages/shared/domain/src/identity/Workspace.ts"
       ],
-      "@beep/agent-capability-use-cases/proof": [
-        "./packages/agent-capability/use-cases/src/proof.ts"
+      "@beep/agents-use-cases/proof": [
+        "./packages/agents/use-cases/src/proof.ts"
       ],
       "@beep/sandbox": [
         "./packages/foundation/capability/sandbox/src/index.ts"
@@ -396,6 +405,7 @@
       ],
       "@beep/acp": ["./packages/drivers/acp/src/index.ts"],
       "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"],
+      "@beep/anthropic": ["./packages/drivers/anthropic/src/index.ts"],
       "@beep/workspace-tables": ["./packages/workspace/tables/src/index.ts"],
       "@beep/workspace-tables/entities": [
         "./packages/workspace/tables/src/entities/index.ts"
@@ -405,6 +415,15 @@
       ],
       "@beep/workspace-tables/entities/CandidateProject": [
         "./packages/workspace/tables/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Message": [
+        "./packages/workspace/tables/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Thread": [
+        "./packages/workspace/tables/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Turn": [
+        "./packages/workspace/tables/src/entities/Turn/index.ts"
       ],
       "@beep/architecture-lab-domain": [
         "./packages/architecture-lab/domain/src/index.ts"

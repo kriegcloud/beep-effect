@@ -8,11 +8,11 @@ describe("P3 identity namespace types", () => {
     expect<Identity.AnyIdentityComposer>().type.toBe<CoreIdentity.IdentityComposer<string>>();
   });
 
-  it("preserves AgentCapability companion aliases and literals", () => {
-    expect<Identity.AgentCapability.AgentId>().type.toBe<EntityId.EntityIdValueFor<"AgentCapabilityAgentId">>();
-    expect<Identity.AgentCapability.SkillId>().type.toBe<EntityId.EntityIdValueFor<"AgentCapabilitySkillId">>();
-    expect<typeof Identity.AgentCapability.AgentId.tableName>().type.toBe<"agent_capability_agent">();
-    expect<typeof Identity.AgentCapability.SkillId.tableName>().type.toBe<"agent_capability_skill">();
+  it("preserves Agents companion aliases and literals", () => {
+    expect<Identity.Agents.AgentId>().type.toBe<EntityId.EntityIdValueFor<"AgentsAgentId">>();
+    expect<Identity.Agents.SkillId>().type.toBe<EntityId.EntityIdValueFor<"AgentsSkillId">>();
+    expect<typeof Identity.Agents.AgentId.tableName>().type.toBe<"agents_agent">();
+    expect<typeof Identity.Agents.SkillId.tableName>().type.toBe<"agents_skill">();
   });
 
   it("preserves Epistemic companion aliases and literals", () => {

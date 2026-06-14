@@ -4,7 +4,7 @@ Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
 
 Outcome: Thread/Turn/Message entities + tables exist in the workspace slice
 with migrations proven against PGlite; `@beep/anthropic` driver exists; the
-`agent-capability` → `agents` rename is complete; the epistemic `UsageRecord`
+legacy `agent-capability` → `agents` rename is complete; the epistemic `UsageRecord`
 entity + turn-finalization append path is implemented.
 
 This is a compact `/goal` launcher. Treat the packet files as the detailed
@@ -25,7 +25,7 @@ Scope:
 
 - In: `packages/workspace/{domain,tables}`, `packages/epistemic/*`
   (UsageRecord), `packages/drivers/anthropic` (new),
-  `packages/agent-capability/*` → `packages/agents/*` (+ imports + runtime
+  legacy `packages/agent-capability/*` → `packages/agents/*` (+ imports + runtime
   SPEC slice-table amendment), `packages/_internal/db-admin`.
 - Out: chat UI/sidecar/app wiring; event-sourced turns; SQLite/sidecar
   Postgres; ACP entities; candidate gating of thread content.

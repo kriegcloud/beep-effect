@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "df9ddf6a56a920048a21d535cd7069ab2909f74ab2893a190fe347e047218f85",
+    "digest": "4356c592ff600a6cd1c2ae3c483cf6d0a6c30e1235b84c236aae0396c20465e0",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sha256": "912ac8e3670528e6f7a09e565d30c0b531e416ad3dd45ecaef26905bb483a8e0",
-        "bytes": 22078
+        "sha256": "7778f4bf8af7d1be64d5e3ba4fc9574b2e30d93f0cb1287f6ad382d28ac6c234",
+        "bytes": 31606
       },
       {
         "path": "packages/foundation/modeling/md/src/Md.render.ts",
@@ -80,8 +80,8 @@
       "@beep/md/Md.utils"
     ],
     "counts": {
-      "publicExportEntries": 253,
-      "uniqueSymbols": 97,
+      "publicExportEntries": 273,
+      "uniqueSymbols": 101,
       "sourceFiles": 5
     },
     "exports": [
@@ -118,9 +118,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "A",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 316,
+        "sourceLine": 415,
         "summary": "Inline hyperlink.",
         "categories": [
           "models"
@@ -133,7 +133,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . a const inline hyperlink. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . a class inline hyperlink. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -143,10 +143,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "A",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 339,
-        "summary": "Type for {@link A}.",
+        "sourceLine": 441,
+        "summary": "Companion namespace for {@link A}.",
         "categories": [
           "models"
         ],
@@ -154,11 +154,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . a type type for {@link a}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . a namespace companion namespace for {@link a}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -170,7 +169,7 @@
         "symbolName": "Block",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1084,
+        "sourceLine": 1503,
         "summary": "Discriminated union of block Markdown AST nodes.",
         "categories": [
           "models"
@@ -193,10 +192,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Block",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1119,
-        "summary": "Type for {@link Block}.",
+        "sourceLine": 1524,
+        "summary": "Companion namespace for {@link Block}.",
         "categories": [
           "models"
         ],
@@ -204,11 +203,82 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . block type type for {@link block}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . block namespace companion namespace for {@link block}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "Block",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1516,
+        "summary": "Runtime type for {@link Block}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . block type runtime type for {@link block}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "BlockChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 634,
+        "summary": "Recursive block child list used by document and block quote containers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . blockchildren const recursive block child list used by document and block quote containers. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "BlockChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 646,
+        "summary": "Companion namespace for {@link BlockChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . blockchildren namespace companion namespace for {@link blockchildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -318,9 +388,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "BlockQuote",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 965,
+        "sourceLine": 1357,
         "summary": "Block quote container.",
         "categories": [
           "models"
@@ -333,7 +403,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . blockquote const block quote container. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . blockquote class block quote container. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -343,10 +413,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "BlockQuote",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 987,
-        "summary": "Type for {@link BlockQuote}.",
+        "sourceLine": 1375,
+        "summary": "Companion namespace for {@link BlockQuote}.",
         "categories": [
           "models"
         ],
@@ -354,11 +424,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . blockquote type type for {@link blockquote}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . blockquote namespace companion namespace for {@link blockquote}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -418,9 +487,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Br",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 398,
+        "sourceLine": 531,
         "summary": "Inline line break.",
         "categories": [
           "models"
@@ -433,7 +502,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . br const inline line break. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . br class inline line break. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -443,10 +512,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Br",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 418,
-        "summary": "Type for {@link Br}.",
+        "sourceLine": 545,
+        "summary": "Companion namespace for {@link Br}.",
         "categories": [
           "models"
         ],
@@ -454,11 +523,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . br type type for {@link br}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . br namespace companion namespace for {@link br}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -493,9 +561,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Code",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 278,
+        "sourceLine": 366,
         "summary": "Inline code span.",
         "categories": [
           "models"
@@ -508,7 +576,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . code const inline code span. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . code class inline code span. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -518,10 +586,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Code",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 300,
-        "summary": "Type for {@link Code}.",
+        "sourceLine": 386,
+        "summary": "Companion namespace for {@link Code}.",
         "categories": [
           "models"
         ],
@@ -529,11 +597,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . code type type for {@link code}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . code namespace companion namespace for {@link code}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -568,9 +635,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Del",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 237,
+        "sourceLine": 314,
         "summary": "Deleted inline content.",
         "categories": [
           "models"
@@ -583,7 +650,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . del const deleted inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . del class deleted inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -593,10 +660,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Del",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 259,
-        "summary": "Type for {@link Del}.",
+        "sourceLine": 334,
+        "summary": "Companion namespace for {@link Del}.",
         "categories": [
           "models"
         ],
@@ -604,11 +671,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . del type type for {@link del}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . del namespace companion namespace for {@link del}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -618,9 +684,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Document",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1135,
+        "sourceLine": 1578,
         "summary": "Root Markdown document AST.",
         "categories": [
           "models"
@@ -633,7 +699,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . document const root markdown document ast. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . document class root markdown document ast. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -643,10 +709,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Document",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1157,
-        "summary": "Type for {@link Document}.",
+        "sourceLine": 1596,
+        "summary": "Companion namespace for {@link Document}.",
         "categories": [
           "models"
         ],
@@ -654,11 +720,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . document type type for {@link document}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . document namespace companion namespace for {@link document}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -818,9 +883,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Em",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 262,
         "summary": "Emphasized inline content.",
         "categories": [
           "models"
@@ -833,7 +898,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . em const emphasized inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . em class emphasized inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -843,10 +908,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Em",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 218,
-        "summary": "Type for {@link Em}.",
+        "sourceLine": 282,
+        "summary": "Companion namespace for {@link Em}.",
         "categories": [
           "models"
         ],
@@ -854,11 +919,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . em type type for {@link em}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . em namespace companion namespace for {@link em}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -968,9 +1032,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H1",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 518,
+        "sourceLine": 724,
         "summary": "Level-one heading block.",
         "categories": [
           "models"
@@ -983,7 +1047,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h1 const level-one heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h1 class level-one heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -993,10 +1057,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H1",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 538,
-        "summary": "Type for {@link H1}.",
+        "sourceLine": 744,
+        "summary": "Companion namespace for {@link H1}.",
         "categories": [
           "models"
         ],
@@ -1004,11 +1068,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h1 type type for {@link h1}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h1 namespace companion namespace for {@link h1}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1043,9 +1106,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H2",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 557,
+        "sourceLine": 776,
         "summary": "Level-two heading block.",
         "categories": [
           "models"
@@ -1058,7 +1121,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h2 const level-two heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h2 class level-two heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1068,10 +1131,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H2",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 577,
-        "summary": "Type for {@link H2}.",
+        "sourceLine": 796,
+        "summary": "Companion namespace for {@link H2}.",
         "categories": [
           "models"
         ],
@@ -1079,11 +1142,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h2 type type for {@link h2}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h2 namespace companion namespace for {@link h2}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1118,9 +1180,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H3",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 828,
         "summary": "Level-three heading block.",
         "categories": [
           "models"
@@ -1133,7 +1195,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h3 const level-three heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h3 class level-three heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1143,10 +1205,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H3",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 616,
-        "summary": "Type for {@link H3}.",
+        "sourceLine": 848,
+        "summary": "Companion namespace for {@link H3}.",
         "categories": [
           "models"
         ],
@@ -1154,11 +1216,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h3 type type for {@link h3}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h3 namespace companion namespace for {@link h3}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1193,9 +1254,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H4",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 635,
+        "sourceLine": 880,
         "summary": "Level-four heading block.",
         "categories": [
           "models"
@@ -1208,7 +1269,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h4 const level-four heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h4 class level-four heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1218,10 +1279,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H4",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 655,
-        "summary": "Type for {@link H4}.",
+        "sourceLine": 900,
+        "summary": "Companion namespace for {@link H4}.",
         "categories": [
           "models"
         ],
@@ -1229,11 +1290,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h4 type type for {@link h4}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h4 namespace companion namespace for {@link h4}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1268,9 +1328,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H5",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 674,
+        "sourceLine": 932,
         "summary": "Level-five heading block.",
         "categories": [
           "models"
@@ -1283,7 +1343,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h5 const level-five heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h5 class level-five heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1293,10 +1353,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H5",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 694,
-        "summary": "Type for {@link H5}.",
+        "sourceLine": 952,
+        "summary": "Companion namespace for {@link H5}.",
         "categories": [
           "models"
         ],
@@ -1304,11 +1364,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h5 type type for {@link h5}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h5 namespace companion namespace for {@link h5}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1343,9 +1402,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H6",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 713,
+        "sourceLine": 984,
         "summary": "Level-six heading block.",
         "categories": [
           "models"
@@ -1358,7 +1417,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h6 const level-six heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h6 class level-six heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1368,10 +1427,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "H6",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 733,
-        "summary": "Type for {@link H6}.",
+        "sourceLine": 1004,
+        "summary": "Companion namespace for {@link H6}.",
         "categories": [
           "models"
         ],
@@ -1379,11 +1438,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h6 type type for {@link h6}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . h6 namespace companion namespace for {@link h6}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1418,9 +1476,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Hr",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1046,
+        "sourceLine": 1459,
         "summary": "Horizontal rule block.",
         "categories": [
           "models"
@@ -1433,7 +1491,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . hr const horizontal rule block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . hr class horizontal rule block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1443,10 +1501,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Hr",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1066,
-        "summary": "Type for {@link Hr}.",
+        "sourceLine": 1473,
+        "summary": "Companion namespace for {@link Hr}.",
         "categories": [
           "models"
         ],
@@ -1454,11 +1512,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . hr type type for {@link hr}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . hr namespace companion namespace for {@link hr}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1518,9 +1575,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Img",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 359,
+        "sourceLine": 475,
         "summary": "Inline image.",
         "categories": [
           "models"
@@ -1533,7 +1590,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . img const inline image. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . img class inline image. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1543,10 +1600,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Img",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 382,
-        "summary": "Type for {@link Img}.",
+        "sourceLine": 501,
+        "summary": "Companion namespace for {@link Img}.",
         "categories": [
           "models"
         ],
@@ -1554,11 +1611,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . img type type for {@link img}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . img namespace companion namespace for {@link img}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1570,7 +1626,7 @@
         "symbolName": "Inline",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 436,
+        "sourceLine": 575,
         "summary": "Discriminated union of inline Markdown AST nodes.",
         "categories": [
           "models"
@@ -1593,10 +1649,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Inline",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 456,
-        "summary": "Type for {@link Inline}.",
+        "sourceLine": 596,
+        "summary": "Companion namespace for {@link Inline}.",
         "categories": [
           "models"
         ],
@@ -1604,11 +1660,82 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . inline type type for {@link inline}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . inline namespace companion namespace for {@link inline}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "Inline",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 588,
+        "summary": "Runtime type for {@link Inline}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . inline type runtime type for {@link inline}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "InlineChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 22,
+        "summary": "Recursive inline child list used by inline containers and text-bearing block",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . inlinechildren const recursive inline child list used by inline containers and text-bearing block models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "InlineChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 34,
+        "summary": "Companion namespace for {@link InlineChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . inlinechildren namespace companion namespace for {@link inlinechildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1768,9 +1895,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Li",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 752,
+        "sourceLine": 1036,
         "summary": "List item block.",
         "categories": [
           "models"
@@ -1783,7 +1910,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . li const list item block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . li class list item block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1793,10 +1920,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Li",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 774,
-        "summary": "Type for {@link Li}.",
+        "sourceLine": 1056,
+        "summary": "Companion namespace for {@link Li}.",
         "categories": [
           "models"
         ],
@@ -1804,11 +1931,58 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . li type type for {@link li}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . li namespace companion namespace for {@link li}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "ListItemChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1080,
+        "summary": "List item children used by ordered and unordered list blocks.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . listitemchildren const list item children used by ordered and unordered list blocks. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "ListItemChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1092,
+        "summary": "Companion namespace for {@link ListItemChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . listitemchildren namespace companion namespace for {@link listitemchildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1968,9 +2142,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Ol",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 840,
+        "sourceLine": 1170,
         "summary": "Ordered list block.",
         "categories": [
           "models"
@@ -1983,7 +2157,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ol const ordered list block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ol class ordered list block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -1993,10 +2167,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Ol",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 862,
-        "summary": "Type for {@link Ol}.",
+        "sourceLine": 1190,
+        "summary": "Companion namespace for {@link Ol}.",
         "categories": [
           "models"
         ],
@@ -2004,11 +2178,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ol type type for {@link ol}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ol namespace companion namespace for {@link ol}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2043,9 +2216,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "P",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 472,
+        "sourceLine": 672,
         "summary": "Paragraph block.",
         "categories": [
           "models"
@@ -2058,7 +2231,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . p const paragraph block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . p class paragraph block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2068,10 +2241,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "P",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 494,
-        "summary": "Type for {@link P}.",
+        "sourceLine": 692,
+        "summary": "Companion namespace for {@link P}.",
         "categories": [
           "models"
         ],
@@ -2079,11 +2252,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . p type type for {@link p}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . p namespace companion namespace for {@link p}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2118,9 +2290,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Pre",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1007,
+        "sourceLine": 1408,
         "summary": "Fenced code block.",
         "categories": [
           "models"
@@ -2133,7 +2305,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . pre const fenced code block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . pre class fenced code block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2143,10 +2315,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Pre",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1030,
-        "summary": "Type for {@link Pre}.",
+        "sourceLine": 1429,
+        "summary": "Companion namespace for {@link Pre}.",
         "categories": [
           "models"
         ],
@@ -2154,11 +2326,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . pre type type for {@link pre}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . pre namespace companion namespace for {@link pre}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2243,9 +2414,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "RawHtml",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 116,
+        "sourceLine": 160,
         "summary": "Raw HTML inline content for adapters that opt into trusted HTML rendering.",
         "categories": [
           "models"
@@ -2258,7 +2429,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawhtml const raw html inline content for adapters that opt into trusted html rendering. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawhtml class raw html inline content for adapters that opt into trusted html rendering. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2268,10 +2439,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "RawHtml",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 139,
-        "summary": "Type for {@link RawHtml}.",
+        "sourceLine": 181,
+        "summary": "Companion namespace for {@link RawHtml}.",
         "categories": [
           "models"
         ],
@@ -2279,11 +2450,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawhtml type type for {@link rawhtml}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawhtml namespace companion namespace for {@link rawhtml}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2318,9 +2488,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "RawMarkdown",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 76,
+        "sourceLine": 109,
         "summary": "Trusted raw Markdown inline content.",
         "categories": [
           "models"
@@ -2333,7 +2503,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawmarkdown const trusted raw markdown inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawmarkdown class trusted raw markdown inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2343,10 +2513,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "RawMarkdown",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 98,
-        "summary": "Type for {@link RawMarkdown}.",
+        "sourceLine": 129,
+        "summary": "Companion namespace for {@link RawMarkdown}.",
         "categories": [
           "models"
         ],
@@ -2354,11 +2524,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawmarkdown type type for {@link rawmarkdown}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . rawmarkdown namespace companion namespace for {@link rawmarkdown}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2868,9 +3037,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Strong",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 155,
+        "sourceLine": 210,
         "summary": "Strong inline content.",
         "categories": [
           "models"
@@ -2883,7 +3052,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . strong const strong inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . strong class strong inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2893,10 +3062,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Strong",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 177,
-        "summary": "Type for {@link Strong}.",
+        "sourceLine": 230,
+        "summary": "Companion namespace for {@link Strong}.",
         "categories": [
           "models"
         ],
@@ -2904,11 +3073,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . strong type type for {@link strong}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . strong namespace companion namespace for {@link strong}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2943,9 +3111,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "TaskItem",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 881,
+        "sourceLine": 1222,
         "summary": "GFM task list item.",
         "categories": [
           "models"
@@ -2958,7 +3126,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . taskitem const gfm task list item. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . taskitem class gfm task list item. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -2968,10 +3136,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "TaskItem",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 904,
-        "summary": "Type for {@link TaskItem}.",
+        "sourceLine": 1243,
+        "summary": "Companion namespace for {@link TaskItem}.",
         "categories": [
           "models"
         ],
@@ -2979,11 +3147,58 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . taskitem type type for {@link taskitem}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . taskitem namespace companion namespace for {@link taskitem}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "TaskItemChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1269,
+        "summary": "Task item children used by GFM task list blocks.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . taskitemchildren const task item children used by gfm task list blocks. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "TaskItemChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1281,
+        "summary": "Companion namespace for {@link TaskItemChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . taskitemchildren namespace companion namespace for {@link taskitemchildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -3018,9 +3233,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "TaskList",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 924,
+        "sourceLine": 1307,
         "summary": "GFM task list block.",
         "categories": [
           "models"
@@ -3033,7 +3248,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . tasklist const gfm task list block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . tasklist class gfm task list block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -3043,10 +3258,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "TaskList",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 946,
-        "summary": "Type for {@link TaskList}.",
+        "sourceLine": 1325,
+        "summary": "Companion namespace for {@link TaskList}.",
         "categories": [
           "models"
         ],
@@ -3054,11 +3269,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . tasklist type type for {@link tasklist}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . tasklist namespace companion namespace for {@link tasklist}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -3118,9 +3332,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Text",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 38,
+        "sourceLine": 60,
         "summary": "Plain escaped inline text.",
         "categories": [
           "models"
@@ -3133,7 +3347,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . text const plain escaped inline text. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . text class plain escaped inline text. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -3143,10 +3357,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Text",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 60,
-        "summary": "Type for {@link Text}.",
+        "sourceLine": 80,
+        "summary": "Companion namespace for {@link Text}.",
         "categories": [
           "models"
         ],
@@ -3154,11 +3368,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . text type type for {@link text}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . text namespace companion namespace for {@link text}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -3193,9 +3406,9 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Ul",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 799,
+        "sourceLine": 1118,
         "summary": "Unordered list block.",
         "categories": [
           "models"
@@ -3208,7 +3421,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ul const unordered list block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ul class unordered list block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -3218,10 +3431,10 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
         "symbolName": "Ul",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 821,
-        "summary": "Type for {@link Ul}.",
+        "sourceLine": 1138,
+        "summary": "Companion namespace for {@link Ul}.",
         "categories": [
           "models"
         ],
@@ -3229,11 +3442,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ul type type for {@link ul}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . ul namespace companion namespace for {@link ul}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4168,9 +4380,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "A",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 316,
+        "sourceLine": 415,
         "summary": "Inline hyperlink.",
         "categories": [
           "models"
@@ -4183,7 +4395,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model a const inline hyperlink. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model a class inline hyperlink. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4193,10 +4405,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "A",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 339,
-        "summary": "Type for {@link A}.",
+        "sourceLine": 441,
+        "summary": "Companion namespace for {@link A}.",
         "categories": [
           "models"
         ],
@@ -4204,11 +4416,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model a type type for {@link a}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model a namespace companion namespace for {@link a}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4220,7 +4431,7 @@
         "symbolName": "Block",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1084,
+        "sourceLine": 1503,
         "summary": "Discriminated union of block Markdown AST nodes.",
         "categories": [
           "models"
@@ -4243,10 +4454,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Block",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1119,
-        "summary": "Type for {@link Block}.",
+        "sourceLine": 1524,
+        "summary": "Companion namespace for {@link Block}.",
         "categories": [
           "models"
         ],
@@ -4254,11 +4465,82 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model block type type for {@link block}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model block namespace companion namespace for {@link block}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "Block",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1516,
+        "summary": "Runtime type for {@link Block}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model block type runtime type for {@link block}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "BlockChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 634,
+        "summary": "Recursive block child list used by document and block quote containers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model blockchildren const recursive block child list used by document and block quote containers. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "BlockChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 646,
+        "summary": "Companion namespace for {@link BlockChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model blockchildren namespace companion namespace for {@link blockchildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4268,9 +4550,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "BlockQuote",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 965,
+        "sourceLine": 1357,
         "summary": "Block quote container.",
         "categories": [
           "models"
@@ -4283,7 +4565,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model blockquote const block quote container. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model blockquote class block quote container. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4293,10 +4575,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "BlockQuote",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 987,
-        "summary": "Type for {@link BlockQuote}.",
+        "sourceLine": 1375,
+        "summary": "Companion namespace for {@link BlockQuote}.",
         "categories": [
           "models"
         ],
@@ -4304,11 +4586,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model blockquote type type for {@link blockquote}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model blockquote namespace companion namespace for {@link blockquote}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4318,9 +4599,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Br",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 398,
+        "sourceLine": 531,
         "summary": "Inline line break.",
         "categories": [
           "models"
@@ -4333,7 +4614,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model br const inline line break. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model br class inline line break. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4343,10 +4624,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Br",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 418,
-        "summary": "Type for {@link Br}.",
+        "sourceLine": 545,
+        "summary": "Companion namespace for {@link Br}.",
         "categories": [
           "models"
         ],
@@ -4354,11 +4635,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model br type type for {@link br}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model br namespace companion namespace for {@link br}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4368,9 +4648,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Code",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 278,
+        "sourceLine": 366,
         "summary": "Inline code span.",
         "categories": [
           "models"
@@ -4383,7 +4663,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model code const inline code span. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model code class inline code span. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4393,10 +4673,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Code",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 300,
-        "summary": "Type for {@link Code}.",
+        "sourceLine": 386,
+        "summary": "Companion namespace for {@link Code}.",
         "categories": [
           "models"
         ],
@@ -4404,11 +4684,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model code type type for {@link code}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model code namespace companion namespace for {@link code}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4418,9 +4697,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Del",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 237,
+        "sourceLine": 314,
         "summary": "Deleted inline content.",
         "categories": [
           "models"
@@ -4433,7 +4712,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model del const deleted inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model del class deleted inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4443,10 +4722,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Del",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 259,
-        "summary": "Type for {@link Del}.",
+        "sourceLine": 334,
+        "summary": "Companion namespace for {@link Del}.",
         "categories": [
           "models"
         ],
@@ -4454,11 +4733,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model del type type for {@link del}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model del namespace companion namespace for {@link del}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4468,9 +4746,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Document",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1135,
+        "sourceLine": 1578,
         "summary": "Root Markdown document AST.",
         "categories": [
           "models"
@@ -4483,7 +4761,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model document const root markdown document ast. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model document class root markdown document ast. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4493,10 +4771,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Document",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1157,
-        "summary": "Type for {@link Document}.",
+        "sourceLine": 1596,
+        "summary": "Companion namespace for {@link Document}.",
         "categories": [
           "models"
         ],
@@ -4504,11 +4782,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model document type type for {@link document}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model document namespace companion namespace for {@link document}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4518,9 +4795,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Em",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 262,
         "summary": "Emphasized inline content.",
         "categories": [
           "models"
@@ -4533,7 +4810,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model em const emphasized inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model em class emphasized inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4543,10 +4820,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Em",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 218,
-        "summary": "Type for {@link Em}.",
+        "sourceLine": 282,
+        "summary": "Companion namespace for {@link Em}.",
         "categories": [
           "models"
         ],
@@ -4554,11 +4831,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model em type type for {@link em}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model em namespace companion namespace for {@link em}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4568,9 +4844,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H1",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 518,
+        "sourceLine": 724,
         "summary": "Level-one heading block.",
         "categories": [
           "models"
@@ -4583,7 +4859,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h1 const level-one heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h1 class level-one heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4593,10 +4869,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H1",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 538,
-        "summary": "Type for {@link H1}.",
+        "sourceLine": 744,
+        "summary": "Companion namespace for {@link H1}.",
         "categories": [
           "models"
         ],
@@ -4604,11 +4880,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h1 type type for {@link h1}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h1 namespace companion namespace for {@link h1}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4618,9 +4893,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H2",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 557,
+        "sourceLine": 776,
         "summary": "Level-two heading block.",
         "categories": [
           "models"
@@ -4633,7 +4908,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h2 const level-two heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h2 class level-two heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4643,10 +4918,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H2",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 577,
-        "summary": "Type for {@link H2}.",
+        "sourceLine": 796,
+        "summary": "Companion namespace for {@link H2}.",
         "categories": [
           "models"
         ],
@@ -4654,11 +4929,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h2 type type for {@link h2}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h2 namespace companion namespace for {@link h2}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4668,9 +4942,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H3",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 828,
         "summary": "Level-three heading block.",
         "categories": [
           "models"
@@ -4683,7 +4957,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h3 const level-three heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h3 class level-three heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4693,10 +4967,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H3",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 616,
-        "summary": "Type for {@link H3}.",
+        "sourceLine": 848,
+        "summary": "Companion namespace for {@link H3}.",
         "categories": [
           "models"
         ],
@@ -4704,11 +4978,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h3 type type for {@link h3}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h3 namespace companion namespace for {@link h3}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4718,9 +4991,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H4",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 635,
+        "sourceLine": 880,
         "summary": "Level-four heading block.",
         "categories": [
           "models"
@@ -4733,7 +5006,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h4 const level-four heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h4 class level-four heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4743,10 +5016,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H4",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 655,
-        "summary": "Type for {@link H4}.",
+        "sourceLine": 900,
+        "summary": "Companion namespace for {@link H4}.",
         "categories": [
           "models"
         ],
@@ -4754,11 +5027,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h4 type type for {@link h4}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h4 namespace companion namespace for {@link h4}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4768,9 +5040,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H5",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 674,
+        "sourceLine": 932,
         "summary": "Level-five heading block.",
         "categories": [
           "models"
@@ -4783,7 +5055,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h5 const level-five heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h5 class level-five heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4793,10 +5065,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H5",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 694,
-        "summary": "Type for {@link H5}.",
+        "sourceLine": 952,
+        "summary": "Companion namespace for {@link H5}.",
         "categories": [
           "models"
         ],
@@ -4804,11 +5076,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h5 type type for {@link h5}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h5 namespace companion namespace for {@link h5}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4818,9 +5089,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H6",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 713,
+        "sourceLine": 984,
         "summary": "Level-six heading block.",
         "categories": [
           "models"
@@ -4833,7 +5104,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h6 const level-six heading block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h6 class level-six heading block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4843,10 +5114,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "H6",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 733,
-        "summary": "Type for {@link H6}.",
+        "sourceLine": 1004,
+        "summary": "Companion namespace for {@link H6}.",
         "categories": [
           "models"
         ],
@@ -4854,11 +5125,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h6 type type for {@link h6}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model h6 namespace companion namespace for {@link h6}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4868,9 +5138,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Hr",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1046,
+        "sourceLine": 1459,
         "summary": "Horizontal rule block.",
         "categories": [
           "models"
@@ -4883,7 +5153,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model hr const horizontal rule block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model hr class horizontal rule block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4893,10 +5163,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Hr",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1066,
-        "summary": "Type for {@link Hr}.",
+        "sourceLine": 1473,
+        "summary": "Companion namespace for {@link Hr}.",
         "categories": [
           "models"
         ],
@@ -4904,11 +5174,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model hr type type for {@link hr}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model hr namespace companion namespace for {@link hr}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4918,9 +5187,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Img",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 359,
+        "sourceLine": 475,
         "summary": "Inline image.",
         "categories": [
           "models"
@@ -4933,7 +5202,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model img const inline image. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model img class inline image. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4943,10 +5212,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Img",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 382,
-        "summary": "Type for {@link Img}.",
+        "sourceLine": 501,
+        "summary": "Companion namespace for {@link Img}.",
         "categories": [
           "models"
         ],
@@ -4954,11 +5223,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model img type type for {@link img}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model img namespace companion namespace for {@link img}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4970,7 +5238,7 @@
         "symbolName": "Inline",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 436,
+        "sourceLine": 575,
         "summary": "Discriminated union of inline Markdown AST nodes.",
         "categories": [
           "models"
@@ -4993,10 +5261,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Inline",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 456,
-        "summary": "Type for {@link Inline}.",
+        "sourceLine": 596,
+        "summary": "Companion namespace for {@link Inline}.",
         "categories": [
           "models"
         ],
@@ -5004,11 +5272,82 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model inline type type for {@link inline}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model inline namespace companion namespace for {@link inline}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "Inline",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 588,
+        "summary": "Runtime type for {@link Inline}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model inline type runtime type for {@link inline}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "InlineChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 22,
+        "summary": "Recursive inline child list used by inline containers and text-bearing block",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model inlinechildren const recursive inline child list used by inline containers and text-bearing block models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "InlineChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 34,
+        "summary": "Companion namespace for {@link InlineChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model inlinechildren namespace companion namespace for {@link inlinechildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5018,9 +5357,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Li",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 752,
+        "sourceLine": 1036,
         "summary": "List item block.",
         "categories": [
           "models"
@@ -5033,7 +5372,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model li const list item block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model li class list item block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5043,10 +5382,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Li",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 774,
-        "summary": "Type for {@link Li}.",
+        "sourceLine": 1056,
+        "summary": "Companion namespace for {@link Li}.",
         "categories": [
           "models"
         ],
@@ -5054,11 +5393,58 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model li type type for {@link li}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model li namespace companion namespace for {@link li}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "ListItemChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1080,
+        "summary": "List item children used by ordered and unordered list blocks.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model listitemchildren const list item children used by ordered and unordered list blocks. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "ListItemChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1092,
+        "summary": "Companion namespace for {@link ListItemChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model listitemchildren namespace companion namespace for {@link listitemchildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5068,9 +5454,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Ol",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 840,
+        "sourceLine": 1170,
         "summary": "Ordered list block.",
         "categories": [
           "models"
@@ -5083,7 +5469,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ol const ordered list block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ol class ordered list block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5093,10 +5479,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Ol",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 862,
-        "summary": "Type for {@link Ol}.",
+        "sourceLine": 1190,
+        "summary": "Companion namespace for {@link Ol}.",
         "categories": [
           "models"
         ],
@@ -5104,11 +5490,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ol type type for {@link ol}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ol namespace companion namespace for {@link ol}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5118,9 +5503,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "P",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 472,
+        "sourceLine": 672,
         "summary": "Paragraph block.",
         "categories": [
           "models"
@@ -5133,7 +5518,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model p const paragraph block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model p class paragraph block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5143,10 +5528,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "P",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 494,
-        "summary": "Type for {@link P}.",
+        "sourceLine": 692,
+        "summary": "Companion namespace for {@link P}.",
         "categories": [
           "models"
         ],
@@ -5154,11 +5539,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model p type type for {@link p}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model p namespace companion namespace for {@link p}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5168,9 +5552,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Pre",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1007,
+        "sourceLine": 1408,
         "summary": "Fenced code block.",
         "categories": [
           "models"
@@ -5183,7 +5567,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model pre const fenced code block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model pre class fenced code block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5193,10 +5577,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Pre",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1030,
-        "summary": "Type for {@link Pre}.",
+        "sourceLine": 1429,
+        "summary": "Companion namespace for {@link Pre}.",
         "categories": [
           "models"
         ],
@@ -5204,11 +5588,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model pre type type for {@link pre}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model pre namespace companion namespace for {@link pre}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5218,9 +5601,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "RawHtml",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 116,
+        "sourceLine": 160,
         "summary": "Raw HTML inline content for adapters that opt into trusted HTML rendering.",
         "categories": [
           "models"
@@ -5233,7 +5616,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawhtml const raw html inline content for adapters that opt into trusted html rendering. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawhtml class raw html inline content for adapters that opt into trusted html rendering. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5243,10 +5626,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "RawHtml",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 139,
-        "summary": "Type for {@link RawHtml}.",
+        "sourceLine": 181,
+        "summary": "Companion namespace for {@link RawHtml}.",
         "categories": [
           "models"
         ],
@@ -5254,11 +5637,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawhtml type type for {@link rawhtml}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawhtml namespace companion namespace for {@link rawhtml}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5268,9 +5650,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "RawMarkdown",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 76,
+        "sourceLine": 109,
         "summary": "Trusted raw Markdown inline content.",
         "categories": [
           "models"
@@ -5283,7 +5665,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawmarkdown const trusted raw markdown inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawmarkdown class trusted raw markdown inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5293,10 +5675,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "RawMarkdown",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 98,
-        "summary": "Type for {@link RawMarkdown}.",
+        "sourceLine": 129,
+        "summary": "Companion namespace for {@link RawMarkdown}.",
         "categories": [
           "models"
         ],
@@ -5304,11 +5686,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawmarkdown type type for {@link rawmarkdown}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model rawmarkdown namespace companion namespace for {@link rawmarkdown}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5318,9 +5699,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Strong",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 155,
+        "sourceLine": 210,
         "summary": "Strong inline content.",
         "categories": [
           "models"
@@ -5333,7 +5714,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model strong const strong inline content. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model strong class strong inline content. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5343,10 +5724,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Strong",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 177,
-        "summary": "Type for {@link Strong}.",
+        "sourceLine": 230,
+        "summary": "Companion namespace for {@link Strong}.",
         "categories": [
           "models"
         ],
@@ -5354,11 +5735,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model strong type type for {@link strong}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model strong namespace companion namespace for {@link strong}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5368,9 +5748,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "TaskItem",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 881,
+        "sourceLine": 1222,
         "summary": "GFM task list item.",
         "categories": [
           "models"
@@ -5383,7 +5763,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model taskitem const gfm task list item. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model taskitem class gfm task list item. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5393,10 +5773,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "TaskItem",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 904,
-        "summary": "Type for {@link TaskItem}.",
+        "sourceLine": 1243,
+        "summary": "Companion namespace for {@link TaskItem}.",
         "categories": [
           "models"
         ],
@@ -5404,11 +5784,58 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model taskitem type type for {@link taskitem}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model taskitem namespace companion namespace for {@link taskitem}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "TaskItemChildren",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1269,
+        "summary": "Task item children used by GFM task list blocks.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model taskitemchildren const task item children used by gfm task list blocks. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "TaskItemChildren",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 1281,
+        "summary": "Companion namespace for {@link TaskItemChildren}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model taskitemchildren namespace companion namespace for {@link taskitemchildren}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5418,9 +5845,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "TaskList",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 924,
+        "sourceLine": 1307,
         "summary": "GFM task list block.",
         "categories": [
           "models"
@@ -5433,7 +5860,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model tasklist const gfm task list block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model tasklist class gfm task list block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5443,10 +5870,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "TaskList",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 946,
-        "summary": "Type for {@link TaskList}.",
+        "sourceLine": 1325,
+        "summary": "Companion namespace for {@link TaskList}.",
         "categories": [
           "models"
         ],
@@ -5454,11 +5881,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model tasklist type type for {@link tasklist}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model tasklist namespace companion namespace for {@link tasklist}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5468,9 +5894,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Text",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 38,
+        "sourceLine": 60,
         "summary": "Plain escaped inline text.",
         "categories": [
           "models"
@@ -5483,7 +5909,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model text const plain escaped inline text. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model text class plain escaped inline text. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5493,10 +5919,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Text",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 60,
-        "summary": "Type for {@link Text}.",
+        "sourceLine": 80,
+        "summary": "Companion namespace for {@link Text}.",
         "categories": [
           "models"
         ],
@@ -5504,11 +5930,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model text type type for {@link text}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model text namespace companion namespace for {@link text}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5518,9 +5943,9 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Ul",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 799,
+        "sourceLine": 1118,
         "summary": "Unordered list block.",
         "categories": [
           "models"
@@ -5533,7 +5958,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ul const unordered list block. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ul class unordered list block. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -5543,10 +5968,10 @@
         "exportSubpath": "./Md.model",
         "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
         "symbolName": "Ul",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 821,
-        "summary": "Type for {@link Ul}.",
+        "sourceLine": 1138,
+        "summary": "Companion namespace for {@link Ul}.",
         "categories": [
           "models"
         ],
@@ -5554,11 +5979,10 @@
           "0.0.0"
         ],
         "tags": [
-          "@example",
           "@category",
           "@since"
         ],
-        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ul type type for {@link ul}. models packages/foundation/modeling/md/src/md.model.ts"
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model ul namespace companion namespace for {@link ul}. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",

@@ -13,17 +13,17 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e60dbb2cf1c2629e3424854e154de66239f94f76f1ac2dcfa8d1279e99b3419a",
+    "digest": "e1c5b6156f4d2e62f0f163b1829f45be6d1f639b53d77acca4f565fd4b6572ec",
     "inputs": [
       {
         "path": "apps/professional-runtime-proof/package.json",
-        "sha256": "c4147244983b6fe2bc86ae4dd711f5e4935bb092b382f451d6968330b82ebb81",
-        "bytes": 1941
+        "sha256": "d78b9ca22f6147784eadd6ef171dad4d06a1157b4649d31efac1b978c06dfeb6",
+        "bytes": 1921
       },
       {
         "path": "apps/professional-runtime-proof/src/index.ts",
-        "sha256": "73e4a83479083d2f2872f5c0737df1a8cd3a8a7cef2fd73a6077e1402fc08222",
-        "bytes": 19142
+        "sha256": "3c198186ea08f25f1589f6920ed6c1cf7e5349c30a2bf28e54ac24ed1bd63b46",
+        "bytes": 20243
       },
       {
         "path": "generator:repo-exports-catalog",
@@ -71,7 +71,7 @@
         "symbolName": "runProfessionalRuntimeScenario",
         "exportKind": "const",
         "sourcePath": "apps/professional-runtime-proof/src/index.ts",
-        "sourceLine": 517,
+        "sourceLine": 551,
         "summary": "Run one deterministic professional-runtime proof scenario end to end.",
         "categories": [
           "workflows"
@@ -96,7 +96,7 @@
         "symbolName": "ScenarioId",
         "exportKind": "type",
         "sourcePath": "apps/professional-runtime-proof/src/index.ts",
-        "sourceLine": 152,
+        "sourceLine": 159,
         "summary": "Deterministic proof scenario identifiers.",
         "categories": [
           "models"
@@ -121,7 +121,7 @@
         "symbolName": "toPlain",
         "exportKind": "const",
         "sourcePath": "apps/professional-runtime-proof/src/index.ts",
-        "sourceLine": 185,
+        "sourceLine": 192,
         "summary": "Convert decoded Schema class instances into JSON-comparable plain data.",
         "categories": [
           "utilities"

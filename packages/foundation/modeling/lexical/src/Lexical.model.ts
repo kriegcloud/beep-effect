@@ -1230,6 +1230,22 @@ export const LexicalNode = S.Union([
 ]).pipe(S.toTaggedUnion("type"));
 
 /**
+ * {@inheritDoc LexicalNode}
+ *
+ * @example
+ * ```ts
+ * import type { LexicalNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const nodeType = (node: LexicalNode) => node.type
+ * console.log(nodeType)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LexicalNode = typeof LexicalNode.Type;
+
+/**
  * Companion namespace for {@link LexicalNode}.
  *
  * @category models

@@ -5,11 +5,14 @@
  * @since 0.0.0
  */
 
-import { CandidateDraft, CandidateProject } from "./entities/index.ts";
+import { CandidateDraft, CandidateProject, Message, Thread, Turn } from "./entities/index.ts";
 
 type DbSchemaShape = {
   readonly candidateDraft: typeof CandidateDraft.Table;
   readonly candidateProject: typeof CandidateProject.Table;
+  readonly message: typeof Message.Table;
+  readonly thread: typeof Thread.Table;
+  readonly turn: typeof Turn.Table;
 };
 
 /**
@@ -28,6 +31,9 @@ type DbSchemaShape = {
 export const DbSchema: DbSchemaShape = {
   candidateDraft: CandidateDraft.Table,
   candidateProject: CandidateProject.Table,
+  message: Message.Table,
+  thread: Thread.Table,
+  turn: Turn.Table,
 };
 
 /**

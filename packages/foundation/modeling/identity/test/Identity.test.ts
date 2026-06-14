@@ -1,7 +1,7 @@
 import { make } from "@beep/identity";
 import {
-  $AgentCapabilityDomainId,
-  $AgentCapabilityUseCasesId,
+  $AgentsDomainId,
+  $AgentsUseCasesId,
   $EpistemicDomainId,
   $I,
   $InstallerDomainId,
@@ -253,8 +253,8 @@ describe("@beep/identity", () => {
   it("exports P3 professional runtime proof package composers", () => {
     expect($WorkspaceDomainId.make("ContextPacket")).toBe("@beep/workspace-domain/ContextPacket");
     expect($EpistemicDomainId.make("Evidence")).toBe("@beep/epistemic-domain/Evidence");
-    expect($AgentCapabilityDomainId.make("Agent")).toBe("@beep/agent-capability-domain/Agent");
-    expect($AgentCapabilityUseCasesId.make("RuntimeScope")).toBe("@beep/agent-capability-use-cases/RuntimeScope");
+    expect($AgentsDomainId.make("Agent")).toBe("@beep/agents-domain/Agent");
+    expect($AgentsUseCasesId.make("RuntimeScope")).toBe("@beep/agents-use-cases/RuntimeScope");
     expect($LawPracticeDomainId.make("Matter")).toBe("@beep/law-practice-domain/Matter");
     expect($WealthManagementDomainId.make("Household")).toBe("@beep/wealth-management-domain/Household");
     expect($ProfessionalRuntimeProofId.make("RuntimeHarness")).toBe("@beep/professional-runtime-proof/RuntimeHarness");

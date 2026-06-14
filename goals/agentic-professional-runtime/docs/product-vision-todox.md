@@ -40,7 +40,7 @@ archive replacement. It is the agentic runtime above and around those systems:
 
 - local workspace and thread runtime
 - evidence-backed expert memory
-- agent capability and skill layer
+- agents and skill layer
 - connector layer for CRM, email, calendar, documents, portfolio data, and firm
   knowledge
 - candidate work queue with approvals

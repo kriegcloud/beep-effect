@@ -1,22 +1,15 @@
-import { CandidateClaim, ClaimLifecycle } from "@beep/epistemic-domain";
+import {
+  appendTurnFinalizationUsageRecord,
+  CandidateClaim,
+  ClaimLifecycle,
+  TurnFinalizationUsageAppend,
+  UsageRecord,
+} from "@beep/epistemic-domain";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
+import { baseEntityFixtureInput, systemPrincipal } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-
-const systemPrincipal = { kind: "System", component: "Runtime" } as const;
-
-const baseEntityInput = (entityType: string, id: number) => ({
-  createdAt: id,
-  createdByPrincipal: systemPrincipal,
-  entityType,
-  id,
-  orgId: 1,
-  rowVersion: 1,
-  schemaVersion: "0.0.0",
-  source: "System",
-  updatedAt: id + 1,
-  updatedByPrincipal: systemPrincipal,
-});
 
 describe("@beep/epistemic-domain", () => {
   it("exports value schemas from the package identity", () => {
@@ -33,7 +26,7 @@ describe("@beep/epistemic-domain", () => {
 
   it("decodes and constructs a CandidateClaim row", () => {
     const decoded = S.decodeUnknownSync(CandidateClaim)({
-      ...baseEntityInput("EpistemicCandidateClaim", 3),
+      ...baseEntityFixtureInput("EpistemicCandidateClaim", 3),
       fixtureKey: "claim.patentability",
       lifecycle: "candidate",
       snapshot: { confidence: 0.92, label: "Patentability" },
@@ -45,5 +38,31 @@ describe("@beep/epistemic-domain", () => {
     expect(constructed.entityType).toBe("EpistemicCandidateClaim");
     expect(constructed.lifecycle).toBe("candidate");
     expect(constructed.snapshot).toEqual({ confidence: 0.92, label: "Patentability" });
+  });
+
+  it("appends a UsageRecord from turn-finalization activity", () => {
+    const decoded = S.decodeUnknownSync(TurnFinalizationUsageAppend)({
+      ...baseEntityFixtureInput("EpistemicUsageRecord", 7),
+      activityId: 5,
+      actor: systemPrincipal,
+      costUsdApproxMicros: 3000,
+      credentialReference: "op://Private/Claude/token",
+      inputTokens: 120,
+      latencyMillis: 1420,
+      metadata: { threadId: 9, turnId: 12 },
+      model: "claude-opus-4-6",
+      outputTokens: 80,
+      provider: "anthropic",
+      totalTokens: 200,
+      unitCount: null,
+    });
+    const appended = appendTurnFinalizationUsageRecord(decoded);
+
+    expect(appended).toBeInstanceOf(UsageRecord);
+    expect(appended.activityId).toBe(5);
+    expect(appended.entityType).toBe("EpistemicUsageRecord");
+    expect(O.getOrElse(appended.credentialReference, () => "")).toBe("op://Private/Claude/token");
+    expect(O.getOrElse(appended.unitCount, () => 0)).toBe(0);
+    expect(appended.metadata).toEqual({ threadId: 9, turnId: 12 });
   });
 });

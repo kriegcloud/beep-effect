@@ -77,7 +77,7 @@ Claims are not summaries. They are durable assertions with evidence and history.
 
 ### Agent Capability
 
-The agent-capability layer owns:
+The agents layer owns:
 
 - agent definitions
 - skill definitions and versions

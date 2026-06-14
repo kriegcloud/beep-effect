@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-11T08:27:25.852Z
+Generated: 2026-06-13T07:39:08.352Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 94 |
-| cleanPackages | 27 |
+| packages | 98 |
+| cleanPackages | 26 |
 | packagesWithoutPublicSrcSurface | 2 |
-| packagesNeedingRemediation | 61 |
-| publicModules | 1237 |
-| publicExports | 12540 |
-| openModules | 114 |
-| openExports | 1644 |
-| missingExportExamples | 1282 |
-| missingExportCategories | 82 |
-| missingExportSince | 82 |
+| packagesNeedingRemediation | 66 |
+| publicModules | 1277 |
+| publicExports | 12784 |
+| openModules | 113 |
+| openExports | 1705 |
+| missingExportExamples | 1359 |
+| missingExportCategories | 65 |
+| missingExportSince | 65 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 25 |
-| unsafeExampleFindings | 186 |
-| schemaAnnotationFindings | 170 |
+| unsafeExampleFindings | 188 |
+| schemaAnnotationFindings | 154 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -46,95 +46,99 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
-| 6 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 1 | 6 | 0 | 6 |
-| 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
-| 8 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 9 | `@beep/canvas-domain` | `packages/canvas/domain` | needs-remediation | 8 | 40 | 0 | 17 |
-| 10 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 7 | 10 | 0 | 2 |
-| 11 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 4 | 6 | 0 | 2 |
-| 12 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | clean | 5 | 55 | 0 | 0 |
-| 13 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 36 | 195 | 0 | 11 |
-| 14 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
-| 15 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
-| 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 84 | 469 | 0 | 118 |
-| 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
-| 19 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 20 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 83 | 0 | 11 |
-| 21 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
-| 22 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 9 | 79 | 0 | 34 |
-| 23 | `@beep/canvas-server` | `packages/canvas/server` | needs-remediation | 9 | 23 | 0 | 10 |
-| 24 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 84 | 0 | 24 |
-| 25 | `@beep/agent-capability-use-cases` | `packages/agent-capability/use-cases` | needs-remediation | 12 | 41 | 0 | 9 |
-| 26 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
-| 27 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 28 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 29 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
-| 30 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 75 |
-| 31 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
-| 32 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 33 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | needs-remediation | 10 | 35 | 0 | 15 |
-| 34 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 3 | 22 | 0 | 7 |
-| 35 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 36 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 31 | 82 | 0 | 8 |
-| 37 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 38 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
-| 39 | `@beep/agent-capability-domain` | `packages/agent-capability/domain` | clean | 7 | 11 | 0 | 0 |
-| 40 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
-| 41 | `@beep/md` | `packages/foundation/modeling/md` | clean | 5 | 131 | 0 | 0 |
-| 42 | `@beep/canvas` | `apps/canvas` | clean | 2 | 18 | 0 | 0 |
-| 43 | `@beep/workspace-domain` | `packages/workspace/domain` | clean | 21 | 40 | 0 | 0 |
-| 44 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 155 | 0 | 20 |
-| 45 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 178 | 0 | 17 |
-| 46 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 256 | 0 | 4 |
-| 47 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
-| 48 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 3 | 10 | 0 | 2 |
-| 49 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 3 | 11 | 0 | 2 |
-| 50 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 51 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
-| 52 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 119 | 0 | 4 |
-| 53 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 54 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 1 | 16 |
-| 55 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 56 | `@beep/stack-installer` | `apps/stack-installer` | needs-remediation | 6 | 21 | 0 | 21 |
-| 57 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 1 | 2 | 0 | 2 |
-| 58 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 18 | 0 | 0 |
-| 59 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
-| 60 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
-| 61 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 3 | 0 | 0 |
-| 62 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 63 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 55 |
-| 64 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
-| 65 | `@beep/installer-use-cases` | `packages/installer/use-cases` | needs-remediation | 3 | 30 | 0 | 1 |
-| 66 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 67 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 661 | 2 | 82 |
-| 68 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
-| 69 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
-| 70 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 4 | 5 | 0 | 5 |
-| 71 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
-| 72 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
-| 73 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
-| 74 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 75 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
-| 76 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
-| 77 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 78 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 79 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
-| 80 | `@beep/installer-server` | `packages/installer/server` | needs-remediation | 3 | 19 | 0 | 2 |
-| 81 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
-| 82 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
-| 83 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 84 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 506 | 108 | 64 |
-| 85 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
-| 86 | `@beep/canvas-client` | `packages/canvas/client` | clean | 1 | 1 | 0 | 0 |
-| 87 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
-| 88 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
-| 89 | `@beep/installer-domain` | `packages/installer/domain` | needs-remediation | 12 | 52 | 0 | 27 |
-| 90 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
-| 91 | `@beep/canvas-ui` | `packages/canvas/ui` | clean | 1 | 1 | 0 | 0 |
-| 92 | `@beep/messages` | `packages/foundation/modeling/messages` | clean | 2 | 6 | 0 | 0 |
-| 93 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
-| 94 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 6 | `@beep/agents-domain` | `packages/agents/domain` | clean | 7 | 11 | 0 | 0 |
+| 7 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 1 | 6 | 0 | 6 |
+| 8 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
+| 9 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 10 | `@beep/canvas-domain` | `packages/canvas/domain` | needs-remediation | 8 | 40 | 0 | 17 |
+| 11 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 13 | 19 | 0 | 2 |
+| 12 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 5 | 8 | 0 | 3 |
+| 13 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | clean | 5 | 55 | 0 | 0 |
+| 14 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 36 | 201 | 0 | 11 |
+| 15 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
+| 16 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
+| 17 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
+| 18 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 91 | 536 | 0 | 131 |
+| 19 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
+| 20 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 6 | 15 | 0 | 1 |
+| 21 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
+| 22 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 83 | 0 | 11 |
+| 23 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
+| 24 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 9 | 80 | 0 | 30 |
+| 25 | `@beep/canvas-server` | `packages/canvas/server` | needs-remediation | 9 | 23 | 0 | 10 |
+| 26 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 87 | 0 | 24 |
+| 27 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
+| 28 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 29 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 12 | 41 | 0 | 9 |
+| 30 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 31 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
+| 32 | `@beep/uspto` | `packages/drivers/uspto` | needs-remediation | 5 | 22 | 0 | 7 |
+| 33 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 75 |
+| 34 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
+| 35 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 36 | `@beep/canvas-use-cases` | `packages/canvas/use-cases` | needs-remediation | 10 | 35 | 0 | 15 |
+| 37 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 5 | 27 | 0 | 9 |
+| 38 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
+| 39 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 30 | 78 | 0 | 10 |
+| 40 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 41 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 58 | 0 | 18 |
+| 42 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
+| 43 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
+| 44 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 141 | 0 | 38 |
+| 45 | `@beep/canvas` | `apps/canvas` | clean | 2 | 18 | 0 | 0 |
+| 46 | `@beep/workspace-domain` | `packages/workspace/domain` | needs-remediation | 27 | 60 | 0 | 8 |
+| 47 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 155 | 0 | 20 |
+| 48 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 178 | 0 | 17 |
+| 49 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 256 | 0 | 4 |
+| 50 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
+| 51 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 4 | 13 | 0 | 3 |
+| 52 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
+| 53 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
+| 54 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
+| 55 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 123 | 0 | 4 |
+| 56 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 57 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
+| 58 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 59 | `@beep/stack-installer` | `apps/stack-installer` | needs-remediation | 6 | 20 | 0 | 20 |
+| 60 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 3 | 16 | 0 | 0 |
+| 61 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 1 | 1 | 0 | 1 |
+| 62 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
+| 63 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
+| 64 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
+| 65 | `@beep/professional-runtime-proof` | `apps/professional-runtime-proof` | clean | 1 | 3 | 0 | 0 |
+| 66 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 67 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
+| 68 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
+| 69 | `@beep/installer-use-cases` | `packages/installer/use-cases` | needs-remediation | 3 | 30 | 0 | 1 |
+| 70 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
+| 71 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 661 | 2 | 82 |
+| 72 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
+| 73 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
+| 74 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 4 | 5 | 0 | 5 |
+| 75 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
+| 76 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
+| 77 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
+| 78 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 79 | `@beep/wealth-management-domain` | `packages/wealth-management/domain` | clean | 14 | 25 | 0 | 0 |
+| 80 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
+| 81 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 82 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 83 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
+| 84 | `@beep/installer-server` | `packages/installer/server` | needs-remediation | 3 | 19 | 0 | 2 |
+| 85 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
+| 86 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
+| 87 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 88 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 506 | 108 | 64 |
+| 89 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
+| 90 | `@beep/canvas-client` | `packages/canvas/client` | clean | 1 | 1 | 0 | 0 |
+| 91 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
+| 92 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
+| 93 | `@beep/installer-domain` | `packages/installer/domain` | needs-remediation | 12 | 52 | 0 | 27 |
+| 94 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
+| 95 | `@beep/canvas-ui` | `packages/canvas/ui` | clean | 1 | 1 | 0 | 0 |
+| 96 | `@beep/messages` | `packages/foundation/modeling/messages` | clean | 2 | 6 | 0 | 0 |
+| 97 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
+| 98 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -202,7 +206,7 @@ Export findings:
 Path: `packages/workspace/tables`
 
 Export findings:
-- `src/Schema.ts:47` `DbSchema` (type) - 1 unsafe example violation(s)
+- `src/Schema.ts:53` `DbSchema` (type) - 1 unsafe example violation(s)
 - `src/index.ts:28` `export { DbSchema } from "./Schema.ts";` (re-export) - missing @example
 
 ### @beep/db-admin
@@ -211,7 +215,8 @@ Path: `packages/_internal/db-admin`
 
 Export findings:
 - `src/index.ts:14` `export * from "./targets.js";` (re-export) - missing @example
-- `src/schema.ts:9` `export * from "@beep/architecture-lab-tables/tables";` (re-export) - missing @example
+- `src/schema.ts:15` `export { DbSchema as ArchitectureLabDbSchema } from "@beep/architecture-lab-tables/tables";` (re-export) - missing @example
+- `src/schema.ts:22` `export { DbSchema as WorkspaceDbSchema } from "@beep/workspace-tables";` (re-export) - missing @example
 
 ### @beep/shared-domain
 
@@ -288,6 +293,17 @@ Export findings:
 - `src/commands/Codegen/index.ts:14` `export * from "./Codegen.command.js";` (re-export) - missing @example
 - `src/commands/Codex/index.ts:13` `export * from "./Codex.command.js";` (re-export) - missing @example
 - `src/commands/Codex/index.ts:20` `export * from "./Codex.errors.js";` (re-export) - missing @example
+- `src/commands/Corpus/Corpus.schemas.ts:92` `RecycleBinFormatVersion` (type) - missing @example
+- `src/commands/Corpus/Corpus.schemas.ts:223` `CorpusRestorationRecord` (type) - missing @example
+- `src/commands/Corpus/Corpus.schemas.ts:290` `encodeCorpusDuplicateSetReportJson` (const) - 2 schema annotation/type-alias gap(s)
+- `src/commands/Corpus/Corpus.schemas.ts:317` `RecycleBinEntryKind` (type) - missing @example
+- `src/commands/Corpus/Corpus.schemas.ts:569` `CorpusOrganizeCategory` (type) - missing @example
+- `src/commands/Corpus/Corpus.service.ts:113` `CorpusCommandServiceShape` (interface) - 1 unsafe example violation(s)
+- `src/commands/Corpus/index.ts:15` `export * from "./Corpus.command.js";` (re-export) - missing @example
+- `src/commands/Corpus/index.ts:22` `export * from "./Corpus.errors.js";` (re-export) - missing @example
+- `src/commands/Corpus/index.ts:29` `export * from "./Corpus.recyclebin.js";` (re-export) - missing @example
+- `src/commands/Corpus/index.ts:36` `export * from "./Corpus.schemas.js";` (re-export) - missing @example
+- `src/commands/Corpus/index.ts:43` `export * from "./Corpus.service.js";` (re-export) - missing @example
 - `src/commands/CreatePackage/index.ts:14` `export * from "./CreatePackage.command.js";` (re-export) - missing @example
 - `src/commands/Docgen/index.ts:14` `export * from "./Docgen.command.js";` (re-export) - missing @example
 - `src/commands/Docs/index.ts:14` `export * from "./Docs.command.js";` (re-export) - missing @example
@@ -318,7 +334,7 @@ Export findings:
 - `src/commands/Files/Files.schemas.ts:923` `SafeFilePrefix` (type) - missing @example
 - `src/commands/Files/Files.schemas.ts:2256` `ProcessFilesFailurePolicy` (type) - missing @example
 - `src/commands/Files/Files.schemas.ts:2345` `decodeRotationNumber` (const) - 2 schema annotation/type-alias gap(s)
-- `src/commands/Files/Files.service.ts:341` `FilesCommandServiceShape` (interface) - 1 unsafe example violation(s)
+- `src/commands/Files/Files.service.ts:343` `FilesCommandServiceShape` (interface) - 1 unsafe example violation(s)
 - `src/commands/Files/index.ts:15` `export * from "./Files.command.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:22` `export * from "./Files.errors.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:29` `export * from "./Files.media.js";` (re-export) - missing @example
@@ -337,12 +353,13 @@ Export findings:
 - `src/commands/Laws/index.ts:20` `export * from "./Laws.errors.js";` (re-export) - missing @example
 - `src/commands/Lint/index.ts:13` `export * from "./Lint.command.js";` (re-export) - missing @example
 - `src/commands/Lint/index.ts:20` `export * from "./Lint.errors.js";` (re-export) - missing @example
-- `src/commands/Lint/index.ts:27` `export * from "./SchemaTopology.ts";` (re-export) - missing @example
+- `src/commands/Lint/index.ts:27` `export { sourceTextHasSchemaArbitraryPropertyCoverage } from "./SchemaFirst.ts";` (re-export) - missing @example
+- `src/commands/Lint/index.ts:34` `export * from "./SchemaTopology.ts";` (re-export) - missing @example
 - `src/commands/Purge/index.ts:14` `export * from "./Purge.command.js";` (re-export) - missing @example
 - `src/commands/Quality/ChangesetGraph.ts:27` `export { ChangesetGraphError } from "./Quality.errors.js";` (re-export) - missing @example
 - `src/commands/Quality/Quality.command.ts:51` `export { QualityScriptCommandError } from "./Quality.errors.js";` (re-export) - missing @example
-- `src/commands/Quality/Quality.command.ts:2492` `fullRepoExportsCatalogEscalationCommandForTesting` (const) - missing @example
-- `src/commands/Quality/Quality.command.ts:2560` `affectedRepoExportsCatalogPlanForTesting` (const) - missing @example
+- `src/commands/Quality/Quality.command.ts:2528` `fullRepoExportsCatalogEscalationCommandForTesting` (const) - missing @example
+- `src/commands/Quality/Quality.command.ts:2596` `affectedRepoExportsCatalogPlanForTesting` (const) - missing @example
 - `src/commands/Quality/index.ts:14` `export { qualityFallowCommand } from "./FallowQuality.command.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:21` `export * from "./internal/TurboConfigProof.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:28` `export {
@@ -381,11 +398,11 @@ Export findings:
    */
   resolveRootExportTarget,
 } from "@beep/repo-utils/schemas/TsconfigAliasTargets";` (re-export) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:268` `TsconfigSyncRunOptions` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:301` `TsconfigSyncSection` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:415` `TsconfigSyncChange` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:544` `PlannedFileChange` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:606` `TsconfigSyncResult` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:269` `TsconfigSyncRunOptions` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:302` `TsconfigSyncSection` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:416` `TsconfigSyncChange` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:545` `PlannedFileChange` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:607` `TsconfigSyncResult` (type) - missing @example
 - `src/commands/TsconfigSync/index.ts:13` `export * from "./TsconfigSync.command.js";` (re-export) - missing @example
 - `src/commands/TsconfigSync/index.ts:20` `export * from "./TsconfigSync.errors.js";` (re-export) - missing @example
 - `src/commands/VersionSync/index.ts:13` `export * from "./VersionSync.command.js";` (re-export) - missing @example
@@ -402,8 +419,20 @@ Export findings:
   QualityIssueRouting,
   QualityIssueSeverity,
 } from "./internal/QualityIssueIndex.js";` (re-export) - missing @example
-- `src/commands/Yeet/index.ts:44` `export { yeetCommand } from "./Yeet.command.js";` (re-export) - missing @example
-- `src/commands/Yeet/index.ts:51` `export * from "./Yeet.errors.js";` (re-export) - missing @example
+- `src/commands/Yeet/index.ts:44` `export {
+  collectYeetStatus,
+  renderYeetStatusSummary,
+  writeYeetStatusSnapshot,
+  YeetStatusArtifact,
+  YeetStatusArtifactState,
+  YeetStatusRemote,
+  YeetStatusSnapshot,
+  YeetStatusWorktree,
+  yeetStatusNextCommandForTesting,
+  yeetStatusPathForTesting,
+} from "./internal/Status.js";` (re-export) - missing @example
+- `src/commands/Yeet/index.ts:62` `export { yeetCommand } from "./Yeet.command.js";` (re-export) - missing @example
+- `src/commands/Yeet/index.ts:69` `export * from "./Yeet.errors.js";` (re-export) - missing @example
 - `src/index.ts:75` `export {
   /**
    * Code generation command for workspace barrels and exports.
@@ -413,7 +442,7 @@ Export findings:
    */
   codegenCommand,
 } from "./commands/Codegen/index.js";` (re-export) - missing @example
-- `src/index.ts:117` `export {
+- `src/index.ts:138` `export {
   /**
    * Package scaffolding command for creating new workspace packages.
    *
@@ -422,7 +451,7 @@ Export findings:
    */
   createPackageCommand,
 } from "./commands/CreatePackage/index.js";` (re-export) - missing @example
-- `src/index.ts:132` `export {
+- `src/index.ts:153` `export {
   /**
    * Human-first docgen command group.
    *
@@ -431,7 +460,7 @@ Export findings:
    */
   docgenCommand,
 } from "./commands/Docgen/index.js";` (re-export) - missing @example
-- `src/index.ts:147` `export {
+- `src/index.ts:168` `export {
   /**
    * Command-first docs discovery command tree.
    *
@@ -440,7 +469,7 @@ Export findings:
    */
   docsCommand,
 } from "./commands/Docs/index.js";` (re-export) - missing @example
-- `src/index.ts:162` `export {
+- `src/index.ts:183` `export {
   /**
    * Fallow quality-tooling command group.
    *
@@ -449,7 +478,7 @@ Export findings:
    */
   fallowCommand,
 } from "./commands/Fallow/index.js";` (re-export) - missing @example
-- `src/index.ts:177` `export {
+- `src/index.ts:198` `export {
   /**
    * Dataset file curation command group.
    *
@@ -458,7 +487,7 @@ Export findings:
    */
   filesCommand,
 } from "./commands/Files/index.js";` (re-export) - missing @example
-- `src/index.ts:192` `export {
+- `src/index.ts:213` `export {
   /**
    * Graphiti operational command group.
    *
@@ -467,7 +496,7 @@ Export findings:
    */
   graphitiCommand,
 } from "./commands/Graphiti/index.js";` (re-export) - missing @example
-- `src/index.ts:207` `export {
+- `src/index.ts:228` `export {
   /**
    * Image and video curation command group.
    *
@@ -476,7 +505,7 @@ Export findings:
    */
   imageCommand,
 } from "./commands/Image/index.js";` (re-export) - missing @example
-- `src/index.ts:222` `export {
+- `src/index.ts:243` `export {
   /**
    * Effect laws command group.
    *
@@ -485,7 +514,7 @@ Export findings:
    */
   lawsCommand,
 } from "./commands/Laws/index.js";` (re-export) - missing @example
-- `src/index.ts:237` `export {
+- `src/index.ts:258` `export {
   /**
    * Lint policy command group.
    *
@@ -494,7 +523,7 @@ Export findings:
    */
   lintCommand,
 } from "./commands/Lint/index.js";` (re-export) - missing @example
-- `src/index.ts:252` `export {
+- `src/index.ts:273` `export {
   /**
    * Purge command for removing root/workspace build artifacts.
    *
@@ -503,7 +532,7 @@ Export findings:
    */
   purgeCommand,
 } from "./commands/Purge/index.js";` (re-export) - missing @example
-- `src/index.ts:294` `export {
+- `src/index.ts:315` `export {
   /**
    * Reuse-discovery command group.
    *
@@ -512,7 +541,7 @@ Export findings:
    */
   reuseCommand,
 } from "./commands/Reuse/index.js";` (re-export) - missing @example
-- `src/index.ts:309` `export {
+- `src/index.ts:330` `export {
   /**
    * Root CLI command that composes subcommands.
    *
@@ -521,7 +550,7 @@ Export findings:
    */
   rootCommand,
 } from "./commands/Root.js";` (re-export) - missing @example
-- `src/index.ts:324` `export {
+- `src/index.ts:345` `export {
   /**
    * Official data sync command for checked-in generated TypeScript modules.
    *
@@ -530,7 +559,7 @@ Export findings:
    */
   syncDataToTsCommand,
 } from "./commands/SyncDataToTs/index.js";` (re-export) - missing @example
-- `src/index.ts:339` `export {
+- `src/index.ts:360` `export {
   /**
    * Dependency topological sort command.
    *
@@ -539,7 +568,7 @@ Export findings:
    */
   topoSortCommand,
 } from "./commands/TopoSort/index.js";` (re-export) - missing @example
-- `src/index.ts:354` `export {
+- `src/index.ts:375` `export {
   /**
    * Tsconfig sync command for workspace tsconfig references and root aliases.
    *
@@ -548,7 +577,7 @@ Export findings:
    */
   tsconfigSyncCommand,
 } from "./commands/TsconfigSync/index.js";` (re-export) - missing @example
-- `src/index.ts:369` `export {
+- `src/index.ts:390` `export {
   /**
    * Version sync command for detecting and fixing version drift.
    *
@@ -557,7 +586,7 @@ Export findings:
    */
   versionSyncCommand,
 } from "./commands/VersionSync/index.js";` (re-export) - missing @example
-- `src/index.ts:384` `export {
+- `src/index.ts:405` `export {
   /**
    * Yeet quality feedback and publish command.
    *
@@ -566,6 +595,13 @@ Export findings:
    */
   yeetCommand,
 } from "./commands/Yeet/index.js";` (re-export) - missing @example
+
+### @beep/editor
+
+Path: `packages/foundation/ui-system/editor`
+
+Export findings:
+- `src/artifact-ref-node.tsx:23` `SerializedArtifactRefNode` (type) - missing @example
 
 ### @beep/nlp-mcp
 
@@ -592,18 +628,14 @@ Export findings:
 - `src/Configuration.ts:54` `ConfigurationSchema` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Configuration.ts:96` `ConfigurationShape` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Domain.ts:78` `Position` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:115` `Doc` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:193` `DocEntry` (class) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:244` `Class` (class) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:304` `Interface` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:353` `Function` (class) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:402` `TypeAlias` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:451` `Constant` (class) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:509` `Export` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:567` `Namespace` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:614` `Module` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:691` `File` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Domain.ts:751` `DocgenError` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Domain.ts:122` `Doc` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Domain.ts:200` `DocEntry` (class) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
+- `src/Domain.ts:256` `Class` (class) - 1 unsafe example violation(s)
+- `src/Domain.ts:368` `Function` (class) - 1 unsafe example violation(s)
+- `src/Domain.ts:474` `Constant` (class) - 1 unsafe example violation(s)
+- `src/Domain.ts:639` `Module` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Domain.ts:716` `File` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Domain.ts:780` `DocgenError` (class) - 1 schema annotation/type-alias gap(s)
 - `src/ProofManifest.ts:29` `DocgenProofManifestStandard` (const) - missing @example
 - `src/ProofManifest.ts:41` `DocgenProofManifestStandard` (type) - missing @example
 - `src/ProofManifest.ts:49` `DocgenProofManifestSchemaVersion` (const) - missing @example
@@ -655,35 +687,20 @@ Export findings:
 - `src/Extraction/index.ts:600` `FileProcessingFailureReason` (type) - missing @example
 - `src/Extraction/index.ts:713` `FileProcessingFailureRecord` (type) - missing @example
 - `src/Operation/index.ts:51` `FileProcessingOperationErrorReason` (type) - missing @example
-- `src/Service/index.ts:51` `FileProcessingEngineShape` (type) - 1 unsafe example violation(s)
-- `src/Service/index.ts:74` `FileProcessingServiceShape` (type) - 1 unsafe example violation(s)
-- `src/Strategy/index.ts:39` `FileProcessingOperationKind` (type) - missing @example
-- `src/Strategy/index.ts:66` `FileProcessingEngineFamily` (type) - missing @example
-- `src/Strategy/index.ts:108` `FileFormatFamily` (type) - missing @example
-- `src/Strategy/index.ts:140` `FileProcessingCapability` (type) - missing @example
-- `src/Strategy/index.ts:167` `FileProcessingSupportDisposition` (type) - missing @example
-- `src/Strategy/index.ts:203` `FileProcessingSkipReason` (type) - missing @example
-- `src/Strategy/index.ts:358` `SelectedStrategy` (type) - missing @example
+- `src/Service/index.ts:57` `FileProcessingEngineShape` (type) - 1 unsafe example violation(s)
+- `src/Service/index.ts:80` `FileProcessingServiceShape` (type) - 1 unsafe example violation(s)
+- `src/Strategy/index.ts:40` `FileProcessingOperationKind` (type) - missing @example
+- `src/Strategy/index.ts:67` `FileProcessingEngineFamily` (type) - missing @example
+- `src/Strategy/index.ts:109` `FileFormatFamily` (type) - missing @example
+- `src/Strategy/index.ts:141` `FileProcessingCapability` (type) - missing @example
+- `src/Strategy/index.ts:168` `FileProcessingSupportDisposition` (type) - missing @example
+- `src/Strategy/index.ts:204` `FileProcessingSkipReason` (type) - missing @example
+- `src/Strategy/index.ts:359` `SelectedStrategy` (type) - missing @example
 - `src/index.ts:14` `export * as Artifact from "./Artifact/index.ts";` (re-export) - missing @example
 - `src/index.ts:21` `export * as Extraction from "./Extraction/index.ts";` (re-export) - missing @example
 - `src/index.ts:28` `export * as Operation from "./Operation/index.ts";` (re-export) - missing @example
 - `src/index.ts:35` `export * as Service from "./Service/index.ts";` (re-export) - missing @example
 - `src/index.ts:42` `export * as Strategy from "./Strategy/index.ts";` (re-export) - missing @example
-
-### @beep/agent-capability-use-cases
-
-Path: `packages/agent-capability/use-cases`
-
-Export findings:
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` `ProfessionalRuntimeSdk` (interface) - 1 unsafe example violation(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:25` `RuntimeCandidateLifecycle` (const) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:44` `RuntimeClaimConfidence` (const) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:63` `RuntimeApprovalDecision` (const) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:82` `RuntimeRequestKind` (const) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:101` `RuntimeSourceKind` (const) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:120` `RuntimeActivityType` (const) - 1 schema annotation/type-alias gap(s)
-- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:139` `RuntimeUsageMode` (const) - 1 schema annotation/type-alias gap(s)
-- `src/public.ts:92` `export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
 
 ### @beep/ai-provider-cli
 
@@ -696,6 +713,34 @@ Export findings:
 - `src/index.ts:14` `export * from "./AiProviderCli.errors.ts";` (re-export) - missing @example
 - `src/index.ts:21` `export * from "./AiProviderCli.models.ts";` (re-export) - missing @example
 - `src/index.ts:28` `export * from "./AiProviderCli.service.ts";` (re-export) - missing @example
+
+### @beep/agents-use-cases
+
+Path: `packages/agents/use-cases`
+
+Export findings:
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts:27` `ProfessionalRuntimeSdk` (interface) - 1 unsafe example violation(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:25` `RuntimeCandidateLifecycle` (const) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:44` `RuntimeClaimConfidence` (const) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:63` `RuntimeApprovalDecision` (const) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:82` `RuntimeRequestKind` (const) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:101` `RuntimeSourceKind` (const) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:120` `RuntimeActivityType` (const) - 1 schema annotation/type-alias gap(s)
+- `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:139` `RuntimeUsageMode` (const) - 1 schema annotation/type-alias gap(s)
+- `src/public.ts:92` `export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
+
+### @beep/uspto
+
+Path: `packages/drivers/uspto`
+
+Export findings:
+- `src/Uspto.models.ts:52` `UsptoApplicationNumber` (type) - missing @example
+- `src/Uspto.models.ts:87` `UsptoPatentNumber` (type) - missing @example
+- `src/Uspto.service.ts:41` `UsptoShape` (interface) - 1 unsafe example violation(s)
+- `src/index.ts:14` `export * from "./Uspto.config.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./Uspto.errors.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./Uspto.models.ts";` (re-export) - missing @example
+- `src/index.ts:35` `export * from "./Uspto.service.ts";` (re-export) - missing @example
 
 ### @beep/sandbox
 
@@ -825,8 +870,10 @@ Export findings:
 - `src/SqlTest.ts:270` `PgliteSqlTestLayerMode` (type) - 1 unsafe example violation(s)
 - `src/SqlTest.ts:284` `PgliteSqlTestLayerOptions` (interface) - 1 unsafe example violation(s)
 - `src/SqlTest.ts:465` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
-- `src/index.ts:16` `export * from "./Layer.js";` (re-export) - missing @example
-- `src/index.ts:23` `export * from "./SqlTest.js";` (re-export) - missing @example
+- `src/index.ts:16` `export * from "./Entity.js";` (re-export) - missing @example
+- `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
+- `src/index.ts:30` `export * from "./Schema.js";` (re-export) - missing @example
+- `src/index.ts:37` `export * from "./SqlTest.js";` (re-export) - missing @example
 
 ### @beep/oip-web
 
@@ -834,6 +881,8 @@ Path: `apps/oip-web`
 
 Export findings:
 - `src/app/api/contact/ContactRouteResponse.ts:87` `contactRequestResponseWithSubmit` (const) - 1 unsafe example violation(s)
+- `src/app/layout.tsx:146` `instant` (const) - missing @example
+- `src/app/page.tsx:37` `instant` (const) - missing @example
 - `src/contact/index.ts:14` `export * from "./ContactSubmission.http.ts";` (re-export) - missing @example
 - `src/contact/index.ts:21` `export * from "./ContactSubmission.model.ts";` (re-export) - missing @example
 - `src/contact/index.ts:28` `export * from "./ContactSubmission.service.ts";` (re-export) - missing @example
@@ -841,6 +890,30 @@ Export findings:
 - `src/content/index.ts:21` `export * from "./OipContent.model.ts";` (re-export) - missing @example
 - `src/content/index.ts:28` `export * from "./OipContent.runtime.ts";` (re-export) - missing @example
 - `src/content/index.ts:35` `export * from "./OipSeo.ts";` (re-export) - missing @example
+
+### @beep/lexical-schema
+
+Path: `packages/foundation/modeling/lexical`
+
+Export findings:
+- `src/Lexical.model.ts:276` `BaseNode` (namespace) - missing @example
+- `src/Lexical.model.ts:364` `ElementNode` (namespace) - missing @example
+- `src/Lexical.model.ts:431` `TextBase` (namespace) - missing @example
+- `src/Lexical.model.ts:499` `TextNode` (namespace) - missing @example
+- `src/Lexical.model.ts:559` `TabNode` (namespace) - missing @example
+- `src/Lexical.model.ts:617` `LineBreakNode` (namespace) - missing @example
+- `src/Lexical.model.ts:673` `RootNode` (namespace) - missing @example
+- `src/Lexical.model.ts:729` `ParagraphNode` (namespace) - missing @example
+- `src/Lexical.model.ts:786` `HeadingNode` (namespace) - missing @example
+- `src/Lexical.model.ts:844` `QuoteNode` (namespace) - missing @example
+- `src/Lexical.model.ts:903` `ListNode` (namespace) - missing @example
+- `src/Lexical.model.ts:970` `ListItemNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1034` `LinkNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1103` `CodeNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1173` `ArtifactRefNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1215` `LexicalNode` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Lexical.model.ts:1254` `LexicalNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1328` `SerializedEditorState` (namespace) - missing @example
 
 ### @beep/langextract
 
@@ -871,6 +944,64 @@ Export findings:
 - `src/index.ts:14` `export * as Entities from "./entities/index.ts";` (re-export) - missing @example
 - `src/table/Table.ts:14` `export { EntityTable } from "@beep/drizzle";` (re-export) - missing @example
 - `src/table/index.ts:14` `export * as Table from "./Table.ts";` (re-export) - missing @example
+
+### @beep/md
+
+Path: `packages/foundation/modeling/md`
+
+Export findings:
+- `src/Md.model.ts:22` `InlineChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:34` `InlineChildren` (namespace) - missing @example
+- `src/Md.model.ts:80` `Text` (namespace) - missing @example
+- `src/Md.model.ts:129` `RawMarkdown` (namespace) - missing @example
+- `src/Md.model.ts:181` `RawHtml` (namespace) - missing @example
+- `src/Md.model.ts:230` `Strong` (namespace) - missing @example
+- `src/Md.model.ts:282` `Em` (namespace) - missing @example
+- `src/Md.model.ts:334` `Del` (namespace) - missing @example
+- `src/Md.model.ts:386` `Code` (namespace) - missing @example
+- `src/Md.model.ts:441` `A` (namespace) - missing @example
+- `src/Md.model.ts:501` `Img` (namespace) - missing @example
+- `src/Md.model.ts:545` `Br` (namespace) - missing @example
+- `src/Md.model.ts:588` `Inline` (type) - missing @example
+- `src/Md.model.ts:596` `Inline` (namespace) - missing @example
+- `src/Md.model.ts:634` `BlockChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:646` `BlockChildren` (namespace) - missing @example
+- `src/Md.model.ts:692` `P` (namespace) - missing @example
+- `src/Md.model.ts:744` `H1` (namespace) - missing @example
+- `src/Md.model.ts:796` `H2` (namespace) - missing @example
+- `src/Md.model.ts:848` `H3` (namespace) - missing @example
+- `src/Md.model.ts:900` `H4` (namespace) - missing @example
+- `src/Md.model.ts:952` `H5` (namespace) - missing @example
+- `src/Md.model.ts:1004` `H6` (namespace) - missing @example
+- `src/Md.model.ts:1056` `Li` (namespace) - missing @example
+- `src/Md.model.ts:1080` `ListItemChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:1092` `ListItemChildren` (namespace) - missing @example
+- `src/Md.model.ts:1138` `Ul` (namespace) - missing @example
+- `src/Md.model.ts:1190` `Ol` (namespace) - missing @example
+- `src/Md.model.ts:1243` `TaskItem` (namespace) - missing @example
+- `src/Md.model.ts:1269` `TaskItemChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:1281` `TaskItemChildren` (namespace) - missing @example
+- `src/Md.model.ts:1325` `TaskList` (namespace) - missing @example
+- `src/Md.model.ts:1375` `BlockQuote` (namespace) - missing @example
+- `src/Md.model.ts:1429` `Pre` (namespace) - missing @example
+- `src/Md.model.ts:1473` `Hr` (namespace) - missing @example
+- `src/Md.model.ts:1516` `Block` (type) - missing @example
+- `src/Md.model.ts:1524` `Block` (namespace) - missing @example
+- `src/Md.model.ts:1596` `Document` (namespace) - missing @example
+
+### @beep/workspace-domain
+
+Path: `packages/workspace/domain`
+
+Export findings:
+- `src/entities/Turn/Turn.model.ts:25` `MessageItem` (class) - missing @example
+- `src/entities/Turn/Turn.model.ts:41` `ToolCallItem` (class) - missing @example
+- `src/entities/Turn/Turn.model.ts:59` `ToolResultItem` (class) - missing @example
+- `src/entities/Turn/Turn.model.ts:76` `ArtifactRefItem` (class) - missing @example
+- `src/entities/Turn/Turn.model.ts:92` `ActivityItem` (class) - missing @example
+- `src/entities/Turn/Turn.model.ts:140` `TurnItem` (type) - missing @example
+- `src/entities/Turn/Turn.model.ts:148` `TurnItems` (const) - missing @example
+- `src/entities/Turn/Turn.model.ts:160` `TurnItems` (type) - missing @example
 
 ### @beep/semantic-web
 
@@ -955,14 +1086,18 @@ Path: `packages/drivers/tika`
 Export findings:
 - `src/index.ts:14` `export * from "./Tika.errors.ts";` (re-export) - missing @example
 - `src/index.ts:21` `export * from "./Tika.service.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./Tika.tikaapp.ts";` (re-export) - missing @example
 
 ### @beep/libpff
 
 Path: `packages/drivers/libpff`
 
 Export findings:
+- `src/Libpff.pffexport.ts:55` `PffexportMode` (type) - missing @example
+- `src/Libpff.pffexport.ts:81` `PffexportFormat` (type) - missing @example
 - `src/index.ts:14` `export * from "./Libpff.errors.ts";` (re-export) - missing @example
-- `src/index.ts:21` `export * from "./Libpff.service.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./Libpff.pffexport.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./Libpff.service.ts";` (re-export) - missing @example
 
 ### @beep/form
 
@@ -1007,26 +1142,12 @@ Export findings:
 
 Path: `packages/drivers/box`
 
-Module findings:
-- `src/experimental/Box.schemas.ts:1` (none) - missing summary; missing @since
-
 Export findings:
-- `src/experimental/Box.schemas.ts:10` `SerializedData` (namespace) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:21` `SerializedData` (const) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:36` `SerializedData` (type) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:38` `SerializedDataList` (namespace) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:42` `SerializedDataList` (const) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:49` `SerializedDataList` (type) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:51` `SerializedDataMap` (namespace) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:57` `SerializedDataMap` (const) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:67` `SerializedDataMap` (type) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:69` `RequestInfo` (class) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:83` `ResponseInfo` (class) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:99` `BoxSdkError` (const) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:105` `BoxSdkError` (type) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:107` `BoxApiError` (const) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:113` `BoxApiError` (type) - missing summary; missing @example, @category, @since
-- `src/experimental/Box.schemas.ts:115` `AiAgentAsk` (const) - missing summary; missing @example, @category, @since
+- `src/experimental/Box.schemas.ts:84` `SerializedData` (type) - missing @example
+- `src/experimental/Box.schemas.ts:138` `SerializedDataList` (type) - missing @example
+- `src/experimental/Box.schemas.ts:197` `SerializedDataMap` (type) - missing @example
+- `src/experimental/Box.schemas.ts:290` `BoxSdkError` (type) - missing @example
+- `src/experimental/Box.schemas.ts:319` `BoxApiError` (type) - missing @example
 
 ### @beep/stack-installer
 
@@ -1044,7 +1165,6 @@ Export findings:
 - `src/proof/P1ProofArtifacts.ts:25` `PROOF_FILE_NAME` (const) - missing @example
 - `src/proof/P1ProofArtifacts.ts:33` `COMMANDS_FILE_NAME` (const) - missing @example
 - `src/proof/P1ProofArtifacts.ts:41` `CHECKSUMS_FILE_NAME` (const) - missing @example
-- `src/proof/P1ProofArtifacts.ts:49` `P1RequiredPlatform` (const) - missing @example
 - `src/proof/P1ProofArtifacts.ts:61` `P1RequiredPlatform` (type) - missing @example
 - `src/proof/P1ProofArtifacts.ts:69` `P1_REQUIRED_PLATFORMS` (const) - missing @example
 - `src/proof/P1ProofArtifacts.ts:125` `isP1ProofEvidenceFileName` (const) - missing @example
@@ -1065,7 +1185,6 @@ Path: `apps/professional-desktop`
 
 Export findings:
 - `src/App.tsx:179` `App` (function) - missing summary; missing @example, @category, @since
-- `src/App.tsx:76` `LoadState` (const) - missing summary; missing @example, @category, @since
 
 ### @beep/architecture-lab-use-cases
 
@@ -1158,24 +1277,8 @@ Export findings:
 - `src/Handoff/Contract.ts:107` `EntityId` (type) - missing @example
 - `src/Handoff/Contract.ts:133` `RelationId` (type) - missing @example
 - `src/Handoff/Contract.ts:148` `ChunkKind` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Handoff/Contract.ts:197` `Span` (type) - missing @example
+- `src/Handoff/Contract.ts:207` `Span` (type) - missing @example
 - `src/Ontology/Kind.ts:151` `TypedTextSchema` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:82` `AiToken` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:137` `AiAnalysis` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:175` `AiSentence` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:209` `AiKeyword` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:242` `AiDocumentStats` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:278` `AiSentenceChunk` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:312` `AiRankedText` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:348` `AiEntity` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:384` `AiNGram` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:418` `AiPhoneticMatch` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:493` `AiCorpusConfig` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:529` `AiCorpusSummary` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:565` `AiCorpusRankedDocument` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:597` `AiCorpusIdf` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:628` `AiCorpusMatrixShape` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Tools/_schemas.ts:665` `AiCorpusStats` (const) - 1 schema annotation/type-alias gap(s)
 - `src/index.ts:102` `export * as NLPService from "./NLPService.ts";` (re-export) - missing @example
 
 ### @beep/installer-use-cases
@@ -1613,8 +1716,8 @@ Export findings:
 - `src/Color/Color.scale.ts:357` `GenerateAlphaScale` (type) - missing @example
 - `src/Color/Color.shared.ts:18` `$I` (const) - missing @example
 - `src/Color/Color.shared.ts:27` `schemaIssueToError` (const) - missing @example
-- `src/Color/Color.shared.ts:37` `RgbEncoded` (type) - missing @example
-- `src/Color/Color.shared.ts:50` `OklchEncoded` (type) - missing @example
+- `src/Color/Color.shared.ts:37` `RgbEncoded` (class) - missing @example
+- `src/Color/Color.shared.ts:55` `OklchEncoded` (class) - missing @example
 - `src/Color/Color.transforms.ts:22` `oklchToHexValue` (const) - missing @example
 - `src/Color/Color.transforms.ts:30` `hexToOklchValue` (const) - missing @example
 - `src/Color/Color.transforms.ts:66` `HexToRgb` (type) - missing @example
@@ -1838,15 +1941,15 @@ Export findings:
 - `src/FilePath/index.ts:24` `export * from "./FilePath.schema.ts";` (re-export) - missing @example
 - `src/FilePath/index.ts:29` `export * from "./FilePath.segments.ts";` (re-export) - missing @example
 - `src/FilePath/index.ts:34` `export * from "./FilePath.windows.ts";` (re-export) - missing @example
-- `src/Float16Array.ts:94` `Float16Arr` (type) - missing @example
-- `src/Float16Array.ts:145` `Float16ArrayFromArray` (type) - missing @example
-- `src/Float16Array.ts:153` `Float16ArrayFromArray` (namespace) - missing @example
-- `src/Float32Array.ts:54` `Float32Arr` (type) - missing @example
-- `src/Float32Array.ts:102` `Float32ArrayFromArray` (type) - missing @example
-- `src/Float32Array.ts:110` `Float32ArrayFromArray` (namespace) - missing @example
-- `src/Float64Array.ts:54` `Float64Arr` (type) - missing @example
-- `src/Float64Array.ts:102` `Float64ArrayFromArray` (type) - missing @example
-- `src/Float64Array.ts:110` `Float64ArrayFromArray` (namespace) - missing @example
+- `src/Float16Array.ts:105` `Float16Arr` (type) - missing @example
+- `src/Float16Array.ts:156` `Float16ArrayFromArray` (type) - missing @example
+- `src/Float16Array.ts:164` `Float16ArrayFromArray` (namespace) - missing @example
+- `src/Float32Array.ts:59` `Float32Arr` (type) - missing @example
+- `src/Float32Array.ts:107` `Float32ArrayFromArray` (type) - missing @example
+- `src/Float32Array.ts:115` `Float32ArrayFromArray` (namespace) - missing @example
+- `src/Float64Array.ts:59` `Float64Arr` (type) - missing @example
+- `src/Float64Array.ts:107` `Float64ArrayFromArray` (type) - missing @example
+- `src/Float64Array.ts:115` `Float64ArrayFromArray` (namespace) - missing @example
 - `src/Fn/Fn.schema.ts:185` `FnSchemaNoArg` (interface) - 1 unsafe example violation(s)
 - `src/Fn/Fn.schema.ts:215` `FnSchemaUnary` (interface) - 1 unsafe example violation(s)
 - `src/Fn/Fn.schema.ts:273` `FnSchemaStatics` (type) - 1 unsafe example violation(s)
@@ -1870,8 +1973,8 @@ Export findings:
 - `src/FrameGuard/FrameGuard.schema.ts:125` `Option` (const) - 1 schema annotation/type-alias gap(s)
 - `src/FrameGuard/FrameGuard.schema.ts:137` `Option` (type) - missing @example
 - `src/FrameGuard/index.ts:20` `export * from "./FrameGuard.schema.ts";` (re-export) - missing @example
-- `src/Glob/Glob.schema.ts:118` `Glob` (type) - missing @example
-- `src/Glob/Glob.schema.ts:149` `Schema` (type) - 1 unsafe example violation(s)
+- `src/Glob/Glob.schema.ts:130` `Glob` (type) - missing @example
+- `src/Glob/Glob.schema.ts:161` `Schema` (type) - 1 unsafe example violation(s)
 - `src/Glob/index.ts:12` `export * from "./Glob.schema.ts";` (re-export) - missing @example
 - `src/Graph/Graph.edge.ts:67` `Edge` (interface) - missing @example
 - `src/Graph/Graph.encoded.ts:78` `EdgeIso` (type) - missing @example
@@ -2100,14 +2203,14 @@ Export findings:
 - `src/Model/index.ts:29` `export * from "./Model.sqlite.ts";` (re-export) - missing @example
 - `src/Model/index.ts:34` `export * from "./Model.uuid.ts";` (re-export) - missing @example
 - `src/Model/index.ts:39` `export * from "./Model.variants.ts";` (re-export) - missing @example
-- `src/MutableHashMap.ts:100` `MutableHashMapFromSelf` (interface) - missing @example
-- `src/MutableHashMap.ts:170` `MutableHashMapFromSelf` (const) - 1 schema annotation/type-alias gap(s)
-- `src/MutableHashMap.ts:118` `MutableHashMap` (interface) - missing @example
-- `src/MutableHashMap.ts:288` `MutableHashMap` (const) - 1 schema annotation/type-alias gap(s)
-- `src/MutableHashSet.ts:70` `MutableHashSetFromSelf` (interface) - missing @example
-- `src/MutableHashSet.ts:135` `MutableHashSetFromSelf` (const) - 1 schema annotation/type-alias gap(s)
-- `src/MutableHashSet.ts:87` `MutableHashSet` (interface) - missing @example
-- `src/MutableHashSet.ts:243` `MutableHashSet` (const) - 1 schema annotation/type-alias gap(s)
+- `src/MutableHashMap.ts:101` `MutableHashMapFromSelf` (interface) - missing @example
+- `src/MutableHashMap.ts:171` `MutableHashMapFromSelf` (const) - 1 schema annotation/type-alias gap(s)
+- `src/MutableHashMap.ts:119` `MutableHashMap` (interface) - missing @example
+- `src/MutableHashMap.ts:289` `MutableHashMap` (const) - 1 schema annotation/type-alias gap(s)
+- `src/MutableHashSet.ts:71` `MutableHashSetFromSelf` (interface) - missing @example
+- `src/MutableHashSet.ts:136` `MutableHashSetFromSelf` (const) - 1 schema annotation/type-alias gap(s)
+- `src/MutableHashSet.ts:88` `MutableHashSet` (interface) - missing @example
+- `src/MutableHashSet.ts:244` `MutableHashSet` (const) - 1 schema annotation/type-alias gap(s)
 - `src/NoOpen/NoOpen.schema.ts:52` `NoOpenValue` (type) - missing @example
 - `src/NoOpen/NoOpen.schema.ts:83` `NoOpenOption` (type) - missing @example
 - `src/NoOpen/NoOpen.schema.ts:192` `NoOpenHeader` (type) - missing @example

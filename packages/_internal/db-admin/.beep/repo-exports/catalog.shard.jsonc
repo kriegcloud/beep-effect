@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b8d571fa231037afa6e0a170c9bce4015ff2522687d43fb5a2385f5e5dd3b836",
+    "digest": "2b0b79c33d25e9477280c4e1a2888bea2aeccfc8efc953bdd9ada911da1f1bb3",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/_internal/db-admin/package.json",
-        "sha256": "b9f00f65e2a44b6bcbfc7f6d8436fd46bb63769dbc5a4d910b89d66b2fe4df7b",
-        "bytes": 2375
+        "sha256": "da89626bab487d333837f2e8ad6813ae1182951867428702374991d9b2f18d43",
+        "bytes": 2420
       },
       {
         "path": "packages/_internal/db-admin/src/index.ts",
@@ -36,14 +36,19 @@
         "bytes": 1736
       },
       {
+        "path": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
+        "sha256": "471cffe947edbf8e0fdb7d0a5822b21aff0d629cb27bd202141f895e61d08a74",
+        "bytes": 1040
+      },
+      {
         "path": "packages/_internal/db-admin/src/schema.ts",
-        "sha256": "21d9f968736b622095c8f4a8e0df4ffb668f04e5e39cdc71f331e209252c32e4",
-        "bytes": 169
+        "sha256": "202b64abfbad4fa20a1aa6536afe4b5eda8f3d603bce2ed85f7c5462d1e96ece",
+        "bytes": 466
       },
       {
         "path": "packages/_internal/db-admin/src/targets.ts",
-        "sha256": "976d4066accb93c7f7c4ba85ffe5bd387b22b43b130dee73a307f5d282423b21",
-        "bytes": 1188
+        "sha256": "a3b187e3d80dc3521cd22f4160b19d7337dd51ce9b64ead793d5875b1dc4f0c3",
+        "bytes": 1433
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -71,13 +76,14 @@
       "@beep/db-admin",
       "@beep/db-admin/index",
       "@beep/db-admin/migrations/ArchitectureLab",
+      "@beep/db-admin/migrations/WorkspaceThread",
       "@beep/db-admin/schema",
       "@beep/db-admin/targets"
     ],
     "counts": {
-      "publicExportEntries": 13,
-      "uniqueSymbols": 5,
-      "sourceFiles": 4
+      "publicExportEntries": 19,
+      "uniqueSymbols": 7,
+      "sourceFiles": 5
     },
     "exports": [
       {
@@ -115,7 +121,7 @@
         "symbolName": "DbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 34,
+        "sourceLine": 41,
         "summary": "All db-admin migration targets owned by the current repo.",
         "categories": [
           "configuration"
@@ -140,7 +146,7 @@
         "symbolName": "listDbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 49,
+        "sourceLine": 56,
         "summary": "List registered db-admin migration targets.",
         "categories": [
           "configuration"
@@ -154,6 +160,31 @@
           "@since"
         ],
         "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin . listdbadminmigrationtargets const list registered db-admin migration targets. configuration packages/_internal/db-admin/src/targets.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/_internal/db-admin/src/index.ts",
+        "symbolName": "WorkspaceThreadMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
+        "sourceLine": 25,
+        "summary": "Workspace thread migration target used to prove conversation persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin . workspacethreadmigrationtarget const workspace thread migration target used to prove conversation persistence. configuration packages/_internal/db-admin/src/migrations/workspacethread.ts"
       },
       {
         "packageName": "@beep/db-admin",
@@ -190,7 +221,7 @@
         "symbolName": "DbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 34,
+        "sourceLine": 41,
         "summary": "All db-admin migration targets owned by the current repo.",
         "categories": [
           "configuration"
@@ -215,7 +246,7 @@
         "symbolName": "listDbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 49,
+        "sourceLine": 56,
         "summary": "List registered db-admin migration targets.",
         "categories": [
           "configuration"
@@ -229,6 +260,31 @@
           "@since"
         ],
         "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/index ./index listdbadminmigrationtargets const list registered db-admin migration targets. configuration packages/_internal/db-admin/src/targets.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/_internal/db-admin/src/index.ts",
+        "symbolName": "WorkspaceThreadMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
+        "sourceLine": 25,
+        "summary": "Workspace thread migration target used to prove conversation persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/index ./index workspacethreadmigrationtarget const workspace thread migration target used to prove conversation persistence. configuration packages/_internal/db-admin/src/migrations/workspacethread.ts"
       },
       {
         "packageName": "@beep/db-admin",
@@ -284,10 +340,35 @@
         "packageName": "@beep/db-admin",
         "packagePath": "packages/_internal/db-admin",
         "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/migrations/WorkspaceThread",
+        "exportSubpath": "./migrations/WorkspaceThread",
+        "exportedFromPath": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
+        "symbolName": "WorkspaceThreadMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
+        "sourceLine": 25,
+        "summary": "Workspace thread migration target used to prove conversation persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/migrations/workspacethread ./migrations/workspacethread workspacethreadmigrationtarget const workspace thread migration target used to prove conversation persistence. configuration packages/_internal/db-admin/src/migrations/workspacethread.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
         "importSpecifier": "@beep/db-admin/schema",
         "exportSubpath": "./schema",
         "exportedFromPath": "packages/_internal/db-admin/src/schema.ts",
-        "symbolName": "DbSchema",
+        "symbolName": "ArchitectureLabDbSchema",
         "exportKind": "const",
         "sourcePath": "packages/architecture-lab/tables/src/tables.ts",
         "sourceLine": 30,
@@ -303,7 +384,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/schema ./schema dbschema const architecture lab drizzle schema. tables packages/architecture-lab/tables/src/tables.ts"
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/schema ./schema architecturelabdbschema const architecture lab drizzle schema. tables packages/architecture-lab/tables/src/tables.ts"
       },
       {
         "packageName": "@beep/db-admin",
@@ -312,7 +393,7 @@
         "importSpecifier": "@beep/db-admin/schema",
         "exportSubpath": "./schema",
         "exportedFromPath": "packages/_internal/db-admin/src/schema.ts",
-        "symbolName": "DbSchema",
+        "symbolName": "ArchitectureLabDbSchema",
         "exportKind": "type",
         "sourcePath": "packages/architecture-lab/tables/src/tables.ts",
         "sourceLine": 49,
@@ -328,7 +409,57 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/schema ./schema dbschema type architecture lab drizzle schema type. tables packages/architecture-lab/tables/src/tables.ts"
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/schema ./schema architecturelabdbschema type architecture lab drizzle schema type. tables packages/architecture-lab/tables/src/tables.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/schema",
+        "exportSubpath": "./schema",
+        "exportedFromPath": "packages/_internal/db-admin/src/schema.ts",
+        "symbolName": "WorkspaceDbSchema",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/Schema.ts",
+        "sourceLine": 31,
+        "summary": "Metadata-only workspace Drizzle schema aggregate.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/schema ./schema workspacedbschema const metadata-only workspace drizzle schema aggregate. tables packages/workspace/tables/src/schema.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/schema",
+        "exportSubpath": "./schema",
+        "exportedFromPath": "packages/_internal/db-admin/src/schema.ts",
+        "symbolName": "WorkspaceDbSchema",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/Schema.ts",
+        "sourceLine": 53,
+        "summary": "Type for {@link DbSchema}.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@since",
+          "@example",
+          "@category"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/schema ./schema workspacedbschema type type for {@link dbschema}. tables packages/workspace/tables/src/schema.ts"
       },
       {
         "packageName": "@beep/db-admin",
@@ -365,7 +496,7 @@
         "symbolName": "DbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 34,
+        "sourceLine": 41,
         "summary": "All db-admin migration targets owned by the current repo.",
         "categories": [
           "configuration"
@@ -390,7 +521,7 @@
         "symbolName": "listDbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 49,
+        "sourceLine": 56,
         "summary": "List registered db-admin migration targets.",
         "categories": [
           "configuration"
@@ -404,6 +535,31 @@
           "@since"
         ],
         "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/targets ./targets listdbadminmigrationtargets const list registered db-admin migration targets. configuration packages/_internal/db-admin/src/targets.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/targets",
+        "exportSubpath": "./targets",
+        "exportedFromPath": "packages/_internal/db-admin/src/targets.ts",
+        "symbolName": "WorkspaceThreadMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
+        "sourceLine": 25,
+        "summary": "Workspace thread migration target used to prove conversation persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/targets ./targets workspacethreadmigrationtarget const workspace thread migration target used to prove conversation persistence. configuration packages/_internal/db-admin/src/migrations/workspacethread.ts"
       }
     ]
   }

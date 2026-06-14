@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b2243f32e764a9f140daac500bb6dfd57abaf70f52040340425fb41b9daffbd3",
+    "digest": "c7f015e46f1a511562d48a14ca04e80cfdb392d2ed4f5f8824d2ac33e1933d6e",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/wealth-management/domain/package.json",
-        "sha256": "aad2de970ed8dae8d1e9dc1648c3aa1a223e77b6e0e589380c7f497b9bcdbc60",
-        "bytes": 2019
+        "sha256": "4f2ff13e82c76caf338c48b8a43eb9a0a5df12435714e800defd5ea4f74d1a41",
+        "bytes": 2058
       },
       {
         "path": "packages/wealth-management/domain/src/entities/Account/Account.model.ts",

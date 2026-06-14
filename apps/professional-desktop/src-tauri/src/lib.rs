@@ -18,7 +18,7 @@ fn professional_desktop_health() -> ProfessionalDesktopHealth {
         runtime_connection: "pending",
         slices: [
             "workspace",
-            "agent-capability",
+            "agents",
             "epistemic",
             "law-practice",
             "wealth-management",

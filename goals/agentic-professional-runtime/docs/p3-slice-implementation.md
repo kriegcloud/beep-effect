@@ -12,8 +12,8 @@ The first real slice packages are:
 - `@beep/shared-domain`
 - `@beep/workspace-domain`
 - `@beep/epistemic-domain`
-- `@beep/agent-capability-domain`
-- `@beep/agent-capability-use-cases`
+- `@beep/agents-domain`
+- `@beep/agents-use-cases`
 - `@beep/law-practice-domain`
 - `@beep/wealth-management-domain`
 
@@ -27,9 +27,9 @@ The app-level proof harness is:
   Slice domain packages define schema-first models with repo-native positive
   integer entity IDs.
 - Readable fixture keys remain in the proof harness mapping layer.
-- `@beep/agent-capability-use-cases/public` exposes the SDK-facing context
+- `@beep/agents-use-cases/public` exposes the SDK-facing context
   packet and candidate output-set contracts.
-- `@beep/agent-capability-use-cases/proof` exposes the deterministic fixture
+- `@beep/agents-use-cases/proof` exposes the deterministic fixture
   runner used by the proof app; `/test` re-exports it for package tests.
 - Law and wealth packages remain context-only. They do not own runtime workflow
   orchestration yet.

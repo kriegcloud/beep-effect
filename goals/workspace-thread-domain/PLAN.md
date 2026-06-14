@@ -2,16 +2,16 @@
 
 ## Status
 
-Status: `pending`
+Status: `complete`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Inspect source hierarchy; run the PGlite migration smoke proof. | Required facts and blockers are recorded; PGlite proof archived. |
-| P1 Implement | pending | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
-| P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
-| P3 Close | pending | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
+| P0 Research | complete | Inspect source hierarchy; run the PGlite migration smoke proof. | Required facts and blockers are recorded; PGlite proof archived. |
+| P1 Implement | complete | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
+| P2 Verify | complete | Run required checks and capture evidence. | Verification is green or blockers are documented. |
+| P3 Close | complete | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## P3 Closeout Checklist
 
