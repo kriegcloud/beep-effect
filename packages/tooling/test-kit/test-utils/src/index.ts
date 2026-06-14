@@ -10,7 +10,7 @@
 /**
  * Entity fixture helper exports.
  *
- * @category entity
+ * @category testing
  * @since 0.0.0
  */
 export * from "./Entity.js";
