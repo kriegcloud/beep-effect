@@ -11870,8 +11870,8 @@
     "semantic_hash": "28dd9bb850e6ba76de37a69dff2e8a1b"
   },
   ".github/workflows/check.yml": {
-    "mtime": 1781266095.9931943,
-    "ast_hash": "bd47573562e4ffce517bc41619e5ef02",
+    "mtime": 1781410492.8228092,
+    "ast_hash": "f552cf6a47cbec1502b6907cdcbf0b70",
     "semantic_hash": ""
   },
   ".github/workflows/data-sync.yml": {
