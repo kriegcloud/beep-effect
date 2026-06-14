@@ -10230,9 +10230,9 @@
     "semantic_hash": "ea603a00cb610accc1922d7a1bca78c4"
   },
   "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts": {
-    "mtime": 1780408245.2253172,
-    "ast_hash": "6a826e4d2cb3f548fa8ce27b74f7aa03",
-    "semantic_hash": "6a826e4d2cb3f548fa8ce27b74f7aa03"
+    "mtime": 1781404629.2923498,
+    "ast_hash": "10161117d09f9c902f79e96c69d00c5c",
+    "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts": {
     "mtime": 1780759180.0551956,
@@ -11870,8 +11870,8 @@
     "semantic_hash": "28dd9bb850e6ba76de37a69dff2e8a1b"
   },
   ".github/workflows/check.yml": {
-    "mtime": 1781266095.9931943,
-    "ast_hash": "bd47573562e4ffce517bc41619e5ef02",
+    "mtime": 1781410492.8228092,
+    "ast_hash": "f552cf6a47cbec1502b6907cdcbf0b70",
     "semantic_hash": ""
   },
   ".github/workflows/data-sync.yml": {
@@ -14700,8 +14700,8 @@
     "semantic_hash": "80f3274cb34b1e72b424498a57de06d8"
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1781401871.8317816,
-    "ast_hash": "b3c9b3d170f45026a3b4889fdfb2905b",
+    "mtime": 1781407971.8100727,
+    "ast_hash": "2bad3b796682c34729ee08bb569ba455",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {
@@ -16787,6 +16787,11 @@
   "packages/tooling/test-kit/test-utils/src/Entity.ts": {
     "mtime": 1781401791.7536128,
     "ast_hash": "f431e723dfa8f2915b5a3a80c0143884",
+    "semantic_hash": ""
+  },
+  ".changeset/workspace-thread-domain-quality.md": {
+    "mtime": 1781404586.818421,
+    "ast_hash": "bff931f0d8c7701d184218f3efd01d22",
     "semantic_hash": ""
   }
 }
