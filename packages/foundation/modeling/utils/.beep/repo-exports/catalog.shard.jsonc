@@ -194,8 +194,8 @@
       "@beep/utils/Utils"
     ],
     "counts": {
-      "publicExportEntries": 782,
-      "uniqueSymbols": 581,
+      "publicExportEntries": 783,
+      "uniqueSymbols": 582,
       "sourceFiles": 24
     },
     "exports": [
@@ -8078,7 +8078,7 @@
         "symbolName": "AnyEvent",
         "exportKind": "type",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 233,
+        "sourceLine": 237,
         "summary": "Union of SSE values that can be rendered by an `Encoder`: regular events and",
         "categories": [
           "models"
@@ -8126,7 +8126,7 @@
         "symbolName": "decodeDataSchema",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 56,
+        "sourceLine": 64,
         "summary": "Creates an SSE decoder channel that JSON-decodes each event `data` field with a schema.",
         "categories": [
           "decoding"
@@ -8150,7 +8150,7 @@
         "symbolName": "decodeSchema",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 40,
+        "sourceLine": 52,
         "summary": "Creates an SSE decoder channel that decodes each parsed event with a schema.",
         "categories": [
           "decoding"
@@ -8174,7 +8174,7 @@
         "symbolName": "encode",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 98,
+        "sourceLine": 106,
         "summary": "Creates a channel that encodes `Event` values as Server-Sent Events text.",
         "categories": [
           "encoding"
@@ -8198,7 +8198,7 @@
         "symbolName": "encoder",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 245,
+        "sourceLine": 249,
         "summary": "Default Server-Sent Events encoder.",
         "categories": [
           "encoding"
@@ -8222,7 +8222,7 @@
         "symbolName": "Encoder",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 122,
+        "sourceLine": 126,
         "summary": "Encoder capable of rendering an `Event` or `Retry` value as Server-Sent",
         "categories": [
           "encoding"
@@ -8246,7 +8246,7 @@
         "symbolName": "encodeSchema",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 110,
+        "sourceLine": 118,
         "summary": "Creates an SSE encoder channel for values accepted by a schema.",
         "categories": [
           "encoding"
@@ -8270,7 +8270,7 @@
         "symbolName": "Event",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 154,
+        "sourceLine": 158,
         "summary": "Schema for the tagged Server-Sent Events message model that adds `_tag: \"Event\"` to the event name, optional event ID, and string data payload.",
         "categories": [
           "models"
@@ -8294,7 +8294,7 @@
         "symbolName": "Event",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 131,
+        "sourceLine": 135,
         "summary": "Tagged model for a Server-Sent Events message containing the event name, optional event ID, and string data payload.",
         "categories": [
           "models"
@@ -8315,11 +8315,35 @@
         "importSpecifier": "@beep/utils/Event",
         "exportSubpath": "./Event",
         "exportedFromPath": "packages/foundation/modeling/utils/src/Event.ts",
+        "symbolName": "EventCodec",
+        "exportKind": "interface",
+        "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
+        "sourceLine": 35,
+        "summary": "A constraint for schemas that can decode SSE events.",
+        "categories": [
+          "decoding"
+        ],
+        "since": [
+          "4.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/utils packages/foundation/modeling/utils @beep/utils/event ./event eventcodec interface a constraint for schemas that can decode sse events. decoding node_modules/effect/dist/unstable/encoding/sse.d.ts"
+      },
+      {
+        "packageName": "@beep/utils",
+        "packagePath": "packages/foundation/modeling/utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/utils/Event",
+        "exportSubpath": "./Event",
+        "exportedFromPath": "packages/foundation/modeling/utils/src/Event.ts",
         "symbolName": "EventEncoded",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 143,
-        "summary": "Schema for the untagged Server-Sent Events payload shape containing `id`, `event`, and string `data` fields.",
+        "sourceLine": 147,
+        "summary": "Schema for the untagged Server-Sent Events payload shape containing an optional `id`, `event`, and string `data` fields.",
         "categories": [
           "models"
         ],
@@ -8330,7 +8354,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/utils packages/foundation/modeling/utils @beep/utils/event ./event eventencoded const schema for the untagged server-sent events payload shape containing `id`, `event`, and string `data` fields. models node_modules/effect/dist/unstable/encoding/sse.d.ts"
+        "searchText": "@beep/utils packages/foundation/modeling/utils @beep/utils/event ./event eventencoded const schema for the untagged server-sent events payload shape containing an optional `id`, `event`, and string `data` fields. models node_modules/effect/dist/unstable/encoding/sse.d.ts"
       },
       {
         "packageName": "@beep/utils",
@@ -8342,7 +8366,7 @@
         "symbolName": "EventEncoded",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 183,
+        "sourceLine": 187,
         "summary": "Untagged Server-Sent Events payload shape containing the event name, optional event ID, and string data payload.",
         "categories": [
           "models"
@@ -8391,7 +8415,7 @@
         "symbolName": "makeParser",
         "exportKind": "function",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 72,
+        "sourceLine": 80,
         "summary": "Creates a stateful Server-Sent Events parser.",
         "categories": [
           "decoding"
@@ -8415,7 +8439,7 @@
         "symbolName": "Parser",
         "exportKind": "interface",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 83,
+        "sourceLine": 91,
         "summary": "Stateful Server-Sent Events parser returned by `makeParser`.",
         "categories": [
           "decoding"
@@ -8439,7 +8463,7 @@
         "symbolName": "Retry",
         "exportKind": "class",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 203,
+        "sourceLine": 207,
         "summary": "Represents a Server-Sent Events retry directive.",
         "categories": [
           "models"
@@ -8463,7 +8487,7 @@
         "symbolName": "transformEvent",
         "exportKind": "const",
         "sourcePath": "node_modules/effect/dist/unstable/encoding/Sse.d.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "Schema for transforming untagged SSE event payloads into tagged `Event`",
         "categories": [
           "models"

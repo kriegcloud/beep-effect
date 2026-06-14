@@ -29,7 +29,7 @@ type BaseEntityFixtureInput = {
  *
  * console.log(systemPrincipal.kind)
  * ```
- * @category entity
+ * @category testing
  * @since 0.0.0
  */
 export const systemPrincipal = {
@@ -48,7 +48,7 @@ export const systemPrincipal = {
  *
  * console.log(baseEntityFixtureInput("ExampleEntity", 1).entityType)
  * ```
- * @category entity
+ * @category testing
  * @since 0.0.0
  */
 export const baseEntityFixtureInput: {

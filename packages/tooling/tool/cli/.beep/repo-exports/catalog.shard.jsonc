@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f44e3ea5d2e7c2c81db2472f986875156155045739fef566b85842ec76e626a4",
+    "digest": "adb32b9881a837c17e55b9ef206f70c5bc08c76b8f64e931b2b35ba28309a10a",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -272,8 +272,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sha256": "7b7f3103ea92e4ef43642d83e8f9e9d7f3db34d5634fe6f0ceb7926958f875b3",
-        "bytes": 6910
+        "sha256": "d57eefc517b72eeba60fa5b048daabd2d0ffb808ead9fc42cb81f2edab3c48b7",
+        "bytes": 6963
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts",
@@ -15750,7 +15750,7 @@
         "symbolName": "FilesConcurrency",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 28,
+        "sourceLine": 30,
         "summary": "Shared concurrency caps for Files command phases.",
         "categories": [
           "constants"
@@ -15957,7 +15957,7 @@
         "symbolName": "isFilesProgressEnabled",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 83,
+        "sourceLine": 85,
         "summary": "Return true when live Files progress should be rendered.",
         "categories": [
           "utilities"
@@ -17293,7 +17293,7 @@
         "symbolName": "renderFilesProgressBar",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 98,
+        "sourceLine": 100,
         "summary": "Render a single-line ASCII progress bar.",
         "categories": [
           "utilities"
@@ -17583,7 +17583,7 @@
         "symbolName": "runFilesProgressAll",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 124,
+        "sourceLine": 126,
         "summary": "Run an array of effects with bounded concurrency and optional TTY progress.",
         "categories": [
           "utilities"
@@ -17608,7 +17608,7 @@
         "symbolName": "runFilesProgressForEach",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 197,
+        "sourceLine": 199,
         "summary": "Map items to effects, then run them with bounded concurrency and optional TTY progress.",
         "categories": [
           "utilities"
@@ -19217,7 +19217,7 @@
         "symbolName": "FilesConcurrency",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 28,
+        "sourceLine": 30,
         "summary": "Shared concurrency caps for Files command phases.",
         "categories": [
           "constants"
@@ -19242,7 +19242,7 @@
         "symbolName": "isFilesProgressEnabled",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 83,
+        "sourceLine": 85,
         "summary": "Return true when live Files progress should be rendered.",
         "categories": [
           "utilities"
@@ -19269,7 +19269,7 @@
         "symbolName": "renderFilesProgressBar",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 98,
+        "sourceLine": 100,
         "summary": "Render a single-line ASCII progress bar.",
         "categories": [
           "utilities"
@@ -19296,7 +19296,7 @@
         "symbolName": "runFilesProgressAll",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 124,
+        "sourceLine": 126,
         "summary": "Run an array of effects with bounded concurrency and optional TTY progress.",
         "categories": [
           "utilities"
@@ -19321,7 +19321,7 @@
         "symbolName": "runFilesProgressForEach",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 197,
+        "sourceLine": 199,
         "summary": "Map items to effects, then run them with bounded concurrency and optional TTY progress.",
         "categories": [
           "utilities"
@@ -24998,7 +24998,7 @@
         "symbolName": "FilesConcurrency",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 28,
+        "sourceLine": 30,
         "summary": "Shared concurrency caps for Files command phases.",
         "categories": [
           "constants"
@@ -25205,7 +25205,7 @@
         "symbolName": "isFilesProgressEnabled",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 83,
+        "sourceLine": 85,
         "summary": "Return true when live Files progress should be rendered.",
         "categories": [
           "utilities"
@@ -26541,7 +26541,7 @@
         "symbolName": "renderFilesProgressBar",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 98,
+        "sourceLine": 100,
         "summary": "Render a single-line ASCII progress bar.",
         "categories": [
           "utilities"
@@ -26831,7 +26831,7 @@
         "symbolName": "runFilesProgressAll",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 124,
+        "sourceLine": 126,
         "summary": "Run an array of effects with bounded concurrency and optional TTY progress.",
         "categories": [
           "utilities"
@@ -26856,7 +26856,7 @@
         "symbolName": "runFilesProgressForEach",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts",
-        "sourceLine": 197,
+        "sourceLine": 199,
         "summary": "Map items to effects, then run them with bounded concurrency and optional TTY progress.",
         "categories": [
           "utilities"

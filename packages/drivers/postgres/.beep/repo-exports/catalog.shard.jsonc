@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "24d61c1cef089d1ced2cb83e6214b872e442a77cac918edbcc1b69d8443f14a0",
+    "digest": "e95b1224553352ed5d15ce22fcbb1d2f7ed477aa1838a939d965bbc776e0e653",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sha256": "8cf0811fda65981f0c26f8511e8fb8354d2d14e7b27d4caf5e1a82e0089c9983",
-        "bytes": 10889
+        "sha256": "9ae09fca7e84654da5369975df04f56a922c2a1648556b9926a8fb56c523defc",
+        "bytes": 10916
       },
       {
         "path": "packages/drivers/postgres/src/PostgresDrizzle.service.ts",
@@ -202,7 +202,7 @@
         "symbolName": "formatPostgresError",
         "exportKind": "const",
         "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sourceLine": 343,
+        "sourceLine": 344,
         "summary": "Render a Postgres failure with diagnostics and formatted SQL.",
         "categories": [
           "utilities"
@@ -227,7 +227,7 @@
         "symbolName": "formatSql",
         "exportKind": "const",
         "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sourceLine": 312,
+        "sourceLine": 313,
         "summary": "Format and highlight PostgreSQL SQL for terminal output.",
         "categories": [
           "utilities"
@@ -327,7 +327,7 @@
         "symbolName": "logPostgresError",
         "exportKind": "const",
         "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sourceLine": 394,
+        "sourceLine": 395,
         "summary": "Log a formatted Postgres failure to stderr.",
         "categories": [
           "utilities"
@@ -1195,7 +1195,7 @@
         "symbolName": "formatPostgresError",
         "exportKind": "const",
         "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sourceLine": 343,
+        "sourceLine": 344,
         "summary": "Render a Postgres failure with diagnostics and formatted SQL.",
         "categories": [
           "utilities"
@@ -1220,7 +1220,7 @@
         "symbolName": "formatSql",
         "exportKind": "const",
         "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sourceLine": 312,
+        "sourceLine": 313,
         "summary": "Format and highlight PostgreSQL SQL for terminal output.",
         "categories": [
           "utilities"
@@ -1245,7 +1245,7 @@
         "symbolName": "logPostgresError",
         "exportKind": "const",
         "sourcePath": "packages/drivers/postgres/src/PostgresDiagnostics.service.ts",
-        "sourceLine": 394,
+        "sourceLine": 395,
         "summary": "Log a formatted Postgres failure to stderr.",
         "categories": [
           "utilities"

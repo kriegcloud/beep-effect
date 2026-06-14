@@ -760,8 +760,8 @@
     "semantic_hash": "aa07350c9f02cad3144e382bfd1bfb52"
   },
   "package.json": {
-    "mtime": 1781330722.5209022,
-    "ast_hash": "bea2c7bbda090c321ad0211e541388f4",
+    "mtime": 1781399921.7008095,
+    "ast_hash": "2f88e54323a7f075d3fbcbff2b0e9a1c",
     "semantic_hash": ""
   },
   "packages/_internal/db-admin/docgen.json": {
@@ -2665,9 +2665,9 @@
     "semantic_hash": "49beb98bef21432b59fd9601b7a006a7"
   },
   "packages/drivers/postgres/src/PostgresDiagnostics.service.ts": {
-    "mtime": 1780118321.274285,
-    "ast_hash": "37d3e6072d2fd4215a432b2d2bd25877",
-    "semantic_hash": "37d3e6072d2fd4215a432b2d2bd25877"
+    "mtime": 1781403498.331331,
+    "ast_hash": "a324a9589d20b36c600f69eea5dff459",
+    "semantic_hash": ""
   },
   "packages/drivers/postgres/src/PostgresDrizzle.service.ts": {
     "mtime": 1780099188.8224583,
@@ -3335,9 +3335,9 @@
     "semantic_hash": "39582d929e1f248d4d31d474eb228ffd"
   },
   "packages/foundation/capability/colors/dtslint/Colors.tst.ts": {
-    "mtime": 1780905288.1937008,
-    "ast_hash": "d694dcb41e78f607b974e84c14abbf0e",
-    "semantic_hash": "d694dcb41e78f607b974e84c14abbf0e"
+    "mtime": 1781402296.1953578,
+    "ast_hash": "06b23cfc2f4067d1fa123ee8117ced3f",
+    "semantic_hash": ""
   },
   "packages/foundation/capability/colors/package.json": {
     "mtime": 1781159931.6184657,
@@ -7225,8 +7225,8 @@
     "semantic_hash": "1389c08f91b17ff64209924ba6f4d959"
   },
   "packages/foundation/ui-system/ui/src/components/carousel.tsx": {
-    "mtime": 1781168994.327684,
-    "ast_hash": "fb4f80da0264d4f6c22b241290ff5069",
+    "mtime": 1781402054.7563953,
+    "ast_hash": "45baa8f0d52004f8b44b05257f82bc28",
     "semantic_hash": ""
   },
   "packages/foundation/ui-system/ui/src/components/chart.tsx": {
@@ -9815,7 +9815,7 @@
     "semantic_hash": "ec70cc91a43031b41cd4439b2c35a72f"
   },
   "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts": {
-    "mtime": 1781335050.0955687,
+    "mtime": 1781402495.7827878,
     "ast_hash": "cb8cc7f0a9376fa86b935d827b040647",
     "semantic_hash": ""
   },
@@ -9985,8 +9985,8 @@
     "semantic_hash": "017406d69e890b63cab5bd1b5b6d8dbc"
   },
   "packages/tooling/test-kit/test-utils/src/index.ts": {
-    "mtime": 1781333889.5790632,
-    "ast_hash": "59f0e504eeffd10c1bd3e6bfa9e74fa2",
+    "mtime": 1781401791.7546127,
+    "ast_hash": "520aad8a99cae549a98c62369197d888",
     "semantic_hash": ""
   },
   "packages/tooling/test-kit/test-utils/test/SqlTest.test.ts": {
@@ -10230,9 +10230,9 @@
     "semantic_hash": "ea603a00cb610accc1922d7a1bca78c4"
   },
   "packages/tooling/tool/cli/src/commands/Files/Files.progress.ts": {
-    "mtime": 1780408245.2253172,
-    "ast_hash": "6a826e4d2cb3f548fa8ce27b74f7aa03",
-    "semantic_hash": "6a826e4d2cb3f548fa8ce27b74f7aa03"
+    "mtime": 1781404629.2923498,
+    "ast_hash": "10161117d09f9c902f79e96c69d00c5c",
+    "semantic_hash": ""
   },
   "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts": {
     "mtime": 1780759180.0551956,
@@ -14700,8 +14700,8 @@
     "semantic_hash": "80f3274cb34b1e72b424498a57de06d8"
   },
   "standards/repo-exports.catalog.md": {
-    "mtime": 1781336261.5930667,
-    "ast_hash": "76be0eb6876598a66c3f3e4f45458282",
+    "mtime": 1781403623.497156,
+    "ast_hash": "4cc3ba94732597133bb293b63b99d7d0",
     "semantic_hash": ""
   },
   "goals/repo-codegraph-jsdoc/WHITEPAPER.md": {
@@ -16270,13 +16270,13 @@
     "semantic_hash": ""
   },
   "goals/workspace-thread-domain/PLAN.md": {
-    "mtime": 1781329654.6892767,
-    "ast_hash": "eeccdf3f32cccb59d6777fc58005bb1c",
+    "mtime": 1781337908.6349008,
+    "ast_hash": "f04cd0f5f5da784c325f20c68a18d3f8",
     "semantic_hash": ""
   },
   "goals/workspace-thread-domain/README.md": {
-    "mtime": 1781331221.5635626,
-    "ast_hash": "e63f729ff26a3adede31086b31ff74cd",
+    "mtime": 1781337908.635901,
+    "ast_hash": "d54ccda510152f66292364d03af1467f",
     "semantic_hash": ""
   },
   "goals/workspace-thread-domain/SPEC.md": {
@@ -16785,8 +16785,13 @@
     "semantic_hash": ""
   },
   "packages/tooling/test-kit/test-utils/src/Entity.ts": {
-    "mtime": 1781336191.3103108,
-    "ast_hash": "ea8ab5607bc54a6c772ce088a67e80c1",
+    "mtime": 1781401791.7536128,
+    "ast_hash": "f431e723dfa8f2915b5a3a80c0143884",
+    "semantic_hash": ""
+  },
+  ".changeset/workspace-thread-domain-quality.md": {
+    "mtime": 1781404586.818421,
+    "ast_hash": "bff931f0d8c7701d184218f3efd01d22",
     "semantic_hash": ""
   }
 }

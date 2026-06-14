@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "38bd6475ea8c86c53f6b6c623ab462d10c9aebdf0ee9e669bebb2aa10421c9a6",
+    "digest": "2fc8a32b6709fa4c631f2de9db5fa99825c0585001c6ca9d616de47f27255af6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/Entity.ts",
-        "sha256": "0fd6dfa6af3162e7d418725272f42290a4d01945678f7a66c78499e3d604bbd3",
-        "bytes": 1756
+        "sha256": "8b33aca941a521002428140e9f68c1cda988ffd1b3a4e3e72d0605070467724e",
+        "bytes": 1758
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/index.ts",
-        "sha256": "6b6edf3652aa37d11af6c56a5b61ea8d8363c996da513462ba28442789345911",
-        "bytes": 634
+        "sha256": "e8e55c41760171060d8ef2955b8d6a313aba0ca18e0f0cbda699f9291c6d4bb0",
+        "bytes": 635
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/Layer.ts",
@@ -125,7 +125,7 @@
         "sourceLine": 54,
         "summary": "Build the common BaseEntity fields used by model decode tests.",
         "categories": [
-          "entity"
+          "testing"
         ],
         "since": [
           "0.0.0"
@@ -136,7 +136,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . baseentityfixtureinput const build the common baseentity fields used by model decode tests. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . baseentityfixtureinput const build the common baseentity fields used by model decode tests. testing packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -609,7 +609,7 @@
         "sourceLine": 35,
         "summary": "Runtime system principal used by deterministic entity fixture rows.",
         "categories": [
-          "entity"
+          "testing"
         ],
         "since": [
           "0.0.0"
@@ -619,7 +619,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . systemprincipal const runtime system principal used by deterministic entity fixture rows. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . systemprincipal const runtime system principal used by deterministic entity fixture rows. testing packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -684,7 +684,7 @@
         "sourceLine": 54,
         "summary": "Build the common BaseEntity fields used by model decode tests.",
         "categories": [
-          "entity"
+          "testing"
         ],
         "since": [
           "0.0.0"
@@ -695,7 +695,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/entity ./entity baseentityfixtureinput const build the common baseentity fields used by model decode tests. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/entity ./entity baseentityfixtureinput const build the common baseentity fields used by model decode tests. testing packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -710,7 +710,7 @@
         "sourceLine": 35,
         "summary": "Runtime system principal used by deterministic entity fixture rows.",
         "categories": [
-          "entity"
+          "testing"
         ],
         "since": [
           "0.0.0"
@@ -720,7 +720,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/entity ./entity systemprincipal const runtime system principal used by deterministic entity fixture rows. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/entity ./entity systemprincipal const runtime system principal used by deterministic entity fixture rows. testing packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -761,7 +761,7 @@
         "sourceLine": 54,
         "summary": "Build the common BaseEntity fields used by model decode tests.",
         "categories": [
-          "entity"
+          "testing"
         ],
         "since": [
           "0.0.0"
@@ -772,7 +772,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index baseentityfixtureinput const build the common baseentity fields used by model decode tests. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index baseentityfixtureinput const build the common baseentity fields used by model decode tests. testing packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -1245,7 +1245,7 @@
         "sourceLine": 35,
         "summary": "Runtime system principal used by deterministic entity fixture rows.",
         "categories": [
-          "entity"
+          "testing"
         ],
         "since": [
           "0.0.0"
@@ -1255,7 +1255,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index systemprincipal const runtime system principal used by deterministic entity fixture rows. entity packages/tooling/test-kit/test-utils/src/entity.ts"
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index systemprincipal const runtime system principal used by deterministic entity fixture rows. testing packages/tooling/test-kit/test-utils/src/entity.ts"
       },
       {
         "packageName": "@beep/test-utils",

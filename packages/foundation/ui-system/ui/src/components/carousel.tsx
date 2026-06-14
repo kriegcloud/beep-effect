@@ -4,10 +4,11 @@ import { Button } from "@beep/ui/components/button";
 import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { Atom } from "effect/unstable/reactivity";
-import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
+import useEmblaCarousel from "embla-carousel-react";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
 import { requireReactContext } from "../lib/react-invariant.ts";
+import type { UseEmblaCarouselType } from "embla-carousel-react";
 
 /**
  * Carousel api type.

@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import colors, { type Colors } from "@beep/colors";
+import colors from "@beep/colors";
 import { A, Str, thunkFalse } from "@beep/utils";
 import { Cause, Console, flow, pipe, Result } from "effect";
 import * as O from "effect/Option";
@@ -13,6 +13,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { format } from "sql-formatter";
 import { PostgresError } from "./Postgres.errors.ts";
+import type { Colors } from "@beep/colors";
 import type { Effect } from "effect";
 
 const SqlKeywordValues = [
