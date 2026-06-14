@@ -1,7 +1,7 @@
 {
   "$schema": "./fallow.boundaries.provenance.schema.json",
   "schemaVersion": "fallow-quality-enforcement/boundary-provenance/v1",
-  "updated": "2026-06-08",
+  "updated": "2026-06-13",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "generatedConfigRef": "standards/fallow.boundaries.generated.jsonc",
   "rules": [
@@ -20,12 +20,12 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/agent-capability-domain",
-      "generatedRuleFrom": "@beep/agent-capability-domain",
+      "ruleId": "@beep/agents-domain",
+      "generatedRuleFrom": "@beep/agents-domain",
       "sourceClass": "manifest-derived",
       "sourceRefs": [
         "package.json",
-        "packages/agent-capability/domain/package.json",
+        "packages/agents/domain/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
@@ -34,12 +34,26 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/agent-capability-use-cases",
-      "generatedRuleFrom": "@beep/agent-capability-use-cases",
+      "ruleId": "@beep/agents-use-cases",
+      "generatedRuleFrom": "@beep/agents-use-cases",
       "sourceClass": "manifest-derived",
       "sourceRefs": [
         "package.json",
-        "packages/agent-capability/use-cases/package.json",
+        "packages/agents/use-cases/package.json",
+        "standards/fallow.boundaries.generated.jsonc"
+      ],
+      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
+      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "promotionEligible": true,
+      "enforcementScope": "declared-dependency-consistency"
+    },
+    {
+      "ruleId": "@beep/anthropic",
+      "generatedRuleFrom": "@beep/anthropic",
+      "sourceClass": "manifest-derived",
+      "sourceRefs": [
+        "package.json",
+        "packages/drivers/anthropic/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],

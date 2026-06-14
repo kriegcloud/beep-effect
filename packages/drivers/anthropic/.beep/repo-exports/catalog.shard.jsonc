@@ -1,0 +1,429 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "53ed6dac7e465618b965aa6734c82d78243194cbebc41ddba5151b2c26fa3c6a",
+    "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
+      {
+        "path": "packages/drivers/anthropic/package.json",
+        "sha256": "669aea9b15dbacb049150059cf54eeabf82b99ee43851194c7a84b753e758c1d",
+        "bytes": 2328
+      },
+      {
+        "path": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sha256": "7bf9e1a02ad933e9502e9d56c2701acc6ac0a633490cfda1228f2c60435fa453",
+        "bytes": 4105
+      },
+      {
+        "path": "packages/drivers/anthropic/src/Anthropic.service.ts",
+        "sha256": "bca74c3b75b4775e7add4e1d82a2f98ce83fda7c053651dfaf16fa700308b43e",
+        "bytes": 3317
+      },
+      {
+        "path": "packages/drivers/anthropic/src/index.ts",
+        "sha256": "a304598df3509872fc0995b09e0723a63cd9f2b3f1e0ef22e96f1791e68e8b94",
+        "bytes": 899
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/anthropic",
+    "packagePath": "packages/drivers/anthropic",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/anthropic"
+    ],
+    "counts": {
+      "publicExportEntries": 14,
+      "uniqueSymbols": 14,
+      "sourceFiles": 3
+    },
+    "exports": [
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_API_KEY_ENV",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 26,
+        "summary": "Environment variable read by the live Anthropic client layer.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_api_key_env const environment variable read by the live anthropic client layer. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_DEFAULT_APPROXIMATE_PRICE",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 139,
+        "summary": "Approximate default price row for the pinned model.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_default_approximate_price const approximate default price row for the pinned model. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_DEFAULT_MAX_TOKENS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 61,
+        "summary": "Default token budget for rich assistant turns.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_default_max_tokens const default token budget for rich assistant turns. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_DEFAULT_MODEL",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 46,
+        "summary": "Pinned default Claude model.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_default_model const pinned default claude model. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_DEFAULT_RETRY_ATTEMPTS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 76,
+        "summary": "Number of acquisition attempts in the default turn execution plan.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_default_retry_attempts const number of acquisition attempts in the default turn execution plan. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 91,
+        "summary": "Base delay for the default exponential retry schedule.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_default_retry_base_delay_millis const base delay for the default exponential retry schedule. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "AnthropicApproximatePrice",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 115,
+        "summary": "Approximate static price table for usage attribution.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropicapproximateprice class approximate static price table for usage attribution. configuration packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "AnthropicLanguageModelLive",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.service.ts",
+        "sourceLine": 81,
+        "summary": "Live language-model layer for the pinned Anthropic model.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropiclanguagemodellive const live language-model layer for the pinned anthropic model. layers packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "AnthropicLanguageModelOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
+        "sourceLine": 159,
+        "summary": "Options accepted by Anthropic language-model layer helpers.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropiclanguagemodeloptions class options accepted by anthropic language-model layer helpers. models packages/drivers/anthropic/src/anthropic.config.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "AnthropicLive",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.service.ts",
+        "sourceLine": 34,
+        "summary": "Live Anthropic client layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropiclive const live anthropic client layer. layers packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "AnthropicTurnPlan",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.service.ts",
+        "sourceLine": 123,
+        "summary": "Default Anthropic turn acquisition plan.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropicturnplan const default anthropic turn acquisition plan. configuration packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "makeAnthropicLanguageModelLayer",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.service.ts",
+        "sourceLine": 57,
+        "summary": "Build an Anthropic language-model layer.",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . makeanthropiclanguagemodellayer const build an anthropic language-model layer. layers packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "makeAnthropicTurnPlan",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.service.ts",
+        "sourceLine": 102,
+        "summary": "Build an acquisition-only execution plan for Anthropic turns.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . makeanthropicturnplan const build an acquisition-only execution plan for anthropic turns. configuration packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "VERSION",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/index.ts",
+        "sourceLine": 21,
+        "summary": "Package version for `@beep/anthropic`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . version const package version for `@beep/anthropic`. configuration packages/drivers/anthropic/src/index.ts"
+      }
+    ]
+  }
+}

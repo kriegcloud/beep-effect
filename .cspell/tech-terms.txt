@@ -55,6 +55,7 @@ nostdin
 Geotime
 gibibytes
 glsl
+GHSA
 groupby
 halfvector
 halign
@@ -107,6 +108,7 @@ nosideeffects
 nosniff
 NTILE
 ntile
+esbuild
 objectset
 officedocument
 officejs
@@ -120,11 +122,13 @@ Perlin
 phonetize
 phonetization
 pkgjson
+qjhr
 PGDATABASE
 PGPASSWORD
 PGPORT
 PGUSER
 rusqlite
+rqvm
 plpgsql
 PLPGSQL
 pooler
@@ -178,6 +182,7 @@ tracestate
 tsbuildinfo
 TTFB
 turbopack
+Vulns
 udouble
 ufloat
 Uncommitted

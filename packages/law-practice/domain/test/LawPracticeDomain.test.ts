@@ -1,22 +1,8 @@
 import { LegalClientStatus, LegalContactRole, Matter, MatterType, PatentAssetStatus } from "@beep/law-practice-domain";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
+import { baseEntityFixtureInput } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
-
-const systemPrincipal = { kind: "System", component: "Runtime" } as const;
-
-const baseEntityInput = (entityType: string, id: number) => ({
-  createdAt: id,
-  createdByPrincipal: systemPrincipal,
-  entityType,
-  id,
-  orgId: 1,
-  rowVersion: 1,
-  schemaVersion: "0.0.0",
-  source: "System",
-  updatedAt: id + 1,
-  updatedByPrincipal: systemPrincipal,
-});
 
 describe("@beep/law-practice-domain", () => {
   it("exports value schemas from the package identity", () => {
@@ -36,7 +22,7 @@ describe("@beep/law-practice-domain", () => {
 
   it("decodes and constructs a Matter row", () => {
     const decoded = S.decodeUnknownSync(Matter)({
-      ...baseEntityInput("LawPracticeMatter", 5),
+      ...baseEntityFixtureInput("LawPracticeMatter", 5),
       displayName: "Patent Application",
       fixtureKey: "matter.patent",
       legalClientFixtureKey: "legal-client.acme",

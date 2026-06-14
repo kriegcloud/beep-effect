@@ -62,8 +62,8 @@ const generatedComposers = $I.compose(
   "utils",
   "scratchpad",
   // P3 Professional Runtime Proof Packages
-  "agent-capability-domain",
-  "agent-capability-use-cases",
+  "agents-domain",
+  "agents-use-cases",
   "epistemic-domain",
   "law-practice-domain",
   "professional-desktop",
@@ -110,6 +110,7 @@ const generatedComposers = $I.compose(
   "billing-use-cases",
   "billing-server",
   "sandbox",
+  "anthropic",
   "venice-ai",
   "xai",
   "acp",
@@ -151,7 +152,9 @@ const generatedComposers = $I.compose(
   "libpff",
   "box",
   "firecrawl",
-  "uspto"
+  "uspto",
+  "lexical-schema",
+  "editor"
 );
 
 const composers = {
@@ -635,36 +638,34 @@ export const $WorkspaceDomainId: Identity.IdentityComposer<"@beep/workspace-doma
 export const $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-domain"> = composers.$EpistemicDomainId;
 
 /**
- * Identity composer for the `@beep/agent-capability-domain` package.
+ * Identity composer for the `@beep/agents-domain` package.
  *
  * @example
  * ```typescript
- * import { $AgentCapabilityDomainId } from "@beep/identity"
+ * import { $AgentsDomainId } from "@beep/identity"
  *
- * const id = $AgentCapabilityDomainId.make("Agent")
+ * const id = $AgentsDomainId.make("Agent")
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
-export const $AgentCapabilityDomainId: Identity.IdentityComposer<"@beep/agent-capability-domain"> =
-  composers.$AgentCapabilityDomainId;
+export const $AgentsDomainId: Identity.IdentityComposer<"@beep/agents-domain"> = composers.$AgentsDomainId;
 
 /**
- * Identity composer for the `@beep/agent-capability-use-cases` package.
+ * Identity composer for the `@beep/agents-use-cases` package.
  *
  * @example
  * ```typescript
- * import { $AgentCapabilityUseCasesId } from "@beep/identity"
+ * import { $AgentsUseCasesId } from "@beep/identity"
  *
- * const id = $AgentCapabilityUseCasesId.make("RuntimeScope")
+ * const id = $AgentsUseCasesId.make("RuntimeScope")
  * ```
  *
  * @category configuration
  * @since 0.0.0
  */
-export const $AgentCapabilityUseCasesId: Identity.IdentityComposer<"@beep/agent-capability-use-cases"> =
-  composers.$AgentCapabilityUseCasesId;
+export const $AgentsUseCasesId: Identity.IdentityComposer<"@beep/agents-use-cases"> = composers.$AgentsUseCasesId;
 
 /**
  * Identity composer for the `@beep/law-practice-domain` package.
@@ -1029,6 +1030,22 @@ export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = comp
  * @category configuration
  */
 export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.$SandboxId;
+
+/**
+ * Identity composer for `@beep/anthropic`.
+ *
+ * @example
+ * ```typescript
+ * import { $AnthropicId } from "@beep/identity"
+ *
+ * const id = $AnthropicId.make("Anthropic")
+ * console.log(id)
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $AnthropicId: Identity.IdentityComposer<"@beep/anthropic"> = composers.$AnthropicId;
 
 /**
  * $venice ai id export.
@@ -1710,3 +1727,35 @@ export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = compos
  * @category configuration
  */
 export const $UsptoId: Identity.IdentityComposer<"@beep/uspto"> = composers.$UsptoId;
+
+/**
+ * Identity composer for `@beep/lexical-schema`.
+ *
+ * @example
+ * ```typescript
+ * import { $LexicalSchemaId } from "@beep/identity"
+ *
+ * const id = $LexicalSchemaId.make("LexicalSchema")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $LexicalSchemaId: Identity.IdentityComposer<"@beep/lexical-schema"> = composers.$LexicalSchemaId;
+
+/**
+ * Identity composer for `@beep/editor`.
+ *
+ * @example
+ * ```typescript
+ * import { $EditorId } from "@beep/identity"
+ *
+ * const id = $EditorId.make("Editor")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$EditorId;

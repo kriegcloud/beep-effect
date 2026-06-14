@@ -136,19 +136,19 @@ export const AnyIdentityComposer = S.declare<IdentityComposerType<string>>(isIde
 export type AnyIdentityComposer = typeof AnyIdentityComposer.Type;
 
 /**
- * Agent-capability entity-id registry namespace.
+ * Agents entity-id registry namespace.
  *
  * @example
  * ```ts
- * import * as AgentCapability from "@beep/shared-domain/identity/AgentCapability"
+ * import * as Agents from "@beep/shared-domain/identity/Agents"
  *
- * console.log(AgentCapability.AgentId.tableName)
+ * console.log(Agents.AgentId.tableName)
  * ```
  *
  * @category entity-ids
  * @since 0.0.0
  */
-export * as AgentCapability from "./AgentCapability.ts";
+export * as Agents from "./Agents.ts";
 /**
  * Epistemic entity-id registry namespace.
  *

@@ -88,7 +88,7 @@ const previewHealth: DesktopHealth = {
   app: "@beep/professional-desktop",
   desktopShell: "minimal",
   runtimeConnection: "pending",
-  slices: ["workspace", "agent-capability", "epistemic", "law-practice", "wealth-management"],
+  slices: ["workspace", "agents", "epistemic", "law-practice", "wealth-management"],
   status: "preview",
 };
 
@@ -157,7 +157,7 @@ const sliceMeta = [
   {
     description: "Agents, skills, tools, commands, and capability promotion.",
     icon: BrainIcon,
-    name: "agent-capability",
+    name: "agents",
   },
   {
     description: "Evidence, claims, provenance, audit trails, and knowledge graph outputs.",

@@ -1,4 +1,4 @@
-import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
+import { syncTsconfigAtRoot, tsconfigSyncCommand } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
 import { provideScopedLayer } from "@beep/test-utils";
 import { A } from "@beep/utils";
@@ -6,12 +6,15 @@ import * as O from "@beep/utils/Option";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
+import * as NodeServices from "@effect/platform-node/NodeServices";
 import { Effect, FileSystem, Layer, Order, Path } from "effect";
 import * as S from "effect/Schema";
+import { Command } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
 
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const runTsconfigSyncCommand = Command.runWith(tsconfigSyncCommand, { version: "0.0.0" });
+const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, NodeServices.layer);
 const TestLayer = Layer.mergeAll(
   PlatformLayer,
   NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(PlatformLayer)),
@@ -195,6 +198,37 @@ const bootstrapWorkspace = Effect.fn(function* (
 });
 
 describe("tsconfig-sync", () => {
+  it(
+    "accepts --write as explicit sync mode",
+    () =>
+      Effect.runPromise(
+        withTempRepo(
+          Effect.gen(function* () {
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/example-domain"],
+              references: [],
+              paths: {},
+              testFileMatch: [],
+              syncpackSources: ["package.json"],
+            });
+            yield* bootstrapWorkspace(rootDir, {
+              relativeDir: "packages/example-domain",
+              packageName: "@beep/example-domain",
+            });
+
+            yield* runTsconfigSyncCommand(["--write", "--filter", "@beep/example-domain"]);
+
+            const refs = decodeTsconfigReferences(yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json")));
+            expect(A.map(refs.references, (entry) => entry.path)).toEqual(["packages/example-domain"]);
+          })
+        )
+      ),
+    20_000
+  );
+
   it("synchronizes root references, aliases, tstyche, and syncpack from workspace discovery", () =>
     Effect.runPromise(
       withTempRepo(

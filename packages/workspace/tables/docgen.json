@@ -41,6 +41,15 @@
       "@beep/workspace-tables/entities/CandidateProject": [
         "../../../packages/workspace/tables/src/entities/CandidateProject/index.ts"
       ],
+      "@beep/workspace-tables/entities/Message": [
+        "../../../packages/workspace/tables/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Thread": [
+        "../../../packages/workspace/tables/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Turn": [
+        "../../../packages/workspace/tables/src/entities/Turn/index.ts"
+      ],
       "@beep/drizzle": ["../../../packages/drivers/drizzle/src/index.ts"],
       "@beep/workspace-domain": [
         "../../../packages/workspace/domain/src/index.ts"
@@ -65,6 +74,15 @@
       ],
       "@beep/workspace-domain/entities/EmailArtifact": [
         "../../../packages/workspace/domain/src/entities/EmailArtifact/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Message": [
+        "../../../packages/workspace/domain/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Thread": [
+        "../../../packages/workspace/domain/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Turn": [
+        "../../../packages/workspace/domain/src/entities/Turn/index.ts"
       ],
       "@beep/workspace-domain/entities/Workspace": [
         "../../../packages/workspace/domain/src/entities/Workspace/index.ts"

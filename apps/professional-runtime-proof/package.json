@@ -38,8 +38,8 @@
   ],
   "sideEffects": [],
   "dependencies": {
-    "@beep/agent-capability-domain": "workspace:^",
-    "@beep/agent-capability-use-cases": "workspace:^",
+    "@beep/agents-domain": "workspace:^",
+    "@beep/agents-use-cases": "workspace:^",
     "@beep/epistemic-domain": "workspace:^",
     "@beep/law-practice-domain": "workspace:^",
     "@beep/shared-domain": "workspace:^",

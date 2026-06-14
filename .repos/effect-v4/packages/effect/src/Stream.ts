@@ -1416,7 +1416,7 @@ export const fromReadableStream = <A, E>(
       scope,
       options.releaseLockOnEnd
         ? Effect.sync(() => reader.releaseLock())
-        : Effect.promise(() => reader.cancel())
+        : Effect.promise(() => reader.cancel().catch(constVoid))
     )
     return Effect.flatMap(
       Effect.tryPromise({
@@ -2413,7 +2413,7 @@ export const tapSink: {
  * multiple inner streams may run at the same time and their outputs are merged
  * as they arrive.
  *
- * **Example** (FlatMapping stream values)
+ * **Example** (Flat mapping stream values)
  *
  * ```ts
  * import { Console, Effect, Stream } from "effect"

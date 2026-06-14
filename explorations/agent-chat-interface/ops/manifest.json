@@ -3,15 +3,15 @@
   "exploration": {
     "slug": "agent-chat-interface",
     "title": "Rich agent/chat interface for the professional-desktop control plane",
-    "status": "active",
-    "stage": "research",
-    "openQuestions": [
-      "Adopt @lobehub/editor as a dependency vs build a custom Lexical block kit on @beep/ui editor-00 (license, React 19 compat, Effect schema-first fit)?",
-      "Which block types are v1 (text/heading/code/mention/artifact-ref/slash-command/attachment)?",
-      "Does the chat surface bind first to ACP agent sessions, the fixture-agent SDK loop, or both?"
-    ],
+    "status": "graduated",
+    "stage": "graduate",
+    "openQuestions": [],
     "links": {
-      "goals": [],
+      "goals": [
+        "goals/rich-text-foundation",
+        "goals/workspace-thread-domain",
+        "goals/desktop-chat-surface"
+      ],
       "docs": [],
       "supersededBy": null
     },

@@ -237,7 +237,7 @@
   <div class="arrow-up">▲ ▲ ▲</div>
 
   <div class="sdkbar" data-id="sdk">
-    <b class="mono">@beep/agent-capability-use-cases/public</b>
+    <b class="mono">@beep/agents-use-cases/public</b>
     <span>the canonical Effect SDK contract — context packets in, candidate writes out</span>
     <span>agents read bounded context and propose; humans/policy promote candidates to authoritative state</span>
   </div>
@@ -247,7 +247,7 @@
     <p class="caption">Hexagonal vertical slices; no slice imports another slice. Law is the active product; wealth is a frozen proof fixture.</p>
     <div class="row" style="margin-bottom:10px">
       <div class="box active" data-id="workspace"><b>workspace</b><span>workspaces · threads · messages · artifacts · projects · tasks · approvals</span></div>
-      <div class="box active" data-id="agent-capability"><b>agent-capability</b><span>agents · skills · commands · connectors · model/provider bindings</span></div>
+      <div class="box active" data-id="agents"><b>agents</b><span>agents · skills · commands · connectors · model/provider bindings</span></div>
       <div class="box active" data-id="law-practice"><b>law-practice</b><span>clients · matters · IP assets · filings · contracts · docket overlays</span></div>
       <div class="box frozen" data-id="wealth"><b>wealth-management</b><span>frozen — dormant proof fixture; keeps the paired P3 proof honest</span></div>
       <div class="box planned" data-id="tenancy"><b>tenancy</b><span>future — org onboarding, membership, roles, policy scope</span></div>
@@ -333,28 +333,28 @@
   const LANES = [
     {
       id: "email", label: "email management", phase: "NOW", icon: "⚙🛡",
-      members: ["d-libpff","d-email","agent-capability","workspace","epistemic","projections","law-practice","shared-domain","sdk","desktop","proof-app","d-drizzle","d-postgres"],
-      flow: "<b>libpff / email connector</b> ingest mail with stable source spans → <b>agent-capability</b> connector + fixture agent → <b>workspace</b> threads, tasks, approvals → <b>epistemic</b> candidate claims + evidence → <b>law-practice</b> matter/docket overlays → SDK context packet → desktop. This is the P4 proof loop: patent intake before a public-demo deadline."
+      members: ["d-libpff","d-email","agents","workspace","epistemic","projections","law-practice","shared-domain","sdk","desktop","proof-app","d-drizzle","d-postgres"],
+      flow: "<b>libpff / email connector</b> ingest mail with stable source spans → <b>agents</b> connector + fixture agent → <b>workspace</b> threads, tasks, approvals → <b>epistemic</b> candidate claims + evidence → <b>law-practice</b> matter/docket overlays → SDK context packet → desktop. This is the P4 proof loop: patent intake before a public-demo deadline."
     },
     {
       id: "corpus", label: "25-yr corpus ingestion", phase: "NEXT", icon: "⚙",
-      members: ["d-box","d-tika","d-libpff","f-nlp","f-langextract","f-semweb","f-fileproc","epistemic","projections","agent-capability","sdk"],
+      members: ["d-box","d-tika","d-libpff","f-nlp","f-langextract","f-semweb","f-fileproc","epistemic","projections","agents","sdk"],
       flow: "<b>box + tika + libpff</b> extract the career corpus (patents, responses, emails, agreements) → <b>nlp / langextract / semantic-web</b> derive entities and assertions → <b>epistemic</b> claims with source spans → <b>graph-view projection</b> (the selective trustgraph-port kernel). This is the moat: it makes every later lane smarter."
     },
     {
       id: "docketing", label: "docketing + calendar", phase: "THEN", icon: "⚙",
-      members: ["d-calendar","agent-capability","law-practice","workspace","epistemic","sdk","desktop"],
+      members: ["d-calendar","agents","law-practice","workspace","epistemic","sdk","desktop"],
       flow: "<b>calendar connector</b> + corpus/email-derived deadline claims → <b>law-practice</b> docket overlays → <b>workspace</b> tasks and reminders → <b>epistemic</b> deadline claims with provenance. Scheduling and reminders are autonomous-eligible; filing decisions stay gated."
     },
     {
       id: "transcription", label: "Teams transcription + notes", phase: "THEN", icon: "⚙",
-      members: ["d-teams","d-ffmpeg","agent-capability","workspace","epistemic","sdk"],
+      members: ["d-teams","d-ffmpeg","agents","workspace","epistemic","sdk"],
       flow: "<b>teams connector + ffmpeg</b> capture calls → transcription artifacts in <b>workspace</b> → <b>epistemic</b> claims → candidate notes and action items as workspace tasks. Benefits heavily from the corpus lane existing first."
     },
     {
       id: "research", label: "legal research", phase: "LATER", icon: "🛡",
-      members: ["agent-capability","claude-desktop","epistemic","law-practice","sdk","projections"],
-      flow: "<b>agent-capability</b> skills + external research MCP adapters (e.g. Midpage) → findings recorded as <b>epistemic</b> citations with evidence → surfaced against <b>law-practice</b> matters. Research synthesis is professional judgment: approval-gated."
+      members: ["agents","claude-desktop","epistemic","law-practice","sdk","projections"],
+      flow: "<b>agents</b> skills + external research MCP adapters (e.g. Midpage) → findings recorded as <b>epistemic</b> citations with evidence → surfaced against <b>law-practice</b> matters. Research synthesis is professional judgment: approval-gated."
     },
     {
       id: "drafting", label: "patent drafting assistant", phase: "LATER", icon: "🛡",
@@ -368,7 +368,7 @@
     },
     {
       id: "voice", label: "voice", phase: "LATER", icon: "⚙",
-      members: ["d-ffmpeg","agent-capability","workspace"],
+      members: ["d-ffmpeg","agents","workspace"],
       flow: "Placeholder lane. Realtime phone answering is explicitly out of v1 scope per SPEC; voice capture/transcription rides the same artifact → claim path when it arrives."
     }
   ];

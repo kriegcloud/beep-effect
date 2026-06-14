@@ -12,15 +12,15 @@
         ]
       },
       {
-        "name": "@beep/agent-capability-domain",
+        "name": "@beep/agents-domain",
         "patterns": [
-          "packages/agent-capability/domain/src/**"
+          "packages/agents/domain/src/**"
         ]
       },
       {
-        "name": "@beep/agent-capability-use-cases",
+        "name": "@beep/agents-use-cases",
         "patterns": [
-          "packages/agent-capability/use-cases/src/**"
+          "packages/agents/use-cases/src/**"
         ]
       },
       {
@@ -33,6 +33,12 @@
         "name": "@beep/ai-sync",
         "patterns": [
           "packages/tooling/library/ai-sync/src/**"
+        ]
+      },
+      {
+        "name": "@beep/anthropic",
+        "patterns": [
+          "packages/drivers/anthropic/src/**"
         ]
       },
       {
@@ -174,6 +180,12 @@
         ]
       },
       {
+        "name": "@beep/editor",
+        "patterns": [
+          "packages/foundation/ui-system/editor/src/**"
+        ]
+      },
+      {
         "name": "@beep/epistemic-domain",
         "patterns": [
           "packages/epistemic/domain/src/**"
@@ -261,6 +273,12 @@
         "name": "@beep/law-practice-domain",
         "patterns": [
           "packages/law-practice/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/lexical-schema",
+        "patterns": [
+          "packages/foundation/modeling/lexical/src/**"
         ]
       },
       {
@@ -563,30 +581,32 @@
         ]
       },
       {
-        "from": "@beep/agent-capability-domain",
+        "from": "@beep/agents-domain",
         "allow": [
-          "@beep/agent-capability-domain",
+          "@beep/agents-domain",
           "@beep/identity",
           "@beep/schema",
-          "@beep/shared-domain"
+          "@beep/shared-domain",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
-          "@beep/agent-capability-domain",
+          "@beep/agents-domain",
           "@beep/identity",
           "@beep/schema",
-          "@beep/shared-domain"
+          "@beep/shared-domain",
+          "@beep/test-utils"
         ]
       },
       {
-        "from": "@beep/agent-capability-use-cases",
+        "from": "@beep/agents-use-cases",
         "allow": [
-          "@beep/agent-capability-use-cases",
+          "@beep/agents-use-cases",
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/agent-capability-use-cases",
+          "@beep/agents-use-cases",
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
@@ -620,6 +640,17 @@
           "@beep/schema",
           "@beep/types",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/anthropic",
+        "allow": [
+          "@beep/anthropic",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/anthropic",
+          "@beep/identity"
         ]
       },
       {
@@ -940,14 +971,16 @@
           "@beep/db-admin",
           "@beep/postgres",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/workspace-tables"
         ],
         "allowTypeOnly": [
           "@beep/architecture-lab-tables",
           "@beep/db-admin",
           "@beep/postgres",
           "@beep/test-utils",
-          "@beep/utils"
+          "@beep/utils",
+          "@beep/workspace-tables"
         ]
       },
       {
@@ -996,18 +1029,37 @@
         ]
       },
       {
+        "from": "@beep/editor",
+        "allow": [
+          "@beep/editor",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/ui",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/editor",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/epistemic-domain",
         "allow": [
           "@beep/epistemic-domain",
           "@beep/identity",
           "@beep/schema",
-          "@beep/shared-domain"
+          "@beep/shared-domain",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
           "@beep/epistemic-domain",
           "@beep/identity",
           "@beep/schema",
-          "@beep/shared-domain"
+          "@beep/shared-domain",
+          "@beep/test-utils"
         ]
       },
       {
@@ -1209,13 +1261,32 @@
           "@beep/identity",
           "@beep/law-practice-domain",
           "@beep/schema",
-          "@beep/shared-domain"
+          "@beep/shared-domain",
+          "@beep/test-utils"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/law-practice-domain",
           "@beep/schema",
-          "@beep/shared-domain"
+          "@beep/shared-domain",
+          "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/lexical-schema",
+        "allow": [
+          "@beep/identity",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -1430,8 +1501,8 @@
       {
         "from": "@beep/professional-runtime-proof",
         "allow": [
-          "@beep/agent-capability-domain",
-          "@beep/agent-capability-use-cases",
+          "@beep/agents-domain",
+          "@beep/agents-use-cases",
           "@beep/epistemic-domain",
           "@beep/law-practice-domain",
           "@beep/professional-runtime-proof",
@@ -1441,8 +1512,8 @@
           "@beep/workspace-domain"
         ],
         "allowTypeOnly": [
-          "@beep/agent-capability-domain",
-          "@beep/agent-capability-use-cases",
+          "@beep/agents-domain",
+          "@beep/agents-use-cases",
           "@beep/epistemic-domain",
           "@beep/law-practice-domain",
           "@beep/professional-runtime-proof",
@@ -1914,12 +1985,14 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/shared-domain",
+          "@beep/test-utils",
           "@beep/wealth-management-domain"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/schema",
           "@beep/shared-domain",
+          "@beep/test-utils",
           "@beep/wealth-management-domain"
         ]
       },
@@ -1946,12 +2019,14 @@
         "from": "@beep/workspace-domain",
         "allow": [
           "@beep/identity",
+          "@beep/md",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/workspace-domain"
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/md",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/workspace-domain"

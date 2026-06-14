@@ -37,6 +37,9 @@
     "./entities/CandidateTask": "./src/entities/CandidateTask/index.ts",
     "./entities/ContextPacket": "./src/entities/ContextPacket/index.ts",
     "./entities/EmailArtifact": "./src/entities/EmailArtifact/index.ts",
+    "./entities/Message": "./src/entities/Message/index.ts",
+    "./entities/Thread": "./src/entities/Thread/index.ts",
+    "./entities/Turn": "./src/entities/Turn/index.ts",
     "./entities/Workspace": "./src/entities/Workspace/index.ts",
     "./values": "./src/values/index.ts",
     "./values/ApprovalDecision": "./src/values/ApprovalDecision/index.ts",
@@ -53,6 +56,7 @@
   "sideEffects": [],
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/md": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "effect": "catalog:"

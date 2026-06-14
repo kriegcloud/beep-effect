@@ -54,7 +54,7 @@ const DEPRECATED_API_LINT_SHARDS = [
   "apps/stack-installer",
   "infra",
   "packages/_internal",
-  "packages/agent-capability",
+  "packages/agents",
   "packages/architecture-lab",
   "packages/canvas",
   "packages/drivers",

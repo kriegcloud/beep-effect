@@ -30,7 +30,7 @@ packages/
     client/
     tables/
     ui/
-  agent-capability/
+  agents/
     domain/
     use-cases/
     config/
@@ -81,7 +81,7 @@ Owns workspaces, threads, turns, artifacts, projects, tasks, approval gates,
 comments, and inbox/work-queue contracts. It may reference shared identities and
 vertical entity refs, but vertical semantics stay in vertical slices.
 
-### agent-capability
+### agents
 
 Owns agents, skills, skill versions, commands, context-pack definitions,
 connectors, model/provider bindings, and credential references. It owns product
@@ -163,7 +163,7 @@ The first proof should cross the smallest meaningful set of slices:
 
 1. `tenancy` creates a solo or firm organization and user.
 2. `workspace` creates a workspace and ingests synthetic artifacts.
-3. `agent-capability` supplies an agent/skill/model binding for extraction.
+3. `agents` supplies an agent/skill/model binding for extraction.
 4. `epistemic` stores candidate claims, evidence, activity, and usage.
 5. `workspace` stores candidate tasks and approval gates.
 6. `law-practice` and `wealth-management` each provide one vertical overlay

@@ -5,7 +5,7 @@
 "@beep/ontology": patch
 "@beep/hubspot": patch
 "@beep/file-processing": patch
-"@beep/agent-capability-use-cases": patch
+"@beep/agents-use-cases": patch
 "@beep/acp": patch
 "@beep/architecture-lab-server": patch
 "@beep/form": patch

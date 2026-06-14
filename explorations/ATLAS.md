@@ -41,17 +41,14 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Active
 
-- [`agent-chat-interface`](./agent-chat-interface/README.md) — stage:
-  **research** — Lexical-based rich chat input + thread surface for the
-  professional-desktop control plane. Next: external landscape research
-  (lobe-editor deep dive, Lexical ecosystem, chat-input UX comparisons).
+(none)
 
 ### Proposed
 
 - `atlas-synthesis` — the grand-vision exercise: full capability inventory +
   outcome decomposition to give this Atlas real substance and break the
-  vision into sequenced explorations/goals. Run after `agent-chat-interface`
-  proves the pipeline end-to-end.
+  vision into sequenced explorations/goals. `agent-chat-interface` has now
+  proven the pipeline end-to-end — this is unblocked.
 
 ### Parked
 
@@ -59,7 +56,14 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Graduated
 
-(none yet)
+- [`agent-chat-interface`](./agent-chat-interface/README.md) — graduated
+  2026-06-12 into three goal packets:
+  [`rich-text-foundation`](../goals/rich-text-foundation/README.md),
+  [`workspace-thread-domain`](../goals/workspace-thread-domain/README.md),
+  [`desktop-chat-surface`](../goals/desktop-chat-surface/README.md)
+  (depends on the first two). Follow-ons named in its MAP:
+  acp-chat-binding, proposal-blocks, attachment/table blocks,
+  thread-pdf-export.
 
 ### Killed
 

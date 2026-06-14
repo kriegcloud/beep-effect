@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "465a2bf39c5c89918c8bb0198f80d892b255e59afc1fdcccea88efbfe5e0e1ba",
+    "digest": "783eaa567667bbf948ec4a367011edb3de55ee865334bec99fc18882accfedf6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/shared/domain/package.json",
-        "sha256": "86c8d5ca40098535ef581d62879a4e4ff32fe35ef631c42f80d9162df98c2825",
-        "bytes": 4640
+        "sha256": "4bb1b66a448f4e329090221a3e386b5bf852ff423c0a6af81d27ca53d5ebf192",
+        "bytes": 4604
       },
       {
         "path": "packages/shared/domain/src/aggregates.ts",
@@ -136,9 +136,9 @@
         "bytes": 325
       },
       {
-        "path": "packages/shared/domain/src/identity/AgentCapability.ts",
-        "sha256": "3adedc6b9e37524a470dc522666731e3c81ee5fd45edbad2e4b5ea23bfca1aee",
-        "bytes": 2082
+        "path": "packages/shared/domain/src/identity/Agents.ts",
+        "sha256": "129798b7c46dce2b479d91b16ba39cb0dc8a851606292786baef76f7e1fe31ee",
+        "bytes": 1901
       },
       {
         "path": "packages/shared/domain/src/identity/Epistemic.ts",
@@ -147,8 +147,8 @@
       },
       {
         "path": "packages/shared/domain/src/identity/index.ts",
-        "sha256": "acd377b90fb214ba1ee72d8a82fb5a13a1cdaef02087f763e55d454726bc18b1",
-        "bytes": 5862
+        "sha256": "ea294be6b8d5a77311433eccd46dce3365535063a4dc73c4f8fa4e2984c0d849",
+        "bytes": 5807
       },
       {
         "path": "packages/shared/domain/src/identity/LawPractice.ts",
@@ -167,8 +167,8 @@
       },
       {
         "path": "packages/shared/domain/src/identity/Workspace.ts",
-        "sha256": "c8ae6523312e1ddedd975faeab86b881c32b645daf2628889f18c2af392ee3f4",
-        "bytes": 6558
+        "sha256": "a59d4c182de87cf79399762358f89dc55c7819fe401009eeda9780cf522f283b",
+        "bytes": 9072
       },
       {
         "path": "packages/shared/domain/src/index.ts",
@@ -257,7 +257,7 @@
       "@beep/shared-domain/entity/Principal",
       "@beep/shared-domain/entity/SourceKind",
       "@beep/shared-domain/identity",
-      "@beep/shared-domain/identity/AgentCapability",
+      "@beep/shared-domain/identity/Agents",
       "@beep/shared-domain/identity/Epistemic",
       "@beep/shared-domain/identity/index",
       "@beep/shared-domain/identity/LawPractice",
@@ -276,8 +276,8 @@
       "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
     ],
     "counts": {
-      "publicExportEntries": 297,
-      "uniqueSymbols": 113,
+      "publicExportEntries": 303,
+      "uniqueSymbols": 116,
       "sourceFiles": 37
     },
     "exports": [
@@ -2906,15 +2906,15 @@
         "importSpecifier": "@beep/shared-domain/identity",
         "exportSubpath": "./identity",
         "exportedFromPath": "packages/shared/domain/src/identity.ts",
-        "symbolName": "AgentCapability",
+        "symbolName": "Agents",
         "exportKind": "SourceFile",
-        "sourcePath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "sourcePath": "packages/shared/domain/src/identity/Agents.ts",
         "sourceLine": 8,
         "summary": "",
         "categories": [],
         "since": [],
         "tags": [],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity ./identity agentcapability sourcefile packages/shared/domain/src/identity/agentcapability.ts"
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity ./identity agents sourcefile packages/shared/domain/src/identity/agents.ts"
       },
       {
         "packageName": "@beep/shared-domain",
@@ -3081,12 +3081,12 @@
         "packageName": "@beep/shared-domain",
         "packagePath": "packages/shared/domain",
         "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/AgentCapability",
-        "exportSubpath": "./identity/AgentCapability",
-        "exportedFromPath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "importSpecifier": "@beep/shared-domain/identity/Agents",
+        "exportSubpath": "./identity/Agents",
+        "exportedFromPath": "packages/shared/domain/src/identity/Agents.ts",
         "symbolName": "AgentId",
         "exportKind": "const",
-        "sourcePath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "sourcePath": "packages/shared/domain/src/identity/Agents.ts",
         "sourceLine": 27,
         "summary": "Agent entity identifier.",
         "categories": [
@@ -3100,18 +3100,18 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agentcapability ./identity/agentcapability agentid const agent entity identifier. entity-ids packages/shared/domain/src/identity/agentcapability.ts"
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agents ./identity/agents agentid const agent entity identifier. entity-ids packages/shared/domain/src/identity/agents.ts"
       },
       {
         "packageName": "@beep/shared-domain",
         "packagePath": "packages/shared/domain",
         "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/AgentCapability",
-        "exportSubpath": "./identity/AgentCapability",
-        "exportedFromPath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "importSpecifier": "@beep/shared-domain/identity/Agents",
+        "exportSubpath": "./identity/Agents",
+        "exportedFromPath": "packages/shared/domain/src/identity/Agents.ts",
         "symbolName": "AgentId",
         "exportKind": "type",
-        "sourcePath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "sourcePath": "packages/shared/domain/src/identity/Agents.ts",
         "sourceLine": 50,
         "summary": "Runtime type for {@link AgentId}.",
         "categories": [
@@ -3125,18 +3125,18 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agentcapability ./identity/agentcapability agentid type runtime type for {@link agentid}. entity-ids packages/shared/domain/src/identity/agentcapability.ts"
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agents ./identity/agents agentid type runtime type for {@link agentid}. entity-ids packages/shared/domain/src/identity/agents.ts"
       },
       {
         "packageName": "@beep/shared-domain",
         "packagePath": "packages/shared/domain",
         "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/AgentCapability",
-        "exportSubpath": "./identity/AgentCapability",
-        "exportedFromPath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "importSpecifier": "@beep/shared-domain/identity/Agents",
+        "exportSubpath": "./identity/Agents",
+        "exportedFromPath": "packages/shared/domain/src/identity/Agents.ts",
         "symbolName": "SkillId",
         "exportKind": "const",
-        "sourcePath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "sourcePath": "packages/shared/domain/src/identity/Agents.ts",
         "sourceLine": 65,
         "summary": "Skill entity identifier.",
         "categories": [
@@ -3150,18 +3150,18 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agentcapability ./identity/agentcapability skillid const skill entity identifier. entity-ids packages/shared/domain/src/identity/agentcapability.ts"
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agents ./identity/agents skillid const skill entity identifier. entity-ids packages/shared/domain/src/identity/agents.ts"
       },
       {
         "packageName": "@beep/shared-domain",
         "packagePath": "packages/shared/domain",
         "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/AgentCapability",
-        "exportSubpath": "./identity/AgentCapability",
-        "exportedFromPath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "importSpecifier": "@beep/shared-domain/identity/Agents",
+        "exportSubpath": "./identity/Agents",
+        "exportedFromPath": "packages/shared/domain/src/identity/Agents.ts",
         "symbolName": "SkillId",
         "exportKind": "type",
-        "sourcePath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "sourcePath": "packages/shared/domain/src/identity/Agents.ts",
         "sourceLine": 88,
         "summary": "Runtime type for {@link SkillId}.",
         "categories": [
@@ -3175,7 +3175,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agentcapability ./identity/agentcapability skillid type runtime type for {@link skillid}. entity-ids packages/shared/domain/src/identity/agentcapability.ts"
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/agents ./identity/agents skillid type runtime type for {@link skillid}. entity-ids packages/shared/domain/src/identity/agents.ts"
       },
       {
         "packageName": "@beep/shared-domain",
@@ -3384,15 +3384,15 @@
         "importSpecifier": "@beep/shared-domain/identity/index",
         "exportSubpath": "./identity/index",
         "exportedFromPath": "packages/shared/domain/src/identity/index.ts",
-        "symbolName": "AgentCapability",
+        "symbolName": "Agents",
         "exportKind": "SourceFile",
-        "sourcePath": "packages/shared/domain/src/identity/AgentCapability.ts",
+        "sourcePath": "packages/shared/domain/src/identity/Agents.ts",
         "sourceLine": 8,
         "summary": "",
         "categories": [],
         "since": [],
         "tags": [],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/index ./identity/index agentcapability sourcefile packages/shared/domain/src/identity/agentcapability.ts"
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/index ./identity/index agents sourcefile packages/shared/domain/src/identity/agents.ts"
       },
       {
         "packageName": "@beep/shared-domain",
@@ -4754,6 +4754,156 @@
           "@since"
         ],
         "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace emailartifactid type runtime type for {@link emailartifactid}. entity-ids packages/shared/domain/src/identity/workspace.ts"
+      },
+      {
+        "packageName": "@beep/shared-domain",
+        "packagePath": "packages/shared/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-domain/identity/Workspace",
+        "exportSubpath": "./identity/Workspace",
+        "exportedFromPath": "packages/shared/domain/src/identity/Workspace.ts",
+        "symbolName": "MessageId",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
+        "sourceLine": 369,
+        "summary": "Message entity identifier.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace messageid const message entity identifier. entity-ids packages/shared/domain/src/identity/workspace.ts"
+      },
+      {
+        "packageName": "@beep/shared-domain",
+        "packagePath": "packages/shared/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-domain/identity/Workspace",
+        "exportSubpath": "./identity/Workspace",
+        "exportedFromPath": "packages/shared/domain/src/identity/Workspace.ts",
+        "symbolName": "MessageId",
+        "exportKind": "type",
+        "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
+        "sourceLine": 392,
+        "summary": "Runtime type for {@link MessageId}.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace messageid type runtime type for {@link messageid}. entity-ids packages/shared/domain/src/identity/workspace.ts"
+      },
+      {
+        "packageName": "@beep/shared-domain",
+        "packagePath": "packages/shared/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-domain/identity/Workspace",
+        "exportSubpath": "./identity/Workspace",
+        "exportedFromPath": "packages/shared/domain/src/identity/Workspace.ts",
+        "symbolName": "ThreadId",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
+        "sourceLine": 293,
+        "summary": "Thread entity identifier.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace threadid const thread entity identifier. entity-ids packages/shared/domain/src/identity/workspace.ts"
+      },
+      {
+        "packageName": "@beep/shared-domain",
+        "packagePath": "packages/shared/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-domain/identity/Workspace",
+        "exportSubpath": "./identity/Workspace",
+        "exportedFromPath": "packages/shared/domain/src/identity/Workspace.ts",
+        "symbolName": "ThreadId",
+        "exportKind": "type",
+        "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
+        "sourceLine": 316,
+        "summary": "Runtime type for {@link ThreadId}.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace threadid type runtime type for {@link threadid}. entity-ids packages/shared/domain/src/identity/workspace.ts"
+      },
+      {
+        "packageName": "@beep/shared-domain",
+        "packagePath": "packages/shared/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-domain/identity/Workspace",
+        "exportSubpath": "./identity/Workspace",
+        "exportedFromPath": "packages/shared/domain/src/identity/Workspace.ts",
+        "symbolName": "TurnId",
+        "exportKind": "const",
+        "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
+        "sourceLine": 331,
+        "summary": "Turn entity identifier.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace turnid const turn entity identifier. entity-ids packages/shared/domain/src/identity/workspace.ts"
+      },
+      {
+        "packageName": "@beep/shared-domain",
+        "packagePath": "packages/shared/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/shared-domain/identity/Workspace",
+        "exportSubpath": "./identity/Workspace",
+        "exportedFromPath": "packages/shared/domain/src/identity/Workspace.ts",
+        "symbolName": "TurnId",
+        "exportKind": "type",
+        "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
+        "sourceLine": 354,
+        "summary": "Runtime type for {@link TurnId}.",
+        "categories": [
+          "entity-ids"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/workspace ./identity/workspace turnid type runtime type for {@link turnid}. entity-ids packages/shared/domain/src/identity/workspace.ts"
       },
       {
         "packageName": "@beep/shared-domain",

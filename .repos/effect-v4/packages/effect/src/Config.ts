@@ -33,7 +33,7 @@ const TypeId = "~effect/Config"
  * Use when you need to distinguish a `Config` from an unknown value before
  * calling `.parse` or {@link unwrap}.
  *
- * **Example** (Type guard)
+ * **Example** (Checking Config values)
  *
  * ```ts
  * import { Config } from "effect"
@@ -138,7 +138,7 @@ const Proto = {
  * The `parse` callback receives a `ConfigProvider` and must return
  * `Effect<T, ConfigError>`.
  *
- * **Example** (Custom config that reads two keys)
+ * **Example** (Reading two keys with a custom config)
  *
  * ```ts
  * import { Config, ConfigProvider, Effect } from "effect"
@@ -345,14 +345,17 @@ function isMissingDataOnly(issue: SchemaIssue.Issue): boolean {
         ? true
         : isMissingDataOnly(issue.issue)
     case "Pointer":
-    case "Filter":
       return isMissingDataOnly(issue.issue)
+    case "Filter":
     case "UnexpectedKey":
-      return false
     case "Forbidden":
       return false
     case "Composite":
+      return issue.issues.every(isMissingDataOnly)
     case "AnyOf":
+      if (issue.issues.length === 0) {
+        return issue.actual === undefined
+      }
       return issue.issues.every(isMissingDataOnly)
   }
 }
@@ -420,7 +423,7 @@ export const withDefault: {
  * Like {@link withDefault}, only missing-data errors produce `None`.
  * Validation errors still propagate.
  *
- * **Example** (Optional config)
+ * **Example** (Reading optional config)
  *
  * ```ts
  * import { Config, ConfigProvider, Effect } from "effect"
@@ -883,7 +886,7 @@ export function fail(err: SourceError | Schema.SchemaError) {
  * Use when you need a hardcoded config value, such as inside {@link orElse} or
  * tests.
  *
- * **Example** (Constant fallback)
+ * **Example** (Returning a constant fallback)
  *
  * ```ts
  * import { Config } from "effect"
@@ -1423,7 +1426,7 @@ export function date(name?: string) {
  * // { host: "localhost", port: 5432 }
  * ```
  *
- * **Example** (Env vars with nested prefix)
+ * **Example** (Reading env vars with a nested prefix)
  *
  * ```ts
  * import { Config, ConfigProvider, Effect } from "effect"

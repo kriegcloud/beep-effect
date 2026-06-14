@@ -5,16 +5,19 @@
  * @since 0.0.0
  */
 import { $EpistemicDomainId } from "@beep/identity/packages";
-import { UnknownRecord } from "@beep/schema";
+import { NonNegativeInt, UnknownRecord } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as BaseEntitySchema from "@beep/shared-domain/entity/BaseEntity";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
+import { Principal } from "@beep/shared-domain/entity/Principal";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
+import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference";
 import * as S from "effect/Schema";
 
 const $I = $EpistemicDomainId.create("entities/UsageRecord/UsageRecord.model");
 
 /**
- * Usage attribution record for a fixture agent run.
+ * Usage attribution record for model, tool, or agent work.
  *
  * @example
  * ```ts
@@ -30,19 +33,100 @@ export class UsageRecord extends BaseEntity.Class<UsageRecord>($I`UsageRecord`)(
   Epistemic.UsageRecordId,
   {
     fields: {
-      fixtureKey: S.String,
-      snapshot: UnknownRecord,
+      activityId: Epistemic.ActivityId,
+      actor: Principal,
+      costUsdApproxMicros: NonNegativeInt.pipe(S.OptionFromNullOr),
+      credentialReference: OnePasswordReference.pipe(S.OptionFromNullOr),
+      inputTokens: NonNegativeInt.pipe(S.OptionFromNullOr),
+      latencyMillis: NonNegativeInt.pipe(S.OptionFromNullOr),
+      metadata: UnknownRecord,
+      model: S.String,
+      outputTokens: NonNegativeInt.pipe(S.OptionFromNullOr),
+      provider: S.String,
+      totalTokens: NonNegativeInt.pipe(S.OptionFromNullOr),
+      unitCount: NonNegativeInt.pipe(S.OptionFromNullOr),
     },
     persisted: {
-      fixtureKey: EntitySchema.persist.text({
-        columnName: "fixture_key",
+      activityId: EntitySchema.persist.entityId({
+        columnName: "activity_id",
       }),
-      snapshot: EntitySchema.persist.jsonb({
-        columnName: "snapshot",
+      actor: EntitySchema.persist.jsonb({
+        columnName: "actor",
+      }),
+      costUsdApproxMicros: EntitySchema.persist.int({
+        columnName: "cost_usd_approx_micros",
+      }),
+      credentialReference: EntitySchema.persist.text({
+        columnName: "credential_reference",
+      }),
+      inputTokens: EntitySchema.persist.int({
+        columnName: "input_tokens",
+      }),
+      latencyMillis: EntitySchema.persist.int({
+        columnName: "latency_millis",
+      }),
+      metadata: EntitySchema.persist.jsonb({
+        columnName: "metadata",
+      }),
+      model: EntitySchema.persist.text({
+        columnName: "model",
+      }),
+      outputTokens: EntitySchema.persist.int({
+        columnName: "output_tokens",
+      }),
+      provider: EntitySchema.persist.text({
+        columnName: "provider",
+      }),
+      totalTokens: EntitySchema.persist.int({
+        columnName: "total_tokens",
+      }),
+      unitCount: EntitySchema.persist.int({
+        columnName: "unit_count",
       }),
     },
   },
   $I.annote("UsageRecord", {
-    description: "Usage attribution record for a fixture agent run.",
+    description: "Append-only usage attribution record linked to an epistemic Activity.",
   })
 ) {}
+
+/**
+ * Boundary command for appending turn-finalization usage attribution.
+ *
+ * @example
+ * ```ts
+ * import { TurnFinalizationUsageAppend } from "@beep/epistemic-domain"
+ *
+ * console.log(TurnFinalizationUsageAppend)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TurnFinalizationUsageAppend extends S.Class<TurnFinalizationUsageAppend>($I`TurnFinalizationUsageAppend`)(
+  {
+    ...BaseEntitySchema.fields,
+    ...UsageRecord.fields,
+    entityType: S.tag(Epistemic.UsageRecordId.entityType),
+    id: Epistemic.UsageRecordId,
+  },
+  $I.annote("TurnFinalizationUsageAppend", {
+    description: "Decoded append payload for a UsageRecord produced while finalizing a turn.",
+  })
+) {}
+
+/**
+ * Build the UsageRecord appended for a finalized turn.
+ *
+ * @example
+ * ```ts
+ * import { appendTurnFinalizationUsageRecord } from "@beep/epistemic-domain"
+ *
+ * console.log(appendTurnFinalizationUsageRecord)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const appendTurnFinalizationUsageRecord = (input: TurnFinalizationUsageAppend): UsageRecord =>
+  UsageRecord.make(input);

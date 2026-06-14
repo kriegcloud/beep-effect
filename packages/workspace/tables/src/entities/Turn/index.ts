@@ -1,0 +1,21 @@
+/**
+ * Workspace Turn table metadata.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+/**
+ * Turn table exports.
+ *
+ * @example
+ * ```ts
+ * import * as Turn from "@beep/workspace-tables/entities/Turn"
+ *
+ * console.log(Turn.Table.definition.entityId.entityType)
+ * ```
+ *
+ * @category tables
+ * @since 0.0.0
+ */
+export * from "./Turn.table.ts";

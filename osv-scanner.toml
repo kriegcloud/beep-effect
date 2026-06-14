@@ -6,4 +6,8 @@
 # local Bun audit wrapper mirrors ignored vulnerability ids found here.
 #
 # Add ignored vulnerabilities only after review, with a reason and expiry date.
-# No vulnerability ids are ignored by default.
+
+[[IgnoredVulns]]
+id = "GHSA-gv7w-rqvm-qjhr"
+ignoreUntil = 2026-09-12T00:00:00Z
+reason = "esbuild 0.25.x binary-integrity advisory is Deno-module specific (RCE via NPM_CONFIG_REGISTRY when fetched as a Deno module); esbuild here is a build-time transitive dep of drizzle-kit (^0.25.10) and storybook (<=^0.27), neither of which accepts the fixed 0.28.1 yet. Revisit when dependents widen their ranges."

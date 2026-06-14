@@ -90,6 +90,48 @@ export * from "./ContextPacket/index.js";
  */
 export * from "./EmailArtifact/index.js";
 /**
+ * Message entity exports.
+ *
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain/entities"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category entities
+ * @since 0.0.0
+ */
+export * from "./Message/index.js";
+/**
+ * Thread entity exports.
+ *
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain/entities"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category entities
+ * @since 0.0.0
+ */
+export * from "./Thread/index.js";
+/**
+ * Turn entity exports.
+ *
+ * @example
+ * ```ts
+ * import * as Module from "@beep/workspace-domain/entities"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category entities
+ * @since 0.0.0
+ */
+export * from "./Turn/index.js";
+/**
  * Workspace entity exports.
  *
  * @example

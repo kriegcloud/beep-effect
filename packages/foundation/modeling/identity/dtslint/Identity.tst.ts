@@ -1,6 +1,6 @@
 import {
-  $AgentCapabilityDomainId,
-  $AgentCapabilityUseCasesId,
+  $AgentsDomainId,
+  $AgentsUseCasesId,
   $EpistemicDomainId,
   $InstallerDomainId,
   $InstallerServerId,
@@ -52,8 +52,8 @@ describe("Identity", () => {
   it("preserves literal types for P3 package composers", () => {
     expect($WorkspaceDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/workspace-domain">>();
     expect($EpistemicDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/epistemic-domain">>();
-    expect($AgentCapabilityDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/agent-capability-domain">>();
-    expect($AgentCapabilityUseCasesId).type.toBeAssignableTo<IdentityComposer<"@beep/agent-capability-use-cases">>();
+    expect($AgentsDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/agents-domain">>();
+    expect($AgentsUseCasesId).type.toBeAssignableTo<IdentityComposer<"@beep/agents-use-cases">>();
     expect($LawPracticeDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/law-practice-domain">>();
     expect($WealthManagementDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/wealth-management-domain">>();
     expect($ProfessionalRuntimeProofId).type.toBeAssignableTo<IdentityComposer<"@beep/professional-runtime-proof">>();

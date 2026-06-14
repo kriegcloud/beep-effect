@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d37bf6943604205fae981ca1f4f8bea50b5811cace76f8b528526a37527fc0c3",
+    "digest": "154c9736de6c7a3a8a53f6d7343f342c3f82f46bf8bf45e1fc615703385438ad",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/workspace/tables/package.json",
-        "sha256": "b99ed9a89065bfd3148c7b91d26969cdcc776517c36ecd590d2735292a7dca76",
-        "bytes": 2652
+        "sha256": "5acd13e3993f1bdcb0992f65fe34d10f2d88561ee0f5dc57b16ea88efcbd9ad6",
+        "bytes": 3011
       },
       {
         "path": "packages/workspace/tables/src/entities/CandidateDraft/CandidateDraft.table.ts",
@@ -62,8 +62,38 @@
       },
       {
         "path": "packages/workspace/tables/src/entities/index.ts",
-        "sha256": "637d5fc5d66f1ba25130d60c7e49fbf2516d9c7e9eac98cd821325bcbb28cf84",
-        "bytes": 725
+        "sha256": "bee28b7082186c50637474560b62fc476e3f617e2cd4ba351c4e34af6cd2d59a",
+        "bytes": 1536
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Message/index.ts",
+        "sha256": "efedc0cee678e314173fabb0022f75ed7e2e263fd075100165ad08c49a8cea16",
+        "bytes": 364
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Message/Message.table.ts",
+        "sha256": "0c82524ced5a9a2182739f93d12b824fd4a6adb9a032a58fe9935bf72381f69c",
+        "bytes": 518
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "sha256": "e98dd59c7a62f4e1bdfdf408c8cf49d74e70c12602b7db02c274fd4c2a4dc0cb",
+        "bytes": 358
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Thread/Thread.table.ts",
+        "sha256": "47cb3d7479fa7fe31fc44e31e497e0bb30892eee93bee933638277b66eb6e87f",
+        "bytes": 511
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "sha256": "8cfca1d04865a6826a1adb63be7dc58a3753cc0f4f33db1c9011871d411513b8",
+        "bytes": 346
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Turn/Turn.table.ts",
+        "sha256": "0ea57fcb4a9d88da230142a187ade5a7f24b259a572ae645ccb3bb2a45955a54",
+        "bytes": 497
       },
       {
         "path": "packages/workspace/tables/src/index.ts",
@@ -72,8 +102,8 @@
       },
       {
         "path": "packages/workspace/tables/src/Schema.ts",
-        "sha256": "a112b319e074d8d014f2eeb5eaa13295b69560dfaa488f4439726a530254ee7a",
-        "bytes": 946
+        "sha256": "ab3e046edf8df4be211fa320a32929f929553f33d7277a14df2cea344fb616dd",
+        "bytes": 1157
       }
     ]
   },
@@ -86,12 +116,15 @@
       "@beep/workspace-tables",
       "@beep/workspace-tables/entities",
       "@beep/workspace-tables/entities/CandidateDraft",
-      "@beep/workspace-tables/entities/CandidateProject"
+      "@beep/workspace-tables/entities/CandidateProject",
+      "@beep/workspace-tables/entities/Message",
+      "@beep/workspace-tables/entities/Thread",
+      "@beep/workspace-tables/entities/Turn"
     ],
     "counts": {
-      "publicExportEntries": 7,
-      "uniqueSymbols": 5,
-      "sourceFiles": 7
+      "publicExportEntries": 13,
+      "uniqueSymbols": 8,
+      "sourceFiles": 13
     },
     "exports": [
       {
@@ -104,7 +137,7 @@
         "symbolName": "DbSchema",
         "exportKind": "const",
         "sourcePath": "packages/workspace/tables/src/Schema.ts",
-        "sourceLine": 28,
+        "sourceLine": 31,
         "summary": "Metadata-only workspace Drizzle schema aggregate.",
         "categories": [
           "tables"
@@ -129,7 +162,7 @@
         "symbolName": "DbSchema",
         "exportKind": "type",
         "sourcePath": "packages/workspace/tables/src/Schema.ts",
-        "sourceLine": 47,
+        "sourceLine": 53,
         "summary": "Type for {@link DbSchema}.",
         "categories": [
           "tables"
@@ -199,6 +232,57 @@
         "packageName": "@beep/workspace-tables",
         "packagePath": "packages/workspace/tables",
         "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/workspace/tables/src/entities/index.ts",
+        "symbolName": "Message",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/workspace/tables/src/entities/Message/index.ts",
+        "sourceLine": 21,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities ./entities message sourcefile packages/workspace/tables/src/entities/message/index.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/workspace/tables/src/entities/index.ts",
+        "symbolName": "Thread",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "sourceLine": 21,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities ./entities thread sourcefile packages/workspace/tables/src/entities/thread/index.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities",
+        "exportSubpath": "./entities",
+        "exportedFromPath": "packages/workspace/tables/src/entities/index.ts",
+        "symbolName": "Turn",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "sourceLine": 21,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities ./entities turn sourcefile packages/workspace/tables/src/entities/turn/index.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
         "importSpecifier": "@beep/workspace-tables/entities/CandidateDraft",
         "exportSubpath": "./entities/CandidateDraft",
         "exportedFromPath": "packages/workspace/tables/src/entities/CandidateDraft/index.ts",
@@ -244,6 +328,81 @@
           "@since"
         ],
         "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/candidateproject ./entities/candidateproject table const pglite/postgres drizzle table for the workspace candidateproject entity. tables packages/workspace/tables/src/entities/candidateproject/candidateproject.table.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Message",
+        "exportSubpath": "./entities/Message",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Message/index.ts",
+        "symbolName": "Table",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Message/Message.table.ts",
+        "sourceLine": 24,
+        "summary": "PGLite/Postgres Drizzle table for the workspace Message entity.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/message ./entities/message table const pglite/postgres drizzle table for the workspace message entity. tables packages/workspace/tables/src/entities/message/message.table.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Thread",
+        "exportSubpath": "./entities/Thread",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "symbolName": "Table",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Thread/Thread.table.ts",
+        "sourceLine": 24,
+        "summary": "PGLite/Postgres Drizzle table for the workspace Thread entity.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/thread ./entities/thread table const pglite/postgres drizzle table for the workspace thread entity. tables packages/workspace/tables/src/entities/thread/thread.table.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Turn",
+        "exportSubpath": "./entities/Turn",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "symbolName": "Table",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Turn/Turn.table.ts",
+        "sourceLine": 24,
+        "summary": "PGLite/Postgres Drizzle table for the workspace Turn entity.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/turn ./entities/turn table const pglite/postgres drizzle table for the workspace turn entity. tables packages/workspace/tables/src/entities/turn/turn.table.ts"
       }
     ]
   }

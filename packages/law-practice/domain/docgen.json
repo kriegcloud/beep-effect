@@ -432,8 +432,8 @@
       "@beep/shared-domain/identity": [
         "../../../packages/shared/domain/src/identity.ts"
       ],
-      "@beep/shared-domain/identity/AgentCapability": [
-        "../../../packages/shared/domain/src/identity/AgentCapability.ts"
+      "@beep/shared-domain/identity/Agents": [
+        "../../../packages/shared/domain/src/identity/Agents.ts"
       ],
       "@beep/shared-domain/identity/Epistemic": [
         "../../../packages/shared/domain/src/identity/Epistemic.ts"
@@ -458,6 +458,12 @@
       ],
       "@beep/shared-domain/values/OnePasswordReference": [
         "../../../packages/shared/domain/src/values/OnePasswordReference/index.ts"
+      ],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
       ]
     }
   }

@@ -1,7 +1,11 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-12",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "generatedOn": "2026-06-13",
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "infra/src/OipWeb.ts",
@@ -12,19 +16,19 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/agent-capability/domain/src/entities/Agent/Agent.model.ts",
+      "file": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
       "symbol": "anonymous@63",
       "kind": "object-struct-schema",
       "status": "exception",
-      "owner": "@beep/agent-capability-domain",
+      "owner": "@beep/agents-domain",
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/agent-capability/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
+      "file": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
       "symbol": "ProfessionalRuntimeSdk",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/agent-capability-use-cases",
+      "owner": "@beep/agents-use-cases",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
@@ -494,182 +498,6 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "A",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "BlockQuote",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Del",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Document",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Em",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "H1",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "H2",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "H3",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "H4",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "H5",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "H6",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Li",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Ol",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "P",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Strong",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "TaskItem",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "TaskList",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.model.ts",
-      "symbol": "Ul",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.render.ts",
-      "symbol": "EffectRenderAdapter",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.render.ts",
-      "symbol": "PureRenderAdapter",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.ts",
-      "symbol": "BlockContentBuilder",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
-    },
-    {
-      "file": "packages/foundation/modeling/md/src/Md.ts",
-      "symbol": "InlineContentBuilder",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
-    },
-    {
       "file": "packages/foundation/capability/nlp/src/Algebra/Monoid.ts",
       "symbol": "Monoid",
       "kind": "exported-interface",
@@ -1124,6 +952,38 @@
       "status": "exception",
       "owner": "@beep/identity",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.render.ts",
+      "symbol": "EffectRenderAdapter",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.render.ts",
+      "symbol": "PureRenderAdapter",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.ts",
+      "symbol": "BlockContentBuilder",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
+    },
+    {
+      "file": "packages/foundation/modeling/md/src/Md.ts",
+      "symbol": "InlineContentBuilder",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
     },
     {
       "file": "packages/foundation/modeling/ontology/src/annotations.ts",
@@ -2192,16 +2052,6 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/tooling/tool/cli/test/create-package.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "exception",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 28,
-      "owner": "@beep/repo-cli",
-      "reason": "Exception: CLI create-package behavior test; Schema codecs only decode generated package.json/tsconfig/tstyche artifacts at the JSON boundary, all test-local plumbing."
-    },
-    {
       "file": "packages/tooling/tool/cli/test/docgen.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -2227,9 +2077,9 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 20,
+      "line": 23,
       "owner": "@beep/repo-cli",
-      "reason": "Exception: CLI tsconfig-sync behavior test; Schema codecs only decode/encode external tsconfig/tstyche/docgen config fixtures via test-local structs, no domain source schema under test."
+      "reason": "Exception: CLI tsconfig-sync command-behavior test; Schema codecs are incidental JSON-boundary plumbing for tsconfig fixtures and CLI output, not schema-value laws."
     }
   ]
 }

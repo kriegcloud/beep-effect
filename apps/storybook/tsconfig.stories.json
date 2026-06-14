@@ -23,11 +23,32 @@
     "sourceMap": false,
     "types": ["node", "vite/client"],
     "paths": {
+      "@beep/editor": [
+        "../../packages/foundation/ui-system/editor/src/index.ts"
+      ],
+      "@beep/editor/*": ["../../packages/foundation/ui-system/editor/src/*"],
+      "@beep/lexical-schema": [
+        "../../packages/foundation/modeling/lexical/src/index.ts"
+      ],
+      "@beep/lexical-schema/*": [
+        "../../packages/foundation/modeling/lexical/src/*"
+      ],
+      "@beep/md": ["../../packages/foundation/modeling/md/src/index.ts"],
+      "@beep/md/*": ["../../packages/foundation/modeling/md/src/*"],
       "@beep/ui": ["../../packages/foundation/ui-system/ui/src/index.ts"],
       "@beep/ui/*": ["../../packages/foundation/ui-system/ui/src/*"]
     }
   },
   "references": [
+    {
+      "path": "../../packages/foundation/modeling/lexical/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/md/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/ui-system/editor/tsconfig.json"
+    },
     {
       "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
     }

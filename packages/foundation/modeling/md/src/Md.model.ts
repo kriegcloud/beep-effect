@@ -6,20 +6,42 @@
  */
 
 import { $MdId } from "@beep/identity";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import type * as O from "effect/Option";
 
 const $I = $MdId.create("Md.model");
 
-const InlineChildren: S.$Array<S.suspend<S.Codec<Inline>>> = S.Array(S.suspend((): S.Codec<Inline> => Inline)).pipe(
+/**
+ * Recursive inline child list used by inline containers and text-bearing block
+ * nodes.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const InlineChildren = S.Array(S.suspend((): S.Codec<Inline.Type, Inline.Encoded> => Inline)).pipe(
   $I.annoteSchema("InlineChildren", {
     description: "Recursive inline children used by Markdown inline container nodes.",
   })
 );
-const BlockChildren: S.$Array<S.suspend<S.Codec<Block>>> = S.Array(S.suspend((): S.Codec<Block> => Block)).pipe(
-  $I.annoteSchema("BlockChildren", {
-    description: "Recursive block children used by Markdown block container nodes.",
-  })
-);
+
+/**
+ * Companion namespace for {@link InlineChildren}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace InlineChildren {
+  /**
+   * @since 0.0.0
+   */
+  export type Type = ReadonlyArray<Inline.Type>;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded = ReadonlyArray<Inline.Encoded>;
+}
 
 /**
  * Plain escaped inline text.
@@ -35,29 +57,40 @@ const BlockChildren: S.$Array<S.suspend<S.Codec<Block>>> = S.Array(S.suspend(():
  * @category models
  * @since 0.0.0
  */
-export const Text = S.TaggedStruct("text", {
-  value: S.String,
-}).pipe(
-  $I.annoteSchema("Text", {
+export class Text extends S.TaggedClass<Text>($I`Text`)(
+  "text",
+  {
+    value: S.String.annotateKey({
+      description: "Escaped plain text payload.",
+    }),
+  },
+  $I.annote("Text", {
     description: "Plain escaped inline text.",
   })
-);
+) {
+  static readonly fromValue = (value: string): Text => Text.make({ value });
+}
 
 /**
- * Type for {@link Text}.
- *
- * @example
- * ```ts
- * import type { Text } from "@beep/md/Md.model"
- *
- * const accept = (node: Text) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Text}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Text = typeof Text.Type;
+export declare namespace Text {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "text";
+    readonly value: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Trusted raw Markdown inline content.
@@ -73,29 +106,40 @@ export type Text = typeof Text.Type;
  * @category models
  * @since 0.0.0
  */
-export const RawMarkdown = S.TaggedStruct("rawMarkdown", {
-  value: S.String,
-}).pipe(
-  $I.annoteSchema("RawMarkdown", {
+export class RawMarkdown extends S.TaggedClass<RawMarkdown>($I`RawMarkdown`)(
+  "rawMarkdown",
+  {
+    value: S.String.annotateKey({
+      description: "Trusted Markdown source preserved without escaping.",
+    }),
+  },
+  $I.annote("RawMarkdown", {
     description: "Trusted raw Markdown inline content.",
   })
-);
+) {
+  static readonly fromValue = (value: string): RawMarkdown => RawMarkdown.make({ value });
+}
 
 /**
- * Type for {@link RawMarkdown}.
- *
- * @example
- * ```ts
- * import type { RawMarkdown } from "@beep/md/Md.model"
- *
- * const accept = (node: RawMarkdown) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link RawMarkdown}.
  *
  * @category models
  * @since 0.0.0
  */
-export type RawMarkdown = typeof RawMarkdown.Type;
+export declare namespace RawMarkdown {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "rawMarkdown";
+    readonly value: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Raw HTML inline content for adapters that opt into trusted HTML rendering.
@@ -113,30 +157,41 @@ export type RawMarkdown = typeof RawMarkdown.Type;
  * @category models
  * @since 0.0.0
  */
-export const RawHtml = S.TaggedStruct("rawHtml", {
-  value: S.String,
-}).pipe(
-  $I.annoteSchema("RawHtml", {
+export class RawHtml extends S.TaggedClass<RawHtml>($I`RawHtml`)(
+  "rawHtml",
+  {
+    value: S.String.annotateKey({
+      description: "Trusted HTML source preserved for adapters that opt into raw HTML.",
+    }),
+  },
+  $I.annote("RawHtml", {
     description:
       "Raw HTML inline content for adapters that opt into trusted HTML rendering. The built-in HTML adapter escapes this value by default.",
   })
-);
+) {
+  static readonly fromValue = (value: string): RawHtml => RawHtml.make({ value });
+}
 
 /**
- * Type for {@link RawHtml}.
- *
- * @example
- * ```ts
- * import type { RawHtml } from "@beep/md/Md.model"
- *
- * const accept = (node: RawHtml) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link RawHtml}.
  *
  * @category models
  * @since 0.0.0
  */
-export type RawHtml = typeof RawHtml.Type;
+export declare namespace RawHtml {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "rawHtml";
+    readonly value: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Strong inline content.
@@ -152,32 +207,43 @@ export type RawHtml = typeof RawHtml.Type;
  * @category models
  * @since 0.0.0
  */
-export const Strong: S.Codec<Strong> = S.TaggedStruct("strong", {
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("Strong", {
+export class Strong extends S.TaggedClass<Strong>($I`Strong`)(
+  "strong",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline nodes rendered with strong emphasis.",
+    }),
+  },
+  $I.annote("Strong", {
     description: "Strong inline content.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type): Strong => Strong.make({ children });
+}
 
 /**
- * Type for {@link Strong}.
- *
- * @example
- * ```ts
- * import type { Strong } from "@beep/md/Md.model"
- *
- * const accept = (node: Strong) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Strong}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Strong = {
-  readonly _tag: "strong";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace Strong {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "strong";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "strong";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Emphasized inline content.
@@ -193,32 +259,43 @@ export type Strong = {
  * @category models
  * @since 0.0.0
  */
-export const Em: S.Codec<Em> = S.TaggedStruct("em", {
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("Em", {
+export class Em extends S.TaggedClass<Em>($I`Em`)(
+  "em",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline nodes rendered with emphasis.",
+    }),
+  },
+  $I.annote("Em", {
     description: "Emphasized inline content.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type): Em => Em.make({ children });
+}
 
 /**
- * Type for {@link Em}.
- *
- * @example
- * ```ts
- * import type { Em } from "@beep/md/Md.model"
- *
- * const accept = (node: Em) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Em}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Em = {
-  readonly _tag: "em";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace Em {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "em";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "em";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Deleted inline content.
@@ -234,32 +311,43 @@ export type Em = {
  * @category models
  * @since 0.0.0
  */
-export const Del: S.Codec<Del> = S.TaggedStruct("del", {
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("Del", {
+export class Del extends S.TaggedClass<Del>($I`Del`)(
+  "del",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline nodes rendered as deleted content.",
+    }),
+  },
+  $I.annote("Del", {
     description: "Deleted inline content.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type): Del => Del.make({ children });
+}
 
 /**
- * Type for {@link Del}.
- *
- * @example
- * ```ts
- * import type { Del } from "@beep/md/Md.model"
- *
- * const accept = (node: Del) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Del}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Del = {
-  readonly _tag: "del";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace Del {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "del";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "del";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Inline code span.
@@ -275,29 +363,40 @@ export type Del = {
  * @category models
  * @since 0.0.0
  */
-export const Code = S.TaggedStruct("code", {
-  value: S.String,
-}).pipe(
-  $I.annoteSchema("Code", {
+export class Code extends S.TaggedClass<Code>($I`Code`)(
+  "code",
+  {
+    value: S.String.annotateKey({
+      description: "Code span text rendered between inline code delimiters.",
+    }),
+  },
+  $I.annote("Code", {
     description: "Inline code span.",
   })
-);
+) {
+  static readonly fromValue = (value: string): Code => Code.make({ value });
+}
 
 /**
- * Type for {@link Code}.
- *
- * @example
- * ```ts
- * import type { Code } from "@beep/md/Md.model"
- *
- * const accept = (node: Code) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Code}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Code = typeof Code.Type;
+export declare namespace Code {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "code";
+    readonly value: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Inline hyperlink.
@@ -313,34 +412,51 @@ export type Code = typeof Code.Type;
  * @category models
  * @since 0.0.0
  */
-export const A: S.Codec<A> = S.TaggedStruct("a", {
-  href: S.String,
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("A", {
+export class A extends S.TaggedClass<A>($I`A`)(
+  "a",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline nodes rendered as the link label.",
+    }),
+    href: S.String.annotateKey({
+      description: "Markdown link destination or URL.",
+    }),
+  },
+  $I.annote("A", {
     description: "Inline hyperlink.",
   })
-);
+) {
+  static readonly fromProps: {
+    (children: InlineChildren.Type, href: string): A;
+    (href: string): (children: InlineChildren.Type) => A;
+  } = dual(2, (children: InlineChildren.Type, href: string): A => A.make({ children, href }));
+}
 
 /**
- * Type for {@link A}.
- *
- * @example
- * ```ts
- * import type { A } from "@beep/md/Md.model"
- *
- * const accept = (node: A) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link A}.
  *
  * @category models
  * @since 0.0.0
  */
-export type A = {
-  readonly _tag: "a";
-  readonly href: string;
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace A {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "a";
+    readonly children: InlineChildren.Type;
+    readonly href: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "a";
+    readonly children: InlineChildren.Encoded;
+    readonly href: string;
+  }
+}
 
 /**
  * Inline image.
@@ -356,30 +472,47 @@ export type A = {
  * @category models
  * @since 0.0.0
  */
-export const Img = S.TaggedStruct("img", {
-  src: S.String,
-  alt: S.String,
-}).pipe(
-  $I.annoteSchema("Img", {
+export class Img extends S.TaggedClass<Img>($I`Img`)(
+  "img",
+  {
+    alt: S.String.annotateKey({
+      description: "Image alternate text.",
+    }),
+    src: S.String.annotateKey({
+      description: "Image source URL or path.",
+    }),
+  },
+  $I.annote("Img", {
     description: "Inline image.",
   })
-);
+) {
+  static readonly fromProps: {
+    (src: string, alt: string): Img;
+    (alt: string): (src: string) => Img;
+  } = dual(2, (src: string, alt: string): Img => Img.make({ src, alt }));
+}
 
 /**
- * Type for {@link Img}.
- *
- * @example
- * ```ts
- * import type { Img } from "@beep/md/Md.model"
- *
- * const accept = (node: Img) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Img}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Img = typeof Img.Type;
+export declare namespace Img {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "img";
+    readonly alt: string;
+    readonly src: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Inline line break.
@@ -395,27 +528,33 @@ export type Img = typeof Img.Type;
  * @category models
  * @since 0.0.0
  */
-export const Br = S.TaggedStruct("br", {}).pipe(
-  $I.annoteSchema("Br", {
+export class Br extends S.TaggedClass<Br>($I`Br`)(
+  "br",
+  {},
+  $I.annote("Br", {
     description: "Inline line break.",
   })
-);
+) {}
 
 /**
- * Type for {@link Br}.
- *
- * @example
- * ```ts
- * import type { Br } from "@beep/md/Md.model"
- *
- * const accept = (node: Br) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Br}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Br = typeof Br.Type;
+export declare namespace Br {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "br";
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Discriminated union of inline Markdown AST nodes.
@@ -433,27 +572,88 @@ export type Br = typeof Br.Type;
  * @category models
  * @since 0.0.0
  */
-export const Inline: S.Codec<Inline> = S.Union([Text, RawMarkdown, RawHtml, Strong, Em, Del, Code, A, Img, Br]).pipe(
+export const Inline = S.Union([Text, RawMarkdown, RawHtml, Strong, Em, Del, Code, A, Img, Br]).pipe(
+  S.toTaggedUnion("_tag"),
   $I.annoteSchema("Inline", {
     description: "Discriminated union of inline Markdown AST nodes.",
   })
 );
 
 /**
- * Type for {@link Inline}.
- *
- * @example
- * ```ts
- * import type { Inline } from "@beep/md/Md.model"
- *
- * const accept = (node: Inline) => node
- * console.log(accept)
- * ```
+ * Runtime type for {@link Inline}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Inline = Text | RawMarkdown | RawHtml | Strong | Em | Del | Code | A | Img | Br;
+export type Inline = typeof Inline.Type;
+
+/**
+ * Companion namespace for {@link Inline}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace Inline {
+  /**
+   * @since 0.0.0
+   */
+  export type Type =
+    | Text.Type
+    | RawMarkdown.Type
+    | RawHtml.Type
+    | Strong.Type
+    | Em.Type
+    | Del.Type
+    | Code.Type
+    | A.Type
+    | Img.Type
+    | Br.Type;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded =
+    | Text.Encoded
+    | RawMarkdown.Encoded
+    | RawHtml.Encoded
+    | Strong.Encoded
+    | Em.Encoded
+    | Del.Encoded
+    | Code.Encoded
+    | A.Encoded
+    | Img.Encoded
+    | Br.Encoded;
+}
+
+/**
+ * Recursive block child list used by document and block quote containers.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const BlockChildren = S.Array(S.suspend((): S.Codec<Block.Type, Block.Encoded> => Block)).pipe(
+  $I.annoteSchema("BlockChildren", {
+    description: "Recursive block children used by Markdown block container nodes.",
+  })
+);
+
+/**
+ * Companion namespace for {@link BlockChildren}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace BlockChildren {
+  /**
+   * @since 0.0.0
+   */
+  export type Type = ReadonlyArray<Block.Type>;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded = ReadonlyArray<Block.Encoded>;
+}
 
 /**
  * Paragraph block.
@@ -469,37 +669,43 @@ export type Inline = Text | RawMarkdown | RawHtml | Strong | Em | Del | Code | A
  * @category models
  * @since 0.0.0
  */
-export const P: S.Codec<P> = S.TaggedStruct("p", {
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("P", {
+export class P extends S.TaggedClass<P>($I`P`)(
+  "p",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as paragraph content.",
+    }),
+  },
+  $I.annote("P", {
     description: "Paragraph block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => P.make({ children });
+}
 
 /**
- * Type for {@link P}.
- *
- * @example
- * ```ts
- * import type { P } from "@beep/md/Md.model"
- *
- * const accept = (node: P) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link P}.
  *
  * @category models
  * @since 0.0.0
  */
-export type P = {
-  readonly _tag: "p";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace P {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "p";
+    readonly children: InlineChildren.Type;
+  }
 
-const makeHeadingSchema = <const Tag extends "h1" | "h2" | "h3" | "h4" | "h5" | "h6">(tag: Tag) =>
-  S.TaggedStruct(tag, {
-    children: InlineChildren,
-  });
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "p";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Level-one heading block.
@@ -515,30 +721,43 @@ const makeHeadingSchema = <const Tag extends "h1" | "h2" | "h3" | "h4" | "h5" | 
  * @category models
  * @since 0.0.0
  */
-export const H1: S.Codec<H1> = makeHeadingSchema("h1").pipe(
-  $I.annoteSchema("H1", {
+export class H1 extends S.TaggedClass<H1>($I`H1`)(
+  "h1",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as level-one heading content.",
+    }),
+  },
+  $I.annote("H1", {
     description: "Level-one heading block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => H1.make({ children });
+}
 
 /**
- * Type for {@link H1}.
- *
- * @example
- * ```ts
- * import type { H1 } from "@beep/md/Md.model"
- *
- * const accept = (node: H1) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link H1}.
  *
  * @category models
  * @since 0.0.0
  */
-export type H1 = {
-  readonly _tag: "h1";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace H1 {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "h1";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "h1";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Level-two heading block.
@@ -554,30 +773,43 @@ export type H1 = {
  * @category models
  * @since 0.0.0
  */
-export const H2: S.Codec<H2> = makeHeadingSchema("h2").pipe(
-  $I.annoteSchema("H2", {
+export class H2 extends S.TaggedClass<H2>($I`H2`)(
+  "h2",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as level-two heading content.",
+    }),
+  },
+  $I.annote("H2", {
     description: "Level-two heading block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => H2.make({ children });
+}
 
 /**
- * Type for {@link H2}.
- *
- * @example
- * ```ts
- * import type { H2 } from "@beep/md/Md.model"
- *
- * const accept = (node: H2) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link H2}.
  *
  * @category models
  * @since 0.0.0
  */
-export type H2 = {
-  readonly _tag: "h2";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace H2 {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "h2";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "h2";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Level-three heading block.
@@ -593,30 +825,43 @@ export type H2 = {
  * @category models
  * @since 0.0.0
  */
-export const H3: S.Codec<H3> = makeHeadingSchema("h3").pipe(
-  $I.annoteSchema("H3", {
+export class H3 extends S.TaggedClass<H3>($I`H3`)(
+  "h3",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as level-three heading content.",
+    }),
+  },
+  $I.annote("H3", {
     description: "Level-three heading block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => H3.make({ children });
+}
 
 /**
- * Type for {@link H3}.
- *
- * @example
- * ```ts
- * import type { H3 } from "@beep/md/Md.model"
- *
- * const accept = (node: H3) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link H3}.
  *
  * @category models
  * @since 0.0.0
  */
-export type H3 = {
-  readonly _tag: "h3";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace H3 {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "h3";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "h3";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Level-four heading block.
@@ -632,30 +877,43 @@ export type H3 = {
  * @category models
  * @since 0.0.0
  */
-export const H4: S.Codec<H4> = makeHeadingSchema("h4").pipe(
-  $I.annoteSchema("H4", {
+export class H4 extends S.TaggedClass<H4>($I`H4`)(
+  "h4",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as level-four heading content.",
+    }),
+  },
+  $I.annote("H4", {
     description: "Level-four heading block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => H4.make({ children });
+}
 
 /**
- * Type for {@link H4}.
- *
- * @example
- * ```ts
- * import type { H4 } from "@beep/md/Md.model"
- *
- * const accept = (node: H4) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link H4}.
  *
  * @category models
  * @since 0.0.0
  */
-export type H4 = {
-  readonly _tag: "h4";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace H4 {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "h4";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "h4";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Level-five heading block.
@@ -671,30 +929,43 @@ export type H4 = {
  * @category models
  * @since 0.0.0
  */
-export const H5: S.Codec<H5> = makeHeadingSchema("h5").pipe(
-  $I.annoteSchema("H5", {
+export class H5 extends S.TaggedClass<H5>($I`H5`)(
+  "h5",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as level-five heading content.",
+    }),
+  },
+  $I.annote("H5", {
     description: "Level-five heading block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => H5.make({ children });
+}
 
 /**
- * Type for {@link H5}.
- *
- * @example
- * ```ts
- * import type { H5 } from "@beep/md/Md.model"
- *
- * const accept = (node: H5) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link H5}.
  *
  * @category models
  * @since 0.0.0
  */
-export type H5 = {
-  readonly _tag: "h5";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace H5 {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "h5";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "h5";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * Level-six heading block.
@@ -710,30 +981,43 @@ export type H5 = {
  * @category models
  * @since 0.0.0
  */
-export const H6: S.Codec<H6> = makeHeadingSchema("h6").pipe(
-  $I.annoteSchema("H6", {
+export class H6 extends S.TaggedClass<H6>($I`H6`)(
+  "h6",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as level-six heading content.",
+    }),
+  },
+  $I.annote("H6", {
     description: "Level-six heading block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => H6.make({ children });
+}
 
 /**
- * Type for {@link H6}.
- *
- * @example
- * ```ts
- * import type { H6 } from "@beep/md/Md.model"
- *
- * const accept = (node: H6) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link H6}.
  *
  * @category models
  * @since 0.0.0
  */
-export type H6 = {
-  readonly _tag: "h6";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace H6 {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "h6";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "h6";
+    readonly children: InlineChildren.Encoded;
+  }
+}
 
 /**
  * List item block.
@@ -749,38 +1033,73 @@ export type H6 = {
  * @category models
  * @since 0.0.0
  */
-export const Li: S.Codec<Li> = S.TaggedStruct("li", {
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("Li", {
+export class Li extends S.TaggedClass<Li>($I`Li`)(
+  "li",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered inside the list item.",
+    }),
+  },
+  $I.annote("Li", {
     description: "List item block.",
   })
-);
+) {
+  static readonly fromChildren = (children: InlineChildren.Type) => Li.make({ children });
+}
 
 /**
- * Type for {@link Li}.
- *
- * @example
- * ```ts
- * import type { Li } from "@beep/md/Md.model"
- *
- * const accept = (node: Li) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Li}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Li = {
-  readonly _tag: "li";
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace Li {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "li";
+    readonly children: InlineChildren.Type;
+  }
 
-const ListItemChildren = S.Array(Li).pipe(
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "li";
+    readonly children: InlineChildren.Encoded;
+  }
+}
+
+/**
+ * List item children used by ordered and unordered list blocks.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ListItemChildren = S.Array(Li).pipe(
   $I.annoteSchema("ListItemChildren", {
     description: "List item children used by ordered and unordered list blocks.",
   })
 );
+
+/**
+ * Companion namespace for {@link ListItemChildren}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ListItemChildren {
+  /**
+   * @since 0.0.0
+   */
+  export type Type = ReadonlyArray<Li.Type>;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded = ReadonlyArray<Li.Encoded>;
+}
 
 /**
  * Unordered list block.
@@ -796,32 +1115,43 @@ const ListItemChildren = S.Array(Li).pipe(
  * @category models
  * @since 0.0.0
  */
-export const Ul: S.Codec<Ul> = S.TaggedStruct("ul", {
-  children: ListItemChildren,
-}).pipe(
-  $I.annoteSchema("Ul", {
+export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
+  "ul",
+  {
+    children: ListItemChildren.annotateKey({
+      description: "List items rendered as an unordered list.",
+    }),
+  },
+  $I.annote("Ul", {
     description: "Unordered list block.",
   })
-);
+) {
+  static readonly fromChildren = (children: ListItemChildren.Type) => Ul.make({ children });
+}
 
 /**
- * Type for {@link Ul}.
- *
- * @example
- * ```ts
- * import type { Ul } from "@beep/md/Md.model"
- *
- * const accept = (node: Ul) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Ul}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Ul = {
-  readonly _tag: "ul";
-  readonly children: ReadonlyArray<Li>;
-};
+export declare namespace Ul {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "ul";
+    readonly children: ListItemChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "ul";
+    readonly children: ListItemChildren.Encoded;
+  }
+}
 
 /**
  * Ordered list block.
@@ -837,32 +1167,43 @@ export type Ul = {
  * @category models
  * @since 0.0.0
  */
-export const Ol: S.Codec<Ol> = S.TaggedStruct("ol", {
-  children: ListItemChildren,
-}).pipe(
-  $I.annoteSchema("Ol", {
+export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
+  "ol",
+  {
+    children: ListItemChildren.annotateKey({
+      description: "List items rendered as an ordered list.",
+    }),
+  },
+  $I.annote("Ol", {
     description: "Ordered list block.",
   })
-);
+) {
+  static readonly fromChildren = (children: ListItemChildren.Type) => Ol.make({ children });
+}
 
 /**
- * Type for {@link Ol}.
- *
- * @example
- * ```ts
- * import type { Ol } from "@beep/md/Md.model"
- *
- * const accept = (node: Ol) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Ol}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Ol = {
-  readonly _tag: "ol";
-  readonly children: ReadonlyArray<Li>;
-};
+export declare namespace Ol {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "ol";
+    readonly children: ListItemChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "ol";
+    readonly children: ListItemChildren.Encoded;
+  }
+}
 
 /**
  * GFM task list item.
@@ -878,34 +1219,76 @@ export type Ol = {
  * @category models
  * @since 0.0.0
  */
-export const TaskItem: S.Codec<TaskItem> = S.TaggedStruct("taskItem", {
-  checked: S.Boolean,
-  children: InlineChildren,
-}).pipe(
-  $I.annoteSchema("TaskItem", {
+export class TaskItem extends S.TaggedClass<TaskItem>($I`TaskItem`)(
+  "taskItem",
+  {
+    checked: S.Boolean.annotateKey({
+      description: "Whether the task list item is checked.",
+    }),
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as the task item label.",
+    }),
+  },
+  $I.annote("TaskItem", {
     description: "GFM task list item.",
   })
-);
+) {}
 
 /**
- * Type for {@link TaskItem}.
- *
- * @example
- * ```ts
- * import type { TaskItem } from "@beep/md/Md.model"
- *
- * const accept = (node: TaskItem) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link TaskItem}.
  *
  * @category models
  * @since 0.0.0
  */
-export type TaskItem = {
-  readonly _tag: "taskItem";
-  readonly checked: boolean;
-  readonly children: ReadonlyArray<Inline>;
-};
+export declare namespace TaskItem {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "taskItem";
+    readonly checked: boolean;
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "taskItem";
+    readonly checked: boolean;
+    readonly children: InlineChildren.Encoded;
+  }
+}
+
+/**
+ * Task item children used by GFM task list blocks.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TaskItemChildren = S.Array(TaskItem).pipe(
+  $I.annoteSchema("TaskItemChildren", {
+    description: "Task item children used by GFM task list blocks.",
+  })
+);
+
+/**
+ * Companion namespace for {@link TaskItemChildren}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TaskItemChildren {
+  /**
+   * @since 0.0.0
+   */
+  export type Type = ReadonlyArray<TaskItem.Type>;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded = ReadonlyArray<TaskItem.Encoded>;
+}
 
 /**
  * GFM task list block.
@@ -921,32 +1304,41 @@ export type TaskItem = {
  * @category models
  * @since 0.0.0
  */
-export const TaskList: S.Codec<TaskList> = S.TaggedStruct("taskList", {
-  children: S.Array(TaskItem),
-}).pipe(
-  $I.annoteSchema("TaskList", {
+export class TaskList extends S.TaggedClass<TaskList>($I`TaskList`)(
+  "taskList",
+  {
+    children: TaskItemChildren.annotateKey({
+      description: "Task items rendered as a GitHub Flavored Markdown task list.",
+    }),
+  },
+  $I.annote("TaskList", {
     description: "GFM task list block.",
   })
-);
+) {}
 
 /**
- * Type for {@link TaskList}.
- *
- * @example
- * ```ts
- * import type { TaskList } from "@beep/md/Md.model"
- *
- * const accept = (node: TaskList) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link TaskList}.
  *
  * @category models
  * @since 0.0.0
  */
-export type TaskList = {
-  readonly _tag: "taskList";
-  readonly children: ReadonlyArray<TaskItem>;
-};
+export declare namespace TaskList {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "taskList";
+    readonly children: TaskItemChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "taskList";
+    readonly children: TaskItemChildren.Encoded;
+  }
+}
 
 /**
  * Block quote container.
@@ -962,32 +1354,41 @@ export type TaskList = {
  * @category models
  * @since 0.0.0
  */
-export const BlockQuote: S.Codec<BlockQuote> = S.TaggedStruct("blockquote", {
-  children: BlockChildren,
-}).pipe(
-  $I.annoteSchema("BlockQuote", {
+export class BlockQuote extends S.TaggedClass<BlockQuote>($I`BlockQuote`)(
+  "blockquote",
+  {
+    children: BlockChildren.annotateKey({
+      description: "Block children rendered inside the block quote.",
+    }),
+  },
+  $I.annote("BlockQuote", {
     description: "Block quote container.",
   })
-);
+) {}
 
 /**
- * Type for {@link BlockQuote}.
- *
- * @example
- * ```ts
- * import type { BlockQuote } from "@beep/md/Md.model"
- *
- * const accept = (node: BlockQuote) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link BlockQuote}.
  *
  * @category models
  * @since 0.0.0
  */
-export type BlockQuote = {
-  readonly _tag: "blockquote";
-  readonly children: ReadonlyArray<Block>;
-};
+export declare namespace BlockQuote {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "blockquote";
+    readonly children: BlockChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "blockquote";
+    readonly children: BlockChildren.Encoded;
+  }
+}
 
 /**
  * Fenced code block.
@@ -1004,30 +1405,42 @@ export type BlockQuote = {
  * @category models
  * @since 0.0.0
  */
-export const Pre = S.TaggedStruct("pre", {
-  value: S.String,
-  language: S.Option(S.String),
-}).pipe(
-  $I.annoteSchema("Pre", {
+export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
+  "pre",
+  {
+    language: S.Option(S.String).annotateKey({
+      description: "Optional language hint for fenced code rendering.",
+    }),
+    value: S.String.annotateKey({
+      description: "Literal code block contents.",
+    }),
+  },
+  $I.annote("Pre", {
     description: "Fenced code block.",
   })
-);
+) {}
 
 /**
- * Type for {@link Pre}.
- *
- * @example
- * ```ts
- * import type { Pre } from "@beep/md/Md.model"
- *
- * const accept = (node: Pre) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Pre}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Pre = typeof Pre.Type;
+export declare namespace Pre {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "pre";
+    readonly language: O.Option<string>;
+    readonly value: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Horizontal rule block.
@@ -1043,27 +1456,33 @@ export type Pre = typeof Pre.Type;
  * @category models
  * @since 0.0.0
  */
-export const Hr = S.TaggedStruct("hr", {}).pipe(
-  $I.annoteSchema("Hr", {
+export class Hr extends S.TaggedClass<Hr>($I`Hr`)(
+  "hr",
+  {},
+  $I.annote("Hr", {
     description: "Horizontal rule block.",
   })
-);
+) {}
 
 /**
- * Type for {@link Hr}.
- *
- * @example
- * ```ts
- * import type { Hr } from "@beep/md/Md.model"
- *
- * const accept = (node: Hr) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Hr}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Hr = typeof Hr.Type;
+export declare namespace Hr {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "hr";
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Discriminated union of block Markdown AST nodes.
@@ -1081,42 +1500,66 @@ export type Hr = typeof Hr.Type;
  * @category models
  * @since 0.0.0
  */
-export const Block: S.Codec<Block> = S.Union([
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  P,
-  BlockQuote,
-  Pre,
-  Ul,
-  Ol,
-  Li,
-  TaskList,
-  Hr,
-]).pipe(
+export const Block = S.Union([H1, H2, H3, H4, H5, H6, P, BlockQuote, Pre, Ul, Ol, Li, TaskList, Hr]).pipe(
+  S.toTaggedUnion("_tag"),
   $I.annoteSchema("Block", {
     description: "Discriminated union of block Markdown AST nodes.",
   })
 );
 
 /**
- * Type for {@link Block}.
- *
- * @example
- * ```ts
- * import type { Block } from "@beep/md/Md.model"
- *
- * const accept = (node: Block) => node
- * console.log(accept)
- * ```
+ * Runtime type for {@link Block}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Block = H1 | H2 | H3 | H4 | H5 | H6 | P | BlockQuote | Pre | Ul | Ol | Li | TaskList | Hr;
+export type Block = typeof Block.Type;
+
+/**
+ * Companion namespace for {@link Block}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace Block {
+  /**
+   * @since 0.0.0
+   */
+  export type Type =
+    | H1.Type
+    | H2.Type
+    | H3.Type
+    | H4.Type
+    | H5.Type
+    | H6.Type
+    | P.Type
+    | BlockQuote.Type
+    | Pre.Type
+    | Ul.Type
+    | Ol.Type
+    | Li.Type
+    | TaskList.Type
+    | Hr.Type;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded =
+    | H1.Encoded
+    | H2.Encoded
+    | H3.Encoded
+    | H4.Encoded
+    | H5.Encoded
+    | H6.Encoded
+    | P.Encoded
+    | BlockQuote.Encoded
+    | Pre.Encoded
+    | Ul.Encoded
+    | Ol.Encoded
+    | Li.Encoded
+    | TaskList.Encoded
+    | Hr.Encoded;
+}
 
 /**
  * Root Markdown document AST.
@@ -1132,29 +1575,38 @@ export type Block = H1 | H2 | H3 | H4 | H5 | H6 | P | BlockQuote | Pre | Ul | Ol
  * @category models
  * @since 0.0.0
  */
-export const Document: S.Codec<Document> = S.TaggedStruct("document", {
-  children: BlockChildren,
-}).pipe(
-  $I.annoteSchema("Document", {
+export class Document extends S.TaggedClass<Document>($I`Document`)(
+  "document",
+  {
+    children: BlockChildren.annotateKey({
+      description: "Top-level block children in document order.",
+    }),
+  },
+  $I.annote("Document", {
     description: "Root Markdown document AST.",
   })
-);
+) {}
 
 /**
- * Type for {@link Document}.
- *
- * @example
- * ```ts
- * import type { Document } from "@beep/md/Md.model"
- *
- * const accept = (node: Document) => node
- * console.log(accept)
- * ```
+ * Companion namespace for {@link Document}.
  *
  * @category models
  * @since 0.0.0
  */
-export type Document = {
-  readonly _tag: "document";
-  readonly children: ReadonlyArray<Block>;
-};
+export declare namespace Document {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "document";
+    readonly children: BlockChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "document";
+    readonly children: BlockChildren.Encoded;
+  }
+}

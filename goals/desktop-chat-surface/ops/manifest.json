@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "desktop-chat-surface",
+    "title": "Desktop Chat Surface",
+    "status": "active",
+    "created": "2026-06-12",
+    "updated": "2026-06-12",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/desktop-chat-surface",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/agent-chat-interface",
+    "graduated": "2026-06-12"
+  },
+  "dependsOn": ["goals/rich-text-foundation", "goals/workspace-thread-domain"],
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/desktop-chat-surface/README.md",
+    "goals/desktop-chat-surface/SPEC.md",
+    "goals/desktop-chat-surface/PLAN.md",
+    "goals/desktop-chat-surface/GOAL.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/desktop-chat-surface/GOAL.md"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "pending"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "pending"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/desktop-chat-surface/GOAL.md)\" -le 4000",
+    "jq . goals/desktop-chat-surface/ops/manifest.json",
+    "rg -n \"desktop-chat-surface|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/desktop-chat-surface",
+    "git diff --check -- goals/desktop-chat-surface",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The implementation would exceed named scope.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation.",
+    "A dependency packet (rich-text-foundation, workspace-thread-domain) is not closed."
+  ]
+}

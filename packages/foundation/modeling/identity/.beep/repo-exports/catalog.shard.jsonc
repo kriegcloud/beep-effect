@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a9e557af59ca3dbd2d69fd28e9a2a3b91db0386fc014416e572cb44184ccd7e9",
+    "digest": "1cc338f91253d0600531abe724c100849667ae2d0d64a108326f9a3f2c8be642",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/foundation/modeling/identity/src/packages.ts",
-        "sha256": "07c67c7c76398b6abc9c24f8e2ae98c25534a94cf885bd6e86b48616a243322a",
-        "bytes": 37237
+        "sha256": "14f61424eae88e59cda04618b95f51e461172cf755d090619b7607a29c1f6340",
+        "bytes": 38197
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -69,8 +69,8 @@
       "@beep/identity/packages"
     ],
     "counts": {
-      "publicExportEntries": 354,
-      "uniqueSymbols": 118,
+      "publicExportEntries": 363,
+      "uniqueSymbols": 121,
       "sourceFiles": 3
     },
     "exports": [
@@ -84,7 +84,7 @@
         "symbolName": "$AcpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1079,
+        "sourceLine": 1096,
         "summary": "Identity composer for `@beep/acp`.",
         "categories": [
           "configuration"
@@ -106,11 +106,11 @@
         "importSpecifier": "@beep/identity",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
-        "symbolName": "$AgentCapabilityDomainId",
+        "symbolName": "$AgentsDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 650,
-        "summary": "Identity composer for the `@beep/agent-capability-domain` package.",
+        "sourceLine": 653,
+        "summary": "Identity composer for the `@beep/agents-domain` package.",
         "categories": [
           "configuration"
         ],
@@ -122,7 +122,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $agentcapabilitydomainid const identity composer for the `@beep/agent-capability-domain` package. configuration packages/foundation/modeling/identity/src/packages.ts"
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $agentsdomainid const identity composer for the `@beep/agents-domain` package. configuration packages/foundation/modeling/identity/src/packages.ts"
       },
       {
         "packageName": "@beep/identity",
@@ -131,11 +131,11 @@
         "importSpecifier": "@beep/identity",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
-        "symbolName": "$AgentCapabilityUseCasesId",
+        "symbolName": "$AgentsUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 666,
-        "summary": "Identity composer for the `@beep/agent-capability-use-cases` package.",
+        "sourceLine": 668,
+        "summary": "Identity composer for the `@beep/agents-use-cases` package.",
         "categories": [
           "configuration"
         ],
@@ -147,7 +147,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $agentcapabilityusecasesid const identity composer for the `@beep/agent-capability-use-cases` package. configuration packages/foundation/modeling/identity/src/packages.ts"
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $agentsusecasesid const identity composer for the `@beep/agents-use-cases` package. configuration packages/foundation/modeling/identity/src/packages.ts"
       },
       {
         "packageName": "@beep/identity",
@@ -159,7 +159,7 @@
         "symbolName": "$AiProviderCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1375,
+        "sourceLine": 1392,
         "summary": "Identity composer for `@beep/ai-provider-cli`.",
         "categories": [
           "configuration"
@@ -184,7 +184,7 @@
         "symbolName": "$AiSyncId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1585,
         "summary": "Identity composer for `@beep/ai-sync`.",
         "categories": [
           "configuration"
@@ -206,10 +206,35 @@
         "importSpecifier": "@beep/identity",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
+        "symbolName": "$AnthropicId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1048,
+        "summary": "Identity composer for `@beep/anthropic`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $anthropicid const identity composer for `@beep/anthropic`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
         "symbolName": "$ArchitectureLabClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1212,
+        "sourceLine": 1229,
         "summary": "Identity composer for `@beep/architecture-lab-client`.",
         "categories": [
           "configuration"
@@ -234,7 +259,7 @@
         "symbolName": "$ArchitectureLabConfigId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1161,
+        "sourceLine": 1178,
         "summary": "Identity composer for `@beep/architecture-lab-config`.",
         "categories": [
           "configuration"
@@ -259,7 +284,7 @@
         "symbolName": "$ArchitectureLabDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1127,
+        "sourceLine": 1144,
         "summary": "Identity composer for `@beep/architecture-lab-domain`.",
         "categories": [
           "configuration"
@@ -284,7 +309,7 @@
         "symbolName": "$ArchitectureLabProofId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1263,
         "summary": "Identity composer for `@beep/architecture-lab-proof`.",
         "categories": [
           "configuration"
@@ -309,7 +334,7 @@
         "symbolName": "$ArchitectureLabServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1178,
+        "sourceLine": 1195,
         "summary": "Identity composer for `@beep/architecture-lab-server`.",
         "categories": [
           "configuration"
@@ -334,7 +359,7 @@
         "symbolName": "$ArchitectureLabTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1195,
+        "sourceLine": 1212,
         "summary": "Identity composer for `@beep/architecture-lab-tables`.",
         "categories": [
           "configuration"
@@ -359,7 +384,7 @@
         "symbolName": "$ArchitectureLabUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1229,
+        "sourceLine": 1246,
         "summary": "Identity composer for `@beep/architecture-lab-ui`.",
         "categories": [
           "configuration"
@@ -384,7 +409,7 @@
         "symbolName": "$ArchitectureLabUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1144,
+        "sourceLine": 1161,
         "summary": "Identity composer for `@beep/architecture-lab-use-cases`.",
         "categories": [
           "configuration"
@@ -409,7 +434,7 @@
         "symbolName": "$BillingDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 893,
+        "sourceLine": 894,
         "summary": "Identity composer for the `@beep/billing-domain` package.",
         "categories": [
           "configuration"
@@ -434,7 +459,7 @@
         "symbolName": "$BillingServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 910,
+        "sourceLine": 911,
         "summary": "Identity composer for the `@beep/billing-server` package.",
         "categories": [
           "configuration"
@@ -459,7 +484,7 @@
         "symbolName": "$BillingUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 927,
+        "sourceLine": 928,
         "summary": "Identity composer for the `@beep/billing-use-cases` package.",
         "categories": [
           "configuration"
@@ -484,7 +509,7 @@
         "symbolName": "$BoxId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1600,
+        "sourceLine": 1617,
         "summary": "Identity composer for `@beep/box`.",
         "categories": [
           "configuration"
@@ -509,7 +534,7 @@
         "symbolName": "$CanvasClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1503,
+        "sourceLine": 1520,
         "summary": "Identity composer for `@beep/canvas-client`.",
         "categories": [
           "configuration"
@@ -534,7 +559,7 @@
         "symbolName": "$CanvasDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1455,
+        "sourceLine": 1472,
         "summary": "Identity composer for `@beep/canvas-domain`.",
         "categories": [
           "configuration"
@@ -559,7 +584,7 @@
         "symbolName": "$CanvasId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1535,
+        "sourceLine": 1552,
         "summary": "Identity composer for `@beep/canvas`.",
         "categories": [
           "configuration"
@@ -584,7 +609,7 @@
         "symbolName": "$CanvasServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1504,
         "summary": "Identity composer for `@beep/canvas-server`.",
         "categories": [
           "configuration"
@@ -609,7 +634,7 @@
         "symbolName": "$CanvasUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1519,
+        "sourceLine": 1536,
         "summary": "Identity composer for `@beep/canvas-ui`.",
         "categories": [
           "configuration"
@@ -634,7 +659,7 @@
         "symbolName": "$CanvasUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1488,
         "summary": "Identity composer for `@beep/canvas-use-cases`.",
         "categories": [
           "configuration"
@@ -659,7 +684,7 @@
         "symbolName": "$ChalkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 558,
+        "sourceLine": 561,
         "summary": "Identity composer for the `@beep/chalk` package.",
         "categories": [
           "configuration"
@@ -684,7 +709,7 @@
         "symbolName": "$CodedankWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 778,
+        "sourceLine": 779,
         "summary": "$codedank web id export.",
         "categories": [
           "configuration"
@@ -709,7 +734,7 @@
         "symbolName": "$ColorsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 543,
+        "sourceLine": 546,
         "summary": "Identity composer for the `@beep/colors` package.",
         "categories": [
           "configuration"
@@ -734,7 +759,7 @@
         "symbolName": "$DataId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 177,
+        "sourceLine": 180,
         "summary": "Identity composer for the `@beep/data` package.",
         "categories": [
           "configuration"
@@ -759,7 +784,7 @@
         "symbolName": "$DiscordId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1359,
+        "sourceLine": 1376,
         "summary": "Identity composer for `@beep/discord`.",
         "categories": [
           "configuration"
@@ -784,7 +809,7 @@
         "symbolName": "$DrizzleId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 810,
+        "sourceLine": 811,
         "summary": "$drizzle id export.",
         "categories": [
           "configuration"
@@ -809,7 +834,7 @@
         "symbolName": "$DuckdbId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 826,
+        "sourceLine": 827,
         "summary": "$duckdb id export.",
         "categories": [
           "configuration"
@@ -831,10 +856,35 @@
         "importSpecifier": "@beep/identity",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
+        "symbolName": "$EditorId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1761,
+        "summary": "Identity composer for `@beep/editor`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $editorid const identity composer for `@beep/editor`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
         "symbolName": "$EpistemicDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 635,
+        "sourceLine": 638,
         "summary": "Identity composer for the `@beep/epistemic-domain` package.",
         "categories": [
           "configuration"
@@ -859,7 +909,7 @@
         "symbolName": "$FaceDetectionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 842,
+        "sourceLine": 843,
         "summary": "$face detection id export.",
         "categories": [
           "configuration"
@@ -884,7 +934,7 @@
         "symbolName": "$FfmpegId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 858,
+        "sourceLine": 859,
         "summary": "$ffmpeg id export.",
         "categories": [
           "configuration"
@@ -909,7 +959,7 @@
         "symbolName": "$FileProcessingId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1665,
         "summary": "Identity composer for `@beep/file-processing`.",
         "categories": [
           "configuration"
@@ -934,7 +984,7 @@
         "symbolName": "$FirecrawlId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1696,
+        "sourceLine": 1713,
         "summary": "Identity composer for `@beep/firecrawl`.",
         "categories": [
           "configuration"
@@ -959,7 +1009,7 @@
         "symbolName": "$FormId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1584,
+        "sourceLine": 1601,
         "summary": "Identity composer for `@beep/form`.",
         "categories": [
           "configuration"
@@ -984,7 +1034,7 @@
         "symbolName": "$HubspotId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1407,
+        "sourceLine": 1424,
         "summary": "Identity composer for `@beep/hubspot`.",
         "categories": [
           "configuration"
@@ -1034,7 +1084,7 @@
         "symbolName": "$IamDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 946,
+        "sourceLine": 947,
         "summary": "Identity composer for the `@beep/iam-domain` package.",
         "categories": [
           "configuration"
@@ -1059,7 +1109,7 @@
         "symbolName": "$IamServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 963,
+        "sourceLine": 964,
         "summary": "Identity composer for the `@beep/iam-server` package.",
         "categories": [
           "configuration"
@@ -1084,7 +1134,7 @@
         "symbolName": "$IamTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 980,
+        "sourceLine": 981,
         "summary": "Identity composer for the `@beep/iam-tables` package.",
         "categories": [
           "configuration"
@@ -1109,7 +1159,7 @@
         "symbolName": "$IamUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 997,
+        "sourceLine": 998,
         "summary": "Identity composer for the `@beep/iam-use-cases` package.",
         "categories": [
           "configuration"
@@ -1134,7 +1184,7 @@
         "symbolName": "$IdentityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 192,
+        "sourceLine": 195,
         "summary": "Identity composer for the `@beep/identity` package.",
         "categories": [
           "configuration"
@@ -1159,7 +1209,7 @@
         "symbolName": "$InfraId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 588,
+        "sourceLine": 591,
         "summary": "Identity composer for the `@beep/infra` package.",
         "categories": [
           "configuration"
@@ -1184,7 +1234,7 @@
         "symbolName": "$InstallerDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1280,
+        "sourceLine": 1297,
         "summary": "Identity composer for `@beep/installer-domain`.",
         "categories": [
           "configuration"
@@ -1209,7 +1259,7 @@
         "symbolName": "$InstallerServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1311,
+        "sourceLine": 1328,
         "summary": "Identity composer for `@beep/installer-server`.",
         "categories": [
           "configuration"
@@ -1234,7 +1284,7 @@
         "symbolName": "$InstallerUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1295,
+        "sourceLine": 1312,
         "summary": "Identity composer for `@beep/installer-use-cases`.",
         "categories": [
           "configuration"
@@ -1259,7 +1309,7 @@
         "symbolName": "$KonvaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1439,
+        "sourceLine": 1456,
         "summary": "Identity composer for `@beep/konva`.",
         "categories": [
           "configuration"
@@ -1284,7 +1334,7 @@
         "symbolName": "$LangExtractId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 513,
+        "sourceLine": 516,
         "summary": "Identity composer for the `@beep/langextract` package.",
         "categories": [
           "configuration"
@@ -1309,7 +1359,7 @@
         "symbolName": "$LawPracticeDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 682,
+        "sourceLine": 683,
         "summary": "Identity composer for the `@beep/law-practice-domain` package.",
         "categories": [
           "configuration"
@@ -1331,10 +1381,35 @@
         "importSpecifier": "@beep/identity",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
+        "symbolName": "$LexicalSchemaId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1745,
+        "summary": "Identity composer for `@beep/lexical-schema`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity . $lexicalschemaid const identity composer for `@beep/lexical-schema`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
         "symbolName": "$LibpffId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1680,
+        "sourceLine": 1697,
         "summary": "Identity composer for `@beep/libpff`.",
         "categories": [
           "configuration"
@@ -1359,7 +1434,7 @@
         "symbolName": "$MdId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 762,
+        "sourceLine": 763,
         "summary": "$md id export.",
         "categories": [
           "configuration"
@@ -1384,7 +1459,7 @@
         "symbolName": "$MessagesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 207,
+        "sourceLine": 210,
         "summary": "Identity composer for the `@beep/messages` package.",
         "categories": [
           "configuration"
@@ -1409,7 +1484,7 @@
         "symbolName": "$NlpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 498,
+        "sourceLine": 501,
         "summary": "Identity composer for the `@beep/nlp` package.",
         "categories": [
           "configuration"
@@ -1434,7 +1509,7 @@
         "symbolName": "$NlpMcpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1616,
+        "sourceLine": 1633,
         "summary": "Identity composer for `@beep/nlp-mcp`.",
         "categories": [
           "configuration"
@@ -1459,7 +1534,7 @@
         "symbolName": "$ObservabilityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 528,
+        "sourceLine": 531,
         "summary": "Identity composer for the `@beep/observability` package.",
         "categories": [
           "configuration"
@@ -1484,7 +1559,7 @@
         "symbolName": "$OipWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 794,
+        "sourceLine": 795,
         "summary": "$oip web id export.",
         "categories": [
           "configuration"
@@ -1509,7 +1584,7 @@
         "symbolName": "$OnepasswordCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1343,
+        "sourceLine": 1360,
         "summary": "Identity composer for `@beep/onepassword-cli`.",
         "categories": [
           "configuration"
@@ -1534,7 +1609,7 @@
         "symbolName": "$OntologyId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 252,
+        "sourceLine": 255,
         "summary": "Identity composer for the `@beep/ontology` package.",
         "categories": [
           "configuration"
@@ -1559,7 +1634,7 @@
         "symbolName": "$OpenaiCompatId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1095,
+        "sourceLine": 1112,
         "summary": "Identity composer for `@beep/openai-compat`.",
         "categories": [
           "configuration"
@@ -1584,7 +1659,7 @@
         "symbolName": "$PhoenixId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1423,
+        "sourceLine": 1440,
         "summary": "Identity composer for `@beep/phoenix`.",
         "categories": [
           "configuration"
@@ -1609,7 +1684,7 @@
         "symbolName": "$PostgresId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 874,
+        "sourceLine": 875,
         "summary": "$postgres id export.",
         "categories": [
           "configuration"
@@ -1634,7 +1709,7 @@
         "symbolName": "$ProfessionalDesktopId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 714,
+        "sourceLine": 715,
         "summary": "Identity composer for the `@beep/professional-desktop` package.",
         "categories": [
           "configuration"
@@ -1659,7 +1734,7 @@
         "symbolName": "$ProfessionalRuntimeProofId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 730,
+        "sourceLine": 731,
         "summary": "Identity composer for the `@beep/professional-runtime-proof` package.",
         "categories": [
           "configuration"
@@ -1684,7 +1759,7 @@
         "symbolName": "$RdfId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 237,
+        "sourceLine": 240,
         "summary": "Identity composer for the `@beep/rdf` package.",
         "categories": [
           "configuration"
@@ -1709,7 +1784,7 @@
         "symbolName": "$RepoAiMetricsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 316,
+        "sourceLine": 319,
         "summary": "Identity composer for the `@beep/repo-ai-metrics` package.",
         "categories": [
           "configuration"
@@ -1734,7 +1809,7 @@
         "symbolName": "$RepoCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 331,
+        "sourceLine": 334,
         "summary": "Identity composer for the `@beep/repo-cli` package.",
         "categories": [
           "configuration"
@@ -1759,7 +1834,7 @@
         "symbolName": "$RepoCodegraphId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1552,
+        "sourceLine": 1569,
         "summary": "Identity composer for `@beep/repo-codegraph`.",
         "categories": [
           "configuration"
@@ -1784,7 +1859,7 @@
         "symbolName": "$RepoConfigsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 346,
+        "sourceLine": 349,
         "summary": "Identity composer for the `@beep/repo-configs` package.",
         "categories": [
           "configuration"
@@ -1809,7 +1884,7 @@
         "symbolName": "$RepoDocgenId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 573,
+        "sourceLine": 576,
         "summary": "Identity composer for the `@beep/repo-docgen` package.",
         "categories": [
           "configuration"
@@ -1834,7 +1909,7 @@
         "symbolName": "$RepoUtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 361,
+        "sourceLine": 364,
         "summary": "Identity composer for the `@beep/repo-utils` package.",
         "categories": [
           "configuration"
@@ -1859,7 +1934,7 @@
         "symbolName": "$RunpodId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1327,
+        "sourceLine": 1344,
         "summary": "Identity composer for `@beep/runpod`.",
         "categories": [
           "configuration"
@@ -1884,7 +1959,7 @@
         "symbolName": "$SandboxId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1031,
+        "sourceLine": 1032,
         "summary": "Identity composer for the `@beep/sandbox` package.",
         "categories": [
           "configuration"
@@ -1909,7 +1984,7 @@
         "symbolName": "$SanityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1391,
+        "sourceLine": 1408,
         "summary": "Identity composer for `@beep/sanity`.",
         "categories": [
           "configuration"
@@ -1934,7 +2009,7 @@
         "symbolName": "$SchemaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 222,
+        "sourceLine": 225,
         "summary": "Identity composer for the `@beep/schema` package.",
         "categories": [
           "configuration"
@@ -1959,7 +2034,7 @@
         "symbolName": "$ScratchpadId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1014,
+        "sourceLine": 1015,
         "summary": "Identity composer for the `@beep/scratchpad` package.",
         "categories": [
           "configuration"
@@ -1984,7 +2059,7 @@
         "symbolName": "$SemanticWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 483,
+        "sourceLine": 486,
         "summary": "Identity composer for the `@beep/semantic-web` package.",
         "categories": [
           "configuration"
@@ -2009,7 +2084,7 @@
         "symbolName": "$SharedClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 423,
+        "sourceLine": 426,
         "summary": "Identity composer for the `@beep/shared-client` package.",
         "categories": [
           "configuration"
@@ -2034,7 +2109,7 @@
         "symbolName": "$SharedConfigId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 468,
+        "sourceLine": 471,
         "summary": "Identity composer for the `@beep/shared-config` package.",
         "categories": [
           "configuration"
@@ -2059,7 +2134,7 @@
         "symbolName": "$SharedDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 393,
+        "sourceLine": 396,
         "summary": "Identity composer for the `@beep/shared-domain` package.",
         "categories": [
           "configuration"
@@ -2084,7 +2159,7 @@
         "symbolName": "$SharedServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 438,
+        "sourceLine": 441,
         "summary": "Identity composer for the `@beep/shared-server` package.",
         "categories": [
           "configuration"
@@ -2109,7 +2184,7 @@
         "symbolName": "$SharedTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 408,
+        "sourceLine": 411,
         "summary": "Identity composer for the `@beep/shared-tables` package.",
         "categories": [
           "configuration"
@@ -2134,7 +2209,7 @@
         "symbolName": "$SharedUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 453,
+        "sourceLine": 456,
         "summary": "Identity composer for the `@beep/shared-ui` package.",
         "categories": [
           "configuration"
@@ -2159,7 +2234,7 @@
         "symbolName": "$SharedUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 603,
+        "sourceLine": 606,
         "summary": "Identity composer for the `@beep/shared-use-cases` package.",
         "categories": [
           "configuration"
@@ -2184,7 +2259,7 @@
         "symbolName": "$StackInstallerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1265,
+        "sourceLine": 1282,
         "summary": "Identity composer for `@beep/stack-installer`.",
         "categories": [
           "configuration"
@@ -2209,7 +2284,7 @@
         "symbolName": "$TestUtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 376,
+        "sourceLine": 379,
         "summary": "Identity composer for the `@beep/test-utils` package.",
         "categories": [
           "configuration"
@@ -2234,7 +2309,7 @@
         "symbolName": "$TikaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1664,
+        "sourceLine": 1681,
         "summary": "Identity composer for `@beep/tika`.",
         "categories": [
           "configuration"
@@ -2259,7 +2334,7 @@
         "symbolName": "$TypesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 267,
+        "sourceLine": 270,
         "summary": "Identity composer for the `@beep/types` package.",
         "categories": [
           "configuration"
@@ -2284,7 +2359,7 @@
         "symbolName": "$UiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 299,
+        "sourceLine": 302,
         "summary": "Identity composer for the `@beep/ui` package.",
         "categories": [
           "configuration"
@@ -2309,7 +2384,7 @@
         "symbolName": "$UsptoId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1712,
+        "sourceLine": 1729,
         "summary": "Identity composer for the `@beep/uspto` package.",
         "categories": [
           "configuration"
@@ -2334,7 +2409,7 @@
         "symbolName": "$UtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 282,
+        "sourceLine": 285,
         "summary": "Identity composer for the `@beep/utils` package.",
         "categories": [
           "configuration"
@@ -2359,7 +2434,7 @@
         "symbolName": "$VeniceAiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1047,
+        "sourceLine": 1064,
         "summary": "$venice ai id export.",
         "categories": [
           "configuration"
@@ -2384,7 +2459,7 @@
         "symbolName": "$WealthManagementDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 698,
+        "sourceLine": 699,
         "summary": "Identity composer for the `@beep/wealth-management-domain` package.",
         "categories": [
           "configuration"
@@ -2409,7 +2484,7 @@
         "symbolName": "$WinkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1632,
+        "sourceLine": 1649,
         "summary": "Identity composer for `@beep/wink`.",
         "categories": [
           "configuration"
@@ -2434,7 +2509,7 @@
         "symbolName": "$WorkspaceDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 620,
+        "sourceLine": 623,
         "summary": "Identity composer for the `@beep/workspace-domain` package.",
         "categories": [
           "configuration"
@@ -2459,7 +2534,7 @@
         "symbolName": "$WorkspaceTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1111,
+        "sourceLine": 1128,
         "summary": "Identity composer for `@beep/workspace-tables`.",
         "categories": [
           "configuration"
@@ -2484,7 +2559,7 @@
         "symbolName": "$XaiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1063,
+        "sourceLine": 1080,
         "summary": "$xai id export.",
         "categories": [
           "configuration"
@@ -2859,7 +2934,7 @@
         "symbolName": "RepoPkgs",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 746,
+        "sourceLine": 747,
         "summary": "RepoPkgs - export object containing all package IdentityComposer's",
         "categories": [
           "configuration"
@@ -3534,7 +3609,7 @@
         "symbolName": "$AcpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1079,
+        "sourceLine": 1096,
         "summary": "Identity composer for `@beep/acp`.",
         "categories": [
           "configuration"
@@ -3556,11 +3631,11 @@
         "importSpecifier": "@beep/identity/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
-        "symbolName": "$AgentCapabilityDomainId",
+        "symbolName": "$AgentsDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 650,
-        "summary": "Identity composer for the `@beep/agent-capability-domain` package.",
+        "sourceLine": 653,
+        "summary": "Identity composer for the `@beep/agents-domain` package.",
         "categories": [
           "configuration"
         ],
@@ -3572,7 +3647,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $agentcapabilitydomainid const identity composer for the `@beep/agent-capability-domain` package. configuration packages/foundation/modeling/identity/src/packages.ts"
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $agentsdomainid const identity composer for the `@beep/agents-domain` package. configuration packages/foundation/modeling/identity/src/packages.ts"
       },
       {
         "packageName": "@beep/identity",
@@ -3581,11 +3656,11 @@
         "importSpecifier": "@beep/identity/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
-        "symbolName": "$AgentCapabilityUseCasesId",
+        "symbolName": "$AgentsUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 666,
-        "summary": "Identity composer for the `@beep/agent-capability-use-cases` package.",
+        "sourceLine": 668,
+        "summary": "Identity composer for the `@beep/agents-use-cases` package.",
         "categories": [
           "configuration"
         ],
@@ -3597,7 +3672,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $agentcapabilityusecasesid const identity composer for the `@beep/agent-capability-use-cases` package. configuration packages/foundation/modeling/identity/src/packages.ts"
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $agentsusecasesid const identity composer for the `@beep/agents-use-cases` package. configuration packages/foundation/modeling/identity/src/packages.ts"
       },
       {
         "packageName": "@beep/identity",
@@ -3609,7 +3684,7 @@
         "symbolName": "$AiProviderCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1375,
+        "sourceLine": 1392,
         "summary": "Identity composer for `@beep/ai-provider-cli`.",
         "categories": [
           "configuration"
@@ -3634,7 +3709,7 @@
         "symbolName": "$AiSyncId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1585,
         "summary": "Identity composer for `@beep/ai-sync`.",
         "categories": [
           "configuration"
@@ -3656,10 +3731,35 @@
         "importSpecifier": "@beep/identity/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
+        "symbolName": "$AnthropicId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1048,
+        "summary": "Identity composer for `@beep/anthropic`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $anthropicid const identity composer for `@beep/anthropic`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
         "symbolName": "$ArchitectureLabClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1212,
+        "sourceLine": 1229,
         "summary": "Identity composer for `@beep/architecture-lab-client`.",
         "categories": [
           "configuration"
@@ -3684,7 +3784,7 @@
         "symbolName": "$ArchitectureLabConfigId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1161,
+        "sourceLine": 1178,
         "summary": "Identity composer for `@beep/architecture-lab-config`.",
         "categories": [
           "configuration"
@@ -3709,7 +3809,7 @@
         "symbolName": "$ArchitectureLabDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1127,
+        "sourceLine": 1144,
         "summary": "Identity composer for `@beep/architecture-lab-domain`.",
         "categories": [
           "configuration"
@@ -3734,7 +3834,7 @@
         "symbolName": "$ArchitectureLabProofId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1263,
         "summary": "Identity composer for `@beep/architecture-lab-proof`.",
         "categories": [
           "configuration"
@@ -3759,7 +3859,7 @@
         "symbolName": "$ArchitectureLabServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1178,
+        "sourceLine": 1195,
         "summary": "Identity composer for `@beep/architecture-lab-server`.",
         "categories": [
           "configuration"
@@ -3784,7 +3884,7 @@
         "symbolName": "$ArchitectureLabTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1195,
+        "sourceLine": 1212,
         "summary": "Identity composer for `@beep/architecture-lab-tables`.",
         "categories": [
           "configuration"
@@ -3809,7 +3909,7 @@
         "symbolName": "$ArchitectureLabUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1229,
+        "sourceLine": 1246,
         "summary": "Identity composer for `@beep/architecture-lab-ui`.",
         "categories": [
           "configuration"
@@ -3834,7 +3934,7 @@
         "symbolName": "$ArchitectureLabUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1144,
+        "sourceLine": 1161,
         "summary": "Identity composer for `@beep/architecture-lab-use-cases`.",
         "categories": [
           "configuration"
@@ -3859,7 +3959,7 @@
         "symbolName": "$BillingDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 893,
+        "sourceLine": 894,
         "summary": "Identity composer for the `@beep/billing-domain` package.",
         "categories": [
           "configuration"
@@ -3884,7 +3984,7 @@
         "symbolName": "$BillingServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 910,
+        "sourceLine": 911,
         "summary": "Identity composer for the `@beep/billing-server` package.",
         "categories": [
           "configuration"
@@ -3909,7 +4009,7 @@
         "symbolName": "$BillingUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 927,
+        "sourceLine": 928,
         "summary": "Identity composer for the `@beep/billing-use-cases` package.",
         "categories": [
           "configuration"
@@ -3934,7 +4034,7 @@
         "symbolName": "$BoxId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1600,
+        "sourceLine": 1617,
         "summary": "Identity composer for `@beep/box`.",
         "categories": [
           "configuration"
@@ -3959,7 +4059,7 @@
         "symbolName": "$CanvasClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1503,
+        "sourceLine": 1520,
         "summary": "Identity composer for `@beep/canvas-client`.",
         "categories": [
           "configuration"
@@ -3984,7 +4084,7 @@
         "symbolName": "$CanvasDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1455,
+        "sourceLine": 1472,
         "summary": "Identity composer for `@beep/canvas-domain`.",
         "categories": [
           "configuration"
@@ -4009,7 +4109,7 @@
         "symbolName": "$CanvasId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1535,
+        "sourceLine": 1552,
         "summary": "Identity composer for `@beep/canvas`.",
         "categories": [
           "configuration"
@@ -4034,7 +4134,7 @@
         "symbolName": "$CanvasServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1504,
         "summary": "Identity composer for `@beep/canvas-server`.",
         "categories": [
           "configuration"
@@ -4059,7 +4159,7 @@
         "symbolName": "$CanvasUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1519,
+        "sourceLine": 1536,
         "summary": "Identity composer for `@beep/canvas-ui`.",
         "categories": [
           "configuration"
@@ -4084,7 +4184,7 @@
         "symbolName": "$CanvasUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1488,
         "summary": "Identity composer for `@beep/canvas-use-cases`.",
         "categories": [
           "configuration"
@@ -4109,7 +4209,7 @@
         "symbolName": "$ChalkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 558,
+        "sourceLine": 561,
         "summary": "Identity composer for the `@beep/chalk` package.",
         "categories": [
           "configuration"
@@ -4134,7 +4234,7 @@
         "symbolName": "$CodedankWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 778,
+        "sourceLine": 779,
         "summary": "$codedank web id export.",
         "categories": [
           "configuration"
@@ -4159,7 +4259,7 @@
         "symbolName": "$ColorsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 543,
+        "sourceLine": 546,
         "summary": "Identity composer for the `@beep/colors` package.",
         "categories": [
           "configuration"
@@ -4184,7 +4284,7 @@
         "symbolName": "$DataId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 177,
+        "sourceLine": 180,
         "summary": "Identity composer for the `@beep/data` package.",
         "categories": [
           "configuration"
@@ -4209,7 +4309,7 @@
         "symbolName": "$DiscordId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1359,
+        "sourceLine": 1376,
         "summary": "Identity composer for `@beep/discord`.",
         "categories": [
           "configuration"
@@ -4234,7 +4334,7 @@
         "symbolName": "$DrizzleId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 810,
+        "sourceLine": 811,
         "summary": "$drizzle id export.",
         "categories": [
           "configuration"
@@ -4259,7 +4359,7 @@
         "symbolName": "$DuckdbId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 826,
+        "sourceLine": 827,
         "summary": "$duckdb id export.",
         "categories": [
           "configuration"
@@ -4281,10 +4381,35 @@
         "importSpecifier": "@beep/identity/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
+        "symbolName": "$EditorId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1761,
+        "summary": "Identity composer for `@beep/editor`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $editorid const identity composer for `@beep/editor`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
         "symbolName": "$EpistemicDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 635,
+        "sourceLine": 638,
         "summary": "Identity composer for the `@beep/epistemic-domain` package.",
         "categories": [
           "configuration"
@@ -4309,7 +4434,7 @@
         "symbolName": "$FaceDetectionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 842,
+        "sourceLine": 843,
         "summary": "$face detection id export.",
         "categories": [
           "configuration"
@@ -4334,7 +4459,7 @@
         "symbolName": "$FfmpegId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 858,
+        "sourceLine": 859,
         "summary": "$ffmpeg id export.",
         "categories": [
           "configuration"
@@ -4359,7 +4484,7 @@
         "symbolName": "$FileProcessingId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1665,
         "summary": "Identity composer for `@beep/file-processing`.",
         "categories": [
           "configuration"
@@ -4384,7 +4509,7 @@
         "symbolName": "$FirecrawlId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1696,
+        "sourceLine": 1713,
         "summary": "Identity composer for `@beep/firecrawl`.",
         "categories": [
           "configuration"
@@ -4409,7 +4534,7 @@
         "symbolName": "$FormId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1584,
+        "sourceLine": 1601,
         "summary": "Identity composer for `@beep/form`.",
         "categories": [
           "configuration"
@@ -4434,7 +4559,7 @@
         "symbolName": "$HubspotId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1407,
+        "sourceLine": 1424,
         "summary": "Identity composer for `@beep/hubspot`.",
         "categories": [
           "configuration"
@@ -4484,7 +4609,7 @@
         "symbolName": "$IamDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 946,
+        "sourceLine": 947,
         "summary": "Identity composer for the `@beep/iam-domain` package.",
         "categories": [
           "configuration"
@@ -4509,7 +4634,7 @@
         "symbolName": "$IamServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 963,
+        "sourceLine": 964,
         "summary": "Identity composer for the `@beep/iam-server` package.",
         "categories": [
           "configuration"
@@ -4534,7 +4659,7 @@
         "symbolName": "$IamTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 980,
+        "sourceLine": 981,
         "summary": "Identity composer for the `@beep/iam-tables` package.",
         "categories": [
           "configuration"
@@ -4559,7 +4684,7 @@
         "symbolName": "$IamUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 997,
+        "sourceLine": 998,
         "summary": "Identity composer for the `@beep/iam-use-cases` package.",
         "categories": [
           "configuration"
@@ -4584,7 +4709,7 @@
         "symbolName": "$IdentityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 192,
+        "sourceLine": 195,
         "summary": "Identity composer for the `@beep/identity` package.",
         "categories": [
           "configuration"
@@ -4609,7 +4734,7 @@
         "symbolName": "$InfraId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 588,
+        "sourceLine": 591,
         "summary": "Identity composer for the `@beep/infra` package.",
         "categories": [
           "configuration"
@@ -4634,7 +4759,7 @@
         "symbolName": "$InstallerDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1280,
+        "sourceLine": 1297,
         "summary": "Identity composer for `@beep/installer-domain`.",
         "categories": [
           "configuration"
@@ -4659,7 +4784,7 @@
         "symbolName": "$InstallerServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1311,
+        "sourceLine": 1328,
         "summary": "Identity composer for `@beep/installer-server`.",
         "categories": [
           "configuration"
@@ -4684,7 +4809,7 @@
         "symbolName": "$InstallerUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1295,
+        "sourceLine": 1312,
         "summary": "Identity composer for `@beep/installer-use-cases`.",
         "categories": [
           "configuration"
@@ -4709,7 +4834,7 @@
         "symbolName": "$KonvaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1439,
+        "sourceLine": 1456,
         "summary": "Identity composer for `@beep/konva`.",
         "categories": [
           "configuration"
@@ -4734,7 +4859,7 @@
         "symbolName": "$LangExtractId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 513,
+        "sourceLine": 516,
         "summary": "Identity composer for the `@beep/langextract` package.",
         "categories": [
           "configuration"
@@ -4759,7 +4884,7 @@
         "symbolName": "$LawPracticeDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 682,
+        "sourceLine": 683,
         "summary": "Identity composer for the `@beep/law-practice-domain` package.",
         "categories": [
           "configuration"
@@ -4781,10 +4906,35 @@
         "importSpecifier": "@beep/identity/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
+        "symbolName": "$LexicalSchemaId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1745,
+        "summary": "Identity composer for `@beep/lexical-schema`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/index ./index $lexicalschemaid const identity composer for `@beep/lexical-schema`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/index.ts",
         "symbolName": "$LibpffId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1680,
+        "sourceLine": 1697,
         "summary": "Identity composer for `@beep/libpff`.",
         "categories": [
           "configuration"
@@ -4809,7 +4959,7 @@
         "symbolName": "$MdId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 762,
+        "sourceLine": 763,
         "summary": "$md id export.",
         "categories": [
           "configuration"
@@ -4834,7 +4984,7 @@
         "symbolName": "$MessagesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 207,
+        "sourceLine": 210,
         "summary": "Identity composer for the `@beep/messages` package.",
         "categories": [
           "configuration"
@@ -4859,7 +5009,7 @@
         "symbolName": "$NlpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 498,
+        "sourceLine": 501,
         "summary": "Identity composer for the `@beep/nlp` package.",
         "categories": [
           "configuration"
@@ -4884,7 +5034,7 @@
         "symbolName": "$NlpMcpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1616,
+        "sourceLine": 1633,
         "summary": "Identity composer for `@beep/nlp-mcp`.",
         "categories": [
           "configuration"
@@ -4909,7 +5059,7 @@
         "symbolName": "$ObservabilityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 528,
+        "sourceLine": 531,
         "summary": "Identity composer for the `@beep/observability` package.",
         "categories": [
           "configuration"
@@ -4934,7 +5084,7 @@
         "symbolName": "$OipWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 794,
+        "sourceLine": 795,
         "summary": "$oip web id export.",
         "categories": [
           "configuration"
@@ -4959,7 +5109,7 @@
         "symbolName": "$OnepasswordCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1343,
+        "sourceLine": 1360,
         "summary": "Identity composer for `@beep/onepassword-cli`.",
         "categories": [
           "configuration"
@@ -4984,7 +5134,7 @@
         "symbolName": "$OntologyId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 252,
+        "sourceLine": 255,
         "summary": "Identity composer for the `@beep/ontology` package.",
         "categories": [
           "configuration"
@@ -5009,7 +5159,7 @@
         "symbolName": "$OpenaiCompatId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1095,
+        "sourceLine": 1112,
         "summary": "Identity composer for `@beep/openai-compat`.",
         "categories": [
           "configuration"
@@ -5034,7 +5184,7 @@
         "symbolName": "$PhoenixId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1423,
+        "sourceLine": 1440,
         "summary": "Identity composer for `@beep/phoenix`.",
         "categories": [
           "configuration"
@@ -5059,7 +5209,7 @@
         "symbolName": "$PostgresId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 874,
+        "sourceLine": 875,
         "summary": "$postgres id export.",
         "categories": [
           "configuration"
@@ -5084,7 +5234,7 @@
         "symbolName": "$ProfessionalDesktopId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 714,
+        "sourceLine": 715,
         "summary": "Identity composer for the `@beep/professional-desktop` package.",
         "categories": [
           "configuration"
@@ -5109,7 +5259,7 @@
         "symbolName": "$ProfessionalRuntimeProofId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 730,
+        "sourceLine": 731,
         "summary": "Identity composer for the `@beep/professional-runtime-proof` package.",
         "categories": [
           "configuration"
@@ -5134,7 +5284,7 @@
         "symbolName": "$RdfId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 237,
+        "sourceLine": 240,
         "summary": "Identity composer for the `@beep/rdf` package.",
         "categories": [
           "configuration"
@@ -5159,7 +5309,7 @@
         "symbolName": "$RepoAiMetricsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 316,
+        "sourceLine": 319,
         "summary": "Identity composer for the `@beep/repo-ai-metrics` package.",
         "categories": [
           "configuration"
@@ -5184,7 +5334,7 @@
         "symbolName": "$RepoCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 331,
+        "sourceLine": 334,
         "summary": "Identity composer for the `@beep/repo-cli` package.",
         "categories": [
           "configuration"
@@ -5209,7 +5359,7 @@
         "symbolName": "$RepoCodegraphId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1552,
+        "sourceLine": 1569,
         "summary": "Identity composer for `@beep/repo-codegraph`.",
         "categories": [
           "configuration"
@@ -5234,7 +5384,7 @@
         "symbolName": "$RepoConfigsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 346,
+        "sourceLine": 349,
         "summary": "Identity composer for the `@beep/repo-configs` package.",
         "categories": [
           "configuration"
@@ -5259,7 +5409,7 @@
         "symbolName": "$RepoDocgenId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 573,
+        "sourceLine": 576,
         "summary": "Identity composer for the `@beep/repo-docgen` package.",
         "categories": [
           "configuration"
@@ -5284,7 +5434,7 @@
         "symbolName": "$RepoUtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 361,
+        "sourceLine": 364,
         "summary": "Identity composer for the `@beep/repo-utils` package.",
         "categories": [
           "configuration"
@@ -5309,7 +5459,7 @@
         "symbolName": "$RunpodId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1327,
+        "sourceLine": 1344,
         "summary": "Identity composer for `@beep/runpod`.",
         "categories": [
           "configuration"
@@ -5334,7 +5484,7 @@
         "symbolName": "$SandboxId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1031,
+        "sourceLine": 1032,
         "summary": "Identity composer for the `@beep/sandbox` package.",
         "categories": [
           "configuration"
@@ -5359,7 +5509,7 @@
         "symbolName": "$SanityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1391,
+        "sourceLine": 1408,
         "summary": "Identity composer for `@beep/sanity`.",
         "categories": [
           "configuration"
@@ -5384,7 +5534,7 @@
         "symbolName": "$SchemaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 222,
+        "sourceLine": 225,
         "summary": "Identity composer for the `@beep/schema` package.",
         "categories": [
           "configuration"
@@ -5409,7 +5559,7 @@
         "symbolName": "$ScratchpadId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1014,
+        "sourceLine": 1015,
         "summary": "Identity composer for the `@beep/scratchpad` package.",
         "categories": [
           "configuration"
@@ -5434,7 +5584,7 @@
         "symbolName": "$SemanticWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 483,
+        "sourceLine": 486,
         "summary": "Identity composer for the `@beep/semantic-web` package.",
         "categories": [
           "configuration"
@@ -5459,7 +5609,7 @@
         "symbolName": "$SharedClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 423,
+        "sourceLine": 426,
         "summary": "Identity composer for the `@beep/shared-client` package.",
         "categories": [
           "configuration"
@@ -5484,7 +5634,7 @@
         "symbolName": "$SharedConfigId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 468,
+        "sourceLine": 471,
         "summary": "Identity composer for the `@beep/shared-config` package.",
         "categories": [
           "configuration"
@@ -5509,7 +5659,7 @@
         "symbolName": "$SharedDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 393,
+        "sourceLine": 396,
         "summary": "Identity composer for the `@beep/shared-domain` package.",
         "categories": [
           "configuration"
@@ -5534,7 +5684,7 @@
         "symbolName": "$SharedServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 438,
+        "sourceLine": 441,
         "summary": "Identity composer for the `@beep/shared-server` package.",
         "categories": [
           "configuration"
@@ -5559,7 +5709,7 @@
         "symbolName": "$SharedTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 408,
+        "sourceLine": 411,
         "summary": "Identity composer for the `@beep/shared-tables` package.",
         "categories": [
           "configuration"
@@ -5584,7 +5734,7 @@
         "symbolName": "$SharedUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 453,
+        "sourceLine": 456,
         "summary": "Identity composer for the `@beep/shared-ui` package.",
         "categories": [
           "configuration"
@@ -5609,7 +5759,7 @@
         "symbolName": "$SharedUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 603,
+        "sourceLine": 606,
         "summary": "Identity composer for the `@beep/shared-use-cases` package.",
         "categories": [
           "configuration"
@@ -5634,7 +5784,7 @@
         "symbolName": "$StackInstallerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1265,
+        "sourceLine": 1282,
         "summary": "Identity composer for `@beep/stack-installer`.",
         "categories": [
           "configuration"
@@ -5659,7 +5809,7 @@
         "symbolName": "$TestUtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 376,
+        "sourceLine": 379,
         "summary": "Identity composer for the `@beep/test-utils` package.",
         "categories": [
           "configuration"
@@ -5684,7 +5834,7 @@
         "symbolName": "$TikaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1664,
+        "sourceLine": 1681,
         "summary": "Identity composer for `@beep/tika`.",
         "categories": [
           "configuration"
@@ -5709,7 +5859,7 @@
         "symbolName": "$TypesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 267,
+        "sourceLine": 270,
         "summary": "Identity composer for the `@beep/types` package.",
         "categories": [
           "configuration"
@@ -5734,7 +5884,7 @@
         "symbolName": "$UiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 299,
+        "sourceLine": 302,
         "summary": "Identity composer for the `@beep/ui` package.",
         "categories": [
           "configuration"
@@ -5759,7 +5909,7 @@
         "symbolName": "$UsptoId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1712,
+        "sourceLine": 1729,
         "summary": "Identity composer for the `@beep/uspto` package.",
         "categories": [
           "configuration"
@@ -5784,7 +5934,7 @@
         "symbolName": "$UtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 282,
+        "sourceLine": 285,
         "summary": "Identity composer for the `@beep/utils` package.",
         "categories": [
           "configuration"
@@ -5809,7 +5959,7 @@
         "symbolName": "$VeniceAiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1047,
+        "sourceLine": 1064,
         "summary": "$venice ai id export.",
         "categories": [
           "configuration"
@@ -5834,7 +5984,7 @@
         "symbolName": "$WealthManagementDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 698,
+        "sourceLine": 699,
         "summary": "Identity composer for the `@beep/wealth-management-domain` package.",
         "categories": [
           "configuration"
@@ -5859,7 +6009,7 @@
         "symbolName": "$WinkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1632,
+        "sourceLine": 1649,
         "summary": "Identity composer for `@beep/wink`.",
         "categories": [
           "configuration"
@@ -5884,7 +6034,7 @@
         "symbolName": "$WorkspaceDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 620,
+        "sourceLine": 623,
         "summary": "Identity composer for the `@beep/workspace-domain` package.",
         "categories": [
           "configuration"
@@ -5909,7 +6059,7 @@
         "symbolName": "$WorkspaceTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1111,
+        "sourceLine": 1128,
         "summary": "Identity composer for `@beep/workspace-tables`.",
         "categories": [
           "configuration"
@@ -5934,7 +6084,7 @@
         "symbolName": "$XaiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1063,
+        "sourceLine": 1080,
         "summary": "$xai id export.",
         "categories": [
           "configuration"
@@ -6309,7 +6459,7 @@
         "symbolName": "RepoPkgs",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 746,
+        "sourceLine": 747,
         "summary": "RepoPkgs - export object containing all package IdentityComposer's",
         "categories": [
           "configuration"
@@ -6484,7 +6634,7 @@
         "symbolName": "$AcpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1079,
+        "sourceLine": 1096,
         "summary": "Identity composer for `@beep/acp`.",
         "categories": [
           "configuration"
@@ -6506,11 +6656,11 @@
         "importSpecifier": "@beep/identity/packages",
         "exportSubpath": "./packages",
         "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
-        "symbolName": "$AgentCapabilityDomainId",
+        "symbolName": "$AgentsDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 650,
-        "summary": "Identity composer for the `@beep/agent-capability-domain` package.",
+        "sourceLine": 653,
+        "summary": "Identity composer for the `@beep/agents-domain` package.",
         "categories": [
           "configuration"
         ],
@@ -6522,7 +6672,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $agentcapabilitydomainid const identity composer for the `@beep/agent-capability-domain` package. configuration packages/foundation/modeling/identity/src/packages.ts"
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $agentsdomainid const identity composer for the `@beep/agents-domain` package. configuration packages/foundation/modeling/identity/src/packages.ts"
       },
       {
         "packageName": "@beep/identity",
@@ -6531,11 +6681,11 @@
         "importSpecifier": "@beep/identity/packages",
         "exportSubpath": "./packages",
         "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
-        "symbolName": "$AgentCapabilityUseCasesId",
+        "symbolName": "$AgentsUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 666,
-        "summary": "Identity composer for the `@beep/agent-capability-use-cases` package.",
+        "sourceLine": 668,
+        "summary": "Identity composer for the `@beep/agents-use-cases` package.",
         "categories": [
           "configuration"
         ],
@@ -6547,7 +6697,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $agentcapabilityusecasesid const identity composer for the `@beep/agent-capability-use-cases` package. configuration packages/foundation/modeling/identity/src/packages.ts"
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $agentsusecasesid const identity composer for the `@beep/agents-use-cases` package. configuration packages/foundation/modeling/identity/src/packages.ts"
       },
       {
         "packageName": "@beep/identity",
@@ -6559,7 +6709,7 @@
         "symbolName": "$AiProviderCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1375,
+        "sourceLine": 1392,
         "summary": "Identity composer for `@beep/ai-provider-cli`.",
         "categories": [
           "configuration"
@@ -6584,7 +6734,7 @@
         "symbolName": "$AiSyncId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1585,
         "summary": "Identity composer for `@beep/ai-sync`.",
         "categories": [
           "configuration"
@@ -6606,10 +6756,35 @@
         "importSpecifier": "@beep/identity/packages",
         "exportSubpath": "./packages",
         "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
+        "symbolName": "$AnthropicId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1048,
+        "summary": "Identity composer for `@beep/anthropic`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $anthropicid const identity composer for `@beep/anthropic`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity/packages",
+        "exportSubpath": "./packages",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
         "symbolName": "$ArchitectureLabClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1212,
+        "sourceLine": 1229,
         "summary": "Identity composer for `@beep/architecture-lab-client`.",
         "categories": [
           "configuration"
@@ -6634,7 +6809,7 @@
         "symbolName": "$ArchitectureLabConfigId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1161,
+        "sourceLine": 1178,
         "summary": "Identity composer for `@beep/architecture-lab-config`.",
         "categories": [
           "configuration"
@@ -6659,7 +6834,7 @@
         "symbolName": "$ArchitectureLabDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1127,
+        "sourceLine": 1144,
         "summary": "Identity composer for `@beep/architecture-lab-domain`.",
         "categories": [
           "configuration"
@@ -6684,7 +6859,7 @@
         "symbolName": "$ArchitectureLabProofId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1263,
         "summary": "Identity composer for `@beep/architecture-lab-proof`.",
         "categories": [
           "configuration"
@@ -6709,7 +6884,7 @@
         "symbolName": "$ArchitectureLabServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1178,
+        "sourceLine": 1195,
         "summary": "Identity composer for `@beep/architecture-lab-server`.",
         "categories": [
           "configuration"
@@ -6734,7 +6909,7 @@
         "symbolName": "$ArchitectureLabTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1195,
+        "sourceLine": 1212,
         "summary": "Identity composer for `@beep/architecture-lab-tables`.",
         "categories": [
           "configuration"
@@ -6759,7 +6934,7 @@
         "symbolName": "$ArchitectureLabUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1229,
+        "sourceLine": 1246,
         "summary": "Identity composer for `@beep/architecture-lab-ui`.",
         "categories": [
           "configuration"
@@ -6784,7 +6959,7 @@
         "symbolName": "$ArchitectureLabUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1144,
+        "sourceLine": 1161,
         "summary": "Identity composer for `@beep/architecture-lab-use-cases`.",
         "categories": [
           "configuration"
@@ -6809,7 +6984,7 @@
         "symbolName": "$BillingDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 893,
+        "sourceLine": 894,
         "summary": "Identity composer for the `@beep/billing-domain` package.",
         "categories": [
           "configuration"
@@ -6834,7 +7009,7 @@
         "symbolName": "$BillingServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 910,
+        "sourceLine": 911,
         "summary": "Identity composer for the `@beep/billing-server` package.",
         "categories": [
           "configuration"
@@ -6859,7 +7034,7 @@
         "symbolName": "$BillingUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 927,
+        "sourceLine": 928,
         "summary": "Identity composer for the `@beep/billing-use-cases` package.",
         "categories": [
           "configuration"
@@ -6884,7 +7059,7 @@
         "symbolName": "$BoxId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1600,
+        "sourceLine": 1617,
         "summary": "Identity composer for `@beep/box`.",
         "categories": [
           "configuration"
@@ -6909,7 +7084,7 @@
         "symbolName": "$CanvasClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1503,
+        "sourceLine": 1520,
         "summary": "Identity composer for `@beep/canvas-client`.",
         "categories": [
           "configuration"
@@ -6934,7 +7109,7 @@
         "symbolName": "$CanvasDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1455,
+        "sourceLine": 1472,
         "summary": "Identity composer for `@beep/canvas-domain`.",
         "categories": [
           "configuration"
@@ -6959,7 +7134,7 @@
         "symbolName": "$CanvasId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1535,
+        "sourceLine": 1552,
         "summary": "Identity composer for `@beep/canvas`.",
         "categories": [
           "configuration"
@@ -6984,7 +7159,7 @@
         "symbolName": "$CanvasServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1504,
         "summary": "Identity composer for `@beep/canvas-server`.",
         "categories": [
           "configuration"
@@ -7009,7 +7184,7 @@
         "symbolName": "$CanvasUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1519,
+        "sourceLine": 1536,
         "summary": "Identity composer for `@beep/canvas-ui`.",
         "categories": [
           "configuration"
@@ -7034,7 +7209,7 @@
         "symbolName": "$CanvasUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1488,
         "summary": "Identity composer for `@beep/canvas-use-cases`.",
         "categories": [
           "configuration"
@@ -7059,7 +7234,7 @@
         "symbolName": "$ChalkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 558,
+        "sourceLine": 561,
         "summary": "Identity composer for the `@beep/chalk` package.",
         "categories": [
           "configuration"
@@ -7084,7 +7259,7 @@
         "symbolName": "$CodedankWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 778,
+        "sourceLine": 779,
         "summary": "$codedank web id export.",
         "categories": [
           "configuration"
@@ -7109,7 +7284,7 @@
         "symbolName": "$ColorsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 543,
+        "sourceLine": 546,
         "summary": "Identity composer for the `@beep/colors` package.",
         "categories": [
           "configuration"
@@ -7134,7 +7309,7 @@
         "symbolName": "$DataId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 177,
+        "sourceLine": 180,
         "summary": "Identity composer for the `@beep/data` package.",
         "categories": [
           "configuration"
@@ -7159,7 +7334,7 @@
         "symbolName": "$DiscordId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1359,
+        "sourceLine": 1376,
         "summary": "Identity composer for `@beep/discord`.",
         "categories": [
           "configuration"
@@ -7184,7 +7359,7 @@
         "symbolName": "$DrizzleId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 810,
+        "sourceLine": 811,
         "summary": "$drizzle id export.",
         "categories": [
           "configuration"
@@ -7209,7 +7384,7 @@
         "symbolName": "$DuckdbId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 826,
+        "sourceLine": 827,
         "summary": "$duckdb id export.",
         "categories": [
           "configuration"
@@ -7231,10 +7406,35 @@
         "importSpecifier": "@beep/identity/packages",
         "exportSubpath": "./packages",
         "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
+        "symbolName": "$EditorId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1761,
+        "summary": "Identity composer for `@beep/editor`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $editorid const identity composer for `@beep/editor`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity/packages",
+        "exportSubpath": "./packages",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
         "symbolName": "$EpistemicDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 635,
+        "sourceLine": 638,
         "summary": "Identity composer for the `@beep/epistemic-domain` package.",
         "categories": [
           "configuration"
@@ -7259,7 +7459,7 @@
         "symbolName": "$FaceDetectionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 842,
+        "sourceLine": 843,
         "summary": "$face detection id export.",
         "categories": [
           "configuration"
@@ -7284,7 +7484,7 @@
         "symbolName": "$FfmpegId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 858,
+        "sourceLine": 859,
         "summary": "$ffmpeg id export.",
         "categories": [
           "configuration"
@@ -7309,7 +7509,7 @@
         "symbolName": "$FileProcessingId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1665,
         "summary": "Identity composer for `@beep/file-processing`.",
         "categories": [
           "configuration"
@@ -7334,7 +7534,7 @@
         "symbolName": "$FirecrawlId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1696,
+        "sourceLine": 1713,
         "summary": "Identity composer for `@beep/firecrawl`.",
         "categories": [
           "configuration"
@@ -7359,7 +7559,7 @@
         "symbolName": "$FormId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1584,
+        "sourceLine": 1601,
         "summary": "Identity composer for `@beep/form`.",
         "categories": [
           "configuration"
@@ -7384,7 +7584,7 @@
         "symbolName": "$HubspotId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1407,
+        "sourceLine": 1424,
         "summary": "Identity composer for `@beep/hubspot`.",
         "categories": [
           "configuration"
@@ -7434,7 +7634,7 @@
         "symbolName": "$IamDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 946,
+        "sourceLine": 947,
         "summary": "Identity composer for the `@beep/iam-domain` package.",
         "categories": [
           "configuration"
@@ -7459,7 +7659,7 @@
         "symbolName": "$IamServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 963,
+        "sourceLine": 964,
         "summary": "Identity composer for the `@beep/iam-server` package.",
         "categories": [
           "configuration"
@@ -7484,7 +7684,7 @@
         "symbolName": "$IamTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 980,
+        "sourceLine": 981,
         "summary": "Identity composer for the `@beep/iam-tables` package.",
         "categories": [
           "configuration"
@@ -7509,7 +7709,7 @@
         "symbolName": "$IamUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 997,
+        "sourceLine": 998,
         "summary": "Identity composer for the `@beep/iam-use-cases` package.",
         "categories": [
           "configuration"
@@ -7534,7 +7734,7 @@
         "symbolName": "$IdentityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 192,
+        "sourceLine": 195,
         "summary": "Identity composer for the `@beep/identity` package.",
         "categories": [
           "configuration"
@@ -7559,7 +7759,7 @@
         "symbolName": "$InfraId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 588,
+        "sourceLine": 591,
         "summary": "Identity composer for the `@beep/infra` package.",
         "categories": [
           "configuration"
@@ -7584,7 +7784,7 @@
         "symbolName": "$InstallerDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1280,
+        "sourceLine": 1297,
         "summary": "Identity composer for `@beep/installer-domain`.",
         "categories": [
           "configuration"
@@ -7609,7 +7809,7 @@
         "symbolName": "$InstallerServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1311,
+        "sourceLine": 1328,
         "summary": "Identity composer for `@beep/installer-server`.",
         "categories": [
           "configuration"
@@ -7634,7 +7834,7 @@
         "symbolName": "$InstallerUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1295,
+        "sourceLine": 1312,
         "summary": "Identity composer for `@beep/installer-use-cases`.",
         "categories": [
           "configuration"
@@ -7659,7 +7859,7 @@
         "symbolName": "$KonvaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1439,
+        "sourceLine": 1456,
         "summary": "Identity composer for `@beep/konva`.",
         "categories": [
           "configuration"
@@ -7684,7 +7884,7 @@
         "symbolName": "$LangExtractId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 513,
+        "sourceLine": 516,
         "summary": "Identity composer for the `@beep/langextract` package.",
         "categories": [
           "configuration"
@@ -7709,7 +7909,7 @@
         "symbolName": "$LawPracticeDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 682,
+        "sourceLine": 683,
         "summary": "Identity composer for the `@beep/law-practice-domain` package.",
         "categories": [
           "configuration"
@@ -7731,10 +7931,35 @@
         "importSpecifier": "@beep/identity/packages",
         "exportSubpath": "./packages",
         "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
+        "symbolName": "$LexicalSchemaId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
+        "sourceLine": 1745,
+        "summary": "Identity composer for `@beep/lexical-schema`.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/identity packages/foundation/modeling/identity @beep/identity/packages ./packages $lexicalschemaid const identity composer for `@beep/lexical-schema`. configuration packages/foundation/modeling/identity/src/packages.ts"
+      },
+      {
+        "packageName": "@beep/identity",
+        "packagePath": "packages/foundation/modeling/identity",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/identity/packages",
+        "exportSubpath": "./packages",
+        "exportedFromPath": "packages/foundation/modeling/identity/src/packages.ts",
         "symbolName": "$LibpffId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1680,
+        "sourceLine": 1697,
         "summary": "Identity composer for `@beep/libpff`.",
         "categories": [
           "configuration"
@@ -7759,7 +7984,7 @@
         "symbolName": "$MdId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 762,
+        "sourceLine": 763,
         "summary": "$md id export.",
         "categories": [
           "configuration"
@@ -7784,7 +8009,7 @@
         "symbolName": "$MessagesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 207,
+        "sourceLine": 210,
         "summary": "Identity composer for the `@beep/messages` package.",
         "categories": [
           "configuration"
@@ -7809,7 +8034,7 @@
         "symbolName": "$NlpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 498,
+        "sourceLine": 501,
         "summary": "Identity composer for the `@beep/nlp` package.",
         "categories": [
           "configuration"
@@ -7834,7 +8059,7 @@
         "symbolName": "$NlpMcpId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1616,
+        "sourceLine": 1633,
         "summary": "Identity composer for `@beep/nlp-mcp`.",
         "categories": [
           "configuration"
@@ -7859,7 +8084,7 @@
         "symbolName": "$ObservabilityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 528,
+        "sourceLine": 531,
         "summary": "Identity composer for the `@beep/observability` package.",
         "categories": [
           "configuration"
@@ -7884,7 +8109,7 @@
         "symbolName": "$OipWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 794,
+        "sourceLine": 795,
         "summary": "$oip web id export.",
         "categories": [
           "configuration"
@@ -7909,7 +8134,7 @@
         "symbolName": "$OnepasswordCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1343,
+        "sourceLine": 1360,
         "summary": "Identity composer for `@beep/onepassword-cli`.",
         "categories": [
           "configuration"
@@ -7934,7 +8159,7 @@
         "symbolName": "$OntologyId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 252,
+        "sourceLine": 255,
         "summary": "Identity composer for the `@beep/ontology` package.",
         "categories": [
           "configuration"
@@ -7959,7 +8184,7 @@
         "symbolName": "$OpenaiCompatId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1095,
+        "sourceLine": 1112,
         "summary": "Identity composer for `@beep/openai-compat`.",
         "categories": [
           "configuration"
@@ -7984,7 +8209,7 @@
         "symbolName": "$PhoenixId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1423,
+        "sourceLine": 1440,
         "summary": "Identity composer for `@beep/phoenix`.",
         "categories": [
           "configuration"
@@ -8009,7 +8234,7 @@
         "symbolName": "$PostgresId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 874,
+        "sourceLine": 875,
         "summary": "$postgres id export.",
         "categories": [
           "configuration"
@@ -8034,7 +8259,7 @@
         "symbolName": "$ProfessionalDesktopId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 714,
+        "sourceLine": 715,
         "summary": "Identity composer for the `@beep/professional-desktop` package.",
         "categories": [
           "configuration"
@@ -8059,7 +8284,7 @@
         "symbolName": "$ProfessionalRuntimeProofId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 730,
+        "sourceLine": 731,
         "summary": "Identity composer for the `@beep/professional-runtime-proof` package.",
         "categories": [
           "configuration"
@@ -8084,7 +8309,7 @@
         "symbolName": "$RdfId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 237,
+        "sourceLine": 240,
         "summary": "Identity composer for the `@beep/rdf` package.",
         "categories": [
           "configuration"
@@ -8109,7 +8334,7 @@
         "symbolName": "$RepoAiMetricsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 316,
+        "sourceLine": 319,
         "summary": "Identity composer for the `@beep/repo-ai-metrics` package.",
         "categories": [
           "configuration"
@@ -8134,7 +8359,7 @@
         "symbolName": "$RepoCliId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 331,
+        "sourceLine": 334,
         "summary": "Identity composer for the `@beep/repo-cli` package.",
         "categories": [
           "configuration"
@@ -8159,7 +8384,7 @@
         "symbolName": "$RepoCodegraphId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1552,
+        "sourceLine": 1569,
         "summary": "Identity composer for `@beep/repo-codegraph`.",
         "categories": [
           "configuration"
@@ -8184,7 +8409,7 @@
         "symbolName": "$RepoConfigsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 346,
+        "sourceLine": 349,
         "summary": "Identity composer for the `@beep/repo-configs` package.",
         "categories": [
           "configuration"
@@ -8209,7 +8434,7 @@
         "symbolName": "$RepoDocgenId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 573,
+        "sourceLine": 576,
         "summary": "Identity composer for the `@beep/repo-docgen` package.",
         "categories": [
           "configuration"
@@ -8234,7 +8459,7 @@
         "symbolName": "$RepoUtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 361,
+        "sourceLine": 364,
         "summary": "Identity composer for the `@beep/repo-utils` package.",
         "categories": [
           "configuration"
@@ -8259,7 +8484,7 @@
         "symbolName": "$RunpodId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1327,
+        "sourceLine": 1344,
         "summary": "Identity composer for `@beep/runpod`.",
         "categories": [
           "configuration"
@@ -8284,7 +8509,7 @@
         "symbolName": "$SandboxId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1031,
+        "sourceLine": 1032,
         "summary": "Identity composer for the `@beep/sandbox` package.",
         "categories": [
           "configuration"
@@ -8309,7 +8534,7 @@
         "symbolName": "$SanityId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1391,
+        "sourceLine": 1408,
         "summary": "Identity composer for `@beep/sanity`.",
         "categories": [
           "configuration"
@@ -8334,7 +8559,7 @@
         "symbolName": "$SchemaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 222,
+        "sourceLine": 225,
         "summary": "Identity composer for the `@beep/schema` package.",
         "categories": [
           "configuration"
@@ -8359,7 +8584,7 @@
         "symbolName": "$ScratchpadId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1014,
+        "sourceLine": 1015,
         "summary": "Identity composer for the `@beep/scratchpad` package.",
         "categories": [
           "configuration"
@@ -8384,7 +8609,7 @@
         "symbolName": "$SemanticWebId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 483,
+        "sourceLine": 486,
         "summary": "Identity composer for the `@beep/semantic-web` package.",
         "categories": [
           "configuration"
@@ -8409,7 +8634,7 @@
         "symbolName": "$SharedClientId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 423,
+        "sourceLine": 426,
         "summary": "Identity composer for the `@beep/shared-client` package.",
         "categories": [
           "configuration"
@@ -8434,7 +8659,7 @@
         "symbolName": "$SharedConfigId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 468,
+        "sourceLine": 471,
         "summary": "Identity composer for the `@beep/shared-config` package.",
         "categories": [
           "configuration"
@@ -8459,7 +8684,7 @@
         "symbolName": "$SharedDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 393,
+        "sourceLine": 396,
         "summary": "Identity composer for the `@beep/shared-domain` package.",
         "categories": [
           "configuration"
@@ -8484,7 +8709,7 @@
         "symbolName": "$SharedServerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 438,
+        "sourceLine": 441,
         "summary": "Identity composer for the `@beep/shared-server` package.",
         "categories": [
           "configuration"
@@ -8509,7 +8734,7 @@
         "symbolName": "$SharedTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 408,
+        "sourceLine": 411,
         "summary": "Identity composer for the `@beep/shared-tables` package.",
         "categories": [
           "configuration"
@@ -8534,7 +8759,7 @@
         "symbolName": "$SharedUiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 453,
+        "sourceLine": 456,
         "summary": "Identity composer for the `@beep/shared-ui` package.",
         "categories": [
           "configuration"
@@ -8559,7 +8784,7 @@
         "symbolName": "$SharedUseCasesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 603,
+        "sourceLine": 606,
         "summary": "Identity composer for the `@beep/shared-use-cases` package.",
         "categories": [
           "configuration"
@@ -8584,7 +8809,7 @@
         "symbolName": "$StackInstallerId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1265,
+        "sourceLine": 1282,
         "summary": "Identity composer for `@beep/stack-installer`.",
         "categories": [
           "configuration"
@@ -8609,7 +8834,7 @@
         "symbolName": "$TestUtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 376,
+        "sourceLine": 379,
         "summary": "Identity composer for the `@beep/test-utils` package.",
         "categories": [
           "configuration"
@@ -8634,7 +8859,7 @@
         "symbolName": "$TikaId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1664,
+        "sourceLine": 1681,
         "summary": "Identity composer for `@beep/tika`.",
         "categories": [
           "configuration"
@@ -8659,7 +8884,7 @@
         "symbolName": "$TypesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 267,
+        "sourceLine": 270,
         "summary": "Identity composer for the `@beep/types` package.",
         "categories": [
           "configuration"
@@ -8684,7 +8909,7 @@
         "symbolName": "$UiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 299,
+        "sourceLine": 302,
         "summary": "Identity composer for the `@beep/ui` package.",
         "categories": [
           "configuration"
@@ -8709,7 +8934,7 @@
         "symbolName": "$UsptoId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1712,
+        "sourceLine": 1729,
         "summary": "Identity composer for the `@beep/uspto` package.",
         "categories": [
           "configuration"
@@ -8734,7 +8959,7 @@
         "symbolName": "$UtilsId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 282,
+        "sourceLine": 285,
         "summary": "Identity composer for the `@beep/utils` package.",
         "categories": [
           "configuration"
@@ -8759,7 +8984,7 @@
         "symbolName": "$VeniceAiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1047,
+        "sourceLine": 1064,
         "summary": "$venice ai id export.",
         "categories": [
           "configuration"
@@ -8784,7 +9009,7 @@
         "symbolName": "$WealthManagementDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 698,
+        "sourceLine": 699,
         "summary": "Identity composer for the `@beep/wealth-management-domain` package.",
         "categories": [
           "configuration"
@@ -8809,7 +9034,7 @@
         "symbolName": "$WinkId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1632,
+        "sourceLine": 1649,
         "summary": "Identity composer for `@beep/wink`.",
         "categories": [
           "configuration"
@@ -8834,7 +9059,7 @@
         "symbolName": "$WorkspaceDomainId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 620,
+        "sourceLine": 623,
         "summary": "Identity composer for the `@beep/workspace-domain` package.",
         "categories": [
           "configuration"
@@ -8859,7 +9084,7 @@
         "symbolName": "$WorkspaceTablesId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1111,
+        "sourceLine": 1128,
         "summary": "Identity composer for `@beep/workspace-tables`.",
         "categories": [
           "configuration"
@@ -8884,7 +9109,7 @@
         "symbolName": "$XaiId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 1063,
+        "sourceLine": 1080,
         "summary": "$xai id export.",
         "categories": [
           "configuration"
@@ -8909,7 +9134,7 @@
         "symbolName": "RepoPkgs",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/identity/src/packages.ts",
-        "sourceLine": 746,
+        "sourceLine": 747,
         "summary": "RepoPkgs - export object containing all package IdentityComposer's",
         "categories": [
           "configuration"

@@ -42,8 +42,8 @@ node goals/agentic-professional-runtime/fixtures/runtime-data-loop/validate-fixt
 - `packages/shared/domain`
 - `packages/workspace/domain`
 - `packages/epistemic/domain`
-- `packages/agent-capability/domain`
-- `packages/agent-capability/use-cases`
+- `packages/agents/domain`
+- `packages/agents/use-cases`
 - `packages/law-practice/domain`
 - `packages/wealth-management/domain`
 - `apps/professional-runtime-proof`

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-11",
+  "generatedOn": "2026-06-13",
   "entries": [
     {
       "id": "reuse-clone:106:1b46bfa60220fba4",
@@ -169,7 +169,7 @@
       "occurrences": 2,
       "packages": 2,
       "members": [
-        "packages/agent-capability/domain/src/entities/Skill/Skill.model.ts#Skill",
+        "packages/agents/domain/src/entities/Skill/Skill.model.ts#Skill",
         "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts#Evidence"
       ]
     },

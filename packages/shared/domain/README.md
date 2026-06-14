@@ -71,7 +71,7 @@ language and the encoded side is the persistence row shape.
 - **Shared product semantics:** A human account identity that multiple product slices may reference without depending on a tenancy slice.
 - **Current consumers:** `apps/professional-runtime-proof` composes the law and wealth scenario fixtures through this model; `@beep/shared-domain/entity/Principal` already uses shared user identity for actor provenance.
 - **Rejected homes:**
-  - Owning slice - `tenancy` owns future lifecycle authority, but user identity is cross-slice product language used by workspace, epistemic, agent-capability, law, and wealth contexts.
+  - Owning slice - `tenancy` owns future lifecycle authority, but user identity is cross-slice product language used by workspace, epistemic, agents, law, and wealth contexts.
   - Foundation - user identity is product semantics, not domain-agnostic modeling substrate.
 - **Surface:** `@beep/shared-domain/entities`, `@beep/shared-domain/entities/User`, `Entities.User.Model`, `Identity.Shared.UserId`.
 - **Runtime limits:** no live Layers.

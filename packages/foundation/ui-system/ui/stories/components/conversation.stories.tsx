@@ -5,7 +5,7 @@ import {
   ConversationScrollButton,
 } from "@beep/ui/components/conversation";
 import { A } from "@beep/utils";
-import { ChatCircle } from "@phosphor-icons/react";
+import { ChatCircleIcon } from "@phosphor-icons/react";
 import { expect, within } from "storybook/test";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -128,7 +128,7 @@ export const EmptyState: Story = {
       <ConversationContent>
         <ConversationEmptyState
           description="Send a message to start chatting with the assistant."
-          icon={<ChatCircle className="size-8" />}
+          icon={<ChatCircleIcon className="size-8" />}
           title="No messages yet"
         />
       </ConversationContent>

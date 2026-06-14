@@ -197,7 +197,7 @@ Current slices at a glance (checkout snapshot):
 | Slice                  | One-line Role                                      | Live roles                         |
 |------------------------|----------------------------------------------------|------------------------------------|
 | `workspace`            | Core workspace and thread runtime                  | `domain`, `tables`                 |
-| `agent-capability`     | Skills, capabilities, and agent governance         | `domain`, `use-cases`              |
+| `agents`     | Skills, capabilities, and agent governance         | `domain`, `use-cases`              |
 | `epistemic`            | Evidence, claims, candidate work, and provenance   | `domain`                           |
 | `law-practice`         | IP law practice models and workflows               | `domain`                           |
 | `wealth-management`    | Todox wealth-advisor runtime                       | `domain`                           |

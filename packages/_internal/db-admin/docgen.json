@@ -71,7 +71,28 @@
       "@beep/utils": [
         "../../../packages/foundation/modeling/utils/src/index.ts"
       ],
-      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"]
+      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"],
+      "@beep/workspace-tables": [
+        "../../../packages/workspace/tables/src/index.ts"
+      ],
+      "@beep/workspace-tables/entities": [
+        "../../../packages/workspace/tables/src/entities/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateDraft": [
+        "../../../packages/workspace/tables/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateProject": [
+        "../../../packages/workspace/tables/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Message": [
+        "../../../packages/workspace/tables/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Thread": [
+        "../../../packages/workspace/tables/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Turn": [
+        "../../../packages/workspace/tables/src/entities/Turn/index.ts"
+      ]
     }
   }
 }

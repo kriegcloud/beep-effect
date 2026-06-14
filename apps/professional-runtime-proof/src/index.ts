@@ -4,14 +4,14 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Agent } from "@beep/agent-capability-domain/entities/Agent";
-import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agent-capability-use-cases/proof";
+import { Agent } from "@beep/agents-domain/entities/Agent";
+import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agents-use-cases/proof";
 import {
   CandidateOutputSet,
   GetContextPacket,
   ProposeCandidateOutputSet,
   RuntimeScope,
-} from "@beep/agent-capability-use-cases/public";
+} from "@beep/agents-use-cases/public";
 import { Activity } from "@beep/epistemic-domain/entities/Activity";
 import { CandidateClaim } from "@beep/epistemic-domain/entities/CandidateClaim";
 import { UsageRecord } from "@beep/epistemic-domain/entities/UsageRecord";
@@ -37,11 +37,18 @@ import { EmailArtifact } from "@beep/workspace-domain/entities/EmailArtifact";
 import { Workspace } from "@beep/workspace-domain/entities/Workspace";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
-import type { RuntimeFixtureInput } from "@beep/agent-capability-use-cases/proof";
+import type { RuntimeFixtureInput } from "@beep/agents-use-cases/proof";
 
 class MissingRuntimeAgentPrincipalError extends S.TaggedErrorClass<MissingRuntimeAgentPrincipalError>(
   "MissingRuntimeAgentPrincipalError"
 )("MissingRuntimeAgentPrincipalError", {
+  message: S.String,
+  scenarioId: S.String,
+}) {}
+
+class MissingRuntimeUsageActivityError extends S.TaggedErrorClass<MissingRuntimeUsageActivityError>(
+  "MissingRuntimeUsageActivityError"
+)("MissingRuntimeUsageActivityError", {
   message: S.String,
   scenarioId: S.String,
 }) {}
@@ -272,6 +279,19 @@ const runtimeAgentPrincipalId = (seed: SeedFixture): string =>
     )
   );
 
+const candidateProposalActivityEntityId = (output: CandidateOutputSet): number =>
+  pipe(
+    output.contextPacket.activities,
+    A.findFirstIndex((activity) => activity.activityType === "candidate_work_proposed"),
+    O.map((index) => index + 170),
+    O.getOrThrowWith(() =>
+      MissingRuntimeUsageActivityError.make({
+        message: `${output.scenarioId}: missing candidate proposal activity for usage attribution`,
+        scenarioId: output.scenarioId,
+      })
+    )
+  );
+
 const decodeSeedModels = (seed: SeedFixture, email: EmailFixture, body: string): void => {
   decodeOrganization({
     ...entityAuditFields,
@@ -423,6 +443,8 @@ const decodeVerticalModels = (seed: SeedFixture): void => {
 };
 
 const decodeCandidateModels = (output: CandidateOutputSet): void => {
+  const usageActivityId = candidateProposalActivityEntityId(output);
+
   A.forEach(output.claims, (claim, index) =>
     decodeCandidateClaim({
       ...entityAuditFields,
@@ -492,10 +514,22 @@ const decodeCandidateModels = (output: CandidateOutputSet): void => {
   A.forEach(output.contextPacket.usage, (usage, index) =>
     decodeUsageRecord({
       ...entityAuditFields,
+      activityId: usageActivityId,
+      actor: runtimeSystemPrincipal,
+      costUsdApproxMicros: null,
+      credentialReference: null,
       entityType: entityTypeOf(UsageRecord),
       fixtureKey: usage.usageRecordId,
       id: index + 180,
+      inputTokens: null,
+      latencyMillis: null,
+      metadata: toSnapshot(usage),
+      model: usage.model,
+      outputTokens: null,
+      provider: usage.provider,
       snapshot: toSnapshot(usage),
+      totalTokens: null,
+      unitCount: null,
     })
   );
 };

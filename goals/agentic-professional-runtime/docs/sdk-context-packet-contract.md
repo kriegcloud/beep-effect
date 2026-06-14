@@ -34,7 +34,7 @@ is relevant to the requested scenario and supported by evidence.
 
 ### Candidate Writes
 
-The SDK must let an agent-capability client propose candidate runtime changes:
+The SDK must let an agents client propose candidate runtime changes:
 
 - candidate claims
 - candidate tasks

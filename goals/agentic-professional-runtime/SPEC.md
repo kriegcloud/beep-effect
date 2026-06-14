@@ -134,8 +134,8 @@ The first executable package proof lives in:
 - `packages/shared/domain`
 - `packages/workspace/domain`
 - `packages/epistemic/domain`
-- `packages/agent-capability/domain`
-- `packages/agent-capability/use-cases`
+- `packages/agents/domain`
+- `packages/agents/use-cases`
 - `packages/law-practice/domain`
 - `packages/wealth-management/domain`
 - `apps/professional-runtime-proof`
@@ -143,8 +143,8 @@ The first executable package proof lives in:
 The proof keeps shared-kernel and slice domains schema-first, maps readable
 fixture keys to repo-native entity IDs at the proof boundary, exposes SDK
 candidate output and context-packet contracts from
-`@beep/agent-capability-use-cases/public`, and runs the paired fixtures through
-`@beep/agent-capability-use-cases/test`.
+`@beep/agents-use-cases/public`, and runs the paired fixtures through
+`@beep/agents-use-cases/test`.
 
 The app-level proof harness is the only place that composes both verticals in
 P3. Slice packages still do not import from other product slices directly.
@@ -157,7 +157,7 @@ The initial named slice map is:
 |---|---|
 | `tenancy` | future lifecycle authority for organization onboarding, user invitation, membership changes, roles, and policy scope |
 | `workspace` | workspaces, threads, messages, artifacts, projects, tasks, approvals |
-| `agent-capability` | agents, skills, commands, connectors, model/provider bindings |
+| `agents` | agents, skills, commands, connectors, model/provider bindings |
 | `epistemic` | claims, evidence, subjects, provenance activities, lifecycle, usage records |
 | `law-practice` | law-specific clients, matters, IP assets, filings, contracts, docket overlays |
 | `wealth-management` | wealth-specific parties, households, accounts, holdings, goals, meetings |

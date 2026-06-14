@@ -1,22 +1,8 @@
 import * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
+import { baseEntityFixtureInput } from "@beep/test-utils";
 import { Account, AccountType, HouseholdStatus, PartyType, WealthClientStatus } from "@beep/wealth-management-domain";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
-
-const systemPrincipal = { kind: "System", component: "Runtime" } as const;
-
-const baseEntityInput = (entityType: string, id: number) => ({
-  createdAt: id,
-  createdByPrincipal: systemPrincipal,
-  entityType,
-  id,
-  orgId: 1,
-  rowVersion: 1,
-  schemaVersion: "0.0.0",
-  source: "System",
-  updatedAt: id + 1,
-  updatedByPrincipal: systemPrincipal,
-});
 
 describe("@beep/wealth-management-domain", () => {
   it("exports value schemas from the package identity", () => {
@@ -36,7 +22,7 @@ describe("@beep/wealth-management-domain", () => {
 
   it("decodes and constructs an Account row", () => {
     const decoded = S.decodeUnknownSync(Account)({
-      ...baseEntityInput("WealthManagementAccount", 6),
+      ...baseEntityFixtureInput("WealthManagementAccount", 6),
       accountType: "taxable_brokerage",
       externalLabel: "Taxable Brokerage",
       fixtureKey: "account.taxable",

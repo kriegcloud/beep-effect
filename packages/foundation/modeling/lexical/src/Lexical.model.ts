@@ -1,0 +1,1425 @@
+/**
+ * Schema-first models of Lexical's serialized editor state.
+ *
+ * The node tree is modeled as a tagged union discriminated on Lexical's own
+ * `type` key. House style: `S.Class` hierarchies via `.extend`, tags only on
+ * concrete leaf classes, nullish wire values captured as `O.Option` at the
+ * schema boundary, and hand-written `Type`/`Encoded` interfaces in merged
+ * namespaces (required to break TS inference cycles through the recursive
+ * `children`).
+ *
+ * The package has zero runtime `lexical` imports — `lexical` is a
+ * devDependency for dtslint type-conformance tests only.
+ *
+ * @packageDocumentation \@beep/lexical-schema/Lexical.model
+ * @since 0.0.0
+ */
+
+import { $LexicalSchemaId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import { A, Str } from "@beep/utils";
+import * as S from "effect/Schema";
+import type * as O from "effect/Option";
+import type * as R from "effect/Record";
+
+const $I = $LexicalSchemaId.create("Lexical.model");
+
+/**
+ * `ElementFormatType` from lexical.
+ *
+ * @example
+ * ```ts
+ * import { ElementFormat } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ElementFormat.is.center("center")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ElementFormat = LiteralKit(["left", "start", "center", "right", "end", "justify", ""]).pipe(
+  $I.annoteSchema("ElementFormat", {
+    description:
+      "Lexical element alignment token used by block-level nodes; the empty string preserves Lexical's default alignment sentinel.",
+  })
+);
+
+/**
+ * Type for {@link ElementFormat}.
+ *
+ * @example
+ * ```ts
+ * import type { ElementFormat } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const accept = (format: ElementFormat) => format
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ElementFormat = typeof ElementFormat.Type;
+
+/**
+ * Text direction token from lexical.
+ *
+ * @example
+ * ```ts
+ * import { Direction } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(Direction.is.ltr("ltr")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const Direction = LiteralKit(["ltr", "rtl"]).pipe(
+  $I.annoteSchema("Direction", {
+    description: "Lexical text direction token for left-to-right and right-to-left element layout.",
+  })
+);
+
+/**
+ * Type for {@link Direction}.
+ *
+ * @example
+ * ```ts
+ * import type { Direction } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const accept = (direction: Direction) => direction
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type Direction = typeof Direction.Type;
+
+/**
+ * `TextModeType` from lexical.
+ *
+ * @example
+ * ```ts
+ * import { TextMode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(TextMode.is.normal("normal")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextMode = LiteralKit(["normal", "token", "segmented"]).pipe(
+  $I.annoteSchema("TextMode", {
+    description: "Lexical text node editability mode: normal text, indivisible token text, or segmented text.",
+  })
+);
+
+/**
+ * Type for {@link TextMode}.
+ *
+ * @example
+ * ```ts
+ * import type { TextMode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const accept = (mode: TextMode) => mode
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TextMode = typeof TextMode.Type;
+
+/**
+ * `HeadingTagType` from `@lexical/rich-text`.
+ *
+ * @example
+ * ```ts
+ * import { HeadingTag } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(HeadingTag.is.h1("h1")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const HeadingTag = LiteralKit(["h1", "h2", "h3", "h4", "h5", "h6"]).pipe(
+  $I.annoteSchema("HeadingTag", {
+    description: "Heading level tag for Lexical heading nodes.",
+  })
+);
+
+/**
+ * Type for {@link HeadingTag}.
+ *
+ * @example
+ * ```ts
+ * import type { HeadingTag } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const accept = (tag: HeadingTag) => tag
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HeadingTag = typeof HeadingTag.Type;
+
+/**
+ * `ListType` from `@lexical/list`.
+ *
+ * @example
+ * ```ts
+ * import { ListType } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ListType.is.bullet("bullet")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ListType = LiteralKit(["number", "bullet", "check"]).pipe(
+  $I.annoteSchema("ListType", {
+    description: "List semantics for Lexical list nodes: ordered, unordered, or checkbox list.",
+  })
+);
+
+/**
+ * Type for {@link ListType}.
+ *
+ * @example
+ * ```ts
+ * import type { ListType } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const accept = (listType: ListType) => listType
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListType = typeof ListType.Type;
+
+/**
+ * `ListNodeTagType` from `@lexical/list`.
+ *
+ * @example
+ * ```ts
+ * import { ListTag } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ListTag.is.ul("ul")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ListTag = LiteralKit(["ul", "ol"]).pipe(
+  $I.annoteSchema("ListTag", {
+    description: "HTML list tag rendered for a Lexical list node.",
+  })
+);
+
+/**
+ * Type for {@link ListTag}.
+ *
+ * @example
+ * ```ts
+ * import type { ListTag } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const accept = (tag: ListTag) => tag
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListTag = typeof ListTag.Type;
+
+/**
+ * Mirrors `SerializedLexicalNode`. The `type` discriminant is added by each
+ * concrete subclass via `S.tag(...)`. `"$"` is `NODE_STATE_KEY`.
+ *
+ * @example
+ * ```ts
+ * import { BaseNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(BaseNode.name) // "BaseNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class BaseNode extends S.Class<BaseNode>($I`BaseNode`)(
+  {
+    version: S.Finite.annotateKey({
+      description: "Serialized Lexical node schema version; Lexical currently writes version 1 for built-in nodes.",
+    }),
+    $: S.Record(S.String, S.Unknown).pipe(
+      S.OptionFromOptionalKey,
+      S.annotateKey({
+        description:
+          "Optional NODE_STATE_KEY payload containing arbitrary persisted Lexical NodeState values keyed by state name.",
+      })
+    ),
+  },
+  $I.annote("BaseNode", {
+    description: "Schema base for every serialized Lexical node, including versioning and optional NodeState metadata.",
+  })
+) {}
+
+/**
+ * Companion namespace for {@link BaseNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace BaseNode {
+  /**
+   * Companion decoded type for {@link BaseNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly $: O.Option<R.ReadonlyRecord<string, unknown>>;
+    readonly version: number;
+  }
+
+  /**
+   * Companion encoded type for {@link BaseNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly $?: R.ReadonlyRecord<string, unknown>;
+    readonly version: number;
+  }
+}
+
+/**
+ * `children` is mutually recursive with the union of all node schemas, so we
+ * tie the knot with `S.suspend`. The annotation must only mention the
+ * hand-written namespace types — referencing the classes here would make
+ * every class's base expression circular.
+ */
+const NodeChildren = S.Array(S.suspend((): S.Codec<LexicalNode.Type, LexicalNode.Encoded> => LexicalNode)).pipe(
+  $I.annoteSchema("NodeChildren", {
+    description: "Ordered recursive child node list for serialized Lexical element nodes.",
+  })
+);
+
+/**
+ * Mirrors `SerializedElementNode`.
+ *
+ * `textFormat`/`textStyle` stay optional here (as on `SerializedElementNode`)
+ * even though Lexical 0.45 narrows them to required on paragraph nodes — the
+ * schema package owns the persisted contract and must not couple to one
+ * Lexical release's wire shape.
+ *
+ * @example
+ * ```ts
+ * import { ElementNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ElementNode.name) // "ElementNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ElementNode extends BaseNode.extend<ElementNode>($I`ElementNode`)(
+  {
+    children: NodeChildren.annotateKey({
+      description: "Child nodes in document order, recursively decoded through the LexicalNode tagged union.",
+    }),
+    direction: S.OptionFromNullOr(Direction).annotateKey({
+      description: "Optional text direction decoded from Lexical's nullable direction field.",
+    }),
+    format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the element." }),
+    indent: S.Finite.annotateKey({ description: "Lexical indentation depth for nested block layout." }),
+    textFormat: S.Finite.pipe(
+      S.OptionFromOptionalKey,
+      S.annotateKey({
+        description: "Optional TextFormatType bitmask applied to newly inserted text within the element.",
+      })
+    ),
+    textStyle: S.String.pipe(
+      S.OptionFromOptionalKey,
+      S.annotateKey({
+        description: "Optional CSS style applied to newly inserted text within the element.",
+      })
+    ),
+  },
+  $I.annote("ElementNode", {
+    description: "Schema base shared by Lexical element (container) nodes.",
+  })
+) {}
+
+/**
+ * Companion namespace for {@link ElementNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ElementNode {
+  /**
+   * Companion decoded type for {@link ElementNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends BaseNode.Type {
+    readonly children: ReadonlyArray<LexicalNode.Type>;
+    readonly direction: O.Option<Direction>;
+    readonly format: ElementFormat;
+    readonly indent: number;
+    readonly textFormat: O.Option<number>;
+    readonly textStyle: O.Option<string>;
+  }
+
+  /**
+   * Companion encoded type for {@link ElementNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends BaseNode.Encoded {
+    readonly children: ReadonlyArray<LexicalNode.Encoded>;
+    readonly direction: null | Direction;
+    readonly format: ElementFormat;
+    readonly indent: number;
+    readonly textFormat?: number;
+    readonly textStyle?: string;
+  }
+}
+
+/**
+ * Mirrors `SerializedTextNode` minus the discriminant. Tags can only be
+ * introduced on concrete classes (overriding a parent's `S.tag` literal in
+ * `.extend` would intersect `{type: "tab"} & {type: "text"}` into `never`),
+ * so lexical's `TabNode extends TextNode` becomes two siblings of TextBase.
+ *
+ * @example
+ * ```ts
+ * import { TextBase } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(TextBase.name) // "TextBase"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TextBase extends BaseNode.extend<TextBase>($I`TextBase`)(
+  {
+    detail: S.Finite.annotateKey({ description: "TextDetailType bitmask." }),
+    format: S.Finite.annotateKey({
+      description: "TextFormatType bitmask (bold=1, italic=2, strikethrough=4, code=16).",
+    }),
+    mode: TextMode.annotateKey({ description: "Text node mode." }),
+    style: S.String.annotateKey({ description: "Inline CSS style." }),
+    text: S.String.annotateKey({ description: "The text content." }),
+  },
+  $I.annote("TextBase", { description: "Schema base shared by text-like Lexical leaf nodes." })
+) {}
+
+/**
+ * Companion namespace for {@link TextBase}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TextBase {
+  /**
+   * Companion decoded type for {@link TextBase}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends BaseNode.Type {
+    readonly detail: number;
+    readonly format: number;
+    readonly mode: TextMode;
+    readonly style: string;
+    readonly text: string;
+  }
+
+  /**
+   * Companion encoded type for {@link TextBase}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends BaseNode.Encoded {
+    readonly detail: number;
+    readonly format: number;
+    readonly mode: TextMode;
+    readonly style: string;
+    readonly text: string;
+  }
+}
+
+/**
+ * Mirrors `SerializedTextNode`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TextNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(TextNode)({
+ *   type: "text", version: 1, detail: 0, format: 0, mode: "normal", style: "", text: "Hello"
+ * })
+ * console.log(node.text) // "Hello"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TextNode extends TextBase.extend<TextNode>($I`TextNode`)(
+  {
+    type: S.tag("text"),
+  },
+  $I.annote("TextNode", { description: "A serialized Lexical text leaf node." })
+) {
+  /**
+   * Plain-text projection of a text node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: TextNode.Type) => node.text;
+}
+
+/**
+ * Companion namespace for {@link TextNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TextNode {
+  /**
+   * Companion decoded type for {@link TextNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends TextBase.Type {
+    readonly type: "text";
+  }
+
+  /**
+   * Companion encoded type for {@link TextNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends TextBase.Encoded {
+    readonly type: "text";
+  }
+}
+
+/**
+ * Mirrors `SerializedTabNode`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TabNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(TabNode)({
+ *   type: "tab", version: 1, detail: 0, format: 0, mode: "normal", style: "", text: "\t"
+ * })
+ * console.log(node.type) // "tab"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TabNode extends TextBase.extend<TabNode>($I`TabNode`)(
+  {
+    type: S.tag("tab"),
+  },
+  $I.annote("TabNode", { description: "A serialized Lexical tab leaf node." })
+) {
+  /**
+   * Plain-text projection of a tab node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (_node: TabNode.Type) => "\t";
+}
+
+/**
+ * Companion namespace for {@link TabNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TabNode {
+  /**
+   * Companion decoded type for {@link TabNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends TextBase.Type {
+    readonly type: "tab";
+  }
+
+  /**
+   * Companion encoded type for {@link TabNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends TextBase.Encoded {
+    readonly type: "tab";
+  }
+}
+
+/**
+ * Mirrors `SerializedLineBreakNode`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { LineBreakNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(LineBreakNode)({ type: "linebreak", version: 1 })
+ * console.log(node.type) // "linebreak"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LineBreakNode extends BaseNode.extend<LineBreakNode>($I`LineBreakNode`)(
+  {
+    type: S.tag("linebreak"),
+  },
+  $I.annote("LineBreakNode", { description: "A serialized Lexical line-break leaf node." })
+) {
+  /**
+   * Plain-text projection of a line-break node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (_node: LineBreakNode.Type) => "\n";
+}
+
+/**
+ * Companion namespace for {@link LineBreakNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace LineBreakNode {
+  /**
+   * Companion decoded type for {@link LineBreakNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends BaseNode.Type {
+    readonly type: "linebreak";
+  }
+
+  /**
+   * Companion encoded type for {@link LineBreakNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends BaseNode.Encoded {
+    readonly type: "linebreak";
+  }
+}
+
+/**
+ * Mirrors `SerializedRootNode`.
+ *
+ * @example
+ * ```ts
+ * import { RootNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(RootNode.name) // "RootNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class RootNode extends ElementNode.extend<RootNode>($I`RootNode`)(
+  {
+    type: S.tag("root"),
+  },
+  $I.annote("RootNode", { description: "The serialized Lexical document root element." })
+) {
+  /**
+   * Plain-text projection of the root node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: RootNode.Type) => childText(node.children);
+}
+
+/**
+ * Companion namespace for {@link RootNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace RootNode {
+  /**
+   * Companion decoded type for {@link RootNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly type: "root";
+  }
+
+  /**
+   * Companion encoded type for {@link RootNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly type: "root";
+  }
+}
+
+/**
+ * Mirrors `SerializedParagraphNode`.
+ *
+ * @example
+ * ```ts
+ * import { ParagraphNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ParagraphNode.name) // "ParagraphNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ParagraphNode extends ElementNode.extend<ParagraphNode>($I`ParagraphNode`)(
+  {
+    type: S.tag("paragraph"),
+  },
+  $I.annote("ParagraphNode", { description: "A serialized Lexical paragraph element node." })
+) {
+  /**
+   * Plain-text projection of a paragraph node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: ParagraphNode.Type) => `${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link ParagraphNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ParagraphNode {
+  /**
+   * Companion decoded type for {@link ParagraphNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly type: "paragraph";
+  }
+
+  /**
+   * Companion encoded type for {@link ParagraphNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly type: "paragraph";
+  }
+}
+
+/**
+ * Mirrors `SerializedHeadingNode` from `@lexical/rich-text`.
+ *
+ * @example
+ * ```ts
+ * import { HeadingNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(HeadingNode.name) // "HeadingNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class HeadingNode extends ElementNode.extend<HeadingNode>($I`HeadingNode`)(
+  {
+    type: S.tag("heading"),
+    tag: HeadingTag.annotateKey({ description: "Heading level tag." }),
+  },
+  $I.annote("HeadingNode", { description: "A serialized Lexical heading element node." })
+) {
+  /**
+   * Plain-text projection of a heading node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: HeadingNode.Type) => `${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link HeadingNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace HeadingNode {
+  /**
+   * Companion decoded type for {@link HeadingNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly tag: HeadingTag;
+    readonly type: "heading";
+  }
+
+  /**
+   * Companion encoded type for {@link HeadingNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly tag: HeadingTag;
+    readonly type: "heading";
+  }
+}
+
+/**
+ * Mirrors `SerializedQuoteNode` from `@lexical/rich-text`.
+ *
+ * @example
+ * ```ts
+ * import { QuoteNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(QuoteNode.name) // "QuoteNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class QuoteNode extends ElementNode.extend<QuoteNode>($I`QuoteNode`)(
+  {
+    type: S.tag("quote"),
+  },
+  $I.annote("QuoteNode", { description: "A serialized Lexical block-quote element node." })
+) {
+  /**
+   * Plain-text projection of a quote node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: QuoteNode.Type) => `${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link QuoteNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace QuoteNode {
+  /**
+   * Companion decoded type for {@link QuoteNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly type: "quote";
+  }
+
+  /**
+   * Companion encoded type for {@link QuoteNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly type: "quote";
+  }
+}
+
+/**
+ * Mirrors `SerializedListNode` from `@lexical/list`.
+ *
+ * @example
+ * ```ts
+ * import { ListNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ListNode.name) // "ListNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ListNode extends ElementNode.extend<ListNode>($I`ListNode`)(
+  {
+    type: S.tag("list"),
+    listType: ListType.annotateKey({ description: "List semantics." }),
+    start: S.Finite.annotateKey({ description: "Starting number for ordered lists." }),
+    tag: ListTag.annotateKey({ description: "HTML list tag." }),
+  },
+  $I.annote("ListNode", { description: "A serialized Lexical list element node." })
+) {
+  /**
+   * Plain-text projection of a list node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: ListNode.Type) => `${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link ListNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ListNode {
+  /**
+   * Companion decoded type for {@link ListNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly listType: ListType;
+    readonly start: number;
+    readonly tag: ListTag;
+    readonly type: "list";
+  }
+
+  /**
+   * Companion encoded type for {@link ListNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly listType: ListType;
+    readonly start: number;
+    readonly tag: ListTag;
+    readonly type: "list";
+  }
+}
+
+/**
+ * Mirrors `SerializedListItemNode` from `@lexical/list` — `checked` is
+ * `boolean | undefined` on the wire.
+ *
+ * @example
+ * ```ts
+ * import { ListItemNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(ListItemNode.name) // "ListItemNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ListItemNode extends ElementNode.extend<ListItemNode>($I`ListItemNode`)(
+  {
+    type: S.tag("listitem"),
+    checked: S.OptionFromOptional(S.Boolean).annotateKey({
+      description: "Checkbox state for check lists; absent otherwise.",
+    }),
+    value: S.Finite.annotateKey({ description: "Ordinal value within the list." }),
+  },
+  $I.annote("ListItemNode", { description: "A serialized Lexical list-item element node." })
+) {
+  /**
+   * Plain-text projection of a list-item node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: ListItemNode.Type) => `- ${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link ListItemNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ListItemNode {
+  /**
+   * Companion decoded type for {@link ListItemNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly checked: O.Option<boolean>;
+    readonly type: "listitem";
+    readonly value: number;
+  }
+
+  /**
+   * Companion encoded type for {@link ListItemNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly checked?: boolean | undefined;
+    readonly type: "listitem";
+    readonly value: number;
+  }
+}
+
+/**
+ * Mirrors `SerializedLinkNode` from `@lexical/link`.
+ *
+ * @example
+ * ```ts
+ * import { LinkNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(LinkNode.name) // "LinkNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class LinkNode extends ElementNode.extend<LinkNode>($I`LinkNode`)(
+  {
+    type: S.tag("link"),
+    url: S.String.annotateKey({ description: "The link target URL." }),
+    rel: S.OptionFromOptionalNullOr(S.String).annotateKey({ description: "Optional anchor rel attribute." }),
+    target: S.OptionFromOptionalNullOr(S.String).annotateKey({ description: "Optional anchor target attribute." }),
+    title: S.OptionFromOptionalNullOr(S.String).annotateKey({ description: "Optional anchor title attribute." }),
+  },
+  $I.annote("LinkNode", { description: "A serialized Lexical hyperlink element node." })
+) {
+  /**
+   * Plain-text projection of a link node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: LinkNode.Type) => childText(node.children);
+}
+
+/**
+ * Companion namespace for {@link LinkNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace LinkNode {
+  /**
+   * Companion decoded type for {@link LinkNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly rel: O.Option<string>;
+    readonly target: O.Option<string>;
+    readonly title: O.Option<string>;
+    readonly type: "link";
+    readonly url: string;
+  }
+
+  /**
+   * Companion encoded type for {@link LinkNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly rel?: string | null | undefined;
+    readonly target?: string | null | undefined;
+    readonly title?: string | null | undefined;
+    readonly type: "link";
+    readonly url: string;
+  }
+}
+
+/**
+ * Mirrors `SerializedCodeNode` from `@lexical/code` — `language` is
+ * `string | null | undefined` on the wire.
+ *
+ * @example
+ * ```ts
+ * import { CodeNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(CodeNode.name) // "CodeNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class CodeNode extends ElementNode.extend<CodeNode>($I`CodeNode`)(
+  {
+    type: S.tag("code"),
+    language: S.OptionFromOptionalNullOr(S.String).annotateKey({
+      description: "Optional code-fence language identifier.",
+    }),
+    theme: S.OptionFromOptional(S.String).annotateKey({ description: "Optional code highlight theme." }),
+  },
+  $I.annote("CodeNode", { description: "A serialized Lexical fenced code-block element node." })
+) {
+  /**
+   * Plain-text projection of a code node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: CodeNode.Type) => `\`\`\`\n${childText(node.children)}\n\`\`\`\n`;
+}
+
+/**
+ * Companion namespace for {@link CodeNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace CodeNode {
+  /**
+   * Companion decoded type for {@link CodeNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly language: O.Option<string>;
+    readonly theme: O.Option<string>;
+    readonly type: "code";
+  }
+
+  /**
+   * Companion encoded type for {@link CodeNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly language?: string | null | undefined;
+    readonly theme?: string | undefined;
+    readonly type: "code";
+  }
+}
+
+/**
+ * Net-new decorator block node owned by this package: a reference to a
+ * runtime artifact, rendered as a chip in the editor and round-tripped to
+ * `@beep/md` as a paragraph wrapping an `artifact://` link.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ArtifactRefNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(ArtifactRefNode)({
+ *   type: "artifact-ref", version: 1, artifactId: "artifact-123"
+ * })
+ * console.log(node.artifactId) // "artifact-123"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ArtifactRefNode extends BaseNode.extend<ArtifactRefNode>($I`ArtifactRefNode`)(
+  {
+    type: S.tag("artifact-ref"),
+    artifactId: S.String.annotateKey({ description: "Identifier of the referenced runtime artifact." }),
+    label: S.OptionFromOptionalKey(S.String).annotateKey({
+      description: "Optional human-readable label; defaults to the artifact id when absent.",
+    }),
+  },
+  $I.annote("ArtifactRefNode", { description: "A serialized block-level reference to a runtime artifact." })
+) {
+  /**
+   * Plain-text projection of an artifact-ref node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: ArtifactRefNode.Type) => `[artifact:${node.artifactId}]\n`;
+}
+
+/**
+ * Companion namespace for {@link ArtifactRefNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ArtifactRefNode {
+  /**
+   * Companion decoded type for {@link ArtifactRefNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends BaseNode.Type {
+    readonly artifactId: string;
+    readonly label: O.Option<string>;
+    readonly type: "artifact-ref";
+  }
+
+  /**
+   * Companion encoded type for {@link ArtifactRefNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends BaseNode.Encoded {
+    readonly artifactId: string;
+    readonly label?: string;
+    readonly type: "artifact-ref";
+  }
+}
+
+/**
+ * The tagged union of all v1 serialized Lexical nodes, discriminated by
+ * Lexical's own `type` key.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { LexicalNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(LexicalNode)({ type: "linebreak", version: 1 })
+ * console.log(node.type) // "linebreak"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const LexicalNode = S.Union([
+  // leaves
+  TextNode,
+  TabNode,
+  LineBreakNode,
+  ArtifactRefNode,
+  // elements
+  RootNode,
+  ParagraphNode,
+  HeadingNode,
+  QuoteNode,
+  ListNode,
+  ListItemNode,
+  LinkNode,
+  CodeNode,
+]).pipe(S.toTaggedUnion("type"));
+
+/**
+ * {@inheritDoc LexicalNode}
+ *
+ * @example
+ * ```ts
+ * import type { LexicalNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const nodeType = (node: LexicalNode) => node.type
+ * console.log(nodeType)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LexicalNode = typeof LexicalNode.Type;
+
+/**
+ * Companion namespace for {@link LexicalNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace LexicalNode {
+  /**
+   * Companion decoded type for {@link LexicalNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Type =
+    | TextNode.Type
+    | TabNode.Type
+    | LineBreakNode.Type
+    | ArtifactRefNode.Type
+    | RootNode.Type
+    | ParagraphNode.Type
+    | HeadingNode.Type
+    | QuoteNode.Type
+    | ListNode.Type
+    | ListItemNode.Type
+    | LinkNode.Type
+    | CodeNode.Type;
+
+  /**
+   * Companion encoded type for {@link LexicalNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded =
+    | TextNode.Encoded
+    | TabNode.Encoded
+    | LineBreakNode.Encoded
+    | ArtifactRefNode.Encoded
+    | RootNode.Encoded
+    | ParagraphNode.Encoded
+    | HeadingNode.Encoded
+    | QuoteNode.Encoded
+    | ListNode.Encoded
+    | ListItemNode.Encoded
+    | LinkNode.Encoded
+    | CodeNode.Encoded;
+}
+
+/**
+ * Mirrors `SerializedEditorState`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SerializedEditorState } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const state = S.decodeUnknownSync(SerializedEditorState)({
+ *   root: {
+ *     type: "root", version: 1, children: [], direction: null, format: "", indent: 0
+ *   }
+ * })
+ * console.log(state.root.type) // "root"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SerializedEditorState extends S.Class<SerializedEditorState>($I`SerializedEditorState`)(
+  {
+    root: RootNode.annotateKey({ description: "The document root node." }),
+  },
+  $I.annote("SerializedEditorState", { description: "The serialized Lexical editor state envelope." })
+) {}
+
+/**
+ * Companion namespace for {@link SerializedEditorState}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace SerializedEditorState {
+  /**
+   * Companion decoded type for {@link SerializedEditorState}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly root: RootNode.Type;
+  }
+
+  /**
+   * Companion encoded type for {@link SerializedEditorState}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly root: RootNode.Encoded;
+  }
+}
+
+/**
+ * The same envelope, but encoding directly to/from a JSON string (for
+ * persistence boundaries).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EditorStateFromJson } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const state = S.decodeUnknownSync(EditorStateFromJson)(
+ *   '{"root":{"type":"root","version":1,"children":[],"direction":null,"format":"","indent":0}}'
+ * )
+ * console.log(state.root.type) // "root"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const EditorStateFromJson = S.fromJsonString(SerializedEditorState).pipe(
+  $I.annoteSchema("EditorStateFromJson", {
+    description: "Serialized Lexical editor state codec over its JSON string wire form.",
+  })
+);
+
+const childText = (children: ReadonlyArray<LexicalNode.Type>): string => A.join(A.map(children, nodeToPlainText), "");
+
+/**
+ * Plain-text projection over the full node union (prompt construction,
+ * previews).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { LexicalNode, nodeToPlainText } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(LexicalNode)({ type: "linebreak", version: 1 })
+ * console.log(JSON.stringify(nodeToPlainText(node))) // "\"\\n\""
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const nodeToPlainText: (node: LexicalNode.Type) => string = LexicalNode.match({
+  text: TextNode.toText,
+  tab: TabNode.toText,
+  linebreak: LineBreakNode.toText,
+  "artifact-ref": ArtifactRefNode.toText,
+  root: RootNode.toText,
+  paragraph: ParagraphNode.toText,
+  heading: HeadingNode.toText,
+  quote: QuoteNode.toText,
+  list: ListNode.toText,
+  listitem: ListItemNode.toText,
+  link: LinkNode.toText,
+  code: CodeNode.toText,
+});
+
+/**
+ * Plain-text projection of a full editor state.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SerializedEditorState, editorStateToPlainText } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const state = S.decodeUnknownSync(SerializedEditorState)({
+ *   root: { type: "root", version: 1, children: [], direction: null, format: "", indent: 0 }
+ * })
+ * console.log(editorStateToPlainText(state)) // ""
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
+export const editorStateToPlainText = (state: SerializedEditorState.Type): string =>
+  Str.trim(nodeToPlainText(state.root));

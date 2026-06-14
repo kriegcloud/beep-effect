@@ -8,6 +8,13 @@
  */
 
 /**
+ * Entity fixture helper exports.
+ *
+ * @category entity
+ * @since 0.0.0
+ */
+export * from "./Entity.js";
+/**
  * Effect layer test helper exports.
  *
  * @category testing
