@@ -58,7 +58,7 @@ jobs:
             install_typos: "true"
           - id: lint-policy
             name: Lint Policy
-            timeout_minutes: 40
+            timeout_minutes: 25
             uses_turbo: "false"
             install_typos: "true"
           - id: repo-sanity
