@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "748855ff7e1de11951a5309440de2cb1d1454a7c63ff301f5f519ec976908f0b",
+    "digest": "f9e74c3546a10b9efa36927959fc8cfe97357dd927d7e13ccd01c9dc13dcc342",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/agents/domain/package.json",
-        "sha256": "0665329094ad58df6e0745da669ce7c0ddde0ee3444f244d28e67f83a4065023",
-        "bytes": 2013
+        "sha256": "22d2f0f00f6b0116f07189a00c6339a0861db7480943b5d630c63c96dbefb58b",
+        "bytes": 2050
       },
       {
         "path": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
@@ -57,8 +57,13 @@
       },
       {
         "path": "packages/agents/domain/src/index.ts",
-        "sha256": "c1030012fc364b28632749a9b660e198a41ea5579499d163ad981aa4a4f18db5",
-        "bytes": 1026
+        "sha256": "4dce333edf87cdb229fbf13dace0769a6359404c81427b1555dbefa94a8a0458",
+        "bytes": 1294
+      },
+      {
+        "path": "packages/agents/domain/src/turn/index.ts",
+        "sha256": "5f51dc4b4edf2757dedb9f9e4ab96a7bb1fb59343a4a0dd13d0bd60da34e6cc0",
+        "bytes": 712
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
@@ -67,8 +72,8 @@
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sha256": "3c539cb42c05ae37ed2de0ad8277b516080833527b08a5af793fe5827ae63129",
-        "bytes": 8984
+        "sha256": "10bfea3466acadd1bd86c8f1b18d2a1c8dbda8ba4f8bdb75b66a3096cf964a22",
+        "bytes": 8955
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/index.ts",
@@ -107,13 +112,14 @@
       "@beep/agents-domain/entities",
       "@beep/agents-domain/entities/Agent",
       "@beep/agents-domain/entities/Skill",
+      "@beep/agents-domain/turn",
       "@beep/agents-domain/values",
       "@beep/agents-domain/values/AssistantContent"
     ],
     "counts": {
-      "publicExportEntries": 59,
-      "uniqueSymbols": 18,
-      "sourceFiles": 11
+      "publicExportEntries": 75,
+      "uniqueSymbols": 19,
+      "sourceFiles": 12
     },
     "exports": [
       {
@@ -613,6 +619,23 @@
         "importSpecifier": "@beep/agents-domain",
         "exportSubpath": ".",
         "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "Turn",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/agents/domain/src/turn/index.ts",
+        "sourceLine": 21,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . turn sourcefile packages/agents/domain/src/turn/index.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
         "symbolName": "Values",
         "exportKind": "SourceFile",
         "sourcePath": "packages/agents/domain/src/values/index.ts",
@@ -822,6 +845,371 @@
           "@since"
         ],
         "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/entities/skill ./entities/skill skill class skill definition used by an agent. models packages/agents/domain/src/entities/skill/skill.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "AssistantBlock",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 290,
+        "summary": "A single block of an assistant turn.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblock const a single block of an assistant turn. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "AssistantBlock",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 303,
+        "summary": "Runtime type for {@link AssistantBlock}.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblock type runtime type for {@link assistantblock}. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "AssistantContent",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/index.ts",
+        "sourceLine": 21,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontent sourcefile packages/agents/domain/src/values/assistantcontent/index.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "assistantContentToDocument",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
+        "sourceLine": 121,
+        "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "blockToMd",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
+        "sourceLine": 77,
+        "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "CodeBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 259,
+        "summary": "A fenced code block.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn codeblock class a fenced code block. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "HeadingBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 167,
+        "summary": "A section heading.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn headingblock class a section heading. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "InlineNode",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 101,
+        "summary": "Inline content held by an assistant block.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinenode const inline content held by an assistant block. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "InlineNode",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 114,
+        "summary": "Runtime type for {@link InlineNode}.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinenode type runtime type for {@link inlinenode}. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "inlineToMd",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
+        "sourceLine": 34,
+        "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "LinkInline",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 75,
+        "summary": "A hyperlink inline.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn linkinline class a hyperlink inline. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "ListBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 225,
+        "summary": "A flat list of items.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn listblock class a flat list of items. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "ParagraphBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 138,
+        "summary": "A paragraph of inline content.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn paragraphblock class a paragraph of inline content. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "QuoteBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 196,
+        "summary": "A block quotation.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn quoteblock class a block quotation. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "TextInline",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 39,
+        "summary": "A run of styled text.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn textinline class a run of styled text. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",

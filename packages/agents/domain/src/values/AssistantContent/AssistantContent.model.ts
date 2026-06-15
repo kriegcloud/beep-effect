@@ -11,7 +11,7 @@
 import { $AgentsDomainId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 
-const $I = $AgentsDomainId.create("values/AssistantContent/AssistantContent.model");
+const $I = $AgentsDomainId.create("turn/AssistantContent");
 
 // ---------------------------------------------------------------------------
 // Inlines (stratified, non-recursive - inlines contain no blocks)

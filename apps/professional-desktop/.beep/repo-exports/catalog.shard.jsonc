@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "bd8e50ab1f198198f01dbfcd3a578150c3fd0fca58f06f4db610038f9b6e7613",
+    "digest": "27d91026f9ee30ae6c8ae48f7a190b147601a94372166d5a5be9884f660a7b91",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -52,8 +52,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx",
-        "sha256": "f72023ee2d62566c72dd2751dcf11940864f1a777439212041565d6cab60ed1d",
-        "bytes": 2993
+        "sha256": "bc13a84316fa5632e18f698f80cf2cee5c55d66dbd4ebfad7ae5b7410f41e1ef",
+        "bytes": 2989
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Thread.tsx",
