@@ -1,3 +1,4 @@
+import { baseEntityFixtureInput } from "@beep/test-utils";
 import { CandidateDraft as CandidateDraftModel } from "@beep/workspace-domain/entities/CandidateDraft";
 import { CandidateProject as CandidateProjectModel } from "@beep/workspace-domain/entities/CandidateProject";
 import { Message as MessageModel } from "@beep/workspace-domain/entities/Message";
@@ -14,20 +15,6 @@ import { getColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-
-const systemPrincipal = { component: "Runtime", kind: "System" };
-const baseEntityInput = (entityType: string, id: number) => ({
-  createdAt: id,
-  createdByPrincipal: systemPrincipal,
-  entityType,
-  id,
-  orgId: 1,
-  rowVersion: 1,
-  schemaVersion: "0.0.0",
-  source: "System",
-  updatedAt: id + 1,
-  updatedByPrincipal: systemPrincipal,
-});
 
 const expectBaseProjectionColumns = (table: typeof CandidateDraft.Table | typeof CandidateProject.Table) => {
   const columns = getColumns(table);
@@ -97,7 +84,7 @@ describe("WorkspaceTables", () => {
 
   it("round-trips Thread, Turn, and Message rows through the converters", () => {
     const thread = S.decodeUnknownSync(ThreadModel)({
-      ...baseEntityInput("WorkspaceThread", 10),
+      ...baseEntityFixtureInput("WorkspaceThread", 10),
       title: "Matter intake",
       workspaceId: 2,
     });
@@ -109,7 +96,7 @@ describe("WorkspaceTables", () => {
     expect(Thread.fromThreadRow({ ...threadInsert, id: 10 }).title).toBe("Matter intake");
 
     const message = S.decodeUnknownSync(MessageModel)({
-      ...baseEntityInput("WorkspaceMessage", 20),
+      ...baseEntityFixtureInput("WorkspaceMessage", 20),
       content: { _tag: "document", children: [] },
       role: "user",
       threadId: 10,
@@ -122,7 +109,7 @@ describe("WorkspaceTables", () => {
     expect(Message.fromMessageRow({ ...messageInsert, id: 20 }).role).toBe("user");
 
     const turn = S.decodeUnknownSync(TurnModel)({
-      ...baseEntityInput("WorkspaceTurn", 30),
+      ...baseEntityFixtureInput("WorkspaceTurn", 30),
       items: [{ itemType: "message", messageId: 20 }],
       parentTurnId: null,
       threadId: 10,

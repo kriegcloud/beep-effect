@@ -11,6 +11,7 @@ import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proo
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { provideScopedLayer } from "@beep/test-utils";
 import { ThreadStoreInMemoryLayer } from "@beep/workspace-server/aggregates/Thread";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
@@ -18,13 +19,6 @@ import { Array as A, Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect"
 import * as S from "effect/Schema";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink } from "@/chat/UsageRecordSink";
-
-// Provide a built Layer as a Context (not a Layer) to keep the std strict
-// effect-provide diagnostic satisfied; mirrors the repo's server test pattern.
-const provideScopedLayer =
-  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
-  <Ok, E, R>(effect: Effect.Effect<Ok, E, R>): Effect.Effect<Ok, E | E2, RIn | Exclude<R, ROut>> =>
-    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 

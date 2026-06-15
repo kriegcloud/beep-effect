@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0b8cfdc1044d5400f22d32f9a44284a51bdae3e52f0220c8b358707c15984d54",
+    "digest": "0456813998190c68651dfc9aa9614b908c063d3e59c98e49ff29668094b18607",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/epistemic/tables/package.json",
-        "sha256": "3243b3c6591d32460c991dfb124c08ef4019f9561cf418ef5ed021c9617f9dde",
-        "bytes": 2479
+        "sha256": "944f6b643aaf93f266ebeacbb3a684b6794a1e33c11f5b9f440ee1deb093d467",
+        "bytes": 2518
       },
       {
         "path": "packages/epistemic/tables/src/entities/index.ts",

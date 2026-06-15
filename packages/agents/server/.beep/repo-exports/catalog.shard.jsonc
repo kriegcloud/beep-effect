@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1a5ca9f3b87dbcc8063cfcb5c446b39f1124e23f2278cb93598ecdc152254e11",
+    "digest": "1acc32e57875238b210f0c6a790a076f333e5116f123816d9903de3b158f12a7",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sha256": "4efcebb68e4b0baa78e9b5fdf81663fe1a4ff190da3fb6bbc3d40b42b4079722",
-        "bytes": 2583
+        "sha256": "8f739353ea34a419e49df74809dd8dc027a33aaa10e3ce80210c0954220be833",
+        "bytes": 2938
       },
       {
         "path": "packages/agents/server/src/index.ts",
@@ -292,7 +292,7 @@
         "symbolName": "scanChunk",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 63,
+        "sourceLine": 68,
         "summary": "Fold one chunk of structured-output JSON text into the scan state, returning",
         "categories": [
           "parsing"

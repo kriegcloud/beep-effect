@@ -2,49 +2,18 @@ import { fileURLToPath } from "node:url";
 import { Document, P, Text } from "@beep/md";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
-import { Str } from "@beep/utils";
+import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
 import { makeDrizzleThreadStore } from "@beep/workspace-server/aggregates/Thread";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { SqlTestHooks } from "@beep/test-utils";
 
-const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
 const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
-const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
-const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
-const PgliteIntegrationTimeout = 300_000;
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
 
 const decodeWorkspaceId = S.decodeUnknownEffect(WorkspaceIdentity.WorkspaceId);
 const docOf = (value: string) => Document.make({ children: [P.make({ children: [Text.make({ value })] })] });
-
-const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
-  pipe(
-    sharedConnectionUri,
-    O.match({
-      onNone: () =>
-        hooks === undefined
-          ? Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" }))
-          : Layer.fresh(makePgliteSqlTestLayer({ hooks, mode: "testcontainers" })),
-      onSome: (connectionUri) =>
-        hooks === undefined
-          ? Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                mode: "external",
-              })
-            )
-          : Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                hooks,
-                mode: "external",
-              })
-            ),
-    })
-  );
 
 const migrateWorkspaceThread = Effect.fnUntraced(function* () {
   const info = yield* TestDatabaseInfo;
@@ -109,7 +78,7 @@ if (!shouldRunPgliteIntegration) {
             expect(secondItem.role).toBe("assistant");
           }
         }),
-        PgliteIntegrationTimeout
+        pgliteIntegrationTimeoutMillis
       );
     });
   });

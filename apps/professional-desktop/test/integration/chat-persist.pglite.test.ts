@@ -27,7 +27,7 @@ import { FixtureTurnKernel } from "@beep/agents-use-cases/proof";
 import * as Md from "@beep/md/Md.model";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, layer } from "@effect/vitest";
@@ -38,26 +38,12 @@ import * as Stream from "effect/Stream";
 import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 
-const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, (value) =>
-  value !== undefined && value.length > 0 ? O.some(value) : O.none()
-);
 const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
-const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
-const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
-const PgliteIntegrationTimeout = 300_000;
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
-
-const makePgliteLayer = () =>
-  pipe(
-    sharedConnectionUri,
-    O.match({
-      onNone: () => Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" })),
-      onSome: (connectionUri) => Layer.fresh(makePgliteSqlTestLayer({ external: { connectionUri }, mode: "external" })),
-    })
-  );
 
 const migrateAll = Effect.fnUntraced(function* () {
   const info = yield* TestDatabaseInfo;
@@ -121,7 +107,7 @@ if (!shouldRunPgliteIntegration) {
             }
           }
         }),
-        PgliteIntegrationTimeout
+        pgliteIntegrationTimeoutMillis
       );
     });
   });

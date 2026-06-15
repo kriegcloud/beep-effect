@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e370acc6ac8aceb711bc26b14afd964949edf9b36028c61d5bafa9a9f305e6fe",
+    "digest": "95236fe38790badd4c94262da3473eaa5f5a6cfd4233e73466341af61e433e84",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/workspace/tables/package.json",
-        "sha256": "5acd13e3993f1bdcb0992f65fe34d10f2d88561ee0f5dc57b16ea88efcbd9ad6",
-        "bytes": 3011
+        "sha256": "99ec910ab825b56b20cb8d35e4d4e8285223d962d690aa4d86667d1ef0bc3170",
+        "bytes": 3050
       },
       {
         "path": "packages/workspace/tables/src/entities/CandidateDraft/CandidateDraft.table.ts",

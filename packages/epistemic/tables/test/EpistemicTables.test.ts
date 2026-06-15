@@ -1,28 +1,15 @@
 import { UsageRecord as UsageRecordModel } from "@beep/epistemic-domain/entities/UsageRecord";
 import { DbSchema, Entities } from "@beep/epistemic-tables";
 import * as UsageRecord from "@beep/epistemic-tables/entities/UsageRecord";
+import { baseEntityFixtureInput, systemPrincipal } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { getColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const systemPrincipal = { component: "Runtime", kind: "System" };
-const baseEntityInput = (entityType: string, id: number) => ({
-  createdAt: id,
-  createdByPrincipal: systemPrincipal,
-  entityType,
-  id,
-  orgId: 1,
-  rowVersion: 1,
-  schemaVersion: "0.0.0",
-  source: "System",
-  updatedAt: id + 1,
-  updatedByPrincipal: systemPrincipal,
-});
-
 const usageRecordInput = (id: number) => ({
-  ...baseEntityInput("EpistemicUsageRecord", id),
+  ...baseEntityFixtureInput("EpistemicUsageRecord", id),
   activityId: 7,
   actor: systemPrincipal,
   costUsdApproxMicros: null,

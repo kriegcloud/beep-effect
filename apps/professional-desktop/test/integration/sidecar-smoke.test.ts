@@ -23,8 +23,9 @@
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Chunk, Effect, Layer } from "effect";
+import { Chunk, Effect } from "effect";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { RpcTest } from "effect/unstable/rpc";
@@ -35,13 +36,6 @@ const shouldRun = Bun.env.BEEP_TEST_SIDECAR_SMOKE === "1";
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
-
-// Provide a built Layer as a Context (not a Layer) to keep the std strict
-// effect-provide diagnostic satisfied; mirrors the repo's server test pattern.
-const provideScopedLayer =
-  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
-  <Ok, E, R>(effect: Effect.Effect<Ok, E, R>): Effect.Effect<Ok, E | E2, RIn | Exclude<R, ROut>> =>
-    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 // Build a fresh in-process rpc client wired to the fixture runtime handler
 // group, mirroring how the sidecar binds ChatRpcs to RuntimeLive.

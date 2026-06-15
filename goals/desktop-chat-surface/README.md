@@ -65,12 +65,20 @@ paragraph + code block, the assistant turn finalized and persisted, and a fresh
 wire. See `history/2026-06-14-finalize-bug-rootcause-fix.md`.
 
 Two items remain: (1) `bun run beep yeet verify` is blocked solely by the pilot
-`fallow:audit` lane flagging the new packages' standard test/config boilerplate
-as `introduced` duplication (+ one proven-scanner complexity) — a tooling-gap
-needing a repo-wide baseline decision, not a feature defect (every other lane is
-green; `fallow:dead-code` was driven to green). (2) The full `tauri build`
-bundle needs a dev-machine bundle run (the runnable sidecar + rpc + real-LLM +
-persistence surface is validated; only the packaged-binary bundling is unrun).
+`fallow:audit` lane. Investigated and partially driven down (see
+`history/2026-06-14-fallow-audit-investigation.md`): complexity → 0 (property-
+tested `scanChunk` suppressed) and introduced duplication 15 → 9 via genuine
+de-dup (shared `provideScopedLayer` + new `@beep/test-utils` pglite/baseEntity
+helpers; all touched packages green). The residual 9 are **structurally
+irreducible from this branch**: per-package `vitest.config.ts` clones (cannot be
+de-duped, no fallow glob-ignore, inline-suppression backfires into
+`stale_suppressions`) + cross-package test-harness clones that need refactoring
+5+ existing packages' tests. The yeet audit invocation passes **no baseline
+flag**, so there is no accept-mechanism — the clean fix is a repo-tooling/policy
+change owned by the `fallow-quality-enforcement` packet, not a feature defect.
+(2) The full `tauri build` bundle needs a dev-machine bundle run (the runnable
+sidecar + rpc + real-LLM + persistence surface is validated; only the
+packaged-binary bundling is unrun).
 
 ## Latest Evidence
 

@@ -2,20 +2,15 @@ import { fileURLToPath } from "node:url";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import * as UsageRecordTable from "@beep/epistemic-tables/entities/UsageRecord";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
-import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 
-const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, (value) =>
-  value !== undefined && value.length > 0 ? O.some(value) : O.none()
-);
 const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
-const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
-const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
-const PgliteIntegrationTimeout = 300_000;
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
 
 const decodeUsageAppend = S.decodeUnknownSync(TurnFinalizationUsageAppend);
 
@@ -43,15 +38,6 @@ const usageAppendInput = {
   updatedAt: 101,
   updatedByPrincipal: { kind: "System", component: "Runtime" },
 };
-
-const makePgliteLayer = () =>
-  pipe(
-    sharedConnectionUri,
-    O.match({
-      onNone: () => Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" })),
-      onSome: (connectionUri) => Layer.fresh(makePgliteSqlTestLayer({ external: { connectionUri }, mode: "external" })),
-    })
-  );
 
 const migrateEpistemicUsage = Effect.fnUntraced(function* () {
   const info = yield* TestDatabaseInfo;
@@ -96,7 +82,7 @@ if (!shouldRunPgliteIntegration) {
           expect(O.getOrNull(decoded.inputTokens)).toBe(12);
           expect(O.isNone(decoded.unitCount)).toBe(true);
         }),
-        PgliteIntegrationTimeout
+        pgliteIntegrationTimeoutMillis
       );
     });
   });
