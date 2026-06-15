@@ -16,8 +16,12 @@ const assistantItem = (text: string) => AssistantTurnHistoryItem.make({ text });
 describe("@beep/agents-use-cases AssistantTurn", () => {
   it("models history as a role-tagged union of user and assistant items", () => {
     const decoded = S.decodeUnknownSync(TurnHistoryItem)({ role: "user", text: "hello" });
+    const user = userItem("hello");
+    const assistant = assistantItem("hi");
 
     expect(decoded).toBeInstanceOf(UserTurnHistoryItem);
+    expect(user.role).toBe("user");
+    expect(assistant.role).toBe("assistant");
     expect(
       TurnHistoryItem.match(decoded, {
         assistant: (item) => `assistant:${item.text}`,

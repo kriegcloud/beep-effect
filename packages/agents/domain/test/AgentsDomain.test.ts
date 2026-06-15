@@ -1,4 +1,6 @@
-import { Agent, AgentMode } from "@beep/agents-domain";
+import { Agent, AgentMode, Turn } from "@beep/agents-domain";
+import * as TurnSubpath from "@beep/agents-domain/turn";
+import { AssistantBlock, ParagraphBlock, TextInline } from "@beep/agents-domain/values/AssistantContent";
 import * as Agents from "@beep/shared-domain/identity/Agents";
 import { baseEntityFixtureInput } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -32,5 +34,19 @@ describe("@beep/agents-domain", () => {
     expect(constructed.entityType).toBe("AgentsAgent");
     expect(constructed.mode).toBe("deterministic_fixture");
     expect(constructed.skillFixtureKey).toBe("skill.review");
+  });
+
+  it("preserves turn compatibility exports for assistant content blocks", () => {
+    expect(Turn.AssistantBlock).toBe(AssistantBlock);
+    expect(Turn.AssistantContent.AssistantBlock).toBe(AssistantBlock);
+    expect(TurnSubpath.AssistantBlock).toBe(AssistantBlock);
+    expect(TurnSubpath.AssistantContent.AssistantBlock).toBe(AssistantBlock);
+
+    const decoded = S.decodeUnknownSync(Turn.AssistantBlock)({
+      type: "paragraph",
+      children: [{ type: "text", text: "hello" }],
+    });
+
+    expect(decoded).toStrictEqual(ParagraphBlock.make({ children: [TextInline.make({ text: "hello" })] }));
   });
 });
