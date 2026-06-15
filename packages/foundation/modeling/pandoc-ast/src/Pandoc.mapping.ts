@@ -451,6 +451,19 @@ const mdListText = (items: ReadonlyArray<Md.Li | Md.TaskItem>): string =>
     "\n"
   );
 
+const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/watch?v=${videoId}`;
+
+const mdTableText = (block: Md.Table): string =>
+  A.join(
+    A.map(block.children, (row) =>
+      A.join(
+        A.map(row.children, (cell) => mdInlinesText(cell.children)),
+        " | "
+      )
+    ),
+    "\n"
+  );
+
 const mdBlockText: (block: Md.Block) => string = Match.type<Md.Block>().pipe(
   Match.tagsExhaustive({
     h1: (block) => mdInlinesText(block.children),
@@ -466,6 +479,8 @@ const mdBlockText: (block: Md.Block) => string = Match.type<Md.Block>().pipe(
     ol: (block) => mdListText(block.children),
     li: (block) => mdInlinesText(block.children),
     taskList: (block) => mdListText(block.children),
+    table: (block) => mdTableText(block),
+    youtube: (block) => youtubeWatchUrl(block.videoId),
     hr: () => "",
   })
 );
@@ -814,6 +829,44 @@ const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Project
             items: value,
           }),
         })),
+      table: (node) => {
+        const text = mdTableText(node);
+        return Effect.succeed({
+          issues: [
+            issue({
+              construct: "Table",
+              direction: "md-to-pandoc",
+              message: "Md tables are outside the v1 Pandoc-core profile and are emitted as plain paragraph text.",
+              path,
+              severity: "lossy",
+            }),
+          ],
+          value: Para.make({ children: [Str.make({ text: text.length === 0 ? "[table]" : text })] }),
+        });
+      },
+      youtube: (node) => {
+        const url = youtubeWatchUrl(node.videoId);
+        return Effect.succeed({
+          issues: [
+            issue({
+              construct: "YouTube",
+              direction: "md-to-pandoc",
+              message: "Md YouTube embeds have no Pandoc-core equivalent and are emitted as a plain link.",
+              path,
+              severity: "lossy",
+            }),
+          ],
+          value: Para.make({
+            children: [
+              Link.make({
+                attr: PandocAttr.empty,
+                children: [Str.make({ text: url })],
+                target: PandocTarget.make({ title: "", url }),
+              }),
+            ],
+          }),
+        });
+      },
       hr: () => Effect.succeed(emptyProjection(HorizontalRule.make({}))),
     })
   );

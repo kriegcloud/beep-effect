@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "57d69ec7c5b9608bb234e1ecea3f31a52aa461619d0b9fd84bb4e1a139ceca3d",
+    "digest": "4c920228d07b0b741c8f342d60d217d54a60ae73c71cfb393df5d53743d2b950",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts",
-        "sha256": "663d61354d8798db9558a72cbb6ddd66d9c700ae1c902eefeff7e350b80f2b37",
-        "bytes": 114718
+        "sha256": "0903b60b3590fcbe12b98fc4685c9ce94f7aa67a618899660e5171fc6c75c313",
+        "bytes": 116391
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.errors.ts",
@@ -1685,7 +1685,7 @@
         "symbolName": "aiMetricsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts",
-        "sourceLine": 3580,
+        "sourceLine": 3600,
         "summary": "AI metrics root command.",
         "categories": [
           "commands"
@@ -1760,7 +1760,7 @@
         "symbolName": "aiMetricsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts",
-        "sourceLine": 3580,
+        "sourceLine": 3600,
         "summary": "AI metrics root command.",
         "categories": [
           "commands"
@@ -1835,7 +1835,7 @@
         "symbolName": "aiMetricsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/AIMetrics/AIMetrics.command.ts",
-        "sourceLine": 3580,
+        "sourceLine": 3600,
         "summary": "AI metrics root command.",
         "categories": [
           "commands"

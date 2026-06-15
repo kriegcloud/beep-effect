@@ -1,5 +1,3 @@
-import { readdirSync, readFileSync } from "node:fs";
-import * as Path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Agent, AgentMode, assistantContentToDocument, TableBlock, Turn, YouTubeBlock } from "@beep/agents-domain";
 import * as TurnSubpath from "@beep/agents-domain/turn";
@@ -11,43 +9,28 @@ import {
 } from "@beep/agents-domain/values/AssistantContent";
 import * as Md from "@beep/md/Md.model";
 import * as Agents from "@beep/shared-domain/identity/Agents";
-import { baseEntityFixtureInput } from "@beep/test-utils";
+import { baseEntityFixtureInput, provideScopedLayer } from "@beep/test-utils";
+import { NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
+import { Effect, FileSystem, Path } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
+import type { PlatformError } from "effect";
 
 const AgentModeArbitrary = S.toArbitrary(AgentMode);
 
 const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
-const assistantContentSchemaId = (schema: { readonly ast: { readonly annotations: Record<string, unknown> } }) =>
-  String(schema.ast.annotations.schemaId);
-const readRepoFile = (relativePath: string) => readFileSync(Path.join(repoRoot, relativePath), "utf8");
-const repoRelativePath = (absolutePath: string) => Path.relative(repoRoot, absolutePath).split(Path.sep).join("/");
-const collectAgentsSourceFiles = (directory: string): ReadonlyArray<string> => {
-  const sourceFiles: Array<string> = [];
-
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    if (entry.name === "dist" || entry.name === "docs" || entry.name === "node_modules" || entry.name.startsWith(".")) {
-      continue;
-    }
-
-    const entryPath = Path.join(directory, entry.name);
-    if (entry.isDirectory()) {
-      sourceFiles.push(...collectAgentsSourceFiles(entryPath));
-      continue;
-    }
-
-    if (entry.isFile() && entryPath.endsWith(".ts") && entryPath.includes(`${Path.sep}src${Path.sep}`)) {
-      sourceFiles.push(entryPath);
-    }
-  }
-
-  return sourceFiles.sort();
-};
+const assistantContentSchemaId = (schema: {
+  readonly ast: { readonly annotations: Record<string, unknown> | undefined };
+}) => String(schema.ast.annotations?.schemaId);
 const turnCompatibilityBarrelImportPattern =
   /^\s*import\s+(?:type\s+)?[\s\S]*?\s+from\s+["']@beep\/agents-domain(?:\/turn)?["'];?/gmu;
 const assistantContentSymbolPattern = /\b(?:AssistantBlock|AssistantContent)\b/u;
+const ignoredAgentsDirEntries = new Set(["dist", "docs", "node_modules"]);
+const isIgnoredAgentsDirEntry = (entry: string): boolean => ignoredAgentsDirEntries.has(entry) || entry.startsWith(".");
+const isAgentsSourceFile = (entryPath: string, sep: string): boolean =>
+  entryPath.endsWith(".ts") && entryPath.includes(`${sep}src${sep}`);
 
 describe("@beep/agents-domain", () => {
   it("exports value schemas from the package identity", () => {
@@ -120,21 +103,53 @@ describe("@beep/agents-domain", () => {
     expect(decoded).toStrictEqual(ParagraphBlock.make({ children: [TextInline.make({ text: "hello" })] }));
   });
 
-  it("keeps agents source code off assistant content compatibility barrel imports", () => {
-    const violations = collectAgentsSourceFiles(Path.join(repoRoot, "packages/agents")).flatMap((sourcePath) => {
-      const sourceText = readRepoFile(repoRelativePath(sourcePath));
-      const forbiddenImports = [...sourceText.matchAll(turnCompatibilityBarrelImportPattern)]
-        .map((match) => match[0])
-        .filter((importDeclaration) => assistantContentSymbolPattern.test(importDeclaration));
+  it.effect("keeps agents source code off assistant content compatibility barrel imports", () =>
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
 
-      return forbiddenImports.map((importDeclaration) => ({
-        importDeclaration,
-        sourcePath: repoRelativePath(sourcePath),
-      }));
-    });
+      const repoRelativePath = (absolutePath: string): string =>
+        path.relative(repoRoot, absolutePath).split(path.sep).join("/");
 
-    expect(violations).toEqual([]);
-  });
+      const collectAgentsSourceFiles = (
+        directory: string
+      ): Effect.Effect<ReadonlyArray<string>, PlatformError.PlatformError> =>
+        Effect.gen(function* () {
+          const sourceFiles: Array<string> = [];
+
+          for (const entry of yield* fs.readDirectory(directory)) {
+            if (isIgnoredAgentsDirEntry(entry)) {
+              continue;
+            }
+
+            const entryPath = path.join(directory, entry);
+            const info = yield* fs.stat(entryPath);
+            if (info.type === "Directory") {
+              sourceFiles.push(...(yield* collectAgentsSourceFiles(entryPath)));
+            } else if (isAgentsSourceFile(entryPath, path.sep)) {
+              sourceFiles.push(entryPath);
+            }
+          }
+
+          return sourceFiles.sort();
+        });
+
+      const sourceFiles = yield* collectAgentsSourceFiles(path.join(repoRoot, "packages/agents"));
+      const violations: Array<{ readonly importDeclaration: string; readonly sourcePath: string }> = [];
+
+      for (const sourcePath of sourceFiles) {
+        const sourceText = yield* fs.readFileString(sourcePath);
+        for (const match of sourceText.matchAll(turnCompatibilityBarrelImportPattern)) {
+          const importDeclaration = match[0];
+          if (assistantContentSymbolPattern.test(importDeclaration)) {
+            violations.push({ importDeclaration, sourcePath: repoRelativePath(sourcePath) });
+          }
+        }
+      }
+
+      expect(violations).toEqual([]);
+    }).pipe(provideScopedLayer(NodeServices.layer))
+  );
 
   it("lifts rich assistant blocks into canonical Md nodes", () => {
     const document = assistantContentToDocument([

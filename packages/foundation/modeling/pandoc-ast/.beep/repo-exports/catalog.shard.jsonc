@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e3e14fcc06da14cdc35bf8a99a59f208c723694b8a1b0f6456fecdf605bde665",
+    "digest": "bace12c2e6fba01e6eab937ad5829f236b7a1c28018790612771cc1e25afb191",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sha256": "475f69938c5c9182df1a1aa6148b6ede2a21f45887d7b2593d4dbd479a38f730",
-        "bytes": 32268
+        "sha256": "6b86aa2f6fbcd319e4500ba29b55df97aaa0fdc7eefd3eccd00431def1355a0b",
+        "bytes": 33940
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
@@ -385,7 +385,7 @@
         "symbolName": "documentToPandoc",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 953,
+        "sourceLine": 1006,
         "summary": "Maps the canonical `@beep/md` AST into a Pandoc document with a structured",
         "categories": [
           "mapping"
@@ -410,7 +410,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 871,
+        "sourceLine": 924,
         "summary": "Result of mapping an `@beep/md` document to Pandoc.",
         "categories": [
           "models"
@@ -434,7 +434,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 891,
+        "sourceLine": 944,
         "summary": "Companion namespace for {@link DocumentToPandocResult}.",
         "categories": [
           "models"
@@ -2227,7 +2227,7 @@
         "symbolName": "pandocToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 926,
+        "sourceLine": 979,
         "summary": "Maps a Pandoc document into the canonical `@beep/md` AST with a structured",
         "categories": [
           "mapping"
@@ -2252,7 +2252,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 827,
+        "sourceLine": 880,
         "summary": "Result of mapping a Pandoc document to `@beep/md`.",
         "categories": [
           "models"
@@ -2276,7 +2276,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 847,
+        "sourceLine": 900,
         "summary": "Companion namespace for {@link PandocToDocumentResult}.",
         "categories": [
           "models"
@@ -3123,7 +3123,7 @@
         "symbolName": "documentToPandoc",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 953,
+        "sourceLine": 1006,
         "summary": "Maps the canonical `@beep/md` AST into a Pandoc document with a structured",
         "categories": [
           "mapping"
@@ -3148,7 +3148,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 871,
+        "sourceLine": 924,
         "summary": "Result of mapping an `@beep/md` document to Pandoc.",
         "categories": [
           "models"
@@ -3172,7 +3172,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 891,
+        "sourceLine": 944,
         "summary": "Companion namespace for {@link DocumentToPandocResult}.",
         "categories": [
           "models"
@@ -3196,7 +3196,7 @@
         "symbolName": "pandocToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 926,
+        "sourceLine": 979,
         "summary": "Maps a Pandoc document into the canonical `@beep/md` AST with a structured",
         "categories": [
           "mapping"
@@ -3221,7 +3221,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 827,
+        "sourceLine": 880,
         "summary": "Result of mapping a Pandoc document to `@beep/md`.",
         "categories": [
           "models"
@@ -3245,7 +3245,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 847,
+        "sourceLine": 900,
         "summary": "Companion namespace for {@link PandocToDocumentResult}.",
         "categories": [
           "models"

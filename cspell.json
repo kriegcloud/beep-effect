@@ -60,6 +60,7 @@
     "bun.lock",
     "patches/**",
     "_typos.toml",
+    "osv-scanner.toml",
     "node_modules",
     ".repos",
     "*.snap",
