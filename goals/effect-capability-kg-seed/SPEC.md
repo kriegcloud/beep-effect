@@ -81,23 +81,23 @@ Higher sources outrank lower sources when they conflict.
 
 ## Acceptance Criteria
 
-- [ ] A schema-first seed capability graph/report model exists with
+- [x] A schema-first seed capability graph/report model exists with
       deterministic provenance for every extracted fact.
-- [ ] Extraction covers `Combiner`, `Reducer`, and `Filter` modules and at
+- [x] Extraction covers `Combiner`, `Reducer`, and `Filter` modules and at
       least one exported symbol per module with source span, signature summary,
       `@category`, `@since`, structured doc sections, examples, and `@see`
       relationships where present.
-- [ ] Adjacent helpers from `Option`, `Struct`, `Array`, `Record`, `Number`,
+- [x] Adjacent helpers from `Option`, `Struct`, `Array`, `Record`, `Number`,
       `String`, and `Boolean` are connected when source/docs expose them.
-- [ ] Repo export visibility is included for adjacent helpers already surfaced
+- [x] Repo export visibility is included for adjacent helpers already surfaced
       through `standards/repo-exports.catalog.{md,jsonc}`.
-- [ ] Fixture advisory checks cover merge/combine, fold/aggregate,
+- [x] Fixture advisory checks cover merge/combine, fold/aggregate,
       validation/transformation, and at least one decline/no-match scenario.
-- [ ] Tests prove the seed artifact contains expected `Combiner`, `Reducer`,
+- [x] Tests prove the seed artifact contains expected `Combiner`, `Reducer`,
       and `Filter` facts and that fixture findings cite deterministic evidence.
-- [ ] Hooks, embeddings, graph DB/storage, full corpus ingestion, and hard
+- [x] Hooks, embeddings, graph DB/storage, full corpus ingestion, and hard
       enforcement remain absent from the implementation.
-- [ ] No unrelated refactors or formatting churn.
+- [x] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
 

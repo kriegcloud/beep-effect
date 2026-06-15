@@ -9,12 +9,17 @@ import { expect, layer } from "@effect/vitest";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import { REPO_ROOT, TestLayer } from "./TSMorph.test-support.js";
-import type { EffectCapabilitySeedReport } from "@beep/repo-utils/EffectCapabilityKG";
+import type { EffectCapabilityAdvisoryScenario, EffectCapabilitySeedReport } from "@beep/repo-utils/EffectCapabilityKG";
 
 const TIMEOUT = 60_000;
+type EffectCapabilitySeedFinding = ReturnType<typeof adviseEffectCapabilitySeedFixtures>[number];
 
 const findModule = (report: EffectCapabilitySeedReport, name: string) =>
   A.findFirst(report.modules, (module) => module.moduleName === name);
+const findFindingByScenario = (
+  findings: ReadonlyArray<EffectCapabilitySeedFinding>,
+  scenario: EffectCapabilityAdvisoryScenario
+) => A.findFirst(findings, (finding) => finding.scenario === scenario);
 
 layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
   it.effect(
@@ -145,16 +150,34 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
     Effect.fn(function* () {
       const report = yield* buildEffectCapabilitySeedReport(REPO_ROOT);
       const findings = adviseEffectCapabilitySeedFixtures(report, defaultEffectCapabilitySeedFixtures);
+      const mergeFinding = findFindingByScenario(findings, "merge-combine");
+      const foldFinding = findFindingByScenario(findings, "fold-aggregate");
+      const validationFinding = findFindingByScenario(findings, "validation-transformation");
+      const declineFinding = findFindingByScenario(findings, "decline-no-match");
 
       expect(findings).toHaveLength(4);
-      expect(findings[0]?.decision).toBe("suggest");
-      expect(findings[0]?.suggestedSymbols).toContain("symbol:Combiner.make");
-      expect(findings[1]?.suggestedSymbols).toContain("symbol:Reducer.make");
-      expect(findings[2]?.suggestedSymbols).toContain("symbol:Filter.make");
-      expect(findings[3]?.decision).toBe("decline");
-      expect(findings[3]?.suggestedSymbols).toHaveLength(0);
+      expect(O.isSome(mergeFinding)).toBe(true);
+      expect(O.isSome(foldFinding)).toBe(true);
+      expect(O.isSome(validationFinding)).toBe(true);
+      expect(O.isSome(declineFinding)).toBe(true);
+      if (O.isSome(mergeFinding)) {
+        expect(mergeFinding.value.decision).toBe("suggest");
+        expect(mergeFinding.value.suggestedSymbols).toContain("symbol:Combiner.make");
+        expect(A.some(mergeFinding.value.evidence, (evidence) => evidence.sourcePath.includes("Combiner.ts"))).toBe(
+          true
+        );
+      }
+      if (O.isSome(foldFinding)) {
+        expect(foldFinding.value.suggestedSymbols).toContain("symbol:Reducer.make");
+      }
+      if (O.isSome(validationFinding)) {
+        expect(validationFinding.value.suggestedSymbols).toContain("symbol:Filter.make");
+      }
+      if (O.isSome(declineFinding)) {
+        expect(declineFinding.value.decision).toBe("decline");
+        expect(declineFinding.value.suggestedSymbols).toHaveLength(0);
+      }
       expect(A.every(findings, (finding) => finding.evidence.length > 0)).toBe(true);
-      expect(A.some(findings[0]!.evidence, (evidence) => evidence.sourcePath.includes("Combiner.ts"))).toBe(true);
     }),
     TIMEOUT
   );

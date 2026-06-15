@@ -8,6 +8,7 @@ import {
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { ChildProcess } from "effect/unstable/process";
@@ -66,7 +67,8 @@ const writePackageJson = (repoRoot: string, relativePath: string, document: unkn
 
 const writeFixtureRepo = Effect.fn("ChangesetGraphTest.writeFixtureRepo")(function* (
   repoRoot: string,
-  changesetContent: string
+  changesetContent: string,
+  retiredPackageRecord?: unknown
 ) {
   yield* writePackageJson(repoRoot, "package.json", {
     private: true,
@@ -78,6 +80,13 @@ const writeFixtureRepo = Effect.fn("ChangesetGraphTest.writeFixtureRepo")(functi
   });
   yield* writeRepoFile(repoRoot, ".changeset/README.md", "# Changesets\n");
   yield* writeRepoFile(repoRoot, ".changeset/demo.md", changesetContent);
+  if (!P.isUndefined(retiredPackageRecord)) {
+    yield* writeRepoFile(
+      repoRoot,
+      "standards/changesets.retired-packages.json",
+      `${encodeJson(retiredPackageRecord)}\n`
+    );
+  }
   yield* runGit(repoRoot, ["init"]);
   yield* runGit(repoRoot, ["add", "."]);
 });
@@ -149,20 +158,6 @@ Record a private workspace change.
     ]);
   });
 
-  it("allows references to explicitly retired packages", () => {
-    const missing = findMissingChangesetPackageReferences(
-      ["@beep/schema"],
-      [
-        ChangesetGraphPackageReference.make({
-          file: ".changeset/demo.md",
-          packageName: "@beep/ontology",
-        }),
-      ]
-    );
-
-    expect(missing).toEqual([]);
-  });
-
   it("builds a stable summary for release preflight output", () => {
     const summary = makeChangesetGraphSummary(
       ["@beep/schema"],
@@ -200,6 +195,40 @@ Record a private workspace change.
 
 Patch demo.
 `
+          );
+
+          const summary = yield* runChangesetGraphCheck(tmpDir);
+
+          expect(summary).toMatchObject({
+            workspacePackages: 1,
+            changesetFiles: 1,
+            references: 1,
+            missingReferences: [],
+          });
+        })
+      )
+    ));
+
+  it("accepts retired package references declared in the repo retirement record", () =>
+    Effect.runPromise(
+      withTempRepo((tmpDir) =>
+        Effect.gen(function* () {
+          yield* writeFixtureRepo(
+            tmpDir,
+            `---
+"@beep/ontology": patch
+---
+
+Record retired package release cleanup.
+`,
+            {
+              packages: [
+                {
+                  name: "@beep/ontology",
+                  rationale: "Retired workspace package retained only for pending release cleanup changesets.",
+                },
+              ],
+            }
           );
 
           const summary = yield* runChangesetGraphCheck(tmpDir);
