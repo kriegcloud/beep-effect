@@ -197,4 +197,36 @@ describe("Pandoc.mapping", () => {
         expect(A.map(result.document.children, (block) => block._tag)).toEqual(["blockquote"]);
       })
     ));
+
+  it("maps Pandoc soft breaks as spaces while preserving hard line breaks", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                { c: "soft", t: "Str" },
+                { t: "SoftBreak" },
+                { c: "wrap", t: "Str" },
+                { t: "LineBreak" },
+                { c: "hard", t: "Str" },
+              ],
+              t: "Para",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+        const paragraph = result.document.children[0];
+
+        expect(result.report.issues).toEqual([]);
+        expect(paragraph?._tag).toBe("p");
+        if (paragraph?._tag !== "p") {
+          return;
+        }
+        expect(A.map(paragraph.children, (inline) => inline._tag)).toEqual(["text", "text", "text", "br", "text"]);
+        expect(paragraph.children[1]?._tag === "text" ? paragraph.children[1].value : "").toBe(" ");
+      })
+    ));
 });

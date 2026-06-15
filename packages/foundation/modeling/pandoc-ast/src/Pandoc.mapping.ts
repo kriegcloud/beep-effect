@@ -153,7 +153,7 @@ const pandocInlineToMd = (
     Match.tagsExhaustive({
       str: (node) => Effect.succeed(emptyProjection([mdText(node.text)])),
       space: () => Effect.succeed(emptyProjection([mdText(" ")])),
-      softbreak: () => Effect.succeed(emptyProjection([Md.Br.make({})])),
+      softbreak: () => Effect.succeed(emptyProjection([mdText(" ")])),
       linebreak: () => Effect.succeed(emptyProjection([Md.Br.make({})])),
       emph: (node) =>
         Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => ({

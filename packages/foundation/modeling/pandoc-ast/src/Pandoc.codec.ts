@@ -510,7 +510,7 @@ export const decodePandocJsonString = (input: string): Effect.Effect<PandocDocum
  * @category codecs
  * @since 0.0.0
  */
-export const encodePandocJson = (document: PandocDocument.Type): Effect.Effect<PandocJsonWire, S.SchemaError> =>
+export const encodePandocJson = (document: PandocDocument.Type): Effect.Effect<PandocJsonWire, never> =>
   Effect.succeed(
     PandocJsonWire.make({
       "pandoc-api-version": document.apiVersion,
