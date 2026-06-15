@@ -32,12 +32,16 @@ import type { JSX } from "react";
 export function ChatTurnErrorToasts(): JSX.Element | null {
   const setTurnError = useAtomSet(turnErrorAtom);
 
-  useAtomSubscribe(turnErrorAtom, (error) => {
-    if (O.isSome(error)) {
-      toast.error(error.value.message);
-      setTurnError(O.none());
-    }
-  });
+  useAtomSubscribe(
+    turnErrorAtom,
+    (error) => {
+      if (O.isSome(error)) {
+        toast.error(error.value.message);
+        setTurnError(O.none());
+      }
+    },
+    { immediate: true }
+  );
 
   return null;
 }

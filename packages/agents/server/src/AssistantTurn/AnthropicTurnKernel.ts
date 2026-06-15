@@ -22,7 +22,7 @@
 import { AssistantContent } from "@beep/agents-domain/values/AssistantContent";
 import { AgentTurnKernel, TurnGenerationError } from "@beep/agents-use-cases/public";
 import { AnthropicTurnPlan } from "@beep/anthropic";
-import { Effect, Filter, Layer, Metric, Ref, Result, Stream } from "effect";
+import { Effect, Layer, Metric, Order, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { LanguageModel, Tool, Toolkit } from "effect/unstable/ai";
@@ -64,40 +64,51 @@ const decodeSlice = S.decodeUnknownEffect(S.fromJsonString(assistantBlockOutput.
 
 const markValid = Metric.update(Metric.withAttributes(blocksValidated, { result: "valid" }), 1);
 const markInvalid = Metric.update(Metric.withAttributes(blocksValidated, { result: "invalid" }), 1);
+const indexOf = (indexed: IndexedBlock): number => indexed.index;
 
-// Validate-and-route: a valid slice emits as IndexedBlock; an invalid slice is
-// held for the batched repair tail (Result.fail is skipped by filterMapEffect).
-// matchEffect keeps the filter effect total (error channel `never`).
-const routeBlock = (failures: Ref.Ref<ReadonlyArray<IssueReport>>) =>
-  Filter.makeEffect(([slice, index]: [string, number]) =>
+const sortedIndexedBlocks = (blocks: ReadonlyArray<IndexedBlock>): ReadonlyArray<IndexedBlock> =>
+  A.sortWith(blocks, indexOf, Order.Number);
+
+// Validate-and-route: valid slices stream immediately until an earlier slice
+// fails. From that point, later valid slices are buffered so the repair tail can
+// flush repaired and already-valid blocks in original envelope order.
+const routeBlock =
+  (
+    failures: Ref.Ref<ReadonlyArray<IssueReport>>,
+    buffered: Ref.Ref<ReadonlyArray<IndexedBlock>>,
+    holdingAfterFailure: Ref.Ref<boolean>
+  ) =>
+  ([slice, index]: [string, number]): Effect.Effect<ReadonlyArray<IndexedBlock>> =>
     Effect.matchEffect(decodeSlice(slice), {
-      onSuccess: (block): Effect.Effect<Result.Result<IndexedBlock, void>> =>
-        Effect.as(markValid, Result.succeed<IndexedBlock>({ index, block })),
-      onFailure: (error): Effect.Effect<Result.Result<IndexedBlock, void>> =>
-        Effect.as(
-          Effect.andThen(
-            Ref.update(
-              failures,
-              A.append(
-                IssueReport.make({
-                  index,
-                  raw: slice,
-                  report: error.message,
-                })
-              )
-            ),
-            () =>
-              Effect.andThen(markInvalid, () =>
-                Effect.logInfo("assistant-turn block failed validation, held for repair", {
-                  index,
-                  issue: error.message,
-                })
-              )
-          ),
-          Result.fail<void>(undefined)
-        ),
-    })
-  );
+      onSuccess: Effect.fn("AnthropicTurnKernel.routeBlock.valid")(function* (block) {
+        yield* markValid;
+        const indexed = { index, block };
+        if (yield* Ref.get(holdingAfterFailure)) {
+          yield* Ref.update(buffered, A.append(indexed));
+          return A.empty<IndexedBlock>();
+        }
+        return [indexed];
+      }),
+      onFailure: Effect.fn("AnthropicTurnKernel.routeBlock.invalid")(function* (error) {
+        yield* Ref.set(holdingAfterFailure, true);
+        yield* Ref.update(
+          failures,
+          A.append(
+            IssueReport.make({
+              index,
+              raw: slice,
+              report: error.message,
+            })
+          )
+        );
+        yield* markInvalid;
+        yield* Effect.logInfo("assistant-turn block failed validation, held for repair", {
+          index,
+          issue: error.message,
+        });
+        return A.empty<IndexedBlock>();
+      }),
+    });
 
 type RespondStreamPart = Response.StreamPart<Toolkit.Tools<typeof RespondToolkit>>;
 
@@ -123,22 +134,27 @@ const streamTurn = (history: ReadonlyArray<TurnHistoryItem>): Stream.Stream<Inde
   return Stream.unwrap(
     Effect.gen(function* () {
       const failures = yield* Ref.make<ReadonlyArray<IssueReport>>(A.empty<IssueReport>());
+      const buffered = yield* Ref.make<ReadonlyArray<IndexedBlock>>(A.empty<IndexedBlock>());
+      const holdingAfterFailure = yield* Ref.make(false);
       const validated = parts.pipe(
         Stream.takeUntil((part) => part.type === "tool-params-end"),
         Stream.flatMap((part) => (part.type === "tool-params-delta" ? Stream.succeed(part.delta) : Stream.empty)),
         // mapAccum flattens the returned slices array into stream elements
         Stream.mapAccum(() => initialScanState, scanChunk),
         Stream.zipWithIndex,
-        Stream.filterMapEffect(routeBlock(failures))
+        Stream.mapEffect(routeBlock(failures, buffered, holdingAfterFailure)),
+        Stream.flatMap(Stream.fromIterable)
       );
 
       const repairTail = Stream.unwrap(
         Effect.gen(function* () {
           const failed = yield* Ref.getAndSet(failures, A.empty<IssueReport>());
+          const validAfterFirstFailure = yield* Ref.getAndSet(buffered, A.empty<IndexedBlock>());
           if (A.isReadonlyArrayEmpty(failed)) {
-            return Stream.empty;
+            return Stream.fromIterable(validAfterFirstFailure);
           }
-          return Stream.fromIterable(yield* repairInvalidBlocks(failed));
+          const repaired = yield* repairInvalidBlocks(failed);
+          return Stream.fromIterable(sortedIndexedBlocks(A.appendAll(repaired, validAfterFirstFailure)));
         })
       );
 

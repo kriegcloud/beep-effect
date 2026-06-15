@@ -13,6 +13,12 @@ const invalidParagraph = IssueReport.make({
   report: "/children/0/text Expected string",
 });
 
+const validParagraphReportedInvalid = IssueReport.make({
+  index: 0,
+  raw: '{"type":"paragraph","children":[{"type":"text","text":"Already valid"}]}',
+  report: "synthetic upstream validation issue",
+});
+
 describe("BlockRepair", () => {
   it.effect(
     "emits repaired blocks returned by a valid repair envelope",
@@ -42,6 +48,22 @@ describe("BlockRepair", () => {
       const repaired = yield* repair([invalidParagraph]);
 
       expect(A.isReadonlyArrayEmpty(repaired)).toBe(true);
+    })
+  );
+
+  it.effect(
+    "keeps codec-valid repaired blocks even when the patch is empty",
+    Effect.fnUntraced(function* () {
+      const repair = makeRepairInvalidBlocks(() =>
+        Effect.succeed(
+          '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Already valid"}]}}]}'
+        )
+      );
+
+      const repaired = yield* repair([validParagraphReportedInvalid]);
+
+      expect(A.length(repaired)).toBe(1);
+      expect(repaired[0]?.block.type).toBe("paragraph");
     })
   );
 

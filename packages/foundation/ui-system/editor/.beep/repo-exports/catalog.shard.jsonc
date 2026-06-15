@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "38bab4a85764fc39dd979c0d90f5fb4f690e98c43802d55bc8db37f20465cdfd",
+    "digest": "f181a47df037015a6eae5ff5ceac1ee69f4e1e502344b0ab81ebf7f19924665b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
-        "sha256": "5a477eb9ee640ac49d522a60a61a254893dec53a65151c07213d207a6078e5a3",
-        "bytes": 3326
+        "sha256": "6d5ef2940c55ae69424270921344c4d7307eb50587782a846af94511a26f643e",
+        "bytes": 3427
       },
       {
         "path": "packages/foundation/ui-system/editor/src/nodes.ts",
@@ -400,7 +400,7 @@
         "symbolName": "MermaidView",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
-        "sourceLine": 51,
+        "sourceLine": 52,
         "summary": "Renders Mermaid source to SVG and falls back to source text on render",
         "categories": [
           "components"
@@ -722,7 +722,7 @@
         "symbolName": "MermaidView",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
-        "sourceLine": 51,
+        "sourceLine": 52,
         "summary": "Renders Mermaid source to SVG and falls back to source text on render",
         "categories": [
           "components"

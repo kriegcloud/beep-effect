@@ -131,6 +131,37 @@ describe("@beep/professional-desktop chat contract", () => {
     }).pipe(provideScopedLayer(StackLayer))
   );
 
+  it("projects table cells and youtube embeds into turn-history plain text", () => {
+    const content = Md.Document.make({
+      children: [
+        Md.Table.make({
+          headerRow: true,
+          children: [
+            Md.TableRow.make({
+              children: [
+                Md.TableCell.make({ children: [Md.Text.make({ value: "Feature" })] }),
+                Md.TableCell.make({ children: [Md.Text.make({ value: "Status" })] }),
+              ],
+            }),
+            Md.TableRow.make({
+              children: [
+                Md.TableCell.make({ children: [Md.Text.make({ value: "Rich blocks" })] }),
+                Md.TableCell.make({ children: [Md.Code.make({ value: "Ready" })] }),
+              ],
+            }),
+          ],
+        }),
+        Md.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
+      ],
+    });
+
+    const text = documentToPlainText(content);
+
+    expect(text).toContain("Feature\tStatus");
+    expect(text).toContain("Rich blocks\tReady");
+    expect(text).toContain("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  });
+
   it.effect("cancel leaves no partial assistant row and appends no usage record", () =>
     Effect.gen(function* () {
       const { operations, usageRef } = yield* makeStack;

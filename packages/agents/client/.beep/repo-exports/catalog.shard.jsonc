@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c96e268c82aa82e6c724309dbb10f7b7f3fa695d9b2e97720c1af53646900d20",
+    "digest": "22dee8231d0f3f6fe05b587aba801d1692c3fe58ba42b0bfd695a55d4185847a",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/agents/client/src/Chat.atoms.ts",
-        "sha256": "eb81f95c69e92812373ff4340f4524d4102760126626534fef8549a4c430d0d3",
-        "bytes": 15880
+        "sha256": "5215a2ef10072ca87bc7bfb74b1a01db2577c564fce96692a2233bb09f7b580f",
+        "bytes": 16363
       },
       {
         "path": "packages/agents/client/src/ClientObservability.ts",
@@ -83,7 +83,7 @@
         "symbolName": "ChatClient",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 70,
+        "sourceLine": 72,
         "summary": "Flattened rpc client for {@link ChatRpcs}, integrated with atom reactivity.",
         "categories": [
           "services"
@@ -133,7 +133,7 @@
         "symbolName": "createThreadAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 159,
+        "sourceLine": 161,
         "summary": "Creates a thread in a workspace and focuses it.",
         "categories": [
           "atoms"
@@ -158,7 +158,7 @@
         "symbolName": "draftAtoms",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 190,
+        "sourceLine": 192,
         "summary": "Unsent composer content per thread, persisted in localStorage.",
         "categories": [
           "atoms"
@@ -183,7 +183,7 @@
         "symbolName": "EditTarget",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 277,
+        "sourceLine": 289,
         "summary": "When set, the composer is editing an existing turn's message.",
         "categories": [
           "models"
@@ -208,7 +208,7 @@
         "symbolName": "editTargetAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 300,
+        "sourceLine": 312,
         "summary": "The turn currently being edited, if any.",
         "categories": [
           "atoms"
@@ -233,7 +233,7 @@
         "symbolName": "EditTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 363,
+        "sourceLine": 375,
         "summary": "A request to edit an existing turn's message and regenerate from there.",
         "categories": [
           "models"
@@ -258,7 +258,7 @@
         "symbolName": "reportDecodeFailureAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 325,
+        "sourceLine": 337,
         "summary": "Composer content failing schema decode is a bug — count and log it.",
         "categories": [
           "atoms"
@@ -283,7 +283,7 @@
         "symbolName": "runTurnAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 419,
+        "sourceLine": 431,
         "summary": "Drives one assistant turn: fires the streaming rpc, appends blocks into",
         "categories": [
           "atoms"
@@ -309,7 +309,7 @@
         "symbolName": "selectedThreadAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 124,
+        "sourceLine": 126,
         "summary": "The user's explicit thread selection — none means \"follow the list\".",
         "categories": [
           "atoms"
@@ -334,7 +334,7 @@
         "symbolName": "SendTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 345,
+        "sourceLine": 357,
         "summary": "A request to send a brand-new user message to a thread.",
         "categories": [
           "models"
@@ -359,7 +359,7 @@
         "symbolName": "StreamingTurn",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 218,
+        "sourceLine": 220,
         "summary": "A streaming assistant turn: optimistic user content plus the assistant blocks",
         "categories": [
           "models"
@@ -384,7 +384,7 @@
         "symbolName": "streamingTurnAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 247,
+        "sourceLine": 249,
         "summary": "Blocks of the in-flight assistant turn, appended as they stream in.",
         "categories": [
           "atoms"
@@ -409,7 +409,7 @@
         "symbolName": "threadsAtoms",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 101,
+        "sourceLine": 103,
         "summary": "The thread list for a workspace, refetched whenever a thread or turn mutates.",
         "categories": [
           "atoms"
@@ -434,7 +434,7 @@
         "symbolName": "threadTimelineAtoms",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 142,
+        "sourceLine": 144,
         "summary": "The persisted timeline read-model per thread, refetched whenever a turn",
         "categories": [
           "atoms"
@@ -459,7 +459,7 @@
         "symbolName": "turnErrorAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 262,
+        "sourceLine": 264,
         "summary": "The latest failed assistant turn, surfaced for app/UI-layer toast handling.",
         "categories": [
           "atoms"
@@ -484,7 +484,7 @@
         "symbolName": "TurnRequest",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 382,
+        "sourceLine": 394,
         "summary": "A turn the user wants to run: a fresh send or an edit-regenerate.",
         "categories": [
           "schemas"
@@ -509,7 +509,7 @@
         "symbolName": "TurnRequest",
         "exportKind": "type",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 390,
+        "sourceLine": 402,
         "summary": "Runtime type for {@link TurnRequest}.",
         "categories": [
           "models"
@@ -533,7 +533,7 @@
         "symbolName": "ChatClient",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 70,
+        "sourceLine": 72,
         "summary": "Flattened rpc client for {@link ChatRpcs}, integrated with atom reactivity.",
         "categories": [
           "services"
@@ -558,7 +558,7 @@
         "symbolName": "createThreadAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 159,
+        "sourceLine": 161,
         "summary": "Creates a thread in a workspace and focuses it.",
         "categories": [
           "atoms"
@@ -583,7 +583,7 @@
         "symbolName": "draftAtoms",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 190,
+        "sourceLine": 192,
         "summary": "Unsent composer content per thread, persisted in localStorage.",
         "categories": [
           "atoms"
@@ -608,7 +608,7 @@
         "symbolName": "EditTarget",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 277,
+        "sourceLine": 289,
         "summary": "When set, the composer is editing an existing turn's message.",
         "categories": [
           "models"
@@ -633,7 +633,7 @@
         "symbolName": "editTargetAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 300,
+        "sourceLine": 312,
         "summary": "The turn currently being edited, if any.",
         "categories": [
           "atoms"
@@ -658,7 +658,7 @@
         "symbolName": "EditTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 363,
+        "sourceLine": 375,
         "summary": "A request to edit an existing turn's message and regenerate from there.",
         "categories": [
           "models"
@@ -683,7 +683,7 @@
         "symbolName": "reportDecodeFailureAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 325,
+        "sourceLine": 337,
         "summary": "Composer content failing schema decode is a bug — count and log it.",
         "categories": [
           "atoms"
@@ -708,7 +708,7 @@
         "symbolName": "runTurnAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 419,
+        "sourceLine": 431,
         "summary": "Drives one assistant turn: fires the streaming rpc, appends blocks into",
         "categories": [
           "atoms"
@@ -734,7 +734,7 @@
         "symbolName": "selectedThreadAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 124,
+        "sourceLine": 126,
         "summary": "The user's explicit thread selection — none means \"follow the list\".",
         "categories": [
           "atoms"
@@ -759,7 +759,7 @@
         "symbolName": "SendTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 345,
+        "sourceLine": 357,
         "summary": "A request to send a brand-new user message to a thread.",
         "categories": [
           "models"
@@ -784,7 +784,7 @@
         "symbolName": "StreamingTurn",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 218,
+        "sourceLine": 220,
         "summary": "A streaming assistant turn: optimistic user content plus the assistant blocks",
         "categories": [
           "models"
@@ -809,7 +809,7 @@
         "symbolName": "streamingTurnAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 247,
+        "sourceLine": 249,
         "summary": "Blocks of the in-flight assistant turn, appended as they stream in.",
         "categories": [
           "atoms"
@@ -834,7 +834,7 @@
         "symbolName": "threadsAtoms",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 101,
+        "sourceLine": 103,
         "summary": "The thread list for a workspace, refetched whenever a thread or turn mutates.",
         "categories": [
           "atoms"
@@ -859,7 +859,7 @@
         "symbolName": "threadTimelineAtoms",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 142,
+        "sourceLine": 144,
         "summary": "The persisted timeline read-model per thread, refetched whenever a turn",
         "categories": [
           "atoms"
@@ -884,7 +884,7 @@
         "symbolName": "turnErrorAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 262,
+        "sourceLine": 264,
         "summary": "The latest failed assistant turn, surfaced for app/UI-layer toast handling.",
         "categories": [
           "atoms"
@@ -909,7 +909,7 @@
         "symbolName": "TurnRequest",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 382,
+        "sourceLine": 394,
         "summary": "A turn the user wants to run: a fresh send or an edit-regenerate.",
         "categories": [
           "schemas"
@@ -934,7 +934,7 @@
         "symbolName": "TurnRequest",
         "exportKind": "type",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 390,
+        "sourceLine": 402,
         "summary": "Runtime type for {@link TurnRequest}.",
         "categories": [
           "models"

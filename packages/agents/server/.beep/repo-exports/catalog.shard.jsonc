@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "4a3fa0066b94d689eaa2ed4fa921f7081cbc86f98298e6b7eaf71e2c0d6f0d11",
+    "digest": "051de3e66610bb04fa255e9eb344a6c370d2c6b98039f2b01603744330376f4b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sha256": "df3acfaa18b608890e7d6ceaf8eb2af413882123936ca4e6b0033cf98d05394e",
-        "bytes": 7746
+        "sha256": "eb8ddbc8ef61cb0d03e41cdfcd27e235d1daecb3b53521c42ea4a998e7263f70",
+        "bytes": 8609
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sha256": "c99a9e131c9a383e5c870b196e1f671251620c3c90d91eac9d9853891bbd8007",
-        "bytes": 9755
+        "sha256": "7788fd4e68aaf52a9ae9b1ffbdf7c3c5bd3292d1064c443cdd0010fcc129684b",
+        "bytes": 11016
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/index.ts",
@@ -172,7 +172,7 @@
         "symbolName": "AnthropicTurnKernel",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sourceLine": 172,
+        "sourceLine": 188,
         "summary": "Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the",
         "categories": [
           "layers"
@@ -197,7 +197,7 @@
         "symbolName": "AnthropicTurnKernel",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sourceLine": 172,
+        "sourceLine": 188,
         "summary": "Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the",
         "categories": [
           "layers"
@@ -346,7 +346,7 @@
         "symbolName": "makeRepairInvalidBlocks",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 253,
+        "sourceLine": 292,
         "summary": "Build a repair function from a repair-call implementation.",
         "categories": [
           "combinators"
@@ -371,7 +371,7 @@
         "symbolName": "repairInvalidBlocks",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 289,
+        "sourceLine": 324,
         "summary": "Default Anthropic-backed invalid-block repair function.",
         "categories": [
           "combinators"

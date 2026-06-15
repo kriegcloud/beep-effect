@@ -151,6 +151,9 @@ const defaultRepairCall: BlockRepairCall = (pending, attempt) =>
 
 const toBlockRepairFailed = (message: string): BlockRepairFailed => BlockRepairFailed.make({ message });
 
+const trackRepairOutcome = (outcome: "call_failed" | "dropped" | "repaired", count: number): Effect.Effect<void> =>
+  count === 0 ? Effect.void : Metric.update(Metric.withAttributes(blocksRepaired, { outcome }), count);
+
 const requestRepairEnvelope = (
   callRepair: BlockRepairCall,
   pending: ReadonlyArray<IssueReport>,
@@ -177,35 +180,64 @@ const repairItemToIndexed = Effect.fn("repairItemToIndexed")(function* (
 ): Effect.fn.Return<O.Option<IndexedBlock>> {
   const failure = A.findFirst(pending, (candidate) => candidate.index === item.index);
   if (O.isNone(failure)) {
+    yield* Effect.logWarning("assistant-turn block repair ignored unexpected index", { index: item.index });
     return O.none<IndexedBlock>();
   }
 
-  const encodedUnknown = yield* encodeBlock(item.block).pipe(Effect.option);
+  const encodedUnknown = yield* encodeBlock(item.block).pipe(
+    Effect.map(O.some),
+    Effect.catch((error) =>
+      Effect.logWarning("assistant-turn block repair failed to encode returned block", {
+        index: item.index,
+        detail: error.message,
+      }).pipe(Effect.as(O.none<typeof AssistantBlock.Encoded>()))
+    )
+  );
   if (O.isNone(encodedUnknown)) {
     return O.none<IndexedBlock>();
   }
 
-  const encodedJson = yield* decodeJsonValue(encodedUnknown.value).pipe(Effect.option);
+  const encodedJson = yield* decodeJsonValue(encodedUnknown.value).pipe(
+    Effect.map(O.some),
+    Effect.catch((error) =>
+      Effect.logWarning("assistant-turn block repair returned non-json block", {
+        index: item.index,
+        detail: error.message,
+      }).pipe(Effect.as(O.none<S.Json>()))
+    )
+  );
   if (O.isNone(encodedJson)) {
     return O.none<IndexedBlock>();
   }
 
-  const checked = yield* decodeRepairedBlock(encodedJson.value).pipe(Effect.option);
+  const checked = yield* decodeRepairedBlock(encodedJson.value).pipe(
+    Effect.map(O.some),
+    Effect.catch((error) =>
+      Effect.logWarning("assistant-turn block repair returned codec-invalid block", {
+        index: item.index,
+        detail: error.message,
+      }).pipe(Effect.as(O.none<AssistantBlock>()))
+    )
+  );
   if (O.isNone(checked)) {
     return O.none<IndexedBlock>();
   }
 
-  const originalJson = yield* decodeJsonString(failure.value.raw).pipe(Effect.option);
-  if (O.isNone(originalJson)) {
-    return O.none<IndexedBlock>();
-  }
-
-  const patch = JsonPatch.get(originalJson.value, encodedJson.value);
-  if (A.isReadonlyArrayEmpty(patch)) {
-    return O.none<IndexedBlock>();
-  }
-
-  yield* Effect.logInfo("assistant-turn block repaired", { index: item.index, patch });
+  yield* decodeJsonString(failure.value.raw).pipe(
+    Effect.matchEffect({
+      onFailure: (error) =>
+        Effect.logWarning("assistant-turn block repaired without original patch", {
+          index: item.index,
+          detail: error.message,
+        }),
+      onSuccess: (originalJson) => {
+        const patch = JsonPatch.get(originalJson, encodedJson.value);
+        return A.isReadonlyArrayEmpty(patch)
+          ? Effect.logInfo("assistant-turn block repaired without structural patch", { index: item.index })
+          : Effect.logInfo("assistant-turn block repaired", { index: item.index, patch });
+      },
+    })
+  );
   return O.some<IndexedBlock>({ block: checked.value, index: item.index });
 });
 
@@ -231,7 +263,14 @@ const runRepairAttempts = Effect.fn("runRepairAttempts")(function* (
     return { pending, repaired };
   }
 
-  const fixed = yield* attemptRepairs(callRepair, pending, attempt);
+  const fixed = yield* attemptRepairs(callRepair, pending, attempt).pipe(
+    Effect.tapError(() =>
+      Effect.all(
+        [trackRepairOutcome("repaired", A.length(repaired)), trackRepairOutcome("call_failed", A.length(pending))],
+        { discard: true }
+      )
+    )
+  );
   const fixedIndices = A.map(fixed, (item) => item.index);
   const remaining = A.filter(pending, (failure) => !A.contains(fixedIndices, failure.index));
   return yield* runRepairAttempts(callRepair, remaining, A.appendAll(repaired, fixed), attempt + 1);
@@ -256,15 +295,11 @@ export const makeRepairInvalidBlocks = (callRepair: BlockRepairCall = defaultRep
       return A.empty<IndexedBlock>();
     }
 
-    const result = yield* runRepairAttempts(callRepair, failures, A.empty<IndexedBlock>(), 1).pipe(
-      Effect.tapError(() =>
-        Metric.update(Metric.withAttributes(blocksRepaired, { outcome: "call_failed" }), A.length(failures))
-      )
-    );
+    const result = yield* runRepairAttempts(callRepair, failures, A.empty<IndexedBlock>(), 1);
 
-    yield* Metric.update(Metric.withAttributes(blocksRepaired, { outcome: "repaired" }), A.length(result.repaired));
+    yield* trackRepairOutcome("repaired", A.length(result.repaired));
     if (!A.isReadonlyArrayEmpty(result.pending)) {
-      yield* Metric.update(Metric.withAttributes(blocksRepaired, { outcome: "dropped" }), A.length(result.pending));
+      yield* trackRepairOutcome("dropped", A.length(result.pending));
       yield* Effect.logWarning("assistant-turn dropping unrepairable blocks", {
         indices: A.map(result.pending, (failure) => failure.index),
       });

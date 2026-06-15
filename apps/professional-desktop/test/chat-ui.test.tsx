@@ -9,15 +9,48 @@
  * end-to-end, requires the sidecar.
  */
 import "@testing-library/jest-dom/vitest";
+import { turnErrorAtom } from "@beep/agents-client/Chat.atoms";
+import { ChatActionError } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
-import { cleanup, render } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { toast } from "@beep/ui/components/sonner";
+import { RegistryProvider, useAtomSet, useAtomSubscribe } from "@effect/atom-react";
+import { cleanup, render, waitFor } from "@testing-library/react";
+import { Effect } from "effect";
+import * as O from "effect/Option";
+import { useEffect } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChatApp } from "@/chat/ui/ChatApp";
+import { ChatTurnErrorToasts } from "@/chat/ui/ChatTurnErrorToasts";
 import { MessageView } from "@/chat/ui/MessageView";
 import { StreamingBlocks } from "@/chat/ui/StreamingBlocks";
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
-afterEach(cleanup);
+vi.mock("@beep/ui/components/sonner", () => ({
+  toast: {
+    error: vi.fn(),
+  },
+}));
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+function PushTurnError({ message }: { readonly message: string }) {
+  const setTurnError = useAtomSet(turnErrorAtom);
+
+  useEffect(() => {
+    setTurnError(ChatActionError.new(message).pipe(O.some));
+  }, [message, setTurnError]);
+
+  return null;
+}
+
+function CaptureTurnError({ onValue }: { readonly onValue: (error: O.Option<ChatActionError>) => void }) {
+  useAtomSubscribe(turnErrorAtom, onValue, { immediate: true });
+
+  return null;
+}
 
 describe("StreamingBlocks", () => {
   it("renders the assistant block vocabulary to the expected tags", () => {
@@ -98,4 +131,26 @@ describe("ChatApp", () => {
     expect(getByTestId("chat-no-thread")).toBeInTheDocument();
     unmount();
   });
+});
+
+describe("ChatTurnErrorToasts", () => {
+  it("toasts a client-safe turn error message and clears the atom", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        let latestTurnError: O.Option<ChatActionError> = O.none();
+
+        render(
+          <RegistryProvider>
+            <CaptureTurnError onValue={(error) => (latestTurnError = error)} />
+            <ChatTurnErrorToasts />
+            <PushTurnError message="Assistant stream failed safely" />
+          </RegistryProvider>
+        );
+
+        yield* Effect.tryPromise(() =>
+          waitFor(() => expect(toast.error).toHaveBeenCalledWith("Assistant stream failed safely"))
+        );
+        yield* Effect.tryPromise(() => waitFor(() => expect(O.isNone(latestTurnError)).toBe(true)));
+      })
+    ));
 });

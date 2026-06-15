@@ -18,6 +18,7 @@ type MermaidRenderState =
 const pendingState: MermaidRenderState = { _tag: "pending" };
 
 const fallbackErrorMessage = "Unable to render diagram.";
+const mermaidSecurityLevel = "strict" as const;
 
 const hashString = (value: string): string => {
   let hash = 0;
@@ -68,7 +69,7 @@ export function MermaidView({
 
     void import("mermaid")
       .then(({ default: mermaid }) => {
-        mermaid.initialize({ startOnLoad: false, securityLevel: "strict" });
+        mermaid.initialize({ startOnLoad: false, securityLevel: mermaidSecurityLevel });
         return mermaid.render(renderId, source);
       })
       .then((rendered) => {
@@ -92,7 +93,7 @@ export function MermaidView({
       <div
         className="my-3 overflow-x-auto rounded border bg-background p-3"
         data-testid="mermaid-diagram"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid renders diagrams as SVG markup; securityLevel strict is set at render time.
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Mermaid 11.15.0 renders sanitized SVG with securityLevel strict; sandboxed iframe rendering is the separate "sandbox" level.
         dangerouslySetInnerHTML={{ __html: state.svg }}
       />
     );

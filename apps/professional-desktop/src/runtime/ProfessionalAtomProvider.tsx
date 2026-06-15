@@ -11,6 +11,8 @@ import { RegistryProvider, useAtomMount } from "@effect/atom-react";
 import { professionalBrowserRuntime } from "./ProfessionalAtomRuntime.ts";
 import type { ReactNode } from "react";
 
+const chatIdleTtlMs = 30_000;
+
 function ProfessionalAtomRuntimeMount({ children }: { readonly children: ReactNode }) {
   useAtomMount(professionalBrowserRuntime);
 
@@ -33,7 +35,7 @@ function ProfessionalAtomRuntimeMount({ children }: { readonly children: ReactNo
  */
 export function ProfessionalAtomProvider({ children }: { readonly children: ReactNode }) {
   return (
-    <RegistryProvider defaultIdleTTL={1_000}>
+    <RegistryProvider defaultIdleTTL={chatIdleTtlMs}>
       <ProfessionalAtomRuntimeMount>{children}</ProfessionalAtomRuntimeMount>
     </RegistryProvider>
   );

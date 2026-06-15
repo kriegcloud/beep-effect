@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1aa6f6ccf1ddc3b12b80868b91b67f289ea968164b03ef303a9c659e1245a564",
+    "digest": "b047ff24b7fcbaed90ea91bff7313516401ed7f3a2d34c7b97c8461adf551b37",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
-        "sha256": "668d515bc97c57b2c8afd785b60c17297daac10a53788b3aaa23c03433d57a34",
-        "bytes": 17076
+        "sha256": "cb0bdfe2091f89059f9230ccdbcf017cd178fe36ed02d7b399b208a5ce427733",
+        "bytes": 17621
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
@@ -37,8 +37,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatTurnErrorToasts.tsx",
-        "sha256": "2cc0ccfccef4ed3a1cf0bc0990de98cf85d0f82c9d10fe9c6af4f7ef467af898",
-        "bytes": 1078
+        "sha256": "183c6fd4538e9842a3b640dad385278ab4b68f617fad4a22a3ffb97155b5f5ed",
+        "bytes": 1125
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Composer.tsx",
@@ -92,8 +92,8 @@
       },
       {
         "path": "apps/professional-desktop/src/runtime/ProfessionalAtomProvider.tsx",
-        "sha256": "4d2e383dfbda8555699a85c95f00aba7ddad5289ba3d24ff3a42083653cecb2b",
-        "bytes": 1080
+        "sha256": "9a226d625d07f99e449cb11456a599e37efc56c2d9f87fb5d72dd115ad574865",
+        "bytes": 1119
       },
       {
         "path": "apps/professional-desktop/src/runtime/ProfessionalAtomRuntime.ts",

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b47385214f4207658d97569066d89a34cc11c254903039d30d069917496a86b1",
+    "digest": "6ea0a02b1a7dca4d4d32b57919d514453ff99f3792943ad1be517eb6413c2523",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts",
-        "sha256": "6ab24229271c42de08b687dd78cf04c93b61d30bec72584c84240c12c01ebdb8",
-        "bytes": 17647
+        "sha256": "71b767bb526e9680c2d5b592a8ca818624ca0793824c544a903780b1ea488674",
+        "bytes": 17864
       },
       {
         "path": "packages/workspace/server/src/index.ts",
@@ -191,7 +191,7 @@
         "symbolName": "makeDrizzleThreadStore",
         "exportKind": "const",
         "sourcePath": "packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts",
-        "sourceLine": 303,
+        "sourceLine": 310,
         "summary": "Build a Drizzle-backed ThreadStore used by live persistence tests.",
         "categories": [
           "repositories"
@@ -241,7 +241,7 @@
         "symbolName": "makeThreadStore",
         "exportKind": "const",
         "sourcePath": "packages/workspace/server/src/aggregates/Thread/ThreadStore.repo.ts",
-        "sourceLine": 483,
+        "sourceLine": 490,
         "summary": "Build the default ThreadStore for normal slice tests.",
         "categories": [
           "repositories"

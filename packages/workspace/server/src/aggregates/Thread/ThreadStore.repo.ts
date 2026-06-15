@@ -197,24 +197,31 @@ export const makeInMemoryThreadStore = Effect.fn("Workspace.ThreadStore.makeInMe
       );
     }),
     setTitleIfEmpty: Effect.fn("Workspace.ThreadStore.setTitleIfEmpty")(function* (input) {
-      const state = yield* Ref.get(store);
       const threadId = threadIdToNumber(input.threadId);
-      const current = HashMap.get(state.threads, threadId);
-      if (O.isNone(current)) {
+      const result = yield* Ref.modify(store, (state) => {
+        const current = HashMap.get(state.threads, threadId);
+        if (O.isNone(current)) {
+          return ["missing", state] as const;
+        }
+        if (current.value.title !== input.emptyTitle) {
+          return ["unchanged", state] as const;
+        }
+        const thread = makeThreadEntity({
+          id: threadId,
+          title: input.title,
+          workspaceId: Number(encodeWorkspaceId(current.value.workspaceId)),
+        });
+        return [
+          "updated",
+          {
+            ...state,
+            threads: HashMap.set(state.threads, threadId, thread),
+          },
+        ] as const;
+      });
+      if (result === "missing") {
         return yield* ThreadStoreServer.Thread.ThreadStoreNotFound.make({ threadId: input.threadId });
       }
-      if (current.value.title !== input.emptyTitle) {
-        return;
-      }
-      const thread = makeThreadEntity({
-        id: threadId,
-        title: input.title,
-        workspaceId: Number(encodeWorkspaceId(current.value.workspaceId)),
-      });
-      yield* Ref.set(store, {
-        ...state,
-        threads: HashMap.set(state.threads, threadId, thread),
-      });
     }),
     appendTurn: Effect.fn("Workspace.ThreadStore.appendTurn")(function* (input) {
       const state = yield* Ref.get(store);
