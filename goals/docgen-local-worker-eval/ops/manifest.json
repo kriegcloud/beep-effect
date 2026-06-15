@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "docgen-local-worker-eval",
+    "title": "Docgen Local Worker Eval",
+    "status": "p0-p2-complete-live-smoke-pending",
+    "created": "2026-06-15",
+    "updated": "2026-06-15",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/docgen-local-worker-eval",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/docgen-local-worker-eval/README.md",
+    "goals/docgen-local-worker-eval/SPEC.md",
+    "goals/docgen-local-worker-eval/PLAN.md",
+    "goals/docgen-local-worker-eval/GOAL.md",
+    "goals/docgen-local-worker-eval/research/2026-06-15-local-coder-model-selection.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/docgen-local-worker-eval/GOAL.md"
+    }
+  ],
+  "commandSurface": {
+    "package": "@beep/repo-cli",
+    "command": "beep docgen quality-worker-eval-local",
+    "defaultHost": "127.0.0.1",
+    "defaultPort": 18080,
+    "defaultRuntime": "docker-rocm-llama-cpp",
+    "defaultSplitMode": "layer",
+    "requiresExplicitModel": true,
+    "requiresExplicitModelPath": true,
+    "requiresConfirmation": true,
+    "readOnly": true
+  },
+  "modelResearch": {
+    "artifact": "research/2026-06-15-local-coder-model-selection.md",
+    "firstCandidate": "Qwen3-Coder-30B-A3B-GGUF",
+    "stretchCandidate": "Qwen3-Next-80B-A3B-GGUF",
+    "fallbackCandidate": "Qwen2.5-Coder-32B-Instruct-GGUF",
+    "installedControl": "/home/elpresidank/ai/models/Llama-3.3-70B-Instruct-Q4_K_M.gguf"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research and model selection",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Implement local wrapper command",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Non-GPU verification",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Live local smoke",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "AI repo model docs and manifests",
+      "status": "in-progress"
+    },
+    {
+      "id": "P5",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/docgen-local-worker-eval/GOAL.md)\" -le 4000",
+    "jq . goals/docgen-local-worker-eval/ops/manifest.json",
+    "rg -n \"docgen-local-worker-eval|quality-worker-eval-local|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/docgen-local-worker-eval",
+    "git diff --check -- goals/docgen-local-worker-eval packages/tooling/tool/cli",
+    "bun run --filter @beep/repo-cli test -- docgen",
+    "bun run --filter @beep/repo-cli check",
+    "bun run --filter @beep/repo-cli lint"
+  ],
+  "stopConditions": [
+    "Docker/ROCm cannot see the GPUs after non-destructive preflight.",
+    "The selected model cannot fit or produces unstable output under layer split.",
+    "Implementation would require write-mode remediation or source edits by the worker.",
+    "A live proof would disturb unrelated running GPU jobs without operator consent."
+  ]
+}

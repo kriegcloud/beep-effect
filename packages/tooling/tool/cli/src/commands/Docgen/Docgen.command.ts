@@ -50,6 +50,11 @@ import {
   qualityWorkerEvalSourcePacketLimit,
 } from "./internal/QualityWorkerEval.js";
 import {
+  generateQualityWorkerLocalEvalJson,
+  QualityWorkerLocalEvalDefaults,
+  runDocgenQualityWorkerLocalEval,
+} from "./internal/QualityWorkerLocalEval.js";
+import {
   defaultQualityWorkerRunpodEvalOtlpBaseUrl,
   defaultQualityWorkerRunpodEvalOtlpProject,
   defaultQualityWorkerRunpodEvalPacketLimit,
@@ -124,6 +129,10 @@ const qualityWorkerRunpodEvalPacketLimitFlag = Flag.integer("packet-limit").pipe
   Flag.withDefault(defaultQualityWorkerRunpodEvalPacketLimit()),
   Flag.withDescription("Maximum number of remediation packets to send to the Runpod worker; must be zero or greater")
 );
+const qualityWorkerLocalEvalPacketLimitFlag = Flag.integer("packet-limit").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.packetLimit),
+  Flag.withDescription("Maximum number of remediation packets to send to the local worker; must be zero or greater")
+);
 const qualityWorkerEvalProviderFlag = Flag.choiceWithValue("provider", [
   ["codex", "codex"],
   ["ollama", "ollama"],
@@ -148,6 +157,64 @@ const qualityWorkerEvalReasoningEffortFlag = Flag.choiceWithValue("reasoning-eff
 );
 const confirmRunpodEvalFlag = Flag.boolean("confirm-runpod-eval").pipe(
   Flag.withDescription("Acknowledge that quality-worker-eval-runpod creates a billable remote GPU pod")
+);
+const confirmLocalGpuEvalFlag = Flag.boolean("confirm-local-gpu-eval").pipe(
+  Flag.withDescription("Acknowledge that quality-worker-eval-local uses local GPU resources")
+);
+const keepLocalServerFlag = Flag.boolean("keep-server").pipe(
+  Flag.withDescription("Debug mode: leave the local Docker server running instead of stopping it after the eval")
+);
+const localWorkerModelPathFlag = Flag.string("model-path").pipe(
+  Flag.withDescription("Host GGUF model path mounted read-only into the local llama.cpp container")
+);
+const localWorkerDockerImageFlag = Flag.string("docker-image").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.dockerImage),
+  Flag.withDescription("ROCm llama.cpp Docker image used for the local worker server")
+);
+const localWorkerContainerNameFlag = Flag.string("container-name").pipe(
+  Flag.withDescription("Optional deterministic Docker container name for debug runs"),
+  Flag.optional
+);
+const localWorkerHostFlag = Flag.string("host").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.host),
+  Flag.withDescription("Local bind host; must remain localhost")
+);
+const localWorkerPortFlag = Flag.integer("port").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.port),
+  Flag.withDescription("Local host port for the llama.cpp server")
+);
+const localWorkerContainerPortFlag = Flag.integer("container-port").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.containerPort),
+  Flag.withDescription("Container port used by the llama.cpp server")
+);
+const localWorkerCtxSizeFlag = Flag.integer("ctx-size").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.ctxSize),
+  Flag.withDescription("llama.cpp context size for the local worker server")
+);
+const localWorkerParallelFlag = Flag.integer("parallel").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.parallel),
+  Flag.withDescription("llama.cpp parallel slot count for the local worker server")
+);
+const localWorkerGpuLayersFlag = Flag.string("gpu-layers").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.gpuLayers),
+  Flag.withDescription("llama.cpp --gpu-layers value; defaults to all")
+);
+const localWorkerSplitModeFlag = Flag.choiceWithValue("split-mode", [
+  ["layer", "layer"],
+  ["tensor", "tensor"],
+  ["row", "row"],
+  ["none", "none"],
+]).pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.splitMode),
+  Flag.withDescription("llama.cpp multi-GPU split mode; layer is the default compatibility path")
+);
+const localWorkerTensorSplitFlag = Flag.string("tensor-split").pipe(
+  Flag.withDescription("Optional llama.cpp --tensor-split ratio override"),
+  Flag.optional
+);
+const localWorkerReadinessTimeoutMsFlag = Flag.integer("readiness-timeout-ms").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.readinessTimeoutMs),
+  Flag.withDescription("Milliseconds to wait for local llama.cpp readiness after Docker launch")
 );
 const keepRunpodPodFlag = Flag.boolean("keep-pod").pipe(
   Flag.withDescription("Debug mode: leave the Runpod pod running instead of deleting it after the eval")
@@ -184,6 +251,17 @@ const qualityWorkerRunpodEvalOtlpBaseUrlFlag = Flag.string("otlp-base-url").pipe
 );
 const qualityWorkerRunpodEvalOtlpProjectFlag = Flag.string("otlp-project").pipe(
   Flag.withDefault(defaultQualityWorkerRunpodEvalOtlpProject()),
+  Flag.withDescription("Phoenix project name carried as openinference.project.name")
+);
+const qualityWorkerLocalEvalOtlpFlag = Flag.boolean("otlp").pipe(
+  Flag.withDescription("Emit sanitized summary and hashed packet spans to the configured Phoenix OTLP endpoint")
+);
+const qualityWorkerLocalEvalOtlpBaseUrlFlag = Flag.string("otlp-base-url").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.otlpBaseUrl),
+  Flag.withDescription("Phoenix-compatible OTLP collector base URL")
+);
+const qualityWorkerLocalEvalOtlpProjectFlag = Flag.string("otlp-project").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.otlpProject),
   Flag.withDescription("Phoenix project name carried as openinference.project.name")
 );
 const verboseFlag = Flag.boolean("verbose").pipe(
@@ -989,6 +1067,164 @@ const docgenQualityWorkerEvalCommand = Command.make(
   Command.withDescription("Run read-only worker evaluation over deterministic docgen quality remediation packets")
 );
 
+const docgenQualityWorkerLocalEvalCommand = Command.make(
+  "quality-worker-eval-local",
+  {
+    package: packageFlag,
+    all: allFlag,
+    input: inputFlag,
+    output: outputFlag,
+    model: qualityWorkerEvalModelFlag,
+    modelPath: localWorkerModelPathFlag,
+    packetLimit: qualityWorkerLocalEvalPacketLimitFlag,
+    confirmLocalGpuEval: confirmLocalGpuEvalFlag,
+    keepServer: keepLocalServerFlag,
+    dockerImage: localWorkerDockerImageFlag,
+    containerName: localWorkerContainerNameFlag,
+    host: localWorkerHostFlag,
+    port: localWorkerPortFlag,
+    containerPort: localWorkerContainerPortFlag,
+    ctxSize: localWorkerCtxSizeFlag,
+    parallel: localWorkerParallelFlag,
+    gpuLayers: localWorkerGpuLayersFlag,
+    splitMode: localWorkerSplitModeFlag,
+    tensorSplit: localWorkerTensorSplitFlag,
+    readinessTimeoutMs: localWorkerReadinessTimeoutMsFlag,
+    otlp: qualityWorkerLocalEvalOtlpFlag,
+    otlpBaseUrl: qualityWorkerLocalEvalOtlpBaseUrlFlag,
+    otlpProject: qualityWorkerLocalEvalOtlpProjectFlag,
+  },
+  Effect.fn(
+    function* ({
+      package: packageSelector,
+      all,
+      input,
+      output,
+      model,
+      modelPath,
+      packetLimit,
+      confirmLocalGpuEval,
+      keepServer,
+      dockerImage,
+      containerName,
+      host,
+      port,
+      containerPort,
+      ctxSize,
+      parallel,
+      gpuLayers,
+      splitMode,
+      tensorSplit,
+      readinessTimeoutMs,
+      otlp,
+      otlpBaseUrl,
+      otlpProject,
+    }) {
+      const fs = yield* FileSystem.FileSystem;
+      const sourceCount = (O.isSome(input) ? 1 : 0) + (O.isSome(packageSelector) ? 1 : 0) + (all ? 1 : 0);
+
+      if (sourceCount !== 1) {
+        return yield* DomainError.newMessage(
+          "Choose exactly one docgen quality-worker-eval-local source: --input, --package, or --all."
+        );
+      }
+
+      if (packetLimit < 0) {
+        return yield* DomainError.newMessage(
+          "--packet-limit must be zero or greater; use 0 to suppress worker packet turns."
+        );
+      }
+
+      if (readinessTimeoutMs <= 0) {
+        return yield* DomainError.newMessage("--readiness-timeout-ms must be greater than zero.");
+      }
+
+      if (port <= 0 || port > 65_535) {
+        return yield* DomainError.newMessage("--port must be an integer between 1 and 65535.");
+      }
+
+      if (containerPort <= 0 || containerPort > 65_535) {
+        return yield* DomainError.newMessage("--container-port must be an integer between 1 and 65535.");
+      }
+
+      if (ctxSize <= 0) {
+        return yield* DomainError.newMessage("--ctx-size must be a positive integer.");
+      }
+
+      if (parallel <= 0) {
+        return yield* DomainError.newMessage("--parallel must be a positive integer.");
+      }
+
+      if (!["127.0.0.1", "localhost", "::1"].includes(Str.trim(host))) {
+        return yield* DomainError.newMessage("--host must bind to localhost for docgen quality-worker-eval-local.");
+      }
+
+      if (Str.trim(model).length === 0) {
+        return yield* DomainError.newMessage("--model is required for docgen quality-worker-eval-local.");
+      }
+
+      if (Str.trim(modelPath).length === 0) {
+        return yield* DomainError.newMessage("--model-path is required for docgen quality-worker-eval-local.");
+      }
+
+      if (!confirmLocalGpuEval) {
+        return yield* DomainError.newMessage(
+          "docgen quality-worker-eval-local uses local GPU resources; pass --confirm-local-gpu-eval to continue."
+        );
+      }
+
+      const resolvedSplitMode =
+        splitMode === "tensor" ? "tensor" : splitMode === "row" ? "row" : splitMode === "none" ? "none" : "layer";
+      const containerNameOptions = O.isSome(containerName) ? { containerName: containerName.value } : {};
+      const tensorSplitOptions = O.isSome(tensorSplit) ? { tensorSplit: tensorSplit.value } : {};
+      const source = yield* resolveQualityWorkerEvalSource({
+        all,
+        input,
+        packageSelector,
+        packetLimit,
+      });
+      const report = yield* runDocgenQualityWorkerLocalEval({
+        confirmLocalGpuEval,
+        ...containerNameOptions,
+        containerPort,
+        ctxSize,
+        dockerImage,
+        gpuLayers,
+        host,
+        keepServer,
+        model,
+        modelPath,
+        otlpBaseUrl,
+        otlpEnabled: otlp,
+        otlpProject,
+        packetLimit,
+        parallel,
+        port,
+        provider: "ollama",
+        readinessTimeoutMs,
+        report: source.report,
+        scope: source.scope,
+        sourceQualityReport: source.sourceQualityReport,
+        splitMode: resolvedSplitMode,
+        ...tensorSplitOptions,
+      });
+      const content = yield* generateQualityWorkerLocalEvalJson(report);
+
+      if (O.isSome(output)) {
+        yield* fs.writeFileString(output.value, content);
+        yield* Console.log(`docgen: wrote ${output.value}`);
+        return;
+      }
+
+      yield* Console.log(content);
+    },
+    Effect.catchTags({
+      DomainError: reportDocgenCommandError,
+      NoSuchFileError: reportDocgenCommandError,
+    })
+  )
+).pipe(Command.withDescription("Run read-only JSDoc worker evaluation on an ephemeral local llama.cpp Docker server"));
+
 const docgenQualityWorkerRunpodEvalCommand = Command.make(
   "quality-worker-eval-runpod",
   {
@@ -1161,6 +1397,7 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenCheckCommand,
     docgenQualityCommand,
     docgenQualityWorkerEvalCommand,
+    docgenQualityWorkerLocalEvalCommand,
     docgenQualityWorkerRunpodEvalCommand,
   ])
 );

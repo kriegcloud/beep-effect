@@ -21,7 +21,10 @@ import {
   generateQualityReport,
   generateQualityWorkerEvalJson,
   loadDocgenConfigDocument,
+  makeQualityWorkerLocalEvalDockerRunArgs,
+  makeQualityWorkerLocalEvalDockerStopArgs,
   makeQualityWorkerRunpodEvalPodCreateInput,
+  QualityWorkerLocalEvalDefaults,
   requiredQualityWorkerRunpodEvalModel,
   runDocgenQualityWorkerRunpodEval,
   selectDocgenLocalPackagesForTesting,
@@ -2960,6 +2963,68 @@ export const workerEvalValue = 1;
           })
         )
       )
+  );
+
+  it("builds local llama.cpp Docker args without secrets", () => {
+    const args = makeQualityWorkerLocalEvalDockerRunArgs({
+      containerModelPath: "/models/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf",
+      containerName: "beep-docgen-local-worker-eval-test",
+      containerPort: QualityWorkerLocalEvalDefaults.containerPort,
+      ctxSize: QualityWorkerLocalEvalDefaults.ctxSize,
+      dockerImage: QualityWorkerLocalEvalDefaults.dockerImage,
+      gpuLayers: QualityWorkerLocalEvalDefaults.gpuLayers,
+      host: QualityWorkerLocalEvalDefaults.host,
+      hostModelDirectory: "/home/elpresidank/ai/models",
+      model: "qwen3-coder-30b-a3b",
+      parallel: QualityWorkerLocalEvalDefaults.parallel,
+      port: QualityWorkerLocalEvalDefaults.port,
+      splitMode: QualityWorkerLocalEvalDefaults.splitMode,
+    });
+
+    expect(args).toContain("--device=/dev/kfd");
+    expect(args).toContain("--device=/dev/dri");
+    expect(args).toContain("--group-add");
+    expect(args).toContain("video");
+    expect(args).toContain("--cap-add=SYS_PTRACE");
+    expect(args).toContain("seccomp=unconfined");
+    expect(args).toContain("127.0.0.1:18080:8080");
+    expect(args).toContain("/home/elpresidank/ai/models:/models:ro");
+    expect(args).toContain("--ctx-size");
+    expect(args).toContain("40960");
+    expect(args).toContain("--gpu-layers");
+    expect(args).toContain("all");
+    expect(args).toContain("--split-mode");
+    expect(args).toContain("layer");
+    expect(args).not.toContain("RUNPOD_API_KEY");
+    expect(args).not.toContain("op://");
+    expect(makeQualityWorkerLocalEvalDockerStopArgs("beep-docgen-local-worker-eval-test")).toEqual([
+      "stop",
+      "beep-docgen-local-worker-eval-test",
+    ]);
+  });
+
+  it("guards local worker eval behind explicit confirmation", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const exit = yield* Effect.exit(
+            runDocgenCommand([
+              "quality-worker-eval-local",
+              "--all",
+              "--model",
+              "qwen3-coder-30b-a3b",
+              "--model-path",
+              "/home/elpresidank/ai/models/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M.gguf",
+              "--readiness-timeout-ms",
+              "1",
+            ])
+          );
+
+          expect((yield* TestConsole.errorLines).join("\n")).toContain("--confirm-local-gpu-eval");
+          expectReportedExit(exit);
+        })
+      )
+    )
   );
 
   it("builds Runpod Ollama pod inputs without secrets", () =>

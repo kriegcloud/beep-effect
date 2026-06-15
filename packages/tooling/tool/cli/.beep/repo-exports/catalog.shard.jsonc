@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "848b4f3049a3bd69c5b3644a0cb7a6a558a87d22c4bac0cec54eca67f1ecb515",
+    "digest": "34befb46573cd47e83d2dcf93c0a079e2f4dec2c361a2a22812621947a863253",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -197,8 +197,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sha256": "c6d760f7e2285c734b2a1e218daea174681e419a0ea980cc4b090db4455feff1",
-        "bytes": 41222
+        "sha256": "2b5ce134c865f87935212f0b6ece506f1f2a8c5bfaaec7671aaa57963f6d91d4",
+        "bytes": 50329
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
@@ -224,6 +224,11 @@
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerEval.ts",
         "sha256": "274180b76ec19b4cf1b36c7004e11ceb3b7e6e20b9d0fb67a9aa4b184a957184",
         "bytes": 45383
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sha256": "623627d0b56a240ef2065d592fe16c5b06631f9ba6e5df0179ffc548a942c2e5",
+        "bytes": 35961
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts",
@@ -812,8 +817,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
-        "sha256": "ecea1b7640ef599a67ccb8f68931246cff0b72de3d27322322069e9ffba0c22c",
-        "bytes": 501
+        "sha256": "f6d38cc0fa643cd34d2b51c4ba2330c62706d77e5fc73d0cbefb0c04453423fc",
+        "bytes": 581
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Graphiti.test-kit.ts",
@@ -905,6 +910,7 @@
       "@beep/repo-cli/commands/Docgen/internal/Operations",
       "@beep/repo-cli/commands/Docgen/internal/Quality",
       "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval",
+      "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
       "@beep/repo-cli/commands/Docgen/internal/QualityWorkerRunpodEval",
       "@beep/repo-cli/commands/Docs",
       "@beep/repo-cli/commands/Docs/Docs.aggregate",
@@ -1019,9 +1025,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 2085,
-      "uniqueSymbols": 789,
-      "sourceFiles": 162
+      "publicExportEntries": 2099,
+      "uniqueSymbols": 796,
+      "sourceFiles": 163
     },
     "exports": [
       {
@@ -1184,7 +1190,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1151,
+        "sourceLine": 1387,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -10770,7 +10776,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1151,
+        "sourceLine": 1387,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -10795,7 +10801,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1151,
+        "sourceLine": 1387,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -10820,7 +10826,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1151,
+        "sourceLine": 1387,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -12760,6 +12766,188 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkereval ./commands/docgen/internal/qualityworkereval selectqualityworkerevalpackets const select remediation packets for a capped worker eval run. utilities packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkereval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "DocgenQualityWorkerLocalEvalReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 184,
+        "summary": "JSON wrapper report emitted by `docgen quality-worker-eval-local`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval docgenqualityworkerlocalevalreport class json wrapper report emitted by `docgen quality-worker-eval-local`. models packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "generateQualityWorkerLocalEvalJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 969,
+        "summary": "Render a local worker eval wrapper report as formatted JSON.",
+        "categories": [
+          "formatters"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval generatequalityworkerlocalevaljson const render a local worker eval wrapper report as formatted json. formatters packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "makeQualityWorkerLocalEvalDockerRunArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 446,
+        "summary": "Build the Docker run arguments for a local llama.cpp worker eval server.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval makequalityworkerlocalevaldockerrunargs const build the docker run arguments for a local llama.cpp worker eval server. constructors packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "makeQualityWorkerLocalEvalDockerStopArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 529,
+        "summary": "Build the Docker stop arguments for a local worker eval container.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval makequalityworkerlocalevaldockerstopargs const build the docker stop arguments for a local worker eval container. constructors packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "QualityWorkerLocalEvalDefaults",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 280,
+        "summary": "Default local Docker worker eval settings.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval qualityworkerlocalevaldefaults const default local docker worker eval settings. constants packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "runDocgenQualityWorkerLocalEval",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 988,
+        "summary": "Run a read-only JSDoc quality worker eval on an ephemeral local Docker server.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@effects",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval rundocgenqualityworkerlocaleval const run a read-only jsdoc quality worker eval on an ephemeral local docker server. use-cases packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportSubpath": "./commands/Docgen/internal/QualityWorkerLocalEval",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "symbolName": "RunDocgenQualityWorkerLocalEvalOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 220,
+        "summary": "Options for a local Docker-backed quality worker eval run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/qualityworkerlocaleval ./commands/docgen/internal/qualityworkerlocaleval rundocgenqualityworkerlocalevaloptions class options for a local docker-backed quality worker eval run. models packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -42448,7 +42636,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sourceLine": 1151,
+        "sourceLine": 1387,
         "summary": "Human-first docgen command suite.",
         "categories": [
           "use-cases"
@@ -43589,6 +43777,31 @@
         "importSpecifier": "@beep/repo-cli/test/Docgen",
         "exportSubpath": "./test/Docgen",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "DocgenQualityWorkerLocalEvalReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 184,
+        "summary": "JSON wrapper report emitted by `docgen quality-worker-eval-local`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen docgenqualityworkerlocalevalreport class json wrapper report emitted by `docgen quality-worker-eval-local`. models packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
         "symbolName": "DocgenQualityWorkerRunpodEvalReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts",
@@ -43772,6 +43985,33 @@
         "importSpecifier": "@beep/repo-cli/test/Docgen",
         "exportSubpath": "./test/Docgen",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "generateQualityWorkerLocalEvalJson",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 969,
+        "summary": "Render a local worker eval wrapper report as formatted JSON.",
+        "categories": [
+          "formatters"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen generatequalityworkerlocalevaljson const render a local worker eval wrapper report as formatted json. formatters packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
         "symbolName": "generateQualityWorkerRunpodEvalJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerRunpodEval.ts",
@@ -43817,6 +44057,60 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen loaddocgenconfigdocument const load a package-local `docgen.json` document. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "makeQualityWorkerLocalEvalDockerRunArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 446,
+        "summary": "Build the Docker run arguments for a local llama.cpp worker eval server.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen makequalityworkerlocalevaldockerrunargs const build the docker run arguments for a local llama.cpp worker eval server. constructors packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "makeQualityWorkerLocalEvalDockerStopArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 529,
+        "summary": "Build the Docker stop arguments for a local worker eval container.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen makequalityworkerlocalevaldockerstopargs const build the docker stop arguments for a local worker eval container. constructors packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -43897,6 +44191,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen qualityworkerevalsourcepacketlimit const compute the source packet limit used for generated quality reports. utilities packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkereval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "QualityWorkerLocalEvalDefaults",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 280,
+        "summary": "Default local Docker worker eval settings.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen qualityworkerlocalevaldefaults const default local docker worker eval settings. constants packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -44026,6 +44345,57 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen rundocgenlocal const run the bounded local docgen proof. workflows packages/tooling/tool/cli/src/commands/docgen/internal/local.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "runDocgenQualityWorkerLocalEval",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 988,
+        "summary": "Run a read-only JSDoc quality worker eval on an ephemeral local Docker server.",
+        "categories": [
+          "use-cases"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@effects",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen rundocgenqualityworkerlocaleval const run a read-only jsdoc quality worker eval on an ephemeral local docker server. use-cases packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Docgen",
+        "exportSubpath": "./test/Docgen",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Docgen.test-kit.ts",
+        "symbolName": "RunDocgenQualityWorkerLocalEvalOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/QualityWorkerLocalEval.ts",
+        "sourceLine": 220,
+        "summary": "Options for a local Docker-backed quality worker eval run.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen rundocgenqualityworkerlocalevaloptions class options for a local docker-backed quality worker eval run. models packages/tooling/tool/cli/src/commands/docgen/internal/qualityworkerlocaleval.ts"
       },
       {
         "packageName": "@beep/repo-cli",
