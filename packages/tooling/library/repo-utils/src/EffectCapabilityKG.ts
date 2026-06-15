@@ -8,7 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -595,8 +595,7 @@ const cleanCommentLine = (line: string): string => {
   return Str.startsWith("*")(trimmed) ? pipe(trimmed, Str.slice(1), Str.trim) : trimmed;
 };
 
-const cleanJsDocText = (text: string): string =>
-  pipe(text, Str.split("\n"), A.map(cleanCommentLine), A.join("\n"), Str.trim);
+const cleanJsDocText = flow(Str.split("\n"), A.map(cleanCommentLine), A.join("\n"), Str.trim);
 
 const firstNonEmptyLine = (text: string): string =>
   pipe(
@@ -1271,16 +1270,14 @@ const readCatalogVisibility = Effect.fn(function* (
   );
 });
 
-const lowerTokens = (text: string): ReadonlyArray<string> =>
-  pipe(
-    text,
-    Str.toLowerCase,
-    Str.replace(/[^a-z0-9]+/gu, " "),
-    Str.split(" "),
-    A.map(Str.trim),
-    A.filter(Str.isNonEmpty),
-    A.dedupe
-  );
+const lowerTokens = flow(
+  Str.toLowerCase,
+  Str.replace(/[^a-z0-9]+/gu, " "),
+  Str.split(" "),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty),
+  A.dedupe
+);
 
 const tokenHits = (tokens: ReadonlyArray<string>, keywords: ReadonlyArray<string>): number =>
   pipe(

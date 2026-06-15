@@ -1,11 +1,11 @@
 /**
  * Lightweight renderer for the in-flight assistant turn.
  *
- * Renders a `ReadonlyArray<Turn.AssistantBlock>` directly to DOM — no Lexical,
- * no schema decode — so blocks paint as each one finishes streaming. Trimmed to
+ * Renders a `ReadonlyArray<AssistantBlock>` directly to DOM - no Lexical,
+ * no schema decode - so blocks paint as each one finishes streaming. Trimmed to
  * the v1 block vocabulary (paragraph, heading, quote, list, code) and inline
  * vocabulary (styled text, link) defined by `@beep/agents-domain`'s
- * {@link Turn.AssistantBlock}.
+ * {@link AssistantBlock}.
  *
  * @packageDocumentation
  * @category components
@@ -13,12 +13,12 @@
  */
 "use client";
 
-import { Turn } from "@beep/agents-domain";
+import { AssistantBlock, InlineNode } from "@beep/agents-domain/values/AssistantContent";
 import { A } from "@beep/utils";
 import type { JSX, ReactNode } from "react";
 
-const Inline = ({ node }: { readonly node: Turn.InlineNode }): ReactNode =>
-  Turn.InlineNode.match(node, {
+const Inline = ({ node }: { readonly node: InlineNode }): ReactNode =>
+  InlineNode.match(node, {
     text: (t) => {
       let el: ReactNode = t.text;
       if (t.code === true) el = <code className="rounded bg-muted px-1 py-0.5 text-sm">{el}</code>;
@@ -33,7 +33,7 @@ const Inline = ({ node }: { readonly node: Turn.InlineNode }): ReactNode =>
     ),
   });
 
-const Inlines = ({ nodes }: { readonly nodes: ReadonlyArray<Turn.InlineNode> }): JSX.Element => (
+const Inlines = ({ nodes }: { readonly nodes: ReadonlyArray<InlineNode> }): JSX.Element => (
   <>
     {A.map(nodes, (node, i) => (
       <Inline key={i} node={node} />
@@ -41,8 +41,8 @@ const Inlines = ({ nodes }: { readonly nodes: ReadonlyArray<Turn.InlineNode> }):
   </>
 );
 
-const Block = ({ block }: { readonly block: Turn.AssistantBlock }): ReactNode =>
-  Turn.AssistantBlock.match(block, {
+const Block = ({ block }: { readonly block: AssistantBlock }): ReactNode =>
+  AssistantBlock.match(block, {
     paragraph: (b) => (
       <p className="my-2 leading-relaxed">
         <Inlines nodes={b.children} />
@@ -93,7 +93,7 @@ const Block = ({ block }: { readonly block: Turn.AssistantBlock }): ReactNode =>
  * @category components
  * @since 0.0.0
  */
-export function StreamingBlocks({ blocks }: { readonly blocks: ReadonlyArray<Turn.AssistantBlock> }): JSX.Element {
+export function StreamingBlocks({ blocks }: { readonly blocks: ReadonlyArray<AssistantBlock> }): JSX.Element {
   return (
     <div className="text-sm">
       {A.map(blocks, (block, i) => (

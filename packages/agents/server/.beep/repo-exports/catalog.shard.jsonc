@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1acc32e57875238b210f0c6a790a076f333e5116f123816d9903de3b158f12a7",
+    "digest": "1e0735dab1eb2ea00d589789343ca870e550df5fdcfbe1dd7f41b6153346e397",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,13 +27,13 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sha256": "88390663e86647d636f06408a4c9a960f8f38eaa7c8583a1e9075b9826467221",
-        "bytes": 1751
+        "sha256": "3aaf78ea60cbba7f9078db65016bf7b16f9c150a28ebb759826169af17645fe7",
+        "bytes": 1793
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sha256": "5a6b496f2f411ed38def8169214d6bc25ccedb3094d61f6a985661f41a0a8ec1",
-        "bytes": 5962
+        "sha256": "ee681774f9e58cfa0e9d809cd444b8dca37706b4ceb615b8d56312c424290445",
+        "bytes": 5993
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/index.ts",

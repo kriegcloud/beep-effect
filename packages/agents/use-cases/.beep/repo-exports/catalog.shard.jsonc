@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "500251eb02fc490f404304e378600a934444637d2388321e921327ad5611205c",
+    "digest": "f97b5218063eaf1ba97ebe762a67cbd75f0e4020e95d3097f9829f98bf504494",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-        "sha256": "563c7e886b18fad6b098ad40355f1e897a676f237cd9f730b6c161ae36cdf7b1",
-        "bytes": 1772
+        "sha256": "95e4c8543a6363d91788d2dd1f2137a433b95250f8fb89ca261a5b50fb6cf18e",
+        "bytes": 3275
       },
       {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.fixture.ts",
-        "sha256": "53bdca025c0a4c5e0a0c1ac9bb2b3277d0d567dcae18810f55c1767b87613c2a",
-        "bytes": 3443
+        "sha256": "6256db03e8703417190ae2afa2c7daf78a7bb1c4205e93acead7e3b222764a49",
+        "bytes": 3467
       },
       {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
@@ -62,8 +62,8 @@
       },
       {
         "path": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
-        "sha256": "de45d883edc7e9b752ca5b7fff4e3aff937b9118dcfb9c7e77d43c4ec640afb9",
-        "bytes": 3680
+        "sha256": "30bbb03883726c59a98ec2259cc6e648d24d5be5b446c80f28c65fd43f9a0437",
+        "bytes": 3704
       },
       {
         "path": "packages/agents/use-cases/src/processes/Chat/index.ts",
@@ -154,8 +154,8 @@
       "@beep/agents-use-cases/test"
     ],
     "counts": {
-      "publicExportEntries": 166,
-      "uniqueSymbols": 44,
+      "publicExportEntries": 178,
+      "uniqueSymbols": 46,
       "sourceFiles": 20
     },
     "exports": [
@@ -208,6 +208,31 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "AssistantTurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 53,
+        "summary": "The plain-text prompt projection of a single assistant-authored thread item.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . assistantturnhistoryitem class the plain-text prompt projection of a single assistant-authored thread item. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -394,7 +419,7 @@
         "symbolName": "IndexedBlock",
         "exportKind": "interface",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-        "sourceLine": 61,
+        "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
         "categories": [
           "models"
@@ -1117,6 +1142,55 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/agents/use-cases/src/index.ts",
         "symbolName": "TurnHistoryItem",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 78,
+        "summary": "Plain-text prompt projection of a thread item consumed by the turn kernel.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . turnhistoryitem const plain-text prompt projection of a thread item consumed by the turn kernel. schemas packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 91,
+        "summary": "Runtime type for {@link TurnHistoryItem}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . turnhistoryitem type runtime type for {@link turnhistoryitem}. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "UserTurnHistoryItem",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 29,
@@ -1132,7 +1206,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . userturnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -1183,6 +1257,31 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "AssistantTurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 53,
+        "summary": "The plain-text prompt projection of a single assistant-authored thread item.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof assistantturnhistoryitem class the plain-text prompt projection of a single assistant-authored thread item. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -1419,7 +1518,7 @@
         "symbolName": "IndexedBlock",
         "exportKind": "interface",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-        "sourceLine": 61,
+        "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
         "categories": [
           "models"
@@ -2217,6 +2316,55 @@
         "exportSubpath": "./proof",
         "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
         "symbolName": "TurnHistoryItem",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 78,
+        "summary": "Plain-text prompt projection of a thread item consumed by the turn kernel.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof turnhistoryitem const plain-text prompt projection of a thread item consumed by the turn kernel. schemas packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 91,
+        "summary": "Runtime type for {@link TurnHistoryItem}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof turnhistoryitem type runtime type for {@link turnhistoryitem}. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "UserTurnHistoryItem",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 29,
@@ -2232,7 +2380,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof userturnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -2283,6 +2431,31 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "AssistantTurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 53,
+        "summary": "The plain-text prompt projection of a single assistant-authored thread item.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public assistantturnhistoryitem class the plain-text prompt projection of a single assistant-authored thread item. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -2469,7 +2642,7 @@
         "symbolName": "IndexedBlock",
         "exportKind": "interface",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-        "sourceLine": 61,
+        "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
         "categories": [
           "models"
@@ -3192,6 +3365,55 @@
         "exportSubpath": "./public",
         "exportedFromPath": "packages/agents/use-cases/src/public.ts",
         "symbolName": "TurnHistoryItem",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 78,
+        "summary": "Plain-text prompt projection of a thread item consumed by the turn kernel.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public turnhistoryitem const plain-text prompt projection of a thread item consumed by the turn kernel. schemas packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 91,
+        "summary": "Runtime type for {@link TurnHistoryItem}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public turnhistoryitem type runtime type for {@link turnhistoryitem}. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "UserTurnHistoryItem",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 29,
@@ -3207,7 +3429,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public userturnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -3258,6 +3480,31 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "AssistantTurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 53,
+        "summary": "The plain-text prompt projection of a single assistant-authored thread item.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test assistantturnhistoryitem class the plain-text prompt projection of a single assistant-authored thread item. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -3494,7 +3741,7 @@
         "symbolName": "IndexedBlock",
         "exportKind": "interface",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-        "sourceLine": 61,
+        "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
         "categories": [
           "models"
@@ -4292,6 +4539,55 @@
         "exportSubpath": "./test",
         "exportedFromPath": "packages/agents/use-cases/src/test.ts",
         "symbolName": "TurnHistoryItem",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 78,
+        "summary": "Plain-text prompt projection of a thread item consumed by the turn kernel.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test turnhistoryitem const plain-text prompt projection of a thread item consumed by the turn kernel. schemas packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 91,
+        "summary": "Runtime type for {@link TurnHistoryItem}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test turnhistoryitem type runtime type for {@link turnhistoryitem}. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "UserTurnHistoryItem",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 29,
@@ -4307,7 +4603,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test userturnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       }
     ]
   }

@@ -34,7 +34,7 @@ export * as Entities from "./entities/index.js";
  */
 export * from "./entities/index.js";
 /**
- * Agents domain assistant-turn namespaces.
+ * Agents domain value-object namespaces.
  *
  * @example
  * ```ts
@@ -43,7 +43,21 @@ export * from "./entities/index.js";
  * console.log(Module)
  * ```
 
- * @category turn
+ * @category value-objects
  * @since 0.0.0
  */
-export * as Turn from "./turn/index.js";
+export * as Values from "./values/index.js";
+/**
+ * Root agents domain value-object exports.
+ *
+ * @example
+ * ```ts
+ * import * as Module from "@beep/agents-domain"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category value-objects
+ * @since 0.0.0
+ */
+export * from "./values/index.js";
