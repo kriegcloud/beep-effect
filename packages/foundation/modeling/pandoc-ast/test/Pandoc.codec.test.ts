@@ -286,6 +286,37 @@ describe("Pandoc.codec", () => {
       })
     ));
 
+  it("keeps surrounding list items when one item payload is malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                [{ c: [{ c: "before", t: "Str" }], t: "Plain" }],
+                "not-a-list-item",
+                [{ c: "not-inline-list", t: "Plain" }],
+              ],
+              t: "BulletList",
+            },
+          ],
+          meta: {},
+        });
+        const list = document.blocks[0];
+
+        expect(list?._tag).toBe("bulletlist");
+        if (list?._tag !== "bulletlist") {
+          return;
+        }
+
+        expect(list.items).toHaveLength(3);
+        expect(list.items[0]?.[0]?._tag).toBe("plain");
+        expectUnknownBlock(list.items[1]?.[0], "MalformedListItem", "not-a-list-item");
+        expectUnknownBlock(list.items[2]?.[0], "Plain", "not-inline-list");
+      })
+    ));
+
   it("keeps malformed top-level known blocks as named unknown blocks", () =>
     Effect.runPromise(
       Effect.gen(function* () {

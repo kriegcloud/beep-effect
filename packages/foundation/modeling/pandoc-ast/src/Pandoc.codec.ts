@@ -184,7 +184,7 @@ const decodeAttrWire = S.decodeUnknownEffect(AttrWire);
 const decodeTargetWire = S.decodeUnknownEffect(TargetWire);
 const decodeUnknownArray = S.decodeUnknownEffect(S.Array(S.Unknown));
 const decodeUnknownBlockList = S.decodeUnknownEffect(S.Array(S.Unknown));
-const decodeUnknownBlockItems = S.decodeUnknownEffect(S.Unknown.pipe(S.Array, S.Array));
+const decodeUnknownBlockItems = S.decodeUnknownEffect(S.Array(S.Unknown));
 const decodeHeaderPayloadWire = S.decodeUnknownEffect(HeaderPayloadWire);
 const decodeCodePayloadWire = S.decodeUnknownEffect(CodePayloadWire);
 const decodeDivPayloadWire = S.decodeUnknownEffect(DivPayloadWire);
@@ -249,13 +249,21 @@ const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type> =
 const decodeBlockListOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>, S.SchemaError> =>
   Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
 
+const decodeBlockItemOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>> =>
+  decodeUnknownBlockList(input).pipe(
+    Effect.matchEffect({
+      onFailure: () => Effect.succeed([unknownBlock("MalformedListItem", input)]),
+      onSuccess: (values) => Effect.forEach(values, decodeBlockOrUnknown),
+    })
+  );
+
 const decodeBlockItemsOrUnknown = (
   input: unknown
 ): Effect.Effect<ReadonlyArray<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
   decodeUnknownBlockItems(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed([[unknownBlock("MalformedListItems", input)]]),
-      onSuccess: (items) => Effect.forEach(items, decodeBlockList),
+      onSuccess: (items) => Effect.forEach(items, decodeBlockItemOrUnknown),
     })
   );
 
