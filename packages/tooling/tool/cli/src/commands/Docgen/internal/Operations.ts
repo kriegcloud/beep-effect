@@ -1099,7 +1099,7 @@ const copyDocsTree: (
 );
 
 /**
- * Normalize a workspace-relative package path to the current root docs output layout.
+ * Normalize a workspace-relative package path to the current generated docs output layout.
  *
  * @param relativePath - Workspace-relative package path.
  * @returns Current nested docs output path with the top-level workspace root trimmed.

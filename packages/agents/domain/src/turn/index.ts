@@ -46,6 +46,20 @@ export {
   QuoteBlock,
   TextInline,
 } from "../values/AssistantContent/index.js";
+/**
+ * Type-only assistant content compatibility aliases.
+ *
+ * @example
+ * ```ts
+ * import type { AssistantContentType } from "@beep/agents-domain/turn"
+ *
+ * const content: AssistantContentType = { blocks: [] }
+ * console.log(content.blocks.length)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
 export type {
   AssistantBlock as AssistantBlockType,
   AssistantContent as AssistantContentType,

@@ -45,6 +45,22 @@ stats.html
 !goals/**/docs/**
 # Root docs/ is tracked authored documentation; generated + private stay out
 !/docs/
+# Legacy root docgen aggregate paths; current aggregate output is /docs/generated/
+/docs/agent-capability/
+/docs/agents/
+/docs/architecture-lab/
+/docs/architecture-lab-proof/
+/docs/drivers/
+/docs/epistemic/
+/docs/foundation/
+/docs/infra/
+/docs/law-practice/
+/docs/oip-web/
+/docs/professional-desktop/
+/docs/shared/
+/docs/storybook/
+/docs/tooling/
+/docs/workspace/
 /docs/generated/
 /docs/_internal/
 # Docgen analysis artifacts
