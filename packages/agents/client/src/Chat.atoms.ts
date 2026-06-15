@@ -18,7 +18,9 @@ import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { Clock, Duration, Effect, Layer, Metric, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { Atom, AtomRegistry, AtomRpc, Reactivity } from "effect/unstable/reactivity";
@@ -261,6 +263,16 @@ export const streamingTurnAtom = Atom.make<O.Option<StreamingTurn>>(O.none());
  */
 export const turnErrorAtom = Atom.make<O.Option<ChatActionError>>(O.none());
 
+const fallbackTurnErrorMessage = "Assistant turn failed" as const;
+
+const messageFromUnknownError = (error: unknown): string => {
+  const message = P.hasProperty(error, "message") && P.isString(error.message) ? Str.trim(error.message) : "";
+  return Str.isNonEmpty(message) ? message : fallbackTurnErrorMessage;
+};
+
+const toTurnError = (error: unknown): ChatActionError =>
+  S.is(ChatActionError)(error) ? error : ChatActionError.new(messageFromUnknownError(error));
+
 /**
  * When set, the composer is editing an existing turn's message.
  *
@@ -465,10 +477,8 @@ export const runTurnAtom = ChatClient.runtime.fn<TurnRequest>()(
       Effect.tapError(
         Effect.fnUntraced(function* (error) {
           ctx.set(streamingTurnAtom, O.none());
-          ctx.set(
-            turnErrorAtom,
-            O.some(S.is(ChatActionError)(error) ? error : ChatActionError.new("Assistant turn failed"))
-          );
+          const turnError = toTurnError(error);
+          ctx.set(turnErrorAtom, O.some(turnError));
           yield* Effect.logError("assistant turn failed", error);
         })
       ),

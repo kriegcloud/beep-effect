@@ -273,7 +273,7 @@ const streamAndPersist = (
         Stream.map((indexed): AssistantBlock => indexed.block),
         // success path only — persist nothing on error/interrupt (no onExit).
         // onEnd widens the error channel with persist's ChatActionError.
-        Stream.onEnd(recordTurnDuration.pipe(Effect.andThen(persist))),
+        Stream.onEnd(persist),
         // translate the kernel's TurnGenerationError to the client-safe wire
         // error; the persist ChatActionError passes through unchanged (std-09).
         Stream.tapError((error) =>
@@ -284,7 +284,8 @@ const streamAndPersist = (
         Stream.mapError(
           (error: TurnGenerationError | ChatActionError): ChatActionError =>
             S.is(ChatActionError)(error) ? error : ChatActionError.new(error.message)
-        )
+        ),
+        Stream.ensuring(recordTurnDuration)
       );
     }).pipe(Effect.tapError(() => Metric.update(Metric.withAttributes(chatTurnFailuresTotal, { kind }), 1)))
   );
@@ -293,13 +294,18 @@ const setTitleFromFirstUserMessage = (
   store: Thread.ThreadStore["Service"],
   threadId: WorkspaceIdentity.ThreadId,
   content: Document.Type
-): Effect.Effect<void, ChatActionError> =>
+): Effect.Effect<void> =>
   pipe(
     deriveThreadTitle(content),
     O.map((title) =>
-      store
-        .setTitleIfEmpty({ threadId, emptyTitle: UNTITLED_THREAD_TITLE, title })
-        .pipe(Effect.catch(toChatActionError("SendMessage.setTitleIfEmpty")))
+      store.setTitleIfEmpty({ threadId, emptyTitle: UNTITLED_THREAD_TITLE, title }).pipe(
+        Effect.catch((error) =>
+          Effect.logWarning("chat title derivation skipped", {
+            context: "SendMessage.setTitleIfEmpty",
+            detail: error,
+          })
+        )
+      )
     ),
     O.getOrElse(() => Effect.void)
   );

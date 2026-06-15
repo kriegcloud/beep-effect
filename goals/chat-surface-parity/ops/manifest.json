@@ -3,13 +3,13 @@
   "initiative": {
     "id": "chat-surface-parity",
     "title": "Chat Surface Parity",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-15",
     "updated": "2026-06-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/chat-surface-parity",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -58,7 +58,7 @@
     {
       "id": "P4",
       "name": "Verify & close",
-      "status": "blocked"
+      "status": "completed"
     }
   ],
   "verificationCommands": [

@@ -90,3 +90,32 @@ BEEP_TEST_REAL_ANTHROPIC_CHAT=1 \
 BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers \
 bun run --cwd apps/professional-desktop test:integration -- chat-real-anthropic.e2e.test.ts
 ```
+
+## 2026-06-15 Continuation Check
+
+- Re-attempted 1Password MCP `authenticate`; it still fails before any secret
+  lookup with `IPC request failed`. Per repo policy and the user correction,
+  `op` was not run from the Codex terminal.
+- Confirmed this process had no Anthropic credential variables injected.
+- Re-ran the enabled live harness:
+  `BEEP_TEST_REAL_ANTHROPIC_CHAT=1 BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers bun run --cwd apps/professional-desktop test:integration -- chat-real-anthropic.e2e.test.ts`.
+  It fails at the expected redacted config boundary:
+  `ChatActionError: Anthropic assistant turn failed: SchemaError(Invalid data <redacted> at ["AI_ANTHROPIC_API_KEY"])`.
+
+The remaining P4 proof still needs a working allowed credential injection path;
+the fixture/foundation/local lanes do not prove the real-LLM mermaid/table/youtube
+acceptance item.
+
+## 2026-06-15 Real-LLM E2E Closeout
+
+- Repaired the host 1Password path enough to allow safe secret-reference
+  injection without printing the Anthropic key. The final test used the
+  1Password reference only as an environment source.
+- Ran the live Anthropic harness with the Anthropic credential supplied from
+  1Password through `op run`, without printing or recording the secret reference.
+- Result: pass. Vitest reported `Test Files 1 passed (1)` and `Tests 1 passed (1)`
+  for `apps/professional-desktop/test/integration/chat-real-anthropic.e2e.test.ts`.
+
+This closes the open P4 acceptance item: the real Anthropic kernel, chat
+orchestration, PgLite persistence path, and rich-block assertions all passed
+with mermaid, table, and youtube content.

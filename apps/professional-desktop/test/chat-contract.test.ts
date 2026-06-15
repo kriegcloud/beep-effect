@@ -15,8 +15,10 @@ import { provideScopedLayer } from "@beep/test-utils";
 import { ThreadStoreInMemoryLayer } from "@beep/workspace-server/aggregates/Thread";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
-import { Array as A, Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect";
+import { Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink } from "@/chat/UsageRecordSink";
 
@@ -75,6 +77,57 @@ describe("@beep/professional-desktop chat contract", () => {
       const usage = yield* Ref.get(usageRef);
       expect(usage).toHaveLength(1);
       expect(usage[0]?.provider).toBe("fixture");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("derives a thread title from the first user line without overwriting existing titles", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const longTitle = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-title-that-will-be-truncated";
+
+      const trimmed = yield* operations.createThread(workspaceId, "New thread");
+      const empty = yield* operations.createThread(workspaceId, "New thread");
+      const truncated = yield* operations.createThread(workspaceId, "New thread");
+      const existing = yield* operations.createThread(workspaceId, "Pinned title");
+
+      yield* Stream.runDrain(operations.sendMessage(trimmed.id, userDocument("  Draft fee memo  \nignored")));
+      yield* Stream.runDrain(operations.sendMessage(empty.id, userDocument("  \n  ")));
+      yield* Stream.runDrain(operations.sendMessage(truncated.id, userDocument(longTitle)));
+      yield* Stream.runDrain(operations.sendMessage(existing.id, userDocument("Replacement title")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (thread) => thread.title);
+      expect(titles).toEqual(
+        expect.arrayContaining(["Draft fee memo", "New thread", Str.slice(0, 64)(longTitle), "Pinned title"])
+      );
+      expect(titles).not.toContain("Replacement title");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("continues the assistant stream when best-effort title persistence fails", () =>
+    Effect.gen(function* () {
+      const store = yield* Thread.ThreadStore;
+      const kernel = yield* AgentTurnKernel;
+      const { ref: usageRef, sink } = yield* makeInMemoryUsageRecordSink;
+      const titleFailingStore = Thread.ThreadStore.of({
+        ...store,
+        setTitleIfEmpty: Effect.fn("Thread.ThreadStore.setTitleIfEmpty")(function* () {
+          return yield* Thread.ThreadStoreUnavailable.make({ reason: "title unavailable" });
+        }),
+      });
+      const operations = makeChatOperations(titleFailingStore, kernel, sink);
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+      const content = userDocument("Best effort title");
+
+      const expectedBlocks = fixtureBlocksFor([{ role: "user", text: "Best effort title" }]);
+      const emitted = yield* Stream.runCollect(operations.sendMessage(thread.id, content));
+
+      expect([...emitted]).toStrictEqual([...expectedBlocks]);
+      const timeline = yield* operations.getTimeline(thread.id);
+      expect(messageItems(timeline).map((m) => m.role)).toEqual(["user", "assistant"]);
+      const usage = yield* Ref.get(usageRef);
+      expect(usage).toHaveLength(1);
     }).pipe(provideScopedLayer(StackLayer))
   );
 
