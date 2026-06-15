@@ -50,22 +50,6 @@ Required packet artifacts:
 
 ## Ratchet Contracts
 
-### Dupes
-
-`dupes` is the first promotion candidate, but the authority is the existing
-structural clone inventory:
-
-- `standards/clone.inventory.jsonc`
-- `bun run beep reuse clones --check`
-
-Future Fallow dupes blocking requires reconciliation between the Fallow clone
-report and the repo-owned clone inventory. Do not make the current 930 clone
-groups fail. The first ratchet fails only a new clone group or a regression
-beyond the accepted baseline.
-
-Implementation note: `quality:reuse-clones` is the repo-quality/pre-push gate
-for this ratchet. Raw `fallow:dupes` remains advisory.
-
 ### Health
 
 `health` is the second promotion candidate. It requires a calibrated inventory
@@ -125,8 +109,6 @@ licensing, privacy, local-tooling, and bypass/waiver policy before adoption.
 
 - [ ] Packet exists at `goals/fallow-advisory-ratchets`.
 - [ ] Parent packet remains reference-only and completed.
-- [ ] `dupes` ratchet is wired inventory-first using
-      `standards/clone.inventory.jsonc`.
 - [ ] `health` ratchet requires calibrated baseline inventory before blocking.
 - [ ] `boundaries` ratchet wires generated config freshness only.
 - [ ] `flags` requires a repo-owned feature flag registry before blocking.
@@ -142,10 +124,9 @@ licensing, privacy, local-tooling, and bypass/waiver policy before adoption.
 | Launcher size | `test "$(wc -m < goals/fallow-advisory-ratchets/GOAL.md)" -le 4000` | Passes |
 | Packet validity | `bun goals/fallow-advisory-ratchets/ops/validate-packet.ts` | Passes |
 | Parent validity | `bun goals/fallow-quality-enforcement/ops/validate-packet.ts` | Passes |
-| Fallow wrappers | `bun run beep quality fallow command-contract-check --assert audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow` | Passes |
+| Fallow wrappers | `bun run beep quality fallow command-contract-check --assert audit,dead-code,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow` | Passes |
 | Boundary freshness | `bun run beep quality fallow boundaries config-check --check` | Passes |
 | Promotion contract | `bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes` | Only promoted lanes are wired |
-| Clone baseline | `bun run beep reuse clones --check` | No new/grown clone clusters |
 | Repo check planner | `bun test packages/tooling/tool/cli/test/quality-tasks.test.ts` | Policy ratchet lanes are wired outside raw Fallow promotion lanes |
 | Effect function law | `bun run beep laws effect-fn --check` | Passes |
 | Repo export shard | `bun run beep quality repo-exports-catalog --package-shard --package @beep/repo-cli --check` | Passes |

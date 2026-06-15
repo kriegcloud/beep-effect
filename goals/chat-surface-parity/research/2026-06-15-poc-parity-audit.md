@@ -57,7 +57,7 @@ POC has a Haiku-backed repair loop; ours drops invalid blocks (logged):
 - Ours: `AnthropicTurnKernel.ts:63-74` `routeBlock` validates via `decodeSlice` (`:55`); invalid → `logInfo` + metric `invalid` + `Result.fail` (dropped). No repair.
 
 Placement (per `03-driver-boundaries.md` + `09-errors-across-boundaries.md`):
-- **Driver** `packages/drivers/anthropic/src/Anthropic.repair.ts`: `repairInvalidBlock(slice, { model })` via one-shot `LanguageModel.generateText()` (not `streamText`); Haiku via `AnthropicLanguageModelOptions.make({ model: "claude-haiku-4-5" })` — model override is supported (`Anthropic.service.ts:57-66`, config `Anthropic.config.ts:159-169`); own 2-attempt `ExecutionPlan` (default is 4-attempt exponential, `Anthropic.service.ts:102-123`). Driver-internal `RepairError`.
+- **Driver** `packages/drivers/anthropic/src/Anthropic.repair.ts`: `repairInvalidBlock(slice, { model })` via a one-shot repair call (⚠ see review-corrections #2: the POC uses `streamText`-consume-whole, NOT `generateText`, to dodge a non-streaming `tool_use` decode bug still present at beta.83 — settle in P0); Haiku via `AnthropicLanguageModelOptions.make({ model: "claude-haiku-4-5" })` — model override is supported (`Anthropic.service.ts:57-66`, config `Anthropic.config.ts:159-169`); own 2-attempt `ExecutionPlan` (default is 4-attempt exponential, `Anthropic.service.ts:102-123`). Driver-internal `RepairError`.
 - **Port error** `BlockRepairFailed` in `packages/agents/use-cases/.../AssistantTurn/AssistantTurn.repair-errors.ts`, `/server` export only.
 - **Server adapter** `packages/agents/server/src/AssistantTurn/BlockRepair.ts`: `attemptBlockRepair` (validate→repair→re-validate→emit/drop); `RepairError`→`BlockRepairFailed`; metric `agents_assistant_turn_blocks_repaired_total{outcome}`; span `agents.assistant_turn.block_repair` (child of the kernel span; domain attrs only — driver span carries technical attrs).
 - **Handler** `apps/professional-desktop/src/chat/ChatOrchestrator.ts` `streamAndPersist` (`:188-236`): attach repair tail; `BlockRepairFailed`→`ChatActionError`.
@@ -117,7 +117,51 @@ mid-stream.
 ## Doctrine risk
 
 Table/youtube nodes change a **shared foundation contract** (`@beep/md`,
-`@beep/editor`) consumed by other surfaces, e.g. `apps/oip-web`. Per
-`07-non-slice-families.md` treat them as foundation additions: foundation-level
-round-trip + JSON-boundary tests, and verify no regression in other editor
-consumers. Mermaid avoids this by reusing `Pre`.
+`@beep/lexical-schema`, `@beep/editor`). `@beep/md` is broadly consumed (agents-*,
+workspace-*, `@beep/repo-cli`, lexical-schema); `@beep/editor` today has a single
+consumer (`apps/professional-desktop`) — NOT `apps/oip-web`, which imports none of
+md/lexical/editor (see review-corrections #1). Per `07-non-slice-families.md` treat
+them as foundation additions: foundation-level round-trip + JSON-boundary tests,
+and verify no regression in the `@beep/md`/`@beep/lexical-schema` consumers.
+Mermaid avoids this by reusing `Pre`.
+
+## Review corrections (2026-06-15)
+
+A multi-agent review (5 dimensions, adversarially verified against the repo)
+produced these corrections, now folded into SPEC/PLAN/GOAL/README/manifest:
+
+1. **oip-web is not an editor consumer** — the doctrine-risk above originally
+   named `apps/oip-web`, but it imports none of `@beep/md`/`@beep/lexical-schema`/
+   `@beep/editor`. `@beep/editor`'s only consumer is `apps/professional-desktop`.
+   (oip-web IS the correct mirror for the RegistryProvider pattern — that stands.)
+2. **Repair call shape is a landmine** — the POC deliberately uses `streamText`
+   (consume-whole), not `generateText`, because the non-streaming path maps
+   tool_use `caller → toolId: undefined` and fails the response Part schema; still
+   reproduces at our `beta.83` (`@effect/ai-anthropic/dist/AnthropicLanguageModel.js:965`).
+   P0 gate 1 settles it (POC `server/BlockRepair.ts:98-103`).
+3. **`@beep/agents-use-cases/server` subpath does not exist yet** — exports are
+   `.`/`/public`/`/proof`/`/test`. Scaffold `/server` before placing
+   `BlockRepairFailed` (copy `architecture-lab/use-cases` or `workspace/use-cases`).
+   `TurnGenerationError` currently sits on `/public`.
+4. **Repair contract reconciled** — a block still invalid after the attempts is
+   dropped+logged (repair is otherwise infallible, like the POC); only a failed
+   repair *call* becomes `BlockRepairFailed` → `ChatActionError`. The turn never
+   fails because one block was unrepairable.
+5. **Title derivation is not zero-foundation** — `Thread.title` is a required
+   `S.NonEmptyString` with no store mutation (sidebar hardcodes `"New thread"`);
+   set-if-empty needs a new `ThreadStore.setTitleIfEmpty` mutation (+ repo + RPC +
+   atom) or a nullable-title migration (stop-listed). P0 gate 2. (`documentToPlainText`
+   DOES exist at `ChatOrchestrator.ts:92` — an earlier doubt was refuted.)
+6. **Mermaid validator/filter re-authored, not ported** — with mermaid as
+   `CodeBlock[language="mermaid"]`, the `CheckedMermaidBlock` filter + semantic
+   validator key off `language`/`block.code`, not the POC's dedicated
+   `MermaidBlock.source`. Table/youtube `Checked*Block` port faithfully.
+7. **Two render paths** — `StreamingBlocks.tsx` renders raw `Turn.AssistantBlock`
+   with no Lexical decode, so the `@beep/editor` decorator covers only the
+   read-only viewer; each rich block also needs a streaming-view render branch
+   (the `mermaid` dep lands in ~2 places).
+
+Not reproduced this pass (API outage): the dedicated `accuracy` + `conventions`
+review dimensions plus a few verifiers hit transient 529s — re-run that slice when
+the API recovers. The packet self-check (GOAL ≤4000, manifest JSON, whitespace,
+reflection-artifacts) passed independently.

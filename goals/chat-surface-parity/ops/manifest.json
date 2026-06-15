@@ -70,7 +70,7 @@
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",
-    "A foundation node addition (table/youtube in @beep/md or @beep/editor) would regress another editor consumer (e.g. apps/oip-web).",
+    "A foundation node addition (table/youtube in @beep/md or @beep/lexical-schema) would regress a shared @beep/md consumer (agents-*, workspace-*, @beep/repo-cli).",
     "The implementation would exceed named parity scope.",
     "The no-partial-row-on-cancel contract is challenged by a parity change.",
     "The same blocker repeats after reasonable investigation.",

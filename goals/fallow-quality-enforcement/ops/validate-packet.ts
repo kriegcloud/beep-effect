@@ -93,7 +93,6 @@ const OwnerString = S.String.check(
 const FeatureFamily = LiteralKit([
   "audit",
   "dead-code",
-  "dupes",
   "health",
   "boundaries",
   "flags",
@@ -1090,7 +1089,6 @@ const staleKnipBlockingPhrase = "Knip as blocking gate";
 const expectedFallowCommandSubcommands = [
   "audit",
   "dead-code",
-  "dupes",
   "health",
   "boundaries",
   "flags",
@@ -1098,7 +1096,7 @@ const expectedFallowCommandSubcommands = [
   "fix-preview",
 ];
 const fallowCommandContractCommand =
-  "bun run beep quality fallow command-contract-check --assert audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow";
+  "bun run beep quality fallow command-contract-check --assert audit,dead-code,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow";
 const fallowBoundaryConfigCheckCommand = "bun run beep quality fallow boundaries config-check --check";
 const fallowAuditBaselineCommand = "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts";
 const knipParityBaselineCommand = "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts";
@@ -1125,7 +1123,7 @@ const requiredLatestReviewAcceptanceCommands = [
 const githubChecksPlanContractCommand =
   "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes";
 const ciFallowContractCommand =
-  "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
+  "bun run beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory";
 const expectedFallowAuditBaseline = {
   changedFilesMinimum: 90,
   deadCodeIssues: 30,
@@ -1151,7 +1149,6 @@ const requiredBoundaryDoctrineRefPrefix = "standards/ARCHITECTURE.md";
 const requiredResearchReportArtifacts = [
   "research/audit.md",
   "research/dead-code.md",
-  "research/dupes.md",
   "research/health.md",
   "research/boundaries.md",
   "research/flags.md",
@@ -1185,7 +1182,6 @@ const requiredManifestArtifacts = [
   "history/review-rounds.schema.json",
   "standards/fallow.pilot.inventory.jsonc",
   "standards/fallow.dead-code.regression-baseline.jsonc",
-  "standards/clone.inventory.jsonc",
   "standards/fallow.boundaries.generated.jsonc",
   "standards/fallow.boundaries.provenance.jsonc",
   "standards/fallow.boundaries.provenance.schema.json",
@@ -1200,13 +1196,12 @@ const requiredManifestVerificationFragments = [
     "goals/fallow-quality-enforcement",
     "standards/fallow.pilot.inventory.jsonc",
     "standards/fallow.dead-code.regression-baseline.jsonc",
-    "standards/clone.inventory.jsonc",
     "standards/fallow.boundaries.generated.jsonc",
     "standards/fallow.boundaries.provenance.jsonc",
     "standards/fallow.boundaries.provenance.schema.json",
   ],
   [
-    "git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json",
+    "git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json",
   ],
 ];
 const cleanupOnTouchTriggerSet = [

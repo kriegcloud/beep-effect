@@ -119,7 +119,6 @@ const DecisionGateStatus = LiteralKit(["open", "blocked", "passed", "failed"]).p
 const FeatureFamily = LiteralKit([
   "audit",
   "dead-code",
-  "dupes",
   "health",
   "boundaries",
   "flags",
@@ -433,13 +432,6 @@ const assertNotBlocking = (row: FeatureRow): ReadonlyArray<string> => [
 const parentMatrixDiagnostics = (matrix: FeatureMatrixDocument): ReadonlyArray<string> => [
   ...requireRow(matrix, "audit", assertBlocking),
   ...requireRow(matrix, "dead-code", assertBlocking),
-  ...requireRow(matrix, "dupes", (row) => [
-    ...assertNotBlocking(row),
-    ...(row.baselineStatus === "measured" ? A.empty<string>() : [`${row.id}: dupes baseline must stay measured`]),
-    ...(row.promotionStatus === "advisory"
-      ? A.empty<string>()
-      : [`${row.id}: dupes must stay advisory during packet authoring`]),
-  ]),
   ...requireRow(matrix, "health", (row) => [
     ...assertNotBlocking(row),
     ...(row.baselineStatus === "measured" ? A.empty<string>() : [`${row.id}: health baseline must stay measured`]),
@@ -470,7 +462,6 @@ const specTextDiagnostics = Effect.fn("specTextDiagnostics")(function* () {
     ...includesText(text, "Do not remove Knip."),
     ...includesText(text, "Do not run non-dry-run `fallow fix`."),
     ...includesText(text, "Do not make runtime coverage blocking."),
-    ...includesText(text, "standards/clone.inventory.jsonc"),
     ...includesText(text, "standards/feature-flags.inventory.jsonc"),
     ...includesText(text, 'The thesis is "new debt fails"'),
   ];

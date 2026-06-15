@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "65ca5253013c23b09a5ac954cdfa92d09b8a0123255dd0cd8cda3b62b52ec214",
+    "digest": "c4f3d4820c9dcc893d83dd81a74ec86272ec7b7ea70f3a1a0380c275702b63a7",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -232,23 +232,18 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "sha256": "7b65cb32de62a5d40b1f001effb2101beeb14368d2977d7bb2f94f7668b5b705",
-        "bytes": 433
+        "sha256": "fe2ed6b575b3147570b93d8a65a400ad57c7c1ffe9a346a1abf7ecc865ee1e14",
+        "bytes": 264
       },
       {
         "path": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sha256": "53e90e9485f58ef3dc05495fad38b6ae4a1edfc230d9a2aafecd0470521e1919",
-        "bytes": 12426
+        "sha256": "861f0bff343423ab6cb5e3fd316ef7d113b7b27f8bdd4a703c67c0e1ae15a86b",
+        "bytes": 12383
       },
       {
         "path": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sha256": "59f24807a59e41312eb29a30cd1d2938094004d97c16c871f35f3aa07e799bd4",
-        "bytes": 76138
-      },
-      {
-        "path": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sha256": "92664e35756ff3bd9c5bc723321728033fd10ba2940e1cbe7783807c6e8bab89",
-        "bytes": 7658
+        "sha256": "c2b7f644b31c8a4ffb727a8d4fe2406b9f911b1016df35d70fb5ad9887ed4967",
+        "bytes": 52522
       },
       {
         "path": "packages/tooling/library/repo-utils/src/Root.ts",
@@ -418,7 +413,6 @@
       "@beep/repo-utils/Reuse/index",
       "@beep/repo-utils/Reuse/Reuse.model",
       "@beep/repo-utils/Reuse/Reuse.service",
-      "@beep/repo-utils/Reuse/TokenSimilarity",
       "@beep/repo-utils/Root",
       "@beep/repo-utils/schemas/BiomeJson",
       "@beep/repo-utils/schemas/DocgenConfig",
@@ -442,9 +436,9 @@
       "@beep/repo-utils/Workspaces"
     ],
     "counts": {
-      "publicExportEntries": 1751,
-      "uniqueSymbols": 512,
-      "sourceFiles": 65
+      "publicExportEntries": 1719,
+      "uniqueSymbols": 504,
+      "sourceFiles": 64
     },
     "exports": [
       {
@@ -1572,33 +1566,6 @@
         "importSpecifier": "@beep/repo-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "fnv1a32",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 39,
-        "summary": "32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . fnv1a32 const 32-bit fnv-1a hash of a string (unsigned). the narrow-width sibling of the utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "FsUtils",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -1828,33 +1795,6 @@
         "importSpecifier": "@beep/repo-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "jaccardSimilarity",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 193,
-        "summary": "Exact Jaccard similarity between two shingle sets: `|A ∩ B| / |A ∪ B|`. Two",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . jaccardsimilarity const exact jaccard similarity between two shingle sets: `|a ∩ b| / |a ∪ b|`. two utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "jsonParse",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/JsonUtils.ts",
@@ -1980,33 +1920,6 @@
         "importSpecifier": "@beep/repo-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "lshBandKeys",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 160,
-        "summary": "Project a MinHash signature into `bands` LSH band keys. The signature is split",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . lshbandkeys const project a minhash signature into `bands` lsh band keys. the signature is split utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "makeProjectCacheKey",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
@@ -2107,60 +2020,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . makesymbolid const builds a stable `symbolid` from validated symbol identity parts. utilities packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "minhashSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 122,
-        "summary": "Compute an `permutations`-length MinHash signature of a shingle set. Each slot",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . minhashsignature const compute an `permutations`-length minhash signature of a shingle set. each slot utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "normalizedDeclarationSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 609,
-        "summary": "Normalize a declaration to a structural signature that ignores formatting,",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . normalizeddeclarationsignature const normalize a declaration to a structural signature that ignores formatting, utilities packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -2599,7 +2458,7 @@
         "symbolName": "ReuseAnalysisError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 119,
+        "sourceLine": 116,
         "summary": "Typed error returned when reuse analysis cannot complete a repository scan or lookup.",
         "categories": [
           "error-handling"
@@ -2624,7 +2483,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 288,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -2649,7 +2508,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 104,
+        "sourceLine": 102,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -2674,7 +2533,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 122,
+        "sourceLine": 120,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -2699,7 +2558,7 @@
         "symbolName": "ReuseCandidateNotFoundError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 145,
+        "sourceLine": 142,
         "summary": "Typed error returned when a requested candidate id is absent from the current reuse inventory.",
         "categories": [
           "error-handling"
@@ -2724,7 +2583,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 177,
+        "sourceLine": 175,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -2799,7 +2658,7 @@
         "symbolName": "ReuseCatalogService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1385,
+        "sourceLine": 974,
         "summary": "Service tag for the reuse catalog contract.",
         "categories": [
           "models"
@@ -2824,7 +2683,7 @@
         "symbolName": "ReuseCatalogServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1523,
+        "sourceLine": 1110,
         "summary": "Default live layer for building the shared reuse catalog.",
         "categories": [
           "constructors"
@@ -2846,60 +2705,10 @@
         "importSpecifier": "@beep/repo-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "ReuseCloneService",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2053,
-        "summary": "Service tag for declaration-anchored structural clone detection.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . reusecloneservice class service tag for declaration-anchored structural clone detection. models packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "ReuseCloneServiceLive",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2069,
-        "summary": "Default live layer for declaration-anchored structural clone detection.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . reusecloneservicelive const default live layer for declaration-anchored structural clone detection. constructors packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "ReuseDiscoveryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1453,
+        "sourceLine": 1042,
         "summary": "Service tag for reuse candidate discovery.",
         "categories": [
           "models"
@@ -2924,7 +2733,7 @@
         "symbolName": "ReuseDiscoveryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1671,
+        "sourceLine": 1258,
         "summary": "Default live layer for reuse candidate discovery and local option lookup.",
         "categories": [
           "constructors"
@@ -2949,7 +2758,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 407,
+        "sourceLine": 405,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -2974,7 +2783,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 333,
+        "sourceLine": 331,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -2999,7 +2808,7 @@
         "symbolName": "ReuseInventoryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1076,
         "summary": "Service tag for reuse inventory materialization.",
         "categories": [
           "models"
@@ -3024,7 +2833,7 @@
         "symbolName": "ReuseInventoryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1849,
+        "sourceLine": 1436,
         "summary": "Default live layer for ranked reuse inventories and implementation packets.",
         "categories": [
           "constructors"
@@ -3049,7 +2858,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 377,
+        "sourceLine": 375,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -3074,7 +2883,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 245,
+        "sourceLine": 243,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -3099,7 +2908,7 @@
         "symbolName": "ReusePartitionPlannerService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1415,
+        "sourceLine": 1004,
         "summary": "Service tag for reuse partition planning.",
         "categories": [
           "models"
@@ -3124,7 +2933,7 @@
         "symbolName": "ReusePartitionPlannerServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1155,
         "summary": "Default live layer for reuse partition planning.",
         "categories": [
           "constructors"
@@ -3149,7 +2958,7 @@
         "symbolName": "ReuseServiceSuiteLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2154,
+        "sourceLine": 1521,
         "summary": "Fully wired reuse-discovery layer suite for CLI and tests.",
         "categories": [
           "constructors"
@@ -3174,7 +2983,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 141,
+        "sourceLine": 139,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -3199,7 +3008,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 213,
+        "sourceLine": 211,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -3788,33 +3597,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . symbolqualifiedname type branded qualified symbol name. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils",
-        "exportSubpath": ".",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "tokenShingles",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 64,
-        "summary": "Split a normalized token sequence into the set of contiguous k-grams",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . tokenshingles const split a normalized token sequence into the set of contiguous k-grams utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -6950,33 +6732,6 @@
         "importSpecifier": "@beep/repo-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "fnv1a32",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 39,
-        "summary": "32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index fnv1a32 const 32-bit fnv-1a hash of a string (unsigned). the narrow-width sibling of the utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "FsUtils",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -7206,33 +6961,6 @@
         "importSpecifier": "@beep/repo-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "jaccardSimilarity",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 193,
-        "summary": "Exact Jaccard similarity between two shingle sets: `|A ∩ B| / |A ∪ B|`. Two",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index jaccardsimilarity const exact jaccard similarity between two shingle sets: `|a ∩ b| / |a ∪ b|`. two utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "jsonParse",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/JsonUtils.ts",
@@ -7358,33 +7086,6 @@
         "importSpecifier": "@beep/repo-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "lshBandKeys",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 160,
-        "summary": "Project a MinHash signature into `bands` LSH band keys. The signature is split",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index lshbandkeys const project a minhash signature into `bands` lsh band keys. the signature is split utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "makeProjectCacheKey",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
@@ -7485,60 +7186,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index makesymbolid const builds a stable `symbolid` from validated symbol identity parts. utilities packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "minhashSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 122,
-        "summary": "Compute an `permutations`-length MinHash signature of a shingle set. Each slot",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index minhashsignature const compute an `permutations`-length minhash signature of a shingle set. each slot utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "normalizedDeclarationSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 609,
-        "summary": "Normalize a declaration to a structural signature that ignores formatting,",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index normalizeddeclarationsignature const normalize a declaration to a structural signature that ignores formatting, utilities packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -7977,7 +7624,7 @@
         "symbolName": "ReuseAnalysisError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 119,
+        "sourceLine": 116,
         "summary": "Typed error returned when reuse analysis cannot complete a repository scan or lookup.",
         "categories": [
           "error-handling"
@@ -8002,7 +7649,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 288,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -8027,7 +7674,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 104,
+        "sourceLine": 102,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -8052,7 +7699,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 122,
+        "sourceLine": 120,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -8077,7 +7724,7 @@
         "symbolName": "ReuseCandidateNotFoundError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 145,
+        "sourceLine": 142,
         "summary": "Typed error returned when a requested candidate id is absent from the current reuse inventory.",
         "categories": [
           "error-handling"
@@ -8102,7 +7749,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 177,
+        "sourceLine": 175,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -8177,7 +7824,7 @@
         "symbolName": "ReuseCatalogService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1385,
+        "sourceLine": 974,
         "summary": "Service tag for the reuse catalog contract.",
         "categories": [
           "models"
@@ -8202,7 +7849,7 @@
         "symbolName": "ReuseCatalogServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1523,
+        "sourceLine": 1110,
         "summary": "Default live layer for building the shared reuse catalog.",
         "categories": [
           "constructors"
@@ -8224,60 +7871,10 @@
         "importSpecifier": "@beep/repo-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "ReuseCloneService",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2053,
-        "summary": "Service tag for declaration-anchored structural clone detection.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index reusecloneservice class service tag for declaration-anchored structural clone detection. models packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "ReuseCloneServiceLive",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2069,
-        "summary": "Default live layer for declaration-anchored structural clone detection.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index reusecloneservicelive const default live layer for declaration-anchored structural clone detection. constructors packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "ReuseDiscoveryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1453,
+        "sourceLine": 1042,
         "summary": "Service tag for reuse candidate discovery.",
         "categories": [
           "models"
@@ -8302,7 +7899,7 @@
         "symbolName": "ReuseDiscoveryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1671,
+        "sourceLine": 1258,
         "summary": "Default live layer for reuse candidate discovery and local option lookup.",
         "categories": [
           "constructors"
@@ -8327,7 +7924,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 407,
+        "sourceLine": 405,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -8352,7 +7949,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 333,
+        "sourceLine": 331,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -8377,7 +7974,7 @@
         "symbolName": "ReuseInventoryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1076,
         "summary": "Service tag for reuse inventory materialization.",
         "categories": [
           "models"
@@ -8402,7 +7999,7 @@
         "symbolName": "ReuseInventoryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1849,
+        "sourceLine": 1436,
         "summary": "Default live layer for ranked reuse inventories and implementation packets.",
         "categories": [
           "constructors"
@@ -8427,7 +8024,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 377,
+        "sourceLine": 375,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -8452,7 +8049,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 245,
+        "sourceLine": 243,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -8477,7 +8074,7 @@
         "symbolName": "ReusePartitionPlannerService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1415,
+        "sourceLine": 1004,
         "summary": "Service tag for reuse partition planning.",
         "categories": [
           "models"
@@ -8502,7 +8099,7 @@
         "symbolName": "ReusePartitionPlannerServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1155,
         "summary": "Default live layer for reuse partition planning.",
         "categories": [
           "constructors"
@@ -8527,7 +8124,7 @@
         "symbolName": "ReuseServiceSuiteLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2154,
+        "sourceLine": 1521,
         "summary": "Fully wired reuse-discovery layer suite for CLI and tests.",
         "categories": [
           "constructors"
@@ -8552,7 +8149,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 141,
+        "sourceLine": 139,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -8577,7 +8174,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 213,
+        "sourceLine": 211,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -9166,33 +8763,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index symbolqualifiedname type branded qualified symbol name. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/index",
-        "exportSubpath": "./index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
-        "symbolName": "tokenShingles",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 64,
-        "summary": "Split a normalized token sequence into the set of contiguous k-grams",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index tokenshingles const split a normalized token sequence into the set of contiguous k-grams utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -31514,145 +31084,10 @@
         "importSpecifier": "@beep/repo-utils/Reuse/index",
         "exportSubpath": "./Reuse/index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "fnv1a32",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 39,
-        "summary": "32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index fnv1a32 const 32-bit fnv-1a hash of a string (unsigned). the narrow-width sibling of the utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "jaccardSimilarity",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 193,
-        "summary": "Exact Jaccard similarity between two shingle sets: `|A ∩ B| / |A ∪ B|`. Two",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index jaccardsimilarity const exact jaccard similarity between two shingle sets: `|a ∩ b| / |a ∪ b|`. two utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "lshBandKeys",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 160,
-        "summary": "Project a MinHash signature into `bands` LSH band keys. The signature is split",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index lshbandkeys const project a minhash signature into `bands` lsh band keys. the signature is split utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "minhashSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 122,
-        "summary": "Compute an `permutations`-length MinHash signature of a shingle set. Each slot",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index minhashsignature const compute an `permutations`-length minhash signature of a shingle set. each slot utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "normalizedDeclarationSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 609,
-        "summary": "Normalize a declaration to a structural signature that ignores formatting,",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index normalizeddeclarationsignature const normalize a declaration to a structural signature that ignores formatting, utilities packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
         "symbolName": "ReuseAnalysisError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 119,
+        "sourceLine": 116,
         "summary": "Typed error returned when reuse analysis cannot complete a repository scan or lookup.",
         "categories": [
           "error-handling"
@@ -31677,7 +31112,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 288,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -31702,7 +31137,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 104,
+        "sourceLine": 102,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -31727,7 +31162,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 122,
+        "sourceLine": 120,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -31752,7 +31187,7 @@
         "symbolName": "ReuseCandidateNotFoundError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 145,
+        "sourceLine": 142,
         "summary": "Typed error returned when a requested candidate id is absent from the current reuse inventory.",
         "categories": [
           "error-handling"
@@ -31777,7 +31212,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 177,
+        "sourceLine": 175,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -31852,7 +31287,7 @@
         "symbolName": "ReuseCatalogService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1385,
+        "sourceLine": 974,
         "summary": "Service tag for the reuse catalog contract.",
         "categories": [
           "models"
@@ -31877,7 +31312,7 @@
         "symbolName": "ReuseCatalogServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1523,
+        "sourceLine": 1110,
         "summary": "Default live layer for building the shared reuse catalog.",
         "categories": [
           "constructors"
@@ -31899,60 +31334,10 @@
         "importSpecifier": "@beep/repo-utils/Reuse/index",
         "exportSubpath": "./Reuse/index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "ReuseCloneService",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2053,
-        "summary": "Service tag for declaration-anchored structural clone detection.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index reusecloneservice class service tag for declaration-anchored structural clone detection. models packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "ReuseCloneServiceLive",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2069,
-        "summary": "Default live layer for declaration-anchored structural clone detection.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index reusecloneservicelive const default live layer for declaration-anchored structural clone detection. constructors packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
         "symbolName": "ReuseDiscoveryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1453,
+        "sourceLine": 1042,
         "summary": "Service tag for reuse candidate discovery.",
         "categories": [
           "models"
@@ -31977,7 +31362,7 @@
         "symbolName": "ReuseDiscoveryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1671,
+        "sourceLine": 1258,
         "summary": "Default live layer for reuse candidate discovery and local option lookup.",
         "categories": [
           "constructors"
@@ -32002,7 +31387,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 407,
+        "sourceLine": 405,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -32027,7 +31412,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 333,
+        "sourceLine": 331,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -32052,7 +31437,7 @@
         "symbolName": "ReuseInventoryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1076,
         "summary": "Service tag for reuse inventory materialization.",
         "categories": [
           "models"
@@ -32077,7 +31462,7 @@
         "symbolName": "ReuseInventoryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1849,
+        "sourceLine": 1436,
         "summary": "Default live layer for ranked reuse inventories and implementation packets.",
         "categories": [
           "constructors"
@@ -32102,7 +31487,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 377,
+        "sourceLine": 375,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -32127,7 +31512,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 245,
+        "sourceLine": 243,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -32152,7 +31537,7 @@
         "symbolName": "ReusePartitionPlannerService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1415,
+        "sourceLine": 1004,
         "summary": "Service tag for reuse partition planning.",
         "categories": [
           "models"
@@ -32177,7 +31562,7 @@
         "symbolName": "ReusePartitionPlannerServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1155,
         "summary": "Default live layer for reuse partition planning.",
         "categories": [
           "constructors"
@@ -32202,7 +31587,7 @@
         "symbolName": "ReuseServiceSuiteLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2154,
+        "sourceLine": 1521,
         "summary": "Fully wired reuse-discovery layer suite for CLI and tests.",
         "categories": [
           "constructors"
@@ -32227,7 +31612,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 141,
+        "sourceLine": 139,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -32252,7 +31637,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 213,
+        "sourceLine": 211,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -32321,40 +31706,13 @@
         "packageName": "@beep/repo-utils",
         "packagePath": "packages/tooling/library/repo-utils",
         "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/index",
-        "exportSubpath": "./Reuse/index",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
-        "symbolName": "tokenShingles",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 64,
-        "summary": "Split a normalized token sequence into the set of contiguous k-grams",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/index ./reuse/index tokenshingles const split a normalized token sequence into the set of contiguous k-grams utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
         "importSpecifier": "@beep/repo-utils/Reuse/Reuse.model",
         "exportSubpath": "./Reuse/Reuse.model",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 288,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -32379,7 +31737,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 104,
+        "sourceLine": 102,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -32404,7 +31762,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 122,
+        "sourceLine": 120,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -32429,7 +31787,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 177,
+        "sourceLine": 175,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -32504,7 +31862,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 407,
+        "sourceLine": 405,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -32529,7 +31887,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 333,
+        "sourceLine": 331,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -32554,7 +31912,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 377,
+        "sourceLine": 375,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -32579,7 +31937,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 245,
+        "sourceLine": 243,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -32604,7 +31962,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 141,
+        "sourceLine": 139,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -32629,7 +31987,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 213,
+        "sourceLine": 211,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -32701,37 +32059,10 @@
         "importSpecifier": "@beep/repo-utils/Reuse/Reuse.service",
         "exportSubpath": "./Reuse/Reuse.service",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "symbolName": "normalizedDeclarationSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 609,
-        "summary": "Normalize a declaration to a structural signature that ignores formatting,",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/reuse.service ./reuse/reuse.service normalizeddeclarationsignature const normalize a declaration to a structural signature that ignores formatting, utilities packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/Reuse.service",
-        "exportSubpath": "./Reuse/Reuse.service",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
         "symbolName": "ReuseAnalysisError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 119,
+        "sourceLine": 116,
         "summary": "Typed error returned when reuse analysis cannot complete a repository scan or lookup.",
         "categories": [
           "error-handling"
@@ -32756,7 +32087,7 @@
         "symbolName": "ReuseCandidateNotFoundError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 145,
+        "sourceLine": 142,
         "summary": "Typed error returned when a requested candidate id is absent from the current reuse inventory.",
         "categories": [
           "error-handling"
@@ -32781,7 +32112,7 @@
         "symbolName": "ReuseCatalogService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1385,
+        "sourceLine": 974,
         "summary": "Service tag for the reuse catalog contract.",
         "categories": [
           "models"
@@ -32806,7 +32137,7 @@
         "symbolName": "ReuseCatalogServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1523,
+        "sourceLine": 1110,
         "summary": "Default live layer for building the shared reuse catalog.",
         "categories": [
           "constructors"
@@ -32828,60 +32159,10 @@
         "importSpecifier": "@beep/repo-utils/Reuse/Reuse.service",
         "exportSubpath": "./Reuse/Reuse.service",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "symbolName": "ReuseCloneService",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2053,
-        "summary": "Service tag for declaration-anchored structural clone detection.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/reuse.service ./reuse/reuse.service reusecloneservice class service tag for declaration-anchored structural clone detection. models packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/Reuse.service",
-        "exportSubpath": "./Reuse/Reuse.service",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "symbolName": "ReuseCloneServiceLive",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2069,
-        "summary": "Default live layer for declaration-anchored structural clone detection.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/reuse.service ./reuse/reuse.service reusecloneservicelive const default live layer for declaration-anchored structural clone detection. constructors packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/Reuse.service",
-        "exportSubpath": "./Reuse/Reuse.service",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
         "symbolName": "ReuseDiscoveryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1453,
+        "sourceLine": 1042,
         "summary": "Service tag for reuse candidate discovery.",
         "categories": [
           "models"
@@ -32906,7 +32187,7 @@
         "symbolName": "ReuseDiscoveryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1671,
+        "sourceLine": 1258,
         "summary": "Default live layer for reuse candidate discovery and local option lookup.",
         "categories": [
           "constructors"
@@ -32931,7 +32212,7 @@
         "symbolName": "ReuseInventoryService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1487,
+        "sourceLine": 1076,
         "summary": "Service tag for reuse inventory materialization.",
         "categories": [
           "models"
@@ -32956,7 +32237,7 @@
         "symbolName": "ReuseInventoryServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1849,
+        "sourceLine": 1436,
         "summary": "Default live layer for ranked reuse inventories and implementation packets.",
         "categories": [
           "constructors"
@@ -32981,7 +32262,7 @@
         "symbolName": "ReusePartitionPlannerService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1415,
+        "sourceLine": 1004,
         "summary": "Service tag for reuse partition planning.",
         "categories": [
           "models"
@@ -33006,7 +32287,7 @@
         "symbolName": "ReusePartitionPlannerServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 1568,
+        "sourceLine": 1155,
         "summary": "Default live layer for reuse partition planning.",
         "categories": [
           "constructors"
@@ -33031,7 +32312,7 @@
         "symbolName": "ReuseServiceSuiteLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sourceLine": 2154,
+        "sourceLine": 1521,
         "summary": "Fully wired reuse-discovery layer suite for CLI and tests.",
         "categories": [
           "constructors"
@@ -33045,141 +32326,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/reuse.service ./reuse/reuse.service reuseservicesuitelive const fully wired reuse-discovery layer suite for cli and tests. constructors packages/tooling/library/repo-utils/src/reuse/reuse.service.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/TokenSimilarity",
-        "exportSubpath": "./Reuse/TokenSimilarity",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "symbolName": "fnv1a32",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 39,
-        "summary": "32-bit FNV-1a hash of a string (unsigned). The narrow-width sibling of the",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/tokensimilarity ./reuse/tokensimilarity fnv1a32 const 32-bit fnv-1a hash of a string (unsigned). the narrow-width sibling of the utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/TokenSimilarity",
-        "exportSubpath": "./Reuse/TokenSimilarity",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "symbolName": "jaccardSimilarity",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 193,
-        "summary": "Exact Jaccard similarity between two shingle sets: `|A ∩ B| / |A ∪ B|`. Two",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/tokensimilarity ./reuse/tokensimilarity jaccardsimilarity const exact jaccard similarity between two shingle sets: `|a ∩ b| / |a ∪ b|`. two utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/TokenSimilarity",
-        "exportSubpath": "./Reuse/TokenSimilarity",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "symbolName": "lshBandKeys",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 160,
-        "summary": "Project a MinHash signature into `bands` LSH band keys. The signature is split",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/tokensimilarity ./reuse/tokensimilarity lshbandkeys const project a minhash signature into `bands` lsh band keys. the signature is split utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/TokenSimilarity",
-        "exportSubpath": "./Reuse/TokenSimilarity",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "symbolName": "minhashSignature",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 122,
-        "summary": "Compute an `permutations`-length MinHash signature of a shingle set. Each slot",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/tokensimilarity ./reuse/tokensimilarity minhashsignature const compute an `permutations`-length minhash signature of a shingle set. each slot utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
-      },
-      {
-        "packageName": "@beep/repo-utils",
-        "packagePath": "packages/tooling/library/repo-utils",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-utils/Reuse/TokenSimilarity",
-        "exportSubpath": "./Reuse/TokenSimilarity",
-        "exportedFromPath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "symbolName": "tokenShingles",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-        "sourceLine": 64,
-        "summary": "Split a normalized token sequence into the set of contiguous k-grams",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/reuse/tokensimilarity ./reuse/tokensimilarity tokenshingles const split a normalized token sequence into the set of contiguous k-grams utilities packages/tooling/library/repo-utils/src/reuse/tokensimilarity.ts"
       },
       {
         "packageName": "@beep/repo-utils",

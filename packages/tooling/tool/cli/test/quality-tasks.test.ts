@@ -174,7 +174,7 @@ const repoCliPackage = {
   path: "packages/tooling/tool/cli",
 };
 type FallowFeatureMatrixRowTuple = readonly [
-  featureFamily: "audit" | "dead-code" | "dupes",
+  featureFamily: "audit" | "dead-code" | "health",
   ciMode: "advisory-artifact" | "blocking-check",
   promotionStatus: "advisory" | "research" | "candidate-blocking" | "blocking",
 ];
@@ -323,15 +323,13 @@ describe("quality task adapter", () => {
       "quality:lint",
       "quality:docgen",
       "quality:repo-exports-catalog-check",
-      "quality:reuse-clones",
       "quality:test",
     ]);
     expect(A.every(lanes, (lane) => lane.stage === "repo-quality")).toBe(true);
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
     expect(lanes[1]?.step.args).toEqual(["run", "check"]);
     expect(lanes[2]?.step.args).toEqual(["run", "lint"]);
-    expect(lanes[5]?.step.args).toEqual(["run", "beep", "reuse", "clones", "--check"]);
-    expect(lanes[6]?.step.args).toEqual(["run", "test"]);
+    expect(lanes[5]?.step.args).toEqual(["run", "test"]);
   });
 
   it("maps repo-sanity github checks as collector lanes", () => {
@@ -404,14 +402,14 @@ describe("quality task adapter", () => {
       }).pipe(provideScopedLayer(FileSystemLayer))
     ));
 
-  it("wires advisory ratchets through policy lanes instead of raw Fallow promotion lanes", () => {
+  it("does not wire removed Fallow dupes or reuse clone lanes", () => {
     const laneIds = pipe(
       githubCheckLanesForModeForTesting("/repo", "pre-push"),
       A.map((lane) => lane.id)
     );
 
-    expect(laneIds).toContain("quality:reuse-clones");
     expect(laneIds).toContain("repo-sanity:fallow-boundaries-config");
+    expect(laneIds).not.toContain("quality:reuse-clones");
     expect(laneIds).not.toContain("fallow:dupes");
     expect(laneIds).not.toContain("fallow:boundaries");
   });
@@ -428,7 +426,7 @@ describe("quality task adapter", () => {
           workflowText.indexOf("      - name: Validate Fallow envelopes")
         )(workflowText);
         const allLaneLoopIndex = fallowStepText.indexOf(
-          "          for lane in audit dead-code dupes health boundaries flags security fix-preview; do"
+          "          for lane in health boundaries flags security fix-preview; do"
         );
         const promotedLaneCheckIndex = fallowStepText.indexOf(
           "          for lane in audit dead-code; do",
@@ -450,11 +448,11 @@ describe("quality task adapter", () => {
     const matrix = fallowFeatureMatrix([
       ["audit", "blocking-check", "blocking"],
       ["dead-code", "blocking-check", "blocking"],
-      ["dupes", "blocking-check", "blocking"],
+      ["health", "blocking-check", "blocking"],
     ]);
 
     expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
-      "missing promoted Fallow GitHub check lane fallow:dupes",
+      "missing promoted Fallow GitHub check lane fallow:health",
     ]);
   });
 

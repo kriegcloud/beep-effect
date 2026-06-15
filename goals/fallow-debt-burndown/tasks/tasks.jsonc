@@ -147,34 +147,29 @@
       "rank": 5,
       "status": "seeded",
       "phase": "P4",
-      "title": "Clean low-risk duplication",
-      "summary": "Extract or reuse helpers for repeated app test config and repeated test/proof helper patterns while classifying generated clones separately.",
+      "title": "Retire duplication cleanup lane",
+      "summary": "Leave duplication cleanup out of this Fallow debt packet now that the repo-owned duplication check has been removed.",
       "implementationScope": [
         "apps",
-        "packages",
-        "standards/clone.inventory.jsonc"
+        "packages"
       ],
       "proofCommands": [
-        "bun run beep quality fallow dupes --advisory --base origin/main --out .beep/fallow/dupes.json --quiet",
-        "bun run beep reuse clones --check"
+        "git diff --check -- goals/fallow-debt-burndown"
       ],
       "acceptanceCommands": [
-        "bun run beep quality fallow dupes --advisory --base origin/main --out .beep/fallow/dupes.json --quiet",
-        "bun run beep reuse clones --check"
+        "git diff --check -- goals/fallow-debt-burndown"
       ],
       "dependencies": ["fdb-001"],
-      "rollbackPlan": "Revert helper extraction and keep the clone inventory as the only ratchet authority.",
+      "rollbackPlan": "Reintroduce an explicit duplication cleanup packet only if a future tool path is selected.",
       "evidenceRefs": [
-        "research/current-fallow-snapshot.md#dupes-queue",
-        "goals/fallow-quality-enforcement/research/dupes.md",
-        "standards/clone.inventory.jsonc"
+        "goals/fallow-debt-burndown/PLAN.md"
       ],
       "owner": "@beep-team",
       "riskLevel": "medium",
       "decisionGate": {
         "kind": "debt-burndown",
         "status": "open",
-        "evidence": ["research/current-fallow-snapshot.md#dupes-queue"]
+        "evidence": ["goals/fallow-debt-burndown/PLAN.md"]
       }
     },
     {

@@ -72,6 +72,6 @@ test "$(wc -m < goals/fallow-quality-enforcement/GOAL.md)" -le 4000
 bun goals/fallow-quality-enforcement/ops/validate-packet.ts
 bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts
 bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts
-bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
-git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
+bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
+git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json
 ```

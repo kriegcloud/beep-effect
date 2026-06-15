@@ -15,7 +15,6 @@ evidence came from `.beep/fallow/*` envelopes generated on 2026-06-11.
 bun run beep quality fallow boundaries --advisory --base origin/main --out .beep/fallow/boundaries.json --quiet
 bun run beep quality fallow health --advisory --base origin/main --out .beep/fallow/health.json --quiet
 bun run beep quality fallow security --advisory --base origin/main --out .beep/fallow/security.json --quiet
-bun run beep quality fallow dupes --advisory --base origin/main --out .beep/fallow/dupes.json --quiet
 ```
 
 ## Boundary Queue
@@ -96,18 +95,12 @@ First targets:
 Preferred fix: triage candidate reachability and existing lane coverage before
 recording a suppression or creating a blocking gate.
 
-## Dupes Queue
+## Duplication Queue
 
-The top-bounded Fallow dupes report currently shows 50 clone groups and 537
-instances in the wrapper artifact. The parent feature matrix records the full
-configured run as 930 clone groups.
-
-First targets:
-
-- repeated app `vitest.config.ts` setup across five apps.
-- repeated `provideScopedLayer` and CLI argument helpers across tests/proofs.
+The repo-owned duplication wrapper and clone baseline were retired after this
+snapshot. Duplication cleanup is no longer part of this packet's verification
+surface.
 - repeated hand-maintained package test shapes.
 
 Generated ACP schema clones are classified as generated-code candidates rather
 than immediate refactor targets.
-

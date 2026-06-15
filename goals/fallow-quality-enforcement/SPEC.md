@@ -44,7 +44,6 @@ but the Effect Schema validator decides pass or fail.
 
 - `audit`
 - `dead-code`
-- `dupes`
 - `health`
 - `boundaries`
 - `flags`
@@ -107,7 +106,6 @@ bootstrap. P1 must implement:
 ```txt
 beep quality fallow audit
 beep quality fallow dead-code
-beep quality fallow dupes
 beep quality fallow health
 beep quality fallow boundaries
 beep quality fallow flags
@@ -145,7 +143,7 @@ the current CLI surface:
   boundary config freshness and is separate from boundary analyzer enforcement.
 - `beep quality fallow envelope-check <path> --require <csv>` decodes one
   envelope and fails if required metadata is missing.
-- `beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes dupes,health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`
+- `beep quality fallow ci-contract-check .github/workflows/check.yml --expect-lanes health,boundaries,flags,security,fix-preview --expect-blocking-lanes audit,dead-code --expect-out-dir .beep/fallow --require-upload --if-no-files-found error --advisory`
   proves hosted CI uses the repo-cli envelope wrapper and cannot silently miss
   any advisory artifact for the implemented P1 lane set.
 - `beep yeet plan-contract-check --from-stdin --expect-step-id advisory:01-fallow-feedback --expect-step-label fallow-advisory-feedback --expect-command bun --expect-args "run beep yeet fallow-feedback --from .beep/fallow --emit .beep/yeet/fallow-quality-issues.json --advisory"`
@@ -226,7 +224,7 @@ Yeet issue fixtures proving `introduced`, `inherited-adjacent`, and
 P3 maps Fallow findings into existing `QualityIssue` categories after the P1
 envelope wrapper and P2 CI artifacts exist:
 
-- boundaries, dead-code, dupes, health, flags: `repo-law`
+- boundaries, dead-code, health, flags: `repo-law`
 - security: `security-audit`
 - parser failures: `parser-error`
 - tool failures: `command-failure`

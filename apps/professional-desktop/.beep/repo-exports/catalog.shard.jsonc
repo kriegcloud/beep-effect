@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2476090f00f9e2c38e3fb35f2f67c693da2b560811c77837473b5f9bcf1acf20",
+    "digest": "8fc8e45140699c838fafd04b9752219751719890b7b81aad63e5f5a3496989fb",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
-        "sha256": "427c2d53b89f4ac4d5e331e0af8e90a2c2153bab88c89c1e86c1a8f5a90594e4",
-        "bytes": 14151
+        "sha256": "525a01a0d9cf26b792022423f8b9a3cf8a681138a57eb03aa1dded35476b05f0",
+        "bytes": 14147
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
@@ -72,13 +72,13 @@
       },
       {
         "path": "apps/professional-desktop/src/runtime/Layer.ts",
-        "sha256": "1b217106be1367a1cd1cc93951174ce344f370567c3845a10dd7d1b39637a915",
-        "bytes": 4291
+        "sha256": "43262314d4c2c9360da07063dae249fa05df7a5cf43d7f8ca096abb07786d6ba",
+        "bytes": 4282
       },
       {
         "path": "apps/professional-desktop/src/runtime/Observability.ts",
-        "sha256": "543bf99b4fb9728e0531e6103ef027171549df994365a8e9cf43e690478e0c8d",
-        "bytes": 1696
+        "sha256": "15a58232f8d3abedbf6b5a7de33c3191d50c3b080d346bb897ad13bf159a6dd7",
+        "bytes": 1723
       },
       {
         "path": "apps/professional-desktop/src/runtime/Pglite.ts",

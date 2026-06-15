@@ -51,7 +51,6 @@
     "goals/fallow-advisory-ratchets/tasks/tasks.schema.json",
     "goals/fallow-advisory-ratchets/ops/validate-packet.ts",
     "goals/fallow-quality-enforcement/research/feature-matrix.jsonc",
-    "standards/clone.inventory.jsonc",
     "standards/fallow.boundaries.generated.jsonc",
     "standards/fallow.boundaries.provenance.jsonc"
   ],
@@ -72,7 +71,6 @@
     "bun goals/fallow-quality-enforcement/ops/validate-packet.ts",
     "bun run beep quality fallow boundaries config-check --check",
     "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes",
-    "bun run beep reuse clones --check",
     "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts",
     "bun run beep laws effect-fn --check",
     "bun run beep quality repo-exports-catalog --package-shard --package @beep/repo-cli --check",

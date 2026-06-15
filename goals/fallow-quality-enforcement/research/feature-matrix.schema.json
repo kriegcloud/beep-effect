@@ -65,7 +65,6 @@
             "enum": [
               "audit",
               "dead-code",
-              "dupes",
               "health",
               "boundaries",
               "flags",
@@ -510,7 +509,6 @@
     "featureFamily": [
       "audit",
       "dead-code",
-      "dupes",
       "health",
       "boundaries",
       "flags",

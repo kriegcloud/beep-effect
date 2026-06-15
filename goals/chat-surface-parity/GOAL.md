@@ -24,16 +24,16 @@ Proof-repo (read-only): `/home/elpresidank/YeeBois/projects/effect-lexical-chat/
 The atom architecture is ALREADY at parity (our `Chat.atoms.ts` is a verbatim
 port). Do NOT redo it.
 
-Scope (full parity, phased; see PLAN.md for file touch-points):
+Scope (full parity, phased):
 
 - P1 obs/UX: sidecar Effect DevTools via `@beep/observability/server` (compose,
   don't hand-roll); app `RegistryProvider` (mirror `apps/oip-web`); error toasts
   via `@beep/ui` sonner (from the UI layer); turn-lifecycle metrics; title
   derivation; Grafana chat dashboard.
-- P2 repair: driver `Anthropic.repair.ts` (one-shot `generateText`, Haiku model
-  option, 2-attempt plan) → server `BlockRepair.ts` (validate → repair →
-  re-validate; `RepairError`→`BlockRepairFailed`) → orchestrator tail
-  (`BlockRepairFailed`→`ChatActionError`).
+- P2 repair: driver `Anthropic.repair.ts` (Haiku, 2-attempt plan; call-shape per
+  P0 gate) → server `BlockRepair.ts`
+  (validate→repair→re-validate, drop-if-unrepairable; `RepairError`→
+  `BlockRepairFailed`) → orchestrator tail (`BlockRepairFailed`→`ChatActionError`).
 - P3 rich blocks: mermaid as `Pre[language="mermaid"]`; new table + youtube
   nodes across `@beep/md` + lexical + `@beep/editor`; lifts, validators, system
   prompt, `Checked*Block` codec filters; render in streaming + viewer.
@@ -48,10 +48,10 @@ Preserve (must not revert): `@beep/md` model, turn-grouped timeline, PGlite,
 fixture/anthropic split, `ChatActionError` boundary, runtime-origin OTLP
 detection, `CostRollup`/version selector/`UsageRecord`.
 
-Doctrine: table/youtube nodes change a shared foundation contract (other
-surfaces, e.g. `apps/oip-web`) — treat as foundation additions, add round-trip +
-JSON-boundary tests, verify no regression. `@beep/agents-client` must not import
-`@beep/ui`.
+Doctrine: table/youtube nodes change a shared `@beep/md` foundation contract
+(broadly consumed; `@beep/editor` has one consumer today) — treat as foundation
+additions, add round-trip + JSON-boundary tests, verify no regression in md
+consumers. `@beep/agents-client` must not import `@beep/ui`.
 
 Workflow:
 
@@ -65,7 +65,7 @@ Workflow:
 Acceptance:
 
 - [ ] `SPEC.md` criteria satisfied; new foundation nodes round-trip (Md↔Lexical
-      + JSON-boundary) with no other editor consumer regressing.
+      + JSON-boundary) with no md-consumer regression.
 - [ ] Verification passes (or unrelated failures recorded separately); no
       unrelated refactors or formatting churn.
 

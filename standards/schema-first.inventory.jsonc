@@ -2025,14 +2025,6 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-      "symbol": "FallowDupesRawReport",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
-    },
-    {
-      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
       "symbol": "FallowFlagsRawReport",
       "kind": "object-struct-schema",
       "status": "exception",

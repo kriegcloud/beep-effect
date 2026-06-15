@@ -43,10 +43,7 @@ Use this command for execution-capable sessions:
 3. `security`: triage the 23 candidates against existing security lanes, then
    fix confirmed risky sinks or record covered false positives in a repo-owned
    inventory.
-4. `dupes`: remove obvious low-risk clones, starting with repeated Vitest config
-   and repeated test helper patterns; generated code remains explicitly
-   classified.
-5. `quality wiring`: after a class is burned down or inventoried, wire only
+4. `quality wiring`: after a class is burned down or inventoried, wire only
    new/regressed debt checks into repo quality.
 
 ## Current Decisions
@@ -69,11 +66,10 @@ Use this command for execution-capable sessions:
 test "$(wc -m < goals/fallow-debt-burndown/GOAL.md)" -le 4000
 bun goals/fallow-debt-burndown/ops/validate-packet.ts
 bun goals/fallow-quality-enforcement/ops/validate-packet.ts
-bun run beep quality fallow command-contract-check --assert audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow
+bun run beep quality fallow command-contract-check --assert audit,dead-code,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow
 bun run beep quality fallow boundaries --advisory --base origin/main --out .beep/fallow/boundaries.json --quiet
 bun run beep quality fallow health --advisory --base origin/main --out .beep/fallow/health.json --quiet
 bun run beep quality fallow security --advisory --base origin/main --out .beep/fallow/security.json --quiet
 bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes
 git diff --check -- goals/fallow-debt-burndown
 ```
-

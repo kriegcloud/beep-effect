@@ -88,13 +88,8 @@ set.
 
 ### Dupes
 
-Duplication work targets obvious low-risk clones first: repeated app Vitest
-config, repeated test helper patterns, and manually maintained shared snippets.
-Generated code clones are classified, not force-refactored.
-
-`standards/clone.inventory.jsonc` and `bun run beep reuse clones --check` remain
-the repo-owned clone policy surface. Raw Fallow dupes output stays advisory
-until reconciled with that inventory.
+Duplication cleanup is out of scope for this packet because the repo-owned
+duplication quality lane has been removed.
 
 ### Quality Wiring
 
@@ -110,7 +105,6 @@ disallowed shape is "all current Fallow findings fail".
       enforcement.
 - [ ] Health work targets critical/high refactors, not blanket suppression.
 - [ ] Security work starts with candidate triage and confirmed fixes.
-- [ ] Dupes work starts with low-risk reusable helper/config cleanup.
 - [ ] Future quality checks fail only new or regressed debt.
 - [ ] Parent feature matrix still has only `audit` and `dead-code` promoted.
 - [ ] Packet validator passes.
@@ -122,12 +116,11 @@ disallowed shape is "all current Fallow findings fail".
 | Launcher size | `test "$(wc -m < goals/fallow-debt-burndown/GOAL.md)" -le 4000` | Passes |
 | Packet validity | `bun goals/fallow-debt-burndown/ops/validate-packet.ts` | Passes |
 | Parent validity | `bun goals/fallow-quality-enforcement/ops/validate-packet.ts` | Passes |
-| Fallow wrappers | `bun run beep quality fallow command-contract-check --assert audit,dead-code,dupes,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow` | Passes |
+| Fallow wrappers | `bun run beep quality fallow command-contract-check --assert audit,dead-code,health,boundaries,flags,security,fix-preview --require-envelope --out-dir .beep/fallow` | Passes |
 | Boundary evidence | `bun run beep quality fallow boundaries --advisory --base origin/main --out .beep/fallow/boundaries.json --quiet` | Emits advisory envelope |
 | Health evidence | `bun run beep quality fallow health --advisory --base origin/main --out .beep/fallow/health.json --quiet` | Emits advisory envelope |
 | Security evidence | `bun run beep quality fallow security --advisory --base origin/main --out .beep/fallow/security.json --quiet` | Emits advisory envelope |
 | Promotion contract | `bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes` | Only promoted lanes are wired |
-| Clone baseline | `bun run beep reuse clones --check` | No new/grown clone clusters |
 | Whitespace | `git diff --check -- goals/fallow-debt-burndown` | Passes |
 
 ## Stop Conditions
@@ -140,4 +133,3 @@ disallowed shape is "all current Fallow findings fail".
 - Do not make all current advisory findings fail.
 - Do not resolve findings primarily by adding inline `fallow-ignore`
   suppressions.
-

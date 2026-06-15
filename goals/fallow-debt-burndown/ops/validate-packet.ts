@@ -107,7 +107,7 @@ const snapshotDiagnostics = Effect.fn("snapshotDiagnostics")(function* () {
     "Boundary Queue",
     "Health Queue",
     "Security Queue",
-    "Dupes Queue",
+    "Duplication Queue",
     "critical: 27",
     "path-traversal: 12",
   ]);
@@ -189,7 +189,7 @@ const manifestDiagnostics = Effect.fn("manifestDiagnostics")(function* () {
   }
 
   const verificationCommands = asArray(document.verificationCommands).map(asString).join("\n");
-  for (const commandFragment of ["fallow health", "fallow boundaries", "fallow security", "reuse clones"]) {
+  for (const commandFragment of ["fallow health", "fallow boundaries", "fallow security"]) {
     if (!verificationCommands.includes(commandFragment)) {
       diagnostics.push(`ops/manifest.json: verificationCommands missing ${commandFragment}`);
     }
@@ -216,7 +216,6 @@ const parentMatrixDiagnostics = Effect.fn("parentMatrixDiagnostics")(function* (
   }
 
   for (const family of [
-    "dupes",
     "health",
     "boundaries",
     "flags",

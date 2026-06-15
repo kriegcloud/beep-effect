@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "16672dbdccf11a201fb66bf608387d7fc1dd44c079de64893340ddb685035702",
+    "digest": "3c5a969f70b4da778324eaaf68329528b7d4a2bc3248921189a358149886761b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -462,8 +462,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "fa72c6c3039fe1fd534132ab00ad4dcfc51f2fa520df610228f22cf553ab13b0",
-        "bytes": 83524
+        "sha256": "783bc95f3352e6eaf46df151b6df7fc4a97efee56b9901c478560ae429341fd8",
+        "bytes": 81174
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -477,8 +477,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sha256": "1aa780b68c588802017298d38839a619829a80f3908280a3a11d2cb3d6094d9b",
-        "bytes": 9920
+        "sha256": "15cd992ba59087c32697b4b057992cc3daa8791eebcf10f5a6c8cd04c54bcd30",
+        "bytes": 9909
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/JSDocDocumentationInventory.ts",
@@ -517,8 +517,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "2faa5a073845c62e5bd8d0d8717e957d5ff57273dd47b64991a4751e2251cb62",
-        "bytes": 105096
+        "sha256": "0a9ef614cdda7dd8c7785c950bd257cb2b8808a204e597821ce30ee031c8be43",
+        "bytes": 104924
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -532,13 +532,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "sha256": "96a67bffaaa26dd1329aa305d54d9b8546e8a4298334efaedd9258340675fbeb",
-        "bytes": 604
-      },
-      {
-        "path": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sha256": "61341857c228957dfadfc7a199a87b92152886809383c5ede46c6db20327fb80",
-        "bytes": 9873
+        "sha256": "ace3bb08abbb9131b29bf8f08921336583538f4b11fc4d1e147be53e370af76f",
+        "bytes": 319
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/internal/CodexRunner.ts",
@@ -547,8 +542,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sha256": "0a7697f0bdf8ee30c0e20efb69deee1c72c3408bb53c8b022b99be2c1ef39eb8",
-        "bytes": 24295
+        "sha256": "3b6bf643de25a5df7c8b35063d5bd1b594bef4ed183f1021921c7750bf8b990d",
+        "bytes": 20074
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts",
@@ -973,7 +968,6 @@
       "@beep/repo-cli/commands/Quality/Tasks",
       "@beep/repo-cli/commands/Reuse",
       "@beep/repo-cli/commands/Reuse/index",
-      "@beep/repo-cli/commands/Reuse/internal/CloneBaseline",
       "@beep/repo-cli/commands/Reuse/internal/CodexRunner",
       "@beep/repo-cli/commands/Reuse/Reuse.command",
       "@beep/repo-cli/commands/Reuse/Reuse.errors",
@@ -1025,9 +1019,9 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 2100,
-      "uniqueSymbols": 793,
-      "sourceFiles": 163
+      "publicExportEntries": 2083,
+      "uniqueSymbols": 788,
+      "sourceFiles": 162
     },
     "exports": [
       {
@@ -1415,7 +1409,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2945,
+        "sourceLine": 2939,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -1440,7 +1434,7 @@
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 680,
+        "sourceLine": 566,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -32079,7 +32073,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2945,
+        "sourceLine": 2939,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -32104,7 +32098,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2365,
+        "sourceLine": 2285,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -32881,7 +32875,7 @@
         "symbolName": "fallowCiUploadDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2142,
+        "sourceLine": 2063,
         "summary": "Return Fallow CI upload diagnostics for contract tests.",
         "categories": [
           "testing"
@@ -32906,7 +32900,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2365,
+        "sourceLine": 2285,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -32956,7 +32950,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2945,
+        "sourceLine": 2939,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -32981,7 +32975,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2365,
+        "sourceLine": 2285,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -33581,7 +33575,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2596,
+        "sourceLine": 2590,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -33607,7 +33601,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1654,
+        "sourceLine": 1648,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -33661,7 +33655,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2528,
+        "sourceLine": 2522,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -33687,7 +33681,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 947,
+        "sourceLine": 941,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -33714,7 +33708,7 @@
         "symbolName": "GithubCheckLaneSpec",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 597,
+        "sourceLine": 596,
         "summary": "Executable lane specification for GitHub check collectors.",
         "categories": [
           "models"
@@ -33739,7 +33733,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 560,
+        "sourceLine": 559,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "models"
@@ -33764,7 +33758,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 577,
+        "sourceLine": 576,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "type-level"
@@ -33839,7 +33833,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1063,
+        "sourceLine": 1057,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -33866,7 +33860,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 998,
+        "sourceLine": 992,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -33893,7 +33887,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1033,
+        "sourceLine": 1027,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -33920,7 +33914,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1048,
+        "sourceLine": 1042,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -33947,7 +33941,7 @@
         "symbolName": "GithubChecksFallowFeatureMatrix",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 451,
+        "sourceLine": 450,
         "summary": "Minimal Fallow feature matrix used by GitHub check plan contract validation.",
         "categories": [
           "models"
@@ -33972,7 +33966,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 921,
+        "sourceLine": 915,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -33999,7 +33993,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2945,
+        "sourceLine": 2939,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -34176,7 +34170,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1123,
+        "sourceLine": 1117,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -34203,7 +34197,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 786,
+        "sourceLine": 785,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -34230,7 +34224,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1991,
+        "sourceLine": 1985,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -34257,7 +34251,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1346,
+        "sourceLine": 1340,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -34284,7 +34278,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2311,
+        "sourceLine": 2305,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -34310,7 +34304,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2234,
+        "sourceLine": 2228,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -34336,7 +34330,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2428,
+        "sourceLine": 2422,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -34361,7 +34355,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2346,
+        "sourceLine": 2340,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -34388,7 +34382,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2037,
+        "sourceLine": 2031,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -34415,7 +34409,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1800,
+        "sourceLine": 1794,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -34441,7 +34435,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2133,
+        "sourceLine": 2127,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -35283,83 +35277,6 @@
         "importSpecifier": "@beep/repo-cli/commands/Reuse",
         "exportSubpath": "./commands/Reuse",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "buildCloneDocument",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 116,
-        "summary": "Build a sorted, deterministic baseline document from clone candidates.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse ./commands/reuse buildclonedocument const build a sorted, deterministic baseline document from clone candidates. constructors packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse",
-        "exportSubpath": "./commands/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "CloneBaselineDocument",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 67,
-        "summary": "Committed baseline of acknowledged structural-clone clusters for the ratchet.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse ./commands/reuse clonebaselinedocument class committed baseline of acknowledged structural-clone clusters for the ratchet. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse",
-        "exportSubpath": "./commands/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "CloneBaselineEntry",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 39,
-        "summary": "One acknowledged structural-clone cluster recorded in the committed baseline.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse ./commands/reuse clonebaselineentry class one acknowledged structural-clone cluster recorded in the committed baseline. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse",
-        "exportSubpath": "./commands/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
         "symbolName": "CodexRunnerError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts",
@@ -35434,37 +35351,10 @@
         "importSpecifier": "@beep/repo-cli/commands/Reuse",
         "exportSubpath": "./commands/Reuse",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "diffCloneBaseline",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 178,
-        "summary": "Diff live clusters against a committed baseline, returning new and grown clusters.",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse ./commands/reuse diffclonebaseline const diff live clusters against a committed baseline, returning new and grown clusters. utilities packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse",
-        "exportSubpath": "./commands/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
         "symbolName": "printLookupSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 404,
+        "sourceLine": 387,
         "summary": "Print human-readable lookup output for focused command-renderer tests.",
         "categories": [
           "testing"
@@ -35488,7 +35378,7 @@
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 680,
+        "sourceLine": 566,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -35513,7 +35403,7 @@
         "symbolName": "sanitizeTerminalText",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Remove terminal control sequences from human-readable reuse output.",
         "categories": [
           "utilities"
@@ -35529,83 +35419,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse ./commands/reuse sanitizeterminaltext const remove terminal control sequences from human-readable reuse output. utilities packages/tooling/tool/cli/src/commands/reuse/reuse.command.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
-        "exportSubpath": "./commands/Reuse/index",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "buildCloneDocument",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 116,
-        "summary": "Build a sorted, deterministic baseline document from clone candidates.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/index ./commands/reuse/index buildclonedocument const build a sorted, deterministic baseline document from clone candidates. constructors packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
-        "exportSubpath": "./commands/Reuse/index",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "CloneBaselineDocument",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 67,
-        "summary": "Committed baseline of acknowledged structural-clone clusters for the ratchet.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/index ./commands/reuse/index clonebaselinedocument class committed baseline of acknowledged structural-clone clusters for the ratchet. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
-        "exportSubpath": "./commands/Reuse/index",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "CloneBaselineEntry",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 39,
-        "summary": "One acknowledged structural-clone cluster recorded in the committed baseline.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/index ./commands/reuse/index clonebaselineentry class one acknowledged structural-clone cluster recorded in the committed baseline. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -35688,37 +35501,10 @@
         "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
         "exportSubpath": "./commands/Reuse/index",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
-        "symbolName": "diffCloneBaseline",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 178,
-        "summary": "Diff live clusters against a committed baseline, returning new and grown clusters.",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/index ./commands/reuse/index diffclonebaseline const diff live clusters against a committed baseline, returning new and grown clusters. utilities packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/index",
-        "exportSubpath": "./commands/Reuse/index",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
         "symbolName": "printLookupSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 404,
+        "sourceLine": 387,
         "summary": "Print human-readable lookup output for focused command-renderer tests.",
         "categories": [
           "testing"
@@ -35742,7 +35528,7 @@
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 680,
+        "sourceLine": 566,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -35767,7 +35553,7 @@
         "symbolName": "sanitizeTerminalText",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Remove terminal control sequences from human-readable reuse output.",
         "categories": [
           "utilities"
@@ -35783,135 +35569,6 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/index ./commands/reuse/index sanitizeterminaltext const remove terminal control sequences from human-readable reuse output. utilities packages/tooling/tool/cli/src/commands/reuse/reuse.command.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/internal/CloneBaseline",
-        "exportSubpath": "./commands/Reuse/internal/CloneBaseline",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "symbolName": "buildCloneDocument",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 116,
-        "summary": "Build a sorted, deterministic baseline document from clone candidates.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/internal/clonebaseline ./commands/reuse/internal/clonebaseline buildclonedocument const build a sorted, deterministic baseline document from clone candidates. constructors packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/internal/CloneBaseline",
-        "exportSubpath": "./commands/Reuse/internal/CloneBaseline",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "symbolName": "CloneBaselineDocument",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 67,
-        "summary": "Committed baseline of acknowledged structural-clone clusters for the ratchet.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/internal/clonebaseline ./commands/reuse/internal/clonebaseline clonebaselinedocument class committed baseline of acknowledged structural-clone clusters for the ratchet. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/internal/CloneBaseline",
-        "exportSubpath": "./commands/Reuse/internal/CloneBaseline",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "symbolName": "CloneBaselineEntry",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 39,
-        "summary": "One acknowledged structural-clone cluster recorded in the committed baseline.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/internal/clonebaseline ./commands/reuse/internal/clonebaseline clonebaselineentry class one acknowledged structural-clone cluster recorded in the committed baseline. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/internal/CloneBaseline",
-        "exportSubpath": "./commands/Reuse/internal/CloneBaseline",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "symbolName": "diffCloneBaseline",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 178,
-        "summary": "Diff live clusters against a committed baseline, returning new and grown clusters.",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/internal/clonebaseline ./commands/reuse/internal/clonebaseline diffclonebaseline const diff live clusters against a committed baseline, returning new and grown clusters. utilities packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/commands/Reuse/internal/CloneBaseline",
-        "exportSubpath": "./commands/Reuse/internal/CloneBaseline",
-        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "symbolName": "runCloneGate",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 224,
-        "summary": "Refresh or enforce the structural-clone baseline from current clone candidates.",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/reuse/internal/clonebaseline ./commands/reuse/internal/clonebaseline runclonegate const refresh or enforce the structural-clone baseline from current clone candidates. utilities packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -36045,7 +35702,7 @@
         "symbolName": "printLookupSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 404,
+        "sourceLine": 387,
         "summary": "Print human-readable lookup output for focused command-renderer tests.",
         "categories": [
           "testing"
@@ -36069,7 +35726,7 @@
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 680,
+        "sourceLine": 566,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -36094,7 +35751,7 @@
         "symbolName": "sanitizeTerminalText",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Remove terminal control sequences from human-readable reuse output.",
         "categories": [
           "utilities"
@@ -46124,7 +45781,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2596,
+        "sourceLine": 2590,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -46298,7 +45955,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1654,
+        "sourceLine": 1648,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -46430,7 +46087,7 @@
         "symbolName": "FallowAttributionKinds",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 214,
+        "sourceLine": 213,
         "summary": "Non-empty attribution-kind list emitted by Fallow report envelopes.",
         "categories": [
           "schema"
@@ -46455,7 +46112,7 @@
         "symbolName": "FallowAttributionKinds",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 227,
+        "sourceLine": 226,
         "summary": "Decoded non-empty attribution-kind list emitted by Fallow report envelopes.",
         "categories": [
           "schema"
@@ -46480,7 +46137,7 @@
         "symbolName": "FallowEnvelopeStatus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 73,
+        "sourceLine": 72,
         "summary": "Status discriminator for Fallow quality envelopes.",
         "categories": [
           "schema"
@@ -46505,7 +46162,7 @@
         "symbolName": "FallowFailureEnvelope",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 355,
+        "sourceLine": 354,
         "summary": "Failure variant union for Fallow report envelopes.",
         "categories": [
           "schema"
@@ -46530,7 +46187,7 @@
         "symbolName": "FallowFailureEnvelopeStatus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 92,
+        "sourceLine": 91,
         "summary": "Failure status discriminator for Fallow quality envelopes.",
         "categories": [
           "schema"
@@ -46555,7 +46212,7 @@
         "symbolName": "FallowFeature",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 51,
+        "sourceLine": 50,
         "summary": "Decoded Fallow feature family value.",
         "categories": [
           "schema"
@@ -46605,7 +46262,7 @@
         "symbolName": "FallowReportBaseFields",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 236,
+        "sourceLine": 235,
         "summary": "Common metadata required on every Fallow report envelope variant.",
         "categories": [
           "schema"
@@ -46630,7 +46287,7 @@
         "symbolName": "FallowReportBaseResolutionFailed",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 334,
+        "sourceLine": 333,
         "summary": "Fallow envelope emitted when a diff-aware base ref cannot be resolved.",
         "categories": [
           "schema"
@@ -46655,7 +46312,7 @@
         "symbolName": "FallowReportEnvelope",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 369,
+        "sourceLine": 368,
         "summary": "Internal decoded Fallow report envelope discriminated by status.",
         "categories": [
           "schema"
@@ -46681,7 +46338,7 @@
         "symbolName": "FallowReportEnvelope",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 391,
+        "sourceLine": 390,
         "summary": "Decoded Fallow report envelope value.",
         "categories": [
           "schema"
@@ -46706,7 +46363,7 @@
         "symbolName": "FallowReportFinding",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 175,
+        "sourceLine": 174,
         "summary": "Normalized Fallow finding inside the repo-cli report envelope.",
         "categories": [
           "schema"
@@ -46731,7 +46388,7 @@
         "symbolName": "FallowReportInvalidJson",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 296,
+        "sourceLine": 295,
         "summary": "Fallow envelope emitted when the tool succeeded but emitted invalid JSON.",
         "categories": [
           "schema"
@@ -46756,7 +46413,7 @@
         "symbolName": "FallowReportInvalidReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 315,
+        "sourceLine": 314,
         "summary": "Fallow envelope emitted when JSON decodes but does not match the expected feature report shape.",
         "categories": [
           "schema"
@@ -46781,7 +46438,7 @@
         "symbolName": "FallowReportOk",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 258,
+        "sourceLine": 257,
         "summary": "Successful Fallow envelope. The raw tool exit status is preserved separately.",
         "categories": [
           "schema"
@@ -46806,7 +46463,7 @@
         "symbolName": "FallowReportPayload",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 197,
+        "sourceLine": 196,
         "summary": "Normalized report payload carried by successful Fallow envelopes.",
         "categories": [
           "schema"
@@ -46831,7 +46488,7 @@
         "symbolName": "FallowReportToolFailed",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 277,
+        "sourceLine": 276,
         "summary": "Fallow envelope emitted when the tool failed without decodable JSON.",
         "categories": [
           "schema"
@@ -46856,7 +46513,7 @@
         "symbolName": "FindingAttributionKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 60,
+        "sourceLine": 59,
         "summary": "Attribution kind retained by repo-cli Fallow envelopes.",
         "categories": [
           "schema"
@@ -46881,7 +46538,7 @@
         "symbolName": "FindingAttributionSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 157,
+        "sourceLine": 156,
         "summary": "Count summary for normalized Fallow finding attribution.",
         "categories": [
           "schema"
@@ -46933,7 +46590,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2528,
+        "sourceLine": 2522,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -46959,7 +46616,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 947,
+        "sourceLine": 941,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -46986,7 +46643,7 @@
         "symbolName": "GithubCheckLaneSpec",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 597,
+        "sourceLine": 596,
         "summary": "Executable lane specification for GitHub check collectors.",
         "categories": [
           "models"
@@ -47011,7 +46668,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 560,
+        "sourceLine": 559,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "models"
@@ -47036,7 +46693,7 @@
         "symbolName": "GithubCheckLaneStage",
         "exportKind": "type",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 577,
+        "sourceLine": 576,
         "summary": "Stage label for a GitHub check collector lane.",
         "categories": [
           "type-level"
@@ -47111,7 +46768,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1063,
+        "sourceLine": 1057,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -47138,7 +46795,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 998,
+        "sourceLine": 992,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -47165,7 +46822,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1033,
+        "sourceLine": 1027,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -47192,7 +46849,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1048,
+        "sourceLine": 1042,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -47219,7 +46876,7 @@
         "symbolName": "GithubChecksFallowFeatureMatrix",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 451,
+        "sourceLine": 450,
         "summary": "Minimal Fallow feature matrix used by GitHub check plan contract validation.",
         "categories": [
           "models"
@@ -47570,7 +47227,7 @@
         "symbolName": "PositiveExitStatus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 110,
+        "sourceLine": 109,
         "summary": "Positive process exit status used by failure Fallow envelopes.",
         "categories": [
           "schema"
@@ -47595,7 +47252,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 921,
+        "sourceLine": 915,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -47622,7 +47279,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2945,
+        "sourceLine": 2939,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -47647,7 +47304,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2365,
+        "sourceLine": 2285,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -48126,7 +47783,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1123,
+        "sourceLine": 1117,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -48207,7 +47864,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 786,
+        "sourceLine": 785,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -48259,7 +47916,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1991,
+        "sourceLine": 1985,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -48286,7 +47943,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1346,
+        "sourceLine": 1340,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -48313,7 +47970,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2311,
+        "sourceLine": 2305,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -48339,7 +47996,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2234,
+        "sourceLine": 2228,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -48365,7 +48022,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2428,
+        "sourceLine": 2422,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -48597,7 +48254,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2346,
+        "sourceLine": 2340,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -48674,7 +48331,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2037,
+        "sourceLine": 2031,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -48701,7 +48358,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1800,
+        "sourceLine": 1794,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -48727,7 +48384,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2133,
+        "sourceLine": 2127,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -48779,7 +48436,7 @@
         "symbolName": "sameAttributionKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 130,
+        "sourceLine": 129,
         "summary": "Equivalence over Fallow finding attribution kinds.",
         "categories": [
           "equivalence"
@@ -48804,7 +48461,7 @@
         "symbolName": "sameEnvelopeStatus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 139,
+        "sourceLine": 138,
         "summary": "Equivalence over Fallow envelope status discriminators.",
         "categories": [
           "equivalence"
@@ -48829,7 +48486,7 @@
         "symbolName": "sameFeatureFamily",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/internal/FallowEnvelope.schema.ts",
-        "sourceLine": 148,
+        "sourceLine": 147,
         "summary": "Equivalence over Fallow feature families.",
         "categories": [
           "equivalence"
@@ -49298,83 +48955,6 @@
         "importSpecifier": "@beep/repo-cli/test/Reuse",
         "exportSubpath": "./test/Reuse",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
-        "symbolName": "buildCloneDocument",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 116,
-        "summary": "Build a sorted, deterministic baseline document from clone candidates.",
-        "categories": [
-          "constructors"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/reuse ./test/reuse buildclonedocument const build a sorted, deterministic baseline document from clone candidates. constructors packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/test/Reuse",
-        "exportSubpath": "./test/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
-        "symbolName": "CloneBaselineDocument",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 67,
-        "summary": "Committed baseline of acknowledged structural-clone clusters for the ratchet.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/reuse ./test/reuse clonebaselinedocument class committed baseline of acknowledged structural-clone clusters for the ratchet. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/test/Reuse",
-        "exportSubpath": "./test/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
-        "symbolName": "CloneBaselineEntry",
-        "exportKind": "class",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 39,
-        "summary": "One acknowledged structural-clone cluster recorded in the committed baseline.",
-        "categories": [
-          "models"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/reuse ./test/reuse clonebaselineentry class one acknowledged structural-clone cluster recorded in the committed baseline. models packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/test/Reuse",
-        "exportSubpath": "./test/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
         "symbolName": "CodexRunnerError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.errors.ts",
@@ -49473,37 +49053,10 @@
         "importSpecifier": "@beep/repo-cli/test/Reuse",
         "exportSubpath": "./test/Reuse",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
-        "symbolName": "diffCloneBaseline",
-        "exportKind": "const",
-        "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/internal/CloneBaseline.ts",
-        "sourceLine": 178,
-        "summary": "Diff live clusters against a committed baseline, returning new and grown clusters.",
-        "categories": [
-          "utilities"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@param",
-          "@returns",
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/reuse ./test/reuse diffclonebaseline const diff live clusters against a committed baseline, returning new and grown clusters. utilities packages/tooling/tool/cli/src/commands/reuse/internal/clonebaseline.ts"
-      },
-      {
-        "packageName": "@beep/repo-cli",
-        "packagePath": "packages/tooling/tool/cli",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/repo-cli/test/Reuse",
-        "exportSubpath": "./test/Reuse",
-        "exportedFromPath": "packages/tooling/tool/cli/src/test/Reuse.test-kit.ts",
         "symbolName": "printLookupSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 404,
+        "sourceLine": 387,
         "summary": "Print human-readable lookup output for focused command-renderer tests.",
         "categories": [
           "testing"
@@ -49527,7 +49080,7 @@
         "symbolName": "reuseCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 680,
+        "sourceLine": 566,
         "summary": "Reuse-discovery command group.",
         "categories": [
           "use-cases"
@@ -49576,7 +49129,7 @@
         "symbolName": "sanitizeTerminalText",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Reuse/Reuse.command.ts",
-        "sourceLine": 161,
+        "sourceLine": 145,
         "summary": "Remove terminal control sequences from human-readable reuse output.",
         "categories": [
           "utilities"

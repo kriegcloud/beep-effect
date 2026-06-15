@@ -388,7 +388,6 @@ const githubCheckModeFlagChoices: ReadonlyArray<readonly [GithubCheckMode, Githu
 const FallowQualityFeatureFamily = LiteralKit([
   "audit",
   "dead-code",
-  "dupes",
   "health",
   "boundaries",
   "flags",
@@ -820,11 +819,6 @@ const githubCheckQualityLanes = (repoRoot: string): ReadonlyArray<GithubCheckLan
     "quality:repo-exports-catalog-check",
     "repo-quality",
     bunRunLane(repoRoot, "quality:repo-exports-catalog-check", ["repo-exports:catalog:check"])
-  ),
-  githubCheckLane(
-    "quality:reuse-clones",
-    "repo-quality",
-    bunRunLane(repoRoot, "quality:reuse-clones", ["beep", "reuse", "clones", "--check"])
   ),
   githubCheckLane("quality:test", "repo-quality", bunRunLane(repoRoot, "quality:test", ["test"])),
 ];

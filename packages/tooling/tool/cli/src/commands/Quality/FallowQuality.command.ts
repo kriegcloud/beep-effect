@@ -107,43 +107,6 @@ const FallowIssueArray = S.Array(FallowActionIssue).pipe(
     description: "Raw Fallow issue array retained for success-shape validation.",
   })
 );
-class FallowCloneInstance extends S.Class<FallowCloneInstance>($I`FallowCloneInstance`)(
-  {
-    file: S.String,
-    start_line: S.Finite,
-    end_line: S.Finite,
-    start_col: S.Finite,
-    end_col: S.Finite,
-    fragment: S.String,
-  },
-  $I.annote("FallowCloneInstance", {
-    description: "Raw Fallow duplication clone instance shape.",
-  })
-) {}
-class FallowCloneGroup extends S.Class<FallowCloneGroup>($I`FallowCloneGroup`)(
-  {
-    instances: S.Array(FallowCloneInstance),
-    token_count: S.Finite,
-    line_count: S.Finite,
-    fingerprint: S.String,
-    actions: S.Array(FallowRawAction),
-  },
-  $I.annote("FallowCloneGroup", {
-    description: "Raw Fallow duplication clone group shape.",
-  })
-) {}
-class FallowCloneFamily extends S.Class<FallowCloneFamily>($I`FallowCloneFamily`)(
-  {
-    files: S.Array(S.String),
-    groups: S.Array(FallowCloneGroup),
-    total_duplicated_lines: S.Finite,
-    total_duplicated_tokens: S.Finite,
-    actions: S.Array(FallowRawAction),
-  },
-  $I.annote("FallowCloneFamily", {
-    description: "Raw Fallow duplication clone family shape.",
-  })
-) {}
 class FallowHealthFinding extends S.Class<FallowHealthFinding>($I`FallowHealthFinding`)(
   {
     path: S.String,
@@ -296,17 +259,6 @@ const FallowDeadCodeRawReport = S.Struct({
     description: "Raw Fallow dead-code JSON shape accepted by dead-code and boundary lanes.",
   })
 );
-const FallowDupesRawReport = S.Struct({
-  kind: S.Literal("dupes"),
-  ...FallowVersionedRawFields,
-  clone_groups: S.Array(FallowCloneGroup),
-  clone_families: S.Array(FallowCloneFamily),
-  stats: S.Record(S.String, S.Unknown),
-}).pipe(
-  $I.annoteSchema("FallowDupesRawReport", {
-    description: "Raw Fallow duplication JSON shape accepted by the P1 wrapper.",
-  })
-);
 const FallowHealthRawReport = S.Struct({
   kind: S.Literal("health"),
   ...FallowVersionedRawFields,
@@ -362,7 +314,6 @@ class FallowFixPreviewRawReport extends S.Class<FallowFixPreviewRawReport>($I`Fa
 ) {}
 const decodeFallowAuditRawReportOption = S.decodeUnknownOption(FallowAuditRawReport);
 const decodeFallowDeadCodeRawReportOption = S.decodeUnknownOption(FallowDeadCodeRawReport);
-const decodeFallowDupesRawReportOption = S.decodeUnknownOption(FallowDupesRawReport);
 const decodeFallowHealthRawReportOption = S.decodeUnknownOption(FallowHealthRawReport);
 const decodeFallowFlagsRawReportOption = S.decodeUnknownOption(FallowFlagsRawReport);
 const decodeFallowSecurityRawReportOption = S.decodeUnknownOption(FallowSecurityRawReport);
@@ -514,7 +465,6 @@ const promotedBlockingFinding = (feature: FallowFeature, attribution: typeof Fin
     audit: () => sameAttributionKind(attribution, "introduced"),
     boundaries: () => false,
     "dead-code": () => true,
-    dupes: () => false,
     "fix-preview": () => false,
     flags: () => false,
     health: () => false,
@@ -717,7 +667,6 @@ const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyA
     audit: () => normalizeAuditFindings(document),
     boundaries: () => normalizeSummaryFindings(feature, document),
     "dead-code": () => normalizeSummaryFindings(feature, document),
-    dupes: () => normalizeArrayFindings(feature, document, "clone_groups", "clone-groups"),
     "fix-preview": () => normalizeArrayFindings(feature, document, "fixes", "fixes"),
     flags: () => normalizeFlagsFindings(document),
     health: () => normalizeArrayFindings(feature, document, "findings", "complexity-findings"),
@@ -729,7 +678,6 @@ const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
     audit: () => A.length(normalizeAuditFindings(document)),
     boundaries: () => rawSummaryIssueCount(document),
     "dead-code": () => rawSummaryIssueCount(document),
-    dupes: () => rawArrayCount(document, "clone_groups"),
     "fix-preview": () => rawArrayCount(document, "fixes"),
     flags: () =>
       rawCountValue(
@@ -884,19 +832,6 @@ const fallowArgs = (feature: FallowFeature, base: string, quiet: boolean): Reado
       ...quietArgs,
       "--summary",
     ],
-    dupes: () => [
-      "run",
-      "fallow",
-      "--",
-      "dupes",
-      "--config",
-      ".fallowrc.jsonc",
-      "--format",
-      "json",
-      ...quietArgs,
-      "--top",
-      "50",
-    ],
     health: () => [
       "run",
       "fallow",
@@ -975,7 +910,6 @@ const hasFallowReportShape = (feature: FallowFeature, document: unknown): boolea
     audit: () => O.isSome(decodeFallowAuditRawReportOption(document)),
     boundaries: () => O.isSome(decodeFallowDeadCodeRawReportOption(document)),
     "dead-code": () => O.isSome(decodeFallowDeadCodeRawReportOption(document)),
-    dupes: () => O.isSome(decodeFallowDupesRawReportOption(document)),
     "fix-preview": () => O.isSome(decodeFallowFixPreviewRawReportOption(document)),
     flags: () => O.isSome(decodeFallowFlagsRawReportOption(document)),
     health: () => O.isSome(decodeFallowHealthRawReportOption(document)),
@@ -1777,19 +1711,6 @@ const invalidRawReportFixtures: ReadonlyArray<{
     },
   },
   {
-    feature: "dupes",
-    label: "dupes malformed clone group item",
-    document: {
-      kind: "dupes",
-      schema_version: 7,
-      version: "2.89.0",
-      elapsed_ms: 1,
-      clone_groups: [{}],
-      clone_families: [],
-      stats: {},
-    },
-  },
-  {
     feature: "health",
     label: "health malformed finding item",
     document: {
@@ -2341,7 +2262,6 @@ const ciContractCheckCommand = Command.make(
 
 const fallowAuditCommand = makeFallowFeatureCommand("audit");
 const fallowDeadCodeCommand = makeFallowFeatureCommand("dead-code");
-const fallowDupesCommand = makeFallowFeatureCommand("dupes");
 const fallowHealthCommand = makeFallowFeatureCommand("health");
 const fallowBoundariesCommand = makeFallowFeatureCommand("boundaries").pipe(
   Command.withSubcommands([boundariesConfigCheckCommand])
@@ -2373,7 +2293,6 @@ export const qualityFallowCommand = Command.make("fallow", {}, () =>
   Command.withSubcommands([
     fallowAuditCommand,
     fallowDeadCodeCommand,
-    fallowDupesCommand,
     fallowHealthCommand,
     fallowBoundariesCommand,
     fallowFlagsCommand,

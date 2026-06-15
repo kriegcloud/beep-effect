@@ -3,7 +3,6 @@ import { CodexSmokeResult } from "@beep/repo-cli/test/Reuse";
 import { RepoCodegraphLookupResult, RepoCodegraphLookupTotals } from "@beep/repo-codegraph";
 import {
   FsUtilsLive,
-  ReuseCandidate,
   ReuseDiscoveryService,
   ReuseInventoryService,
   ReusePartitionPlannerService,
@@ -43,7 +42,6 @@ const CommandTestLayer = Layer.mergeAll(
 
 const decodeCodexSmokeResultJson = S.decodeUnknownSync(S.fromJsonString(CodexSmokeResult));
 const decodeRepoCodegraphLookupResultJson = S.decodeUnknownSync(S.fromJsonString(RepoCodegraphLookupResult));
-const decodeReuseCandidatesJson = S.decodeUnknownSync(S.fromJsonString(S.Array(ReuseCandidate)));
 const isString = (value: unknown): value is string => typeof value === "string";
 
 const parseLoggedJson = Effect.fn(function* <A>(decodeJson: (value: string) => A) {
@@ -404,41 +402,4 @@ describe("reuse command", () => {
     120_000
   );
 
-  it(
-    "emits advisory near-miss clusters for `clones --fuzzy --json`",
-    () =>
-      Effect.runPromise(
-        Effect.gen(function* () {
-          yield* runReuseCommand([
-            "clones",
-            "--fuzzy",
-            "--json",
-            "--scope",
-            "packages/drivers/face-detection,packages/drivers/ffmpeg",
-          ]);
-
-          const candidates = yield* parseLoggedJson(decodeReuseCandidatesJson);
-
-          expect(candidates.length).toBeGreaterThan(0);
-          expect(A.some(candidates, (candidate) => candidate.kind === "near-miss-clone")).toBe(true);
-          expect(A.some(candidates, (candidate) => candidate.sourceScopes.length >= 2)).toBe(true);
-        }).pipe(provideScopedLayer(CommandTestLayer))
-      ),
-    180_000
-  );
-
-  it(
-    "rejects `clones --fuzzy --check` because fuzzy is report-only",
-    () =>
-      Effect.runPromise(
-        runReuseCommand(["clones", "--fuzzy", "--check"]).pipe(
-          Effect.exit,
-          Effect.map((exit) => {
-            expect(Exit.isFailure(exit)).toBe(true);
-          }),
-          provideScopedLayer(CommandTestLayer)
-        )
-      ),
-    120_000
-  );
 });

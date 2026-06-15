@@ -110,14 +110,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/library/repo-utils/src/Reuse/TokenSimilarity.ts",
-      "kind": "new-map-set",
-      "reason": "Token similarity computes set intersections over token bags using native Set semantics inside a bounded scoring helper.",
-      "owner": "@beep/repo-utils",
-      "issue": "REUSE-TOKEN-SIMILARITY-NATIVE-SET"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
       "kind": "new-map-set",
       "reason": "Docgen quality aggregation uses native Set indexes to deduplicate generated documentation findings before rendering CLI output.",

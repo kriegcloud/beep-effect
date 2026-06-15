@@ -69,10 +69,13 @@ named follow-on in that exploration's MAP.
 
 ## Doctrine Risk
 
-Adding table/youtube nodes to `@beep/md` and `@beep/editor` changes a **shared
-foundation contract** consumed by other surfaces (e.g. `apps/oip-web`). Treat
-these as foundation additions with round-trip + JSON-boundary tests, and verify
-no regression in other editor consumers. Mermaid avoids this (reuses `Pre`).
+Adding table/youtube nodes to `@beep/md` (and `@beep/lexical-schema` +
+`@beep/editor`) changes a **shared foundation contract**: `@beep/md` is broadly
+consumed (agents-*, workspace-*, `@beep/repo-cli`, lexical-schema), while
+`@beep/editor` today has a single consumer (this app). Treat these as foundation
+additions with round-trip + JSON-boundary tests, and verify no regression in the
+`@beep/md`/`@beep/lexical-schema` consumers (NOT `apps/oip-web`, which imports
+none of md/lexical/editor). Mermaid avoids this (reuses `Pre`).
 
 ## Outcome
 

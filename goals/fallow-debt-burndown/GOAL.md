@@ -40,15 +40,13 @@ Workflow:
    do not add complexity suppressions as the default fix.
 6. For `security`, verify candidate reachability and existing coverage before
    suppressing or making a finding blocking.
-7. For `dupes`, prefer existing helpers/exports; accept generated-code clones
-   only through inventory.
-8. Wire repo quality checks only after the matching burn-down or inventory is
+7. Wire repo quality checks only after the matching burn-down or inventory is
    ready.
 
 Acceptance:
 
 - [ ] Packet validator passes.
-- [ ] Boundary, health, security, and dupes work queues are explicit.
+- [ ] Boundary, health, and security work queues are explicit.
 - [ ] Stop conditions preserve Knip, dry-run-only fix-preview, and deferred
       runtime/editor lanes.
 - [ ] Future checks fail only new or regressed debt, not all inherited findings.
@@ -68,4 +66,3 @@ git diff --check -- goals/fallow-debt-burndown
 Stop and report before removing Knip, running non-dry-run `fallow fix`, making
 runtime coverage blocking, adding inline Fallow suppressions as the main fix, or
 promoting a lane with unresolved false positives or doctrine gaps.
-

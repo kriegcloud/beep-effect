@@ -89,15 +89,6 @@
         "complexityFindings": 1
       }
     },
-    "fallowDupes": {
-      "command": "bunx fallow dupes --format json --quiet",
-      "exitStatus": 0,
-      "elapsedMs": 10895,
-      "cloneGroups": 989,
-      "filesWithClones": 393,
-      "duplicatedLines": 29186,
-      "duplicationPercentage": 5.46
-    },
     "fallowHealth": {
       "command": "bunx fallow health --format json --quiet",
       "elapsedMs": 90076,

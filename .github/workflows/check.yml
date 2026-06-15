@@ -339,22 +339,19 @@ jobs:
           }
 
           blocking_status=0
-          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
-            case "$lane" in
-              audit|dead-code)
-                if run_blocking_fallow "$lane"; then
-                  :
-                else
-                  status=$?
-                  if (( blocking_status == 0 )); then
-                    blocking_status=$status
-                  fi
-                fi
-                ;;
-              *)
-                run_advisory_fallow "$lane"
-                ;;
-            esac
+          for lane in audit dead-code; do
+            if run_blocking_fallow "$lane"; then
+              :
+            else
+              status=$?
+              if (( blocking_status == 0 )); then
+                blocking_status=$status
+              fi
+            fi
+          done
+
+          for lane in health boundaries flags security fix-preview; do
+            run_advisory_fallow "$lane"
           done
 
           for lane in audit dead-code; do
@@ -381,7 +378,15 @@ jobs:
             test -s ".beep/fallow/${lane}.json"
           done
 
-          for lane in audit dead-code dupes health boundaries flags security fix-preview; do
+          for lane in health boundaries flags security fix-preview; do
+            bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
+              --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
+              --expect-subcommand "$lane" \
+              --expect-report-path ".beep/fallow/${lane}.json" \
+              --require-raw-output
+          done
+
+          for lane in audit dead-code; do
             bun run beep quality fallow envelope-check ".beep/fallow/${lane}.json" \
               --require schemaVersion,status,command,exitStatus,baseRef,rawOutputRef \
               --expect-subcommand "$lane" \

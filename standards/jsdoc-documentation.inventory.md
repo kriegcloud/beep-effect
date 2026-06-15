@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-15T05:14:04.602Z
+Generated: 2026-06-15T06:24:31.351Z
 
 ## Scope
 
@@ -14,11 +14,11 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 20 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 64 |
-| publicModules | 1257 |
-| publicExports | 12639 |
+| publicModules | 1256 |
+| publicExports | 12629 |
 | openModules | 114 |
-| openExports | 1658 |
-| missingExportExamples | 1302 |
+| openExports | 1656 |
+| missingExportExamples | 1300 |
 | missingExportCategories | 62 |
 | missingExportSince | 62 |
 | forbiddenTagFindings | 7 |
@@ -57,7 +57,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 14 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
 | 15 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
 | 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 91 | 536 | 0 | 131 |
+| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 91 | 535 | 0 | 130 |
 | 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
 | 19 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 6 | 11 | 1 | 1 |
 | 20 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 23 | 0 | 15 |
@@ -107,7 +107,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 64 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
 | 65 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
 | 66 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 67 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 661 | 2 | 82 |
+| 67 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 64 | 652 | 2 | 81 |
 | 68 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
 | 69 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
 | 70 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
@@ -341,8 +341,8 @@ Export findings:
 - `src/commands/Purge/index.ts:14` `export * from "./Purge.command.js";` (re-export) - missing @example
 - `src/commands/Quality/ChangesetGraph.ts:27` `export { ChangesetGraphError } from "./Quality.errors.js";` (re-export) - missing @example
 - `src/commands/Quality/Quality.command.ts:51` `export { QualityScriptCommandError } from "./Quality.errors.js";` (re-export) - missing @example
-- `src/commands/Quality/Quality.command.ts:2528` `fullRepoExportsCatalogEscalationCommandForTesting` (const) - missing @example
-- `src/commands/Quality/Quality.command.ts:2596` `affectedRepoExportsCatalogPlanForTesting` (const) - missing @example
+- `src/commands/Quality/Quality.command.ts:2522` `fullRepoExportsCatalogEscalationCommandForTesting` (const) - missing @example
+- `src/commands/Quality/Quality.command.ts:2590` `affectedRepoExportsCatalogPlanForTesting` (const) - missing @example
 - `src/commands/Quality/index.ts:14` `export { qualityFallowCommand } from "./FallowQuality.command.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:21` `export * from "./internal/TurboConfigProof.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:28` `export {
@@ -352,16 +352,10 @@ Export findings:
   qualityCommand,
 } from "./Quality.command.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:40` `export * from "./Quality.errors.js";` (re-export) - missing @example
-- `src/commands/Reuse/Reuse.command.ts:404` `printLookupSummaryForTesting` (const) - missing @example
+- `src/commands/Reuse/Reuse.command.ts:387` `printLookupSummaryForTesting` (const) - missing @example
 - `src/commands/Reuse/Reuse.errors.ts:43` `CodexRunnerStage` (type) - missing @example
-- `src/commands/Reuse/index.ts:13` `export {
-  buildCloneDocument,
-  CloneBaselineDocument,
-  CloneBaselineEntry,
-  diffCloneBaseline,
-} from "./internal/CloneBaseline.js";` (re-export) - missing @example
-- `src/commands/Reuse/index.ts:25` `export * from "./Reuse.command.js";` (re-export) - missing @example
-- `src/commands/Reuse/index.ts:32` `export * from "./Reuse.errors.js";` (re-export) - missing @example
+- `src/commands/Reuse/index.ts:13` `export * from "./Reuse.command.js";` (re-export) - missing @example
+- `src/commands/Reuse/index.ts:20` `export * from "./Reuse.errors.js";` (re-export) - missing @example
 - `src/commands/SyncDataToTs/index.ts:13` `export * from "./SyncDataToTs.command.js";` (re-export) - missing @example
 - `src/commands/SyncDataToTs/index.ts:20` `export * from "./SyncDataToTs.errors.js";` (re-export) - missing @example
 - `src/commands/TopoSort/index.ts:14` `export * from "./TopoSort.command.js";` (re-export) - missing @example
@@ -1154,7 +1148,7 @@ Export findings:
 - `src/runtime/Layer.ts:50` `ChatHandlersLayer` (type) - missing @example
 - `src/runtime/Layer.ts:82` `RuntimeLive` (const) - missing @example
 - `src/runtime/Layer.ts:97` `RuntimeTest` (const) - missing @example
-- `src/runtime/Observability.ts:31` `ObservabilityLive` (const) - missing @example
+- `src/runtime/Observability.ts:32` `ObservabilityLive` (const) - missing @example
 - `src/runtime/Pglite.ts:168` `PgliteDrizzleLive` (const) - missing @example
 
 ### @beep/architecture-lab-use-cases
@@ -1323,7 +1317,6 @@ Export findings:
 - `src/JSDoc/models/tag-values/index.ts:532` `TagName` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Reuse/index.ts:7` `export * from "./Reuse.model.js";` (re-export) - missing @example
 - `src/Reuse/index.ts:14` `export * from "./Reuse.service.js";` (re-export) - missing @example
-- `src/Reuse/index.ts:21` `export * from "./TokenSimilarity.js";` (re-export) - missing @example
 - `src/TSMorph/TSMorph.model.ts:399` `SymbolKind` (const) - 1 schema annotation/type-alias gap(s)
 - `src/TSMorph/TSMorph.model.ts:425` `SymbolCategory` (const) - 1 schema annotation/type-alias gap(s)
 - `src/TSMorph/TSMorph.model.ts:696` `TsMorphScopeMode` (const) - 1 schema annotation/type-alias gap(s)

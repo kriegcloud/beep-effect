@@ -85,8 +85,6 @@ const REUSE_CANDIDATE_KINDS = [
   "extract-schema",
   "extract-type",
   "replace-with-existing",
-  "structural-clone",
-  "near-miss-clone",
 ] as const;
 
 /**

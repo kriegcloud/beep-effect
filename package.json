@@ -103,7 +103,6 @@
     "fallow:dead-code:json": "fallow dead-code --config .fallowrc.jsonc --format json --quiet",
     "fallow:dead-code:baseline:write": "fallow dead-code --config .fallowrc.jsonc --format json --quiet --summary --save-regression-baseline standards/fallow.dead-code.regression-baseline.jsonc",
     "fallow:audit": "fallow audit --config .fallowrc.jsonc --format json --quiet",
-    "fallow:dupes": "fallow dupes --config .fallowrc.jsonc",
     "fallow:health": "fallow health --config .fallowrc.jsonc",
     "fallow:boundaries": "bun run beep fallow boundaries",
     "fallow:boundaries:write": "bun run beep fallow boundaries --write",

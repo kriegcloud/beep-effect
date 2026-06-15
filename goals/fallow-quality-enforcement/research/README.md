@@ -7,7 +7,6 @@ Feature reports:
 
 - `audit.md`
 - `dead-code.md`
-- `dupes.md`
 - `health.md`
 - `boundaries.md`
 - `flags.md`
@@ -18,4 +17,3 @@ Feature reports:
 
 Knip parity research updates `knip-parity.jsonc` and may add supporting
 markdown when a row needs more explanation.
-

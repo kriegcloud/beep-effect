@@ -16,7 +16,6 @@
     "research/knip-parity.jsonc",
     "research/audit.md",
     "research/dead-code.md",
-    "research/dupes.md",
     "research/health.md",
     "research/boundaries.md",
     "research/flags.md",
@@ -37,7 +36,6 @@
     "history/review-rounds.schema.json",
     "standards/fallow.pilot.inventory.jsonc",
     "standards/fallow.dead-code.regression-baseline.jsonc",
-    "standards/clone.inventory.jsonc",
     "standards/fallow.boundaries.generated.jsonc",
     "standards/fallow.boundaries.provenance.jsonc",
     "standards/fallow.boundaries.provenance.schema.json"
@@ -56,9 +54,9 @@
     "bun goals/fallow-quality-enforcement/ops/validate-packet.ts",
     "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
     "bun goals/fallow-quality-enforcement/ops/validate-knip-parity-baselines.ts",
-    "bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json",
+    "bunx biome check goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json",
     "git diff --check -- goals/fallow-quality-enforcement",
-    "git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/clone.inventory.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json"
+    "git diff --check -- goals/fallow-quality-enforcement standards/fallow.pilot.inventory.jsonc standards/fallow.dead-code.regression-baseline.jsonc standards/fallow.boundaries.generated.jsonc standards/fallow.boundaries.provenance.jsonc standards/fallow.boundaries.provenance.schema.json"
   ],
   "decisions": {
     "branch": "feat/fallow-quality-enforcement",

@@ -36,30 +36,25 @@
       "rank": 2,
       "status": "done",
       "phase": "P1",
-      "title": "Reconcile dupes with clone inventory",
-      "summary": "Use standards/clone.inventory.jsonc and beep reuse clones --check as the accepted duplication authority, wire that gate into repo quality, and keep raw Fallow dupes advisory until any future report reconciliation.",
+      "title": "Retire repo-owned duplication ratchet",
+      "summary": "Remove the custom duplication ratchet now that duplication scanning is no longer a repo-cli quality gate.",
       "implementationScope": [
-        "standards/clone.inventory.jsonc",
         "packages/tooling/tool/cli/src/commands/Reuse",
         "packages/tooling/tool/cli/src/commands/Quality",
         "packages/tooling/tool/cli/test/quality-tasks.test.ts"
       ],
       "proofCommands": [
-        "bun run beep reuse clones --check",
-        "bun run beep quality fallow dupes --advisory --base origin/main --out .beep/fallow/dupes.json --quiet",
-        "bun run beep quality fallow envelope-check .beep/fallow/dupes.json --expect-subcommand dupes --require-raw-output"
+        "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts"
       ],
       "acceptanceCommands": [
-        "bun run beep reuse clones --check",
         "bun test packages/tooling/tool/cli/test/quality-tasks.test.ts",
         "bun run beep quality github-checks plan-contract-check --mode pre-push --feature-matrix goals/fallow-quality-enforcement/research/feature-matrix.jsonc --expect-promoted-fallow-lanes",
         "bun goals/fallow-advisory-ratchets/ops/validate-packet.ts"
       ],
       "dependencies": ["far-001"],
-      "rollbackPlan": "Keep Fallow dupes advisory and leave clone inventory as the only duplication ratchet.",
+      "rollbackPlan": "Restore the removed duplication ratchet only if Fallow cannot cover the desired duplication review workflow.",
       "evidenceRefs": [
-        "goals/fallow-quality-enforcement/research/dupes.md",
-        "standards/clone.inventory.jsonc"
+        "packages/tooling/tool/cli/test/quality-tasks.test.ts"
       ],
       "owner": "@beep-team",
       "riskLevel": "medium",
@@ -67,7 +62,6 @@
         "kind": "policy-inventory",
         "status": "passed",
         "evidence": [
-          "standards/clone.inventory.jsonc",
           "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
           "packages/tooling/tool/cli/test/quality-tasks.test.ts"
         ]

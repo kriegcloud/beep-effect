@@ -29,7 +29,6 @@ const $I = $RepoCliId.create("commands/Quality/internal/FallowEnvelope");
 export const FallowFeatureFamily = LiteralKit([
   "audit",
   "dead-code",
-  "dupes",
   "health",
   "boundaries",
   "flags",

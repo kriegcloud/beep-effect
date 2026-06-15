@@ -10,13 +10,30 @@ session.
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Re-validate the parity audit against current `main` + the POC (it may have drifted); confirm file paths and API surfaces. | Audit confirmed; any drift recorded in `history/`. |
-| P1 Observability & UX gaps | pending | Land the low-risk dropped affordances (DevTools, RegistryProvider, toasts, turn metrics, title derivation, Grafana dashboard). No foundation changes. | Acceptance criteria for the obs/UX bucket met; gates green. |
+| P0 Research | pending | Re-validate the parity audit against current `main` + the POC (it may have drifted); confirm file paths/API surfaces; settle the two P0 gates (repair call-shape, title path). | Audit confirmed; both P0 gates decided; drift recorded in `history/`. |
+| P1 Observability & UX gaps | pending | Land the low-risk dropped affordances (DevTools, RegistryProvider, toasts, turn metrics, title derivation, Grafana dashboard). Title derivation excepted (P0 gate 2). | Acceptance criteria for the obs/UX bucket met; gates green. |
 | P2 Block repair loop | pending | Repair invalid streamed blocks (Haiku) across driver→server→handler instead of dropping them. | Repair contract test + driver test green; repair metric/span emit. |
 | P3 Rich blocks | pending | Add mermaid (reuse `Pre`), table, and youtube blocks end-to-end (schema→lift→validate→render). | New nodes round-trip; render in streaming + viewer; no other-consumer regression. |
 | P4 Verify & close | pending | Full verification (real CI lanes + real-LLM E2E), changesets, regenerated artifacts, reflection. | `yeet verify` green before PR; closeout reflection exists. |
 
-## P1 — Observability, devtooling & UX gaps (no foundation changes)
+## P0 — Research carry-over / re-validation
+
+Input = the parity audit (`research/2026-06-15-poc-parity-audit.md`). Re-validate
+the POC vs current `main` (both may have drifted) and confirm paths before
+editing. **Two gates to settle here:**
+
+1. **Repair call shape** — does `@effect/ai-anthropic` `beta.83` decode tool_use
+   on the non-streaming `generateText` path, or does it still map
+   `caller → toolId: undefined` and fail the response Part schema (POC
+   `server/BlockRepair.ts:98-103`)? If it fails, the repair call uses the POC's
+   `streamText`-consume-whole pattern. Decide before P2.
+2. **Title-derivation path** — title derivation (P1.5) collides with the required
+   `Thread.title` (`S.NonEmptyString`, no store mutation, sidebar hardcodes
+   `"New thread"`). Pick the path before P1: a new `ThreadStore.setTitleIfEmpty`
+   mutation (+ repo + RPC + atom) is lower-risk than a nullable-title schema
+   migration (stop-listed).
+
+## P1 — Observability, devtooling & UX gaps (low-risk; title derivation excepted — see P0 gate 2)
 
 1. **Sidecar Effect DevTools** — `apps/professional-desktop/src/runtime/Observability.ts`:
    add a `DEVTOOLS`-gated layer composing `@beep/observability/server`
@@ -36,22 +53,32 @@ session.
    `streamAndPersist`: `agents_chat_turns_total`, `agents_chat_turn_failures_total`,
    `agents_chat_turn_duration` (histogram), `agents_chat_blocks_streamed_total`.
    No partial-persist metric (N/A by the locked no-partial-row contract).
-5. **Title derivation** — derive a thread title from the first user message
-   (`documentToPlainText` first line, ~64 chars), set-if-empty; touch
-   `ChatOrchestrator` + the workspace `ThreadStore`.
+5. **Title derivation** — derive a thread title from the first user message via
+   the existing `ChatOrchestrator.ts` `documentToPlainText` (first line, ~64
+   chars), set-if-empty. **Not zero-foundation (see P0 gate 2):** `Thread.title`
+   is a required `S.NonEmptyString`, `ThreadStore` has no title mutation, and the
+   sidebar passes a hardcoded `"New thread"`. Implement via the P0-chosen path —
+   a new `ThreadStore.setTitleIfEmpty` mutation + repo impls + `ChatRpcs` method
+   + atom is the lower-risk option (avoids the stop-listed schema migration).
 6. **Grafana chat dashboard** — `docker/grafana/chat-dashboard.json` +
    provisioning (turns, perceived latency, blocks, errors), mirroring the POC.
 
 ## P2 — Block validation + repair loop (driver → server → handler)
 
 - **Driver** — `packages/drivers/anthropic/src/Anthropic.repair.ts`:
-  `repairInvalidBlock(slice, { model })` via one-shot
-  `LanguageModel.generateText()` (not `streamText`), Haiku via
+  `repairInvalidBlock(slice, { model })`, Haiku via
   `AnthropicLanguageModelOptions.make({ model: "claude-haiku-4-5" })`, own
   2-attempt `ExecutionPlan`. Driver-internal `RepairError` in `Anthropic.errors.ts`.
+  **Call shape per P0 gate 1:** prefer one-shot `LanguageModel.generateText()`,
+  but if `beta.83` still fails tool_use decode on the non-streaming path (POC
+  `BlockRepair.ts:98-103`), use `streamText` and consume the whole response.
 - **Port error** — `BlockRepairFailed` in
   `packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.repair-errors.ts`,
-  exported from the `/server` subpath only.
+  exported from the `/server` subpath only. **Prerequisite:** `@beep/agents-use-cases`
+  has no `/server` subpath yet (exports: `.`, `/public`, `/proof`, `/test`) —
+  scaffold `src/server.ts` + the `package.json` export + tsconfig path first (copy
+  `architecture-lab/use-cases` or `workspace/use-cases`). `TurnGenerationError`
+  currently sits on `/public`; leave it unless it must become server-only.
 - **Server adapter** — `packages/agents/server/src/AssistantTurn/BlockRepair.ts`:
   `attemptBlockRepair(indexed)` = validate → on-fail call driver repair →
   re-validate → emit repaired / drop+log; translate `RepairError` →
@@ -59,6 +86,11 @@ session.
   span `agents.assistant_turn.block_repair`. Port the POC `IssueReport` to build
   the repair prompt context. Today invalid blocks are dropped in
   `AnthropicTurnKernel.routeBlock` — repair slots between validation and drop.
+  **Repair contract (one rule):** a block still invalid after the attempts is
+  **dropped + logged** (repair is otherwise infallible, as in the POC); only a
+  failed repair *call* becomes `RepairError` → `BlockRepairFailed`. The turn fails
+  (handler → `ChatActionError`) only on a failed repair call, never because one
+  block was unrepairable.
 - **Handler** — attach the repair tail in `ChatOrchestrator.streamAndPersist`;
   translate `BlockRepairFailed` → `ChatActionError` at the boundary.
 - The repair codec must decode the FULL `AssistantBlock` union (including the
@@ -66,11 +98,15 @@ session.
 
 ## P3 — Rich blocks (foundation-touching)
 
-- **P3a Mermaid (low)** — represent as `Pre[language="mermaid"]` (LOCKED). Server
-  validator for the mermaid source (port `MermaidValidator`: mermaid + happy-dom,
-  or a lighter parse). `@beep/editor` language-aware decorator renders the
-  diagram via the `mermaid` lib (new dep; `ArtifactRefNode` is the `DecoratorNode`
-  template). Render in `chat/ui/StreamingBlocks.tsx` + the read-only viewer.
+- **P3a Mermaid (low)** — represent as `Pre[language="mermaid"]` (LOCKED); prompt
+  the model to emit a `code` block with `language="mermaid"` (no mermaid tag
+  exists). The source validator and `CheckedMermaidBlock` filter are
+  **re-authored** against `CodeBlock` (key on `language==="mermaid"`, read
+  `block.code`) — they do NOT port from the POC's dedicated `MermaidBlock.source`;
+  the happy-dom parse logic itself (`MermaidValidator`) is reusable, only its
+  dispatch changes. Render via an `@beep/editor` language-aware decorator
+  (`mermaid` dep; `ArtifactRefNode` is the `DecoratorNode` template) for the viewer
+  AND a streaming-view branch in `chat/ui/StreamingBlocks.tsx` (see two-render note).
 - **P3b Table (high)** — new `Table`/`TableRow`/`TableCell` schema classes in
   `packages/foundation/modeling/md/src/Md.model.ts` (+ the `Block` union); lexical
   `TableNode` in `packages/foundation/modeling/lexical/src/Lexical.model.ts` +
@@ -82,9 +118,16 @@ session.
   + lift + 11-char video-id validator; render in streaming + viewer.
 - **System prompt** — re-add mermaid/table/youtube authoring guidance in the
   kernel system prompt.
-- **Codec checks** — re-add the POC's `Checked*Block` sync filters (mermaid
-  header token, table arity, youtube id) at the structured-output codec so the
-  provider rejects malformed turns mid-stream.
+- **Codec checks** — re-add the `Checked*Block` sync filters at the
+  structured-output codec so the provider rejects malformed turns mid-stream.
+  `CheckedTableBlock` (arity) and `CheckedYouTubeBlock` (11-char id) port
+  faithfully (dedicated blocks); the mermaid header check is **re-authored** onto
+  `CodeBlock[language="mermaid"]` (no dedicated mermaid block).
+- **Two render paths (all three blocks)** — `StreamingBlocks.tsx` renders raw
+  `Turn.AssistantBlock` with no Lexical/editor decode, so the `@beep/editor`
+  decorators cover only the read-only `EditorViewer`; each rich block also needs a
+  streaming-view render branch. Budget the `mermaid` dep landing in both the
+  streaming renderer and `@beep/editor`.
 
 ## P4 — Verify & close
 
@@ -115,8 +158,10 @@ Before marking the packet closed (`status` → `completed-retained` / `complete`
 ## Execution Notes
 
 - Preserve unrelated worktree changes; keep `SPEC.md` normative.
-- Foundation work (md/lexical/editor) is shared — verify other editor consumers
-  (e.g. `apps/oip-web`) still pass.
+- Foundation work (md/lexical-schema/editor) is shared — `@beep/md` is broadly
+  consumed (agents-*, workspace-*, `@beep/repo-cli`, lexical-schema); `@beep/editor`
+  today only by this app. Verify those `@beep/md`/`@beep/lexical-schema` consumers
+  still pass (NOT `apps/oip-web`, which uses none of md/lexical/editor).
 - Real-LLM verification needs an Anthropic key (env-or-`op read`); CI relies on
   the fixture agent only.
 - Phases are independently shippable; P1 can land as its own PR before P2/P3.
