@@ -28,6 +28,11 @@ const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
+const userParagraphDocument = (paragraphs: ReadonlyArray<string>): Md.Document.Type =>
+  Md.Document.make({
+    children: A.map(paragraphs, (text) => Md.P.make({ children: [Md.Text.make({ value: text })] })),
+  });
+
 // Build the chat operations + the usage Ref over the provided in-memory stack.
 const makeStack = Effect.gen(function* () {
   const store = yield* Thread.ThreadStore;
@@ -86,25 +91,35 @@ describe("@beep/professional-desktop chat contract", () => {
     }).pipe(provideScopedLayer(StackLayer))
   );
 
-  it.effect("derives a thread title from the first user line without overwriting existing titles", () =>
+  it.effect("derives a thread title from the first non-empty user line without overwriting existing titles", () =>
     Effect.gen(function* () {
       const { operations } = yield* makeStack;
       const workspaceId = decodeWorkspaceId(1);
       const longTitle = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-title-that-will-be-truncated";
 
       const trimmed = yield* operations.createThread(workspaceId, "New thread");
+      const leadingBlank = yield* operations.createThread(workspaceId, "New thread");
       const empty = yield* operations.createThread(workspaceId, "New thread");
       const truncated = yield* operations.createThread(workspaceId, "New thread");
       const existing = yield* operations.createThread(workspaceId, "Pinned title");
 
       yield* Stream.runDrain(operations.sendMessage(trimmed.id, userDocument("  Draft fee memo  \nignored")));
+      yield* Stream.runDrain(
+        operations.sendMessage(leadingBlank.id, userParagraphDocument(["   ", "Later block title"]))
+      );
       yield* Stream.runDrain(operations.sendMessage(empty.id, userDocument("  \n  ")));
       yield* Stream.runDrain(operations.sendMessage(truncated.id, userDocument(longTitle)));
       yield* Stream.runDrain(operations.sendMessage(existing.id, userDocument("Replacement title")));
 
       const titles = A.map(yield* operations.listThreads(workspaceId), (thread) => thread.title);
       expect(titles).toEqual(
-        expect.arrayContaining(["Draft fee memo", "New thread", Str.slice(0, 64)(longTitle), "Pinned title"])
+        expect.arrayContaining([
+          "Draft fee memo",
+          "Later block title",
+          "New thread",
+          Str.slice(0, 64)(longTitle),
+          "Pinned title",
+        ])
       );
       expect(titles).not.toContain("Replacement title");
     }).pipe(provideScopedLayer(StackLayer))

@@ -12,6 +12,7 @@
  *   DEVTOOLS                    true enables the Effect DevTools websocket
  *                                mirror via `@beep/observability/server`.
  *   DEVTOOLS_URL                defaults to ws://localhost:34437.
+ *   DEVTOOLS_ALLOW_REMOTE       true allows non-local DevTools websocket URLs.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -48,10 +49,22 @@ const OtlpLive: Layer.Layer<never> = Layer.unwrap(
   }).pipe(Effect.orDie)
 );
 
+const localDevToolsHostnames = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+
+const isLocalDevToolsUrl = (url: string): boolean => {
+  try {
+    return localDevToolsHostnames.has(new URL(url).hostname);
+  } catch {
+    return false;
+  }
+};
+
 /**
  * Effect DevTools websocket mirror for local sidecar debugging. Gated by
  * `DEVTOOLS=true`, using the shared observability capability so the app does
- * not hand-roll devtools protocol plumbing.
+ * not hand-roll devtools protocol plumbing. DevTools receives raw span/log
+ * payloads, so non-local websocket URLs are disabled unless explicitly opted
+ * into with `DEVTOOLS_ALLOW_REMOTE=true`.
  *
  * @category layers
  * @since 0.0.0
@@ -63,6 +76,11 @@ const DevToolsLive: Layer.Layer<never> = Layer.unwrap(
       return Layer.empty;
     }
     const url = yield* Config.string("DEVTOOLS_URL").pipe(Config.withDefault("ws://localhost:34437"));
+    const allowRemote = yield* Config.boolean("DEVTOOLS_ALLOW_REMOTE").pipe(Config.withDefault(false));
+    if (!allowRemote && !isLocalDevToolsUrl(url)) {
+      yield* Effect.logWarning("Effect DevTools disabled for non-local DEVTOOLS_URL", { url });
+      return Layer.empty;
+    }
     return layerFilteredDevTools({ url, shouldPublish: () => true });
   }).pipe(Effect.orDie)
 );

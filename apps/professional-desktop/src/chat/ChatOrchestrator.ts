@@ -118,8 +118,8 @@ const deriveThreadTitle = (document: Document.Type): O.Option<string> =>
   pipe(
     documentToPlainText(document),
     Str.split("\n"),
-    A.head,
-    O.map(Str.trim),
+    A.map(Str.trim),
+    A.findFirst(Str.isNonEmpty),
     O.filter(Str.isNonEmpty),
     O.map(Str.slice(0, DERIVED_THREAD_TITLE_MAX_CHARS)),
     O.map(Str.trim),

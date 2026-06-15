@@ -9,14 +9,17 @@
  * end-to-end, requires the sidecar.
  */
 import "@testing-library/jest-dom/vitest";
-import { turnErrorAtom } from "@beep/agents-client/Chat.atoms";
+import { ChatClient, runTurnAtom, SendTurnRequest, turnErrorAtom } from "@beep/agents-client/Chat.atoms";
 import { ChatActionError } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
+import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { toast } from "@beep/ui/components/sonner";
 import { RegistryProvider, useAtomSet, useAtomSubscribe } from "@effect/atom-react";
 import { cleanup, render, waitFor } from "@testing-library/react";
-import { Effect } from "effect";
+import { Effect, Layer, Stream } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { Reactivity } from "effect/unstable/reactivity";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChatApp } from "@/chat/ui/ChatApp";
@@ -24,6 +27,18 @@ import { ChatTurnErrorToasts } from "@/chat/ui/ChatTurnErrorToasts";
 import { MessageView } from "@/chat/ui/MessageView";
 import { StreamingBlocks } from "@/chat/ui/StreamingBlocks";
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
+
+const decodeThreadId = S.decodeUnknownSync(WorkspaceIdentity.ThreadId);
+
+const userDocument = (text: string): Md.Document.Type =>
+  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
+
+const failingChatClient = ChatClient.of(((tag: string) =>
+  tag === "SendMessage"
+    ? Stream.fail(ChatActionError.new("RPC stream failed safely"))
+    : Effect.die(new Error(`unexpected chat RPC in runTurnAtom test: ${tag}`))) as unknown as ChatClient["Service"]);
+
+const FailingChatClientLayer = Layer.mergeAll(Layer.succeed(ChatClient, failingChatClient), Reactivity.layer);
 
 vi.mock("@beep/ui/components/sonner", () => ({
   toast: {
@@ -48,6 +63,16 @@ function PushTurnError({ message }: { readonly message: string }) {
 
 function CaptureTurnError({ onValue }: { readonly onValue: (error: O.Option<ChatActionError>) => void }) {
   useAtomSubscribe(turnErrorAtom, onValue, { immediate: true });
+
+  return null;
+}
+
+function RunFailingTurn({ threadId }: { readonly threadId: WorkspaceIdentity.ThreadId }) {
+  const runTurn = useAtomSet(runTurnAtom);
+
+  useEffect(() => {
+    runTurn(SendTurnRequest.make({ threadId, content: userDocument("Trigger failure") }));
+  }, [runTurn, threadId]);
 
   return null;
 }
@@ -149,6 +174,26 @@ describe("ChatTurnErrorToasts", () => {
 
         yield* Effect.tryPromise(() =>
           waitFor(() => expect(toast.error).toHaveBeenCalledWith("Assistant stream failed safely"))
+        );
+        yield* Effect.tryPromise(() => waitFor(() => expect(O.isNone(latestTurnError)).toBe(true)));
+      })
+    ));
+
+  it("toasts a failed runTurnAtom RPC stream and clears the atom", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        let latestTurnError: O.Option<ChatActionError> = O.none();
+
+        render(
+          <RegistryProvider initialValues={[[ChatClient.runtime.layer, FailingChatClientLayer]]}>
+            <CaptureTurnError onValue={(error) => (latestTurnError = error)} />
+            <ChatTurnErrorToasts />
+            <RunFailingTurn threadId={decodeThreadId(1)} />
+          </RegistryProvider>
+        );
+
+        yield* Effect.tryPromise(() =>
+          waitFor(() => expect(toast.error).toHaveBeenCalledWith("RPC stream failed safely"))
         );
         yield* Effect.tryPromise(() => waitFor(() => expect(O.isNone(latestTurnError)).toBe(true)));
       })
