@@ -15,9 +15,8 @@ import { Turn } from "@beep/agents-domain";
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import { Document } from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { A, O, Str } from "@beep/utils";
 import { Clock, Duration, Effect, Layer, Metric, Stream } from "effect";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import { KeyValueStore } from "effect/unstable/persistence";
@@ -38,7 +37,7 @@ type TurnId = WorkspaceIdentity.TurnId;
 const SERVER_URL = ((): string => {
   if (typeof window !== "undefined") {
     const origin = window.location.origin;
-    if (origin.startsWith("http://") || origin.startsWith("https://")) {
+    if (Str.startsWith(origin,"http://") || Str.startsWith(origin, "https://")) {
       return new URL("/rpc", origin).toString();
     }
   }
@@ -425,7 +424,7 @@ export const runTurnAtom = ChatClient.runtime.fn<TurnRequest>()(
     // every workspace list, so invalidate both the timeline and the shared list
     const turnKeys = [timelineKey(turn.threadId), THREADS_KEY];
     const startedAt = yield* Clock.currentTimeMillis;
-    let blocks: ReadonlyArray<Turn.AssistantBlock> = [];
+    let blocks = A.emptyReadonly<Turn.AssistantBlock>();
     ctx.set(streamingTurnAtom, O.some({ ...turnState, blocks }));
     yield* Reactivity.mutation(
       Stream.runForEach(

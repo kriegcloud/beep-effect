@@ -915,6 +915,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/modeling/html": {
+      "name": "@beep/html",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/foundation/modeling/identity": {
       "name": "@beep/identity",
       "version": "0.1.1",
@@ -2056,6 +2067,8 @@
     "@beep/firecrawl": ["@beep/firecrawl@workspace:packages/drivers/firecrawl"],
 
     "@beep/form": ["@beep/form@workspace:packages/foundation/ui-system/form"],
+
+    "@beep/html": ["@beep/html@workspace:packages/foundation/modeling/html"],
 
     "@beep/hubspot": ["@beep/hubspot@workspace:packages/drivers/hubspot"],
 

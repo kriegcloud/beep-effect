@@ -574,3 +574,6 @@ export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => A.ensure(a
  */
 export const fromIterableNonEmpty = <const TArray>(collection: Iterable<TArray>): A.NonEmptyReadonlyArray<TArray> =>
   asNonEmptyReadonlyArray(A.fromIterable(collection));
+
+
+export const emptyReadonly = <T>(): ReadonlyArray<T> => A.empty<T>();

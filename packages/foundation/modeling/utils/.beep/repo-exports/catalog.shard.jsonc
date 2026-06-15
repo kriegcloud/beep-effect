@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a5532bfeacc83f721d441ec2ad03c8e801e98c4b1299cc2f1442e15dc43365ed",
+    "digest": "81ad0181e97469c2c59f3c317c4f8c602d941bc55f91b2fa5fb43eaefea0e8b3",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/foundation/modeling/utils/src/Array.ts",
-        "sha256": "7e71e3f4b5a007bb1e499dca91bcea69b99a7d8ea04e3ac72af4866985b8df3b",
-        "bytes": 15615
+        "sha256": "97a639e200fc03f8275faafcae22e2f0053a49f297590c82fa54aab7c4602f7b",
+        "bytes": 15686
       },
       {
         "path": "packages/foundation/modeling/utils/src/Bool.ts",
@@ -194,8 +194,8 @@
       "@beep/utils/Utils"
     ],
     "counts": {
-      "publicExportEntries": 783,
-      "uniqueSymbols": 582,
+      "publicExportEntries": 784,
+      "uniqueSymbols": 583,
       "sourceFiles": 24
     },
     "exports": [
@@ -1929,6 +1929,23 @@
           "@since"
         ],
         "searchText": "@beep/utils packages/foundation/modeling/utils @beep/utils/array ./array empty const creates an empty array. constructors node_modules/effect/dist/array.d.ts"
+      },
+      {
+        "packageName": "@beep/utils",
+        "packagePath": "packages/foundation/modeling/utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/utils/Array",
+        "exportSubpath": "./Array",
+        "exportedFromPath": "packages/foundation/modeling/utils/src/Array.ts",
+        "symbolName": "emptyReadonly",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/utils/src/Array.ts",
+        "sourceLine": 579,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/utils packages/foundation/modeling/utils @beep/utils/array ./array emptyreadonly const packages/foundation/modeling/utils/src/array.ts"
       },
       {
         "packageName": "@beep/utils",

@@ -19,7 +19,7 @@
  * @category clients
  * @since 0.0.0
  */
-export * from "./Chat.atoms.js";
+export * from "./Chat.atoms.ts";
 /**
  * Env-gated client-side OTLP observability layer wired into the atom runtime so
  * the webview's rpc calls carry span context (joined traces).
@@ -34,4 +34,4 @@ export * from "./Chat.atoms.js";
  * @category observability
  * @since 0.0.0
  */
-export * from "./ClientObservability.js";
+export * from "./ClientObservability.ts";
