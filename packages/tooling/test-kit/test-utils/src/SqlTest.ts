@@ -1153,13 +1153,15 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
  * @category constructors
  * @since 0.0.0
  */
-export const makePgliteIntegrationGate = <MigrateError = never, SeedError = never>() => {
+export const makePgliteIntegrationGate = () => {
   const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
   const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
   const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
   const pgliteIntegrationTimeoutMillis = 300_000;
 
-  const makePgliteLayer = (hooks?: SqlTestHooks<MigrateError, SeedError>) =>
+  // Generic per call so `makePgliteLayer({ migrate })` infers the hook error
+  // types (e.g. SqlError) instead of fixing them to `never` at gate creation.
+  const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
     pipe(
       sharedConnectionUri,
       O.match({

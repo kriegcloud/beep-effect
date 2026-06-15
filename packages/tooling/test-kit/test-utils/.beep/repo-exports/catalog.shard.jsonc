@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "9a36a54d4b0b02676ce8cbb2aac714cb30872233c9b1d9d58a427ec12a68b76b",
+    "digest": "89302cced78d9113c5476a67c3820e01ea6c102edcd70a5e3d88dfc34a3307aa",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sha256": "b950b78595ed11c883f305601c5da7b831cb5bb3096238dd226e0df86ac123a9",
-        "bytes": 42611
+        "sha256": "6eb0c047172eae6dca3561b019fd8d4091f02d822460485dabf5f86d61ab718b",
+        "bytes": 42768
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
@@ -198,7 +198,7 @@
         "symbolName": "makePgliteSqlTestLayer",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1204,
+        "sourceLine": 1206,
         "summary": "Build the recommended PGLite SQL test layer for vertical-slice integration tests.",
         "categories": [
           "constructors"
@@ -859,7 +859,7 @@
         "symbolName": "makePgliteSqlTestLayer",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1204,
+        "sourceLine": 1206,
         "summary": "Build the recommended PGLite SQL test layer for vertical-slice integration tests.",
         "categories": [
           "constructors"
@@ -1470,7 +1470,7 @@
         "symbolName": "makePgliteSqlTestLayer",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1204,
+        "sourceLine": 1206,
         "summary": "Build the recommended PGLite SQL test layer for vertical-slice integration tests.",
         "categories": [
           "constructors"
