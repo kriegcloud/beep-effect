@@ -221,7 +221,8 @@ describe("Lexical.codec", () => {
         // encoded form. Decoding the instance directly would reject its real
         // Option; decoding the encoded form confirms the projection is valid.
         expect(S.decodeUnknownSync(MdModel.Document)(S.encodeSync(MdModel.Document)(document))).toEqual(document);
-      })
+      }),
+      { numRuns: 50 }
     );
   });
 

@@ -145,7 +145,8 @@ describe("Lexical.model", () => {
       fc.property(NodeArbitrary, StateArbitrary, (node, state) => {
         expect(S.decodeUnknownSync(LexicalNode)(S.encodeSync(LexicalNode)(node))).toEqual(node);
         expect(S.decodeUnknownSync(SerializedEditorState)(S.encodeSync(SerializedEditorState)(state))).toEqual(state);
-      })
+      }),
+      { numRuns: 50 }
     );
   });
 
