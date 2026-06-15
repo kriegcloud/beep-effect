@@ -176,7 +176,7 @@ const OrderedListPayloadWire = S.Tuple([
   S.Unknown.pipe(S.Array, S.Array),
 ]);
 const TablePayloadWire = S.Tuple([AttrWire, S.Unknown, S.Unknown, S.Unknown, S.Unknown, S.Unknown]);
-const TableCaptionWithShortWire = S.Tuple([S.Array(S.Unknown), S.Array(S.Unknown)]);
+const TableCaptionWithShortWire = S.Tuple([S.Array(S.Unknown).pipe(S.NullOr), S.Array(S.Unknown)]);
 
 const decodeConstructor = S.decodeUnknownEffect(PandocConstructorWire);
 const decodeWire = S.decodeUnknownEffect(PandocJsonWire);
@@ -248,16 +248,26 @@ const captionInlinesFromBlocks = (blocks: ReadonlyArray<PandocBlock.Type>): Read
 const captionFromBlocksWire = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline.Type>, S.SchemaError> =>
   Effect.map(decodeBlockList(input), captionInlinesFromBlocks);
 
-const captionFromWire = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline.Type>, S.SchemaError> =>
+const captionFromLegacyWire = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline.Type>, S.SchemaError> =>
   decodeTableCaptionWithShortWire(input).pipe(
     Effect.matchEffect({
       onFailure: () => captionFromBlocksWire(input),
       onSuccess: ([shortCaptionWire, longCaptionWire]) =>
-        Effect.flatMap(decodeInlines(shortCaptionWire), (shortCaption) =>
-          Effect.map(captionFromBlocksWire(longCaptionWire), (longCaption) =>
-            shortCaption.length > 0 ? shortCaption : longCaption
-          )
+        Effect.flatMap(
+          shortCaptionWire === null ? Effect.succeed([]) : decodeInlines(shortCaptionWire),
+          (shortCaption) =>
+            Effect.map(captionFromBlocksWire(longCaptionWire), (longCaption) =>
+              shortCaption.length > 0 ? shortCaption : longCaption
+            )
         ),
+    })
+  );
+
+const captionFromWire = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline.Type>, S.SchemaError> =>
+  decodeConstructor(input).pipe(
+    Effect.matchEffect({
+      onFailure: () => captionFromLegacyWire(input),
+      onSuccess: (wire) => (wire.t === "TableCaption" ? captionFromLegacyWire(wire.c) : captionFromLegacyWire(input)),
     })
   );
 

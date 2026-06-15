@@ -92,6 +92,50 @@ describe("Pandoc.codec", () => {
       })
     ));
 
+  it("decodes Pandoc TableCaption constructor payloads", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                ["", [], []],
+                {
+                  c: [
+                    null,
+                    [
+                      {
+                        c: [{ c: "Constructor caption", t: "Str" }],
+                        t: "Plain",
+                      },
+                    ],
+                  ],
+                  t: "TableCaption",
+                },
+                [],
+                [],
+                [],
+                [],
+              ],
+              t: "Table",
+            },
+          ],
+          meta: {},
+        });
+        const table = document.blocks[0];
+
+        expect(table?._tag).toBe("table");
+        if (table?._tag !== "table") {
+          return;
+        }
+        expect(table.caption[0]?._tag).toBe("str");
+        if (table.caption[0]?._tag === "str") {
+          expect(table.caption[0].text).toBe("Constructor caption");
+        }
+      })
+    ));
+
   it("keeps unknown math and ordered-list constructor tags explicit", () =>
     Effect.runPromise(
       Effect.gen(function* () {

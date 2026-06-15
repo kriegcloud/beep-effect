@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1d9c17327577fd5a6f4df22b870a22d1ddd331d79ba3613f6e1fb844ce4aea02",
+    "digest": "2df7740464a0d765c449cca48e71ebe08a7068fd6c124f207cfa1c41e28361af",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sha256": "7ce6f6ebccd42c13b114087f1d6f115b278e19482cee3e3db20ed9590127ac6b",
-        "bytes": 21297
+        "sha256": "6e6473aa90b197e4031b089cf3e4392a792584d9eb9fe0216cf939f6b5bcea39",
+        "bytes": 21737
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sha256": "66d57fc0ba1d6a41e082deb57423e9e4995d9520139cc7663174871aac48f2a7",
-        "bytes": 29799
+        "sha256": "87ffb8e31a787b7c2c34f6bf734ebbb55101fcec6a2dfd1ed2ffbc6c6cbea6bb",
+        "bytes": 29796
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
@@ -287,7 +287,7 @@
         "symbolName": "decodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 472,
+        "sourceLine": 482,
         "summary": "Decodes a Pandoc JSON object into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -312,7 +312,7 @@
         "symbolName": "decodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 494,
+        "sourceLine": 504,
         "summary": "Decodes a Pandoc JSON string into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -506,7 +506,7 @@
         "symbolName": "encodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 513,
+        "sourceLine": 523,
         "summary": "Encodes an internal Pandoc document model to Pandoc JSON object form.",
         "categories": [
           "codecs"
@@ -531,7 +531,7 @@
         "symbolName": "encodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 538,
+        "sourceLine": 548,
         "summary": "Encodes an internal Pandoc document model to a Pandoc JSON string.",
         "categories": [
           "codecs"
@@ -2878,7 +2878,7 @@
         "symbolName": "decodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 472,
+        "sourceLine": 482,
         "summary": "Decodes a Pandoc JSON object into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -2903,7 +2903,7 @@
         "symbolName": "decodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 494,
+        "sourceLine": 504,
         "summary": "Decodes a Pandoc JSON string into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -2928,7 +2928,7 @@
         "symbolName": "encodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 513,
+        "sourceLine": 523,
         "summary": "Encodes an internal Pandoc document model to Pandoc JSON object form.",
         "categories": [
           "codecs"
@@ -2953,7 +2953,7 @@
         "symbolName": "encodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 538,
+        "sourceLine": 548,
         "summary": "Encodes an internal Pandoc document model to a Pandoc JSON string.",
         "categories": [
           "codecs"
