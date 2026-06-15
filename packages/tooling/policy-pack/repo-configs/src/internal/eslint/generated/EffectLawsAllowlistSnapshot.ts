@@ -94,22 +94,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-      "kind": "array-static",
-      "reason": "Reuse analysis materializes native Map and Set values at algorithm and reporting boundaries where JavaScript collection iteration order is the compatibility contract.",
-      "owner": "@beep/repo-utils",
-      "issue": "REUSE-ANALYSIS-NATIVE-COLLECTIONS"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-      "kind": "new-map-set",
-      "reason": "Reuse analysis uses native Map and Set indexes for token windows, duplicate grouping, and report deduplication in a bounded tooling algorithm.",
-      "owner": "@beep/repo-utils",
-      "issue": "REUSE-ANALYSIS-NATIVE-COLLECTIONS"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
       "kind": "new-map-set",
       "reason": "Docgen quality aggregation uses native Set indexes to deduplicate generated documentation findings before rendering CLI output.",

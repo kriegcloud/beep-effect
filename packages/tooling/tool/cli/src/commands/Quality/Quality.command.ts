@@ -1094,9 +1094,107 @@ const runPrePushChecks = Effect.fn("QualityScriptCommands.runPrePushChecks")(fun
   ]);
 });
 
-const reviewFixEnv = (base: string, head: string): Record<string, string | undefined> => ({
+const qualityRangeEnv = (base: string, head: string): Record<string, string | undefined> => ({
   TURBO_SCM_BASE: base,
   TURBO_SCM_HEAD: head,
+});
+
+const devQualityAffectedArgs = ["--affected", "--summarize"] as const;
+
+type DevQualityStepOptions = { readonly base: string; readonly head: string; readonly surface: boolean };
+
+/**
+ * Build the balanced local development quality steps for a repository.
+ *
+ * @param repoRoot - Repository root used as the subprocess working directory.
+ * @param options - Git range and surface-check options for the dev quality lane.
+ * @returns Planned quality task steps for the requested development profile.
+ * @example
+ * ```ts
+ * import { devQualityStepsForTesting } from "@beep/repo-cli/test/Quality"
+ * import * as A from "effect/Array"
+ * import { pipe } from "effect"
+ *
+ * const labels = pipe(
+ *   "/repo",
+ *   devQualityStepsForTesting({
+ *     base: "origin/main",
+ *     head: "HEAD",
+ *     surface: false
+ *   }),
+ *   A.map((step) => step.label)
+ * )
+ * console.log(labels)
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const devQualityStepsForTesting: {
+  (options: DevQualityStepOptions): (repoRoot: string) => ReadonlyArray<QualityTaskStep>;
+  (repoRoot: string, options: DevQualityStepOptions): ReadonlyArray<QualityTaskStep>;
+} = dual(2, (repoRoot: string, options: DevQualityStepOptions): ReadonlyArray<QualityTaskStep> => {
+  const env = qualityRangeEnv(options.base, options.head);
+  const baseSteps = [
+    QualityTaskStep.make({
+      label: "dev:lint",
+      command: "bun",
+      args: ["run", "lint", "--", ...devQualityAffectedArgs],
+      cwd: repoRoot,
+      env,
+    }),
+    QualityTaskStep.make({
+      label: "dev:check",
+      command: "bun",
+      args: ["run", "check", "--", ...devQualityAffectedArgs],
+      cwd: repoRoot,
+      env,
+    }),
+    QualityTaskStep.make({
+      label: "dev:test",
+      command: "bun",
+      args: ["run", "test", "--", "--unit", "--types", ...devQualityAffectedArgs],
+      cwd: repoRoot,
+      env,
+    }),
+  ];
+
+  if (!options.surface) {
+    return baseSteps;
+  }
+
+  return [
+    ...baseSteps,
+    QualityTaskStep.make({
+      label: "dev:docgen-local",
+      command: "bun",
+      args: ["run", "docgen:local", "--", "--base", options.base, "--head", options.head, "--parallel=3"],
+      cwd: repoRoot,
+    }),
+    QualityTaskStep.make({
+      label: "dev:repo-exports-catalog",
+      command: "bun",
+      args: [
+        "run",
+        "beep",
+        "quality",
+        "repo-exports-catalog",
+        "--affected",
+        "--check",
+        "--base",
+        options.base,
+        "--head",
+        options.head,
+      ],
+      cwd: repoRoot,
+    }),
+  ];
+});
+
+const runDevQuality = Effect.fn("QualityScriptCommands.runDevQuality")(function* (
+  repoRoot: string,
+  options: { readonly base: string; readonly head: string; readonly surface: boolean }
+): Effect.fn.Return<void, QualityTaskConfigurationError | QualityTaskGroupFailed, QualityScriptEnvironment> {
+  yield* runQualityTaskStreamingStepGroup("quality:dev", devQualityStepsForTesting(repoRoot, options));
 });
 
 /**
@@ -1131,7 +1229,7 @@ const runReviewFix = Effect.fn("QualityScriptCommands.runReviewFix")(function* (
 ): Effect.fn.Return<void, QualityScriptCommandError, QualityScriptEnvironment> {
   const base = options.base ?? "origin/main";
   const head = options.head ?? "HEAD";
-  const env = reviewFixEnv(base, head);
+  const env = qualityRangeEnv(base, head);
 
   yield* Console.log(`[github-checks] review-fix: affected build/check/lint/test for ${base}...${head}`);
   yield* runBunWithEnv(repoRoot, "review-fix:build", ["build", "--", "--affected", "--summarize"], env);
@@ -2727,6 +2825,30 @@ const githubChecksCommandWithSubcommands = githubChecksCommand.pipe(
   Command.withSubcommands([githubChecksPlanContractCheckCommand])
 );
 
+const devQualityCommand = Command.make(
+  "dev",
+  {
+    base: Flag.string("base").pipe(
+      Flag.withDefault("origin/main"),
+      Flag.withDescription("Base git ref for the local development quality range")
+    ),
+    head: Flag.string("head").pipe(
+      Flag.withDefault("HEAD"),
+      Flag.withDescription("Head git ref for the local development quality range")
+    ),
+    surface: Flag.boolean("surface").pipe(
+      Flag.withDescription("Also run affected docgen and repo-export checks for public surface edits")
+    ),
+  },
+  ({ base, head, surface }) =>
+    runQualityProgram(
+      findRepoRoot().pipe(
+        QualityScriptCommandError.mapError("Failed to locate repository root."),
+        Effect.flatMap((repoRoot) => runDevQuality(repoRoot, { base, head, surface }))
+      )
+    )
+).pipe(Command.withDescription("Run balanced affected local development quality checks"));
+
 const bunAuditCommand = Command.make("bun-audit", {}, () =>
   runQualityProgram(
     findRepoRoot().pipe(
@@ -2939,6 +3061,8 @@ const qualityProfileCommand = Command.make("profile", {}, () =>
 export const qualityCommand = Command.make("quality", {}, () =>
   printLines([
     "Quality commands:",
+    "- bun run beep quality dev",
+    "- bun run beep quality dev --surface",
     "- bun run beep quality github-checks quality",
     "- bun run beep quality github-checks repo-sanity",
     "- bun run beep quality github-checks plan-contract-check --mode pre-push --expect-promoted-fallow-lanes",
@@ -2960,6 +3084,7 @@ export const qualityCommand = Command.make("quality", {}, () =>
 ).pipe(
   Command.withDescription("Repository operational quality commands"),
   Command.withSubcommands([
+    devQualityCommand,
     githubChecksCommandWithSubcommands,
     bunAuditCommand,
     dtslintTsgoCommand,

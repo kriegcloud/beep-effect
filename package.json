@@ -85,6 +85,7 @@
     "files": "bun run beep files",
     "image": "bun run beep image",
     "images": "bun run beep image",
+    "quality:dev": "bun run beep quality dev",
     "config-sync": "bun run beep tsconfig-sync",
     "config-sync:check": "bun run beep tsconfig-sync --check",
     "version-sync": "bun run beep version-sync",

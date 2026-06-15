@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "58745f6fb0a806b474720ae953df12922f78987caf4490b7bf10c13cbb97058e",
+    "digest": "e247bc0c61c1d9fd2f4462aaca879a629f60b351d43b7e29147222bb83254742",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -77,8 +77,8 @@
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
-        "sha256": "dad8f367ff79a6047a1e5e61b3cd24550ffa237953c4ec014bf3d8e3eac35991",
-        "bytes": 9818
+        "sha256": "d65f0cc3a195e239cc83e071aeeddf97a5e0899a50617fd7007b4bf5e3dd5b0e",
+        "bytes": 8963
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",

@@ -80,12 +80,7 @@ export const ReuseWorkUnitKind = LiteralKit(["scout", "specialist"]).pipe(
  */
 export type ReuseWorkUnitKind = typeof ReuseWorkUnitKind.Type;
 
-const REUSE_CANDIDATE_KINDS = [
-  "extract-function",
-  "extract-schema",
-  "extract-type",
-  "replace-with-existing",
-] as const;
+const REUSE_CANDIDATE_KINDS = ["extract-function", "extract-schema", "extract-type", "replace-with-existing"] as const;
 
 /**
  * Candidate kind domain for inventory items.

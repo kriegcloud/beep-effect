@@ -1200,7 +1200,13 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),
   repoCliStep(repoRoot, "lint:circular", ["lint", "circular"]),
   repoCliStep(repoRoot, "lint:tooling-tagged-errors", ["lint", "tooling-tagged-errors"]),
-  repoCliStep(repoRoot, "lint:clones", ["reuse", "clones", "--check"]),
+  repoCliStep(repoRoot, "lint:reuse-inventory", [
+    "reuse",
+    "inventory",
+    "--scope",
+    "packages/tooling/tool/cli,packages/tooling/library/repo-utils",
+    "--json",
+  ]),
   bunxStep(repoRoot, "lint:typos", ["typos"]),
 ];
 

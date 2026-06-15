@@ -401,5 +401,4 @@ describe("reuse command", () => {
       ),
     120_000
   );
-
 });

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c4f3d4820c9dcc893d83dd81a74ec86272ec7b7ea70f3a1a0380c275702b63a7",
+    "digest": "272a3a2bd45d1cda9715eaea2193ca2cf230e96f6a53293441a433fcdeeb9ee8",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -237,12 +237,12 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sha256": "861f0bff343423ab6cb5e3fd316ef7d113b7b27f8bdd4a703c67c0e1ae15a86b",
-        "bytes": 12383
+        "sha256": "baa081b2bfc60160e2ed605143602a9de319924611947f5d4761f0dc9171c425",
+        "bytes": 12372
       },
       {
         "path": "packages/tooling/library/repo-utils/src/Reuse/Reuse.service.ts",
-        "sha256": "c2b7f644b31c8a4ffb727a8d4fe2406b9f911b1016df35d70fb5ad9887ed4967",
+        "sha256": "07bbe0dc52f6a35d67a796a1826c61fd3c93b1af94de07ed274bcebabc24b838",
         "bytes": 52522
       },
       {
@@ -2483,7 +2483,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 288,
+        "sourceLine": 283,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -2508,7 +2508,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 102,
+        "sourceLine": 97,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -2533,7 +2533,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 120,
+        "sourceLine": 115,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -2583,7 +2583,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 175,
+        "sourceLine": 170,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -2758,7 +2758,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 405,
+        "sourceLine": 400,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -2783,7 +2783,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 331,
+        "sourceLine": 326,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -2858,7 +2858,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 375,
+        "sourceLine": 370,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -2883,7 +2883,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 243,
+        "sourceLine": 238,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -2983,7 +2983,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 139,
+        "sourceLine": 134,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -3008,7 +3008,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 211,
+        "sourceLine": 206,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -7649,7 +7649,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 288,
+        "sourceLine": 283,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -7674,7 +7674,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 102,
+        "sourceLine": 97,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -7699,7 +7699,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 120,
+        "sourceLine": 115,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -7749,7 +7749,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 175,
+        "sourceLine": 170,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -7924,7 +7924,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 405,
+        "sourceLine": 400,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -7949,7 +7949,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 331,
+        "sourceLine": 326,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -8024,7 +8024,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 375,
+        "sourceLine": 370,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -8049,7 +8049,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 243,
+        "sourceLine": 238,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -8149,7 +8149,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 139,
+        "sourceLine": 134,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -8174,7 +8174,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 211,
+        "sourceLine": 206,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -31112,7 +31112,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 288,
+        "sourceLine": 283,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -31137,7 +31137,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 102,
+        "sourceLine": 97,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -31162,7 +31162,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 120,
+        "sourceLine": 115,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -31212,7 +31212,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 175,
+        "sourceLine": 170,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -31387,7 +31387,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 405,
+        "sourceLine": 400,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -31412,7 +31412,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 331,
+        "sourceLine": 326,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -31487,7 +31487,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 375,
+        "sourceLine": 370,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -31512,7 +31512,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 243,
+        "sourceLine": 238,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -31612,7 +31612,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 139,
+        "sourceLine": 134,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -31637,7 +31637,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 211,
+        "sourceLine": 206,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"
@@ -31712,7 +31712,7 @@
         "symbolName": "ReuseCandidate",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 288,
+        "sourceLine": 283,
         "summary": "Ranked reuse candidate inventory item.",
         "categories": [
           "models"
@@ -31737,7 +31737,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 102,
+        "sourceLine": 97,
         "summary": "Candidate kind domain for inventory items.",
         "categories": [
           "models"
@@ -31762,7 +31762,7 @@
         "symbolName": "ReuseCandidateKind",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 120,
+        "sourceLine": 115,
         "summary": "Runtime type for `ReuseCandidateKind`.",
         "categories": [
           "models"
@@ -31787,7 +31787,7 @@
         "symbolName": "ReuseCatalogEntry",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 175,
+        "sourceLine": 170,
         "summary": "Catalog entry describing an existing reusable symbol or curated pattern.",
         "categories": [
           "models"
@@ -31862,7 +31862,7 @@
         "symbolName": "ReuseFindResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 405,
+        "sourceLine": 400,
         "summary": "Results for local-file reuse lookups.",
         "categories": [
           "models"
@@ -31887,7 +31887,7 @@
         "symbolName": "ReuseInventory",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 331,
+        "sourceLine": 326,
         "summary": "Inventory payload produced for a requested scope.",
         "categories": [
           "models"
@@ -31912,7 +31912,7 @@
         "symbolName": "ReusePacket",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 375,
+        "sourceLine": 370,
         "summary": "Materialized implementation packet for one reuse candidate.",
         "categories": [
           "models"
@@ -31937,7 +31937,7 @@
         "symbolName": "ReusePartitionPlan",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 243,
+        "sourceLine": 238,
         "summary": "Partition plan covering scout and specialist work units for a selected scope.",
         "categories": [
           "models"
@@ -31962,7 +31962,7 @@
         "symbolName": "ReuseSourceSymbolRef",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 139,
+        "sourceLine": 134,
         "summary": "File-local source symbol reference tied to a reuse opportunity.",
         "categories": [
           "models"
@@ -31987,7 +31987,7 @@
         "symbolName": "ReuseWorkUnit",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/Reuse/Reuse.model.ts",
-        "sourceLine": 211,
+        "sourceLine": 206,
         "summary": "Partition work unit emitted for package scouts or hotspot specialists.",
         "categories": [
           "models"

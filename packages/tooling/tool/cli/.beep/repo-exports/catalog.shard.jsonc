@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3c5a969f70b4da778324eaaf68329528b7d4a2bc3248921189a358149886761b",
+    "digest": "848b4f3049a3bd69c5b3644a0cb7a6a558a87d22c4bac0cec54eca67f1ecb515",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -517,8 +517,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "0a9ef614cdda7dd8c7785c950bd257cb2b8808a204e597821ce30ee031c8be43",
-        "bytes": 104924
+        "sha256": "0e25fff79050f18d86d8bdbc82d29e62a20da7576ae3db140ef498e36d7afe6e",
+        "bytes": 108866
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -527,8 +527,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sha256": "89896567c9980c195208db196cae9f526cd3db9f5526c30d9c79c1796975ed24",
-        "bytes": 56678
+        "sha256": "47768f2ac8869ab04312008876ed99517401b270d6d9ace4171735c286cbc8a1",
+        "bytes": 56790
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
@@ -1019,8 +1019,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 2083,
-      "uniqueSymbols": 788,
+      "publicExportEntries": 2085,
+      "uniqueSymbols": 789,
       "sourceFiles": 162
     },
     "exports": [
@@ -1409,7 +1409,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2939,
+        "sourceLine": 3061,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -32073,7 +32073,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2939,
+        "sourceLine": 3061,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -32950,7 +32950,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2939,
+        "sourceLine": 3061,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -33575,7 +33575,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2590,
+        "sourceLine": 2688,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -33601,7 +33601,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1746,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -33652,10 +33652,37 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "devQualityStepsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 1132,
+        "summary": "Build the balanced local development quality steps for a repository.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command devqualitystepsfortesting const build the balanced local development quality steps for a repository. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2522,
+        "sourceLine": 2620,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -33993,7 +34020,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2939,
+        "sourceLine": 3061,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -34170,7 +34197,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1117,
+        "sourceLine": 1215,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -34224,7 +34251,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1985,
+        "sourceLine": 2083,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -34251,7 +34278,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1340,
+        "sourceLine": 1438,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -34278,7 +34305,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2305,
+        "sourceLine": 2403,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -34304,7 +34331,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2228,
+        "sourceLine": 2326,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -34330,7 +34357,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2422,
+        "sourceLine": 2520,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -34355,7 +34382,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2340,
+        "sourceLine": 2438,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -34382,7 +34409,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2031,
+        "sourceLine": 2129,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -34409,7 +34436,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1794,
+        "sourceLine": 1892,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -34435,7 +34462,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2225,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -34611,7 +34638,7 @@
         "symbolName": "collectLintFixChangedFilesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1655,
+        "sourceLine": 1661,
         "summary": "Collect existing changed files for the root lint fix fast path.",
         "categories": [
           "utilities"
@@ -34637,7 +34664,7 @@
         "symbolName": "collectStepOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1576,
+        "sourceLine": 1582,
         "summary": "Run a subprocess and capture all output. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -34664,7 +34691,7 @@
         "symbolName": "lintFixChangedStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1670,
+        "sourceLine": 1676,
         "summary": "Build the root lint fix changed-file step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -34715,7 +34742,7 @@
         "symbolName": "parseQualityTaskInvocation",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1470,
+        "sourceLine": 1476,
         "summary": "Parse a raw argv vector into a quality task invocation when the first token is",
         "categories": [
           "utilities"
@@ -34917,7 +34944,7 @@
         "symbolName": "rootLintPolicyStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1221,
+        "sourceLine": 1227,
         "summary": "Build the repo-wide root lint policy subprocess steps.",
         "categories": [
           "utilities"
@@ -34944,7 +34971,7 @@
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1345,
+        "sourceLine": 1351,
         "summary": "Build root quality task subprocess steps. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -34971,7 +34998,7 @@
         "symbolName": "runQualityTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1514,
+        "sourceLine": 1520,
         "summary": "Run a parsed quality task in either repo-root or package-local mode.",
         "categories": [
           "use-cases"
@@ -34997,7 +35024,7 @@
         "symbolName": "runQualityTaskIfRequested",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1544,
+        "sourceLine": 1550,
         "summary": "Run a quality task directly from a raw argv vector.",
         "categories": [
           "use-cases"
@@ -35024,7 +35051,7 @@
         "symbolName": "runQualityTaskStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1593,
+        "sourceLine": 1599,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "use-cases"
@@ -35050,7 +35077,7 @@
         "symbolName": "runQualityTaskStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1625,
+        "sourceLine": 1631,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "testing"
@@ -35076,7 +35103,7 @@
         "symbolName": "runQualityTaskStreamingStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1609,
+        "sourceLine": 1615,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "use-cases"
@@ -35102,7 +35129,7 @@
         "symbolName": "runQualityTaskStreamingStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1641,
+        "sourceLine": 1647,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "testing"
@@ -35128,7 +35155,7 @@
         "symbolName": "runRootLintPolicyTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1236,
+        "sourceLine": 1242,
         "summary": "Run the repo-wide root lint policy checks without the aggregate Turbo lint lane.",
         "categories": [
           "use-cases"
@@ -45781,7 +45808,7 @@
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2590,
+        "sourceLine": 2688,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -45955,7 +45982,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1746,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -45982,7 +46009,7 @@
         "symbolName": "collectLintFixChangedFilesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1655,
+        "sourceLine": 1661,
         "summary": "Collect existing changed files for the root lint fix fast path.",
         "categories": [
           "utilities"
@@ -46033,7 +46060,7 @@
         "symbolName": "collectStepOutput",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1576,
+        "sourceLine": 1582,
         "summary": "Run a subprocess and capture all output. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -46076,6 +46103,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality detectqualityprofilefortesting const detect the quality hardware profile from host facts. configuration packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "devQualityStepsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 1132,
+        "summary": "Build the balanced local development quality steps for a repository.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality devqualitystepsfortesting const build the balanced local development quality steps for a repository. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -46590,7 +46644,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2522,
+        "sourceLine": 2620,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -46949,7 +47003,7 @@
         "symbolName": "lintFixChangedStepForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1670,
+        "sourceLine": 1676,
         "summary": "Build the root lint fix changed-file step. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -47200,7 +47254,7 @@
         "symbolName": "parseQualityTaskInvocation",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1470,
+        "sourceLine": 1476,
         "summary": "Parse a raw argv vector into a quality task invocation when the first token is",
         "categories": [
           "utilities"
@@ -47279,7 +47333,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2939,
+        "sourceLine": 3061,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -47783,7 +47837,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1117,
+        "sourceLine": 1215,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -47810,7 +47864,7 @@
         "symbolName": "rootLintPolicyStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1221,
+        "sourceLine": 1227,
         "summary": "Build the repo-wide root lint policy subprocess steps.",
         "categories": [
           "utilities"
@@ -47837,7 +47891,7 @@
         "symbolName": "rootQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1345,
+        "sourceLine": 1351,
         "summary": "Build root quality task subprocess steps. Exposed for focused unit tests.",
         "categories": [
           "utilities"
@@ -47916,7 +47970,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1985,
+        "sourceLine": 2083,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -47943,7 +47997,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1340,
+        "sourceLine": 1438,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -47970,7 +48024,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2305,
+        "sourceLine": 2403,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -47996,7 +48050,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2228,
+        "sourceLine": 2326,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -48022,7 +48076,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2422,
+        "sourceLine": 2520,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -48097,7 +48151,7 @@
         "symbolName": "runQualityTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1514,
+        "sourceLine": 1520,
         "summary": "Run a parsed quality task in either repo-root or package-local mode.",
         "categories": [
           "use-cases"
@@ -48123,7 +48177,7 @@
         "symbolName": "runQualityTaskIfRequested",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1544,
+        "sourceLine": 1550,
         "summary": "Run a quality task directly from a raw argv vector.",
         "categories": [
           "use-cases"
@@ -48150,7 +48204,7 @@
         "symbolName": "runQualityTaskStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1593,
+        "sourceLine": 1599,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "use-cases"
@@ -48176,7 +48230,7 @@
         "symbolName": "runQualityTaskStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1625,
+        "sourceLine": 1631,
         "summary": "Run a bounded quality task group. Exposed for focused unit tests.",
         "categories": [
           "testing"
@@ -48202,7 +48256,7 @@
         "symbolName": "runQualityTaskStreamingStepGroup",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1609,
+        "sourceLine": 1615,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "use-cases"
@@ -48228,7 +48282,7 @@
         "symbolName": "runQualityTaskStreamingStepGroupForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1641,
+        "sourceLine": 1647,
         "summary": "Run independent quality task subprocess steps sequentially while streaming",
         "categories": [
           "testing"
@@ -48254,7 +48308,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2340,
+        "sourceLine": 2438,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -48281,7 +48335,7 @@
         "symbolName": "runRootLintPolicyTask",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sourceLine": 1236,
+        "sourceLine": 1242,
         "summary": "Run the repo-wide root lint policy checks without the aggregate Turbo lint lane.",
         "categories": [
           "use-cases"
@@ -48331,7 +48385,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2031,
+        "sourceLine": 2129,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -48358,7 +48412,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1794,
+        "sourceLine": 1892,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -48384,7 +48438,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2127,
+        "sourceLine": 2225,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"

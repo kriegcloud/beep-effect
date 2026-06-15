@@ -2082,16 +2082,6 @@
       "reason": "Exception: CLI docgen command-behavior test; Schema codecs are incidental JSON-boundary plumbing for synthetic package.json/docgen.json/tsconfig fixtures and CLI report output, not a domain schema law."
     },
     {
-      "file": "packages/tooling/tool/cli/test/reuse-command.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "exception",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 44,
-      "owner": "@beep/repo-cli",
-      "reason": "Exception: CLI reuse command-behavior test; Schema codecs only decode machine-readable JSON output as a boundary, not schema-value laws."
-    },
-    {
       "file": "packages/tooling/tool/cli/test/tsconfig-sync.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",

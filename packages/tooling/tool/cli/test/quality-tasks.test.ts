@@ -3,6 +3,7 @@ import {
   affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
   detectQualityProfileForTesting,
+  devQualityStepsForTesting,
   FallowReportFinding,
   fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
@@ -312,6 +313,86 @@ describe("quality task adapter", () => {
       "--parallel=3",
       "--full",
     ]);
+  });
+
+  it("builds balanced affected local development quality steps by default", () => {
+    const steps = devQualityStepsForTesting("/repo", {
+      base: "origin/main",
+      head: "HEAD",
+      surface: false,
+    });
+
+    expect(A.map(steps, (step) => step.label)).toEqual(["dev:lint", "dev:check", "dev:test"]);
+    expect(steps[0]).toMatchObject({
+      command: "bun",
+      args: ["run", "lint", "--", "--affected", "--summarize"],
+      cwd: "/repo",
+      env: {
+        TURBO_SCM_BASE: "origin/main",
+        TURBO_SCM_HEAD: "HEAD",
+      },
+    });
+    expect(steps[1]?.args).toEqual(["run", "check", "--", "--affected", "--summarize"]);
+    expect(steps[2]?.args).toEqual(["run", "test", "--", "--unit", "--types", "--affected", "--summarize"]);
+    expect(
+      A.some(
+        A.map(steps, (step) => step.label),
+        (label) =>
+          A.some(
+            [
+              "build",
+              "integration",
+              "docgen",
+              "repo-exports",
+              "repo-sanity",
+              "audit",
+              "nix",
+              "sast",
+              "coverage",
+              "storybook",
+              "fallow",
+            ],
+            (fragment) => Str.includes(fragment)(label)
+          )
+      )
+    ).toBe(false);
+  });
+
+  it("adds surface-only docgen and repo-export checks when requested", () => {
+    const steps = devQualityStepsForTesting("/repo", {
+      base: "main",
+      head: "feature",
+      surface: true,
+    });
+
+    expect(A.map(steps, (step) => step.label)).toEqual([
+      "dev:lint",
+      "dev:check",
+      "dev:test",
+      "dev:docgen-local",
+      "dev:repo-exports-catalog",
+    ]);
+    expect(steps[3]).toMatchObject({
+      command: "bun",
+      args: ["run", "docgen:local", "--", "--base", "main", "--head", "feature", "--parallel=3"],
+      cwd: "/repo",
+    });
+    expect(steps[4]).toMatchObject({
+      command: "bun",
+      args: [
+        "run",
+        "beep",
+        "quality",
+        "repo-exports-catalog",
+        "--affected",
+        "--check",
+        "--base",
+        "main",
+        "--head",
+        "feature",
+      ],
+      cwd: "/repo",
+    });
   });
 
   it("maps repo-quality github checks as independent collector lanes", () => {
@@ -689,7 +770,7 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
-      "lint:clones",
+      "lint:reuse-inventory",
       "lint:typos",
     ]);
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
@@ -717,10 +798,19 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
-      "lint:clones",
+      "lint:reuse-inventory",
       "lint:typos",
     ]);
     expect(steps.find((step) => step.label === "lint:jsdoc")?.args).toEqual(["eslint", ".", "--max-warnings=0"]);
+    expect(steps.find((step) => step.label === "lint:reuse-inventory")?.args).toEqual([
+      "run",
+      "beep",
+      "reuse",
+      "inventory",
+      "--scope",
+      "packages/tooling/tool/cli,packages/tooling/library/repo-utils",
+      "--json",
+    ]);
   });
 
   it("applies Biome lint fixes in the changed-file lint fix fast path", () => {

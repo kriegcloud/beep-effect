@@ -92,6 +92,10 @@
       ]
     },
     "test": {
+      "passThroughEnv": [
+        "GITHUB_STEP_SUMMARY",
+        "BEEP_CREATE_PACKAGE_BUN_ARGS_FILE"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/tsconfig.json",
