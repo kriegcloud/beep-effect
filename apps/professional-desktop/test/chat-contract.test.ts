@@ -17,6 +17,7 @@ import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
 import { Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
@@ -46,6 +47,11 @@ const messageItems = (timeline: Thread.ThreadTimeline): ReadonlyArray<MessageIte
       (item): ReadonlyArray<MessageItem> =>
         item.kind === "message" ? [{ role: item.role, content: item.content }] : []
     )
+  );
+
+const userTurns = (timeline: Thread.ThreadTimeline): ReadonlyArray<Thread.TimelineTurn> =>
+  A.filter(timeline.turns, (turn) =>
+    A.some(turn.items, (item) => item.kind === "message" && item.role === "user")
   );
 
 describe("@beep/professional-desktop chat contract", () => {
@@ -139,15 +145,31 @@ describe("@beep/professional-desktop chat contract", () => {
 
       yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("  \n  ")));
       const timeline = yield* operations.getTimeline(thread.id);
-      const firstUserTurn = timeline.turns.find((turn) =>
-        turn.items.some((item) => item.kind === "message" && item.role === "user")
-      );
+      const firstUserTurn = O.getOrThrow(A.head(userTurns(timeline)));
 
-      expect(firstUserTurn).toBeDefined();
-      yield* Stream.runDrain(operations.editMessage(thread.id, firstUserTurn!.turnId, userDocument("Edited title")));
+      yield* Stream.runDrain(operations.editMessage(thread.id, firstUserTurn.turnId, userDocument("Edited title")));
 
       const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
       expect(titles).toContain("Edited title");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("does not derive a thread title when editing a later user turn", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("  \n  ")));
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument(" \t ")));
+      const timeline = yield* operations.getTimeline(thread.id);
+      const laterUserTurn = O.getOrThrow(A.get(userTurns(timeline), 1));
+
+      yield* Stream.runDrain(operations.editMessage(thread.id, laterUserTurn.turnId, userDocument("Later edited title")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
+      expect(titles).toContain("New thread");
+      expect(titles).not.toContain("Later edited title");
     }).pipe(provideScopedLayer(StackLayer))
   );
 
