@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-15T11:30:20.769Z
+Generated: 2026-06-15T11:50:41.631Z
 
 ## Scope
 
@@ -14,11 +14,11 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 19 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 62 |
-| publicModules | 1225 |
-| publicExports | 12342 |
+| publicModules | 1226 |
+| publicExports | 12347 |
 | openModules | 114 |
-| openExports | 1575 |
-| missingExportExamples | 1242 |
+| openExports | 1576 |
+| missingExportExamples | 1243 |
 | missingExportCategories | 62 |
 | missingExportSince | 62 |
 | forbiddenTagFindings | 7 |
@@ -46,7 +46,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
-| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 10 | 29 | 0 | 2 |
+| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 11 | 31 | 0 | 2 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
 | 8 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 9 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
@@ -68,7 +68,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 25 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 87 | 0 | 24 |
 | 26 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
 | 27 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 20 | 63 | 0 | 12 |
+| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 20 | 66 | 0 | 13 |
 | 29 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
 | 30 | `@beep/workspace-server` | `packages/workspace/server` | needs-remediation | 6 | 14 | 0 | 4 |
 | 31 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
@@ -145,8 +145,8 @@ Export findings:
 Path: `packages/agents/domain`
 
 Export findings:
-- `src/turn/AssistantContent.ts:114` `InlineNode` (type) - missing @example
-- `src/turn/AssistantContent.ts:303` `AssistantBlock` (type) - missing @example
+- `src/values/AssistantContent/AssistantContent.model.ts:114` `InlineNode` (type) - missing @example
+- `src/values/AssistantContent/AssistantContent.model.ts:303` `AssistantBlock` (type) - missing @example
 
 ### @beep/architecture-lab-ui
 
@@ -690,6 +690,7 @@ Export findings:
 Path: `packages/agents/use-cases`
 
 Export findings:
+- `src/processes/AssistantTurn/AssistantTurn.contracts.ts:91` `TurnHistoryItem` (type) - missing @example
 - `src/processes/AssistantTurn/AssistantTurn.kernel.ts:35` `AgentTurnKernelShape` (interface) - 1 unsafe example violation(s)
 - `src/processes/Chat/Chat.rpc.ts:35` `ListThreadsRpc` (const) - 2 schema annotation/type-alias gap(s)
 - `src/processes/Chat/Chat.rpc.ts:54` `CreateThreadRpc` (const) - 2 schema annotation/type-alias gap(s)
@@ -1036,8 +1037,8 @@ Export findings:
 Path: `apps/professional-desktop`
 
 Export findings:
-- `src/chat/ChatOrchestrator.ts:92` `documentToPlainText` (const) - missing @example
-- `src/chat/ChatOrchestrator.ts:253` `makeChatOperations` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:99` `documentToPlainText` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:259` `makeChatOperations` (const) - missing @example
 - `src/chat/UsageRecordSink.ts:27` `UsageRecordSinkShape` (interface) - missing @example
 - `src/chat/UsageRecordSink.ts:38` `UsageRecordSink` (class) - missing @example
 - `src/chat/UsageRecordSink.ts:51` `makeInMemoryUsageRecordSink` (const) - missing @example

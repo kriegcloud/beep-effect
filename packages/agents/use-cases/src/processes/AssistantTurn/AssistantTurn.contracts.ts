@@ -7,7 +7,7 @@
 
 import { $AgentsUseCasesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import type { Turn } from "@beep/agents-domain";
+import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
 const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.contracts");
 
@@ -17,24 +17,78 @@ const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.contr
  *
  * @example
  * ```ts
- * import { TurnHistoryItem } from "@beep/agents-use-cases/public"
+ * import { UserTurnHistoryItem } from "@beep/agents-use-cases/public"
  *
- * const item = TurnHistoryItem.make({ role: "user", text: "Hello" })
+ * const item = UserTurnHistoryItem.make({ text: "Hello" })
  * console.log(item.role)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class TurnHistoryItem extends S.Class<TurnHistoryItem>($I`TurnHistoryItem`)(
+export class UserTurnHistoryItem extends S.Class<UserTurnHistoryItem>($I`UserTurnHistoryItem`)(
   {
-    role: S.Literals(["user", "assistant"]),
+    role: S.tag("user"),
     text: S.String,
   },
-  $I.annote("TurnHistoryItem", {
-    description: "Plain-text prompt projection of a thread item consumed by the turn kernel.",
+  $I.annote("UserTurnHistoryItem", {
+    description: "Plain-text prompt projection of a user thread item consumed by the turn kernel.",
   })
 ) {}
+
+/**
+ * The plain-text prompt projection of a single assistant-authored thread item.
+ *
+ * @example
+ * ```ts
+ * import { AssistantTurnHistoryItem } from "@beep/agents-use-cases/public"
+ *
+ * const item = AssistantTurnHistoryItem.make({ text: "Hello" })
+ * console.log(item.role)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class AssistantTurnHistoryItem extends S.Class<AssistantTurnHistoryItem>($I`AssistantTurnHistoryItem`)(
+  {
+    role: S.tag("assistant"),
+    text: S.String,
+  },
+  $I.annote("AssistantTurnHistoryItem", {
+    description: "Plain-text prompt projection of an assistant thread item consumed by the turn kernel.",
+  })
+) {}
+
+/**
+ * Plain-text prompt projection of a thread item consumed by the turn kernel.
+ *
+ * @example
+ * ```ts
+ * import { TurnHistoryItem } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
+ *
+ * const item = S.decodeUnknownSync(TurnHistoryItem)({ role: "user", text: "Hello" })
+ * console.log(item.role)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const TurnHistoryItem = S.Union([UserTurnHistoryItem, AssistantTurnHistoryItem]).pipe(
+  S.toTaggedUnion("role"),
+  $I.annoteSchema("TurnHistoryItem", {
+    description: "Plain-text prompt projection of a thread item consumed by the turn kernel.",
+  })
+);
+
+/**
+ * Runtime type for {@link TurnHistoryItem}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TurnHistoryItem = typeof TurnHistoryItem.Type;
 
 /**
  * A single assistant block paired with its position in the generated turn.
@@ -44,10 +98,10 @@ export class TurnHistoryItem extends S.Class<TurnHistoryItem>($I`TurnHistoryItem
  * @example
  * ```ts
  * import type { IndexedBlock } from "@beep/agents-use-cases/public"
- * import { Turn } from "@beep/agents-domain"
+ * import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
- * const block = S.decodeUnknownSync(Turn.AssistantBlock)({
+ * const block = S.decodeUnknownSync(AssistantBlock)({
  *   type: "paragraph",
  *   children: [{ type: "text", text: "Hello" }],
  * })
@@ -59,6 +113,6 @@ export class TurnHistoryItem extends S.Class<TurnHistoryItem>($I`TurnHistoryItem
  * @since 0.0.0
  */
 export interface IndexedBlock {
-  readonly block: Turn.AssistantBlock;
+  readonly block: AssistantBlock;
   readonly index: number;
 }

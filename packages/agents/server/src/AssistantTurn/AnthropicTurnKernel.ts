@@ -17,7 +17,7 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
+import { AssistantContent } from "@beep/agents-domain/values/AssistantContent";
 import { AgentTurnKernel, TurnGenerationError } from "@beep/agents-use-cases/public";
 import { AnthropicTurnPlan } from "@beep/anthropic";
 import { Effect, Filter, Layer, Metric, Result, Stream } from "effect";
@@ -47,7 +47,7 @@ const blocksValidated = Metric.counter("agents_assistant_turn_blocks_total", {
 // every emitted block is still schema-validated on the way through the scanner.
 const RespondTool = Tool.make("respond", {
   description: "Deliver the assistant response as rich-text blocks. You MUST respond with a JSON object.",
-  parameters: Turn.AssistantContent,
+  parameters: AssistantContent,
 }).annotate(Tool.Strict, false);
 
 const RespondToolkit = Toolkit.make(RespondTool);

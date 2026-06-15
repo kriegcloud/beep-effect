@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
+import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import { Document } from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { Thread } from "@beep/workspace-domain";
@@ -92,7 +92,7 @@ export const GetTimelineRpc = Rpc.make("GetTimeline", {
  */
 export const SendMessageRpc = Rpc.make("SendMessage", {
   payload: { threadId: WorkspaceIdentity.ThreadId, content: Document },
-  success: Turn.AssistantBlock,
+  success: AssistantBlock,
   error: ChatActionError,
   stream: true,
 });
@@ -117,7 +117,7 @@ export const EditMessageRpc = Rpc.make("EditMessage", {
     turnId: WorkspaceIdentity.TurnId,
     content: Document,
   },
-  success: Turn.AssistantBlock,
+  success: AssistantBlock,
   error: ChatActionError,
   stream: true,
 });

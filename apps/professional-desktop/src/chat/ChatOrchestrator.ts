@@ -14,8 +14,14 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
-import { AgentTurnKernel, ChatActionError, ChatRpcs, TurnHistoryItem } from "@beep/agents-use-cases/public";
+import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
+import {
+  AgentTurnKernel,
+  AssistantTurnHistoryItem,
+  ChatActionError,
+  ChatRpcs,
+  UserTurnHistoryItem,
+} from "@beep/agents-use-cases/public";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { Effect, Match, Order, pipe, Ref, Stream } from "effect";
@@ -23,7 +29,8 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { UsageRecordSink } from "./UsageRecordSink.ts";
-import type { IndexedBlock, TurnGenerationError } from "@beep/agents-use-cases/public";
+import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
+import type { IndexedBlock, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import type { Block, Document, Inline } from "@beep/md/Md.model";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
@@ -107,10 +114,9 @@ const projectTimelineToHistory = (timeline: Thread.ThreadTimeline): ReadonlyArra
         (item): ReadonlyArray<TurnHistoryItem> =>
           item.kind === "message"
             ? [
-                TurnHistoryItem.make({
-                  role: item.role === "assistant" ? "assistant" : "user",
-                  text: documentToPlainText(item.content),
-                }),
+                item.role === "assistant"
+                  ? AssistantTurnHistoryItem.make({ text: documentToPlainText(item.content) })
+                  : UserTurnHistoryItem.make({ text: documentToPlainText(item.content) }),
               ]
             : []
       )
@@ -190,7 +196,7 @@ const streamAndPersist = (
   kernel: AgentTurnKernel["Service"],
   usage: UsageRecordSink["Service"],
   threadId: WorkspaceIdentity.ThreadId
-): Stream.Stream<Turn.AssistantBlock, ChatActionError> =>
+): Stream.Stream<AssistantBlock, ChatActionError> =>
   Stream.unwrap(
     Effect.gen(function* () {
       const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("GetTimeline")));
@@ -204,7 +210,7 @@ const streamAndPersist = (
       const persist: Effect.Effect<void, ChatActionError> = Effect.gen(function* () {
         if (yield* Ref.getAndSet(persisted, true)) return;
         const blocks = A.map(A.sortWith(collected, indexOf, Order.Number), (indexed) => indexed.block);
-        const content = Turn.assistantContentToDocument(blocks);
+        const content = assistantContentToDocument(blocks);
         yield* store
           .appendTurn({ threadId, parentTurnId: O.none(), role: "assistant", content })
           .pipe(Effect.catch(toChatActionError("SendMessage.persistAssistant")));
@@ -218,7 +224,7 @@ const streamAndPersist = (
           })
         ),
         // wire stays bare blocks; envelope indices are a handler-side concern
-        Stream.map((indexed): Turn.AssistantBlock => indexed.block),
+        Stream.map((indexed): AssistantBlock => indexed.block),
         // success path only — persist nothing on error/interrupt (no onExit).
         // onEnd widens the error channel with persist's ChatActionError.
         Stream.onEnd(persist),
@@ -273,7 +279,7 @@ export const makeChatOperations = (
   sendMessage: (
     threadId: WorkspaceIdentity.ThreadId,
     content: Document.Type
-  ): Stream.Stream<Turn.AssistantBlock, ChatActionError> =>
+  ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
       store
         .appendTurn({ threadId, parentTurnId: O.none(), role: "user", content })
@@ -287,7 +293,7 @@ export const makeChatOperations = (
     threadId: WorkspaceIdentity.ThreadId,
     turnId: WorkspaceIdentity.TurnId,
     content: Document.Type
-  ): Stream.Stream<Turn.AssistantBlock, ChatActionError> =>
+  ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
       store
         .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })

@@ -11,7 +11,7 @@
  * @category atoms
  * @since 0.0.0
  */
-import { Turn } from "@beep/agents-domain";
+import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import { Document } from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
@@ -224,7 +224,7 @@ export class StreamingTurn extends S.Class<StreamingTurn>("StreamingTurn")(
     /** For edits: hide this turn and everything after it while streaming. */
     truncateFrom: S.Option(WorkspaceIdentity.TurnId),
     /** Assistant blocks appended as they stream in. */
-    blocks: S.Array(Turn.AssistantBlock),
+    blocks: S.Array(AssistantBlock),
   },
   {
     description: "A streaming assistant turn rendered optimistically while blocks arrive.",
@@ -425,7 +425,7 @@ export const runTurnAtom = ChatClient.runtime.fn<TurnRequest>()(
     // every workspace list, so invalidate both the timeline and the shared list
     const turnKeys = [timelineKey(turn.threadId), THREADS_KEY];
     const startedAt = yield* Clock.currentTimeMillis;
-    let blocks: ReadonlyArray<Turn.AssistantBlock> = [];
+    let blocks: ReadonlyArray<AssistantBlock> = [];
     ctx.set(streamingTurnAtom, O.some({ ...turnState, blocks }));
     yield* Reactivity.mutation(
       Stream.runForEach(

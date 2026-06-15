@@ -15,13 +15,13 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ChatApp } from "@/chat/ui/ChatApp";
 import { MessageView } from "@/chat/ui/MessageView";
 import { StreamingBlocks } from "@/chat/ui/StreamingBlocks";
-import type { Turn } from "@beep/agents-domain";
+import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
 afterEach(cleanup);
 
 describe("StreamingBlocks", () => {
   it("renders the v1 block vocabulary to the expected tags", () => {
-    const blocks: ReadonlyArray<Turn.AssistantBlock> = [
+    const blocks: ReadonlyArray<AssistantBlock> = [
       { type: "heading", level: "h2", children: [{ type: "text", text: "Title" }] },
       {
         type: "paragraph",

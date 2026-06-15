@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "4bf95196a6e2be4751fe0d5813a713bfbfe11c3107a640da6472dec9fba393cb",
+    "digest": "db5b71ac2155989318c293af9e1a6938289a46015bf30a4e7ac70257562b9f13",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -712,8 +712,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
-        "sha256": "f1de073c6aaffd5dff42c3a315bec0ef3c70c0307f70456d045fe83304b0e156",
-        "bytes": 19667
+        "sha256": "cd36e5952139b5ad862aec5caa108ebc7689147f66d273a89cb34f028bfc8225",
+        "bytes": 20005
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
@@ -847,8 +847,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
-        "sha256": "910dbf34a6c537deac62d47afa37909816242ac524a1e1b096773fbe0124436c",
-        "bytes": 534
+        "sha256": "4f3ac4973f233dccd2e61b8d9d4b3a04bd179942eaff853709c5212c0302b822",
+        "bytes": 654
       }
     ]
   },
@@ -1019,8 +1019,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 2085,
-      "uniqueSymbols": 789,
+      "publicExportEntries": 2086,
+      "uniqueSymbols": 790,
       "sourceFiles": 162
     },
     "exports": [
@@ -52824,6 +52824,30 @@
           "@since"
         ],
         "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet runyeet const run yeet with the provided options. use-cases packages/tooling/tool/cli/src/commands/yeet/internal/handler.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "runYeetFallowFeedbackForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+        "sourceLine": 311,
+        "summary": "Convert Fallow advisory envelopes from a directory into a Yeet issue index.",
+        "categories": [
+          "commands"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet runyeetfallowfeedbackfortesting const convert fallow advisory envelopes from a directory into a yeet issue index. commands packages/tooling/tool/cli/src/commands/yeet/internal/fallowfeedback.ts"
       },
       {
         "packageName": "@beep/repo-cli",

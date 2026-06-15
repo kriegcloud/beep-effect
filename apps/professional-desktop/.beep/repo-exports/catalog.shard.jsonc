@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "8fc8e45140699c838fafd04b9752219751719890b7b81aad63e5f5a3496989fb",
+    "digest": "bd8e50ab1f198198f01dbfcd3a578150c3fd0fca58f06f4db610038f9b6e7613",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
-        "sha256": "525a01a0d9cf26b792022423f8b9a3cf8a681138a57eb03aa1dded35476b05f0",
-        "bytes": 14147
+        "sha256": "ca7607743aec80ab01cd9ab587964166b1140a75636157a008b344c1eadfe0be",
+        "bytes": 14345
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
@@ -52,8 +52,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx",
-        "sha256": "36d65ade016abdb2e77bc2157efca0455f68fe4d7c6a79d35c36511640ab8c85",
-        "bytes": 2987
+        "sha256": "f72023ee2d62566c72dd2751dcf11940864f1a777439212041565d6cab60ed1d",
+        "bytes": 2993
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Thread.tsx",

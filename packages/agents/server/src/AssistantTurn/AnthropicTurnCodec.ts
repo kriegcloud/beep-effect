@@ -14,7 +14,7 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
+import { AssistantBlock, AssistantContent } from "@beep/agents-domain/values/AssistantContent";
 import { AnthropicStructuredOutput } from "effect/unstable/ai";
 
 /**
@@ -31,7 +31,7 @@ import { AnthropicStructuredOutput } from "effect/unstable/ai";
  * @category codecs
  * @since 0.0.0
  */
-export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(Turn.AssistantBlock);
+export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(AssistantBlock);
 
 /**
  * Whole-envelope Anthropic codec for the assistant turn. Its `jsonSchema`
@@ -48,4 +48,4 @@ export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(T
  * @category codecs
  * @since 0.0.0
  */
-export const assistantOutput = AnthropicStructuredOutput.toCodecAnthropic(Turn.AssistantContent);
+export const assistantOutput = AnthropicStructuredOutput.toCodecAnthropic(AssistantContent);
