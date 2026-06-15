@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 /**
  * Schema describing one HTML element kind's metadata.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export const HtmlElementMeta = S.Struct({
@@ -27,7 +27,7 @@ export const HtmlElementMeta = S.Struct({
 /**
  * Decoded type of {@link HtmlElementMeta}.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export type HtmlElementMeta = typeof HtmlElementMeta.Type;
@@ -35,7 +35,7 @@ export type HtmlElementMeta = typeof HtmlElementMeta.Type;
 /**
  * Metadata for every generated HTML element, keyed by tag name.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export const ELEMENT_META: { readonly [tag: string]: HtmlElementMeta } = {

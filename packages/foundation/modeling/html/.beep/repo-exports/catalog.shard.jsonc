@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "05e6c93eff6238bdabd5993af9c673ede2cf7316b31bd4eeb1a61b8e15891a6e",
+    "digest": "44c710a79630edc844afd37125aa8cd8571d8ebb803f51e72d23a13222e05839",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,28 +27,28 @@
       },
       {
         "path": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sha256": "b347d1acc130b6bebdd4cf1f6a00c5b2d75681aa27223236ba572f2455aead6e",
-        "bytes": 11160
+        "sha256": "479496de1522fb1d61e17f7e4c0e2d738e242519af042f60778cd8632caa6ca5",
+        "bytes": 11094
       },
       {
         "path": "packages/foundation/modeling/html/src/Html.meta.ts",
-        "sha256": "af065b54acc2021cce3fcc051c17b39d0a5dc796468938682d1f3b02ce27091f",
-        "bytes": 26367
+        "sha256": "2c266653d522c491d95bf9c82bbea955c18af70b2a5e8ec40bce48e2d45c7134",
+        "bytes": 26361
       },
       {
         "path": "packages/foundation/modeling/html/src/Html.model.ts",
-        "sha256": "26da5f2b1dc646e08179fd06735463ac0f283cccce3c0fb32a77fae38dd7614e",
-        "bytes": 203754
+        "sha256": "f9314beba7eaf130ade4c12380a32f23b27fc9c575df661b129972ec6027c6e9",
+        "bytes": 203731
       },
       {
         "path": "packages/foundation/modeling/html/src/Html.nodes.ts",
-        "sha256": "e4de15f0e0a6988129cb484f84f0eb96e739e30f28152d253731c63e4608bb5e",
-        "bytes": 3228
+        "sha256": "c2d61c5201ed4990722138b813e09e0a4cd3b34d9e051b1cbe5bbd2b19fd77b4",
+        "bytes": 3234
       },
       {
         "path": "packages/foundation/modeling/html/src/index.ts",
-        "sha256": "4dc14f2f8c17243cb6fc58f2e715e03f28f284170b798a0a2b70269231405e48",
-        "bytes": 1640
+        "sha256": "a418dd2cdc7f1d2c2a1beef75edf67ce885bf75e56b7cfd53604eca89122a415",
+        "bytes": 1636
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -387,7 +387,7 @@
         "sourceLine": 283,
         "summary": "`role` plus the WAI-ARIA `aria-*` state and property attributes. Universally",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -396,7 +396,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . ariaattributes const `role` plus the wai-aria `aria-*` state and property attributes. universally attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . ariaattributes const `role` plus the wai-aria `aria-*` state and property attributes. universally schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -555,7 +555,7 @@
         "sourceLine": 89,
         "summary": "`autocapitalize` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -564,7 +564,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . autocapitalize const `autocapitalize` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . autocapitalize const `autocapitalize` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -579,7 +579,7 @@
         "sourceLine": 98,
         "summary": "`autocorrect` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -588,7 +588,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . autocorrect const `autocorrect` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . autocorrect const `autocorrect` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -1083,7 +1083,7 @@
         "sourceLine": 154,
         "summary": "An HTML boolean attribute value. The attribute's presence means `true`; the",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -1092,7 +1092,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . booleanattribute const an html boolean attribute value. the attribute's presence means `true`; the attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . booleanattribute const an html boolean attribute value. the attribute's presence means `true`; the schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -1539,7 +1539,7 @@
         "sourceLine": 64,
         "summary": "An HTML comment node (`<!-- ... -->`).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -1548,7 +1548,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . comment class an html comment node (`<!-- ... -->`). nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . comment class an html comment node (`<!-- ... -->`). models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -1563,7 +1563,7 @@
         "sourceLine": 80,
         "summary": "Companion namespace for {@link Comment}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -1572,7 +1572,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . comment namespace companion namespace for {@link comment}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . comment namespace companion namespace for {@link comment}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -1587,7 +1587,7 @@
         "sourceLine": 53,
         "summary": "`contenteditable` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -1596,7 +1596,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . contenteditable const `contenteditable` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . contenteditable const `contenteditable` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -1707,7 +1707,7 @@
         "sourceLine": 216,
         "summary": "`data-*` custom data attributes, represented as the `dataset` record bag",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -1716,7 +1716,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . datasetattribute const `data-*` custom data attributes, represented as the `dataset` record bag attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . datasetattribute const `data-*` custom data attributes, represented as the `dataset` record bag schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -1971,7 +1971,7 @@
         "sourceLine": 35,
         "summary": "`dir` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -1980,7 +1980,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . dir const `dir` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . dir const `dir` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2139,7 +2139,7 @@
         "sourceLine": 96,
         "summary": "A document type declaration (`<!DOCTYPE html>`).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2148,7 +2148,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . doctype class a document type declaration (`<!doctype html>`). nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . doctype class a document type declaration (`<!doctype html>`). models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2163,7 +2163,7 @@
         "sourceLine": 114,
         "summary": "Companion namespace for {@link Doctype}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2172,7 +2172,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . doctype namespace companion namespace for {@link doctype}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . doctype namespace companion namespace for {@link doctype}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2187,7 +2187,7 @@
         "sourceLine": 93,
         "summary": "A document root node.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2196,7 +2196,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . document class a document root node. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . document class a document root node. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2211,7 +2211,7 @@
         "sourceLine": 104,
         "summary": "Companion namespace for {@link Document}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2220,7 +2220,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . document namespace companion namespace for {@link document}. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . document namespace companion namespace for {@link document}. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2235,7 +2235,7 @@
         "sourceLine": 62,
         "summary": "`draggable` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2244,7 +2244,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . draggable const `draggable` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . draggable const `draggable` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2307,7 +2307,7 @@
         "sourceLine": 41,
         "summary": "Metadata for every generated HTML element, keyed by tag name.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2316,7 +2316,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . element_meta const metadata for every generated html element, keyed by tag name. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . element_meta const metadata for every generated html element, keyed by tag name. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2427,7 +2427,7 @@
         "sourceLine": 8648,
         "summary": "Advisory sub-union of elements in the \"embedded\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2436,7 +2436,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . embedded const advisory sub-union of elements in the \"embedded\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . embedded const advisory sub-union of elements in the \"embedded\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2451,7 +2451,7 @@
         "sourceLine": 116,
         "summary": "`enterkeyhint` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2460,7 +2460,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . enterkeyhint const `enterkeyhint` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . enterkeyhint const `enterkeyhint` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2475,7 +2475,7 @@
         "sourceLine": 372,
         "summary": "The global event-handler content attributes (`on*`). Universally permitted;",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2484,7 +2484,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . eventhandlerattributes const the global event-handler content attributes (`on*`). universally permitted; attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . eventhandlerattributes const the global event-handler content attributes (`on*`). universally permitted; schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2643,7 +2643,7 @@
         "sourceLine": 8185,
         "summary": "Advisory sub-union of elements in the \"flow\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2652,7 +2652,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . flow const advisory sub-union of elements in the \"flow\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . flow const advisory sub-union of elements in the \"flow\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2811,7 +2811,7 @@
         "sourceLine": 69,
         "summary": "A document fragment node (a detached group of children).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2820,7 +2820,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . fragment class a document fragment node (a detached group of children). nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . fragment class a document fragment node (a detached group of children). models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2835,7 +2835,7 @@
         "sourceLine": 80,
         "summary": "Companion namespace for {@link Fragment}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2844,7 +2844,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . fragment namespace companion namespace for {@link fragment}. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . fragment namespace companion namespace for {@link fragment}. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2955,7 +2955,7 @@
         "sourceLine": 383,
         "summary": "The complete global attribute bundle spread into every generated element",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2964,7 +2964,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributes const the complete global attribute bundle spread into every generated element attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributes const the complete global attribute bundle spread into every generated element schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -2979,7 +2979,7 @@
         "sourceLine": 414,
         "summary": "Encoded type of the shared global attributes.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -2988,7 +2988,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributesencoded type encoded type of the shared global attributes. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributesencoded type encoded type of the shared global attributes. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3003,7 +3003,7 @@
         "sourceLine": 398,
         "summary": "Struct schema over {@link GlobalAttributes}; the source of the shared global",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -3012,7 +3012,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributesstruct const struct schema over {@link globalattributes}; the source of the shared global attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributesstruct const struct schema over {@link globalattributes}; the source of the shared global schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3027,7 +3027,7 @@
         "sourceLine": 406,
         "summary": "Decoded type of the shared global attributes.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -3036,7 +3036,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributestype type decoded type of the shared global attributes. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . globalattributestype type decoded type of the shared global attributes. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3435,7 +3435,7 @@
         "sourceLine": 8463,
         "summary": "Advisory sub-union of elements in the \"heading\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -3444,7 +3444,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . heading const advisory sub-union of elements in the \"heading\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . heading const advisory sub-union of elements in the \"heading\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3507,7 +3507,7 @@
         "sourceLine": 125,
         "summary": "`hidden` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -3516,7 +3516,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . hidden const `hidden` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . hidden const `hidden` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3675,7 +3675,7 @@
         "sourceLine": 18,
         "summary": "Schema describing one HTML element kind's metadata.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -3684,7 +3684,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . htmlelementmeta const schema describing one html element kind's metadata. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . htmlelementmeta const schema describing one html element kind's metadata. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3699,7 +3699,7 @@
         "sourceLine": 33,
         "summary": "Decoded type of {@link HtmlElementMeta}.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -3708,7 +3708,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . htmlelementmeta type decoded type of {@link htmlelementmeta}. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . htmlelementmeta type decoded type of {@link htmlelementmeta}. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -3963,7 +3963,7 @@
         "sourceLine": 107,
         "summary": "`inputmode` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -3972,7 +3972,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . inputmode const `inputmode` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . inputmode const `inputmode` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -4035,7 +4035,7 @@
         "sourceLine": 8676,
         "summary": "Advisory sub-union of elements in the \"interactive\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -4044,7 +4044,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . interactive const advisory sub-union of elements in the \"interactive\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . interactive const advisory sub-union of elements in the \"interactive\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -4779,7 +4779,7 @@
         "sourceLine": 8166,
         "summary": "Advisory sub-union of elements in the \"metadata\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -4788,7 +4788,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . metadata const advisory sub-union of elements in the \"metadata\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . metadata const advisory sub-union of elements in the \"metadata\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -5475,7 +5475,7 @@
         "sourceLine": 8729,
         "summary": "Advisory sub-union of elements in the \"palpable\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -5484,7 +5484,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . palpable const advisory sub-union of elements in the \"palpable\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . palpable const advisory sub-union of elements in the \"palpable\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -5547,7 +5547,7 @@
         "sourceLine": 8475,
         "summary": "Advisory sub-union of elements in the \"phrasing\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -5556,7 +5556,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . phrasing const advisory sub-union of elements in the \"phrasing\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . phrasing const advisory sub-union of elements in the \"phrasing\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -5667,7 +5667,7 @@
         "sourceLine": 134,
         "summary": "`popover` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -5676,7 +5676,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . popover const `popover` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . popover const `popover` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -5691,7 +5691,7 @@
         "sourceLine": 143,
         "summary": "`popovertargetaction` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -5700,7 +5700,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . popovertargetaction const `popovertargetaction` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . popovertargetaction const `popovertargetaction` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -6195,7 +6195,7 @@
         "sourceLine": 8959,
         "summary": "Advisory sub-union of elements in the \"script-supporting\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -6204,7 +6204,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . scriptsupporting const advisory sub-union of elements in the \"script-supporting\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . scriptsupporting const advisory sub-union of elements in the \"script-supporting\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -6315,7 +6315,7 @@
         "sourceLine": 8451,
         "summary": "Advisory sub-union of elements in the \"sectioning\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -6324,7 +6324,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . sectioning const advisory sub-union of elements in the \"sectioning\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . sectioning const advisory sub-union of elements in the \"sectioning\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -6723,7 +6723,7 @@
         "sourceLine": 71,
         "summary": "`spellcheck` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -6732,7 +6732,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . spellcheck const `spellcheck` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . spellcheck const `spellcheck` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -6747,7 +6747,7 @@
         "sourceLine": 171,
         "summary": "The WHATWG global attributes (`dom.html#global-attributes`), value-typed.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -6756,7 +6756,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . standardglobalattributes const the whatwg global attributes (`dom.html#global-attributes`), value-typed. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . standardglobalattributes const the whatwg global attributes (`dom.html#global-attributes`), value-typed. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -7251,7 +7251,7 @@
         "sourceLine": 32,
         "summary": "A character-data text node.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -7261,7 +7261,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . text class a character-data text node. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . text class a character-data text node. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -7276,7 +7276,7 @@
         "sourceLine": 48,
         "summary": "Companion namespace for {@link Text}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -7285,7 +7285,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . text namespace companion namespace for {@link text}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . text namespace companion namespace for {@link text}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -7684,7 +7684,7 @@
         "sourceLine": 44,
         "summary": "`translate` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -7693,7 +7693,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . translate const `translate` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . translate const `translate` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8021,7 +8021,7 @@
         "sourceLine": 80,
         "summary": "`writingsuggestions` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8030,7 +8030,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . writingsuggestions const `writingsuggestions` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html . writingsuggestions const `writingsuggestions` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8093,7 +8093,7 @@
         "sourceLine": 283,
         "summary": "`role` plus the WAI-ARIA `aria-*` state and property attributes. Universally",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8102,7 +8102,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes ariaattributes const `role` plus the wai-aria `aria-*` state and property attributes. universally attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes ariaattributes const `role` plus the wai-aria `aria-*` state and property attributes. universally schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8117,7 +8117,7 @@
         "sourceLine": 89,
         "summary": "`autocapitalize` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8126,7 +8126,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes autocapitalize const `autocapitalize` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes autocapitalize const `autocapitalize` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8141,7 +8141,7 @@
         "sourceLine": 98,
         "summary": "`autocorrect` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8150,7 +8150,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes autocorrect const `autocorrect` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes autocorrect const `autocorrect` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8165,7 +8165,7 @@
         "sourceLine": 154,
         "summary": "An HTML boolean attribute value. The attribute's presence means `true`; the",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8174,7 +8174,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes booleanattribute const an html boolean attribute value. the attribute's presence means `true`; the attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes booleanattribute const an html boolean attribute value. the attribute's presence means `true`; the schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8189,7 +8189,7 @@
         "sourceLine": 53,
         "summary": "`contenteditable` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8198,7 +8198,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes contenteditable const `contenteditable` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes contenteditable const `contenteditable` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8213,7 +8213,7 @@
         "sourceLine": 216,
         "summary": "`data-*` custom data attributes, represented as the `dataset` record bag",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8222,7 +8222,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes datasetattribute const `data-*` custom data attributes, represented as the `dataset` record bag attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes datasetattribute const `data-*` custom data attributes, represented as the `dataset` record bag schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8237,7 +8237,7 @@
         "sourceLine": 35,
         "summary": "`dir` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8246,7 +8246,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes dir const `dir` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes dir const `dir` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8261,7 +8261,7 @@
         "sourceLine": 62,
         "summary": "`draggable` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8270,7 +8270,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes draggable const `draggable` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes draggable const `draggable` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8285,7 +8285,7 @@
         "sourceLine": 116,
         "summary": "`enterkeyhint` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8294,7 +8294,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes enterkeyhint const `enterkeyhint` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes enterkeyhint const `enterkeyhint` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8309,7 +8309,7 @@
         "sourceLine": 372,
         "summary": "The global event-handler content attributes (`on*`). Universally permitted;",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8318,7 +8318,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes eventhandlerattributes const the global event-handler content attributes (`on*`). universally permitted; attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes eventhandlerattributes const the global event-handler content attributes (`on*`). universally permitted; schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8333,7 +8333,7 @@
         "sourceLine": 383,
         "summary": "The complete global attribute bundle spread into every generated element",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8342,7 +8342,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributes const the complete global attribute bundle spread into every generated element attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributes const the complete global attribute bundle spread into every generated element schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8357,7 +8357,7 @@
         "sourceLine": 414,
         "summary": "Encoded type of the shared global attributes.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8366,7 +8366,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributesencoded type encoded type of the shared global attributes. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributesencoded type encoded type of the shared global attributes. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8381,7 +8381,7 @@
         "sourceLine": 398,
         "summary": "Struct schema over {@link GlobalAttributes}; the source of the shared global",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8390,7 +8390,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributesstruct const struct schema over {@link globalattributes}; the source of the shared global attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributesstruct const struct schema over {@link globalattributes}; the source of the shared global schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8405,7 +8405,7 @@
         "sourceLine": 406,
         "summary": "Decoded type of the shared global attributes.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8414,7 +8414,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributestype type decoded type of the shared global attributes. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes globalattributestype type decoded type of the shared global attributes. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8429,7 +8429,7 @@
         "sourceLine": 125,
         "summary": "`hidden` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8438,7 +8438,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes hidden const `hidden` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes hidden const `hidden` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8453,7 +8453,7 @@
         "sourceLine": 107,
         "summary": "`inputmode` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8462,7 +8462,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes inputmode const `inputmode` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes inputmode const `inputmode` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8477,7 +8477,7 @@
         "sourceLine": 134,
         "summary": "`popover` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8486,7 +8486,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes popover const `popover` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes popover const `popover` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8501,7 +8501,7 @@
         "sourceLine": 143,
         "summary": "`popovertargetaction` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8510,7 +8510,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes popovertargetaction const `popovertargetaction` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes popovertargetaction const `popovertargetaction` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8525,7 +8525,7 @@
         "sourceLine": 71,
         "summary": "`spellcheck` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8534,7 +8534,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes spellcheck const `spellcheck` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes spellcheck const `spellcheck` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8549,7 +8549,7 @@
         "sourceLine": 171,
         "summary": "The WHATWG global attributes (`dom.html#global-attributes`), value-typed.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8558,7 +8558,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes standardglobalattributes const the whatwg global attributes (`dom.html#global-attributes`), value-typed. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes standardglobalattributes const the whatwg global attributes (`dom.html#global-attributes`), value-typed. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8573,7 +8573,7 @@
         "sourceLine": 44,
         "summary": "`translate` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8582,7 +8582,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes translate const `translate` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes translate const `translate` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8597,7 +8597,7 @@
         "sourceLine": 80,
         "summary": "`writingsuggestions` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -8606,7 +8606,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes writingsuggestions const `writingsuggestions` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.attributes ./html.attributes writingsuggestions const `writingsuggestions` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8621,7 +8621,7 @@
         "sourceLine": 41,
         "summary": "Metadata for every generated HTML element, keyed by tag name.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -8630,7 +8630,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.meta ./html.meta element_meta const metadata for every generated html element, keyed by tag name. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.meta ./html.meta element_meta const metadata for every generated html element, keyed by tag name. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8645,7 +8645,7 @@
         "sourceLine": 18,
         "summary": "Schema describing one HTML element kind's metadata.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -8654,7 +8654,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.meta ./html.meta htmlelementmeta const schema describing one html element kind's metadata. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.meta ./html.meta htmlelementmeta const schema describing one html element kind's metadata. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -8669,7 +8669,7 @@
         "sourceLine": 33,
         "summary": "Decoded type of {@link HtmlElementMeta}.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -8678,7 +8678,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.meta ./html.meta htmlelementmeta type decoded type of {@link htmlelementmeta}. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.meta ./html.meta htmlelementmeta type decoded type of {@link htmlelementmeta}. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -10517,7 +10517,7 @@
         "sourceLine": 93,
         "summary": "A document root node.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -10526,7 +10526,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model document class a document root node. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model document class a document root node. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -10541,7 +10541,7 @@
         "sourceLine": 104,
         "summary": "Companion namespace for {@link Document}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -10550,7 +10550,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model document namespace companion namespace for {@link document}. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model document namespace companion namespace for {@link document}. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -10709,7 +10709,7 @@
         "sourceLine": 8648,
         "summary": "Advisory sub-union of elements in the \"embedded\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -10718,7 +10718,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model embedded const advisory sub-union of elements in the \"embedded\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model embedded const advisory sub-union of elements in the \"embedded\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -10877,7 +10877,7 @@
         "sourceLine": 8185,
         "summary": "Advisory sub-union of elements in the \"flow\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -10886,7 +10886,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model flow const advisory sub-union of elements in the \"flow\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model flow const advisory sub-union of elements in the \"flow\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -11045,7 +11045,7 @@
         "sourceLine": 69,
         "summary": "A document fragment node (a detached group of children).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -11054,7 +11054,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model fragment class a document fragment node (a detached group of children). nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model fragment class a document fragment node (a detached group of children). models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -11069,7 +11069,7 @@
         "sourceLine": 80,
         "summary": "Companion namespace for {@link Fragment}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -11078,7 +11078,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model fragment namespace companion namespace for {@link fragment}. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model fragment namespace companion namespace for {@link fragment}. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -11573,7 +11573,7 @@
         "sourceLine": 8463,
         "summary": "Advisory sub-union of elements in the \"heading\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -11582,7 +11582,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model heading const advisory sub-union of elements in the \"heading\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model heading const advisory sub-union of elements in the \"heading\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -12077,7 +12077,7 @@
         "sourceLine": 8676,
         "summary": "Advisory sub-union of elements in the \"interactive\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -12086,7 +12086,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model interactive const advisory sub-union of elements in the \"interactive\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model interactive const advisory sub-union of elements in the \"interactive\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -12821,7 +12821,7 @@
         "sourceLine": 8166,
         "summary": "Advisory sub-union of elements in the \"metadata\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -12830,7 +12830,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model metadata const advisory sub-union of elements in the \"metadata\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model metadata const advisory sub-union of elements in the \"metadata\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -13517,7 +13517,7 @@
         "sourceLine": 8729,
         "summary": "Advisory sub-union of elements in the \"palpable\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -13526,7 +13526,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model palpable const advisory sub-union of elements in the \"palpable\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model palpable const advisory sub-union of elements in the \"palpable\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -13589,7 +13589,7 @@
         "sourceLine": 8475,
         "summary": "Advisory sub-union of elements in the \"phrasing\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -13598,7 +13598,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model phrasing const advisory sub-union of elements in the \"phrasing\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model phrasing const advisory sub-union of elements in the \"phrasing\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -14189,7 +14189,7 @@
         "sourceLine": 8959,
         "summary": "Advisory sub-union of elements in the \"script-supporting\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -14198,7 +14198,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model scriptsupporting const advisory sub-union of elements in the \"script-supporting\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model scriptsupporting const advisory sub-union of elements in the \"script-supporting\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -14309,7 +14309,7 @@
         "sourceLine": 8451,
         "summary": "Advisory sub-union of elements in the \"sectioning\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -14318,7 +14318,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model sectioning const advisory sub-union of elements in the \"sectioning\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.model ./html.model sectioning const advisory sub-union of elements in the \"sectioning\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -15917,7 +15917,7 @@
         "sourceLine": 64,
         "summary": "An HTML comment node (`<!-- ... -->`).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -15926,7 +15926,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes comment class an html comment node (`<!-- ... -->`). nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes comment class an html comment node (`<!-- ... -->`). models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -15941,7 +15941,7 @@
         "sourceLine": 80,
         "summary": "Companion namespace for {@link Comment}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -15950,7 +15950,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes comment namespace companion namespace for {@link comment}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes comment namespace companion namespace for {@link comment}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -15965,7 +15965,7 @@
         "sourceLine": 96,
         "summary": "A document type declaration (`<!DOCTYPE html>`).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -15974,7 +15974,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes doctype class a document type declaration (`<!doctype html>`). nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes doctype class a document type declaration (`<!doctype html>`). models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -15989,7 +15989,7 @@
         "sourceLine": 114,
         "summary": "Companion namespace for {@link Doctype}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -15998,7 +15998,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes doctype namespace companion namespace for {@link doctype}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes doctype namespace companion namespace for {@link doctype}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -16013,7 +16013,7 @@
         "sourceLine": 32,
         "summary": "A character-data text node.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -16023,7 +16023,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes text class a character-data text node. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes text class a character-data text node. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -16038,7 +16038,7 @@
         "sourceLine": 48,
         "summary": "Companion namespace for {@link Text}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -16047,7 +16047,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes text namespace companion namespace for {@link text}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/html.nodes ./html.nodes text namespace companion namespace for {@link text}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -16350,7 +16350,7 @@
         "sourceLine": 283,
         "summary": "`role` plus the WAI-ARIA `aria-*` state and property attributes. Universally",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -16359,7 +16359,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index ariaattributes const `role` plus the wai-aria `aria-*` state and property attributes. universally attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index ariaattributes const `role` plus the wai-aria `aria-*` state and property attributes. universally schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -16518,7 +16518,7 @@
         "sourceLine": 89,
         "summary": "`autocapitalize` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -16527,7 +16527,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index autocapitalize const `autocapitalize` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index autocapitalize const `autocapitalize` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -16542,7 +16542,7 @@
         "sourceLine": 98,
         "summary": "`autocorrect` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -16551,7 +16551,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index autocorrect const `autocorrect` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index autocorrect const `autocorrect` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -17046,7 +17046,7 @@
         "sourceLine": 154,
         "summary": "An HTML boolean attribute value. The attribute's presence means `true`; the",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -17055,7 +17055,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index booleanattribute const an html boolean attribute value. the attribute's presence means `true`; the attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index booleanattribute const an html boolean attribute value. the attribute's presence means `true`; the schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -17502,7 +17502,7 @@
         "sourceLine": 64,
         "summary": "An HTML comment node (`<!-- ... -->`).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -17511,7 +17511,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index comment class an html comment node (`<!-- ... -->`). nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index comment class an html comment node (`<!-- ... -->`). models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -17526,7 +17526,7 @@
         "sourceLine": 80,
         "summary": "Companion namespace for {@link Comment}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -17535,7 +17535,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index comment namespace companion namespace for {@link comment}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index comment namespace companion namespace for {@link comment}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -17550,7 +17550,7 @@
         "sourceLine": 53,
         "summary": "`contenteditable` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -17559,7 +17559,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index contenteditable const `contenteditable` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index contenteditable const `contenteditable` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -17670,7 +17670,7 @@
         "sourceLine": 216,
         "summary": "`data-*` custom data attributes, represented as the `dataset` record bag",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -17679,7 +17679,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index datasetattribute const `data-*` custom data attributes, represented as the `dataset` record bag attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index datasetattribute const `data-*` custom data attributes, represented as the `dataset` record bag schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -17934,7 +17934,7 @@
         "sourceLine": 35,
         "summary": "`dir` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -17943,7 +17943,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index dir const `dir` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index dir const `dir` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18102,7 +18102,7 @@
         "sourceLine": 96,
         "summary": "A document type declaration (`<!DOCTYPE html>`).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18111,7 +18111,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index doctype class a document type declaration (`<!doctype html>`). nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index doctype class a document type declaration (`<!doctype html>`). models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18126,7 +18126,7 @@
         "sourceLine": 114,
         "summary": "Companion namespace for {@link Doctype}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18135,7 +18135,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index doctype namespace companion namespace for {@link doctype}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index doctype namespace companion namespace for {@link doctype}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18150,7 +18150,7 @@
         "sourceLine": 93,
         "summary": "A document root node.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18159,7 +18159,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index document class a document root node. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index document class a document root node. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18174,7 +18174,7 @@
         "sourceLine": 104,
         "summary": "Companion namespace for {@link Document}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18183,7 +18183,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index document namespace companion namespace for {@link document}. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index document namespace companion namespace for {@link document}. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18198,7 +18198,7 @@
         "sourceLine": 62,
         "summary": "`draggable` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18207,7 +18207,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index draggable const `draggable` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index draggable const `draggable` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18270,7 +18270,7 @@
         "sourceLine": 41,
         "summary": "Metadata for every generated HTML element, keyed by tag name.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18279,7 +18279,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index element_meta const metadata for every generated html element, keyed by tag name. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index element_meta const metadata for every generated html element, keyed by tag name. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18390,7 +18390,7 @@
         "sourceLine": 8648,
         "summary": "Advisory sub-union of elements in the \"embedded\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18399,7 +18399,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index embedded const advisory sub-union of elements in the \"embedded\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index embedded const advisory sub-union of elements in the \"embedded\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18414,7 +18414,7 @@
         "sourceLine": 116,
         "summary": "`enterkeyhint` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18423,7 +18423,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index enterkeyhint const `enterkeyhint` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index enterkeyhint const `enterkeyhint` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18438,7 +18438,7 @@
         "sourceLine": 372,
         "summary": "The global event-handler content attributes (`on*`). Universally permitted;",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18447,7 +18447,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index eventhandlerattributes const the global event-handler content attributes (`on*`). universally permitted; attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index eventhandlerattributes const the global event-handler content attributes (`on*`). universally permitted; schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18606,7 +18606,7 @@
         "sourceLine": 8185,
         "summary": "Advisory sub-union of elements in the \"flow\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18615,7 +18615,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index flow const advisory sub-union of elements in the \"flow\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index flow const advisory sub-union of elements in the \"flow\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18774,7 +18774,7 @@
         "sourceLine": 69,
         "summary": "A document fragment node (a detached group of children).",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18783,7 +18783,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index fragment class a document fragment node (a detached group of children). nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index fragment class a document fragment node (a detached group of children). models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18798,7 +18798,7 @@
         "sourceLine": 80,
         "summary": "Companion namespace for {@link Fragment}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -18807,7 +18807,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index fragment namespace companion namespace for {@link fragment}. nodes packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index fragment namespace companion namespace for {@link fragment}. models packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18918,7 +18918,7 @@
         "sourceLine": 383,
         "summary": "The complete global attribute bundle spread into every generated element",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18927,7 +18927,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributes const the complete global attribute bundle spread into every generated element attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributes const the complete global attribute bundle spread into every generated element schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18942,7 +18942,7 @@
         "sourceLine": 414,
         "summary": "Encoded type of the shared global attributes.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18951,7 +18951,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributesencoded type encoded type of the shared global attributes. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributesencoded type encoded type of the shared global attributes. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18966,7 +18966,7 @@
         "sourceLine": 398,
         "summary": "Struct schema over {@link GlobalAttributes}; the source of the shared global",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18975,7 +18975,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributesstruct const struct schema over {@link globalattributes}; the source of the shared global attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributesstruct const struct schema over {@link globalattributes}; the source of the shared global schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -18990,7 +18990,7 @@
         "sourceLine": 406,
         "summary": "Decoded type of the shared global attributes.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -18999,7 +18999,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributestype type decoded type of the shared global attributes. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index globalattributestype type decoded type of the shared global attributes. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -19398,7 +19398,7 @@
         "sourceLine": 8463,
         "summary": "Advisory sub-union of elements in the \"heading\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -19407,7 +19407,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index heading const advisory sub-union of elements in the \"heading\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index heading const advisory sub-union of elements in the \"heading\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -19470,7 +19470,7 @@
         "sourceLine": 125,
         "summary": "`hidden` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -19479,7 +19479,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index hidden const `hidden` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index hidden const `hidden` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -19638,7 +19638,7 @@
         "sourceLine": 18,
         "summary": "Schema describing one HTML element kind's metadata.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -19647,7 +19647,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index htmlelementmeta const schema describing one html element kind's metadata. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index htmlelementmeta const schema describing one html element kind's metadata. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -19662,7 +19662,7 @@
         "sourceLine": 33,
         "summary": "Decoded type of {@link HtmlElementMeta}.",
         "categories": [
-          "metadata"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -19671,7 +19671,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index htmlelementmeta type decoded type of {@link htmlelementmeta}. metadata packages/foundation/modeling/html/src/html.meta.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index htmlelementmeta type decoded type of {@link htmlelementmeta}. models packages/foundation/modeling/html/src/html.meta.ts"
       },
       {
         "packageName": "@beep/html",
@@ -19926,7 +19926,7 @@
         "sourceLine": 107,
         "summary": "`inputmode` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -19935,7 +19935,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index inputmode const `inputmode` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index inputmode const `inputmode` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -19998,7 +19998,7 @@
         "sourceLine": 8676,
         "summary": "Advisory sub-union of elements in the \"interactive\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -20007,7 +20007,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index interactive const advisory sub-union of elements in the \"interactive\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index interactive const advisory sub-union of elements in the \"interactive\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -20742,7 +20742,7 @@
         "sourceLine": 8166,
         "summary": "Advisory sub-union of elements in the \"metadata\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -20751,7 +20751,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index metadata const advisory sub-union of elements in the \"metadata\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index metadata const advisory sub-union of elements in the \"metadata\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -21438,7 +21438,7 @@
         "sourceLine": 8729,
         "summary": "Advisory sub-union of elements in the \"palpable\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -21447,7 +21447,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index palpable const advisory sub-union of elements in the \"palpable\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index palpable const advisory sub-union of elements in the \"palpable\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -21510,7 +21510,7 @@
         "sourceLine": 8475,
         "summary": "Advisory sub-union of elements in the \"phrasing\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -21519,7 +21519,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index phrasing const advisory sub-union of elements in the \"phrasing\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index phrasing const advisory sub-union of elements in the \"phrasing\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -21630,7 +21630,7 @@
         "sourceLine": 134,
         "summary": "`popover` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -21639,7 +21639,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index popover const `popover` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index popover const `popover` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -21654,7 +21654,7 @@
         "sourceLine": 143,
         "summary": "`popovertargetaction` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -21663,7 +21663,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index popovertargetaction const `popovertargetaction` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index popovertargetaction const `popovertargetaction` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -22158,7 +22158,7 @@
         "sourceLine": 8959,
         "summary": "Advisory sub-union of elements in the \"script-supporting\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -22167,7 +22167,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index scriptsupporting const advisory sub-union of elements in the \"script-supporting\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index scriptsupporting const advisory sub-union of elements in the \"script-supporting\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -22278,7 +22278,7 @@
         "sourceLine": 8451,
         "summary": "Advisory sub-union of elements in the \"sectioning\" content category. Non-normative",
         "categories": [
-          "categories"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -22287,7 +22287,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index sectioning const advisory sub-union of elements in the \"sectioning\" content category. non-normative categories packages/foundation/modeling/html/src/html.model.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index sectioning const advisory sub-union of elements in the \"sectioning\" content category. non-normative schemas packages/foundation/modeling/html/src/html.model.ts"
       },
       {
         "packageName": "@beep/html",
@@ -22686,7 +22686,7 @@
         "sourceLine": 71,
         "summary": "`spellcheck` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -22695,7 +22695,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index spellcheck const `spellcheck` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index spellcheck const `spellcheck` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -22710,7 +22710,7 @@
         "sourceLine": 171,
         "summary": "The WHATWG global attributes (`dom.html#global-attributes`), value-typed.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -22719,7 +22719,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index standardglobalattributes const the whatwg global attributes (`dom.html#global-attributes`), value-typed. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index standardglobalattributes const the whatwg global attributes (`dom.html#global-attributes`), value-typed. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -23214,7 +23214,7 @@
         "sourceLine": 32,
         "summary": "A character-data text node.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -23224,7 +23224,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index text class a character-data text node. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index text class a character-data text node. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -23239,7 +23239,7 @@
         "sourceLine": 48,
         "summary": "Companion namespace for {@link Text}.",
         "categories": [
-          "nodes"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -23248,7 +23248,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index text namespace companion namespace for {@link text}. nodes packages/foundation/modeling/html/src/html.nodes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index text namespace companion namespace for {@link text}. models packages/foundation/modeling/html/src/html.nodes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -23647,7 +23647,7 @@
         "sourceLine": 44,
         "summary": "`translate` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -23656,7 +23656,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index translate const `translate` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index translate const `translate` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",
@@ -23984,7 +23984,7 @@
         "sourceLine": 80,
         "summary": "`writingsuggestions` global attribute value.",
         "categories": [
-          "attributes"
+          "schemas"
         ],
         "since": [
           "0.0.0"
@@ -23993,7 +23993,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index writingsuggestions const `writingsuggestions` global attribute value. attributes packages/foundation/modeling/html/src/html.attributes.ts"
+        "searchText": "@beep/html packages/foundation/modeling/html @beep/html/index ./index writingsuggestions const `writingsuggestions` global attribute value. schemas packages/foundation/modeling/html/src/html.attributes.ts"
       },
       {
         "packageName": "@beep/html",

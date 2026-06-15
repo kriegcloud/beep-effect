@@ -63,7 +63,7 @@ export declare namespace HtmlChildren {
 /**
  * A document fragment node (a detached group of children).
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export class Fragment extends S.TaggedClass<Fragment>($I`Fragment`)(
@@ -74,7 +74,7 @@ export class Fragment extends S.TaggedClass<Fragment>($I`Fragment`)(
 /**
  * Companion namespace for {@link Fragment}.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Fragment {
@@ -87,7 +87,7 @@ export declare namespace Fragment {
 /**
  * A document root node.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export class Document extends S.TaggedClass<Document>($I`Document`)(
@@ -98,7 +98,7 @@ export class Document extends S.TaggedClass<Document>($I`Document`)(
 /**
  * Companion namespace for {@link Document}.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Document {
@@ -8160,7 +8160,7 @@ export declare namespace HtmlNode {
  * Advisory sub-union of elements in the "metadata" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Metadata = taggedUnion<
@@ -8179,7 +8179,7 @@ export const Metadata = taggedUnion<
  * Advisory sub-union of elements in the "flow" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Flow = taggedUnion<
@@ -8445,7 +8445,7 @@ export const Flow = taggedUnion<
  * Advisory sub-union of elements in the "sectioning" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Sectioning = taggedUnion<
@@ -8457,7 +8457,7 @@ export const Sectioning = taggedUnion<
  * Advisory sub-union of elements in the "heading" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Heading = taggedUnion<
@@ -8469,7 +8469,7 @@ export const Heading = taggedUnion<
  * Advisory sub-union of elements in the "phrasing" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Phrasing = taggedUnion<
@@ -8642,7 +8642,7 @@ export const Phrasing = taggedUnion<
  * Advisory sub-union of elements in the "embedded" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Embedded = taggedUnion<
@@ -8670,7 +8670,7 @@ export const Embedded = taggedUnion<
  * Advisory sub-union of elements in the "interactive" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Interactive = taggedUnion<
@@ -8723,7 +8723,7 @@ export const Interactive = taggedUnion<
  * Advisory sub-union of elements in the "palpable" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const Palpable = taggedUnion<
@@ -8953,7 +8953,7 @@ export const Palpable = taggedUnion<
  * Advisory sub-union of elements in the "script-supporting" content category. Non-normative
  * (derived from the WHATWG element index); see `data/SOURCES.md`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const ScriptSupporting = taggedUnion<Script.Type | Template.Type, Script.Encoded | Template.Encoded>(

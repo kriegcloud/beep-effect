@@ -28,7 +28,7 @@ export const VERSION = "0.0.0" as const;
  * Global-attribute overlay: the shared `GlobalAttributes` field bundle and its
  * reusable enumerated value schemas.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export * from "./Html.attributes.ts";
@@ -36,7 +36,7 @@ export * from "./Html.attributes.ts";
  * Per-element metadata table (`ELEMENT_META`): interface, conformance, content
  * categories, and void/raw-text classification.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export * from "./Html.meta.ts";
@@ -65,7 +65,7 @@ export * from "./Html.model.ts";
  * console.log(Text.make({ value: "hi" })._tag) // "#text"
  * ```
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export * from "./Html.nodes.ts";

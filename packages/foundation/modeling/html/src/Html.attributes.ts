@@ -29,7 +29,7 @@ const $I = $HtmlId.create("Html.attributes");
 /**
  * `dir` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const Dir = S.Literals(["ltr", "rtl", "auto"]).pipe(
@@ -38,7 +38,7 @@ export const Dir = S.Literals(["ltr", "rtl", "auto"]).pipe(
 /**
  * `translate` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const Translate = S.Literals(["yes", "no"]).pipe(
@@ -47,7 +47,7 @@ export const Translate = S.Literals(["yes", "no"]).pipe(
 /**
  * `contenteditable` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const ContentEditable = S.Union([S.Literal(""), S.Literals(["true", "false", "plaintext-only"])]).pipe(
@@ -56,7 +56,7 @@ export const ContentEditable = S.Union([S.Literal(""), S.Literals(["true", "fals
 /**
  * `draggable` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const Draggable = S.Literals(["true", "false"]).pipe(
@@ -65,7 +65,7 @@ export const Draggable = S.Literals(["true", "false"]).pipe(
 /**
  * `spellcheck` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const SpellCheck = S.Union([S.Literal(""), S.Literals(["true", "false"])]).pipe(
@@ -74,7 +74,7 @@ export const SpellCheck = S.Union([S.Literal(""), S.Literals(["true", "false"])]
 /**
  * `writingsuggestions` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const WritingSuggestions = S.Literals(["true", "false"]).pipe(
@@ -83,7 +83,7 @@ export const WritingSuggestions = S.Literals(["true", "false"]).pipe(
 /**
  * `autocapitalize` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const AutoCapitalize = S.Literals(["off", "none", "on", "sentences", "words", "characters"]).pipe(
@@ -92,7 +92,7 @@ export const AutoCapitalize = S.Literals(["off", "none", "on", "sentences", "wor
 /**
  * `autocorrect` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const AutoCorrect = S.Literals(["on", "off"]).pipe(
@@ -101,7 +101,7 @@ export const AutoCorrect = S.Literals(["on", "off"]).pipe(
 /**
  * `inputmode` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const InputMode = S.Literals(["none", "text", "tel", "url", "email", "numeric", "decimal", "search"]).pipe(
@@ -110,7 +110,7 @@ export const InputMode = S.Literals(["none", "text", "tel", "url", "email", "num
 /**
  * `enterkeyhint` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const EnterKeyHint = S.Literals(["enter", "done", "go", "next", "previous", "search", "send"]).pipe(
@@ -119,7 +119,7 @@ export const EnterKeyHint = S.Literals(["enter", "done", "go", "next", "previous
 /**
  * `hidden` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const Hidden = S.Union([S.Literal(""), S.Literals(["hidden", "until-found"])]).pipe(
@@ -128,7 +128,7 @@ export const Hidden = S.Union([S.Literal(""), S.Literals(["hidden", "until-found
 /**
  * `popover` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const Popover = S.Literals(["auto", "manual", "hint"]).pipe(
@@ -137,7 +137,7 @@ export const Popover = S.Literals(["auto", "manual", "hint"]).pipe(
 /**
  * `popovertargetaction` global attribute value.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const PopoverTargetAction = S.Literals(["toggle", "show", "hide"]).pipe(
@@ -148,7 +148,7 @@ export const PopoverTargetAction = S.Literals(["toggle", "show", "hide"]).pipe(
  * spec permits both `true`/`false` and the empty-string presence form (`""`,
  * e.g. `disabled=""`) on the wire, so both are accepted.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const BooleanAttribute = S.Union([S.Boolean, S.Literal("")]).pipe(
@@ -165,7 +165,7 @@ type Str = typeof Str;
 /**
  * The WHATWG global attributes (`dom.html#global-attributes`), value-typed.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const StandardGlobalAttributes = {
@@ -210,7 +210,7 @@ export const StandardGlobalAttributes = {
  * `data-*` custom data attributes, represented as the `dataset` record bag
  * (mirrors `HTMLElement.dataset`).
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const DatasetAttribute = {
@@ -277,7 +277,7 @@ const ariaAttributeNames = [
  * `role` plus the WAI-ARIA `aria-*` state and property attributes. Universally
  * permitted; typed as optional strings.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const AriaAttributes = {
@@ -366,7 +366,7 @@ const eventHandlerNames = [
  * The global event-handler content attributes (`on*`). Universally permitted;
  * typed as optional strings.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const EventHandlerAttributes = Object.fromEntries(eventHandlerNames.map((n) => [n, Str])) as {
@@ -377,7 +377,7 @@ export const EventHandlerAttributes = Object.fromEntries(eventHandlerNames.map((
  * The complete global attribute bundle spread into every generated element
  * class: standard globals + `data-*` (`dataset`) + ARIA + event handlers.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const GlobalAttributes = {
@@ -392,7 +392,7 @@ export const GlobalAttributes = {
  * attribute decoded/encoded types referenced (by intersection) in every
  * generated element's companion namespace.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export const GlobalAttributesStruct = S.Struct(GlobalAttributes);
@@ -400,7 +400,7 @@ export const GlobalAttributesStruct = S.Struct(GlobalAttributes);
 /**
  * Decoded type of the shared global attributes.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export type GlobalAttributesType = typeof GlobalAttributesStruct.Type;
@@ -408,7 +408,7 @@ export type GlobalAttributesType = typeof GlobalAttributesStruct.Type;
 /**
  * Encoded type of the shared global attributes.
  *
- * @category attributes
+ * @category schemas
  * @since 0.0.0
  */
 export type GlobalAttributesEncoded = typeof GlobalAttributesStruct.Encoded;

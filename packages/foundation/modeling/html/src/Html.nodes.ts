@@ -26,7 +26,7 @@ const $I = $HtmlId.create("Html.nodes");
  * console.log(node._tag) // "#text"
  * ```
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export class Text extends S.TaggedClass<Text>($I`Text`)(
@@ -42,7 +42,7 @@ export class Text extends S.TaggedClass<Text>($I`Text`)(
 /**
  * Companion namespace for {@link Text}.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Text {
@@ -58,7 +58,7 @@ export declare namespace Text {
 /**
  * An HTML comment node (`<!-- ... -->`).
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export class Comment extends S.TaggedClass<Comment>($I`Comment`)(
@@ -74,7 +74,7 @@ export class Comment extends S.TaggedClass<Comment>($I`Comment`)(
 /**
  * Companion namespace for {@link Comment}.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Comment {
@@ -90,7 +90,7 @@ export declare namespace Comment {
 /**
  * A document type declaration (`<!DOCTYPE html>`).
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export class Doctype extends S.TaggedClass<Doctype>($I`Doctype`)(
@@ -108,7 +108,7 @@ export class Doctype extends S.TaggedClass<Doctype>($I`Doctype`)(
 /**
  * Companion namespace for {@link Doctype}.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export declare namespace Doctype {

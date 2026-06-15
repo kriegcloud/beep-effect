@@ -322,7 +322,7 @@ ${typeFields(true)}
     `/**
  * ${desc}
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export class ${cls} extends S.TaggedClass<${cls}>($I\`${cls}\`)(
@@ -333,7 +333,7 @@ export class ${cls} extends S.TaggedClass<${cls}>($I\`${cls}\`)(
 /**
  * Companion namespace for {@link ${cls}}.
  *
- * @category nodes
+ * @category models
  * @since 0.0.0
  */
 export declare namespace ${cls} {
@@ -354,7 +354,7 @@ export declare namespace ${cls} {
  * Advisory sub-union of elements in the "${cat}" content category. Non-normative
  * (derived from the WHATWG element index); see \`data/SOURCES.md\`.
  *
- * @category categories
+ * @category schemas
  * @since 0.0.0
  */
 export const ${name} = taggedUnion<${types}, ${encodeds}>(
@@ -483,7 +483,7 @@ import * as S from "effect/Schema";
 /**
  * Schema describing one HTML element kind's metadata.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export const HtmlElementMeta = S.Struct({
@@ -498,7 +498,7 @@ export const HtmlElementMeta = S.Struct({
 /**
  * Decoded type of {@link HtmlElementMeta}.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export type HtmlElementMeta = typeof HtmlElementMeta.Type;
@@ -506,7 +506,7 @@ export type HtmlElementMeta = typeof HtmlElementMeta.Type;
 /**
  * Metadata for every generated HTML element, keyed by tag name.
  *
- * @category metadata
+ * @category models
  * @since 0.0.0
  */
 export const ELEMENT_META: { readonly [tag: string]: HtmlElementMeta } = {
