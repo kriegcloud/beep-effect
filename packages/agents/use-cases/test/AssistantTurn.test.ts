@@ -1,13 +1,35 @@
 import { CodeBlock, HeadingBlock, ParagraphBlock, TextInline } from "@beep/agents-domain/values/AssistantContent";
-import { AgentTurnKernel, AssistantTurnHistoryItem, UserTurnHistoryItem } from "@beep/agents-use-cases/public";
+import {
+  AgentTurnKernel,
+  AssistantTurnHistoryItem,
+  TurnHistoryItem,
+  UserTurnHistoryItem,
+} from "@beep/agents-use-cases/public";
 import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/test";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Stream } from "effect";
+import * as S from "effect/Schema";
 
 const userItem = (text: string) => UserTurnHistoryItem.make({ text });
 const assistantItem = (text: string) => AssistantTurnHistoryItem.make({ text });
 
 describe("@beep/agents-use-cases AssistantTurn", () => {
+  it("models history as a role-tagged union of user and assistant items", () => {
+    const decoded = S.decodeUnknownSync(TurnHistoryItem)({ role: "user", text: "hello" });
+    const user = userItem("hello");
+    const assistant = assistantItem("hi");
+
+    expect(decoded).toBeInstanceOf(UserTurnHistoryItem);
+    expect(user.role).toBe("user");
+    expect(assistant.role).toBe("assistant");
+    expect(
+      TurnHistoryItem.match(decoded, {
+        assistant: (item) => `assistant:${item.text}`,
+        user: (item) => `user:${item.text}`,
+      })
+    ).toBe("user:hello");
+  });
+
   it("derives the deterministic scripted block sequence from the last user prompt", () => {
     const blocks = fixtureBlocksFor([assistantItem("ignored"), userItem("hello world")]);
 

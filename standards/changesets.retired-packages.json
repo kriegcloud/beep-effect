@@ -1,0 +1,16 @@
+{
+  "packages": [
+    {
+      "name": "@beep/messages",
+      "rationale": "Retired workspace package with historical pending changesets retained until release cleanup drains them."
+    },
+    {
+      "name": "@beep/ontology",
+      "rationale": "Retired workspace package with historical pending changesets retained until release cleanup drains them."
+    },
+    {
+      "name": "@beep/sandbox",
+      "rationale": "Retired workspace package with historical pending changesets retained until release cleanup drains them."
+    }
+  ]
+}

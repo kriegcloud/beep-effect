@@ -205,3 +205,15 @@ the explicit pause before any `./goals` packets are created.
 **Rationale:** The brief is strong enough to name concrete candidate goals, but
 the owner has asked to stop before graduation/scaffolding. Decomposition should
 therefore prepare the goal map without creating goal packet files.
+
+## 2026-06-15 — first goal graduation
+
+**Question:** Which goal should be scaffolded first after decomposition?
+
+**Answer:** Scaffold only `goals/effect-capability-kg-seed`.
+
+**Rationale:** The owner approved the first goal after the map review. The
+seed goal has the right blast radius: deterministic seed extraction,
+schema-first graph/report facts, a tiny ontology kernel, and fixture advisory
+findings. Later router, CLI, hook, and ratchet goals remain uncreated until the
+seed proof exists.
