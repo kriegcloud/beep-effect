@@ -1143,23 +1143,12 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
  * @example
  * ```ts
  * import { makePgliteIntegrationGate } from "@beep/test-utils"
- * import { describe, layer } from "@effect/vitest"
  *
- * const {
- *   shouldRunPgliteIntegration,
- *   pgliteIntegrationTimeoutMillis,
- *   makePgliteLayer,
- * } = makePgliteIntegrationGate()
+ * const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } =
+ *   makePgliteIntegrationGate()
  *
- * if (!shouldRunPgliteIntegration) {
- *   describe.skip("My PgLite suite", () => {})
- * } else {
- *   describe("My PgLite suite", { concurrent: false }, () => {
- *     layer(makePgliteLayer(), { timeout: "5 minutes" })((it) => {
- *       it.effect("runs", () => ..., pgliteIntegrationTimeoutMillis)
- *     })
- *   })
- * }
+ * console.log(shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis)
+ * console.log(makePgliteLayer())
  * ```
  * @category constructors
  * @since 0.0.0
@@ -1194,6 +1183,24 @@ export const makePgliteIntegrationGate = <MigrateError = never, SeedError = neve
   };
 };
 
+/**
+ * Build the recommended PGLite SQL test layer for vertical-slice integration tests.
+ *
+ * In `auto` mode, `BEEP_TEST_DATABASE_URL` selects the cheap shared external
+ * PostgreSQL driver. Without that environment variable, the helper falls back
+ * to the scoped PGLite Testcontainers driver.
+ *
+ * @param options - Optional mode, driver configuration, and migrate/seed hooks.
+ * @returns A SQL test layer backed by either the shared external PGLite server or a scoped Testcontainer.
+ * @example
+ * ```ts
+ * import { makePgliteSqlTestLayer } from "@beep/test-utils"
+ * const layer = makePgliteSqlTestLayer()
+ * console.log(layer)
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makePgliteSqlTestLayer = <MigrateError = never, SeedError = never>(
   options: PgliteSqlTestLayerOptions<MigrateError, SeedError> = {}
 ): Layer.Layer<PgClient.PgClient | SqlClient.SqlClient | TestDatabaseInfo, SqlTestHarnessError> =>

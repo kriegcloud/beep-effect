@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "018a8c2ffb76cd17a083309b750161d1c50fb092876190dccd6bf1e7081a611b",
+    "digest": "9a36a54d4b0b02676ce8cbb2aac714cb30872233c9b1d9d58a427ec12a68b76b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sha256": "206b7ac8907a32eb663e536de665079af3aa5f532c56c1cb895103f96e424f58",
-        "bytes": 42205
+        "sha256": "b950b78595ed11c883f305601c5da7b831cb5bb3096238dd226e0df86ac123a9",
+        "bytes": 42611
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
@@ -173,7 +173,7 @@
         "symbolName": "makePgliteIntegrationGate",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1167,
+        "sourceLine": 1156,
         "summary": "Pre-computed gate values for PGLite integration tests.",
         "categories": [
           "constructors"
@@ -198,12 +198,22 @@
         "symbolName": "makePgliteSqlTestLayer",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1197,
-        "summary": "",
-        "categories": [],
-        "since": [],
-        "tags": [],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . makepglitesqltestlayer const packages/tooling/test-kit/test-utils/src/sqltest.ts"
+        "sourceLine": 1204,
+        "summary": "Build the recommended PGLite SQL test layer for vertical-slice integration tests.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils . makepglitesqltestlayer const build the recommended pglite sql test layer for vertical-slice integration tests. constructors packages/tooling/test-kit/test-utils/src/sqltest.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -824,7 +834,7 @@
         "symbolName": "makePgliteIntegrationGate",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1167,
+        "sourceLine": 1156,
         "summary": "Pre-computed gate values for PGLite integration tests.",
         "categories": [
           "constructors"
@@ -849,12 +859,22 @@
         "symbolName": "makePgliteSqlTestLayer",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1197,
-        "summary": "",
-        "categories": [],
-        "since": [],
-        "tags": [],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index makepglitesqltestlayer const packages/tooling/test-kit/test-utils/src/sqltest.ts"
+        "sourceLine": 1204,
+        "summary": "Build the recommended PGLite SQL test layer for vertical-slice integration tests.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/index ./index makepglitesqltestlayer const build the recommended pglite sql test layer for vertical-slice integration tests. constructors packages/tooling/test-kit/test-utils/src/sqltest.ts"
       },
       {
         "packageName": "@beep/test-utils",
@@ -1425,7 +1445,7 @@
         "symbolName": "makePgliteIntegrationGate",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1167,
+        "sourceLine": 1156,
         "summary": "Pre-computed gate values for PGLite integration tests.",
         "categories": [
           "constructors"
@@ -1450,12 +1470,22 @@
         "symbolName": "makePgliteSqlTestLayer",
         "exportKind": "const",
         "sourcePath": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
-        "sourceLine": 1197,
-        "summary": "",
-        "categories": [],
-        "since": [],
-        "tags": [],
-        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/sqltest ./sqltest makepglitesqltestlayer const packages/tooling/test-kit/test-utils/src/sqltest.ts"
+        "sourceLine": 1204,
+        "summary": "Build the recommended PGLite SQL test layer for vertical-slice integration tests.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/test-utils packages/tooling/test-kit/test-utils @beep/test-utils/sqltest ./sqltest makepglitesqltestlayer const build the recommended pglite sql test layer for vertical-slice integration tests. constructors packages/tooling/test-kit/test-utils/src/sqltest.ts"
       },
       {
         "packageName": "@beep/test-utils",
