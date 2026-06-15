@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2494fc04977d74cd9928ac9665d757ef628583772ff1baac6205d52d6aa8b01c",
+    "digest": "e53707ea3a5ef60a02528875f99a88a374b649343ef88f838faa3ebe44a1c063",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sha256": "6bb6cc9404b494944504004efa9950ac02716fe0774ad413518ecaad47954e6f",
-        "bytes": 3043
+        "sha256": "6bdd9d536135a29684c358af6ed1c0f7b1f4c7fa939213516c22a4069ee1371e",
+        "bytes": 3025
       },
       {
         "path": "packages/agents/server/src/index.ts",
