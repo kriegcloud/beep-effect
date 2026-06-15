@@ -65,8 +65,8 @@ sharp.*
 **Agent:** Resuming at **research** — open question: "what exists for
 deadline extraction." Running the in-repo inventory and the external sweep.
 
-> ▸ Agent runs `graphify query "uspto office action deadline docket"`,
-> searches `standards/repo-exports.catalog.md`, fans out web searches.
+> ▸ Agent searches `standards/repo-exports.catalog.md`, scans relevant package
+> docs/source, and fans out web searches.
 
 **Agent:** RESEARCH.md written. The load-bearing findings:
 

@@ -48,8 +48,7 @@ Workflow:
    `goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts`
    when re-baselining.
 7. Use `npx vitest run` for `packages/tooling/tool/cli` tests, never
-   `bun test`. Run `graphify update .` and refresh the repo-exports catalog
-   if exported symbols changed.
+   `bun test`. Refresh the repo-exports catalog if exported symbols changed.
 
 Acceptance:
 

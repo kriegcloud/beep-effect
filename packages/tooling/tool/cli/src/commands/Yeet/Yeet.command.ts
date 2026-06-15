@@ -5,6 +5,8 @@
  * @since 0.0.0
  */
 
+import { $RepoCliId } from "@beep/identity/packages";
+import * as S from "effect/Schema";
 import { Argument, Command, Flag } from "effect/unstable/cli";
 import {
   runYeetFallowFeedback,
@@ -12,8 +14,10 @@ import {
   runYeetPlanContractCheck,
 } from "./internal/FallowFeedback.js";
 import { runYeet, YeetRunOptions } from "./internal/Handler.js";
-import { DEFAULT_YEET_PACKET_DIR } from "./internal/Planner.js";
-import type { YeetProofTier, YeetRunMode } from "./internal/Planner.js";
+import { DEFAULT_YEET_PACKET_DIR, YeetProofTier } from "./internal/Planner.js";
+import type { YeetRunMode } from "./internal/Planner.js";
+
+const $I = $RepoCliId.create("commands/Yeet/Yeet.command");
 
 const baseFlag = Flag.string("base").pipe(
   Flag.withDescription("Base ref for affected feedback planning"),
@@ -227,64 +231,72 @@ const statusFlags = {
   remote: remoteFlag,
 } as const;
 
-type SharedOptions = {
-  readonly allowStaleBase?: boolean;
-  readonly amend?: boolean;
-  readonly base: string;
-  readonly bots?: string;
-  readonly fast?: boolean;
-  readonly head: string;
-  readonly json: boolean;
-  readonly packetDir: string;
-  readonly plan: boolean;
-  readonly monitor?: boolean;
-  readonly noEdit?: boolean;
-  readonly pr?: boolean;
-  readonly pushOnly?: boolean;
-  readonly remote?: boolean;
-  readonly replyBody?: string;
-  readonly replyThread?: string;
-  readonly requireGreptileIssues?: number;
-  readonly requireGreptileScore?: string;
-  readonly requireReviewComments?: number;
-  readonly resolveThreads?: string;
-  readonly retriggerGreptile?: boolean;
-  readonly reuseVerified?: boolean;
-  readonly stagedOnly?: boolean;
-  readonly startPrEarly?: boolean;
-  readonly summary?: boolean;
-  readonly tier?: YeetProofTier;
-};
+class SharedOptions extends S.Class<SharedOptions>($I`SharedOptions`)(
+  {
+    allowStaleBase: S.optionalKey(S.Boolean),
+    amend: S.optionalKey(S.Boolean),
+    base: S.String,
+    bots: S.optionalKey(S.String),
+    fast: S.optionalKey(S.Boolean),
+    head: S.String,
+    json: S.Boolean,
+    monitor: S.optionalKey(S.Boolean),
+    noEdit: S.optionalKey(S.Boolean),
+    packetDir: S.String,
+    plan: S.Boolean,
+    pr: S.optionalKey(S.Boolean),
+    pushOnly: S.optionalKey(S.Boolean),
+    remote: S.optionalKey(S.Boolean),
+    replyBody: S.optionalKey(S.String),
+    replyThread: S.optionalKey(S.String),
+    requireGreptileIssues: S.optionalKey(S.Finite),
+    requireGreptileScore: S.optionalKey(S.String),
+    requireReviewComments: S.optionalKey(S.Finite),
+    resolveThreads: S.optionalKey(S.String),
+    retriggerGreptile: S.optionalKey(S.Boolean),
+    reuseVerified: S.optionalKey(S.Boolean),
+    stagedOnly: S.optionalKey(S.Boolean),
+    startPrEarly: S.optionalKey(S.Boolean),
+    summary: S.optionalKey(S.Boolean),
+    tier: S.optionalKey(YeetProofTier),
+  },
+  $I.annote("SharedOptions", {
+    description: "CLI option bag shared by Yeet commands before handler defaults are applied.",
+  })
+) {}
 
-const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly message?: string }) =>
-  runYeet(
+const runYeetMode = (mode: YeetRunMode, options: SharedOptions & { readonly message?: string }) => {
+  const sharedOptions = SharedOptions.make(options);
+
+  return runYeet(
     YeetRunOptions.make({
-      ...options,
-      allowStaleBase: options.allowStaleBase ?? false,
-      amend: options.amend ?? false,
-      bots: options.bots ?? "greptile,coderabbit,chatgpt",
-      fast: options.fast ?? false,
+      ...sharedOptions,
+      allowStaleBase: sharedOptions.allowStaleBase ?? false,
+      amend: sharedOptions.amend ?? false,
+      bots: sharedOptions.bots ?? "greptile,coderabbit,chatgpt",
+      fast: sharedOptions.fast ?? false,
       message: options.message ?? "",
       mode,
-      monitor: options.monitor ?? false,
-      noEdit: options.noEdit ?? false,
-      pr: options.pr ?? false,
-      pushOnly: options.pushOnly ?? false,
-      remote: options.remote ?? false,
-      replyBody: options.replyBody ?? "",
-      replyThread: options.replyThread ?? "",
-      requireGreptileIssues: options.requireGreptileIssues ?? -1,
-      requireGreptileScore: options.requireGreptileScore ?? "",
-      requireReviewComments: options.requireReviewComments ?? -1,
-      resolveThreads: options.resolveThreads ?? "",
-      retriggerGreptile: options.retriggerGreptile ?? false,
-      reuseVerified: options.reuseVerified ?? false,
-      stagedOnly: options.stagedOnly ?? false,
-      startPrEarly: options.startPrEarly ?? false,
-      summary: options.summary ?? false,
-      tier: options.tier ?? "full",
+      monitor: sharedOptions.monitor ?? false,
+      noEdit: sharedOptions.noEdit ?? false,
+      pr: sharedOptions.pr ?? false,
+      pushOnly: sharedOptions.pushOnly ?? false,
+      remote: sharedOptions.remote ?? false,
+      replyBody: sharedOptions.replyBody ?? "",
+      replyThread: sharedOptions.replyThread ?? "",
+      requireGreptileIssues: sharedOptions.requireGreptileIssues ?? -1,
+      requireGreptileScore: sharedOptions.requireGreptileScore ?? "",
+      requireReviewComments: sharedOptions.requireReviewComments ?? -1,
+      resolveThreads: sharedOptions.resolveThreads ?? "",
+      retriggerGreptile: sharedOptions.retriggerGreptile ?? false,
+      reuseVerified: sharedOptions.reuseVerified ?? false,
+      stagedOnly: sharedOptions.stagedOnly ?? false,
+      startPrEarly: sharedOptions.startPrEarly ?? false,
+      summary: sharedOptions.summary ?? false,
+      tier: sharedOptions.tier ?? "full",
     })
   );
+};
 
 const yeetVerifyCommand = Command.make("verify", sharedFlags, (options) => runYeetMode("verify", options)).pipe(
   Command.withDescription("Run the canonical pre-push proof without duplicate affected feedback")

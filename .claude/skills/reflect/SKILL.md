@@ -64,4 +64,3 @@ git diff --check -- goals/<slug>
 
 - `yeet` — commit/push/PR after the reflection is written.
 - `quality-review-fix-loop` — late-initiative closure + reviewer/fixer loop.
-- `graphify` — promote durable lessons into the knowledge graph (P3 consolidation).

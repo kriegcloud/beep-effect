@@ -11,7 +11,7 @@ update through repair/verify/publish/closeout to merged PR #226.
 
 | # | Enhancement | What happened |
 |---|---|---|
-| E1 | `--staged-only` + summarized refusals | Publish refused hundreds of untracked `graphify-out/wiki/*` paths; full enumeration scrolled the remedy away; operator hand-rolled `git stash push --keep-index --include-untracked`, which later produced pop conflicts because `--keep-index` also captures staged content. ~20 min lost. |
+| E1 | `--staged-only` + summarized refusals | Publish refused hundreds of untracked generated wiki paths; full enumeration scrolled the remedy away; operator hand-rolled `git stash push --keep-index --include-untracked`, which later produced pop conflicts because `--keep-index` also captures staged content. ~20 min lost. |
 | E2 | Base-freshness gate | Branch merge-base was 57 commits behind `origin/main` with 3 overlapping files (incl. an identical `_typos.toml` fix landed by a sibling agent). Only git's non-fast-forward rejection (remote branch happened to exist) prevented a conflicted PR. Manual mid-flight rebase with conflicts followed. |
 | E3 | Changeset parity | Hosted Repo Sanity failed on a missing changeset. NOTE: local pre-push already runs `changeset status --since=origin/main` — the session pushed `--no-verify` and never hit it. Real gap: no sub-lane hint, no skill docs. |
 | E4 | Packetized intent failures + typos hint | Both commit-phase failures (untracked refusal, typos pre-commit hook) produced no failure packet; diagnosis required grep-mining raw output. `knownSubLaneHints` has `cspell` but not `typos`. |

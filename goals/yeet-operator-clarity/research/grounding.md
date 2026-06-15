@@ -23,7 +23,7 @@ Date: 2026-06-11. Branch: `goals/yeet-operator-clarity`.
 ## Decisions
 
 - Create a successor packet instead of reopening the completed predecessor.
-- Keep V1 focused on Yeet operator clarity; graphify behavior and pglite flakes
+- Keep V1 focused on Yeet operator clarity; repository knowledge-graph behavior and pglite flakes
   are out of scope.
 - Make compact output additive and opt-in first.
 - Keep `yeet status` local-first; live GitHub data is behind `--remote`.

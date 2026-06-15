@@ -10,13 +10,13 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { O } from "@beep/utils";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
-import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { commandTextForStep, RepoPlanStep, RepoStepRunResult } from "../../../internal/repo-run/index.js";
-import { knownSubLaneRemediationFromOutput } from "./QualityIssueIndex.js";
+import { commandTextForStep, RepoPlanStep, RepoStepRunResult } from "../../../internal/repo-run/index.ts";
+import { knownSubLaneRemediationFromOutput } from "./QualityIssueIndex.ts";
 
 const $I = $RepoCliId.create("commands/Yeet/internal/Verdict");
 
@@ -317,9 +317,11 @@ export const buildYeetVerdict = (input: {
       )
     ),
     runId: input.runId,
-    ...R.getSomes({ indexPath: O.fromUndefinedOr(input.indexPath) }),
-    ...R.getSomes({ baseFreshness: O.fromUndefinedOr(input.baseFreshness) }),
-    ...R.getSomes({ stash: O.fromUndefinedOr(input.stash) }),
+    ...O.getSomesStruct({
+      indexPath: O.fromUndefinedOr(input.indexPath),
+      baseFreshness: O.fromUndefinedOr(input.baseFreshness),
+      stash: O.fromUndefinedOr(input.stash),
+    }),
   });
 };
 

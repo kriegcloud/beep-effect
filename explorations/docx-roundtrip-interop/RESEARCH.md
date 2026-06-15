@@ -47,11 +47,11 @@ Source: <https://pandoc.org/releases.html>
 
 ## In-Repo Capability Inventory
 
-Graphify note, 2026-06-15: `graphify query` was attempted for this packet but
-was low-signal. It surfaced existing Lexical round-trip tests and exploration
-manifest structure rather than a useful DOCX capability graph. The inventory
-below is therefore grounded in package READMEs/specs plus the repo export
-catalog: `goals/rich-text-foundation/SPEC.md`,
+Repo graph note, 2026-06-15: graph-based repo search was attempted for this
+packet but was low-signal. It surfaced existing Lexical round-trip tests and
+exploration manifest structure rather than a useful DOCX capability graph. The
+inventory below is therefore grounded in package READMEs/specs plus the repo
+export catalog: `goals/rich-text-foundation/SPEC.md`,
 `packages/foundation/modeling/lexical/README.md`,
 `packages/foundation/modeling/md/README.md`,
 `goals/file-processing-capability/SPEC.md`, and

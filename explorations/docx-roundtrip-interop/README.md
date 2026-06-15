@@ -31,8 +31,8 @@ None - ready for graduation review into a first goal packet, likely
 ## Trail
 
 - 2026-06-15: review follow-up recorded generated-once fixture provenance,
-  tables/custom styles as v1 gap-only evidence, graphify as low-signal, and
-  official Pandoc release verification wording.
+  tables/custom styles as v1 gap-only evidence, repo graph search as
+  low-signal, and official Pandoc release verification wording.
 - 2026-06-15: packet opened from the DOCX/Lexical/Pandoc planning session;
   pre-seeded through decompose because the main branch decisions were already
   resolved in conversation.

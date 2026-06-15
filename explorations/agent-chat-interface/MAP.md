@@ -2,8 +2,8 @@
 
 Candidate goal packets decomposed from [`BRIEF.md`](./BRIEF.md). Every major
 component cites an existing repo capability
-([`standards/repo-exports.catalog.md`](../../standards/repo-exports.catalog.md),
-graphify) or is marked **NET-NEW**. Proof-repo ports cite
+([`standards/repo-exports.catalog.md`](../../standards/repo-exports.catalog.md)
+and local package/docs evidence) or is marked **NET-NEW**. Proof-repo ports cite
 `/home/elpresidank/YeeBois/projects/effect-lexical-chat/` (read-only
 reference; same effect catalog `4.0.0-beta.79`).
 
