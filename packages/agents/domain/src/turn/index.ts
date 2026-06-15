@@ -20,16 +20,34 @@
  */
 export * as AssistantContent from "../values/AssistantContent/index.js";
 /**
- * Root AssistantContent compatibility exports.
+ * Flat assistant content compatibility exports.
  *
  * @example
  * ```ts
- * import { AssistantContent } from "@beep/agents-domain/turn"
+ * import { AssistantBlock } from "@beep/agents-domain/turn"
  *
- * console.log(AssistantContent)
+ * console.log(AssistantBlock)
  * ```
  *
  * @category value-objects
  * @since 0.0.0
  */
-export * from "../values/AssistantContent/index.js";
+export {
+  AssistantBlock,
+  assistantContentToDocument,
+  blockToMd,
+  CodeBlock,
+  HeadingBlock,
+  InlineNode,
+  inlineToMd,
+  LinkInline,
+  ListBlock,
+  ParagraphBlock,
+  QuoteBlock,
+  TextInline,
+} from "../values/AssistantContent/index.js";
+export type {
+  AssistantBlock as AssistantBlockType,
+  AssistantContent as AssistantContentType,
+  InlineNode as InlineNodeType,
+} from "../values/AssistantContent/index.js";
