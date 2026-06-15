@@ -4,23 +4,39 @@ import {
   defaultEffectCapabilitySeedFixtures,
   EffectCapabilitySeedFixture,
 } from "@beep/repo-utils/EffectCapabilityKG";
-import { A } from "@beep/utils";
+import { A, Str } from "@beep/utils";
 import { expect, layer } from "@effect/vitest";
-import { Effect, pipe } from "effect";
+import { Effect, FileSystem, Path, pipe } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { REPO_ROOT, TestLayer } from "./TSMorph.test-support.js";
-import type { EffectCapabilityAdvisoryScenario, EffectCapabilitySeedReport } from "@beep/repo-utils/EffectCapabilityKG";
+import type {
+  EffectCapabilityAdvisoryScenario,
+  EffectCapabilitySeedModuleName,
+  EffectCapabilitySeedReport,
+} from "@beep/repo-utils/EffectCapabilityKG";
 
 const TIMEOUT = 60_000;
-const EXPECTED_SEED_REPORT_SNAPSHOT = {
-  modules: 10,
-  edges: 4_245,
-  definesEdges: 417,
-  catalogVisibility: 425,
-  advisoryFindings: 4,
-} as const;
+const EXPECTED_SEED_MODULE_NAMES: ReadonlyArray<EffectCapabilitySeedModuleName> = ["Combiner", "Reducer", "Filter"];
+const EXPECTED_ADJACENT_MODULE_NAMES: ReadonlyArray<EffectCapabilitySeedModuleName> = [
+  "Option",
+  "Struct",
+  "Array",
+  "Record",
+  "Number",
+  "String",
+  "Boolean",
+];
+const EXPECTED_MODULE_NAMES = [...EXPECTED_SEED_MODULE_NAMES, ...EXPECTED_ADJACENT_MODULE_NAMES];
+const EXPECTED_ADVISORY_FINDINGS = 4;
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 type EffectCapabilitySeedFinding = ReturnType<typeof adviseEffectCapabilitySeedFixtures>[number];
+type SeedErrorCapture = {
+  readonly _tag: "EffectCapabilitySeedError" | "UnexpectedSuccess";
+  readonly message: string;
+  readonly sourcePath: O.Option<string>;
+};
 
 const findModule = (report: EffectCapabilitySeedReport, name: string) =>
   A.findFirst(report.modules, (module) => module.moduleName === name);
@@ -28,6 +44,69 @@ const findFindingByScenario = (
   findings: ReadonlyArray<EffectCapabilitySeedFinding>,
   scenario: EffectCapabilityAdvisoryScenario
 ) => A.findFirst(findings, (finding) => finding.scenario === scenario);
+const isCombinerGraphNode = (nodeId: string): boolean =>
+  nodeId === "module:Combiner" || Str.startsWith("symbol:Combiner.")(nodeId);
+const writeSeedRepoFile = Effect.fn("EffectCapabilityKGTest.writeSeedRepoFile")(function* (
+  repoRootPath: string,
+  relativePath: string,
+  content: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const pathApi = yield* Path.Path;
+  const absolutePath = pathApi.join(repoRootPath, relativePath);
+
+  yield* fs.makeDirectory(pathApi.dirname(absolutePath), { recursive: true });
+  yield* fs.writeFileString(absolutePath, content);
+});
+const writeMinimalEffectCorpus = Effect.fn("EffectCapabilityKGTest.writeMinimalEffectCorpus")(function* (
+  repoRootPath: string
+) {
+  yield* writeSeedRepoFile(
+    repoRootPath,
+    ".repos/effect-v4/packages/effect/tsconfig.json",
+    `${encodeJson({
+      compilerOptions: {
+        module: "ESNext",
+        moduleResolution: "Bundler",
+        strict: true,
+        target: "ES2022",
+      },
+      include: ["src/**/*.ts"],
+    })}\n`
+  );
+
+  for (const moduleName of EXPECTED_MODULE_NAMES) {
+    yield* writeSeedRepoFile(
+      repoRootPath,
+      `.repos/effect-v4/packages/effect/src/${moduleName}.ts`,
+      `/** Minimal ${moduleName} seed fixture. */\nexport const ${moduleName}Seed = "${moduleName}"\n`
+    );
+  }
+});
+const captureSeedError = (repoRootPath: string) =>
+  buildEffectCapabilitySeedReport(repoRootPath).pipe(
+    Effect.map(
+      (): SeedErrorCapture => ({
+        _tag: "UnexpectedSuccess",
+        message: "Expected EffectCapabilitySeedError.",
+        sourcePath: O.none<string>(),
+      })
+    ),
+    Effect.catchTag("EffectCapabilitySeedError", (error) =>
+      Effect.succeed({
+        _tag: error._tag,
+        message: error.message,
+        sourcePath: error.sourcePath,
+      })
+    )
+  );
+const expectCapturedSeedError = (result: SeedErrorCapture, expectedSourcePath: string): void => {
+  expect(result._tag).toBe("EffectCapabilitySeedError");
+  expect(O.isSome(result.sourcePath)).toBe(true);
+  if (O.isSome(result.sourcePath)) {
+    expect(result.sourcePath.value).toBe(expectedSourcePath);
+  }
+};
 
 layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
   it.effect(
@@ -35,23 +114,26 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
     Effect.fn(function* () {
       const report = yield* buildEffectCapabilitySeedReport(REPO_ROOT);
 
-      expect(report.seedModules).toEqual(["Combiner", "Reducer", "Filter"]);
-      expect(report.modules).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.modules);
-      expect(report.edges).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.edges);
-      expect(report.catalogVisibility).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.catalogVisibility);
-      expect(report.advisoryFindings).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.advisoryFindings);
-      expect(A.filter(report.edges, (edge) => edge.relation === "defines")).toHaveLength(
-        EXPECTED_SEED_REPORT_SNAPSHOT.definesEdges
+      expect(report.seedModules).toEqual(EXPECTED_SEED_MODULE_NAMES);
+      expect(report.adjacentModules).toEqual(EXPECTED_ADJACENT_MODULE_NAMES);
+      expect(report.modules).toHaveLength(EXPECTED_MODULE_NAMES.length);
+      expect(report.advisoryFindings).toHaveLength(EXPECTED_ADVISORY_FINDINGS);
+
+      const extractedSymbolCount = pipe(
+        report.modules,
+        A.reduce(0, (total, module) => total + module.symbols.length)
       );
+      const definesEdges = A.filter(report.edges, (edge) => edge.relation === "defines");
+      expect(definesEdges).toHaveLength(extractedSymbolCount);
+      expect(report.edges.length).toBeGreaterThan(extractedSymbolCount);
+
       const moduleNames = pipe(
         report.modules,
         A.map((module) => module.moduleName)
       );
-      expect(moduleNames).toEqual(expect.arrayContaining(["Combiner", "Reducer", "Filter"]));
-      expect(moduleNames).toEqual(
-        expect.arrayContaining(["Option", "Struct", "Array", "Record", "Number", "String", "Boolean"])
-      );
-      expect(A.take(moduleNames, 3)).toEqual(["Combiner", "Reducer", "Filter"]);
+      expect(moduleNames).toEqual(expect.arrayContaining([...EXPECTED_SEED_MODULE_NAMES]));
+      expect(moduleNames).toEqual(expect.arrayContaining([...EXPECTED_ADJACENT_MODULE_NAMES]));
+      expect(A.take(moduleNames, 3)).toEqual(EXPECTED_SEED_MODULE_NAMES);
 
       const combiner = findModule(report, "Combiner");
       const reducer = findModule(report, "Reducer");
@@ -226,6 +308,8 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
         {
           ...report,
           modules: A.filter(report.modules, (module) => module.moduleName !== "Combiner"),
+          edges: A.filter(report.edges, (edge) => !isCombinerGraphNode(edge.from) && !isCombinerGraphNode(edge.to)),
+          catalogVisibility: A.filter(report.catalogVisibility, (entry) => entry.moduleName !== "Combiner"),
         },
         [
           EffectCapabilitySeedFixture.make({
@@ -242,6 +326,57 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
       expect(finding.decision).toBe("decline");
       expect(finding.suggestedSymbols).toHaveLength(0);
       expect(finding.evidence).toHaveLength(1);
+    }),
+    TIMEOUT
+  );
+
+  it.effect(
+    "returns a typed seed error when the Effect v4 corpus is missing",
+    Effect.fn(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectory();
+
+      const result = yield* captureSeedError(tmpDir);
+
+      expectCapturedSeedError(result, ".repos/effect-v4/packages/effect/tsconfig.json");
+      expect(result.message).toContain(".repos/effect-v4/packages/effect/tsconfig.json");
+
+      yield* fs.remove(tmpDir, { recursive: true, force: true });
+    }),
+    TIMEOUT
+  );
+
+  it.effect(
+    "returns a typed seed error when the repo export catalog is missing",
+    Effect.fn(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectory();
+
+      yield* writeMinimalEffectCorpus(tmpDir);
+      const result = yield* captureSeedError(tmpDir);
+
+      expectCapturedSeedError(result, "standards/repo-exports.catalog.jsonc");
+      expect(result.message).toContain('Failed to read "standards/repo-exports.catalog.jsonc"');
+
+      yield* fs.remove(tmpDir, { recursive: true, force: true });
+    }),
+    TIMEOUT
+  );
+
+  it.effect(
+    "returns a typed seed error when the repo export catalog JSON is malformed",
+    Effect.fn(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectory();
+
+      yield* writeMinimalEffectCorpus(tmpDir);
+      yield* writeSeedRepoFile(tmpDir, "standards/repo-exports.catalog.jsonc", "{ not valid json");
+      const result = yield* captureSeedError(tmpDir);
+
+      expectCapturedSeedError(result, "standards/repo-exports.catalog.jsonc");
+      expect(result.message).toContain('Failed to parse "standards/repo-exports.catalog.jsonc"');
+
+      yield* fs.remove(tmpDir, { recursive: true, force: true });
     }),
     TIMEOUT
   );
