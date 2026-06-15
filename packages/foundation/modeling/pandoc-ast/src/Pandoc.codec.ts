@@ -199,6 +199,14 @@ const decodeTablePayloadWire = S.decodeUnknownEffect(TablePayloadWire);
 const decodeTableCaptionWithShortWire = S.decodeUnknownEffect(TableCaptionWithShortWire);
 const decodeListNumberStyle = S.decodeUnknownEffect(PandocListNumberStyle);
 const decodeListNumberDelimiter = S.decodeUnknownEffect(PandocListNumberDelimiter);
+const defaultListNumberStyle: PandocListNumberStyle = "DefaultStyle";
+const defaultListNumberDelimiter: PandocListNumberDelimiter = "DefaultDelim";
+
+const listNumberStyleFromWire = (input: unknown): Effect.Effect<PandocListNumberStyle> =>
+  decodeListNumberStyle(input).pipe(Effect.orElseSucceed(() => defaultListNumberStyle));
+
+const listNumberDelimiterFromWire = (input: unknown): Effect.Effect<PandocListNumberDelimiter> =>
+  decodeListNumberDelimiter(input).pipe(Effect.orElseSucceed(() => defaultListNumberDelimiter));
 
 const attrFromWire = (input: unknown): Effect.Effect<PandocAttr, S.SchemaError> =>
   Effect.map(decodeAttrWire(input), ([id, classes, keyValues]) => PandocAttr.make({ classes, id, keyValues }));
@@ -362,8 +370,8 @@ const decodeAttributedBlockChildren = (
 
 const decodeOrderedListBlock = (payload: unknown): Effect.Effect<PandocBlock.Type, S.SchemaError> =>
   Effect.flatMap(decodeOrderedListPayloadWire(payload), ([[start, style, delimiter], itemWire]) =>
-    Effect.flatMap(decodeListNumberStyle(style.t), (styleValue) =>
-      Effect.flatMap(decodeListNumberDelimiter(delimiter.t), (delimiterValue) =>
+    Effect.flatMap(listNumberStyleFromWire(style.t), (styleValue) =>
+      Effect.flatMap(listNumberDelimiterFromWire(delimiter.t), (delimiterValue) =>
         Effect.map(decodeBlockItems(itemWire), (items) =>
           OrderedList.make({ delimiter: delimiterValue, items, start, style: styleValue })
         )

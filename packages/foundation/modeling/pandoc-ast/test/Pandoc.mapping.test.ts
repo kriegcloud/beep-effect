@@ -215,6 +215,53 @@ describe("Pandoc.mapping", () => {
       })
     ));
 
+  it("reports out-of-range Pandoc header levels as lossy paragraph degradation", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [7, ["", [], []], [{ c: "deep", t: "Str" }]],
+              t: "Header",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("Header");
+        expect(result.document.children[0]?._tag).toBe("p");
+      })
+    ));
+
+  it("reports nested inline compatibility issues at child-specific pointers", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                {
+                  c: [{ c: [["code-id", [], []], "marked"], t: "Code" }],
+                  t: "Emph",
+                },
+              ],
+              t: "Para",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expect(result.report.profile).toBe("gap");
+        expect(result.report.issues[0]?.construct).toBe("Code");
+        expect(result.report.issues[0]?.pointer).toBe("/blocks/0/children/0/children/0");
+      })
+    ));
+
   it("maps Pandoc soft breaks as spaces while preserving hard line breaks", () =>
     Effect.runPromise(
       Effect.gen(function* () {
@@ -237,7 +284,8 @@ describe("Pandoc.mapping", () => {
         const result = yield* pandocToDocument(pandoc);
         const paragraph = result.document.children[0];
 
-        expect(result.report.issues).toEqual([]);
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("SoftBreak");
         expect(paragraph?._tag).toBe("p");
         if (paragraph?._tag !== "p") {
           return;

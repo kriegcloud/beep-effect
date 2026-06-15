@@ -153,7 +153,19 @@ const pandocInlineToMd = (
     Match.tagsExhaustive({
       str: (node) => Effect.succeed(emptyProjection([mdText(node.text)])),
       space: () => Effect.succeed(emptyProjection([mdText(" ")])),
-      softbreak: () => Effect.succeed(emptyProjection([mdText(" ")])),
+      softbreak: () =>
+        Effect.succeed({
+          issues: [
+            issue({
+              construct: "SoftBreak",
+              direction: "pandoc-to-md",
+              message: "Pandoc soft breaks are normalized to spaces in Md-core.",
+              path,
+              severity: "lossy",
+            }),
+          ],
+          value: [mdText(" ")],
+        }),
       linebreak: () => Effect.succeed(emptyProjection([Md.Br.make({})])),
       emph: (node) =>
         Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => ({

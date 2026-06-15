@@ -21,7 +21,7 @@
         { "t": "Space" },
         { "t": "Strong", "c": [{ "t": "Str", "c": "carefully" }] },
         { "t": "Str", "c": "." },
-        { "t": "SoftBreak" },
+        { "t": "Space" },
         { "t": "Emph", "c": [{ "t": "Str", "c": "Then" }] },
         { "t": "Space" },
         { "t": "Code", "c": [["", [], []], "beep()"] },

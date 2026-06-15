@@ -136,7 +136,7 @@ describe("Pandoc.codec", () => {
       })
     ));
 
-  it("keeps unknown math and ordered-list constructor tags explicit", () =>
+  it("keeps unknown math explicit while preserving ordered-list item semantics", () =>
     Effect.runPromise(
       Effect.gen(function* () {
         const document = yield* decodePandocJson({
@@ -160,7 +160,11 @@ describe("Pandoc.codec", () => {
         if (paragraph?._tag === "para") {
           expect(paragraph.children[0]?._tag).toBe("unknownInline");
         }
-        expect(list?._tag).toBe("unknownBlock");
+        expect(list?._tag).toBe("orderedlist");
+        if (list?._tag === "orderedlist") {
+          expect(list.style).toBe("DefaultStyle");
+          expect(list.delimiter).toBe("DefaultDelim");
+        }
       })
     ));
 
