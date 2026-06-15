@@ -226,10 +226,14 @@ const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
 const unknownBlock = (constructor: string, payload: unknown): UnknownBlock =>
   UnknownBlock.make({ constructor, payload });
 
+// Constructor decode failures have no Pandoc tag to preserve, so use sentinels outside the Pandoc constructor set.
+const MalformedInlineConstructor = "MalformedInline";
+const MalformedBlockConstructor = "MalformedBlock";
+
 const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type> =>
   decodeConstructor(input).pipe(
     Effect.matchEffect({
-      onFailure: () => Effect.succeed(unknownInline("MalformedInline", input)),
+      onFailure: () => Effect.succeed(unknownInline(MalformedInlineConstructor, input)),
       onSuccess: (wire) => decodeInline(input).pipe(Effect.orElseSucceed(() => unknownInline(wire.t, wire.c))),
     })
   );
@@ -237,7 +241,7 @@ const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type>
 const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type> =>
   decodeConstructor(input).pipe(
     Effect.matchEffect({
-      onFailure: () => Effect.succeed(unknownBlock("MalformedBlock", input)),
+      onFailure: () => Effect.succeed(unknownBlock(MalformedBlockConstructor, input)),
       onSuccess: (wire) => decodeBlock(input).pipe(Effect.orElseSucceed(() => unknownBlock(wire.t, wire.c))),
     })
   );

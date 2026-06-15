@@ -359,6 +359,27 @@ describe("Pandoc.mapping", () => {
       })
     ));
 
+  it("preserves malformed inline wire tags when payload decoding fails", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [{ c: ["not-a-string"], t: "Str" }],
+              t: "Para",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("Str");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).not.toContain("MalformedInline");
+      })
+    ));
+
   it("maps Pandoc soft breaks as spaces while preserving hard line breaks", () =>
     Effect.runPromise(
       Effect.gen(function* () {

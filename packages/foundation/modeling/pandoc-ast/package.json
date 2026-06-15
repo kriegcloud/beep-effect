@@ -25,7 +25,7 @@
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
     "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
-    "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
+    "beep:test:integration": "bunx --bun vitest run test/integration",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
     "coverage": "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",

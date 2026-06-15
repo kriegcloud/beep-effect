@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7f297e7f8ac63442b63e62c711e1c413ec5edf4e4b8955e419c661962bf7fd82",
+    "digest": "5d1072359d556cb7e1f75051c1d83ea96f2e36e0a5bf0789e1ebffd66035ce5f",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/docgen/src/CLI.ts",
-        "sha256": "489a6dba38e986a01bd5182ecd3c7db0e8ad5971a3245a678c825a408466ba24",
-        "bytes": 6219
+        "sha256": "03d7bab17171ea562d7a5e1c206d8a9dfbce341aee35a63eb6d6546b680edcb3",
+        "bytes": 6241
       },
       {
         "path": "packages/tooling/tool/docgen/src/Configuration.ts",
