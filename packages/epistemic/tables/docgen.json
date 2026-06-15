@@ -62,6 +62,12 @@
       ],
       "@beep/epistemic-domain/values/ClaimLifecycle": [
         "../../../packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
       ]
     }
   }

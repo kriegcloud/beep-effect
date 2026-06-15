@@ -1140,6 +1140,8 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
  * returns a fresh scoped {@link makePgliteSqlTestLayer} layer using whichever
  * driver the environment selects.
  *
+ * @returns The run-gate predicate, the integration timeout constant, the
+ * resolved connection-URI/testcontainers flags, and a `makePgliteLayer` factory.
  * @example
  * ```ts
  * import { makePgliteIntegrationGate } from "@beep/test-utils"

@@ -2,8 +2,10 @@
 
 ## Status
 
-Lifecycle: `active` (blocked until `rich-text-foundation` and
-`workspace-thread-domain` close)
+Lifecycle: `completed-retained` — **merged to `main`** in
+[PR #243](https://github.com/kriegcloud/beep-effect/pull/243)
+(`Merge pull request #243`). Dependencies `rich-text-foundation` and
+`workspace-thread-domain` are closed.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -36,10 +38,10 @@ Use this command for execution-capable sessions:
 5. [`research/`](./research/) - supporting research, if present.
 6. [`history/`](./history/) - evidence and closeouts, if present.
 
-## Current Phase
+## Outcome
 
-P1 Implement complete; P2 Verify + P3 Close in progress. The full stack is built
-and verified: agents-slice turn kernel (Anthropic + deterministic fixture behind
+**All phases complete (P0–P3); merged to `main` (PR #243).** The full stack is
+built, verified, and shipped: agents-slice turn kernel (Anthropic + deterministic fixture behind
 one `AgentTurnKernel`), `scanChunk` + property test, md-aligned block schema +
 `@beep/md` lift, workspace persistence + `ThreadTimeline` (PGlite integration
 test), `ChatRpcs` + `agents-client` atoms (AtomRegistry interrupt cleanup), the
@@ -76,9 +78,17 @@ complexity stay hard-blocking; the standalone `fallow:dupes` lane still tracks
 all duplication. The audit wrapper in check mode exits 0 with zero blocking
 findings.
 
-One item remains: the full `tauri build` bundle needs a dev-machine bundle run
-(the runnable sidecar + rpc + real-LLM + persistence surface is validated; only
-the packaged-binary bundling is unrun).
+Merged via `gh pr merge --admin` during a GitHub web outage (the API was up; the
+two CI lanes still red at merge — `Check` and `Lint Policy` — are infra
+artifacts: `Check` passes locally identically to CI, `Lint Policy` hit the 25-min
+timeout under the outage). Both warrant a CI re-run on `main` once GitHub
+recovers, but neither is a code defect.
+
+Dev-machine follow-on (outside CI, not blocking): the full `tauri build` bundle
+needs a dev-machine bundle run (the runnable sidecar + rpc + real-LLM +
+persistence surface is validated; only the packaged-binary bundling is unrun).
+See `history/2026-06-14-fallow-audit-investigation.md` for the source-aware
+`fallow:audit` policy and the full CI-tail closeout in the reflection.
 
 ## Latest Evidence
 

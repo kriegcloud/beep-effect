@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-14",
+  "generatedOn": "2026-06-15",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -2021,6 +2021,14 @@
     },
     {
       "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "AuditDuplicationCloneGroups",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Internal lenient decoder for fallow audit JSON (clone-group source classification); a tool-output boundary shape, not a domain model."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
       "symbol": "FallowAuditRawReport",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -2127,7 +2135,7 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 99,
+      "line": 86,
       "owner": "@beep/workspace-tables",
       "reason": "Exception: golden converter round-trip test (decode -> toInsert -> fromRow) asserting concrete Thread/Turn/Message table column mappings and jsonb/text storage kinds; this is targeted table-projection coverage, not a schema-value property law for S.toArbitrary."
     },
