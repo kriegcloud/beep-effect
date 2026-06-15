@@ -298,6 +298,14 @@ const forwarderRunMaxSnapshotExportsFlag = Flag.integer("max-snapshot-exports").
     "Per-run Parquet snapshot exports to keep; older snapshots are pruned automatically after each forwarder run"
   )
 );
+// Accepted but inert: `forwarder run` now always enforces snapshot retention. Retained so that
+// already-installed systemd timer units (and any timer-rendered command) that still pass
+// --retention-enforce continue to parse instead of failing with an unrecognized-flag error.
+const forwarderRunRetentionEnforceCompatFlag = Flag.boolean("retention-enforce").pipe(
+  Flag.withDescription(
+    "Deprecated no-op: forwarder run always prunes old per-run Parquet snapshots; kept for backward compatibility"
+  )
+);
 const hashSaltFlag = Flag.string("hash-salt").pipe(
   Flag.withDescription("Salt for hashing private paths and session identifiers"),
   Flag.optional
@@ -1579,9 +1587,10 @@ const makeForwarderTimerProgram = Effect.fn("AIMetrics.makeForwarderTimerProgram
         `${maxFiles}`,
         "--parquet-mode",
         parquetExportMode,
-        ...(retentionEnforce
-          ? ["--retention-enforce", "--max-snapshot-exports", `${retentionMaxSnapshotExports}`]
-          : []),
+        // `forwarder run` always enforces retention now, so the rendered timer only needs to pass the
+        // keep-N count when the operator opted into a non-default window. The legacy --retention-enforce
+        // token is intentionally not emitted (run accepts it as a no-op for older installed units).
+        ...(retentionEnforce ? ["--max-snapshot-exports", `${retentionMaxSnapshotExports}`] : []),
         "--json",
       ],
       ...O.getSomesStruct({ hashSaltSecretRef: O.fromUndefinedOr(resolvedHashSaltSecretRef) }),
@@ -2928,6 +2937,8 @@ const forwarderRunCommand = Command.make(
     parquetExportMode: parquetExportModeFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
+    // Inert backward-compat flag: parsed and ignored (run always enforces retention).
+    retentionEnforce: forwarderRunRetentionEnforceCompatFlag,
     retentionMaxSnapshotExports: forwarderRunMaxSnapshotExportsFlag,
     since: sinceFlag,
     target: targetFlag,
