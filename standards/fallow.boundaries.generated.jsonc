@@ -12,9 +12,21 @@
         ]
       },
       {
+        "name": "@beep/agents-client",
+        "patterns": [
+          "packages/agents/client/src/**"
+        ]
+      },
+      {
         "name": "@beep/agents-domain",
         "patterns": [
           "packages/agents/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/agents-server",
+        "patterns": [
+          "packages/agents/server/src/**"
         ]
       },
       {
@@ -189,6 +201,12 @@
         "name": "@beep/epistemic-domain",
         "patterns": [
           "packages/epistemic/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/epistemic-tables",
+        "patterns": [
+          "packages/epistemic/tables/src/**"
         ]
       },
       {
@@ -552,9 +570,21 @@
         ]
       },
       {
+        "name": "@beep/workspace-server",
+        "patterns": [
+          "packages/workspace/server/src/**"
+        ]
+      },
+      {
         "name": "@beep/workspace-tables",
         "patterns": [
           "packages/workspace/tables/src/**"
+        ]
+      },
+      {
+        "name": "@beep/workspace-use-cases",
+        "patterns": [
+          "packages/workspace/use-cases/src/**"
         ]
       },
       {
@@ -581,10 +611,30 @@
         ]
       },
       {
+        "from": "@beep/agents-client",
+        "allow": [
+          "@beep/agents-client",
+          "@beep/agents-domain",
+          "@beep/agents-use-cases",
+          "@beep/md",
+          "@beep/workspace-domain",
+          "@beep/workspace-use-cases"
+        ],
+        "allowTypeOnly": [
+          "@beep/agents-client",
+          "@beep/agents-domain",
+          "@beep/agents-use-cases",
+          "@beep/md",
+          "@beep/workspace-domain",
+          "@beep/workspace-use-cases"
+        ]
+      },
+      {
         "from": "@beep/agents-domain",
         "allow": [
           "@beep/agents-domain",
           "@beep/identity",
+          "@beep/md",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/test-utils"
@@ -592,24 +642,58 @@
         "allowTypeOnly": [
           "@beep/agents-domain",
           "@beep/identity",
+          "@beep/md",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/test-utils"
         ]
       },
       {
-        "from": "@beep/agents-use-cases",
+        "from": "@beep/agents-server",
         "allow": [
+          "@beep/agents-domain",
+          "@beep/agents-server",
           "@beep/agents-use-cases",
+          "@beep/anthropic",
           "@beep/identity",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/agents-domain",
+          "@beep/agents-server",
           "@beep/agents-use-cases",
+          "@beep/anthropic",
           "@beep/identity",
           "@beep/schema",
+          "@beep/test-utils",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/agents-use-cases",
+        "allow": [
+          "@beep/agents-domain",
+          "@beep/agents-use-cases",
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-use-cases"
+        ],
+        "allowTypeOnly": [
+          "@beep/agents-domain",
+          "@beep/agents-use-cases",
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-use-cases"
         ]
       },
       {
@@ -969,6 +1053,7 @@
         "allow": [
           "@beep/architecture-lab-tables",
           "@beep/db-admin",
+          "@beep/epistemic-tables",
           "@beep/postgres",
           "@beep/test-utils",
           "@beep/utils",
@@ -977,6 +1062,7 @@
         "allowTypeOnly": [
           "@beep/architecture-lab-tables",
           "@beep/db-admin",
+          "@beep/epistemic-tables",
           "@beep/postgres",
           "@beep/test-utils",
           "@beep/utils",
@@ -1060,6 +1146,19 @@
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/epistemic-tables",
+        "allow": [
+          "@beep/drizzle",
+          "@beep/epistemic-domain",
+          "@beep/epistemic-tables"
+        ],
+        "allowTypeOnly": [
+          "@beep/drizzle",
+          "@beep/epistemic-domain",
+          "@beep/epistemic-tables"
         ]
       },
       {
@@ -1490,12 +1589,44 @@
       {
         "from": "@beep/professional-desktop",
         "allow": [
+          "@beep/agents-client",
+          "@beep/agents-domain",
+          "@beep/agents-server",
+          "@beep/agents-use-cases",
+          "@beep/editor",
+          "@beep/epistemic-domain",
+          "@beep/epistemic-tables",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/postgres",
           "@beep/professional-desktop",
-          "@beep/ui"
+          "@beep/shared-domain",
+          "@beep/test-utils",
+          "@beep/ui",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-server",
+          "@beep/workspace-use-cases"
         ],
         "allowTypeOnly": [
+          "@beep/agents-client",
+          "@beep/agents-domain",
+          "@beep/agents-server",
+          "@beep/agents-use-cases",
+          "@beep/editor",
+          "@beep/epistemic-domain",
+          "@beep/epistemic-tables",
+          "@beep/lexical-schema",
+          "@beep/md",
+          "@beep/postgres",
           "@beep/professional-desktop",
-          "@beep/ui"
+          "@beep/shared-domain",
+          "@beep/test-utils",
+          "@beep/ui",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-server",
+          "@beep/workspace-use-cases"
         ]
       },
       {
@@ -2033,6 +2164,35 @@
         ]
       },
       {
+        "from": "@beep/workspace-server",
+        "allow": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/postgres",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/test-utils",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-server",
+          "@beep/workspace-tables",
+          "@beep/workspace-use-cases"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/postgres",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/test-utils",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-server",
+          "@beep/workspace-tables",
+          "@beep/workspace-use-cases"
+        ]
+      },
+      {
         "from": "@beep/workspace-tables",
         "allow": [
           "@beep/drizzle",
@@ -2043,6 +2203,27 @@
           "@beep/drizzle",
           "@beep/workspace-domain",
           "@beep/workspace-tables"
+        ]
+      },
+      {
+        "from": "@beep/workspace-use-cases",
+        "allow": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-use-cases"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/shared-domain",
+          "@beep/utils",
+          "@beep/workspace-domain",
+          "@beep/workspace-use-cases"
         ]
       },
       {

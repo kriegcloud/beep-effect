@@ -43,6 +43,15 @@
       "@beep/architecture-lab-tables/entities/Worker": [
         "../../../packages/architecture-lab/tables/src/entities/Worker/index.ts"
       ],
+      "@beep/epistemic-tables": [
+        "../../../packages/epistemic/tables/src/index.ts"
+      ],
+      "@beep/epistemic-tables/entities": [
+        "../../../packages/epistemic/tables/src/entities/index.ts"
+      ],
+      "@beep/epistemic-tables/entities/UsageRecord": [
+        "../../../packages/epistemic/tables/src/entities/UsageRecord/index.ts"
+      ],
       "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
       "@beep/postgres/client": [
         "../../../packages/drivers/postgres/src/PostgresClient.service.ts"

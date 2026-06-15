@@ -1505,6 +1505,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
+    path: "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+    writer: "template",
+  }),
+  AcceptedProofFile.make({
+    role: "db-admin",
+    stage: "persistence",
     path: "packages/_internal/db-admin/drizzle/20260512000000_architecture_lab_work_item/migration.sql",
     writer: "template",
   }),
@@ -1518,6 +1524,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
     role: "db-admin",
     stage: "persistence",
     path: "packages/_internal/db-admin/drizzle/20260613000000_workspace_thread_domain/migration.sql",
+    writer: "template",
+  }),
+  AcceptedProofFile.make({
+    role: "db-admin",
+    stage: "persistence",
+    path: "packages/_internal/db-admin/drizzle/20260613000010_epistemic_usage_record/migration.sql",
     writer: "template",
   }),
   AcceptedProofFile.make({

@@ -6,6 +6,20 @@
  */
 
 /**
+ * Deterministic fixture assistant-turn kernel Layer and its pure block helper.
+ *
+ * @example
+ * ```ts
+ * import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proof"
+ *
+ * console.log(FixtureTurnKernel, fixtureBlocksFor)
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
+export { FixtureTurnKernel, fixtureBlocksFor } from "./processes/AssistantTurn/AssistantTurn.fixture.js";
+/**
  * In-memory runtime SDK facade backed by deterministic proof fixtures.
  *
  * @example

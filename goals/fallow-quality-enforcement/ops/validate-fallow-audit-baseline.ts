@@ -6,15 +6,47 @@ const textDecoder = new TextDecoder();
 const repoRoot = new URL("../../../", import.meta.url).pathname;
 
 // Post-remediation contract (goals/fallow-zero-dead-code): the audit lane is
-// blocking under the new-only gate, so a clean branch must introduce nothing
-// and the dead-code lane must hold at zero. Inherited-adjacent counts vary by
-// branch and are deliberately not pinned.
+// blocking under the new-only gate, so a clean branch must introduce no
+// dead-code or complexity, and the dead-code lane must hold at zero.
+//
+// Duplication is source-aware (FallowQuality.command.ts): introduced duplication
+// confined to test/config files is idiomatic boilerplate fallow cannot
+// selectively ignore and is advisory, so the raw audit `verdict` may be "warn"
+// and `attribution.duplication_introduced` may be non-zero. The pinned
+// duplication contract is therefore "zero SOURCE-involving introduced clone
+// groups". Inherited-adjacent counts vary by branch and are not pinned.
 const expectedAuditSummary = {
   dead_code_issues: 0,
   dead_code_introduced: 0,
   complexity_introduced: 0,
-  duplication_introduced: 0,
+  source_duplication_introduced: 0,
 } as const;
+
+// Count introduced duplication clone groups with at least one instance under a
+// package/app `src/` tree — the blocking subset the wrapper enforces.
+const sourceInvolvingIntroducedDuplication = (audit: JsonRecord): number => {
+  const duplication = audit.duplication;
+  if (duplication === null || typeof duplication !== "object") {
+    return 0;
+  }
+  const groups = (duplication as JsonRecord).clone_groups;
+  if (!Array.isArray(groups)) {
+    return 0;
+  }
+  return groups.filter((group) => {
+    if (group === null || typeof group !== "object") {
+      return false;
+    }
+    const record = group as JsonRecord;
+    if (record.introduced !== true || !Array.isArray(record.instances)) {
+      return false;
+    }
+    return record.instances.some((instance) => {
+      const file = instance !== null && typeof instance === "object" ? (instance as JsonRecord).file : undefined;
+      return typeof file === "string" && file.replace(/\\/gu, "/").includes("/src/");
+    });
+  }).length;
+};
 
 const fail = (message: string): never => {
   console.error(message);
@@ -64,7 +96,6 @@ const audit = extractJsonObject(output, "fallow audit");
 const summary = asRecord(audit.summary, "fallow audit.summary");
 const attribution = asRecord(audit.attribution, "fallow audit.attribution");
 
-expectEqual("fallow audit verdict", audit.verdict, "pass");
 expectEqual("fallow audit attribution gate", attribution.gate, "new-only");
 expectAtLeast("fallow audit changed_files_count", audit.changed_files_count, 0);
 expectEqual("fallow audit summary.dead_code_issues", summary.dead_code_issues, expectedAuditSummary.dead_code_issues);
@@ -79,9 +110,9 @@ expectEqual(
   expectedAuditSummary.complexity_introduced
 );
 expectEqual(
-  "fallow audit attribution.duplication_introduced",
-  attribution.duplication_introduced,
-  expectedAuditSummary.duplication_introduced
+  "fallow audit source-involving introduced duplication",
+  sourceInvolvingIntroducedDuplication(audit),
+  expectedAuditSummary.source_duplication_introduced
 );
 
-console.log("fallow audit baseline holds the zero-introduced contract");
+console.log("fallow audit baseline holds the zero-source-duplication contract");

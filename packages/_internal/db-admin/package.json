@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@beep/architecture-lab-tables": "workspace:^",
+    "@beep/epistemic-tables": "workspace:^",
     "@beep/workspace-tables": "workspace:^",
     "effect": "catalog:"
   },

@@ -44,9 +44,14 @@
   ],
   "sideEffects": [],
   "dependencies": {
+    "@beep/agents-domain": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/md": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/workspace-domain": "workspace:^",
+    "@beep/workspace-use-cases": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

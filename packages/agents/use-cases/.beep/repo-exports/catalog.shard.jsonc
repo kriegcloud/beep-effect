@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3277126b271a9012fa8c85f19422fe78081bfa282d9c8bb24e25c292e5033ba4",
+    "digest": "500251eb02fc490f404304e378600a934444637d2388321e921327ad5611205c",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,13 +22,53 @@
       },
       {
         "path": "packages/agents/use-cases/package.json",
-        "sha256": "9824c5d752e75b52bb2f804789a342329f883e29f5edc655021cb99fa9807f94",
-        "bytes": 1793
+        "sha256": "336a1e06ac4d83cb4106d2972d6f1b2342f8b00459376a3ddb38d4c8e5f668b2",
+        "bytes": 2001
       },
       {
         "path": "packages/agents/use-cases/src/index.ts",
         "sha256": "6bb9c26449bc37edffe4f0ff4c8003e6cf2f865ccd2337e472e53497cb1956d1",
         "bytes": 344
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sha256": "563c7e886b18fad6b098ad40355f1e897a676f237cd9f730b6c161ae36cdf7b1",
+        "bytes": 1772
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
+        "sha256": "436ea79747aac0187c2d01620770f8bbbb4a5c183e55dda9fb940cef3565ee29",
+        "bytes": 1312
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.fixture.ts",
+        "sha256": "53bdca025c0a4c5e0a0c1ac9bb2b3277d0d567dcae18810f55c1767b87613c2a",
+        "bytes": 3443
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sha256": "63d54022c201b8a7a7a21a8fd0808e154d2908d78f27c7e36dd05a6147370575",
+        "bytes": 1596
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/index.ts",
+        "sha256": "8e5808d19a76cfc15bc8edc9f26928a161ee1de8ac0c36ba469a1dd66b2df70d",
+        "bytes": 944
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/Chat/Chat.errors.ts",
+        "sha256": "cf94cf5a7ff2dfe8de7df038de68ace1c3153ba4b6633dbcf14607562323f723",
+        "bytes": 1345
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sha256": "de45d883edc7e9b752ca5b7fff4e3aff937b9118dcfb9c7e77d43c4ec640afb9",
+        "bytes": 3680
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/Chat/index.ts",
+        "sha256": "60a7f8b104208be857bc5230b046f41fe66196f7a4ef80defdaa317b0194943b",
+        "bytes": 640
       },
       {
         "path": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.commands.ts",
@@ -72,13 +112,13 @@
       },
       {
         "path": "packages/agents/use-cases/src/proof.ts",
-        "sha256": "05fe815f99ff157d88291e02af6cb2163dcf13dc3958583e6682b010aa42f917",
-        "bytes": 1252
+        "sha256": "746bbd87b437b6fb97a6613026ba13a00ab830bf8449757025034c0eede80f1a",
+        "bytes": 1659
       },
       {
         "path": "packages/agents/use-cases/src/public.ts",
-        "sha256": "91d2da2c6d5f1ed8d5f153349478e6d9beb6f404433c8fd665c1f39456a32a89",
-        "bytes": 2185
+        "sha256": "2741d1cd5999c230d66a60b23a70aa99b2ca2cd345ade33967afe3f2b7e14c47",
+        "bytes": 2946
       },
       {
         "path": "packages/agents/use-cases/src/test.ts",
@@ -114,11 +154,61 @@
       "@beep/agents-use-cases/test"
     ],
     "counts": {
-      "publicExportEntries": 114,
-      "uniqueSymbols": 30,
-      "sourceFiles": 12
+      "publicExportEntries": 166,
+      "uniqueSymbols": 44,
+      "sourceFiles": 20
     },
     "exports": [
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "AgentTurnKernel",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 52,
+        "summary": "Assistant-turn generation kernel service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . agentturnkernel class assistant-turn generation kernel service tag. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "AgentTurnKernelShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 35,
+        "summary": "Service shape of the assistant-turn generation kernel.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
       {
         "packageName": "@beep/agents-use-cases",
         "packagePath": "packages/agents/use-cases",
@@ -151,6 +241,106 @@
         "importSpecifier": "@beep/agents-use-cases",
         "exportSubpath": ".",
         "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "ChatActionError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.errors.ts",
+        "sourceLine": 31,
+        "summary": "Public action failure carried on every {@link ChatRpcs} request. The chat rpc",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . chatactionerror class public action failure carried on every {@link chatrpcs} request. the chat rpc errors packages/agents/use-cases/src/processes/chat/chat.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "ChatRpcs",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 140,
+        "summary": "The chat protocol the desktop chat surface speaks to its app sidecar:",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . chatrpcs const the chat protocol the desktop chat surface speaks to its app sidecar: protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "CreateThreadRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 54,
+        "summary": "Creates a new thread in a workspace.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . createthreadrpc const creates a new thread in a workspace. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "EditMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 114,
+        "summary": "Edits an existing turn's message and re-streams the regenerated assistant",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . editmessagerpc const edits an existing turn's message and re-streams the regenerated assistant protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
         "symbolName": "GetContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
@@ -168,6 +358,81 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . getcontextpacket class request for an evidence-bounded context packet. queries packages/agents/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "GetTimelineRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 73,
+        "summary": "Reads the persisted timeline read-model for a thread.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . gettimelinerpc const reads the persisted timeline read-model for a thread. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "IndexedBlock",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 61,
+        "summary": "A single assistant block paired with its position in the generated turn.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "ListThreadsRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 35,
+        "summary": "Lists the threads in a workspace, most recent activity first.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . listthreadsrpc const lists the threads in a workspace, most recent activity first. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -798,6 +1063,131 @@
         "packageName": "@beep/agents-use-cases",
         "packagePath": "packages/agents/use-cases",
         "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "SendMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 93,
+        "summary": "Sends a message to a thread and streams the assistant turn back, one",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . sendmessagerpc const sends a message to a thread and streams the assistant turn back, one protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "TurnGenerationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
+        "sourceLine": 29,
+        "summary": "Public action failure raised when an assistant turn cannot be generated.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . turngenerationerror class public action failure raised when an assistant turn cannot be generated. errors packages/agents/use-cases/src/processes/assistantturn/assistantturn.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/use-cases/src/index.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 29,
+        "summary": "The plain-text prompt projection of a single thread item. The kernel consumes",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "AgentTurnKernel",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 52,
+        "summary": "Assistant-turn generation kernel service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof agentturnkernel class assistant-turn generation kernel service tag. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "AgentTurnKernelShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 35,
+        "summary": "Service shape of the assistant-turn generation kernel.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
         "importSpecifier": "@beep/agents-use-cases/proof",
         "exportSubpath": "./proof",
         "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
@@ -826,6 +1216,156 @@
         "importSpecifier": "@beep/agents-use-cases/proof",
         "exportSubpath": "./proof",
         "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "ChatActionError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.errors.ts",
+        "sourceLine": 31,
+        "summary": "Public action failure carried on every {@link ChatRpcs} request. The chat rpc",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof chatactionerror class public action failure carried on every {@link chatrpcs} request. the chat rpc errors packages/agents/use-cases/src/processes/chat/chat.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "ChatRpcs",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 140,
+        "summary": "The chat protocol the desktop chat surface speaks to its app sidecar:",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof chatrpcs const the chat protocol the desktop chat surface speaks to its app sidecar: protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "CreateThreadRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 54,
+        "summary": "Creates a new thread in a workspace.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof createthreadrpc const creates a new thread in a workspace. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "EditMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 114,
+        "summary": "Edits an existing turn's message and re-streams the regenerated assistant",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof editmessagerpc const edits an existing turn's message and re-streams the regenerated assistant protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "fixtureBlocksFor",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.fixture.ts",
+        "sourceLine": 49,
+        "summary": "Derive the deterministic scripted block sequence the fixture kernel emits for",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof fixtureblocksfor const derive the deterministic scripted block sequence the fixture kernel emits for fixtures packages/agents/use-cases/src/processes/assistantturn/assistantturn.fixture.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "FixtureTurnKernel",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.fixture.ts",
+        "sourceLine": 104,
+        "summary": "Deterministic, total fixture {@link AgentTurnKernel} Layer with no",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof fixtureturnkernel const deterministic, total fixture {@link agentturnkernel} layer with no fixtures packages/agents/use-cases/src/processes/assistantturn/assistantturn.fixture.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
         "symbolName": "GetContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
@@ -843,6 +1383,81 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof getcontextpacket class request for an evidence-bounded context packet. queries packages/agents/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "GetTimelineRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 73,
+        "summary": "Reads the persisted timeline read-model for a thread.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof gettimelinerpc const reads the persisted timeline read-model for a thread. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "IndexedBlock",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 61,
+        "summary": "A single assistant block paired with its position in the generated turn.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "ListThreadsRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 35,
+        "summary": "Lists the threads in a workspace, most recent activity first.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof listthreadsrpc const lists the threads in a workspace, most recent activity first. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -1548,6 +2163,131 @@
         "packageName": "@beep/agents-use-cases",
         "packagePath": "packages/agents/use-cases",
         "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "SendMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 93,
+        "summary": "Sends a message to a thread and streams the assistant turn back, one",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof sendmessagerpc const sends a message to a thread and streams the assistant turn back, one protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "TurnGenerationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
+        "sourceLine": 29,
+        "summary": "Public action failure raised when an assistant turn cannot be generated.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof turngenerationerror class public action failure raised when an assistant turn cannot be generated. errors packages/agents/use-cases/src/processes/assistantturn/assistantturn.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/proof",
+        "exportSubpath": "./proof",
+        "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 29,
+        "summary": "The plain-text prompt projection of a single thread item. The kernel consumes",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "AgentTurnKernel",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 52,
+        "summary": "Assistant-turn generation kernel service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public agentturnkernel class assistant-turn generation kernel service tag. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "AgentTurnKernelShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 35,
+        "summary": "Service shape of the assistant-turn generation kernel.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
         "importSpecifier": "@beep/agents-use-cases/public",
         "exportSubpath": "./public",
         "exportedFromPath": "packages/agents/use-cases/src/public.ts",
@@ -1576,6 +2316,106 @@
         "importSpecifier": "@beep/agents-use-cases/public",
         "exportSubpath": "./public",
         "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "ChatActionError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.errors.ts",
+        "sourceLine": 31,
+        "summary": "Public action failure carried on every {@link ChatRpcs} request. The chat rpc",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public chatactionerror class public action failure carried on every {@link chatrpcs} request. the chat rpc errors packages/agents/use-cases/src/processes/chat/chat.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "ChatRpcs",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 140,
+        "summary": "The chat protocol the desktop chat surface speaks to its app sidecar:",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public chatrpcs const the chat protocol the desktop chat surface speaks to its app sidecar: protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "CreateThreadRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 54,
+        "summary": "Creates a new thread in a workspace.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public createthreadrpc const creates a new thread in a workspace. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "EditMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 114,
+        "summary": "Edits an existing turn's message and re-streams the regenerated assistant",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public editmessagerpc const edits an existing turn's message and re-streams the regenerated assistant protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
         "symbolName": "GetContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
@@ -1593,6 +2433,81 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public getcontextpacket class request for an evidence-bounded context packet. queries packages/agents/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "GetTimelineRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 73,
+        "summary": "Reads the persisted timeline read-model for a thread.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public gettimelinerpc const reads the persisted timeline read-model for a thread. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "IndexedBlock",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 61,
+        "summary": "A single assistant block paired with its position in the generated turn.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "ListThreadsRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 35,
+        "summary": "Lists the threads in a workspace, most recent activity first.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public listthreadsrpc const lists the threads in a workspace, most recent activity first. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -2223,6 +3138,131 @@
         "packageName": "@beep/agents-use-cases",
         "packagePath": "packages/agents/use-cases",
         "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "SendMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 93,
+        "summary": "Sends a message to a thread and streams the assistant turn back, one",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public sendmessagerpc const sends a message to a thread and streams the assistant turn back, one protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "TurnGenerationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
+        "sourceLine": 29,
+        "summary": "Public action failure raised when an assistant turn cannot be generated.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public turngenerationerror class public action failure raised when an assistant turn cannot be generated. errors packages/agents/use-cases/src/processes/assistantturn/assistantturn.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/public",
+        "exportSubpath": "./public",
+        "exportedFromPath": "packages/agents/use-cases/src/public.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 29,
+        "summary": "The plain-text prompt projection of a single thread item. The kernel consumes",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "AgentTurnKernel",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 52,
+        "summary": "Assistant-turn generation kernel service tag.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test agentturnkernel class assistant-turn generation kernel service tag. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "AgentTurnKernelShape",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+        "sourceLine": 35,
+        "summary": "Service shape of the assistant-turn generation kernel.",
+        "categories": [
+          "services"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test agentturnkernelshape interface service shape of the assistant-turn generation kernel. services packages/agents/use-cases/src/processes/assistantturn/assistantturn.kernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
         "importSpecifier": "@beep/agents-use-cases/test",
         "exportSubpath": "./test",
         "exportedFromPath": "packages/agents/use-cases/src/test.ts",
@@ -2251,6 +3291,156 @@
         "importSpecifier": "@beep/agents-use-cases/test",
         "exportSubpath": "./test",
         "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "ChatActionError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.errors.ts",
+        "sourceLine": 31,
+        "summary": "Public action failure carried on every {@link ChatRpcs} request. The chat rpc",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test chatactionerror class public action failure carried on every {@link chatrpcs} request. the chat rpc errors packages/agents/use-cases/src/processes/chat/chat.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "ChatRpcs",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 140,
+        "summary": "The chat protocol the desktop chat surface speaks to its app sidecar:",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test chatrpcs const the chat protocol the desktop chat surface speaks to its app sidecar: protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "CreateThreadRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 54,
+        "summary": "Creates a new thread in a workspace.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test createthreadrpc const creates a new thread in a workspace. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "EditMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 114,
+        "summary": "Edits an existing turn's message and re-streams the regenerated assistant",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test editmessagerpc const edits an existing turn's message and re-streams the regenerated assistant protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "fixtureBlocksFor",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.fixture.ts",
+        "sourceLine": 49,
+        "summary": "Derive the deterministic scripted block sequence the fixture kernel emits for",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test fixtureblocksfor const derive the deterministic scripted block sequence the fixture kernel emits for fixtures packages/agents/use-cases/src/processes/assistantturn/assistantturn.fixture.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "FixtureTurnKernel",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.fixture.ts",
+        "sourceLine": 104,
+        "summary": "Deterministic, total fixture {@link AgentTurnKernel} Layer with no",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test fixtureturnkernel const deterministic, total fixture {@link agentturnkernel} layer with no fixtures packages/agents/use-cases/src/processes/assistantturn/assistantturn.fixture.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
         "symbolName": "GetContextPacket",
         "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.queries.ts",
@@ -2268,6 +3458,81 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test getcontextpacket class request for an evidence-bounded context packet. queries packages/agents/use-cases/src/processes/professionalruntime/professionalruntime.queries.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "GetTimelineRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 73,
+        "summary": "Reads the persisted timeline read-model for a thread.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test gettimelinerpc const reads the persisted timeline read-model for a thread. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "IndexedBlock",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 61,
+        "summary": "A single assistant block paired with its position in the generated turn.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "ListThreadsRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 35,
+        "summary": "Lists the threads in a workspace, most recent activity first.",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test listthreadsrpc const lists the threads in a workspace, most recent activity first. protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -2968,6 +4233,81 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test sdkcontextpacket class context packet returned to sdk clients. models packages/agents/use-cases/src/processes/professionalruntime/professionalruntime.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "SendMessageRpc",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/use-cases/src/processes/Chat/Chat.rpc.ts",
+        "sourceLine": 93,
+        "summary": "Sends a message to a thread and streams the assistant turn back, one",
+        "categories": [
+          "protocols"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test sendmessagerpc const sends a message to a thread and streams the assistant turn back, one protocols packages/agents/use-cases/src/processes/chat/chat.rpc.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "TurnGenerationError",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
+        "sourceLine": 29,
+        "summary": "Public action failure raised when an assistant turn cannot be generated.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test turngenerationerror class public action failure raised when an assistant turn cannot be generated. errors packages/agents/use-cases/src/processes/assistantturn/assistantturn.errors.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/use-cases/src/test.ts",
+        "symbolName": "TurnHistoryItem",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+        "sourceLine": 29,
+        "summary": "The plain-text prompt projection of a single thread item. The kernel consumes",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test turnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       }
     ]
   }

@@ -1,45 +1,15 @@
 import { Drizzle, DrizzleError, DrizzleErrorContext } from "@beep/drizzle";
-import { makePgliteSqlTestLayer } from "@beep/test-utils";
-import { A, Str } from "@beep/utils";
+import { makePgliteIntegrationGate } from "@beep/test-utils";
+import { A } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import type { DrizzleClient, DrizzleRows } from "@beep/drizzle";
-import type { SqlTestHooks } from "@beep/test-utils";
 
-const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
-const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
-const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
+const { shouldRunPgliteIntegration, makePgliteLayer } = makePgliteIntegrationGate();
 const NoteRow = S.Struct({ body: S.String });
 const decodeNoteRows = S.decodeUnknownEffect(S.Array(NoteRow));
-
-const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
-  pipe(
-    sharedConnectionUri,
-    O.match({
-      onNone: () =>
-        hooks === undefined
-          ? Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" }))
-          : Layer.fresh(makePgliteSqlTestLayer({ hooks, mode: "testcontainers" })),
-      onSome: (connectionUri) =>
-        hooks === undefined
-          ? Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                mode: "external",
-              })
-            )
-          : Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                hooks,
-                mode: "external",
-              })
-            ),
-    })
-  );
 
 const createNeutralNotesTable = SqlClient.SqlClient.use((sqlClient) => {
   const sql = sqlClient.withoutTransforms();

@@ -6,6 +6,20 @@
  */
 
 /**
+ * Thread row converter exports.
+ *
+ * @example
+ * ```ts
+ * import * as Thread from "@beep/workspace-tables/entities/Thread"
+ *
+ * console.log(Thread.toThreadInsert)
+ * ```
+ *
+ * @category tables
+ * @since 0.0.0
+ */
+export * from "./Thread.converters.ts";
+/**
  * Thread table exports.
  *
  * @example

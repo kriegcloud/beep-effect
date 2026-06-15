@@ -216,7 +216,11 @@ describe("Lexical.codec", () => {
     fc.assert(
       fc.property(StateArbitrary, (state) => {
         const document = editorStateToDocument(state);
-        expect(S.decodeUnknownSync(MdModel.Document)(document)).toEqual(document);
+        // Validate via the encode -> decode round-trip: Pre.language is a codec
+        // field (OptionFromNullOr), so the projected instance differs from its
+        // encoded form. Decoding the instance directly would reject its real
+        // Option; decoding the encoded form confirms the projection is valid.
+        expect(S.decodeUnknownSync(MdModel.Document)(S.encodeSync(MdModel.Document)(document))).toEqual(document);
       })
     );
   });

@@ -33,6 +33,7 @@
     "./entities": "./src/entities/index.ts",
     "./entities/Agent": "./src/entities/Agent/index.ts",
     "./entities/Skill": "./src/entities/Skill/index.ts",
+    "./turn": "./src/turn/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -45,6 +46,7 @@
   "sideEffects": [],
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/md": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "effect": "catalog:"

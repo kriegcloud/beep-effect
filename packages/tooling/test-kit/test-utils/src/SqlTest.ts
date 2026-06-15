@@ -1128,6 +1128,81 @@ const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgEx
  * @category constructors
  * @since 0.0.0
  */
+/**
+ * Pre-computed gate values for PGLite integration tests.
+ *
+ * Encapsulates the shared connection-URI resolution, testcontainers flag,
+ * run-gate predicate, timeout constant, and a `makePgliteLayer` factory so
+ * that every pglite integration test file can set up its gate with a single
+ * import instead of repeating the five-line preamble.
+ *
+ * `makePgliteLayer` accepts an optional `hooks` argument (migrate / seed) and
+ * returns a fresh scoped {@link makePgliteSqlTestLayer} layer using whichever
+ * driver the environment selects.
+ *
+ * @example
+ * ```ts
+ * import { makePgliteIntegrationGate } from "@beep/test-utils"
+ *
+ * const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } =
+ *   makePgliteIntegrationGate()
+ *
+ * console.log(shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis)
+ * console.log(makePgliteLayer())
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
+export const makePgliteIntegrationGate = () => {
+  const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+  const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
+  const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
+  const pgliteIntegrationTimeoutMillis = 300_000;
+
+  // Generic per call so `makePgliteLayer({ migrate })` infers the hook error
+  // types (e.g. SqlError) instead of fixing them to `never` at gate creation.
+  const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
+    pipe(
+      sharedConnectionUri,
+      O.match({
+        onNone: () =>
+          hooks === undefined
+            ? Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" }))
+            : Layer.fresh(makePgliteSqlTestLayer({ hooks, mode: "testcontainers" })),
+        onSome: (connectionUri) =>
+          hooks === undefined
+            ? Layer.fresh(makePgliteSqlTestLayer({ external: { connectionUri }, mode: "external" }))
+            : Layer.fresh(makePgliteSqlTestLayer({ external: { connectionUri }, hooks, mode: "external" })),
+      })
+    );
+
+  return {
+    makePgliteLayer,
+    pgliteIntegrationTimeoutMillis,
+    sharedConnectionUri,
+    shouldRunPgliteIntegration,
+    shouldUseTestcontainers,
+  };
+};
+
+/**
+ * Build the recommended PGLite SQL test layer for vertical-slice integration tests.
+ *
+ * In `auto` mode, `BEEP_TEST_DATABASE_URL` selects the cheap shared external
+ * PostgreSQL driver. Without that environment variable, the helper falls back
+ * to the scoped PGLite Testcontainers driver.
+ *
+ * @param options - Optional mode, driver configuration, and migrate/seed hooks.
+ * @returns A SQL test layer backed by either the shared external PGLite server or a scoped Testcontainer.
+ * @example
+ * ```ts
+ * import { makePgliteSqlTestLayer } from "@beep/test-utils"
+ * const layer = makePgliteSqlTestLayer()
+ * console.log(layer)
+ * ```
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makePgliteSqlTestLayer = <MigrateError = never, SeedError = never>(
   options: PgliteSqlTestLayerOptions<MigrateError, SeedError> = {}
 ): Layer.Layer<PgClient.PgClient | SqlClient.SqlClient | TestDatabaseInfo, SqlTestHarnessError> =>

@@ -13,22 +13,77 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c1870af0c9f3378fdd89ae28b3b871d936d0ada3c23183a51c148721d8ce2a77",
+    "digest": "2476090f00f9e2c38e3fb35f2f67c693da2b560811c77837473b5f9bcf1acf20",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
-        "sha256": "23eb674db2437579194b5eeeb6e3e722e8695985aa48964f9ed20fe5bc30a9f4",
-        "bytes": 2271
+        "sha256": "3fbcc5ea68846d085dfb24c19c9612fac7c14df6465341682e9f3fad9b97e12a",
+        "bytes": 3493
       },
       {
         "path": "apps/professional-desktop/src/App.tsx",
-        "sha256": "6806563e300ca995818c70b7acda6696b7b3db678519fa7b4e232a0195178ac4",
-        "bytes": 11441
+        "sha256": "414f2791763eb23b4b4298e71fc39e70f4ee4fd72f3c5724640c1b9de10f5a0d",
+        "bytes": 781
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
+        "sha256": "427c2d53b89f4ac4d5e331e0af8e90a2c2153bab88c89c1e86c1a8f5a90594e4",
+        "bytes": 14151
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
+        "sha256": "aee38a82829fbcf76a9d625f7acf16788cd8a46f71cd8c5e826842215dd7f197",
+        "bytes": 3421
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/Composer.tsx",
+        "sha256": "30151ff16fe7596ef889de1c60eb55af9626ae02eafc183bea83d64f6968ee0e",
+        "bytes": 6787
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/MessageView.tsx",
+        "sha256": "ed74a110883cb83fc0bbfe0c49208d0822f3554c5cdcd30129452f7932b008bf",
+        "bytes": 1755
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/Sidebar.tsx",
+        "sha256": "175f71dbfe072a66716fc43dc4f06843ceb1a5776df3ca0228680ecad8c70429",
+        "bytes": 3842
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx",
+        "sha256": "36d65ade016abdb2e77bc2157efca0455f68fe4d7c6a79d35c36511640ab8c85",
+        "bytes": 2987
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/Thread.tsx",
+        "sha256": "6406b2d796480c1e97a1deb0da70adff9c89117e3de36ac60318bd6d8fa76191",
+        "bytes": 8627
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
+        "sha256": "091f69293306d52eeb4cca36881ee9236ca81288fc92474a8761c40e8360cdf8",
+        "bytes": 4549
       },
       {
         "path": "apps/professional-desktop/src/main.tsx",
         "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
         "bytes": 456
+      },
+      {
+        "path": "apps/professional-desktop/src/runtime/Layer.ts",
+        "sha256": "1b217106be1367a1cd1cc93951174ce344f370567c3845a10dd7d1b39637a915",
+        "bytes": 4291
+      },
+      {
+        "path": "apps/professional-desktop/src/runtime/Observability.ts",
+        "sha256": "543bf99b4fb9728e0531e6103ef027171549df994365a8e9cf43e690478e0c8d",
+        "bytes": 1696
+      },
+      {
+        "path": "apps/professional-desktop/src/runtime/Pglite.ts",
+        "sha256": "679665f5be391f185e9873b11bf0b83c1452e9ca72605678e83cca2439024da6",
+        "bytes": 6844
       },
       {
         "path": "generator:repo-exports-catalog",
@@ -61,7 +116,7 @@
     "counts": {
       "publicExportEntries": 0,
       "uniqueSymbols": 0,
-      "sourceFiles": 2
+      "sourceFiles": 13
     },
     "exports": []
   }

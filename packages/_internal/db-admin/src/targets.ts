@@ -8,6 +8,7 @@
 
 import { Effect } from "effect";
 import { ArchitectureLabMigrationTarget } from "./migrations/ArchitectureLab.js";
+import { EpistemicUsageMigrationTarget } from "./migrations/EpistemicUsage.js";
 import { WorkspaceThreadMigrationTarget } from "./migrations/WorkspaceThread.js";
 import type { DbAdminMigrationTarget } from "./migrations/ArchitectureLab.js";
 
@@ -18,12 +19,18 @@ import type { DbAdminMigrationTarget } from "./migrations/ArchitectureLab.js";
  * @since 0.0.0
  */
 /**
+ * Epistemic usage migration target export.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+/**
  * Workspace thread migration target export.
  *
  * @category configuration
  * @since 0.0.0
  */
-export { ArchitectureLabMigrationTarget, WorkspaceThreadMigrationTarget };
+export { ArchitectureLabMigrationTarget, EpistemicUsageMigrationTarget, WorkspaceThreadMigrationTarget };
 
 /**
  * All db-admin migration targets owned by the current repo.
@@ -38,7 +45,11 @@ export { ArchitectureLabMigrationTarget, WorkspaceThreadMigrationTarget };
  * @category configuration
  * @since 0.0.0
  */
-export const DbAdminMigrationTargets = [ArchitectureLabMigrationTarget, WorkspaceThreadMigrationTarget] as const;
+export const DbAdminMigrationTargets = [
+  ArchitectureLabMigrationTarget,
+  WorkspaceThreadMigrationTarget,
+  EpistemicUsageMigrationTarget,
+] as const;
 
 /**
  * List registered db-admin migration targets.

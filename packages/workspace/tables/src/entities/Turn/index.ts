@@ -6,6 +6,20 @@
  */
 
 /**
+ * Turn row converter exports.
+ *
+ * @example
+ * ```ts
+ * import * as Turn from "@beep/workspace-tables/entities/Turn"
+ *
+ * console.log(Turn.toTurnInsert)
+ * ```
+ *
+ * @category tables
+ * @since 0.0.0
+ */
+export * from "./Turn.converters.ts";
+/**
  * Turn table exports.
  *
  * @example

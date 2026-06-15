@@ -116,6 +116,8 @@ const generatedComposers = $I.compose(
   "acp",
   "openai-compat",
   "workspace-tables",
+  "workspace-use-cases",
+  "workspace-server",
   "architecture-lab-domain",
   "architecture-lab-use-cases",
   "architecture-lab-config",
@@ -1126,6 +1128,39 @@ export const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat"> =
  * @category configuration
  */
 export const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables"> = composers.$WorkspaceTablesId;
+
+/**
+ * Identity composer for `@beep/workspace-use-cases`.
+ *
+ * @example
+ * ```typescript
+ * import { $WorkspaceUseCasesId } from "@beep/identity"
+ *
+ * const id = $WorkspaceUseCasesId.make("ThreadStore")
+ * console.log(id)
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $WorkspaceUseCasesId: Identity.IdentityComposer<"@beep/workspace-use-cases"> =
+  composers.$WorkspaceUseCasesId;
+
+/**
+ * Identity composer for `@beep/workspace-server`.
+ *
+ * @example
+ * ```typescript
+ * import { $WorkspaceServerId } from "@beep/identity"
+ *
+ * const id = $WorkspaceServerId.make("ThreadStoreLive")
+ * console.log(id)
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $WorkspaceServerId: Identity.IdentityComposer<"@beep/workspace-server"> = composers.$WorkspaceServerId;
 
 /**
  * Identity composer for `@beep/architecture-lab-domain`.

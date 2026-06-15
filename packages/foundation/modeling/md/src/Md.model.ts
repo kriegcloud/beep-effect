@@ -1408,7 +1408,12 @@ export declare namespace BlockQuote {
 export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
   "pre",
   {
-    language: S.Option(S.String).annotateKey({
+    // Encoded form must survive a JSON boundary (jsonb columns, rpc/ndjson
+    // wire): S.Option(S.String) encodes to a real Option instance that does not
+    // round-trip through JSON, so persisted/transported documents fail to
+    // decode. OptionFromNullOr keeps the Type as Option<string> while encoding
+    // to JSON-safe `string | null`.
+    language: S.OptionFromNullOr(S.String).annotateKey({
       description: "Optional language hint for fenced code rendering.",
     }),
     value: S.String.annotateKey({
@@ -1437,9 +1442,17 @@ export declare namespace Pre {
   }
 
   /**
+   * The encoded form keeps `language` JSON-safe (`string | null`) so a Pre
+   * survives a JSON boundary (jsonb columns, rpc/ndjson wire); see the
+   * `OptionFromNullOr` codec on {@link Pre}.
+   *
    * @since 0.0.0
    */
-  export interface Encoded extends Type {}
+  export interface Encoded {
+    readonly _tag: "pre";
+    readonly language: string | null;
+    readonly value: string;
+  }
 }
 
 /**
