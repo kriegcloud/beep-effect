@@ -2,6 +2,7 @@ import {
   adviseEffectCapabilitySeedFixtures,
   buildEffectCapabilitySeedReport,
   defaultEffectCapabilitySeedFixtures,
+  EffectCapabilitySeedFixture,
 } from "@beep/repo-utils/EffectCapabilityKG";
 import { A } from "@beep/utils";
 import { expect, layer } from "@effect/vitest";
@@ -22,23 +23,15 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
       const report = yield* buildEffectCapabilitySeedReport(REPO_ROOT);
 
       expect(report.seedModules).toEqual(["Combiner", "Reducer", "Filter"]);
-      expect(
-        pipe(
-          report.modules,
-          A.map((module) => module.moduleName)
-        )
-      ).toEqual([
-        "Combiner",
-        "Reducer",
-        "Filter",
-        "Option",
-        "Struct",
-        "Array",
-        "Record",
-        "Number",
-        "String",
-        "Boolean",
-      ]);
+      const moduleNames = pipe(
+        report.modules,
+        A.map((module) => module.moduleName)
+      );
+      expect(moduleNames).toEqual(expect.arrayContaining(["Combiner", "Reducer", "Filter"]));
+      expect(moduleNames).toEqual(
+        expect.arrayContaining(["Option", "Struct", "Array", "Record", "Number", "String", "Boolean"])
+      );
+      expect(A.take(moduleNames, 3)).toEqual(["Combiner", "Reducer", "Filter"]);
 
       const combiner = findModule(report, "Combiner");
       const reducer = findModule(report, "Reducer");
@@ -130,9 +123,19 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
           )
         ).toBe(true);
       }
+      expect(
+        report.edges.some(
+          (edge) => edge.from === "module:Reducer" && edge.to === "module:Combiner" && edge.relation === "imports"
+        )
+      ).toBe(true);
 
       expect(report.catalogVisibility.length).toBeGreaterThan(0);
       expect(report.catalogVisibility.some((entry) => entry.packageName === "@beep/utils")).toBe(true);
+      expect(
+        report.catalogVisibility.some(
+          (entry) => entry.moduleName === "String" && entry.importSpecifier === "@beep/utils/Str"
+        )
+      ).toBe(true);
     }),
     TIMEOUT
   );
@@ -150,11 +153,28 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
       expect(findings[2]?.suggestedSymbols).toContain("symbol:Filter.make");
       expect(findings[3]?.decision).toBe("decline");
       expect(findings[3]?.suggestedSymbols).toHaveLength(0);
+      expect(A.every(findings, (finding) => finding.evidence.length > 0)).toBe(true);
+      expect(A.some(findings[0]!.evidence, (evidence) => evidence.sourcePath.includes("Combiner.ts"))).toBe(true);
+    }),
+    TIMEOUT
+  );
 
-      for (const finding of findings) {
-        expect(finding.evidence.length).toBeGreaterThan(0);
-      }
-      expect(findings[0]?.evidence.some((evidence) => evidence.sourcePath.includes("Combiner.ts"))).toBe(true);
+  it.effect(
+    "reclassifies advisory fixture text before selecting suggested symbols",
+    Effect.fn(function* () {
+      const report = yield* buildEffectCapabilitySeedReport(REPO_ROOT);
+      const findings = adviseEffectCapabilitySeedFixtures(report, [
+        EffectCapabilitySeedFixture.make({
+          id: "declared-merge-but-folds",
+          scenario: "merge-combine",
+          text: "Fold all collection values into an initial aggregate result.",
+        }),
+      ]);
+      const finding = findings[0]!;
+
+      expect(findings).toHaveLength(1);
+      expect(finding.scenario).toBe("fold-aggregate");
+      expect(finding.suggestedSymbols).toContain("symbol:Reducer.make");
     }),
     TIMEOUT
   );

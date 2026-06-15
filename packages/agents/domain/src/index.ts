@@ -43,7 +43,7 @@ export * from "./entities/index.js";
  * console.log(Module)
  * ```
 
- * @category models
+ * @category turn
  * @since 0.0.0
  */
 export * as Turn from "./turn/index.js";

@@ -8,7 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, FileSystem, flow, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, flow, Match, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -24,10 +24,10 @@ import type { JSDoc, JSDocTag, SourceFile, Statement, Node as TsMorphNode, Varia
 
 const $I = $RepoUtilsId.create("EffectCapabilityKG");
 
-const EFFECT_SOURCE_ROOT = ".repos/effect-v4/packages/effect";
-const EFFECT_SOURCE_DIR = `${EFFECT_SOURCE_ROOT}/src`;
-const EFFECT_TSCONFIG_PATH = `${EFFECT_SOURCE_ROOT}/tsconfig.json`;
-const REPO_EXPORTS_CATALOG_PATH = "standards/repo-exports.catalog.jsonc";
+const EFFECT_SOURCE_ROOT_SEGMENTS = [".repos", "effect-v4", "packages", "effect"];
+const EFFECT_SOURCE_DIR_SEGMENTS = A.append(EFFECT_SOURCE_ROOT_SEGMENTS, "src");
+const EFFECT_TSCONFIG_SEGMENTS = A.append(EFFECT_SOURCE_ROOT_SEGMENTS, "tsconfig.json");
+const REPO_EXPORTS_CATALOG_SEGMENTS = ["standards", "repo-exports.catalog.jsonc"];
 
 /**
  * Seed module names covered by the first Effect capability KG proof.
@@ -522,6 +522,16 @@ type SectionAccumulator = {
   readonly lines: ReadonlyArray<string>;
 };
 
+type SourcePathForModule = (moduleName: EffectCapabilitySeedModuleName) => string;
+
+type EffectCapabilitySeedPaths = {
+  readonly sourceRoot: string;
+  readonly sourceDir: string;
+  readonly tsConfigPath: string;
+  readonly catalogPath: string;
+  readonly sourcePathForModule: SourcePathForModule;
+};
+
 const seedModules: ReadonlyArray<EffectCapabilitySeedModuleName> = ["Combiner", "Reducer", "Filter"];
 const adjacentModules: ReadonlyArray<EffectCapabilitySeedModuleName> = [
   "Option",
@@ -563,8 +573,21 @@ const byEdge: Order.Order<EffectCapabilityGraphEdge> = Order.combine(
   )
 );
 
-const sourcePathForModule = (moduleName: EffectCapabilitySeedModuleName): string =>
-  `${EFFECT_SOURCE_DIR}/${moduleName}.ts`;
+const repoRelativePathFromSegments = (
+  pathApi: Path.Path,
+  repoRootPath: string,
+  segments: ReadonlyArray<string>
+): string => pathApi.normalize(pathApi.relative(repoRootPath, pathApi.resolve(repoRootPath, ...segments)));
+
+const effectCapabilitySeedPaths = (pathApi: Path.Path, repoRootPath: string): EffectCapabilitySeedPaths => ({
+  sourceRoot: repoRelativePathFromSegments(pathApi, repoRootPath, EFFECT_SOURCE_ROOT_SEGMENTS),
+  sourceDir: repoRelativePathFromSegments(pathApi, repoRootPath, EFFECT_SOURCE_DIR_SEGMENTS),
+  tsConfigPath: repoRelativePathFromSegments(pathApi, repoRootPath, EFFECT_TSCONFIG_SEGMENTS),
+  catalogPath: repoRelativePathFromSegments(pathApi, repoRootPath, REPO_EXPORTS_CATALOG_SEGMENTS),
+  sourcePathForModule: (moduleName) =>
+    repoRelativePathFromSegments(pathApi, repoRootPath, A.append(EFFECT_SOURCE_DIR_SEGMENTS, `${moduleName}.ts`)),
+});
+
 const moduleId = (moduleName: EffectCapabilitySeedModuleName): string => `module:${moduleName}`;
 const symbolId = (moduleName: EffectCapabilitySeedModuleName, symbolName: string): string =>
   `symbol:${moduleName}.${symbolName}`;
@@ -832,6 +855,10 @@ const extractExamplesFromSection = (
     }
   }
 
+  if (inFence) {
+    examples = appendCompletedExample(examples, symbol, section, currentLines);
+  }
+
   return examples;
 };
 
@@ -851,7 +878,7 @@ const readImports = (sourceFile: SourceFile): ReadonlyArray<EffectCapabilitySeed
     sourceFile.getImportDeclarations(),
     A.map((declaration) => sourceModuleFromSpecifier(declaration.getModuleSpecifierValue())),
     A.getSomes,
-    A.filter((moduleName) => A.contains(adjacentModules, moduleName)),
+    A.filter((moduleName) => A.contains(allSourceModules, moduleName)),
     A.dedupe
   );
 
@@ -966,6 +993,7 @@ const moduleEvidence = (moduleName: EffectCapabilitySeedModuleName, sourcePath: 
 const sourceFileModuleName = (
   pathApi: Path.Path,
   repoRootPath: string,
+  sourcePathForModule: SourcePathForModule,
   sourceFile: SourceFile
 ): O.Option<EffectCapabilitySeedModuleName> => {
   const relativePath = pathApi.normalize(pathApi.relative(repoRootPath, sourceFile.getFilePath()));
@@ -976,9 +1004,10 @@ const sourceFileModuleName = (
 const collectModule = (
   pathApi: Path.Path,
   repoRootPath: string,
+  sourcePathForModule: SourcePathForModule,
   sourceFile: SourceFile
 ): O.Option<EffectCapabilityModule> => {
-  const moduleName = sourceFileModuleName(pathApi, repoRootPath, sourceFile);
+  const moduleName = sourceFileModuleName(pathApi, repoRootPath, sourcePathForModule, sourceFile);
   if (O.isNone(moduleName)) {
     return O.none();
   }
@@ -1003,10 +1032,14 @@ const collectModule = (
   );
 };
 
+const regexpSpecialCharacters = /[.*+?^${}()|[\]\\]/gu;
+
+const escapeRegExp = (value: string): string => Str.replace(regexpSpecialCharacters, "\\$&")(value);
+
 const referencedAdjacentModules = (text: string): ReadonlyArray<EffectCapabilitySeedModuleName> =>
   pipe(
     adjacentModules,
-    A.filter((moduleName) => Str.includes(`${moduleName}.`)(text))
+    A.filter((moduleName) => new RegExp(`\\b${escapeRegExp(moduleName)}\\.`, "u").test(text))
   );
 
 const fallbackEvidenceForSymbol = (symbol: EffectCapabilitySymbol): EffectCapabilityEvidence =>
@@ -1199,13 +1232,34 @@ const parseJsonFile = Effect.fn(function* <A>(
   );
 });
 
+const catalogImportSpecifierSuffixes: Record<EffectCapabilitySeedModuleName, ReadonlyArray<string>> = {
+  Combiner: [],
+  Reducer: [],
+  Filter: [],
+  Option: ["/Option", "/O"],
+  Struct: ["/Struct"],
+  Array: ["/Array", "/A"],
+  Record: ["/Record", "/R"],
+  Number: ["/Number", "/N"],
+  String: ["/String", "/Str"],
+  Boolean: ["/Boolean", "/Bool"],
+};
+
+const sourcePathReferencesModule = (entry: CatalogEntry, moduleName: EffectCapabilitySeedModuleName): boolean =>
+  A.some([`${moduleName}.ts`, `${moduleName}.d.ts`, `${moduleName}.d.mts`, `${moduleName}.d.cts`], (sourceFileName) =>
+    Str.includes(sourceFileName)(entry.sourcePath)
+  );
+
+const importSpecifierReferencesModule = (entry: CatalogEntry, moduleName: EffectCapabilitySeedModuleName): boolean =>
+  A.some(catalogImportSpecifierSuffixes[moduleName], (suffix) => Str.endsWith(suffix)(entry.importSpecifier));
+
 const moduleNameForCatalogEntry = (entry: CatalogEntry): O.Option<EffectCapabilitySeedModuleName> =>
   pipe(
     adjacentModules,
-    A.findFirst((moduleName) => {
-      const sourceFileName = `${moduleName}.ts`;
-      return Str.includes(sourceFileName)(entry.sourcePath) || Str.includes(`/${moduleName}`)(entry.importSpecifier);
-    })
+    A.findFirst(
+      (moduleName) =>
+        sourcePathReferencesModule(entry, moduleName) || importSpecifierReferencesModule(entry, moduleName)
+    )
   );
 
 const catalogVisibilityFromEntry = (
@@ -1232,13 +1286,14 @@ const catalogVisibilityFromEntry = (
   });
 
 const readCatalogVisibility = Effect.fn(function* (
-  repoRootPath: string
+  repoRootPath: string,
+  catalogPath: string
 ): Effect.fn.Return<
   ReadonlyArray<EffectCapabilityCatalogVisibility>,
   EffectCapabilitySeedError,
   FileSystem.FileSystem | Path.Path
 > {
-  const index = yield* parseJsonFile(repoRootPath, REPO_EXPORTS_CATALOG_PATH, decodeCatalogIndex);
+  const index = yield* parseJsonFile(repoRootPath, catalogPath, decodeCatalogIndex);
   let entries = A.empty<EffectCapabilityCatalogVisibility>();
 
   for (const indexPackage of index.packages) {
@@ -1298,32 +1353,61 @@ const symbolEvidenceById = (
   return evidence;
 };
 
-const fixtureEvidence = (fixture: EffectCapabilitySeedFixture): EffectCapabilityEvidence =>
+const fixtureEvidence = (
+  fixture: EffectCapabilitySeedFixture,
+  scenario: EffectCapabilityAdvisoryScenario = fixture.scenario
+): EffectCapabilityEvidence =>
   EffectCapabilityEvidence.make({
     sourcePath: `fixture:${fixture.id}`,
     startLine: 1,
     endLine: 1,
     origin: "seed-advisory-fixture",
-    anchor: fixture.scenario,
+    anchor: scenario,
     excerpt: fixture.text,
   });
+
+const moduleNameForAdvisoryScenario: (
+  scenario: EffectCapabilityAdvisoryScenario
+) => O.Option<EffectCapabilitySeedModuleName> = Match.type<EffectCapabilityAdvisoryScenario>().pipe(
+  Match.when("merge-combine", () => O.some<EffectCapabilitySeedModuleName>("Combiner")),
+  Match.when("fold-aggregate", () => O.some<EffectCapabilitySeedModuleName>("Reducer")),
+  Match.when("validation-transformation", () => O.some<EffectCapabilitySeedModuleName>("Filter")),
+  Match.when("decline-no-match", O.none<EffectCapabilitySeedModuleName>),
+  Match.exhaustive
+);
+
+const preferredSymbolNamesForScenario: (scenario: EffectCapabilityAdvisoryScenario) => ReadonlyArray<string> =
+  Match.type<EffectCapabilityAdvisoryScenario>().pipe(
+    Match.when("merge-combine", () => ["Combiner", "make", "first", "last", "intercalate"]),
+    Match.when("fold-aggregate", () => ["Reducer", "make", "flip"]),
+    Match.when("validation-transformation", () => [
+      "Filter",
+      "FilterEffect",
+      "make",
+      "makeEffect",
+      "fromPredicate",
+      "toOption",
+      "toResult",
+    ]),
+    Match.when("decline-no-match", A.empty<string>),
+    Match.exhaustive
+  );
 
 const suggestedSymbolsForScenario = (
   scenario: EffectCapabilityAdvisoryScenario,
   report: EffectCapabilitySeedReport
 ): ReadonlyArray<string> => {
-  const moduleName = scenario === "merge-combine" ? "Combiner" : scenario === "fold-aggregate" ? "Reducer" : "Filter";
-  const module = A.findFirst(report.modules, (candidate) => candidate.moduleName === moduleName);
+  const moduleName = moduleNameForAdvisoryScenario(scenario);
+  if (O.isNone(moduleName)) {
+    return A.empty();
+  }
+
+  const module = A.findFirst(report.modules, (candidate) => candidate.moduleName === moduleName.value);
   if (O.isNone(module)) {
     return A.empty();
   }
 
-  const preferredNames =
-    scenario === "merge-combine"
-      ? ["Combiner", "make", "first", "last", "intercalate"]
-      : scenario === "fold-aggregate"
-        ? ["Reducer", "make", "flip"]
-        : ["Filter", "FilterEffect", "make", "makeEffect", "fromPredicate", "toOption", "toResult"];
+  const preferredNames = preferredSymbolNamesForScenario(scenario);
 
   return pipe(
     module.value.symbols,
@@ -1332,44 +1416,51 @@ const suggestedSymbolsForScenario = (
   );
 };
 
+const classifyAdvisoryScenario = (text: string): EffectCapabilityAdvisoryScenario => {
+  const tokens = lowerTokens(text);
+  const mergeScore = tokenHits(tokens, ["merge", "combine", "combining", "accumulate", "strategy"]);
+  const foldScore = tokenHits(tokens, ["fold", "reduce", "aggregate", "collection", "initial", "all"]);
+  const filterScore = tokenHits(tokens, ["filter", "validate", "predicate", "transform", "narrow", "result"]);
+
+  if (mergeScore >= foldScore && mergeScore >= filterScore && mergeScore > 0) {
+    return "merge-combine";
+  }
+  if (foldScore >= filterScore && foldScore > 0) {
+    return "fold-aggregate";
+  }
+  if (filterScore > 0) {
+    return "validation-transformation";
+  }
+  return "decline-no-match";
+};
+
 const findingForFixture = (
   report: EffectCapabilitySeedReport,
   fixture: EffectCapabilitySeedFixture
 ): EffectCapabilityAdvisoryFinding => {
-  const tokens = lowerTokens(fixture.text);
-  const mergeScore = tokenHits(tokens, ["merge", "combine", "combining", "accumulate", "strategy"]);
-  const foldScore = tokenHits(tokens, ["fold", "reduce", "aggregate", "collection", "initial", "all"]);
-  const filterScore = tokenHits(tokens, ["filter", "validate", "predicate", "transform", "narrow", "result"]);
-  const scenario =
-    mergeScore >= foldScore && mergeScore >= filterScore && mergeScore > 0
-      ? "merge-combine"
-      : foldScore >= filterScore && foldScore > 0
-        ? "fold-aggregate"
-        : filterScore > 0
-          ? "validation-transformation"
-          : "decline-no-match";
+  const scenario = classifyAdvisoryScenario(fixture.text);
 
-  if (scenario === "decline-no-match" || fixture.scenario === "decline-no-match") {
+  if (scenario === "decline-no-match") {
     return EffectCapabilityAdvisoryFinding.make({
       fixtureId: fixture.id,
-      scenario: fixture.scenario,
+      scenario,
       decision: "decline",
       confidence: 0.2,
       suggestedSymbols: A.empty(),
       rationale: "No seed capability evidence matched strongly enough to suggest Combiner, Reducer, or Filter.",
-      evidence: [fixtureEvidence(fixture)],
+      evidence: [fixtureEvidence(fixture, scenario)],
     });
   }
 
   const suggestedSymbols = suggestedSymbolsForScenario(scenario, report);
   return EffectCapabilityAdvisoryFinding.make({
     fixtureId: fixture.id,
-    scenario: fixture.scenario,
+    scenario,
     decision: "suggest",
     confidence: 0.8,
     suggestedSymbols,
     rationale: `Matched ${scenario} language to deterministic Effect v4 ${scenario} capability evidence.`,
-    evidence: [fixtureEvidence(fixture), ...symbolEvidenceById(report, suggestedSymbols)],
+    evidence: [fixtureEvidence(fixture, scenario), ...symbolEvidenceById(report, suggestedSymbols)],
   });
 };
 
@@ -1455,22 +1546,20 @@ export const buildEffectCapabilitySeedReport = Effect.fn("EffectCapabilityKG.bui
   > {
     const pathApi = yield* Path.Path;
     const tsMorph = yield* TSMorphService;
+    const paths = effectCapabilitySeedPaths(pathApi, repoRootPath);
     const request = yield* decodeProjectInspectionRequest({
       entrypoint: {
         _tag: "tsconfig",
-        tsConfigPath: EFFECT_TSCONFIG_PATH,
+        tsConfigPath: paths.tsConfigPath,
       },
       repoRootPath,
       mode: TsMorphScopeMode.Enum.syntax,
       referencePolicy: TsMorphReferencePolicy.Enum.workspaceOnly,
-      filePaths: A.map(allSourceModules, sourcePathForModule),
+      filePaths: A.map(allSourceModules, paths.sourcePathForModule),
       sourceFileGlobs: A.empty(),
     }).pipe(
       Effect.mapError((error) =>
-        seedError(
-          `Failed to build Effect v4 ts-morph inspection request: ${error.message}`,
-          O.some(EFFECT_TSCONFIG_PATH)
-        )
+        seedError(`Failed to build Effect v4 ts-morph inspection request: ${error.message}`, O.some(paths.tsConfigPath))
       )
     );
 
@@ -1478,18 +1567,18 @@ export const buildEffectCapabilitySeedReport = Effect.fn("EffectCapabilityKG.bui
       .inspectProject(request, ({ scope, sourceFiles }) =>
         pipe(
           sourceFiles,
-          A.map((sourceFile) => collectModule(pathApi, scope.repoRootPath, sourceFile)),
+          A.map((sourceFile) => collectModule(pathApi, scope.repoRootPath, paths.sourcePathForModule, sourceFile)),
           A.getSomes,
           A.filter((module) => A.contains(allSourceModules, module.moduleName)),
           A.dedupeWith((left, right) => left.moduleName === right.moduleName),
           A.sort(byModuleOrder)
         )
       )
-      .pipe(Effect.mapError((error) => seedError(error.message, O.some(EFFECT_TSCONFIG_PATH))));
+      .pipe(Effect.mapError((error) => seedError(error.message, O.some(paths.tsConfigPath))));
 
-    const catalogVisibility = yield* readCatalogVisibility(repoRootPath);
+    const catalogVisibility = yield* readCatalogVisibility(repoRootPath, paths.catalogPath);
     const partialReport = EffectCapabilitySeedReport.make({
-      sourceRoot: EFFECT_SOURCE_DIR,
+      sourceRoot: paths.sourceDir,
       seedModules,
       adjacentModules,
       modules,
