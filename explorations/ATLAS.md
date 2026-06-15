@@ -41,7 +41,10 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Active
 
-(none)
+- [`docx-roundtrip-interop`](./docx-roundtrip-interop/README.md) — pure
+  AST-level DOCX interchange exploration: schema-first Pandoc JSON mirror,
+  `PandocAst <-> @beep/md` compatibility proof, and explicit lossiness matrix
+  before UI, Tauri sidecars, or patent semantics.
 
 ### Proposed
 
