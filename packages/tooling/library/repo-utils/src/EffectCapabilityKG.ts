@@ -8,7 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
-import { Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -595,8 +595,7 @@ const cleanCommentLine = (line: string): string => {
   return Str.startsWith("*")(trimmed) ? pipe(trimmed, Str.slice(1), Str.trim) : trimmed;
 };
 
-const cleanJsDocText = (text: string): string =>
-  pipe(text, Str.split("\n"), A.map(cleanCommentLine), A.join("\n"), Str.trim);
+const cleanJsDocText: (text: string) => string = flow(Str.split("\n"), A.map(cleanCommentLine), A.join("\n"), Str.trim);
 
 const firstNonEmptyLine = (text: string): string =>
   pipe(
@@ -711,79 +710,115 @@ const flushSection = (
     : O.none();
 };
 
+const sectionTitleFromHeading = (line: string): O.Option<string> => {
+  const heading = /^\*\*([^*]+)\*\*(?:\s+\(([^)]+)\))?/u.exec(line);
+  if (heading === null) {
+    return O.none();
+  }
+
+  const title = heading[1] ?? "Section";
+  const label = heading[2];
+  return O.some(P.isString(label) && Str.isNonEmpty(label) ? `${title}: ${label}` : title);
+};
+
+const appendFlushedSection = (
+  sections: ReadonlyArray<EffectCapabilityDocSection>,
+  sourcePath: string,
+  docEvidence: EffectCapabilityEvidence,
+  current: SectionAccumulator
+): ReadonlyArray<EffectCapabilityDocSection> =>
+  pipe(
+    flushSection(sourcePath, docEvidence, current),
+    O.match({
+      onNone: () => sections,
+      onSome: (section) => A.append(sections, section),
+    })
+  );
+
+const readStructuredSectionsFromDoc = (sourcePath: string, jsDoc: JSDoc): ReadonlyArray<EffectCapabilityDocSection> => {
+  const docEvidence = evidenceForNode(sourcePath, jsDoc, "effect-v4-jsdoc", "doc");
+  let sections: ReadonlyArray<EffectCapabilityDocSection> = A.empty();
+  let current: SectionAccumulator = { title: "Summary", lines: A.empty() };
+
+  for (const line of pipe(jsDoc.getText(), cleanJsDocText, Str.split("\n"))) {
+    const trimmed = Str.trim(line);
+    if (Str.startsWith("@")(trimmed)) {
+      continue;
+    }
+
+    const headingTitle = sectionTitleFromHeading(trimmed);
+    if (O.isSome(headingTitle)) {
+      sections = appendFlushedSection(sections, sourcePath, docEvidence, current);
+      current = { title: headingTitle.value, lines: A.empty() };
+      continue;
+    }
+
+    current = { title: current.title, lines: A.append(current.lines, trimmed) };
+  }
+
+  return appendFlushedSection(sections, sourcePath, docEvidence, current);
+};
+
 const readStructuredSections = (
   sourcePath: string,
   jsDocs: ReadonlyArray<JSDoc>
-): ReadonlyArray<EffectCapabilityDocSection> => {
-  let sections = A.empty<EffectCapabilityDocSection>();
+): ReadonlyArray<EffectCapabilityDocSection> =>
+  pipe(
+    jsDocs,
+    A.flatMap((jsDoc) => readStructuredSectionsFromDoc(sourcePath, jsDoc))
+  );
 
-  for (const jsDoc of jsDocs) {
-    const docEvidence = evidenceForNode(sourcePath, jsDoc, "effect-v4-jsdoc", "doc");
-    let current: SectionAccumulator = { title: "Summary", lines: A.empty() };
-    const lines = pipe(jsDoc.getText(), cleanJsDocText, Str.split("\n"));
-
-    for (const line of lines) {
-      const trimmed = Str.trim(line);
-      if (Str.startsWith("@")(trimmed)) {
-        continue;
-      }
-
-      const heading = /^\*\*([^*]+)\*\*(?:\s+\(([^)]+)\))?/u.exec(trimmed);
-      if (heading !== null) {
-        const flushed = flushSection(sourcePath, docEvidence, current);
-        if (O.isSome(flushed)) {
-          sections = A.append(sections, flushed.value);
-        }
-        current = { title: heading[1] ?? "Section", lines: A.empty() };
-        const label = heading[2];
-        if (P.isString(label) && Str.isNonEmpty(label)) {
-          current = { title: `${current.title}: ${label}`, lines: current.lines };
-        }
-        continue;
-      }
-
-      current = { title: current.title, lines: A.append(current.lines, trimmed) };
-    }
-
-    const flushed = flushSection(sourcePath, docEvidence, current);
-    if (O.isSome(flushed)) {
-      sections = A.append(sections, flushed.value);
-    }
-  }
-
-  return sections;
+const exampleCaseFromLines = (
+  symbol: EffectCapabilitySymbol,
+  section: EffectCapabilityDocSection,
+  lines: ReadonlyArray<string>
+): O.Option<EffectCapabilityExampleCase> => {
+  const code = pipe(lines, A.join("\n"), Str.trim);
+  return Str.isNonEmpty(code)
+    ? O.some(
+        EffectCapabilityExampleCase.make({
+          label: Str.startsWith("Example")(section.title) ? O.some(section.title) : O.none(),
+          code,
+          evidence: evidenceForText(
+            section.evidence.sourcePath,
+            section.evidence.startLine,
+            section.evidence.endLine,
+            "effect-v4-jsdoc-example",
+            `${symbol.moduleName}.${symbol.name}`,
+            firstNonEmptyLine(code)
+          ),
+        })
+      )
+    : O.none();
 };
+
+const appendCompletedExample = (
+  examples: ReadonlyArray<EffectCapabilityExampleCase>,
+  symbol: EffectCapabilitySymbol,
+  section: EffectCapabilityDocSection,
+  lines: ReadonlyArray<string>
+): ReadonlyArray<EffectCapabilityExampleCase> =>
+  pipe(
+    exampleCaseFromLines(symbol, section, lines),
+    O.match({
+      onNone: () => examples,
+      onSome: (example) => A.append(examples, example),
+    })
+  );
 
 const extractExamplesFromSection = (
   symbol: EffectCapabilitySymbol,
   section: EffectCapabilityDocSection
 ): ReadonlyArray<EffectCapabilityExampleCase> => {
-  let examples = A.empty<EffectCapabilityExampleCase>();
-  let currentLines = A.empty<string>();
+  let examples: ReadonlyArray<EffectCapabilityExampleCase> = A.empty();
+  let currentLines: ReadonlyArray<string> = A.empty();
   let inFence = false;
 
   for (const line of Str.split("\n")(section.text)) {
     const trimmed = Str.trim(line);
     if (Str.startsWith("```")(trimmed)) {
       if (inFence) {
-        const code = pipe(currentLines, A.join("\n"), Str.trim);
-        if (Str.isNonEmpty(code)) {
-          examples = A.append(
-            examples,
-            EffectCapabilityExampleCase.make({
-              label: Str.startsWith("Example")(section.title) ? O.some(section.title) : O.none(),
-              code,
-              evidence: evidenceForText(
-                section.evidence.sourcePath,
-                section.evidence.startLine,
-                section.evidence.endLine,
-                "effect-v4-jsdoc-example",
-                `${symbol.moduleName}.${symbol.name}`,
-                firstNonEmptyLine(code)
-              ),
-            })
-          );
-        }
+        examples = appendCompletedExample(examples, symbol, section, currentLines);
         currentLines = A.empty();
         inFence = false;
       } else {
@@ -825,74 +860,49 @@ const variableStatementExportKind = (statement: VariableStatement): string => st
 const isExportedStatement = (statement: Statement): boolean =>
   Node.isExportable(statement) ? statement.isExported() : false;
 
-const collectExportedDeclarations = (sourceFile: SourceFile): ReadonlyArray<ExportedDeclaration> => {
-  let declarations = A.empty<ExportedDeclaration>();
+const exportedDeclaration = (name: string, exportKind: string, statement: Statement): ExportedDeclaration => ({
+  name,
+  exportKind,
+  signatureNode: statement,
+  jsDocNode: statement,
+});
 
-  for (const statement of sourceFile.getStatements()) {
-    if (!isExportedStatement(statement)) {
-      continue;
-    }
+const variableExportedDeclarations = (statement: VariableStatement): ReadonlyArray<ExportedDeclaration> =>
+  pipe(
+    statement.getDeclarations(),
+    A.map((declaration) =>
+      exportedDeclaration(declaration.getName(), variableStatementExportKind(statement), statement)
+    )
+  );
 
-    if (Node.isVariableStatement(statement)) {
-      for (const declaration of statement.getDeclarations()) {
-        declarations = A.append(declarations, {
-          name: declaration.getName(),
-          exportKind: variableStatementExportKind(statement),
-          signatureNode: statement,
-          jsDocNode: statement,
-        });
-      }
-      continue;
-    }
+const namedExportedDeclaration = (
+  statement: Statement,
+  exportKind: string,
+  name: string | undefined
+): ReadonlyArray<ExportedDeclaration> =>
+  P.isString(name) ? [exportedDeclaration(name, exportKind, statement)] : A.empty();
 
-    if (Node.isFunctionDeclaration(statement)) {
-      const name = statement.getName();
-      if (P.isString(name)) {
-        declarations = A.append(declarations, {
-          name,
-          exportKind: "function",
-          signatureNode: statement,
-          jsDocNode: statement,
-        });
-      }
-      continue;
-    }
-
-    if (Node.isInterfaceDeclaration(statement)) {
-      declarations = A.append(declarations, {
-        name: statement.getName(),
-        exportKind: "interface",
-        signatureNode: statement,
-        jsDocNode: statement,
-      });
-      continue;
-    }
-
-    if (Node.isTypeAliasDeclaration(statement)) {
-      declarations = A.append(declarations, {
-        name: statement.getName(),
-        exportKind: "type",
-        signatureNode: statement,
-        jsDocNode: statement,
-      });
-      continue;
-    }
-
-    if (Node.isClassDeclaration(statement)) {
-      const name = statement.getName();
-      if (P.isString(name)) {
-        declarations = A.append(declarations, {
-          name,
-          exportKind: "class",
-          signatureNode: statement,
-          jsDocNode: statement,
-        });
-      }
-    }
+const exportedDeclarationsFromStatement = (statement: Statement): ReadonlyArray<ExportedDeclaration> => {
+  if (Node.isVariableStatement(statement)) {
+    return variableExportedDeclarations(statement);
   }
-
-  return declarations;
+  if (Node.isFunctionDeclaration(statement)) {
+    return namedExportedDeclaration(statement, "function", statement.getName());
+  }
+  if (Node.isInterfaceDeclaration(statement)) {
+    return [exportedDeclaration(statement.getName(), "interface", statement)];
+  }
+  if (Node.isTypeAliasDeclaration(statement)) {
+    return [exportedDeclaration(statement.getName(), "type", statement)];
+  }
+  if (Node.isClassDeclaration(statement)) {
+    return namedExportedDeclaration(statement, "class", statement.getName());
+  }
+  return A.empty();
 };
+
+const collectExportedDeclarations = (sourceFile: SourceFile): ReadonlyArray<ExportedDeclaration> =>
+  pipe(sourceFile.getStatements(), A.filter(isExportedStatement), A.flatMap(exportedDeclarationsFromStatement));
 
 const signatureSummary = (node: TsMorphNode): string => firstNonEmptyLine(node.getText());
 
@@ -999,165 +1009,152 @@ const referencedAdjacentModules = (text: string): ReadonlyArray<EffectCapability
     A.filter((moduleName) => Str.includes(`${moduleName}.`)(text))
   );
 
+const fallbackEvidenceForSymbol = (symbol: EffectCapabilitySymbol): EffectCapabilityEvidence =>
+  evidenceForText(
+    symbol.sourceSpan.sourcePath,
+    symbol.sourceSpan.startLine,
+    symbol.sourceSpan.endLine,
+    "effect-v4-ast",
+    symbol.id,
+    symbol.signatureSummary
+  );
+
+const primaryEvidenceForSymbol = (symbol: EffectCapabilitySymbol): EffectCapabilityEvidence =>
+  A.head(symbol.evidence).pipe(O.getOrElse(() => fallbackEvidenceForSymbol(symbol)));
+
 const evidenceFromSymbol = (symbol: EffectCapabilitySymbol, relation: EffectCapabilityRelationKind, target: string) =>
   EffectCapabilityGraphEdge.make({
     from: symbol.id,
     to: target,
     relation,
-    evidence: A.head(symbol.evidence).pipe(
-      O.getOrElse(() =>
-        evidenceForText(
-          symbol.sourceSpan.sourcePath,
-          symbol.sourceSpan.startLine,
-          symbol.sourceSpan.endLine,
-          "effect-v4-ast",
-          symbol.id,
-          symbol.signatureSummary
-        )
-      )
+    evidence: primaryEvidenceForSymbol(symbol),
+  });
+
+const importEdge = (
+  module: EffectCapabilityModule,
+  imported: EffectCapabilitySeedModuleName
+): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: module.id,
+    to: moduleId(imported),
+    relation: "imports",
+    evidence: A.head(module.evidence).pipe(
+      O.getOrElse(() => evidenceForText(module.sourcePath, 1, 1, "effect-v4-import", imported, imported))
     ),
+  });
+
+const definitionEdge = (module: EffectCapabilityModule, symbol: EffectCapabilitySymbol): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: module.id,
+    to: symbol.id,
+    relation: "defines",
+    evidence: primaryEvidenceForSymbol(symbol),
+  });
+
+const categoryEdge = (symbol: EffectCapabilitySymbol, category: EffectCapabilityDocTag): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: symbol.id,
+    to: `category:${category.text}`,
+    relation: "hasCategory",
+    evidence: category.evidence,
+  });
+
+const sinceEdge = (symbol: EffectCapabilitySymbol, since: EffectCapabilityDocTag): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: symbol.id,
+    to: `since:${since.text}`,
+    relation: "introducedIn",
+    evidence: since.evidence,
+  });
+
+const docSectionRelation = (section: EffectCapabilityDocSection): EffectCapabilityRelationKind =>
+  Str.includes("When to use")(section.title) ? "hasWhenToUse" : "hasDetails";
+
+const docSectionEdge = (
+  symbol: EffectCapabilitySymbol,
+  section: EffectCapabilityDocSection
+): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: symbol.id,
+    to: docSectionId(symbol, section),
+    relation: docSectionRelation(section),
+    evidence: section.evidence,
+  });
+
+const exampleEdge = (
+  symbol: EffectCapabilitySymbol,
+  example: EffectCapabilityExampleCase,
+  index: number
+): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: symbol.id,
+    to: exampleId(symbol, index),
+    relation: "demonstratedBy",
+    evidence: example.evidence,
+  });
+
+const seeAlsoEdge = (
+  symbol: EffectCapabilitySymbol,
+  seeAlso: EffectCapabilitySeeAlsoRelation
+): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: symbol.id,
+    to: `see:${seeAlso.target}`,
+    relation: "seeAlso",
+    evidence: seeAlso.evidence,
+  });
+
+const symbolReferenceText = (symbol: EffectCapabilitySymbol): string =>
+  pipe(
+    [
+      symbol.signatureSummary,
+      ...A.map(symbol.docSections, (section) => section.text),
+      ...A.map(symbol.examples, (example) => example.code),
+      ...A.map(symbol.seeAlso, (seeAlso) => seeAlso.text),
+    ],
+    A.join("\n")
+  );
+
+const symbolEdges = (
+  module: EffectCapabilityModule,
+  symbol: EffectCapabilitySymbol
+): ReadonlyArray<EffectCapabilityGraphEdge> => [
+  definitionEdge(module, symbol),
+  ...A.map(symbol.category, (category) => categoryEdge(symbol, category)),
+  ...A.map(symbol.since, (since) => sinceEdge(symbol, since)),
+  ...A.map(symbol.docSections, (section) => docSectionEdge(symbol, section)),
+  ...symbol.examples.map((example, index) => exampleEdge(symbol, example, index)),
+  ...A.map(symbol.seeAlso, (seeAlso) => seeAlsoEdge(symbol, seeAlso)),
+  ...A.map(referencedAdjacentModules(symbolReferenceText(symbol)), (referenced) =>
+    evidenceFromSymbol(symbol, "composesWith", moduleId(referenced))
+  ),
+];
+
+const moduleEdges = (module: EffectCapabilityModule): ReadonlyArray<EffectCapabilityGraphEdge> => [
+  ...A.map(module.imports, (imported) => importEdge(module, imported)),
+  ...pipe(
+    module.symbols,
+    A.flatMap((symbol) => symbolEdges(module, symbol))
+  ),
+];
+
+const catalogVisibilityEdge = (entry: EffectCapabilityCatalogVisibility): EffectCapabilityGraphEdge =>
+  EffectCapabilityGraphEdge.make({
+    from: moduleId(entry.moduleName),
+    to: catalogId(entry),
+    relation: "catalogVisibleAs",
+    evidence: entry.evidence,
   });
 
 const buildEdges = (
   modules: ReadonlyArray<EffectCapabilityModule>,
   catalogVisibility: ReadonlyArray<EffectCapabilityCatalogVisibility>
-): ReadonlyArray<EffectCapabilityGraphEdge> => {
-  let edges = A.empty<EffectCapabilityGraphEdge>();
-
-  for (const module of modules) {
-    for (const imported of module.imports) {
-      edges = A.append(
-        edges,
-        EffectCapabilityGraphEdge.make({
-          from: module.id,
-          to: moduleId(imported),
-          relation: "imports",
-          evidence: A.head(module.evidence).pipe(
-            O.getOrElse(() => evidenceForText(module.sourcePath, 1, 1, "effect-v4-import", imported, imported))
-          ),
-        })
-      );
-    }
-
-    for (const symbol of module.symbols) {
-      edges = A.append(
-        edges,
-        EffectCapabilityGraphEdge.make({
-          from: module.id,
-          to: symbol.id,
-          relation: "defines",
-          evidence: A.head(symbol.evidence).pipe(
-            O.getOrElse(() =>
-              evidenceForText(
-                symbol.sourceSpan.sourcePath,
-                symbol.sourceSpan.startLine,
-                symbol.sourceSpan.endLine,
-                "effect-v4-ast",
-                symbol.id,
-                symbol.signatureSummary
-              )
-            )
-          ),
-        })
-      );
-
-      for (const category of symbol.category) {
-        edges = A.append(
-          edges,
-          EffectCapabilityGraphEdge.make({
-            from: symbol.id,
-            to: `category:${category.text}`,
-            relation: "hasCategory",
-            evidence: category.evidence,
-          })
-        );
-      }
-
-      for (const since of symbol.since) {
-        edges = A.append(
-          edges,
-          EffectCapabilityGraphEdge.make({
-            from: symbol.id,
-            to: `since:${since.text}`,
-            relation: "introducedIn",
-            evidence: since.evidence,
-          })
-        );
-      }
-
-      for (const section of symbol.docSections) {
-        const relation = Str.includes("When to use")(section.title) ? "hasWhenToUse" : "hasDetails";
-        edges = A.append(
-          edges,
-          EffectCapabilityGraphEdge.make({
-            from: symbol.id,
-            to: docSectionId(symbol, section),
-            relation,
-            evidence: section.evidence,
-          })
-        );
-      }
-
-      let exampleIndex = 0;
-      for (const example of symbol.examples) {
-        edges = A.append(
-          edges,
-          EffectCapabilityGraphEdge.make({
-            from: symbol.id,
-            to: exampleId(symbol, exampleIndex),
-            relation: "demonstratedBy",
-            evidence: example.evidence,
-          })
-        );
-        exampleIndex += 1;
-      }
-
-      for (const seeAlso of symbol.seeAlso) {
-        edges = A.append(
-          edges,
-          EffectCapabilityGraphEdge.make({
-            from: symbol.id,
-            to: `see:${seeAlso.target}`,
-            relation: "seeAlso",
-            evidence: seeAlso.evidence,
-          })
-        );
-      }
-
-      const referenceText = pipe(
-        [
-          symbol.signatureSummary,
-          ...A.map(symbol.docSections, (section) => section.text),
-          ...A.map(symbol.examples, (example) => example.code),
-          ...A.map(symbol.seeAlso, (seeAlso) => seeAlso.text),
-        ],
-        A.join("\n")
-      );
-
-      for (const referenced of referencedAdjacentModules(referenceText)) {
-        edges = A.append(edges, evidenceFromSymbol(symbol, "composesWith", moduleId(referenced)));
-      }
-    }
-  }
-
-  for (const entry of catalogVisibility) {
-    edges = A.append(
-      edges,
-      EffectCapabilityGraphEdge.make({
-        from: moduleId(entry.moduleName),
-        to: catalogId(entry),
-        relation: "catalogVisibleAs",
-        evidence: entry.evidence,
-      })
-    );
-  }
-
-  return pipe(
-    edges,
+): ReadonlyArray<EffectCapabilityGraphEdge> =>
+  pipe(
+    [...pipe(modules, A.flatMap(moduleEdges)), ...A.map(catalogVisibility, catalogVisibilityEdge)],
     A.dedupeWith((left, right) => left.from === right.from && left.to === right.to && left.relation === right.relation),
     A.sort(byEdge)
   );
-};
 
 const readRepoRelativeFile = Effect.fn(function* (
   repoRootPath: string,
@@ -1271,16 +1268,14 @@ const readCatalogVisibility = Effect.fn(function* (
   );
 });
 
-const lowerTokens = (text: string): ReadonlyArray<string> =>
-  pipe(
-    text,
-    Str.toLowerCase,
-    Str.replace(/[^a-z0-9]+/gu, " "),
-    Str.split(" "),
-    A.map(Str.trim),
-    A.filter(Str.isNonEmpty),
-    A.dedupe
-  );
+const lowerTokens: (text: string) => ReadonlyArray<string> = flow(
+  Str.toLowerCase,
+  Str.replace(/[^a-z0-9]+/gu, " "),
+  Str.split(" "),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty),
+  A.dedupe
+);
 
 const tokenHits = (tokens: ReadonlyArray<string>, keywords: ReadonlyArray<string>): number =>
   pipe(
@@ -1459,7 +1454,7 @@ export const buildEffectCapabilitySeedReport = Effect.fn("EffectCapabilityKG.bui
     FileSystem.FileSystem | Path.Path | TSMorphService
   > {
     const pathApi = yield* Path.Path;
-    const tsmorph = yield* TSMorphService;
+    const tsMorph = yield* TSMorphService;
     const request = yield* decodeProjectInspectionRequest({
       entrypoint: {
         _tag: "tsconfig",
@@ -1479,7 +1474,7 @@ export const buildEffectCapabilitySeedReport = Effect.fn("EffectCapabilityKG.bui
       )
     );
 
-    const modules = yield* tsmorph
+    const modules = yield* tsMorph
       .inspectProject(request, ({ scope, sourceFiles }) =>
         pipe(
           sourceFiles,

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "eb95dcba855c2bb50751e8096a093dbf383f987081c08fd3436a92571996a6e7",
+    "digest": "90970efc5ac916ee7df2153c78c358179995c6410dd372efc274f1dad7422265",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/agents/domain/src/index.ts",
-        "sha256": "61b20d2254f5d82c6a98a369d04f846a379ac3058d32fb6d781b22c381f4f59a",
-        "bytes": 778
+        "sha256": "6fb4765eb766ab8630d1ccc58e4a092320013be39bb10ca49cb75dcc8433ad2f",
+        "bytes": 780
       },
       {
         "path": "packages/agents/domain/src/turn/AssistantContent.ts",
@@ -67,12 +67,12 @@
       },
       {
         "path": "packages/agents/domain/src/turn/BlockToMd.ts",
-        "sha256": "16e4deff1901065edfde694661292a3c184450d40274884974afec6597daff90",
+        "sha256": "089517792955465697e32775c14591721275820ac4f11da8fba559c7b7a79050",
         "bytes": 4042
       },
       {
         "path": "packages/agents/domain/src/turn/index.ts",
-        "sha256": "3321050312a9a7ade5612d8b2602b2ab59267215cbef5f898331389f972ad8eb",
+        "sha256": "38e1853898b21676b0898dfb6fd39e208ec8b259d2b8f3ebe44ef4f2653fc8b1",
         "bytes": 602
       },
       {
@@ -531,7 +531,7 @@
         "sourceLine": 121,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
-          "lifting"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -541,7 +541,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` lifting packages/agents/domain/src/turn/blocktomd.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` mapping packages/agents/domain/src/turn/blocktomd.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -556,7 +556,7 @@
         "sourceLine": 77,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
-          "lifting"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -566,7 +566,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. lifting packages/agents/domain/src/turn/blocktomd.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. mapping packages/agents/domain/src/turn/blocktomd.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -680,7 +680,7 @@
         "sourceLine": 34,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
-          "lifting"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -690,7 +690,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. lifting packages/agents/domain/src/turn/blocktomd.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. mapping packages/agents/domain/src/turn/blocktomd.ts"
       },
       {
         "packageName": "@beep/agents-domain",

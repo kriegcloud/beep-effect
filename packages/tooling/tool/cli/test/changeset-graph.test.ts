@@ -149,6 +149,20 @@ Record a private workspace change.
     ]);
   });
 
+  it("allows references to explicitly retired packages", () => {
+    const missing = findMissingChangesetPackageReferences(
+      ["@beep/schema"],
+      [
+        ChangesetGraphPackageReference.make({
+          file: ".changeset/demo.md",
+          packageName: "@beep/ontology",
+        }),
+      ]
+    );
+
+    expect(missing).toEqual([]);
+  });
+
   it("builds a stable summary for release preflight output", () => {
     const summary = makeChangesetGraphSummary(
       ["@beep/schema"],

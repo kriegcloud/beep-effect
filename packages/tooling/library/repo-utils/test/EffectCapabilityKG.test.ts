@@ -1,21 +1,15 @@
-import { TSMorphServiceLive } from "@beep/repo-utils";
 import {
   adviseEffectCapabilitySeedFixtures,
   buildEffectCapabilitySeedReport,
   defaultEffectCapabilitySeedFixtures,
 } from "@beep/repo-utils/EffectCapabilityKG";
 import { A } from "@beep/utils";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
 import { expect, layer } from "@effect/vitest";
-import { Context, Effect, Layer, Path, pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
+import { REPO_ROOT, TestLayer } from "./TSMorph.test-support.js";
 import type { EffectCapabilitySeedReport } from "@beep/repo-utils/EffectCapabilityKG";
 
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer));
-const pathApi = Effect.runSync(Effect.scoped(Layer.build(NodePath.layer).pipe(Effect.map(Context.get(Path.Path)))));
-const REPO_ROOT = pathApi.resolve(__dirname, "..", "..", "..", "..", "..");
 const TIMEOUT = 60_000;
 
 const findModule = (report: EffectCapabilitySeedReport, name: string) =>

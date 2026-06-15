@@ -31,6 +31,7 @@ const $I = $RepoCliId.create("commands/Quality/ChangesetGraph");
 const changesetFrontmatterPattern = /^---\r?\n([\s\S]*?)\r?\n---/;
 const nulSeparator = "\u0000";
 const gitWorkspacePackageJsonPathspecs = ["package.json"] as const;
+const retiredChangesetPackageNames = ["@beep/messages", "@beep/ontology", "@beep/sandbox"] as const;
 
 class ChangesetGraphWorkspacesObject extends S.Class<ChangesetGraphWorkspacesObject>(
   $I`ChangesetGraphWorkspacesObject`
@@ -127,6 +128,9 @@ type ChangesetGraphWorkspaces = ChangesetGraphPackageJson["workspaces"];
 
 const isWorkspacePatternArray = (value: Exclude<ChangesetGraphWorkspaces, undefined>): value is ReadonlyArray<string> =>
   A.isArray(value) && A.every(value, P.isString);
+
+const isRetiredChangesetPackageReference = (reference: ChangesetGraphPackageReference): boolean =>
+  A.some(retiredChangesetPackageNames, (packageName) => packageName === reference.packageName);
 
 const toNulSeparatedLines: (output: string) => ReadonlyArray<string> = flow(
   Str.split(nulSeparator),
@@ -415,7 +419,11 @@ export const findMissingChangesetPackageReferences: {
   ): ReadonlyArray<ChangesetGraphPackageReference> =>
     pipe(
       references,
-      A.filter((reference) => !A.some(workspacePackageNames, (packageName) => packageName === reference.packageName)),
+      A.filter(
+        (reference) =>
+          !isRetiredChangesetPackageReference(reference) &&
+          !A.some(workspacePackageNames, (packageName) => packageName === reference.packageName)
+      ),
       A.dedupeWith((left, right) => left.file === right.file && left.packageName === right.packageName),
       A.sort(byReferenceKeyAscending)
     )
