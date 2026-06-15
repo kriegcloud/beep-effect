@@ -226,13 +226,6 @@ const decodeInlines = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline
 const decodeBlockList = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>, S.SchemaError> =>
   Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlock));
 
-const decodeBlockItems = (
-  input: unknown
-): Effect.Effect<ReadonlyArray<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
-  Effect.flatMap(decodeUnknownBlockItems(input), (items) =>
-    Effect.forEach(items, (item) => Effect.forEach(item, decodeBlock))
-  );
-
 const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
   UnknownInline.make({ constructor, payload });
 
@@ -432,7 +425,9 @@ const decodeBlock = (input: unknown): Effect.Effect<PandocBlock.Type, S.SchemaEr
           Effect.map(attrFromWire(attrWire), (attr) => CodeBlock.make({ attr, text }))
         )
       ),
-      Match.when("BulletList", () => Effect.map(decodeBlockItems(wire.c), (items) => BulletList.make({ items }))),
+      Match.when("BulletList", () =>
+        Effect.map(decodeBlockItemsOrUnknown(wire.c), (items) => BulletList.make({ items }))
+      ),
       Match.when("OrderedList", () => decodeOrderedListBlock(wire.c)),
       Match.when("HorizontalRule", () => Effect.succeed(HorizontalRule.make({}))),
       Match.when("Div", () => decodeAttributedBlockChildren(wire.c, (attr, children) => Div.make({ attr, children }))),

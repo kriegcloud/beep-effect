@@ -198,6 +198,33 @@ describe("Pandoc.codec", () => {
       })
     ));
 
+  it("keeps bullet-list structure when nested item blocks are malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [[{ c: "not-inline-list", t: "Plain" }]],
+              t: "BulletList",
+            },
+          ],
+          meta: {},
+        });
+        const list = document.blocks[0];
+
+        expect(list?._tag).toBe("bulletlist");
+        if (list?._tag !== "bulletlist") {
+          return;
+        }
+
+        expect(list.items[0]?.[0]?._tag).toBe("unknownBlock");
+        if (list.items[0]?.[0]?._tag === "unknownBlock") {
+          expect(list.items[0][0].constructor).toBe("MalformedBlock");
+        }
+      })
+    ));
+
   it("keeps explicit table gap nodes when table metadata is malformed", () =>
     Effect.runPromise(
       Effect.gen(function* () {
