@@ -14,7 +14,7 @@
 
 import * as Md from "@beep/md/Md.model";
 import { A, dual, O, Str } from "@beep/utils";
-import { Effect, flow, Match } from "effect";
+import { Effect, flow, Match, pipe } from "effect";
 import * as S from "effect/Schema";
 import {
   ArtifactRefNode,
@@ -30,7 +30,11 @@ import {
   QuoteNode,
   RootNode,
   SerializedEditorState,
+  TableCellNode,
+  TableNode,
+  TableRowNode,
   TextNode,
+  YouTubeNode,
 } from "./Lexical.model.ts";
 
 // Lexical TextFormatType bitmask flags with an Md equivalent (see README for
@@ -69,6 +73,21 @@ const elementDefaults = {
 const leafDefaults = {
   version: 1,
   $: O.none<Record<string, unknown>>(),
+};
+
+const tableCellDefaults = {
+  colSpan: O.none<number>(),
+  rowSpan: O.none<number>(),
+  width: O.none<number>(),
+  backgroundColor: O.none<string | null>(),
+  verticalAlign: O.none<string>(),
+};
+
+const tableNodeDefaults = {
+  colWidths: O.none<ReadonlyArray<number>>(),
+  rowStriping: O.none<boolean>(),
+  frozenColumnCount: O.none<number>(),
+  frozenRowCount: O.none<number>(),
 };
 
 const textLeaf: {
@@ -134,6 +153,17 @@ const mdBlockText = (block: Md.Block): string =>
           A.map(node.children, (item) => mdInlinesText(item.children)),
           "\n"
         ),
+      table: (node) =>
+        A.join(
+          A.map(node.children, (row) =>
+            A.join(
+              A.map(row.children, (cell) => mdInlinesText(cell.children)),
+              "\t"
+            )
+          ),
+          "\n"
+        ),
+      youtube: (node) => `https://www.youtube.com/watch?v=${node.videoId}`,
       hr: () => "---",
     })
   );
@@ -312,6 +342,48 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
             children,
           })
       ),
+    table: Effect.fn("Lexical.codec.blockToLexical.table")(function* (node: Md.Table) {
+      const rows = yield* Effect.forEach(
+        node.children,
+        Effect.fnUntraced(function* (row: Md.TableRow, rowIndex) {
+          const cells = yield* Effect.forEach(
+            row.children,
+            Effect.fnUntraced(function* (cell: Md.TableCell) {
+              const inlines = yield* inlinesToLexical(cell.children, 0);
+              const paragraph = yield* ParagraphNode.makeEffect({
+                ...elementDefaults,
+                children: inlines,
+              });
+
+              return yield* TableCellNode.makeEffect({
+                ...elementDefaults,
+                ...tableCellDefaults,
+                headerState: node.headerRow && rowIndex === 0 ? 1 : 0,
+                children: [paragraph],
+              });
+            })
+          );
+
+          return yield* TableRowNode.makeEffect({
+            ...elementDefaults,
+            height: O.none(),
+            children: cells,
+          });
+        })
+      );
+
+      return yield* TableNode.makeEffect({
+        ...elementDefaults,
+        ...tableNodeDefaults,
+        children: rows,
+      });
+    }),
+    youtube: (node) =>
+      YouTubeNode.makeEffect({
+        ...leafDefaults,
+        videoID: node.videoId,
+        format: "",
+      }),
     ul: (node) =>
       Effect.flatMap(listItemsToLexical(node.children), (children) =>
         ListNode.makeEffect({
@@ -433,6 +505,10 @@ const inlineNodeToMd: (node: LexicalNode) => Md.Inline = LexicalNode.match({
   list: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
   listitem: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
   code: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
+  youtube: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
+  table: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
+  tablerow: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
+  tablecell: (node) => Md.Text.make({ value: nodeToPlainText(node) }),
 });
 
 const codeChildText: (node: LexicalNode) => string = LexicalNode.match({
@@ -448,9 +524,15 @@ const codeChildText: (node: LexicalNode) => string = LexicalNode.match({
   listitem: nodeToPlainText,
   link: nodeToPlainText,
   code: nodeToPlainText,
+  youtube: nodeToPlainText,
+  table: nodeToPlainText,
+  tablerow: nodeToPlainText,
+  tablecell: nodeToPlainText,
 });
 
 const isListNode = (node: LexicalNode): node is ListNode => S.is(ListNode)(node);
+const isTableCellNode = (node: LexicalNode): node is TableCellNode => S.is(TableCellNode)(node);
+const isTableRowNode = (node: LexicalNode): node is TableRowNode => S.is(TableRowNode)(node);
 
 // Nested lists flatten into the parent list level (README "Lossiness
 // profile") — `@beep/md` list items hold inline content only.
@@ -518,6 +600,37 @@ const headingConstructors = {
   h6: Md.H6,
 } as const;
 
+const tableChildToInlines = (node: LexicalNode): ReadonlyArray<Md.Inline> =>
+  node.type === "paragraph" ? textRunToInlines(node.children) : [Md.Text.make({ value: nodeToPlainText(node) })];
+
+const tableCellToMd = (node: TableCellNode): Md.TableCell =>
+  Md.TableCell.make({
+    children: A.flatMap(node.children, tableChildToInlines),
+  });
+
+const tableRowToMd = (node: TableRowNode): Md.TableRow =>
+  Md.TableRow.make({
+    children: A.map(node.children, (child) =>
+      isTableCellNode(child)
+        ? tableCellToMd(child)
+        : Md.TableCell.make({ children: [Md.Text.make({ value: nodeToPlainText(child) })] })
+    ),
+  });
+
+const tableHasHeaderRow = (node: TableNode): boolean =>
+  pipe(
+    node.children,
+    A.findFirst(isTableRowNode),
+    O.map((row) => A.some(row.children, (child) => isTableCellNode(child) && child.headerState !== 0)),
+    O.getOrElse(() => false)
+  );
+
+const tableToBlock = (node: TableNode): Md.Table =>
+  Md.Table.make({
+    headerRow: tableHasHeaderRow(node),
+    children: A.map(A.filter(node.children, isTableRowNode), tableRowToMd),
+  });
+
 /**
  * Project one serialized Lexical node onto Md blocks.
  *
@@ -547,6 +660,10 @@ export const nodeToBlocks: (node: LexicalNode) => ReadonlyArray<Md.Block> = Lexi
       language: node.language,
     }),
   ],
+  table: (node) => [tableToBlock(node)],
+  tablerow: (node) => [Md.Table.make({ headerRow: false, children: [tableRowToMd(node)] })],
+  tablecell: (node) => [Md.P.make({ children: tableCellToMd(node).children })],
+  youtube: (node) => [Md.YouTube.make({ videoId: node.videoID })],
   list: (node) => [listToBlock(node)],
   listitem: (node) => [Md.P.make({ children: textRunToInlines(node.children) })],
   "artifact-ref": (node) => [Md.P.make({ children: [inlineNodeToMd(node)] })], // Loose leaves outside an element wrap into a paragraph.

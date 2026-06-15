@@ -21,6 +21,25 @@ const fixtureTurn = MdModel.Document.make({
     }),
     MdModel.BlockQuote.make({ children: [MdModel.P.make({ children: [text("Measure twice.")] })] }),
     MdModel.Pre.make({ value: 'console.log("beep")\nexport {}', language: O.some("typescript") }),
+    MdModel.Pre.make({ value: "graph TD\n  A --> B", language: O.some("mermaid") }),
+    MdModel.Table.make({
+      headerRow: true,
+      children: [
+        MdModel.TableRow.make({
+          children: [
+            MdModel.TableCell.make({ children: [text("Name")] }),
+            MdModel.TableCell.make({ children: [text("Value")] }),
+          ],
+        }),
+        MdModel.TableRow.make({
+          children: [
+            MdModel.TableCell.make({ children: [text("Language")] }),
+            MdModel.TableCell.make({ children: [MdModel.Code.make({ value: "ts" })] }),
+          ],
+        }),
+      ],
+    }),
+    MdModel.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
     MdModel.TaskList.make({
       children: [
         MdModel.TaskItem.make({ checked: true, children: [text("ship schema")] }),
@@ -56,5 +75,12 @@ describe("@beep/editor node registration", () => {
       expect(artifact.artifactId).toBe("artifact-123");
       expect(artifact.label).toEqual(O.some("Quarterly report"));
     }
+    expect(decoded.root.children.some((node) => node.type === "table")).toBe(true);
+    expect(decoded.root.children.some((node) => node.type === "youtube")).toBe(true);
+    expect(
+      decoded.root.children.some(
+        (node) => node.type === "code" && O.isSome(node.language) && node.language.value === "mermaid"
+      )
+    ).toBe(true);
   });
 });

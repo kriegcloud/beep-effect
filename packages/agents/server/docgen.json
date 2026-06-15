@@ -55,11 +55,20 @@
       "@beep/agents-domain/turn": [
         "../../../packages/agents/domain/src/turn/index.ts"
       ],
+      "@beep/agents-domain/values": [
+        "../../../packages/agents/domain/src/values/index.ts"
+      ],
+      "@beep/agents-domain/values/AssistantContent": [
+        "../../../packages/agents/domain/src/values/AssistantContent/index.ts"
+      ],
       "@beep/agents-use-cases": [
         "../../../packages/agents/use-cases/src/index.ts"
       ],
       "@beep/agents-use-cases/public": [
         "../../../packages/agents/use-cases/src/public.ts"
+      ],
+      "@beep/agents-use-cases/server": [
+        "../../../packages/agents/use-cases/src/server.ts"
       ],
       "@beep/agents-use-cases/proof": [
         "../../../packages/agents/use-cases/src/proof.ts"
@@ -68,6 +77,15 @@
         "../../../packages/agents/use-cases/src/test.ts"
       ],
       "@beep/anthropic": ["../../../packages/drivers/anthropic/src/index.ts"],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
       "@beep/test-utils": [
         "../../../packages/tooling/test-kit/test-utils/src/index.ts"
       ],

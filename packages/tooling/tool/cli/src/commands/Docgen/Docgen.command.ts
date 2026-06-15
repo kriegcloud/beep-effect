@@ -268,7 +268,7 @@ const verboseFlag = Flag.boolean("verbose").pipe(
   Flag.withAlias("v"),
   Flag.withDescription("Include extra package detail")
 );
-const cleanFlag = Flag.boolean("clean").pipe(Flag.withDescription("Remove the root docs directory before aggregating"));
+const cleanFlag = Flag.boolean("clean").pipe(Flag.withDescription("Remove docs/generated before aggregating"));
 const forceFlag = Flag.boolean("force").pipe(Flag.withDescription("Overwrite an existing docgen.json file"));
 const dryRunFlag = Flag.boolean("dry-run").pipe(Flag.withDescription("Preview output without writing files"));
 const fixModeFlag = Flag.boolean("fix-mode").pipe(
@@ -545,7 +545,7 @@ const docgenStatusCommand = Command.make(
           `${pkg.name}`,
           `  path: ${pkg.relativePath}`,
           `  status: ${pkg.status}`,
-          `  docs: docs/${pkg.docsOutputPath}`,
+          `  aggregate: docs/generated/${pkg.docsOutputPath}`,
         ]);
 
         if (pkg.hasDocgenConfig) {
@@ -689,7 +689,7 @@ const docgenAggregateCommand = Command.make(
       NoSuchFileError: reportDocgenCommandError,
     })
   )
-).pipe(Command.withDescription("Copy generated package docs into the current root docs layout"));
+).pipe(Command.withDescription("Copy generated package docs into the ignored root docs/generated layout"));
 
 const docgenLocalCommand = Command.make(
   "local",

@@ -3,11 +3,13 @@
   "exploration": {
     "slug": "docx-roundtrip-interop",
     "title": "DOCX Round-Trip Interop",
-    "status": "active",
-    "stage": "decompose",
+    "status": "graduated",
+    "stage": "graduate",
     "openQuestions": [],
     "links": {
-      "goals": [],
+      "goals": [
+        "goals/pandoc-ast-foundation"
+      ],
       "docs": [],
       "supersededBy": null
     },

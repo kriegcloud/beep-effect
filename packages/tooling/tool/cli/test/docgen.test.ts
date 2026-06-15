@@ -458,6 +458,47 @@ export const ProofFixture = 1;
       )
     ));
 
+  it("reports aggregate docs paths under the ignored docs/generated layout", () =>
+    Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/foundation/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "foundation", "modeling", "schema");
+          const docsModulesDir = path.join(packageDir, "docs", "modules");
+          yield* fs.makeDirectory(docsModulesDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(docsModulesDir, "Schema.md"),
+            `---\nparent: Modules\ntitle: Schema\n---\n\ncontent\n`
+          );
+
+          yield* runDocgenCommand(["status", "--verbose"]);
+
+          const output = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
+          expect(output).toContain("aggregate: docs/generated/foundation/modeling/schema");
+          expect(output).not.toContain("docs: docs/foundation/modeling/schema");
+        })
+      )
+    ));
+
   it("builds repo-standard init config with own and dependency path mappings", () =>
     Effect.runPromise(
       withTempRepo(

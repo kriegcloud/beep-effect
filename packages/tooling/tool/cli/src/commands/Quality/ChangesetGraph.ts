@@ -31,6 +31,7 @@ const $I = $RepoCliId.create("commands/Quality/ChangesetGraph");
 const changesetFrontmatterPattern = /^---\r?\n([\s\S]*?)\r?\n---/;
 const nulSeparator = "\u0000";
 const gitWorkspacePackageJsonPathspecs = ["package.json"] as const;
+const retiredChangesetPackagesPath = "standards/changesets.retired-packages.json";
 
 class ChangesetGraphWorkspacesObject extends S.Class<ChangesetGraphWorkspacesObject>(
   $I`ChangesetGraphWorkspacesObject`
@@ -50,6 +51,25 @@ class ChangesetGraphPackageJson extends S.Class<ChangesetGraphPackageJson>($I`Ch
   },
   $I.annote("ChangesetGraphPackageJson", {
     description: "Minimal package.json shape used by the changeset graph guard.",
+  })
+) {}
+
+class RetiredChangesetPackageRecord extends S.Class<RetiredChangesetPackageRecord>($I`RetiredChangesetPackageRecord`)(
+  {
+    name: S.String,
+    rationale: S.String,
+  },
+  $I.annote("RetiredChangesetPackageRecord", {
+    description: "A retired package name that may still appear in pending historical changesets.",
+  })
+) {}
+
+class RetiredChangesetPackages extends S.Class<RetiredChangesetPackages>($I`RetiredChangesetPackages`)(
+  {
+    packages: S.Array(RetiredChangesetPackageRecord),
+  },
+  $I.annote("RetiredChangesetPackages", {
+    description: "Repo-owned retirement record for missing package names accepted by the changeset graph guard.",
   })
 ) {}
 
@@ -113,6 +133,7 @@ export class ChangesetGraphSummary extends S.Class<ChangesetGraphSummary>($I`Cha
 
 const decodePackageJson = S.decodeUnknownEffect(S.fromJsonString(ChangesetGraphPackageJson));
 const decodeChangesetFrontmatter = S.decodeUnknownEffect(S.Record(S.String, S.Unknown));
+const decodeRetiredChangesetPackages = S.decodeUnknownEffect(S.fromJsonString(RetiredChangesetPackages));
 
 const byReferenceKeyAscending: Order.Order<ChangesetGraphPackageReference> = Order.mapInput(
   Order.String,
@@ -198,6 +219,40 @@ const readPackageJson = Effect.fn("ChangesetGraph.readPackageJson")(function* (
 
   return yield* decodePackageJson(content).pipe(
     ChangesetGraphError.mapError(`Failed to parse package manifest ${filePath}.`, filePath)
+  );
+});
+
+const readRetiredChangesetPackageNames = Effect.fn("ChangesetGraph.readRetiredChangesetPackageNames")(function* (
+  repoRoot: string
+): Effect.fn.Return<ReadonlyArray<string>, ChangesetGraphError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const filePath = path.join(repoRoot, retiredChangesetPackagesPath);
+  const exists = yield* fs
+    .exists(filePath)
+    .pipe(
+      ChangesetGraphError.mapError(`Failed to inspect ${retiredChangesetPackagesPath}.`, retiredChangesetPackagesPath)
+    );
+
+  if (!exists) {
+    return A.empty<string>();
+  }
+
+  const content = yield* fs
+    .readFileString(filePath)
+    .pipe(
+      ChangesetGraphError.mapError(`Failed to read ${retiredChangesetPackagesPath}.`, retiredChangesetPackagesPath)
+    );
+  const record = yield* decodeRetiredChangesetPackages(content).pipe(
+    ChangesetGraphError.mapError(`Failed to parse ${retiredChangesetPackagesPath}.`, retiredChangesetPackagesPath)
+  );
+
+  return pipe(
+    record.packages,
+    A.map((entry) => entry.name),
+    A.filter(Str.isNonEmpty),
+    A.dedupe,
+    A.sort(Order.String)
   );
 });
 
@@ -413,16 +468,28 @@ export const findMissingChangesetPackageReferences: {
     workspacePackageNames: ReadonlyArray<string>,
     references: ReadonlyArray<ChangesetGraphPackageReference>
   ): ReadonlyArray<ChangesetGraphPackageReference> =>
-    pipe(
-      references,
-      A.filter((reference) => !A.some(workspacePackageNames, (packageName) => packageName === reference.packageName)),
-      A.dedupeWith((left, right) => left.file === right.file && left.packageName === right.packageName),
-      A.sort(byReferenceKeyAscending)
-    )
+    findMissingChangesetPackageReferencesWithAllowedMissing(workspacePackageNames, A.empty(), references)
 );
 
-const makeSummary = (
+const findMissingChangesetPackageReferencesWithAllowedMissing = (
   workspacePackageNames: ReadonlyArray<string>,
+  allowedMissingPackageNames: ReadonlyArray<string>,
+  references: ReadonlyArray<ChangesetGraphPackageReference>
+): ReadonlyArray<ChangesetGraphPackageReference> =>
+  pipe(
+    references,
+    A.filter(
+      (reference) =>
+        !A.some(allowedMissingPackageNames, (packageName) => packageName === reference.packageName) &&
+        !A.some(workspacePackageNames, (packageName) => packageName === reference.packageName)
+    ),
+    A.dedupeWith((left, right) => left.file === right.file && left.packageName === right.packageName),
+    A.sort(byReferenceKeyAscending)
+  );
+
+const makeSummaryWithAllowedMissing = (
+  workspacePackageNames: ReadonlyArray<string>,
+  allowedMissingPackageNames: ReadonlyArray<string>,
   changesetFiles: ReadonlyArray<string>,
   references: ReadonlyArray<ChangesetGraphPackageReference>
 ): ChangesetGraphSummary =>
@@ -430,8 +497,18 @@ const makeSummary = (
     workspacePackages: A.length(workspacePackageNames),
     changesetFiles: A.length(changesetFiles),
     references: A.length(references),
-    missingReferences: findMissingChangesetPackageReferences(workspacePackageNames, references),
+    missingReferences: findMissingChangesetPackageReferencesWithAllowedMissing(
+      workspacePackageNames,
+      allowedMissingPackageNames,
+      references
+    ),
   });
+
+const makeSummary = (
+  workspacePackageNames: ReadonlyArray<string>,
+  changesetFiles: ReadonlyArray<string>,
+  references: ReadonlyArray<ChangesetGraphPackageReference>
+): ChangesetGraphSummary => makeSummaryWithAllowedMissing(workspacePackageNames, A.empty(), changesetFiles, references);
 
 /**
  * Build a changeset graph summary from already-collected inputs.
@@ -469,9 +546,15 @@ export const runChangesetGraphCheck = Effect.fn("ChangesetGraph.runChangesetGrap
   FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const workspacePackageNames = yield* collectWorkspacePackageNames(repoRoot);
+  const allowedMissingPackageNames = yield* readRetiredChangesetPackageNames(repoRoot);
   const changesetFiles = yield* collectChangesetFiles(repoRoot);
   const references = yield* collectChangesetPackageReferences(repoRoot, changesetFiles);
-  const summary = makeSummary(workspacePackageNames, changesetFiles, references);
+  const summary = makeSummaryWithAllowedMissing(
+    workspacePackageNames,
+    allowedMissingPackageNames,
+    changesetFiles,
+    references
+  );
 
   yield* Console.log(
     `[changeset-graph] workspace_packages=${summary.workspacePackages} changeset_files=${summary.changesetFiles} references=${summary.references} missing_references=${A.length(summary.missingReferences)}`

@@ -2,7 +2,6 @@
 "@beep/schema": patch
 "@beep/rdf": patch
 "@beep/oip-web": patch
-"@beep/ontology": patch
 "@beep/hubspot": patch
 "@beep/file-processing": patch
 "@beep/agents-use-cases": patch
@@ -29,8 +28,8 @@ routes findings into structured Yeet `schema-first-policy` issues. Adds
 schema-derived `toArbitrary` annotations to source brands (case-format strings,
 `FileName`, `WindowsDriveRoot`, `EthereumValidatorPublicKey`, `SymbolId`,
 file-processing artifact ids/names), class-local decoder statics
-(`@beep/rdf`, OIP models), ontology Markdown projection and secure-header
-constructor defaults, HubSpot outbound email precision, and a broad set of
+(`@beep/rdf`, OIP models), Markdown projection and secure-header constructor
+defaults, HubSpot outbound email precision, and a broad set of
 schema-derived property tests deriving data from source schemas across the
 affected packages. No public wire formats change; the additions are schema
 annotations, derived statics, enforcement tooling, and tests.

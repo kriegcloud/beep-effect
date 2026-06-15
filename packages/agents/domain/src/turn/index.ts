@@ -1,35 +1,67 @@
 /**
- * Agents domain assistant-turn schema and Markdown lift exports.
+ * Backward-compatible assistant turn content exports.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Assistant-turn block schema exports.
+ * AssistantContent compatibility namespace.
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/turn"
+ * import { AssistantContent } from "@beep/agents-domain/turn"
  *
- * console.log(Module)
+ * console.log(AssistantContent.AssistantContent)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
-export * from "./AssistantContent.js";
+export * as AssistantContent from "../values/AssistantContent/index.js";
 /**
- * Assistant-turn to `@beep/md` Markdown lift exports.
+ * Flat assistant content compatibility exports.
  *
  * @example
  * ```ts
- * import * as Module from "@beep/agents-domain/turn"
+ * import { AssistantBlock } from "@beep/agents-domain/turn"
  *
- * console.log(Module)
+ * console.log(AssistantBlock)
  * ```
  *
- * @category lifting
+ * @category value-objects
  * @since 0.0.0
  */
-export * from "./BlockToMd.js";
+export {
+  AssistantBlock,
+  assistantContentToDocument,
+  blockToMd,
+  CodeBlock,
+  HeadingBlock,
+  InlineNode,
+  inlineToMd,
+  LinkInline,
+  ListBlock,
+  ParagraphBlock,
+  QuoteBlock,
+  TextInline,
+} from "../values/AssistantContent/index.js";
+/**
+ * Type-only assistant content compatibility aliases.
+ *
+ * @example
+ * ```ts
+ * import type { AssistantContentType } from "@beep/agents-domain/turn"
+ *
+ * const content: AssistantContentType = { blocks: [] }
+ * console.log(content.blocks.length)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export type {
+  AssistantBlock as AssistantBlockType,
+  AssistantContent as AssistantContentType,
+  InlineNode as InlineNodeType,
+} from "../values/AssistantContent/index.js";

@@ -2,7 +2,7 @@
 
 ## Status
 
-Stage: `decompose`
+Stage: `graduate`
 Status: `active`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -18,10 +18,10 @@ eventually enforceable.
 
 ## Next Open Question
 
-Does [`MAP.md`](./MAP.md) choose the right first goal
-(`effect-capability-kg-seed`) and sequencing? If yes, the next action is
-graduation/scaffolding, but pause for explicit approval before creating any
-`./goals` packets.
+Seed goal
+[`goals/effect-capability-kg-seed`](../../goals/effect-capability-kg-seed/README.md)
+is scaffolded. After the seed proof, decide whether to graduate
+`effect-capability-specialist-router`.
 
 ## Read This First
 
@@ -41,3 +41,6 @@ graduation/scaffolding, but pause for explicit approval before creating any
 - 2026-06-15: executed `decompose` by drafting `MAP.md`, naming candidate
   goals, selecting `effect-capability-kg-seed` as the first vertical slice, and
   preserving the pause before any `./goals` scaffolding.
+- 2026-06-15: graduated the first approved goal packet:
+  [`goals/effect-capability-kg-seed`](../../goals/effect-capability-kg-seed/README.md).
+  Exploration remains active for later candidate goals.

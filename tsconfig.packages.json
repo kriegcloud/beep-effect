@@ -160,6 +160,9 @@
       "path": "packages/foundation/capability/semantic-web"
     },
     {
+      "path": "packages/foundation/modeling/html"
+    },
+    {
       "path": "packages/foundation/modeling/identity"
     },
     {
@@ -167,6 +170,9 @@
     },
     {
       "path": "packages/foundation/modeling/md"
+    },
+    {
+      "path": "packages/foundation/modeling/pandoc-ast"
     },
     {
       "path": "packages/foundation/modeling/rdf"

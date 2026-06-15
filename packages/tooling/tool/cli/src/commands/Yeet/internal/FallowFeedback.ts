@@ -291,6 +291,17 @@ const readEnvelopesFromDirectory = Effect.fn("YeetFallowFeedback.readEnvelopesFr
   return yield* Effect.forEach(paths, readEnvelopeFile, { concurrency: 1 });
 });
 
+const feedbackEnvelopes = (
+  envelopes: ReadonlyArray<FallowEnvelope>,
+  advisory: boolean
+): ReadonlyArray<FallowEnvelope> =>
+  advisory
+    ? pipe(
+        envelopes,
+        A.filter((envelope) => envelope.advisory)
+      )
+    : envelopes;
+
 /**
  * Convert Fallow advisory envelopes from a directory into a Yeet issue index.
  *
@@ -303,8 +314,9 @@ export const runYeetFallowFeedback = Effect.fn("YeetFallowFeedback.runYeetFallow
   readonly from: string;
 }): Effect.fn.Return<void, YeetCommandError, FileSystem.FileSystem | Path.Path> {
   const envelopes = yield* readEnvelopesFromDirectory(options.from);
-  yield* assertAdvisoryEnvelopes(envelopes, options.advisory);
-  const index = issueIndexFromEnvelopes(envelopes, options.advisory);
+  const selectedEnvelopes = feedbackEnvelopes(envelopes, options.advisory);
+  yield* assertAdvisoryEnvelopes(selectedEnvelopes, options.advisory);
+  const index = issueIndexFromEnvelopes(selectedEnvelopes, options.advisory);
   yield* writeQualityIssueIndex(options.emit, index);
   yield* Console.log(`[yeet] Fallow advisory issue index written to ${options.emit}`);
 });

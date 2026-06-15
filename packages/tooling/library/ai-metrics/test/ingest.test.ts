@@ -2105,6 +2105,50 @@ volumes:
   );
 
   it.effect(
+    "keeps the newest N Parquet snapshots and prunes the rest (default forwarder run self-prune)",
+    Effect.fn(function* () {
+      yield* withTempDirectory(
+        Effect.fn(function* (tmpDir) {
+          const path = yield* Path.Path;
+          const fs = yield* FileSystem.FileSystem;
+          const dataRoot = path.join(tmpDir, "metrics");
+          const parquetRoot = path.join(dataRoot, "derived/parquet");
+          const forwarderCount = (entries: ReadonlyArray<string>): number =>
+            A.length(A.filter(entries, Str.startsWith("forwarder-")));
+
+          yield* writeText(path.join(parquetRoot, "forwarder-1/ai_metrics_turns.parquet"), "one\n");
+          yield* writeText(path.join(parquetRoot, "forwarder-2/ai_metrics_turns.parquet"), "two\n");
+          yield* writeText(path.join(parquetRoot, "forwarder-3/ai_metrics_turns.parquet"), "three\n");
+          yield* writeText(path.join(parquetRoot, "latest/ai_metrics_turns.parquet"), "latest\n");
+
+          const dryRun = yield* enforceAiMetricsRetentionPolicy(
+            AiMetricsRetentionEnforcementPolicy.make({
+              dataRoot,
+              dryRun: true,
+              maxSnapshotExports: 2,
+            })
+          );
+          expect(dryRun.deletedDerivedExportCount).toBe(1);
+          expect(dryRun.keptDerivedExportCount).toBe(2);
+          expect(forwarderCount(yield* fs.readDirectory(parquetRoot))).toBe(3);
+
+          const applied = yield* enforceAiMetricsRetentionPolicy(
+            AiMetricsRetentionEnforcementPolicy.make({
+              dataRoot,
+              dryRun: false,
+              maxSnapshotExports: 2,
+            })
+          );
+          expect(applied.deletedDerivedExportCount).toBe(1);
+          expect(applied.keptDerivedExportCount).toBe(2);
+          expect(forwarderCount(yield* fs.readDirectory(parquetRoot))).toBe(2);
+          expect(yield* fs.exists(path.join(parquetRoot, "latest"))).toBe(true);
+        })
+      ).pipe(provideScopedLayer(NodeServices.layer));
+    })
+  );
+
+  it.effect(
     "fails restore drills when retained plaintext hashes do not match",
     Effect.fn(function* () {
       yield* withTempDirectory(

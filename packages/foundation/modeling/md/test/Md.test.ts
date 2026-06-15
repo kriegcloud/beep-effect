@@ -1,5 +1,5 @@
 import { Md } from "@beep/md";
-import { Block, Document, Inline, Pre, Text } from "@beep/md/Md.model";
+import { Block, Document, Inline, Pre, Table, TableCell, TableRow, Text } from "@beep/md/Md.model";
 import {
   DocumentToHtmlFragment,
   DocumentToMarkdown,
@@ -72,6 +72,14 @@ describe("@beep/md", () => {
       Md.ol(["Ordered List Item 1", "Ordered List Item 2"]),
       Md.taskList([Md.taskItem("Task List Item 1", { checked: true }), Md.taskItem("Task List Item 2")]),
       Md.pre(`console.log("beep")`, { language: "ts" }),
+      Md.table(
+        [
+          ["Name", "Value"],
+          ["Language", Md.code("ts")],
+        ],
+        { headerRow: true }
+      ),
+      Md.youtube("dQw4w9WgXcQ"),
       Md.blockquote`Hello World!`,
     ]);
 
@@ -93,6 +101,12 @@ Some text
 \`\`\`ts
 console.log("beep")
 \`\`\`
+
+| Name | Value |
+| --- | --- |
+| Language | \`ts\` |
+
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 > Hello World!`;
 
@@ -140,6 +154,15 @@ console.log("beep")
     // only Option field (Pre.language), so they are the canonical case.
     const doc = Md.make([
       Md.pre("const x = 1", { language: "ts" }),
+      Md.pre("flowchart TD\nA-->B", { language: "mermaid" }),
+      Md.table(
+        [
+          ["Name", "Value"],
+          ["Language", Md.code("ts")],
+        ],
+        { headerRow: true }
+      ),
+      Md.youtube("dQw4w9WgXcQ"),
       Md.pre("no language here"),
       Md.p([Md.text("hello")]),
     ]);
@@ -309,6 +332,18 @@ ${Md.h3("Inside")}
     expect(renderHtmlBlock(Md.pre("<x>", { language: "ts bad" }))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.pre("<x>"))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.hr)).toBe("<hr />");
+  });
+
+  it("renders later table rows when the first row has no cells", () => {
+    const table = Table.make({
+      headerRow: false,
+      children: [
+        TableRow.make({ children: [] }),
+        TableRow.make({ children: [TableCell.make({ children: [Text.make({ value: "Later" })] })] }),
+      ],
+    });
+
+    expect(renderMarkdownBlock(table)).toContain("| Later |");
   });
 
   it.effect(
