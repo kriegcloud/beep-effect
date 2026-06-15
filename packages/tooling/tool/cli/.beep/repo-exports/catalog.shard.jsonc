@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "db5b71ac2155989318c293af9e1a6938289a46015bf30a4e7ac70257562b9f13",
+    "digest": "57d69ec7c5b9608bb234e1ecea3f31a52aa461619d0b9fd84bb4e1a139ceca3d",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -197,8 +197,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/Docgen.command.ts",
-        "sha256": "c6d760f7e2285c734b2a1e218daea174681e419a0ea980cc4b090db4455feff1",
-        "bytes": 41222
+        "sha256": "17745d7b2769e11cdfbea0f3da990d014a5105d9ac582a94f58a66ecf11ac547",
+        "bytes": 41238
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/index.ts",
@@ -212,8 +212,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
-        "sha256": "a97a3b016517eb41a7075434907dcc4cc1bfbbed4bc032d5977250d34bdd4c8a",
-        "bytes": 58145
+        "sha256": "7c8b8f945d046fec3c1a3cba0c1f6099d198a23c112a5ea3c0544dba8cb684f0",
+        "bytes": 58150
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Docgen/internal/Quality.ts",
@@ -11675,7 +11675,7 @@
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
         "sourceLine": 1109,
-        "summary": "Normalize a workspace-relative package path to the current root docs output layout.",
+        "summary": "Normalize a workspace-relative package path to the current generated docs output layout.",
         "categories": [
           "models"
         ],
@@ -11688,7 +11688,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/operations ./commands/docgen/internal/operations normalizedocsoutputpath const normalize a workspace-relative package path to the current root docs output layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/docgen/internal/operations ./commands/docgen/internal/operations normalizedocsoutputpath const normalize a workspace-relative package path to the current generated docs output layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
       },
       {
         "packageName": "@beep/repo-cli",
@@ -43856,7 +43856,7 @@
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
         "sourceLine": 1109,
-        "summary": "Normalize a workspace-relative package path to the current root docs output layout.",
+        "summary": "Normalize a workspace-relative package path to the current generated docs output layout.",
         "categories": [
           "models"
         ],
@@ -43869,7 +43869,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen normalizedocsoutputpath const normalize a workspace-relative package path to the current root docs output layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/docgen ./test/docgen normalizedocsoutputpath const normalize a workspace-relative package path to the current generated docs output layout. models packages/tooling/tool/cli/src/commands/docgen/internal/operations.ts"
       },
       {
         "packageName": "@beep/repo-cli",
