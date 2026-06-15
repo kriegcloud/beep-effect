@@ -1,4 +1,6 @@
 ---
+"@beep/agents-domain": patch
+"@beep/agents-server": patch
 "@beep/identity": patch
 "@beep/pandoc-ast": patch
 "@beep/repo-docgen": patch

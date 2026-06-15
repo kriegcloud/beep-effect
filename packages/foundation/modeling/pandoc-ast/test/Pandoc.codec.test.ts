@@ -147,7 +147,7 @@ describe("Pandoc.codec", () => {
               t: "Para",
             },
             {
-              c: [[1, { t: "FutureStyle" }, { t: "DefaultDelim" }], []],
+              c: [[1, { t: "DefaultStyle" }, { t: "DefaultDelim" }], []],
               t: "OrderedList",
             },
           ],
@@ -168,6 +168,28 @@ describe("Pandoc.codec", () => {
       })
     ));
 
+  it("keeps unknown ordered-list numbering metadata explicit", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [[1, { t: "FutureStyle" }, { t: "DefaultDelim" }], []],
+              t: "OrderedList",
+            },
+          ],
+          meta: {},
+        });
+        const block = document.blocks[0];
+
+        expect(block?._tag).toBe("unknownBlock");
+        if (block?._tag === "unknownBlock") {
+          expect(block.constructor).toBe("OrderedList");
+        }
+      })
+    ));
+
   it("keeps ordered-list structure when nested item blocks are malformed", () =>
     Effect.runPromise(
       Effect.gen(function* () {
@@ -175,7 +197,7 @@ describe("Pandoc.codec", () => {
           "pandoc-api-version": [1, 23, 1],
           blocks: [
             {
-              c: [[7, { t: "FutureStyle" }, { t: "FutureDelimiter" }], [[{ c: "not-inline-list", t: "Plain" }]]],
+              c: [[7, { t: "DefaultStyle" }, { t: "DefaultDelim" }], [["not-a-block-constructor"]]],
               t: "OrderedList",
             },
           ],
@@ -205,7 +227,7 @@ describe("Pandoc.codec", () => {
           "pandoc-api-version": [1, 23, 1],
           blocks: [
             {
-              c: [[{ c: "not-inline-list", t: "Plain" }]],
+              c: [["not-a-block-constructor"]],
               t: "BulletList",
             },
           ],
@@ -221,6 +243,57 @@ describe("Pandoc.codec", () => {
         expect(list.items[0]?.[0]?._tag).toBe("unknownBlock");
         if (list.items[0]?.[0]?._tag === "unknownBlock") {
           expect(list.items[0][0].constructor).toBe("MalformedBlock");
+        }
+      })
+    ));
+
+  it("does not hide malformed known list item payloads", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const exit = yield* Effect.exit(
+          decodePandocJson({
+            "pandoc-api-version": [1, 23, 1],
+            blocks: [
+              {
+                c: [[{ c: "not-inline-list", t: "Plain" }]],
+                t: "BulletList",
+              },
+            ],
+            meta: {},
+          })
+        );
+
+        expect(exit._tag).toBe("Failure");
+      })
+    ));
+
+  it("keeps note structure when nested footnote blocks are malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                {
+                  c: ["not-a-block-constructor"],
+                  t: "Note",
+                },
+              ],
+              t: "Para",
+            },
+          ],
+          meta: {},
+        });
+        const paragraph = document.blocks[0];
+
+        expect(paragraph?._tag).toBe("para");
+        if (paragraph?._tag !== "para") {
+          return;
+        }
+        expect(paragraph.children[0]?._tag).toBe("note");
+        if (paragraph.children[0]?._tag === "note") {
+          expect(paragraph.children[0].blocks[0]?._tag).toBe("unknownBlock");
         }
       })
     ));

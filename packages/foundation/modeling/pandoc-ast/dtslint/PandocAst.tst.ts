@@ -11,8 +11,35 @@ import type {
 
 describe("@beep/pandoc-ast public types", () => {
   it("pins recursive AST discriminants", () => {
-    expect<PandocInline["_tag"]>().type.toBeAssignableTo<string>();
-    expect<PandocBlock["_tag"]>().type.toBeAssignableTo<string>();
+    expect<PandocInline["_tag"]>().type.toBe<
+      | "code"
+      | "emph"
+      | "image"
+      | "linebreak"
+      | "link"
+      | "math"
+      | "note"
+      | "softbreak"
+      | "space"
+      | "span"
+      | "str"
+      | "strikeout"
+      | "strong"
+      | "unknownInline"
+    >();
+    expect<PandocBlock["_tag"]>().type.toBe<
+      | "blockquote"
+      | "bulletlist"
+      | "codeblock"
+      | "div"
+      | "header"
+      | "horizontalrule"
+      | "orderedlist"
+      | "para"
+      | "plain"
+      | "table"
+      | "unknownBlock"
+    >();
     expect<PandocDocument["_tag"]>().type.toBe<"pandocDocument">();
   });
 
