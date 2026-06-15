@@ -1157,6 +1157,8 @@
       "@beep/agents-client/ClientObservability": [
         "./packages/agents/client/src/ClientObservability.ts"
       ],
+      "@beep/html": ["./packages/foundation/modeling/html/src/index.ts"],
+      "@beep/html/*": ["./packages/foundation/modeling/html/src/*"],
       "@beep/editor/mermaid-code-decorator-plugin": [
         "./packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx"
       ],
@@ -1168,6 +1170,24 @@
       ],
       "@beep/editor/youtube-node": [
         "./packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      ],
+      "@beep/agents-domain/turn": [
+        "./packages/agents/domain/src/turn/index.ts"
+      ],
+      "@beep/pandoc-ast": [
+        "./packages/foundation/modeling/pandoc-ast/src/index.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.codec": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.mapping": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.model": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.report": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.report.ts"
       ]
     }
   }

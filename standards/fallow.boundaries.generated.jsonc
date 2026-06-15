@@ -198,6 +198,12 @@
         ]
       },
       {
+        "name": "@beep/html",
+        "patterns": [
+          "packages/foundation/modeling/html/src/**"
+        ]
+      },
+      {
         "name": "@beep/hubspot",
         "patterns": [
           "packages/drivers/hubspot/src/**"
@@ -285,6 +291,12 @@
         "name": "@beep/openai-compat",
         "patterns": [
           "packages/drivers/openai-compat/src/**"
+        ]
+      },
+      {
+        "name": "@beep/pandoc-ast",
+        "patterns": [
+          "packages/foundation/modeling/pandoc-ast/src/**"
         ]
       },
       {
@@ -1014,6 +1026,17 @@
         ]
       },
       {
+        "from": "@beep/html",
+        "allow": [
+          "@beep/html",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/html",
+          "@beep/identity"
+        ]
+      },
+      {
         "from": "@beep/hubspot",
         "allow": [
           "@beep/hubspot",
@@ -1250,6 +1273,23 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/pandoc-ast",
+        "allow": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/pandoc-ast",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/pandoc-ast",
           "@beep/schema",
           "@beep/utils"
         ]

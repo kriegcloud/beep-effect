@@ -2,8 +2,8 @@
 
 ## Status
 
-Stage: `decompose`
-Status: `active`
+Stage: `graduate`
+Status: `graduated`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -16,8 +16,10 @@ patent-specific nodes.
 
 ## Next Open Question
 
-None - ready for graduation review into a first goal packet, likely
-`pandoc-ast-foundation`.
+None - first vertical slice graduated into
+[`pandoc-ast-foundation`](../../goals/pandoc-ast-foundation/README.md);
+driver, fixture-pipeline, and document-AST decision follow-ons remain named in
+[`MAP.md`](./MAP.md).
 
 ## Read This First
 
@@ -30,6 +32,10 @@ None - ready for graduation review into a first goal packet, likely
 
 ## Trail
 
+- 2026-06-15: graduated first implementation slice into
+  [`goals/pandoc-ast-foundation`](../../goals/pandoc-ast-foundation/README.md)
+  and landed the pure `@beep/pandoc-ast` package with schema-first models,
+  codecs, compatibility mapping, reports, fixtures, and package-local proof.
 - 2026-06-15: review follow-up recorded generated-once fixture provenance,
   tables/custom styles as v1 gap-only evidence, repo graph search as
   low-signal, and official Pandoc release verification wording.

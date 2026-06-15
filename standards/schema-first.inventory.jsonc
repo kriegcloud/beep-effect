@@ -53,7 +53,7 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/agents-use-cases",
-      "reason": "Internal kernel stream-element pairing { block, index } whose block field is already the annotated Turn.AssistantBlock schema; the wrapper is a type-level signature for the AgentTurnKernel port, never decoded from untrusted input."
+      "reason": "Internal kernel stream-element pairing { block, index } whose block field is already the annotated AssistantBlock schema; the wrapper is a type-level signature for the AgentTurnKernel port, never decoded from untrusted input."
     },
     {
       "file": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
@@ -800,6 +800,30 @@
       "status": "exception",
       "owner": "@beep/semantic-web",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/modeling/html/scripts/generate.ts",
+      "symbol": "struct",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/html/src/Html.attributes.ts",
+      "symbol": "GlobalAttributesStruct",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/html/src/Html.meta.ts",
+      "symbol": "HtmlElementMeta",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "Generated metadata-lookup schema for the ELEMENT_META table (not a domain entity); an annotated S.Struct with a derived type is intentional over S.Class."
     },
     {
       "file": "packages/foundation/modeling/identity/src/Id.ts",

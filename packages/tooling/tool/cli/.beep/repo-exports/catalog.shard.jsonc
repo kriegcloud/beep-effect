@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d99872d9fae9149fadca649ed2bec775f2194c057d2cbe660430891cf9144c72",
+    "digest": "db5b71ac2155989318c293af9e1a6938289a46015bf30a4e7ac70257562b9f13",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -457,8 +457,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sha256": "e88dfb41bcc4fe8514ab01e541fe21ab90014badf48dacb06cb19f96ed3482b7",
-        "bytes": 16325
+        "sha256": "64440dfdd2d8fb6315e0edad4bfe1d9fbc5e88c271b10bd4731bbb0d807f41f8",
+        "bytes": 19415
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
@@ -32723,7 +32723,7 @@
         "symbolName": "ChangesetGraphPackageReference",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 72,
+        "sourceLine": 92,
         "summary": "A package name referenced by a changeset file.",
         "categories": [
           "models"
@@ -32748,7 +32748,7 @@
         "symbolName": "ChangesetGraphSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 102,
+        "sourceLine": 122,
         "summary": "Summary emitted by the changeset package graph guard.",
         "categories": [
           "models"
@@ -32773,7 +32773,7 @@
         "symbolName": "changesetPackageReferencesFromText",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 309,
+        "sourceLine": 364,
         "summary": "Parse package references from one changeset Markdown document.",
         "categories": [
           "utilities"
@@ -32798,7 +32798,7 @@
         "symbolName": "findMissingChangesetPackageReferences",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 402,
+        "sourceLine": 457,
         "summary": "Find changeset package references that are not in the workspace graph.",
         "categories": [
           "utilities"
@@ -32825,7 +32825,7 @@
         "symbolName": "makeChangesetGraphSummary",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 449,
+        "sourceLine": 526,
         "summary": "Build a changeset graph summary from already-collected inputs.",
         "categories": [
           "utilities"
@@ -32850,7 +32850,7 @@
         "symbolName": "runChangesetGraphCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 464,
+        "sourceLine": 541,
         "summary": "Run the non-mutating changeset package graph guard.",
         "categories": [
           "utilities"
@@ -45907,7 +45907,7 @@
         "symbolName": "ChangesetGraphPackageReference",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 72,
+        "sourceLine": 92,
         "summary": "A package name referenced by a changeset file.",
         "categories": [
           "models"
@@ -45932,7 +45932,7 @@
         "symbolName": "ChangesetGraphSummary",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 102,
+        "sourceLine": 122,
         "summary": "Summary emitted by the changeset package graph guard.",
         "categories": [
           "models"
@@ -45957,7 +45957,7 @@
         "symbolName": "changesetPackageReferencesFromText",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 309,
+        "sourceLine": 364,
         "summary": "Parse package references from one changeset Markdown document.",
         "categories": [
           "utilities"
@@ -46617,7 +46617,7 @@
         "symbolName": "findMissingChangesetPackageReferences",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 402,
+        "sourceLine": 457,
         "summary": "Find changeset package references that are not in the workspace graph.",
         "categories": [
           "utilities"
@@ -47029,7 +47029,7 @@
         "symbolName": "makeChangesetGraphSummary",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 449,
+        "sourceLine": 526,
         "summary": "Build a changeset graph summary from already-collected inputs.",
         "categories": [
           "utilities"
@@ -47945,7 +47945,7 @@
         "symbolName": "runChangesetGraphCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/ChangesetGraph.ts",
-        "sourceLine": 464,
+        "sourceLine": 541,
         "summary": "Run the non-mutating changeset package graph guard.",
         "categories": [
           "utilities"

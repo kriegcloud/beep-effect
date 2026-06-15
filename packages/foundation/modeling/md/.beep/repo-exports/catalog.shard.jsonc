@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c018dd98bc74500ef9c2db5ad711ae729eec3169de86f693377790902c2d1993",
+    "digest": "5c350d73ccb47ca8a873e574447130f36c262aff624898a391543c6b87ea6384",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sha256": "758cb2cf60cd772c40fceb5935b524db2b0488e68c3dbcad1f7ec45d0d1e0c05",
-        "bytes": 26761
+        "sha256": "07d081eee69047ac64f0b920133a206f04677d58e630215654b9946c0727348c",
+        "bytes": 26784
       },
       {
         "path": "packages/foundation/modeling/md/src/Md.ts",
@@ -735,7 +735,7 @@
         "symbolName": "DocumentToHtmlFragment",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 851,
+        "sourceLine": 853,
         "summary": "Schema transformation from a document AST to a branded HTML fragment.",
         "categories": [
           "validation"
@@ -760,7 +760,7 @@
         "symbolName": "DocumentToHtmlFragment",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 875,
+        "sourceLine": 877,
         "summary": "Type for {@link DocumentToHtmlFragment}.",
         "categories": [
           "models"
@@ -785,7 +785,7 @@
         "symbolName": "DocumentToMarkdown",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 809,
+        "sourceLine": 811,
         "summary": "Schema transformation from a document AST to branded Markdown text.",
         "categories": [
           "validation"
@@ -810,7 +810,7 @@
         "symbolName": "DocumentToMarkdown",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 833,
+        "sourceLine": 835,
         "summary": "Type for {@link DocumentToMarkdown}.",
         "categories": [
           "models"
@@ -1527,7 +1527,7 @@
         "symbolName": "HtmlFragmentAdapter",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 704,
+        "sourceLine": 706,
         "summary": "Built-in HTML fragment render adapter.",
         "categories": [
           "utilities"
@@ -2044,7 +2044,7 @@
         "symbolName": "MarkdownAdapter",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 682,
+        "sourceLine": 684,
         "summary": "Built-in Markdown render adapter.",
         "categories": [
           "utilities"
@@ -2539,7 +2539,7 @@
         "symbolName": "render",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 759,
+        "sourceLine": 761,
         "summary": "Renders a document through the Markdown adapter.",
         "categories": [
           "utilities"
@@ -2564,7 +2564,7 @@
         "symbolName": "renderEffectWith",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 644,
+        "sourceLine": 646,
         "summary": "Starts an effectful render adapter with synchronous adapter failures captured.",
         "categories": [
           "utilities"
@@ -2589,7 +2589,7 @@
         "symbolName": "renderEffectWithUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 605,
+        "sourceLine": 607,
         "summary": "Starts an effectful render adapter and returns its effect directly.",
         "categories": [
           "utilities"
@@ -2664,7 +2664,7 @@
         "symbolName": "renderHtml",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 781,
+        "sourceLine": 783,
         "summary": "Renders a document through the HTML fragment adapter.",
         "categories": [
           "utilities"
@@ -2689,7 +2689,7 @@
         "symbolName": "renderHtmlBlock",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 462,
+        "sourceLine": 464,
         "summary": "Renders a block node as an HTML fragment.",
         "categories": [
           "utilities"
@@ -2714,7 +2714,7 @@
         "symbolName": "renderHtmlBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 518,
+        "sourceLine": 520,
         "summary": "Renders block nodes as an HTML fragment body.",
         "categories": [
           "utilities"
@@ -2739,7 +2739,7 @@
         "symbolName": "renderHtmlInline",
         "exportKind": "function",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 388,
+        "sourceLine": 390,
         "summary": "Renders an inline node as an HTML fragment.",
         "categories": [
           "utilities"
@@ -2764,7 +2764,7 @@
         "symbolName": "renderHtmlUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 558,
+        "sourceLine": 560,
         "summary": "Renders a document through the HTML fragment adapter and returns the output directly.",
         "categories": [
           "utilities"
@@ -2814,7 +2814,7 @@
         "symbolName": "renderMarkdownBlock",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 406,
+        "sourceLine": 408,
         "summary": "Renders a block node as Markdown.",
         "categories": [
           "utilities"
@@ -2839,7 +2839,7 @@
         "symbolName": "renderMarkdownBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 499,
+        "sourceLine": 501,
         "summary": "Renders block nodes as a Markdown document body.",
         "categories": [
           "utilities"
@@ -2864,7 +2864,7 @@
         "symbolName": "renderMarkdownInline",
         "exportKind": "function",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 341,
+        "sourceLine": 343,
         "summary": "Renders an inline node as Markdown.",
         "categories": [
           "utilities"
@@ -2889,7 +2889,7 @@
         "symbolName": "renderUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 540,
+        "sourceLine": 542,
         "summary": "Renders a document through the Markdown adapter and returns the output directly.",
         "categories": [
           "utilities"
@@ -2914,7 +2914,7 @@
         "symbolName": "renderWith",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 728,
+        "sourceLine": 730,
         "summary": "Renders a document with a custom pure adapter.",
         "categories": [
           "utilities"
@@ -2939,7 +2939,7 @@
         "symbolName": "renderWithUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 577,
+        "sourceLine": 579,
         "summary": "Renders a document with a custom pure adapter and returns the output directly.",
         "categories": [
           "utilities"
@@ -6686,7 +6686,7 @@
         "symbolName": "DocumentToHtmlFragment",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 851,
+        "sourceLine": 853,
         "summary": "Schema transformation from a document AST to a branded HTML fragment.",
         "categories": [
           "validation"
@@ -6711,7 +6711,7 @@
         "symbolName": "DocumentToHtmlFragment",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 875,
+        "sourceLine": 877,
         "summary": "Type for {@link DocumentToHtmlFragment}.",
         "categories": [
           "models"
@@ -6736,7 +6736,7 @@
         "symbolName": "DocumentToMarkdown",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 809,
+        "sourceLine": 811,
         "summary": "Schema transformation from a document AST to branded Markdown text.",
         "categories": [
           "validation"
@@ -6761,7 +6761,7 @@
         "symbolName": "DocumentToMarkdown",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 833,
+        "sourceLine": 835,
         "summary": "Type for {@link DocumentToMarkdown}.",
         "categories": [
           "models"
@@ -6811,7 +6811,7 @@
         "symbolName": "HtmlFragmentAdapter",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 704,
+        "sourceLine": 706,
         "summary": "Built-in HTML fragment render adapter.",
         "categories": [
           "utilities"
@@ -6836,7 +6836,7 @@
         "symbolName": "MarkdownAdapter",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 682,
+        "sourceLine": 684,
         "summary": "Built-in Markdown render adapter.",
         "categories": [
           "utilities"
@@ -6886,7 +6886,7 @@
         "symbolName": "render",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 759,
+        "sourceLine": 761,
         "summary": "Renders a document through the Markdown adapter.",
         "categories": [
           "utilities"
@@ -6911,7 +6911,7 @@
         "symbolName": "renderEffectWith",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 644,
+        "sourceLine": 646,
         "summary": "Starts an effectful render adapter with synchronous adapter failures captured.",
         "categories": [
           "utilities"
@@ -6936,7 +6936,7 @@
         "symbolName": "renderEffectWithUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 605,
+        "sourceLine": 607,
         "summary": "Starts an effectful render adapter and returns its effect directly.",
         "categories": [
           "utilities"
@@ -6986,7 +6986,7 @@
         "symbolName": "renderHtml",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 781,
+        "sourceLine": 783,
         "summary": "Renders a document through the HTML fragment adapter.",
         "categories": [
           "utilities"
@@ -7011,7 +7011,7 @@
         "symbolName": "renderHtmlBlock",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 462,
+        "sourceLine": 464,
         "summary": "Renders a block node as an HTML fragment.",
         "categories": [
           "utilities"
@@ -7036,7 +7036,7 @@
         "symbolName": "renderHtmlBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 518,
+        "sourceLine": 520,
         "summary": "Renders block nodes as an HTML fragment body.",
         "categories": [
           "utilities"
@@ -7061,7 +7061,7 @@
         "symbolName": "renderHtmlInline",
         "exportKind": "function",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 388,
+        "sourceLine": 390,
         "summary": "Renders an inline node as an HTML fragment.",
         "categories": [
           "utilities"
@@ -7086,7 +7086,7 @@
         "symbolName": "renderHtmlUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 558,
+        "sourceLine": 560,
         "summary": "Renders a document through the HTML fragment adapter and returns the output directly.",
         "categories": [
           "utilities"
@@ -7111,7 +7111,7 @@
         "symbolName": "renderMarkdownBlock",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 406,
+        "sourceLine": 408,
         "summary": "Renders a block node as Markdown.",
         "categories": [
           "utilities"
@@ -7136,7 +7136,7 @@
         "symbolName": "renderMarkdownBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 499,
+        "sourceLine": 501,
         "summary": "Renders block nodes as a Markdown document body.",
         "categories": [
           "utilities"
@@ -7161,7 +7161,7 @@
         "symbolName": "renderMarkdownInline",
         "exportKind": "function",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 341,
+        "sourceLine": 343,
         "summary": "Renders an inline node as Markdown.",
         "categories": [
           "utilities"
@@ -7186,7 +7186,7 @@
         "symbolName": "renderUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 540,
+        "sourceLine": 542,
         "summary": "Renders a document through the Markdown adapter and returns the output directly.",
         "categories": [
           "utilities"
@@ -7211,7 +7211,7 @@
         "symbolName": "renderWith",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 728,
+        "sourceLine": 730,
         "summary": "Renders a document with a custom pure adapter.",
         "categories": [
           "utilities"
@@ -7236,7 +7236,7 @@
         "symbolName": "renderWithUnsafe",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.render.ts",
-        "sourceLine": 577,
+        "sourceLine": 579,
         "summary": "Renders a document with a custom pure adapter and returns the output directly.",
         "categories": [
           "utilities"

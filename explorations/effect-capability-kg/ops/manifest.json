@@ -4,12 +4,12 @@
     "slug": "effect-capability-kg",
     "title": "Effect Capability KG",
     "status": "active",
-    "stage": "decompose",
+    "stage": "graduate",
     "openQuestions": [
-      "Does MAP.md choose the right first goal (effect-capability-kg-seed) and sequencing? If yes, pause for explicit approval before creating any ./goals packets."
+      "Seed goal goals/effect-capability-kg-seed is scaffolded. After the seed proof, decide whether to graduate effect-capability-specialist-router."
     ],
     "links": {
-      "goals": [],
+      "goals": ["goals/effect-capability-kg-seed"],
       "docs": [],
       "supersededBy": null
     },

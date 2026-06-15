@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b047ff24b7fcbaed90ea91bff7313516401ed7f3a2d34c7b97c8461adf551b37",
+    "digest": "3a7e4d84a56350670351a5c3d774eb1f9a503ad18d9660ca393edca05db2f37c",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
-        "sha256": "cb0bdfe2091f89059f9230ccdbcf017cd178fe36ed02d7b399b208a5ce427733",
-        "bytes": 17621
+        "sha256": "f15cced9d818564468a4a0707f85c2d57e5b90b9bac7b83fdd42749ffa2dc7d8",
+        "bytes": 20549
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
@@ -57,8 +57,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx",
-        "sha256": "ce691c0ff63674ce510aec33cdf3097f6f251083be9e8905893175ccdecaf844",
-        "bytes": 4671
+        "sha256": "5e53078bbcf2353091069ec73c1af3bb32638407b1e822177fe60de7975ba795",
+        "bytes": 6862
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Thread.tsx",
@@ -82,8 +82,8 @@
       },
       {
         "path": "apps/professional-desktop/src/runtime/Observability.ts",
-        "sha256": "6d911c7304ed987b45f7d6891500d75bb281ec35601527aa94b9b8cabc2388c9",
-        "bytes": 2876
+        "sha256": "993c0d4d243fcba654a0ab9a75a848dd53db5a90b378063c5d707bdca328dec3",
+        "bytes": 3640
       },
       {
         "path": "apps/professional-desktop/src/runtime/Pglite.ts",

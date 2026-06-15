@@ -1,6 +1,8 @@
-import { Agent } from "@beep/agents-domain";
+import { Agent, Turn } from "@beep/agents-domain";
+import * as TurnSubpath from "@beep/agents-domain/turn";
 import { describe, expect, it } from "tstyche";
 import type { AgentMode, AgentMode as AgentModeType } from "@beep/agents-domain";
+import type { AssistantBlock, AssistantContent } from "@beep/agents-domain/values/AssistantContent";
 import type * as Agents from "@beep/shared-domain/identity/Agents";
 
 declare const agent: Agent;
@@ -24,5 +26,14 @@ describe("@beep/agents-domain", () => {
     expect<typeof Agent.Encoded>().type.toBeAssignableTo<typeof Agent.Encoded>();
     expect(Agent.make(agent)).type.toBe<Agent>();
     expect<Agent["mode"]>().type.toBe<AgentModeType>();
+  });
+
+  it("preserves turn compatibility export types", () => {
+    expect(Turn.AssistantBlock).type.toBe<typeof AssistantBlock>();
+    expect(Turn.AssistantContent.AssistantBlock).type.toBe<typeof AssistantBlock>();
+    expect(Turn.AssistantContent.AssistantContent).type.toBe<typeof AssistantContent>();
+    expect(TurnSubpath.AssistantBlock).type.toBe<typeof AssistantBlock>();
+    expect(TurnSubpath.AssistantContent.AssistantBlock).type.toBe<typeof AssistantBlock>();
+    expect(TurnSubpath.AssistantContent.AssistantContent).type.toBe<typeof AssistantContent>();
   });
 });
