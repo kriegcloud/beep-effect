@@ -75,6 +75,18 @@ const expectPlain = (block: Pandoc.PandocBlock | undefined): Pandoc.Plain => {
   return block;
 };
 
+const expectParagraphText = (block: Md.Block | undefined, value: string): void => {
+  expect(block?._tag).toBe("p");
+  if (block?._tag !== "p") {
+    throw new Error("expected paragraph block");
+  }
+  expect(block.children[0]?._tag).toBe("text");
+  if (block.children[0]?._tag !== "text") {
+    throw new Error("expected text inline");
+  }
+  expect(block.children[0].value).toBe(value);
+};
+
 describe("Pandoc.mapping", () => {
   it("maps md-core Pandoc JSON to @beep/md with a supported report", () =>
     Effect.runPromise(
@@ -215,7 +227,7 @@ describe("Pandoc.mapping", () => {
       })
     ));
 
-  it("reports out-of-range Pandoc header levels as lossy paragraph degradation", () =>
+  it("reports out-of-range Pandoc header levels as lossy heading clamping", () =>
     Effect.runPromise(
       Effect.gen(function* () {
         const pandoc = yield* decodePandocJson({
@@ -232,7 +244,71 @@ describe("Pandoc.mapping", () => {
 
         expect(result.report.profile).toBe("gap");
         expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("Header");
-        expect(result.document.children[0]?._tag).toBe("p");
+        expect(result.document.children[0]?._tag).toBe("h6");
+      })
+    ));
+
+  it("reports nested image-alt compatibility issues before flattening alt text", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                {
+                  c: [["", [], []], [{ c: [{ t: "InlineMath" }, "x"], t: "Math" }], ["diagram.png", ""]],
+                  t: "Image",
+                },
+              ],
+              t: "Para",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+        const paragraph = result.document.children[0];
+
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("Math");
+        expect(paragraph?._tag).toBe("p");
+        if (paragraph?._tag !== "p") {
+          return;
+        }
+        expect(paragraph.children[0]?._tag).toBe("img");
+        if (paragraph.children[0]?._tag === "img") {
+          expect(paragraph.children[0].alt).toBe("x");
+        }
+      })
+    ));
+
+  it("reports Pandoc block metadata dropped by Md-core mappings", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [2, ["heading-id", ["unnumbered"], []], [{ c: "heading", t: "Str" }]],
+              t: "Header",
+            },
+            {
+              c: [["code-id", ["ts", "extra"], [["custom-style", "Code"]]], "const value = 1"],
+              t: "CodeBlock",
+            },
+            {
+              c: [[3, { t: "LowerRoman" }, { t: "OneParen" }], [[{ c: [{ c: "item", t: "Str" }], t: "Plain" }]]],
+              t: "OrderedList",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toEqual(
+          expect.arrayContaining(["Header", "CodeBlock", "OrderedList"])
+        );
       })
     ));
 
@@ -292,6 +368,42 @@ describe("Pandoc.mapping", () => {
         }
         expect(A.map(paragraph.children, (inline) => inline._tag)).toEqual(["text", "text", "text", "br", "text"]);
         expect(paragraph.children[1]?._tag === "text" ? paragraph.children[1].value : "").toBe(" ");
+      })
+    ));
+
+  it("normalizes soft breaks to spaces in fallback Pandoc text extraction", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                {
+                  c: [{ c: [{ c: "foot", t: "Str" }, { t: "SoftBreak" }, { c: "note", t: "Str" }], t: "Plain" }],
+                  t: "Note",
+                },
+              ],
+              t: "Para",
+            },
+            {
+              c: [
+                ["", [], []],
+                [{ c: [{ c: "wide", t: "Str" }, { t: "SoftBreak" }, { c: "caption", t: "Str" }], t: "Plain" }],
+                [],
+                [],
+                [],
+                [],
+              ],
+              t: "Table",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expectParagraphText(result.document.children[0], "foot note");
+        expectParagraphText(result.document.children[1], "wide caption");
       })
     ));
 });

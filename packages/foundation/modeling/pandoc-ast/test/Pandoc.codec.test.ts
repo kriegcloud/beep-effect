@@ -7,9 +7,30 @@ import {
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
+import type { PandocBlock, PandocInline } from "@beep/pandoc-ast/Pandoc.model";
 
 const fixture = (name: string): Effect.Effect<string> =>
   Effect.promise(() => Bun.file(new URL(`./fixtures/${name}`, import.meta.url)).text());
+const omitted = Symbol("omitted");
+
+const expectUnknownBlock = (block: PandocBlock | undefined, constructor: string, payload: unknown = omitted): void => {
+  expect(block?._tag).toBe("unknownBlock");
+  if (block?._tag !== "unknownBlock") {
+    throw new Error("expected unknown Pandoc block");
+  }
+  expect(block.constructor).toBe(constructor);
+  if (payload !== omitted) {
+    expect(block.payload).toBe(payload);
+  }
+};
+
+const expectUnknownInline = (inline: PandocInline | undefined, constructor: string): void => {
+  expect(inline?._tag).toBe("unknownInline");
+  if (inline?._tag !== "unknownInline") {
+    throw new Error("expected unknown Pandoc inline");
+  }
+  expect(inline.constructor).toBe(constructor);
+};
 
 describe("Pandoc.codec", () => {
   it("decodes committed Pandoc JSON fixtures without a pandoc executable", () =>
@@ -213,10 +234,7 @@ describe("Pandoc.codec", () => {
         expect(list.start).toBe(7);
         expect(list.style).toBe("DefaultStyle");
         expect(list.delimiter).toBe("DefaultDelim");
-        expect(list.items[0]?.[0]?._tag).toBe("unknownBlock");
-        if (list.items[0]?.[0]?._tag === "unknownBlock") {
-          expect(list.items[0][0].constructor).toBe("MalformedBlock");
-        }
+        expectUnknownBlock(list.items[0]?.[0], "MalformedBlock");
       })
     ));
 
@@ -240,30 +258,95 @@ describe("Pandoc.codec", () => {
           return;
         }
 
-        expect(list.items[0]?.[0]?._tag).toBe("unknownBlock");
-        if (list.items[0]?.[0]?._tag === "unknownBlock") {
-          expect(list.items[0][0].constructor).toBe("MalformedBlock");
-        }
+        expectUnknownBlock(list.items[0]?.[0], "MalformedBlock");
       })
     ));
 
-  it("does not hide malformed known list item payloads", () =>
+  it("keeps malformed known list item payloads as named unknown blocks", () =>
     Effect.runPromise(
       Effect.gen(function* () {
-        const exit = yield* Effect.exit(
-          decodePandocJson({
-            "pandoc-api-version": [1, 23, 1],
-            blocks: [
-              {
-                c: [[{ c: "not-inline-list", t: "Plain" }]],
-                t: "BulletList",
-              },
-            ],
-            meta: {},
-          })
-        );
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [[{ c: "not-inline-list", t: "Plain" }]],
+              t: "BulletList",
+            },
+          ],
+          meta: {},
+        });
+        const list = document.blocks[0];
 
-        expect(exit._tag).toBe("Failure");
+        expect(list?._tag).toBe("bulletlist");
+        if (list?._tag !== "bulletlist") {
+          return;
+        }
+
+        expectUnknownBlock(list.items[0]?.[0], "Plain", "not-inline-list");
+      })
+    ));
+
+  it("keeps malformed top-level known blocks as named unknown blocks", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [{ c: "not-inline-list", t: "Plain" }],
+          meta: {},
+        });
+        const block = document.blocks[0];
+
+        expectUnknownBlock(block, "Plain", "not-inline-list");
+      })
+    ));
+
+  it("keeps blockquote structure when nested quote blocks are malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [{ c: "not-inline-list", t: "Plain" }],
+              t: "BlockQuote",
+            },
+          ],
+          meta: {},
+        });
+        const blockquote = document.blocks[0];
+
+        expect(blockquote?._tag).toBe("blockquote");
+        if (blockquote?._tag !== "blockquote") {
+          return;
+        }
+
+        expectUnknownBlock(blockquote.children[0], "Plain");
+      })
+    ));
+
+  it("keeps parent blocks decodable when nested inline payloads are malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: ["not-inline-constructor", { c: 123, t: "Str" }, { c: "ok", t: "Str" }],
+              t: "Para",
+            },
+          ],
+          meta: {},
+        });
+        const paragraph = document.blocks[0];
+
+        expect(paragraph?._tag).toBe("para");
+        if (paragraph?._tag !== "para") {
+          return;
+        }
+
+        expect(paragraph.children.map((inline) => inline._tag)).toEqual(["unknownInline", "unknownInline", "str"]);
+        expectUnknownInline(paragraph.children[0], "MalformedInline");
+        expectUnknownInline(paragraph.children[1], "Str");
       })
     ));
 
@@ -274,12 +357,7 @@ describe("Pandoc.codec", () => {
           "pandoc-api-version": [1, 23, 1],
           blocks: [
             {
-              c: [
-                {
-                  c: ["not-a-block-constructor"],
-                  t: "Note",
-                },
-              ],
+              c: [{ c: [{ c: "not-inline-list", t: "Plain" }], t: "Note" }],
               t: "Para",
             },
           ],
@@ -293,7 +371,7 @@ describe("Pandoc.codec", () => {
         }
         expect(paragraph.children[0]?._tag).toBe("note");
         if (paragraph.children[0]?._tag === "note") {
-          expect(paragraph.children[0].blocks[0]?._tag).toBe("unknownBlock");
+          expectUnknownBlock(paragraph.children[0].blocks[0], "Plain");
         }
       })
     ));

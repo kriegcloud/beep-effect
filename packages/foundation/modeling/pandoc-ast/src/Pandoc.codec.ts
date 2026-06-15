@@ -215,10 +215,10 @@ const targetFromWire = (input: unknown): Effect.Effect<PandocTarget, S.SchemaErr
   Effect.map(decodeTargetWire(input), ([url, title]) => PandocTarget.make({ title, url }));
 
 const decodeInlines = (input: unknown): Effect.Effect<ReadonlyArray<PandocInline.Type>, S.SchemaError> =>
-  Effect.flatMap(decodeUnknownArray(input), (values) => Effect.forEach(values, decodeInline));
+  Effect.flatMap(decodeUnknownArray(input), (values) => Effect.forEach(values, decodeInlineOrUnknown));
 
 const decodeBlockList = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>, S.SchemaError> =>
-  Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlock));
+  Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
 
 const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
   UnknownInline.make({ constructor, payload });
@@ -226,11 +226,19 @@ const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
 const unknownBlock = (constructor: string, payload: unknown): UnknownBlock =>
   UnknownBlock.make({ constructor, payload });
 
+const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type> =>
+  decodeConstructor(input).pipe(
+    Effect.matchEffect({
+      onFailure: () => Effect.succeed(unknownInline("MalformedInline", input)),
+      onSuccess: (wire) => decodeInline(input).pipe(Effect.orElseSucceed(() => unknownInline(wire.t, wire.c))),
+    })
+  );
+
 const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type, S.SchemaError> =>
   decodeConstructor(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed(unknownBlock("MalformedBlock", input)),
-      onSuccess: () => decodeBlock(input),
+      onSuccess: (wire) => decodeBlock(input).pipe(Effect.orElseSucceed(() => unknownBlock(wire.t, wire.c))),
     })
   );
 
@@ -243,7 +251,7 @@ const decodeBlockItemsOrUnknown = (
   decodeUnknownBlockItems(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed([[unknownBlock("MalformedListItems", input)]]),
-      onSuccess: (items) => Effect.forEach(items, (item) => Effect.forEach(item, decodeBlockOrUnknown)),
+      onSuccess: (items) => Effect.forEach(items, decodeBlockList),
     })
   );
 
@@ -515,7 +523,7 @@ const encodeBlock = Match.type<PandocBlock.Type>().pipe(
  */
 export const decodePandocJson = (input: unknown): Effect.Effect<PandocDocument, S.SchemaError> =>
   Effect.flatMap(decodeWire(input), (wire) =>
-    Effect.map(Effect.forEach(wire.blocks, decodeBlock), (blocks) =>
+    Effect.map(decodeBlockList(wire.blocks), (blocks) =>
       PandocDocument.make({ apiVersion: wire["pandoc-api-version"], blocks, meta: wire.meta })
     )
   );

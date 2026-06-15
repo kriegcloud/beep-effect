@@ -66,6 +66,12 @@ const issue = (input: {
 const hasPandocAttr = (attr: PandocAttr.Type): boolean =>
   attr.id.length > 0 || attr.classes.length > 0 || attr.keyValues.length > 0;
 
+const hasCodeBlockDroppedAttr = (attr: PandocAttr.Type): boolean =>
+  attr.id.length > 0 || attr.classes.length > 1 || attr.keyValues.length > 0;
+
+const hasOrderedListMarkerLoss = (node: OrderedList.Type): boolean =>
+  node.start !== 1 || node.style !== "DefaultStyle" || node.delimiter !== "DefaultDelim";
+
 const hasTargetTitle = (target: PandocTarget.Type): boolean => target.title.length > 0;
 
 const appendIndex = (path: JsonPath, key: string, index: number): JsonPath => [...path, key, index];
@@ -106,7 +112,7 @@ const pandocInlineText: (inline: PandocInline.Type) => string = Match.type<Pando
   Match.tagsExhaustive({
     str: (inline) => inline.text,
     space: () => " ",
-    softbreak: () => "\n",
+    softbreak: () => " ",
     linebreak: () => "\n",
     emph: (inline) => A.join(A.map(inline.children, pandocInlineText), ""),
     strong: (inline) => A.join(A.map(inline.children, pandocInlineText), ""),
@@ -216,9 +222,10 @@ const pandocInlineToMd = (
           value: [Md.A.make({ children: value, href: node.target.url })],
         })),
       image: (node) =>
-        Effect.succeed({
-          issues:
-            hasPandocAttr(node.attr) || hasTargetTitle(node.target)
+        Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => ({
+          issues: [
+            ...issues,
+            ...(hasPandocAttr(node.attr) || hasTargetTitle(node.target)
               ? [
                   issue({
                     construct: "Image",
@@ -228,9 +235,10 @@ const pandocInlineToMd = (
                     severity: "lossy",
                   }),
                 ]
-              : [],
-          value: [Md.Img.make({ alt: A.join(A.map(node.children, pandocInlineText), ""), src: node.target.url })],
-        }),
+              : []),
+          ],
+          value: [Md.Img.make({ alt: mdInlinesText(value), src: node.target.url })],
+        })),
       span: (node) =>
         Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => ({
           issues: [
@@ -312,7 +320,7 @@ const headingToMd = (level: number, children: ReadonlyArray<Md.Inline>): Md.Bloc
   if (level === 6) {
     return Md.H6.make({ children });
   }
-  return Md.P.make({ children });
+  return level < 1 ? Md.H1.make({ children }) : Md.H6.make({ children });
 };
 
 const pandocListItemHasBlockLoss = (item: ReadonlyArray<PandocBlock.Type>): boolean =>
@@ -469,12 +477,23 @@ const pandocBlockToMd = (block: PandocBlock.Type, path: JsonPath): Effect.Effect
         Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => ({
           issues: [
             ...issues,
+            ...(hasPandocAttr(node.attr)
+              ? [
+                  issue({
+                    construct: "Header",
+                    direction: "pandoc-to-md",
+                    message: "Pandoc header attributes have no Md-core heading equivalent.",
+                    path,
+                    severity: "lossy",
+                  }),
+                ]
+              : []),
             ...(node.level < 1 || node.level > 6
               ? [
                   issue({
                     construct: "Header",
                     direction: "pandoc-to-md",
-                    message: "Header level outside 1..6 is degraded to a paragraph.",
+                    message: "Header level outside 1..6 is clamped to the nearest Md heading.",
                     path,
                     severity: "lossy",
                   }),
@@ -489,9 +508,20 @@ const pandocBlockToMd = (block: PandocBlock.Type, path: JsonPath): Effect.Effect
           value: Md.BlockQuote.make({ children: value }),
         })),
       codeblock: (node) =>
-        Effect.succeed(
-          emptyProjection(Md.Pre.make({ language: O.fromUndefinedOr(node.attr.classes[0]), value: node.text }))
-        ),
+        Effect.succeed({
+          issues: hasCodeBlockDroppedAttr(node.attr)
+            ? [
+                issue({
+                  construct: "CodeBlock",
+                  direction: "pandoc-to-md",
+                  message: "Pandoc code block id, key/value pairs, or extra classes have no Md-core pre equivalent.",
+                  path,
+                  severity: "lossy",
+                }),
+              ]
+            : [],
+          value: Md.Pre.make({ language: O.fromUndefinedOr(node.attr.classes[0]), value: node.text }),
+        }),
       bulletlist: (node) =>
         Effect.map(pandocListItemsToMd(node.items, path), ({ issues, value }) => ({
           issues,
@@ -499,7 +529,20 @@ const pandocBlockToMd = (block: PandocBlock.Type, path: JsonPath): Effect.Effect
         })),
       orderedlist: (node) =>
         Effect.map(pandocListItemsToMd(node.items, path), ({ issues, value }) => ({
-          issues,
+          issues: [
+            ...issues,
+            ...(hasOrderedListMarkerLoss(node)
+              ? [
+                  issue({
+                    construct: "OrderedList",
+                    direction: "pandoc-to-md",
+                    message: "Pandoc ordered-list start, style, or delimiter metadata has no Md-core equivalent.",
+                    path,
+                    severity: "lossy",
+                  }),
+                ]
+              : []),
+          ],
           value: Md.Ol.make({ children: value }),
         })),
       horizontalrule: () => Effect.succeed(emptyProjection(Md.Hr.make({}))),
