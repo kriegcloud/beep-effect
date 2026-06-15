@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "effect-capability-kg",
+    "title": "Effect Capability KG",
+    "status": "active",
+    "stage": "decompose",
+    "openQuestions": [
+      "Does MAP.md choose the right first goal (effect-capability-kg-seed) and sequencing? If yes, pause for explicit approval before creating any ./goals packets."
+    ],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-06-15",
+    "updated": "2026-06-15"
+  }
+}

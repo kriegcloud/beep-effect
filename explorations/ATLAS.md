@@ -39,6 +39,11 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Active
 
+- [`effect-capability-kg`](./effect-capability-kg/README.md) — tooling-first
+  decomposed exploration for a deterministic Effect v4 capability graph,
+  JSDoc-derived capability ontology, specialist agent profiles, judge routing,
+  and advisory hook backpressure over underused Effect modules; first proposed
+  goal is `effect-capability-kg-seed`, paused before `./goals` scaffolding.
 - [`docx-roundtrip-interop`](./docx-roundtrip-interop/README.md) — pure
   AST-level DOCX interchange exploration: schema-first Pandoc JSON mirror,
   `PandocAst <-> @beep/md` compatibility proof, and explicit lossiness matrix
