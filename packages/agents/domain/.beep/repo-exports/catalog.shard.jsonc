@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "54fcc0a025e9f196e5e3f7aaa29535933d050bcab122c962cc12924bcdb93320",
+    "digest": "d22183d582bfdd56f4ba4b3fc517a98de02b0624fdd43b7c925e8714e32842f6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -67,8 +67,8 @@
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sha256": "343819fe29bad2dbc542366a493281be440bcb1ad131c4a3e883b76e51292c45",
-        "bytes": 4554
+        "sha256": "9d49769b7a2854e087321d09b61226b23a183278d1ee1dfa6a5fc4dfa353d0b0",
+        "bytes": 4536
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
@@ -284,7 +284,7 @@
         "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -294,7 +294,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -309,7 +309,7 @@
         "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -319,7 +319,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -450,7 +450,7 @@
         "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -460,7 +460,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1074,7 +1074,7 @@
         "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -1084,7 +1084,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1124,7 +1124,7 @@
         "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -1134,7 +1134,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1297,7 +1297,7 @@
         "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -1307,7 +1307,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1521,7 +1521,7 @@
         "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -1531,7 +1531,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1546,7 +1546,7 @@
         "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -1556,7 +1556,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1670,7 +1670,7 @@
         "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -1680,7 +1680,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1994,7 +1994,7 @@
         "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -2004,7 +2004,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent assistantcontenttodocument const lift an ordered list of assistant blocks into a complete `@beep/md` mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -2019,7 +2019,7 @@
         "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -2029,7 +2029,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent blocktomd const lift a single {@link assistantblock} into a `@beep/md` block node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -2143,7 +2143,7 @@
         "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
-          "value-objects"
+          "mapping"
         ],
         "since": [
           "0.0.0"
@@ -2153,7 +2153,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent inlinetomd const lift a single {@link inlinenode} into a `@beep/md` inline node. mapping packages/agents/domain/src/values/assistantcontent/assistantcontent.behavior.ts"
       },
       {
         "packageName": "@beep/agents-domain",

@@ -47,10 +47,6 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   [`effect-capability-kg-seed`](../goals/effect-capability-kg-seed/README.md)
   is scaffolded, and later candidate goals remain uncreated pending the seed
   proof.
-- [`docx-roundtrip-interop`](./docx-roundtrip-interop/README.md) — pure
-  AST-level DOCX interchange exploration: schema-first Pandoc JSON mirror,
-  `PandocAst <-> @beep/md` compatibility proof, and explicit lossiness matrix
-  before UI, Tauri sidecars, or patent semantics.
 
 ### Proposed
 
@@ -65,6 +61,12 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Graduated
 
+- [`docx-roundtrip-interop`](./docx-roundtrip-interop/README.md) — graduated
+  2026-06-15 into
+  [`pandoc-ast-foundation`](../goals/pandoc-ast-foundation/README.md), the pure
+  schema-first Pandoc JSON AST mirror and `@beep/md` compatibility proof.
+  Follow-ons named in its MAP: pandoc-driver-sidecar, docx-fixture-pipeline,
+  document-ast-decision.
 - [`agent-chat-interface`](./agent-chat-interface/README.md) — graduated
   2026-06-12 into three goal packets:
   [`rich-text-foundation`](../goals/rich-text-foundation/README.md),

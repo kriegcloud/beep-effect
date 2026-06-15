@@ -82,6 +82,7 @@ export const DeprecatedApisESLintConfig: DeprecatedApisESLintConfigShape = [
             "packages/_internal/*/drizzle.config.ts",
             "packages/drivers/*/scripts/*.ts",
             "packages/drivers/*/test/fixtures/*.ts",
+            "packages/foundation/*/*/scripts/*.ts",
             "packages/foundation/*/*/test/fixtures/*.ts",
             "packages/foundation/ui-system/ui/.storybook/*.ts",
             "packages/foundation/ui-system/ui/.storybook/*.tsx",

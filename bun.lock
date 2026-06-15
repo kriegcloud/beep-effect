@@ -917,6 +917,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/modeling/html": {
+      "name": "@beep/html",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/foundation/modeling/identity": {
       "name": "@beep/identity",
       "version": "0.1.1",
@@ -955,6 +968,21 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/pandoc-ast": {
+      "name": "@beep/pandoc-ast",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/md": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
@@ -2065,6 +2093,8 @@
 
     "@beep/form": ["@beep/form@workspace:packages/foundation/ui-system/form"],
 
+    "@beep/html": ["@beep/html@workspace:packages/foundation/modeling/html"],
+
     "@beep/hubspot": ["@beep/hubspot@workspace:packages/drivers/hubspot"],
 
     "@beep/identity": ["@beep/identity@workspace:packages/foundation/modeling/identity"],
@@ -2094,6 +2124,8 @@
     "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
 
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
+
+    "@beep/pandoc-ast": ["@beep/pandoc-ast@workspace:packages/foundation/modeling/pandoc-ast"],
 
     "@beep/phoenix": ["@beep/phoenix@workspace:packages/drivers/phoenix"],
 
