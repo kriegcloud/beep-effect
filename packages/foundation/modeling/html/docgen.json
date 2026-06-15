@@ -40,6 +40,9 @@
       ],
       "@beep/identity/*": [
         "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ]
     }
   }

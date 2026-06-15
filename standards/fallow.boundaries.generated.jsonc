@@ -198,6 +198,12 @@
         ]
       },
       {
+        "name": "@beep/html",
+        "patterns": [
+          "packages/foundation/modeling/html/src/**"
+        ]
+      },
+      {
         "name": "@beep/hubspot",
         "patterns": [
           "packages/drivers/hubspot/src/**"
@@ -1007,6 +1013,17 @@
           "@beep/form",
           "@beep/identity",
           "@beep/types"
+        ]
+      },
+      {
+        "from": "@beep/html",
+        "allow": [
+          "@beep/html",
+          "@beep/identity"
+        ],
+        "allowTypeOnly": [
+          "@beep/html",
+          "@beep/identity"
         ]
       },
       {
