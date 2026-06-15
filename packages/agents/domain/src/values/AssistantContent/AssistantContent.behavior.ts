@@ -29,7 +29,7 @@ import { AssistantBlock, InlineNode } from "./AssistantContent.model.js";
  * console.log(node._tag) // "strong"
  * ```
  *
- * @category lifting
+ * @category mapping
  * @since 0.0.0
  */
 export const inlineToMd = (node: InlineNode): Md.Inline.Type =>
@@ -72,7 +72,7 @@ const inlinesToMd = (inlines: ReadonlyArray<InlineNode>): ReadonlyArray<Md.Inlin
  * console.log(node._tag) // "h2"
  * ```
  *
- * @category lifting
+ * @category mapping
  * @since 0.0.0
  */
 export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
@@ -126,7 +126,7 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
  * console.log(document._tag) // "document"
  * ```
  *
- * @category lifting
+ * @category mapping
  * @since 0.0.0
  */
 export const assistantContentToDocument = (blocks: ReadonlyArray<AssistantBlock>): Md.Document.Type =>
