@@ -303,23 +303,90 @@ const headingToMd = (level: number, children: ReadonlyArray<Md.Inline>): Md.Bloc
   return Md.P.make({ children });
 };
 
+const pandocListItemHasBlockLoss = (item: ReadonlyArray<PandocBlock.Type>): boolean =>
+  item.length !== 1 || A.some(item, (block) => block._tag !== "plain" && block._tag !== "para");
+
+const pandocListItemBlockToMdInlines = (
+  block: PandocBlock.Type,
+  path: JsonPath
+): Effect.Effect<Projection<ReadonlyArray<Md.Inline>>, S.SchemaError> =>
+  Match.value(block).pipe(
+    Match.tagsExhaustive({
+      plain: (node) => pandocInlinesToMd(node.children, path),
+      para: (node) => pandocInlinesToMd(node.children, path),
+      header: (node) => pandocInlinesToMd(node.children, path),
+      codeblock: (node) =>
+        Effect.succeed({
+          issues: hasPandocAttr(node.attr)
+            ? [
+                issue({
+                  construct: "CodeBlock",
+                  direction: "pandoc-to-md",
+                  message: "Pandoc code block attributes have no Md list item inline equivalent.",
+                  path,
+                  severity: "lossy",
+                }),
+              ]
+            : [],
+          value: [Md.Code.make({ value: node.text })],
+        }),
+      blockquote: (node) =>
+        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+          issues,
+          value: [mdText(mdBlockText(value))],
+        })),
+      bulletlist: (node) =>
+        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+          issues,
+          value: [mdText(mdBlockText(value))],
+        })),
+      orderedlist: (node) =>
+        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+          issues,
+          value: [mdText(mdBlockText(value))],
+        })),
+      horizontalrule: () => Effect.succeed(emptyProjection([])),
+      div: (node) =>
+        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+          issues,
+          value: [mdText(mdBlockText(value))],
+        })),
+      table: (node) =>
+        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+          issues,
+          value: [mdText(mdBlockText(value))],
+        })),
+      unknownBlock: (node) =>
+        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+          issues,
+          value: [mdText(mdBlockText(value))],
+        })),
+    })
+  );
+
 const pandocListItemToMd = (
   item: ReadonlyArray<PandocBlock.Type>,
   path: JsonPath
 ): Effect.Effect<Projection<Md.Li>, S.SchemaError> =>
   Effect.map(
-    Effect.forEach(item, (block, index) => pandocBlockToMd(block, appendIndex(path, "blocks", index))),
+    Effect.forEach(item, (block, index) => pandocListItemBlockToMdInlines(block, appendIndex(path, "blocks", index))),
     (blocks) => ({
-      issues: mergeIssues(blocks),
+      issues: [
+        ...mergeIssues(blocks),
+        ...(pandocListItemHasBlockLoss(item)
+          ? [
+              issue({
+                construct: "ListItem",
+                direction: "pandoc-to-md",
+                message: "Pandoc list item block structure is flattened into Md list item inline children.",
+                path,
+                severity: "lossy",
+              }),
+            ]
+          : []),
+      ],
       value: Md.Li.make({
-        children: [
-          mdText(
-            A.join(
-              A.map(blocks, (block) => mdBlockText(block.value)),
-              "\n"
-            )
-          ),
-        ],
+        children: A.flatten(A.map(blocks, (block) => block.value)),
       }),
     })
   );
@@ -428,16 +495,15 @@ const pandocBlockToMd = (block: PandocBlock.Type, path: JsonPath): Effect.Effect
         Effect.map(pandocChildBlocksToMd(node.children, path), ({ issues, value }) => ({
           issues: [
             ...issues,
-            ...(hasPandocAttr(node.attr)
-              ? [
-                  issue({
-                    construct: "Div",
-                    direction: "pandoc-to-md",
-                    message: "Pandoc div attributes, including DOCX custom styles, are recorded as a gap.",
-                    path,
-                  }),
-                ]
-              : []),
+            issue({
+              construct: "Div",
+              direction: "pandoc-to-md",
+              message: hasPandocAttr(node.attr)
+                ? "Pandoc div attributes, including DOCX custom styles, are recorded as a gap."
+                : "Pandoc div wrappers have no Md-core block equivalent and are rendered as blockquotes.",
+              path,
+              severity: hasPandocAttr(node.attr) ? "unsupported" : "lossy",
+            }),
           ],
           value: Md.BlockQuote.make({ children: value }),
         })),
@@ -571,12 +637,26 @@ const mdHeadingToPandoc = (
     value: Header.make({ attr: PandocAttr.empty, children: value, level: headingLevel(node._tag) }),
   }));
 
-const mdListItemPlainBlocks = (
-  items: ReadonlyArray<Md.Li | Md.TaskItem>
-): ReadonlyArray<ReadonlyArray<PandocBlock.Type>> =>
-  A.map(items, (item) => [
-    Plain.make({ children: A.map(item.children, (child) => Str.make({ text: mdInlineText(child) })) }),
-  ]);
+const mdListItemToPandocBlocks = (
+  item: Md.Li | Md.TaskItem,
+  path: JsonPath
+): Effect.Effect<Projection<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
+  Effect.map(mdInlinesToPandoc(item.children, path), ({ issues, value }) => ({
+    issues,
+    value: [Plain.make({ children: value })],
+  }));
+
+const mdListItemsToPandocBlocks = (
+  items: ReadonlyArray<Md.Li | Md.TaskItem>,
+  path: JsonPath
+): Effect.Effect<Projection<ReadonlyArray<ReadonlyArray<PandocBlock.Type>>>, S.SchemaError> =>
+  Effect.map(
+    Effect.forEach(items, (item, index) => mdListItemToPandocBlocks(item, appendIndex(path, "children", index))),
+    (values) => ({
+      issues: mergeIssues(values),
+      value: A.map(values, (item) => item.value),
+    })
+  );
 
 const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Projection<PandocBlock.Type>, S.SchemaError> =>
   Match.value(block).pipe(
@@ -614,31 +694,29 @@ const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Project
           )
         ),
       ul: (node) =>
-        Effect.succeed(
-          emptyProjection(
-            BulletList.make({
-              items: mdListItemPlainBlocks(node.children),
-            })
-          )
-        ),
+        Effect.map(mdListItemsToPandocBlocks(node.children, path), ({ issues, value }) => ({
+          issues,
+          value: BulletList.make({
+            items: value,
+          }),
+        })),
       ol: (node) =>
-        Effect.succeed(
-          emptyProjection(
-            OrderedList.make({
-              delimiter: "DefaultDelim",
-              items: mdListItemPlainBlocks(node.children),
-              start: 1,
-              style: "DefaultStyle",
-            })
-          )
-        ),
+        Effect.map(mdListItemsToPandocBlocks(node.children, path), ({ issues, value }) => ({
+          issues,
+          value: OrderedList.make({
+            delimiter: "DefaultDelim",
+            items: value,
+            start: 1,
+            style: "DefaultStyle",
+          }),
+        })),
       li: (node) =>
         Effect.map(mdInlinesToPandoc(node.children, path), ({ issues, value }) => ({
           issues,
           value: Plain.make({ children: value }),
         })),
       taskList: (node) =>
-        Effect.succeed({
+        Effect.map(mdListItemsToPandocBlocks(node.children, path), ({ issues, value }) => ({
           issues: [
             issue({
               construct: "TaskList",
@@ -647,11 +725,12 @@ const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Project
               path,
               severity: "lossy",
             }),
+            ...issues,
           ],
           value: BulletList.make({
-            items: mdListItemPlainBlocks(node.children),
+            items: value,
           }),
-        }),
+        })),
       hr: () => Effect.succeed(emptyProjection(HorizontalRule.make({}))),
     })
   );

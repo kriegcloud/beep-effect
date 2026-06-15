@@ -1,6 +1,6 @@
 # GOAL: Implement Pandoc AST Foundation
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Repo: this checkout.
 
 Outcome: land the first pure `@beep/pandoc-ast` modeling slice for Pandoc JSON
 AST decoding, Md-core compatibility mapping, structured gap reports, fixtures,

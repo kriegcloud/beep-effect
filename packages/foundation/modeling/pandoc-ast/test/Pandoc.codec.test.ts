@@ -1,4 +1,9 @@
-import { decodePandocJsonString, encodePandocJsonString, PandocJsonFromString } from "@beep/pandoc-ast/Pandoc.codec";
+import {
+  decodePandocJson,
+  decodePandocJsonString,
+  encodePandocJsonString,
+  PandocJsonFromString,
+} from "@beep/pandoc-ast/Pandoc.codec";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as S from "effect/Schema";
@@ -45,6 +50,73 @@ describe("Pandoc.codec", () => {
         const document = yield* decodePandocJsonString(source);
 
         expect(document.blocks.map((block) => block._tag)).toEqual(["div", "table"]);
+      })
+    ));
+
+  it("decodes table attributes and captions from Pandoc table payloads", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                ["table-id", ["wide"], [["custom-style", "EvidenceTable"]]],
+                [{ c: [{ c: "Evidence", t: "Str" }], t: "Plain" }],
+                [],
+                [],
+                [],
+                [],
+              ],
+              t: "Table",
+            },
+          ],
+          meta: {},
+        });
+        const table = document.blocks[0];
+
+        expect(table?._tag).toBe("table");
+        if (table?._tag !== "table") {
+          return;
+        }
+
+        expect(table.attr).toEqual({
+          classes: ["wide"],
+          id: "table-id",
+          keyValues: [["custom-style", "EvidenceTable"]],
+        });
+        expect(table.caption[0]?._tag).toBe("str");
+        if (table.caption[0]?._tag === "str") {
+          expect(table.caption[0].text).toBe("Evidence");
+        }
+      })
+    ));
+
+  it("keeps unknown math and ordered-list constructor tags explicit", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [{ c: [{ t: "FutureMath" }, "x"], t: "Math" }],
+              t: "Para",
+            },
+            {
+              c: [[1, { t: "FutureStyle" }, { t: "DefaultDelim" }], []],
+              t: "OrderedList",
+            },
+          ],
+          meta: {},
+        });
+        const paragraph = document.blocks[0];
+        const list = document.blocks[1];
+
+        expect(paragraph?._tag).toBe("para");
+        if (paragraph?._tag === "para") {
+          expect(paragraph.children[0]?._tag).toBe("unknownInline");
+        }
+        expect(list?._tag).toBe("unknownBlock");
       })
     ));
 

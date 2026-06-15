@@ -190,6 +190,68 @@ export const PandocMathType = LiteralKit(["InlineMath", "DisplayMath"]).pipe(
 export type PandocMathType = typeof PandocMathType.Type;
 
 /**
+ * Pandoc ordered-list numbering style constructor.
+ *
+ * @example
+ * ```ts
+ * import { PandocListNumberStyle } from "@beep/pandoc-ast/Pandoc.model"
+ *
+ * console.log(PandocListNumberStyle.is.DefaultStyle("DefaultStyle")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const PandocListNumberStyle = LiteralKit([
+  "DefaultStyle",
+  "Example",
+  "Decimal",
+  "LowerRoman",
+  "UpperRoman",
+  "LowerAlpha",
+  "UpperAlpha",
+]).pipe(
+  $I.annoteSchema("PandocListNumberStyle", {
+    description: "Pandoc ordered-list numbering style constructor.",
+  })
+);
+
+/**
+ * Runtime type for {@link PandocListNumberStyle}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PandocListNumberStyle = typeof PandocListNumberStyle.Type;
+
+/**
+ * Pandoc ordered-list numbering delimiter constructor.
+ *
+ * @example
+ * ```ts
+ * import { PandocListNumberDelimiter } from "@beep/pandoc-ast/Pandoc.model"
+ *
+ * console.log(PandocListNumberDelimiter.is.DefaultDelim("DefaultDelim")) // true
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const PandocListNumberDelimiter = LiteralKit(["DefaultDelim", "Period", "OneParen", "TwoParens"]).pipe(
+  $I.annoteSchema("PandocListNumberDelimiter", {
+    description: "Pandoc ordered-list numbering delimiter constructor.",
+  })
+);
+
+/**
+ * Runtime type for {@link PandocListNumberDelimiter}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PandocListNumberDelimiter = typeof PandocListNumberDelimiter.Type;
+
+/**
  * Recursive Pandoc inline child list.
  *
  * @category models
@@ -1243,7 +1305,7 @@ export declare namespace BulletList {
 export class OrderedList extends S.TaggedClass<OrderedList>($I`OrderedList`)(
   "orderedlist",
   {
-    delimiter: S.String.annotateKey({
+    delimiter: PandocListNumberDelimiter.annotateKey({
       description: "Pandoc ordered-list delimiter token.",
     }),
     items: PandocListItems.annotateKey({
@@ -1252,7 +1314,7 @@ export class OrderedList extends S.TaggedClass<OrderedList>($I`OrderedList`)(
     start: S.Int.annotateKey({
       description: "Starting ordinal.",
     }),
-    style: S.String.annotateKey({
+    style: PandocListNumberStyle.annotateKey({
       description: "Pandoc ordered-list style token.",
     }),
   },
@@ -1273,10 +1335,10 @@ export declare namespace OrderedList {
    */
   export interface Type {
     readonly _tag: "orderedlist";
-    readonly delimiter: string;
+    readonly delimiter: PandocListNumberDelimiter;
     readonly items: PandocListItems;
     readonly start: number;
-    readonly style: string;
+    readonly style: PandocListNumberStyle;
   }
 
   /**

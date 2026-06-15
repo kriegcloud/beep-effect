@@ -1,5 +1,5 @@
 import * as Md from "@beep/md/Md.model";
-import { decodePandocJsonString } from "@beep/pandoc-ast/Pandoc.codec";
+import { decodePandocJson, decodePandocJsonString } from "@beep/pandoc-ast/Pandoc.codec";
 import { documentToPandoc, pandocToDocument } from "@beep/pandoc-ast/Pandoc.mapping";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -73,6 +73,128 @@ describe("Pandoc.mapping", () => {
         expect(A.map(result.report.issues, (entry) => entry.construct)).toEqual(
           expect.arrayContaining(["rawMarkdown", "TaskList"])
         );
+      })
+    ));
+
+  it("preserves inline structure inside list items in both mapping directions", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                [
+                  {
+                    c: [
+                      { c: "alpha", t: "Str" },
+                      { t: "Space" },
+                      { c: [{ c: "beta", t: "Str" }], t: "Emph" },
+                      { t: "Space" },
+                      { c: [["", [], []], [{ c: "docs", t: "Str" }], ["https://example.com", ""]], t: "Link" },
+                    ],
+                    t: "Plain",
+                  },
+                ],
+              ],
+              t: "BulletList",
+            },
+          ],
+          meta: {},
+        });
+        const mappedMd = yield* pandocToDocument(pandoc);
+        const list = mappedMd.document.children[0];
+
+        expect(mappedMd.report.issues).toEqual([]);
+        expect(list?._tag).toBe("ul");
+        if (list?._tag !== "ul") {
+          return;
+        }
+        expect(A.map(list.children[0]?.children ?? [], (inline) => inline._tag)).toEqual([
+          "text",
+          "text",
+          "em",
+          "text",
+          "a",
+        ]);
+
+        const document = Md.Document.make({
+          children: [
+            Md.Ul.make({
+              children: [
+                Md.Li.make({
+                  children: [
+                    text("alpha "),
+                    Md.Em.make({ children: [text("beta")] }),
+                    text(" "),
+                    Md.A.make({ children: [text("docs")], href: "https://example.com" }),
+                  ],
+                }),
+              ],
+            }),
+          ],
+        });
+        const mappedPandoc = yield* documentToPandoc(document);
+        const block = mappedPandoc.pandoc.blocks[0];
+
+        expect(mappedPandoc.report.issues).toEqual([]);
+        expect(block?._tag).toBe("bulletlist");
+        if (block?._tag !== "bulletlist") {
+          return;
+        }
+        const firstItemBlock = block.items[0]?.[0];
+
+        expect(firstItemBlock?._tag).toBe("plain");
+        if (firstItemBlock?._tag !== "plain") {
+          return;
+        }
+        expect(A.map(firstItemBlock.children, (inline) => inline._tag)).toEqual(["str", "emph", "str", "link"]);
+      })
+    ));
+
+  it("reports lossy Pandoc list item block flattening explicitly", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [
+                [
+                  { c: [{ c: "first", t: "Str" }], t: "Plain" },
+                  { c: [{ c: "second", t: "Str" }], t: "Para" },
+                ],
+              ],
+              t: "BulletList",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("ListItem");
+      })
+    ));
+
+  it("records unstyled Pandoc div wrappers instead of silently blockquoting them", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const pandoc = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [["", [], []], [{ c: [{ c: "wrapped", t: "Str" }], t: "Para" }]],
+              t: "Div",
+            },
+          ],
+          meta: {},
+        });
+        const result = yield* pandocToDocument(pandoc);
+
+        expect(result.report.profile).toBe("gap");
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("Div");
+        expect(A.map(result.document.children, (block) => block._tag)).toEqual(["blockquote"]);
       })
     ));
 });
