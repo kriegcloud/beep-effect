@@ -6,19 +6,20 @@ import * as WorkPriority from "@beep/architecture-lab-domain/values/WorkPriority
 import { makeDrizzleWorkItemRepository } from "@beep/architecture-lab-server/aggregates/WorkItem";
 import { makeDrizzleWorkerRepository } from "@beep/architecture-lab-server/entities/Worker";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
-import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
-import { A, Str } from "@beep/utils";
+import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { A } from "@beep/utils";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
-import type { SqlTestHooks } from "@beep/test-utils";
 
-const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+const {
+  shouldRunPgliteIntegration,
+  pgliteIntegrationTimeoutMillis: PgliteIntegrationTimeout,
+  makePgliteLayer,
+} = makePgliteIntegrationGate();
 const migrationsFolder = fileURLToPath(new URL("../../../../_internal/db-admin/drizzle", import.meta.url));
-const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
-const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
 const decodeWorkItemId = S.decodeUnknownEffect(DomainWorkItem.WorkItemId);
 const decodeWorkItemTitle = S.decodeUnknownEffect(DomainWorkItem.WorkItemTitle);
 const decodeWorkerId = S.decodeUnknownEffect(DomainWorker.WorkerId);
@@ -31,34 +32,6 @@ const WorkItemIdArbitrary = S.toArbitrary(DomainWorkItem.WorkItemId);
 const WorkItemTitleArbitrary = S.toArbitrary(DomainWorkItem.WorkItemTitle);
 const WorkerIdArbitrary = S.toArbitrary(DomainWorker.WorkerId);
 const OrganizationIdArbitrary = S.toArbitrary(DomainWorker.WorkerOrganizationId);
-const PgliteIntegrationTimeout = 300_000;
-
-const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
-  pipe(
-    sharedConnectionUri,
-    O.match({
-      onNone: () =>
-        hooks === undefined
-          ? Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" }))
-          : Layer.fresh(makePgliteSqlTestLayer({ hooks, mode: "testcontainers" })),
-      onSome: (connectionUri) =>
-        hooks === undefined
-          ? Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                mode: "external",
-              })
-            )
-          : Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                hooks,
-                mode: "external",
-              })
-            ),
-    })
-  );
-
 const migrateArchitectureLab = Effect.fnUntraced(function* () {
   const info = yield* TestDatabaseInfo;
   const db = yield* makeDrizzle();
