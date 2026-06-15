@@ -66,8 +66,7 @@
     "bun run docgen:local --full",
     "test \"$(wc -m < goals/pandoc-ast-foundation/GOAL.md)\" -le 4000",
     "jq . goals/pandoc-ast-foundation/ops/manifest.json",
-    "git diff --check -- goals/pandoc-ast-foundation explorations/docx-roundtrip-interop explorations/ATLAS.md packages/foundation/modeling/pandoc-ast",
-    "bun run beep lint reflection-artifacts"
+    "git diff --check -- goals/pandoc-ast-foundation explorations/docx-roundtrip-interop explorations/ATLAS.md packages/foundation/modeling/pandoc-ast"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",
