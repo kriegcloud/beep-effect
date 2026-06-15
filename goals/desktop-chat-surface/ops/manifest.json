@@ -3,13 +3,13 @@
   "initiative": {
     "id": "desktop-chat-surface",
     "title": "Desktop Chat Surface",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-12",
     "updated": "2026-06-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/desktop-chat-surface",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -48,12 +48,12 @@
     {
       "id": "P2",
       "name": "Verify",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Close",
-      "status": "in-progress"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
