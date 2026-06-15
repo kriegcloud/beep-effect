@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f181a47df037015a6eae5ff5ceac1ee69f4e1e502344b0ab81ebf7f19924665b",
+    "digest": "d23ba62a3abfc310e5d316e8f706fca1c1c2842137f1813365d5502fc242f5ab",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx",
-        "sha256": "979d5f587619193a0828684c6ee000b23220ed79982210667fb8895f98d9a9e1",
-        "bytes": 3928
+        "sha256": "e5e9a08249800372114cd9f2eae67809ea737444bfd6f9b11d2cfc7668cffee6",
+        "bytes": 3980
       },
       {
         "path": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",

@@ -1157,9 +1157,6 @@
       "@beep/agents-client/ClientObservability": [
         "./packages/agents/client/src/ClientObservability.ts"
       ],
-      "@beep/agents-domain/turn": [
-        "./packages/agents/domain/src/turn/index.ts"
-      ],
       "@beep/html": ["./packages/foundation/modeling/html/src/index.ts"],
       "@beep/html/*": ["./packages/foundation/modeling/html/src/*"],
       "@beep/editor/mermaid-code-decorator-plugin": [

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7153128ba4ab89fab88871eaa2f3f91040ab8339e9bfcca74df82125adaa6094",
+    "digest": "5c9373b12f4e095dc64b3802ac4058828f3281f08aec07d5612d170076eb1335",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "package.json",
-        "sha256": "6d42e3caf23b5530eaca324827670640d40b8c829f3f31cd6b35807eae53f010",
-        "bytes": 17154
+        "sha256": "66f6b7bd1990c34deda2f3104df1cb62462e8f22f56aa3403b2f57ebe97073f8",
+        "bytes": 17204
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
