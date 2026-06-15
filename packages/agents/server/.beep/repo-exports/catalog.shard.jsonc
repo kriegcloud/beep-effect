@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1acc32e57875238b210f0c6a790a076f333e5116f123816d9903de3b158f12a7",
+    "digest": "4e3d3d938a30f0e18f4e07101e4081a09ac0c2bc8abeac447dfba14fa2c879ab",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sha256": "8f739353ea34a419e49df74809dd8dc027a33aaa10e3ce80210c0954220be833",
-        "bytes": 2938
+        "sha256": "5bf730b6e2e8caf8c97a60263c517b866478c1ed0a23db2084a8ccbf7cfa00c7",
+        "bytes": 3064
       },
       {
         "path": "packages/agents/server/src/index.ts",
@@ -267,7 +267,7 @@
         "symbolName": "initialScanState",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 39,
+        "sourceLine": 46,
         "summary": "The empty scan state used to begin scanning a fresh structured-output stream.",
         "categories": [
           "constructors"
@@ -292,7 +292,7 @@
         "symbolName": "scanChunk",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 68,
+        "sourceLine": 75,
         "summary": "Fold one chunk of structured-output JSON text into the scan state, returning",
         "categories": [
           "parsing"
@@ -317,7 +317,7 @@
         "symbolName": "ScanState",
         "exportKind": "interface",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 18,
+        "sourceLine": 25,
         "summary": "The carry state of the incremental block extractor between chunks.",
         "categories": [
           "models"
