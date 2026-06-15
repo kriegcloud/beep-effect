@@ -55,7 +55,7 @@ remaining work is full Yeet proof plus publish/monitor closeout.
 - Updated remediation hint selection to prefer failure-local output windows.
 - Updated `.claude/skills/yeet/SKILL.md` with the new operator path.
 - Passed focused Yeet tests, `@beep/repo-cli` check/lint, packet checks,
-  `docgen:local`, repo export catalog generation/check, and `graphify update .`.
+  `docgen:local`, and repo export catalog generation/check.
 
 ## Notes
 

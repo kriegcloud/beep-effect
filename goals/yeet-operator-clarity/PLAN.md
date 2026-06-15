@@ -39,7 +39,7 @@ and docs/proof when practical.
 - Update `.claude/skills/yeet/SKILL.md`.
 - Regenerate repo exports after new exported helpers settle.
 - Run focused tests, status/plan smokes, packet checks, catalog check, and
-  `graphify update .`.
+  repo-quality checks.
 
 ## P5 - Closeout
 

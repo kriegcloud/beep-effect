@@ -128,8 +128,7 @@ so findings transfer directly. Handoff:
 
 ## In-Repo Capability Inventory
 
-Recorded 2026-06-12 from a full stack exploration (graphify + agent sweeps +
-doc reads).
+Recorded 2026-06-12 from a full stack exploration (agent sweeps + doc reads).
 
 ### Target surface
 

@@ -51,7 +51,6 @@ bun run fallow:boundaries:write
 bun run repo-exports:catalog
 bun run docgen:local -- --full
 bun run beep quality jsdoc-inventory
-graphify update .
 bun run config-sync:check
 bun run repo-exports:catalog:check
 bun run fallow:boundaries:check

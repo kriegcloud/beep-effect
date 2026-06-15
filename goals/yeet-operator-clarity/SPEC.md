@@ -10,7 +10,7 @@ the last unrelated needle in giant proof logs.
 
 ## Non-Goals
 
-- No graphify workflow changes.
+- No repository knowledge-graph workflow changes.
 - No pglite flake repair.
 - No weakening of full local proof, hosted check names, or manual fallback
   lanes.

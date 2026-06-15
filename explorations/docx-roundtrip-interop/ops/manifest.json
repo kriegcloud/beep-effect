@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "docx-roundtrip-interop",
+    "title": "DOCX Round-Trip Interop",
+    "status": "active",
+    "stage": "decompose",
+    "openQuestions": [],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-06-15",
+    "updated": "2026-06-15"
+  }
+}

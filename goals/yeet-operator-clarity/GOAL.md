@@ -26,7 +26,7 @@ Scope:
   `packages/tooling/tool/cli/test/yeet.test.ts`,
   `.claude/skills/yeet/SKILL.md`, repo-export catalog artifacts, and this
   packet's status/evidence files.
-- Out: graphify behavior changes, pglite flake repair, proof-lane weakening,
+- Out: repository knowledge-graph behavior changes, pglite flake repair, proof-lane weakening,
   hosted check-name changes, default output changes, unrelated repo-quality
   refactors, dependencies, and lockfiles.
 
@@ -38,8 +38,7 @@ Workflow:
 3. Preserve unrelated user/worktree changes and keep decisions tied to file,
    test, doc, or command evidence.
 4. Regenerate repo exports only after exported test helpers settle.
-5. After code edits, run `graphify update .`.
-6. P5 close requires a reflection in
+5. P5 close requires a reflection in
    `history/reflections/<YYYY-MM-DD>-<agent>.md` and
    `bun run beep lint reflection-artifacts`.
 

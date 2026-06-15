@@ -31,8 +31,6 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 - [`standards/repo-exports.catalog.md`](../standards/repo-exports.catalog.md) —
   canonical export lookup (refresh: `bun run repo-exports:catalog`).
-- [`graphify-out/wiki/index.md`](../graphify-out/wiki/index.md) — knowledge-graph
-  communities and god nodes (`graphify query "<question>"`).
 - Package families: `packages/{foundation,shared,drivers,tooling}` (substrate),
   `packages/{workspace,agent-capability,epistemic,law-practice,wealth-management,canvas,architecture-lab,installer}`
   (slices), `apps/*` (runtimes).
@@ -41,7 +39,10 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Active
 
-(none)
+- [`docx-roundtrip-interop`](./docx-roundtrip-interop/README.md) — pure
+  AST-level DOCX interchange exploration: schema-first Pandoc JSON mirror,
+  `PandocAst <-> @beep/md` compatibility proof, and explicit lossiness matrix
+  before UI, Tauri sidecars, or patent semantics.
 
 ### Proposed
 

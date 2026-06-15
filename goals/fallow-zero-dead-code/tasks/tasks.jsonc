@@ -186,7 +186,7 @@
       "status": "seeded",
       "phase": "P4",
       "title": "Land a mergeable PR via the normal yeet path",
-      "summary": "Run graphify update and repo-exports catalog refresh if exports changed, then yeet repair, verify, publish (normal path, not --fast), monitor hosted checks to green, and close out review-bot findings until the PR is mergeable with 0 required findings recorded in history/review-rounds.jsonc.",
+      "summary": "Run repo-exports catalog refresh if exports changed, then yeet repair, verify, publish (normal path, not --fast), monitor hosted checks to green, and close out review-bot findings until the PR is mergeable with 0 required findings recorded in history/review-rounds.jsonc.",
       "implementationScope": [
         "goals/fallow-zero-dead-code/history",
         "standards/repo-exports.catalog.jsonc"

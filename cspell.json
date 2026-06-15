@@ -62,7 +62,6 @@
     "_typos.toml",
     "node_modules",
     ".repos",
-    "graphify-out/**",
     "*.snap",
     "build",
     "tmp",
