@@ -47,3 +47,14 @@ restore drills can prove retained encrypted archive objects without printing
 transcript text, while real delete and compact operations require an explicit
 time window and confirmation token. Provider/model/tool/token/cost enrichment
 and dashboard expansion remain later P7 slices.
+
+Snapshot self-pruning: `forwarder run` defaults `--parquet-mode snapshot`, which
+writes a full per-run export to `derived/parquet/forwarder-<epochMillis>/`. To
+keep `.beep/ai-metrics` from growing unbounded, the local `run` command now
+always enforces retention after a successful run, keeping the newest
+`--max-snapshot-exports` exports (default 5) and pruning the rest via
+`enforceAiMetricsRetentionPolicy`. Each export is a full cumulative dump of the
+derived DuckDB tables, so older snapshots are redundant subsets of the newest.
+To reclaim accumulated snapshots manually, run
+`ai-metrics retention enforce --max-snapshot-exports <keep> --confirm p7-retention-window`
+(omit `--confirm` for a dry-run preview).

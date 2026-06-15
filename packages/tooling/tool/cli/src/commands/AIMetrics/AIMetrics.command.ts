@@ -292,6 +292,12 @@ const maxSnapshotExportsFlag = Flag.integer("max-snapshot-exports").pipe(
   Flag.withDefault(0),
   Flag.withDescription("Number of per-run Parquet snapshot exports to preserve during retention enforcement")
 );
+const forwarderRunMaxSnapshotExportsFlag = Flag.integer("max-snapshot-exports").pipe(
+  Flag.withDefault(5),
+  Flag.withDescription(
+    "Per-run Parquet snapshot exports to keep; older snapshots are pruned automatically after each forwarder run"
+  )
+);
 const hashSaltFlag = Flag.string("hash-salt").pipe(
   Flag.withDescription("Salt for hashing private paths and session identifiers"),
   Flag.optional
@@ -2922,8 +2928,7 @@ const forwarderRunCommand = Command.make(
     parquetExportMode: parquetExportModeFlag,
     rawArchiveKeySecretRef: rawArchiveKeySecretRefFlag,
     repoRoot: repoRootFlag,
-    retentionEnforce: retentionEnforceFlag,
-    retentionMaxSnapshotExports: maxSnapshotExportsFlag,
+    retentionMaxSnapshotExports: forwarderRunMaxSnapshotExportsFlag,
     since: sinceFlag,
     target: targetFlag,
   },
@@ -2942,7 +2947,6 @@ const forwarderRunCommand = Command.make(
     parquetExportMode,
     rawArchiveKeySecretRef,
     repoRoot,
-    retentionEnforce,
     retentionMaxSnapshotExports,
     since,
     target,
@@ -2963,7 +2967,10 @@ const forwarderRunCommand = Command.make(
         parquetExportMode,
         rawArchiveKeySecretRef,
         repoRoot,
-        retentionEnforce,
+        // Local forwarder runs always self-prune the per-run Parquet snapshots so the
+        // `.beep/ai-metrics/derived/parquet` directory cannot grow unbounded; keep-N is tunable via
+        // --max-snapshot-exports. Snapshot retention history is opt-in on the `timer` command instead.
+        retentionEnforce: true,
         retentionMaxSnapshotExports,
         since,
         target,
@@ -3028,8 +3035,10 @@ const forwarderCommand = Command.make("forwarder", {}, () =>
   printLines([
     "AI metrics forwarder commands:",
     "- bun run beep ai-metrics forwarder run --target local",
+    "  (snapshot mode self-prunes to the newest 5 Parquet exports; override with --max-snapshot-exports N)",
     "- bun run beep ai-metrics forwarder timer --target dankserver" +
       " --hash-salt-secret-ref op://TBK/ai-metrics/hash-salt --raw-archive-key-secret-ref op://TBK/ai-metrics/raw-archive-key",
+    "- reclaim old snapshots manually: bun run beep ai-metrics retention enforce --max-snapshot-exports 1 --confirm p7-retention-window",
   ])
 ).pipe(
   Command.withDescription("AI metrics local forwarder workflow"),
