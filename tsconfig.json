@@ -1157,6 +1157,8 @@
       "@beep/agents-client/ClientObservability": [
         "./packages/agents/client/src/ClientObservability.ts"
       ],
+      "@beep/html": ["./packages/foundation/modeling/html/src/index.ts"],
+      "@beep/html/*": ["./packages/foundation/modeling/html/src/*"],
       "@beep/editor/mermaid-code-decorator-plugin": [
         "./packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx"
       ],
@@ -1168,6 +1170,9 @@
       ],
       "@beep/editor/youtube-node": [
         "./packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      ],
+      "@beep/agents-domain/turn": [
+        "./packages/agents/domain/src/turn/index.ts"
       ]
     }
   }
