@@ -168,6 +168,61 @@ describe("Pandoc.codec", () => {
       })
     ));
 
+  it("keeps ordered-list structure when nested item blocks are malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: [[7, { t: "FutureStyle" }, { t: "FutureDelimiter" }], [[{ c: "not-inline-list", t: "Plain" }]]],
+              t: "OrderedList",
+            },
+          ],
+          meta: {},
+        });
+        const list = document.blocks[0];
+
+        expect(list?._tag).toBe("orderedlist");
+        if (list?._tag !== "orderedlist") {
+          return;
+        }
+
+        expect(list.start).toBe(7);
+        expect(list.style).toBe("DefaultStyle");
+        expect(list.delimiter).toBe("DefaultDelim");
+        expect(list.items[0]?.[0]?._tag).toBe("unknownBlock");
+        if (list.items[0]?.[0]?._tag === "unknownBlock") {
+          expect(list.items[0][0].constructor).toBe("MalformedBlock");
+        }
+      })
+    ));
+
+  it("keeps explicit table gap nodes when table metadata is malformed", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = yield* decodePandocJson({
+          "pandoc-api-version": [1, 23, 1],
+          blocks: [
+            {
+              c: ["not-an-attr", { c: "not-a-caption-shape", t: "FutureCaption" }, [], [], [], []],
+              t: "Table",
+            },
+          ],
+          meta: {},
+        });
+        const table = document.blocks[0];
+
+        expect(table?._tag).toBe("table");
+        if (table?._tag !== "table") {
+          return;
+        }
+
+        expect(table.attr).toEqual({ classes: [], id: "", keyValues: [] });
+        expect(table.caption).toEqual([]);
+      })
+    ));
+
   it("exposes a schema-owned JSON string boundary", () => {
     const decode = S.decodeUnknownSync(PandocJsonFromString);
 
