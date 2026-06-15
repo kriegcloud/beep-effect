@@ -8,7 +8,7 @@
  */
 import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
 import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proof";
-import { AgentTurnKernel } from "@beep/agents-use-cases/public";
+import { AgentTurnKernel, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { provideScopedLayer } from "@beep/test-utils";
@@ -19,7 +19,7 @@ import { Array as A, Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect"
 import * as S from "effect/Schema";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink } from "@/chat/UsageRecordSink";
-import type { IndexedBlock, TurnHistoryItem } from "@beep/agents-use-cases/public";
+import type { IndexedBlock, TurnHistoryItem as TurnHistoryItemType } from "@beep/agents-use-cases/public";
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 
@@ -134,10 +134,12 @@ describe("@beep/professional-desktop chat contract", () => {
 
   it.effect("projects role-tagged turn history for the kernel", () =>
     Effect.gen(function* () {
-      const historyRef = yield* Ref.make<ReadonlyArray<TurnHistoryItem>>(A.empty());
+      const historyRef = yield* Ref.make<ReadonlyArray<TurnHistoryItemType>>(A.empty());
       const CaptureKernel = Layer.succeed(AgentTurnKernel)({
-        streamTurn: (history: ReadonlyArray<TurnHistoryItem>): Stream.Stream<IndexedBlock> =>
-          Stream.unwrap(Ref.set(historyRef, history).pipe(Effect.as(Stream.empty))),
+        streamTurn: (history: ReadonlyArray<TurnHistoryItemType>): Stream.Stream<IndexedBlock> => {
+          const indexedBlocks = A.map(fixtureBlocksFor(history), (block, index): IndexedBlock => ({ block, index }));
+          return Stream.unwrap(Ref.set(historyRef, history).pipe(Effect.as(Stream.fromIterable(indexedBlocks))));
+        },
       });
 
       yield* Effect.gen(function* () {
@@ -150,9 +152,22 @@ describe("@beep/professional-desktop chat contract", () => {
       }).pipe(provideScopedLayer(Layer.merge(ThreadStoreInMemoryLayer, CaptureKernel)));
 
       const history = yield* Ref.get(historyRef);
+      const firstAssistantText = documentToPlainText(
+        assistantContentToDocument(fixtureBlocksFor([{ role: "user", text: "first" }]))
+      );
+      const encodeTurnHistoryItem = S.encodeUnknownEffect(TurnHistoryItem);
+      const decodeTurnHistoryItem = S.decodeUnknownEffect(TurnHistoryItem);
+      const wireHistory = yield* Effect.forEach(history, (item) => encodeTurnHistoryItem(item));
+      const decodedHistory = yield* Effect.forEach(wireHistory, (item) => decodeTurnHistoryItem(item));
 
       expect(A.map(history, (item) => item.role)).toEqual(["user", "assistant", "user"]);
-      expect(A.map(history, (item) => item.text)).toEqual(["first", "", "second"]);
+      expect(A.map(history, (item) => item.text)).toEqual(["first", firstAssistantText, "second"]);
+      expect(wireHistory).toStrictEqual([
+        { role: "user", text: "first" },
+        { role: "assistant", text: firstAssistantText },
+        { role: "user", text: "second" },
+      ]);
+      expect(decodedHistory).toStrictEqual(history);
     })
   );
 });
