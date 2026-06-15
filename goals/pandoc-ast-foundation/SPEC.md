@@ -72,7 +72,7 @@ Higher sources outrank lower sources when they conflict.
 | Identity package | `bun run --cwd packages/foundation/modeling/identity check` | Passes |
 | Export catalog | `bun run repo-exports:catalog:check` | Passes |
 | Full docs | `bun run docgen:local --full` | Passes |
-| Reflection artifacts | `bun run beep lint reflection-artifacts` | Passes |
+| Reflection artifacts | `bun run beep lint reflection-artifacts` | Pending/optional until P3 closeout reflection lands |
 | Packet launcher size | `test "$(wc -m < goals/pandoc-ast-foundation/GOAL.md)" -le 4000` | Passes |
 | Manifest JSON | `jq . goals/pandoc-ast-foundation/ops/manifest.json` | Passes |
 | Whitespace | `git diff --check -- goals/pandoc-ast-foundation explorations/docx-roundtrip-interop explorations/ATLAS.md packages/foundation/modeling/pandoc-ast` | Passes |

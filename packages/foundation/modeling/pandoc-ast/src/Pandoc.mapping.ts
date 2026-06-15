@@ -43,6 +43,8 @@ type Projection<Value> = {
   readonly value: Value;
 };
 
+type MdHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+
 const emptyProjection = <Value>(value: Value): Projection<Value> => ({ issues: [], value });
 
 const mergeIssues = <Value>(values: ReadonlyArray<Projection<Value>>): ReadonlyArray<PandocMappingIssue.Type> =>
@@ -301,7 +303,42 @@ const pandocInlinesToMd = (
 ): Effect.Effect<Projection<ReadonlyArray<Md.Inline>>, S.SchemaError> =>
   projectChildValues(inlines, path, pandocInlineToMd);
 
-const headingToMd = (level: number, children: ReadonlyArray<Md.Inline>): Md.Block => {
+const mdHeadingLevelFromPandoc = (level: number): MdHeadingLevel => {
+  if (level <= 1) {
+    return 1;
+  }
+  if (level === 2) {
+    return 2;
+  }
+  if (level === 3) {
+    return 3;
+  }
+  if (level === 4) {
+    return 4;
+  }
+  if (level === 5) {
+    return 5;
+  }
+  return 6;
+};
+
+const pandocHeadingLevelProjection = (level: number, path: JsonPath): Projection<MdHeadingLevel> => ({
+  issues:
+    level < 1 || level > 6
+      ? [
+          issue({
+            construct: "Header",
+            direction: "pandoc-to-md",
+            message: "Header level outside 1..6 is clamped to the nearest Md heading.",
+            path,
+            severity: "lossy",
+          }),
+        ]
+      : [],
+  value: mdHeadingLevelFromPandoc(level),
+});
+
+const headingToMd = (level: MdHeadingLevel, children: ReadonlyArray<Md.Inline>): Md.Block => {
   if (level === 1) {
     return Md.H1.make({ children });
   }
@@ -317,10 +354,7 @@ const headingToMd = (level: number, children: ReadonlyArray<Md.Inline>): Md.Bloc
   if (level === 5) {
     return Md.H5.make({ children });
   }
-  if (level === 6) {
-    return Md.H6.make({ children });
-  }
-  return level < 1 ? Md.H1.make({ children }) : Md.H6.make({ children });
+  return Md.H6.make({ children });
 };
 
 const pandocListItemHasBlockLoss = (item: ReadonlyArray<PandocBlock.Type>): boolean =>
@@ -474,34 +508,28 @@ const pandocBlockToMd = (block: PandocBlock.Type, path: JsonPath): Effect.Effect
           value: Md.P.make({ children: value }),
         })),
       header: (node) =>
-        Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => ({
-          issues: [
-            ...issues,
-            ...(hasPandocAttr(node.attr)
-              ? [
-                  issue({
-                    construct: "Header",
-                    direction: "pandoc-to-md",
-                    message: "Pandoc header attributes have no Md-core heading equivalent.",
-                    path,
-                    severity: "lossy",
-                  }),
-                ]
-              : []),
-            ...(node.level < 1 || node.level > 6
-              ? [
-                  issue({
-                    construct: "Header",
-                    direction: "pandoc-to-md",
-                    message: "Header level outside 1..6 is clamped to the nearest Md heading.",
-                    path,
-                    severity: "lossy",
-                  }),
-                ]
-              : []),
-          ],
-          value: headingToMd(node.level, value),
-        })),
+        Effect.map(pandocInlinesToMd(node.children, path), ({ issues, value }) => {
+          const headingLevel = pandocHeadingLevelProjection(node.level, path);
+
+          return {
+            issues: [
+              ...issues,
+              ...(hasPandocAttr(node.attr)
+                ? [
+                    issue({
+                      construct: "Header",
+                      direction: "pandoc-to-md",
+                      message: "Pandoc header attributes have no Md-core heading equivalent.",
+                      path,
+                      severity: "lossy",
+                    }),
+                  ]
+                : []),
+              ...headingLevel.issues,
+            ],
+            value: headingToMd(headingLevel.value, value),
+          };
+        }),
       blockquote: (node) =>
         Effect.map(pandocChildBlocksToMd(node.children, path), ({ issues, value }) => ({
           issues,
