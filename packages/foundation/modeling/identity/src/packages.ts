@@ -94,7 +94,7 @@ const generatedComposers = $I.compose(
   "ffmpeg",
   "postgres",
   "anthropic",
-	"scratchpad",
+  "scratchpad",
   "venice-ai",
   "xai",
   "acp",
@@ -130,7 +130,8 @@ const generatedComposers = $I.compose(
   "firecrawl",
   "uspto",
   "lexical-schema",
-  "editor"
+  "editor",
+  "html"
 );
 
 const composers = {
@@ -1389,3 +1390,19 @@ export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$E
  * @category configuration
  */
 export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = composers.$ScratchpadId;
+
+/**
+ * Identity composer for `@beep/html`.
+ *
+ * @example
+ * ```typescript
+ * import { $HtmlId } from "@beep/identity"
+ *
+ * const id = $HtmlId.make("Html")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $HtmlId: Identity.IdentityComposer<"@beep/html"> = composers.$HtmlId;

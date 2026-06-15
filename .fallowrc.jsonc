@@ -55,7 +55,14 @@
     "packages/shared/config/**",
     "packages/shared/server/**",
     "packages/shared/use-cases/**",
-    "**/test/fixtures/mock-monorepo/**"
+    "**/test/fixtures/mock-monorepo/**",
+    // @beep/html: generated AST (one TaggedClass per HTML element) is intentionally
+    // repetitive; the codegen script and vendored spec data are tooling, not
+    // hand-authored source subject to dead-code/duplication/complexity review.
+    "packages/foundation/modeling/html/src/Html.model.ts",
+    "packages/foundation/modeling/html/src/Html.meta.ts",
+    "packages/foundation/modeling/html/scripts/**",
+    "packages/foundation/modeling/html/data/**"
   ],
   "ignoreDependencies": [
     "@effect/vitest",
@@ -107,7 +114,10 @@
     // work; remove from this list when the wiring lands.
     "@opentelemetry/resources",
     "@opentelemetry/sdk-trace-node",
-    "@opentelemetry/sdk-trace-web"
+    "@opentelemetry/sdk-trace-web",
+    // @beep/html: used only by the codegen script (scripts/**, ignored above for
+    // analysis), so fallow can't see the import and reads it as unused.
+    "@effect/platform-node"
   ],
   // `instant` is a Next.js framework config export (blocking-prerender opt-out,
   // see nextjs.org/docs/messages/blocking-prerender-dynamic). The framework

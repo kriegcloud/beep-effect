@@ -160,6 +160,9 @@
       "path": "packages/foundation/capability/semantic-web"
     },
     {
+      "path": "packages/foundation/modeling/html"
+    },
+    {
       "path": "packages/foundation/modeling/identity"
     },
     {

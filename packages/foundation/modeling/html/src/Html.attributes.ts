@@ -1,0 +1,403 @@
+/**
+ * Hand-authored global-attribute overlay for the generated HTML AST.
+ *
+ * `GlobalAttributes` is the shared field bundle spread into every element class
+ * in `Html.model.ts`. It is value-typed from the WHATWG/webref enumerations
+ * (see `data/`), and composed from three documented sub-bundles:
+ *
+ * - {@link StandardGlobalAttributes} — the spec's global attributes
+ *   (`dom.html#global-attributes`), e.g. `id`, `class`, `dir`, `tabindex`.
+ * - {@link AriaAttributes} — `role` plus the WAI-ARIA `aria-*` state/property set.
+ * - {@link EventHandlerAttributes} — the global event-handler content attributes
+ *   (`on*`).
+ *
+ * `data-*` attributes are open-ended and modeled as the `dataset` record bag
+ * (mirroring the DOM `HTMLElement.dataset` API) rather than enumerated keys.
+ *
+ * @packageDocumentation @beep/html/Html.attributes
+ * @since 0.0.0
+ */
+import { $HtmlId } from "@beep/identity";
+import * as S from "effect/Schema";
+
+const $I = $HtmlId.create("Html.attributes");
+
+// -----------------------------------------------------------------------------
+// reusable enumerated value schemas (sourced from webref html-global attr-values)
+// -----------------------------------------------------------------------------
+
+/**
+ * `dir` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const Dir = S.Literals(["ltr", "rtl", "auto"]).pipe(
+  $I.annoteSchema("Dir", { description: "Text directionality." })
+);
+/**
+ * `translate` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const Translate = S.Literals(["yes", "no"]).pipe(
+  $I.annoteSchema("Translate", { description: "Whether to translate the element's contents." })
+);
+/**
+ * `contenteditable` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const ContentEditable = S.Union([S.Literal(""), S.Literals(["true", "false", "plaintext-only"])]).pipe(
+  $I.annoteSchema("ContentEditable", { description: "Whether the element is editable." })
+);
+/**
+ * `draggable` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const Draggable = S.Literals(["true", "false"]).pipe(
+  $I.annoteSchema("Draggable", { description: "Whether the element is draggable." })
+);
+/**
+ * `spellcheck` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const SpellCheck = S.Union([S.Literal(""), S.Literals(["true", "false"])]).pipe(
+  $I.annoteSchema("SpellCheck", { description: "Whether spellchecking is enabled." })
+);
+/**
+ * `writingsuggestions` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const WritingSuggestions = S.Literals(["true", "false"]).pipe(
+  $I.annoteSchema("WritingSuggestions", { description: "Whether writing suggestions are enabled." })
+);
+/**
+ * `autocapitalize` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const AutoCapitalize = S.Literals(["off", "none", "on", "sentences", "words", "characters"]).pipe(
+  $I.annoteSchema("AutoCapitalize", { description: "Autocapitalization behavior." })
+);
+/**
+ * `autocorrect` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const AutoCorrect = S.Literals(["on", "off"]).pipe(
+  $I.annoteSchema("AutoCorrect", { description: "Autocorrection behavior." })
+);
+/**
+ * `inputmode` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const InputMode = S.Literals(["none", "text", "tel", "url", "email", "numeric", "decimal", "search"]).pipe(
+  $I.annoteSchema("InputMode", { description: "Virtual keyboard input mode hint." })
+);
+/**
+ * `enterkeyhint` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const EnterKeyHint = S.Literals(["enter", "done", "go", "next", "previous", "search", "send"]).pipe(
+  $I.annoteSchema("EnterKeyHint", { description: "Enter-key action hint." })
+);
+/**
+ * `hidden` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const Hidden = S.Union([S.Literal(""), S.Literals(["hidden", "until-found"])]).pipe(
+  $I.annoteSchema("Hidden", { description: "Hidden state of the element." })
+);
+/**
+ * `popover` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const Popover = S.Literals(["auto", "manual", "hint"]).pipe(
+  $I.annoteSchema("Popover", { description: "Popover behavior." })
+);
+/**
+ * `popovertargetaction` global attribute value.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const PopoverTargetAction = S.Literals(["toggle", "show", "hide"]).pipe(
+  $I.annoteSchema("PopoverTargetAction", { description: "Action a popover invoker performs." })
+);
+
+// -----------------------------------------------------------------------------
+// field bundles
+// -----------------------------------------------------------------------------
+
+const Str = S.optionalKey(S.String);
+type Str = typeof Str;
+
+/**
+ * The WHATWG global attributes (`dom.html#global-attributes`), value-typed.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const StandardGlobalAttributes = {
+  accesskey: S.optionalKey(S.String),
+  autocapitalize: S.optionalKey(AutoCapitalize),
+  autocorrect: S.optionalKey(AutoCorrect),
+  autofocus: S.optionalKey(S.Boolean),
+  class: S.optionalKey(S.String),
+  contenteditable: S.optionalKey(ContentEditable),
+  dir: S.optionalKey(Dir),
+  draggable: S.optionalKey(Draggable),
+  enterkeyhint: S.optionalKey(EnterKeyHint),
+  exportparts: S.optionalKey(S.String),
+  headingoffset: S.optionalKey(S.Int),
+  headingreset: S.optionalKey(S.String),
+  hidden: S.optionalKey(Hidden),
+  id: S.optionalKey(S.String),
+  inert: S.optionalKey(S.Boolean),
+  inputmode: S.optionalKey(InputMode),
+  is: S.optionalKey(S.String),
+  itemid: S.optionalKey(S.String),
+  itemprop: S.optionalKey(S.String),
+  itemref: S.optionalKey(S.String),
+  itemscope: S.optionalKey(S.Boolean),
+  itemtype: S.optionalKey(S.String),
+  lang: S.optionalKey(S.String),
+  nonce: S.optionalKey(S.String),
+  part: S.optionalKey(S.String),
+  popover: S.optionalKey(Popover),
+  popovertarget: S.optionalKey(S.String),
+  popovertargetaction: S.optionalKey(PopoverTargetAction),
+  slot: S.optionalKey(S.String),
+  spellcheck: S.optionalKey(SpellCheck),
+  style: S.optionalKey(S.String),
+  tabindex: S.optionalKey(S.Int),
+  title: S.optionalKey(S.String),
+  translate: S.optionalKey(Translate),
+  writingsuggestions: S.optionalKey(WritingSuggestions),
+} as const;
+
+/**
+ * `data-*` custom data attributes, represented as the `dataset` record bag
+ * (mirrors `HTMLElement.dataset`).
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const DatasetAttribute = {
+  dataset: S.optionalKey(S.Record(S.String, S.String)),
+} as const;
+
+const ariaAttributeNames = [
+  "aria-activedescendant",
+  "aria-atomic",
+  "aria-autocomplete",
+  "aria-braillelabel",
+  "aria-brailleroledescription",
+  "aria-busy",
+  "aria-checked",
+  "aria-colcount",
+  "aria-colindex",
+  "aria-colindextext",
+  "aria-colspan",
+  "aria-controls",
+  "aria-current",
+  "aria-describedby",
+  "aria-description",
+  "aria-details",
+  "aria-disabled",
+  "aria-dropeffect",
+  "aria-errormessage",
+  "aria-expanded",
+  "aria-flowto",
+  "aria-grabbed",
+  "aria-haspopup",
+  "aria-hidden",
+  "aria-invalid",
+  "aria-keyshortcuts",
+  "aria-label",
+  "aria-labelledby",
+  "aria-level",
+  "aria-live",
+  "aria-modal",
+  "aria-multiline",
+  "aria-multiselectable",
+  "aria-orientation",
+  "aria-owns",
+  "aria-placeholder",
+  "aria-posinset",
+  "aria-pressed",
+  "aria-readonly",
+  "aria-relevant",
+  "aria-required",
+  "aria-roledescription",
+  "aria-rowcount",
+  "aria-rowindex",
+  "aria-rowindextext",
+  "aria-rowspan",
+  "aria-selected",
+  "aria-setsize",
+  "aria-sort",
+  "aria-valuemax",
+  "aria-valuemin",
+  "aria-valuenow",
+  "aria-valuetext",
+] as const;
+
+/**
+ * `role` plus the WAI-ARIA `aria-*` state and property attributes. Universally
+ * permitted; typed as optional strings.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const AriaAttributes = {
+  role: S.optionalKey(S.String),
+  ...(Object.fromEntries(ariaAttributeNames.map((n) => [n, Str])) as {
+    readonly [K in (typeof ariaAttributeNames)[number]]: Str;
+  }),
+} as const;
+
+const eventHandlerNames = [
+  "onabort",
+  "onauxclick",
+  "onbeforeinput",
+  "onbeforematch",
+  "onbeforetoggle",
+  "onblur",
+  "oncancel",
+  "oncanplay",
+  "oncanplaythrough",
+  "onchange",
+  "onclick",
+  "onclose",
+  "oncommand",
+  "oncontextlost",
+  "oncontextmenu",
+  "oncontextrestored",
+  "oncopy",
+  "oncuechange",
+  "oncut",
+  "ondblclick",
+  "ondrag",
+  "ondragend",
+  "ondragenter",
+  "ondragleave",
+  "ondragover",
+  "ondragstart",
+  "ondrop",
+  "ondurationchange",
+  "onemptied",
+  "onended",
+  "onerror",
+  "onfocus",
+  "onformdata",
+  "oninput",
+  "oninvalid",
+  "onkeydown",
+  "onkeypress",
+  "onkeyup",
+  "onload",
+  "onloadeddata",
+  "onloadedmetadata",
+  "onloadstart",
+  "onmousedown",
+  "onmouseenter",
+  "onmouseleave",
+  "onmousemove",
+  "onmouseout",
+  "onmouseover",
+  "onmouseup",
+  "onpaste",
+  "onpause",
+  "onplay",
+  "onplaying",
+  "onprogress",
+  "onratechange",
+  "onreset",
+  "onresize",
+  "onscroll",
+  "onscrollend",
+  "onsecuritypolicyviolation",
+  "onseeked",
+  "onseeking",
+  "onselect",
+  "onslotchange",
+  "onstalled",
+  "onsubmit",
+  "onsuspend",
+  "ontimeupdate",
+  "ontoggle",
+  "onvolumechange",
+  "onwaiting",
+  "onwheel",
+] as const;
+
+/**
+ * The global event-handler content attributes (`on*`). Universally permitted;
+ * typed as optional strings.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const EventHandlerAttributes = Object.fromEntries(eventHandlerNames.map((n) => [n, Str])) as {
+  readonly [K in (typeof eventHandlerNames)[number]]: Str;
+};
+
+/**
+ * The complete global attribute bundle spread into every generated element
+ * class: standard globals + `data-*` (`dataset`) + ARIA + event handlers.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const GlobalAttributes = {
+  ...StandardGlobalAttributes,
+  ...DatasetAttribute,
+  ...AriaAttributes,
+  ...EventHandlerAttributes,
+} as const;
+
+/**
+ * Struct schema over {@link GlobalAttributes}; the source of the shared global
+ * attribute decoded/encoded types referenced (by intersection) in every
+ * generated element's companion namespace.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const GlobalAttributesStruct = S.Struct(GlobalAttributes);
+
+/**
+ * Decoded type of the shared global attributes.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export type GlobalAttributesType = typeof GlobalAttributesStruct.Type;
+
+/**
+ * Encoded type of the shared global attributes.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export type GlobalAttributesEncoded = typeof GlobalAttributesStruct.Encoded;

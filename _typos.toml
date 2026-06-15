@@ -84,4 +84,6 @@ extend-exclude = [
   "**/src-tauri/gen/**",
   "**/src-tauri/target/**",
   "packages/drivers/venice-ai/swagger.yaml",
+  # Vendored, version-pinned WHATWG/webref spec data for @beep/html (see data/SOURCES.md).
+  "packages/foundation/modeling/html/data/**",
 ]

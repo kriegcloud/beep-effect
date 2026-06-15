@@ -798,6 +798,30 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/foundation/modeling/html/scripts/generate.ts",
+      "symbol": "struct",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/html/src/Html.attributes.ts",
+      "symbol": "GlobalAttributesStruct",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/html/src/Html.meta.ts",
+      "symbol": "HtmlElementMeta",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/html",
+      "reason": "Generated metadata-lookup schema for the ELEMENT_META table (not a domain entity); an annotated S.Struct with a derived type is intentional over S.Class."
+    },
+    {
       "file": "packages/foundation/modeling/identity/src/Id.ts",
       "symbol": "IdentityComposer",
       "kind": "exported-interface",
