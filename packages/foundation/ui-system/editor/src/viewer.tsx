@@ -14,6 +14,7 @@ import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+import { MermaidCodeDecoratorPlugin } from "./mermaid-code-decorator-plugin.tsx";
 import { editorNodes } from "./nodes.ts";
 import { editorTheme } from "./theme.ts";
 import type { SerializedEditorState } from "@beep/lexical-schema";
@@ -60,6 +61,7 @@ export function EditorViewer({ state, className }: EditorViewerProps): JSX.Eleme
         contentEditable={<ContentEditable className={className ?? "relative block px-1 focus:outline-none"} />}
         ErrorBoundary={LexicalErrorBoundary}
       />
+      <MermaidCodeDecoratorPlugin />
     </LexicalComposer>
   );
 }

@@ -99,6 +99,12 @@
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/md": ["./packages/foundation/modeling/md/src/index.ts"],
       "@beep/agents-domain": ["./packages/agents/domain/src/index.ts"],
+      "@beep/agents-domain/values": [
+        "./packages/agents/domain/src/values/index.ts"
+      ],
+      "@beep/agents-domain/values/AssistantContent": [
+        "./packages/agents/domain/src/values/AssistantContent/index.ts"
+      ],
       "@beep/agents-client": ["./packages/agents/client/src/index.ts"],
       "@beep/agents-client/Chat.atoms": [
         "./packages/agents/client/src/Chat.atoms.ts"
@@ -106,6 +112,9 @@
       "@beep/agents-use-cases": ["./packages/agents/use-cases/src/index.ts"],
       "@beep/agents-use-cases/public": [
         "./packages/agents/use-cases/src/public.ts"
+      ],
+      "@beep/agents-use-cases/server": [
+        "./packages/agents/use-cases/src/server.ts"
       ],
       "@beep/agents-use-cases/test": [
         "./packages/agents/use-cases/src/test.ts"
@@ -1148,11 +1157,17 @@
       "@beep/agents-client/ClientObservability": [
         "./packages/agents/client/src/ClientObservability.ts"
       ],
-      "@beep/agents-domain/values": [
-        "./packages/agents/domain/src/values/index.ts"
+      "@beep/editor/mermaid-code-decorator-plugin": [
+        "./packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx"
       ],
-      "@beep/agents-domain/values/AssistantContent": [
-        "./packages/agents/domain/src/values/AssistantContent/index.ts"
+      "@beep/editor/mermaid-view": [
+        "./packages/foundation/ui-system/editor/src/mermaid-view.tsx"
+      ],
+      "@beep/editor/youtube-embed": [
+        "./packages/foundation/ui-system/editor/src/youtube-embed.tsx"
+      ],
+      "@beep/editor/youtube-node": [
+        "./packages/foundation/ui-system/editor/src/youtube-node.tsx"
       ]
     }
   }

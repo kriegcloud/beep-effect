@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "1e0735dab1eb2ea00d589789343ca870e550df5fdcfbe1dd7f41b6153346e397",
+    "digest": "2494fc04977d74cd9928ac9665d757ef628583772ff1baac6205d52d6aa8b01c",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,28 +22,33 @@
       },
       {
         "path": "packages/agents/server/package.json",
-        "sha256": "72a306197582b62d8a14e8846c34a51f5fbb9b32591632634f599b4e8a94e745",
-        "bytes": 2836
+        "sha256": "fae6780c719b32a241ecbb4e4ca892de79031a812bb5176781860c70ac80f82b",
+        "bytes": 2873
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sha256": "3aaf78ea60cbba7f9078db65016bf7b16f9c150a28ebb759826169af17645fe7",
-        "bytes": 1793
+        "sha256": "3bba2ad489c6fd393774b82681997d06c9926c10b0de0403ab1bb9b17b563ae2",
+        "bytes": 4639
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sha256": "ee681774f9e58cfa0e9d809cd444b8dca37706b4ceb615b8d56312c424290445",
-        "bytes": 5993
+        "sha256": "eb8ddbc8ef61cb0d03e41cdfcd27e235d1daecb3b53521c42ea4a998e7263f70",
+        "bytes": 8609
+      },
+      {
+        "path": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
+        "sha256": "454338d344962230599793852bb221fb3b3f1d9f6d9e88842506899f7526fa1a",
+        "bytes": 11482
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/index.ts",
-        "sha256": "9cedaa02e12b4901c3e160b5a97560bef71f4adf5c97f77c37ec5408a99171fd",
-        "bytes": 1066
+        "sha256": "a21f6859a3d688ee7bc779b10a4ce5c0061e62c10a73638cf40ea26fcf5776cc",
+        "bytes": 1345
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sha256": "8f739353ea34a419e49df74809dd8dc027a33aaa10e3ce80210c0954220be833",
-        "bytes": 2938
+        "sha256": "6bb6cc9404b494944504004efa9950ac02716fe0774ad413518ecaad47954e6f",
+        "bytes": 3043
       },
       {
         "path": "packages/agents/server/src/index.ts",
@@ -85,9 +90,9 @@
       "@beep/agents-server/test"
     ],
     "counts": {
-      "publicExportEntries": 11,
-      "uniqueSymbols": 8,
-      "sourceFiles": 6
+      "publicExportEntries": 16,
+      "uniqueSymbols": 13,
+      "sourceFiles": 7
     },
     "exports": [
       {
@@ -117,7 +122,7 @@
         "symbolName": "assistantBlockOutput",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sourceLine": 34,
+        "sourceLine": 136,
         "summary": "Per-block Anthropic codec for decoding individually streamed array elements.",
         "categories": [
           "codecs"
@@ -142,7 +147,7 @@
         "symbolName": "assistantOutput",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sourceLine": 51,
+        "sourceLine": 153,
         "summary": "Whole-envelope Anthropic codec for the assistant turn. Its `jsonSchema`",
         "categories": [
           "codecs"
@@ -167,7 +172,7 @@
         "symbolName": "AnthropicTurnKernel",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sourceLine": 128,
+        "sourceLine": 188,
         "summary": "Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the",
         "categories": [
           "layers"
@@ -192,7 +197,7 @@
         "symbolName": "AnthropicTurnKernel",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
-        "sourceLine": 128,
+        "sourceLine": 188,
         "summary": "Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the",
         "categories": [
           "layers"
@@ -217,7 +222,7 @@
         "symbolName": "assistantBlockOutput",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sourceLine": 34,
+        "sourceLine": 136,
         "summary": "Per-block Anthropic codec for decoding individually streamed array elements.",
         "categories": [
           "codecs"
@@ -242,7 +247,7 @@
         "symbolName": "assistantOutput",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sourceLine": 51,
+        "sourceLine": 153,
         "summary": "Whole-envelope Anthropic codec for the assistant turn. Its `jsonSchema`",
         "categories": [
           "codecs"
@@ -264,10 +269,34 @@
         "importSpecifier": "@beep/agents-server/AssistantTurn",
         "exportSubpath": "./AssistantTurn",
         "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "BlockRepairCall",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
+        "sourceLine": 100,
+        "summary": "Repair-call function used by {@link makeRepairInvalidBlocks}.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn blockrepaircall type repair-call function used by {@link makerepairinvalidblocks}. combinators packages/agents/server/src/assistantturn/blockrepair.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
         "symbolName": "initialScanState",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 39,
+        "sourceLine": 46,
         "summary": "The empty scan state used to begin scanning a fresh structured-output stream.",
         "categories": [
           "constructors"
@@ -289,10 +318,109 @@
         "importSpecifier": "@beep/agents-server/AssistantTurn",
         "exportSubpath": "./AssistantTurn",
         "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "IssueReport",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
+        "sourceLine": 59,
+        "summary": "Validation issue report for one streamed assistant-block slice.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn issuereport class validation issue report for one streamed assistant-block slice. models packages/agents/server/src/assistantturn/blockrepair.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "makeRepairInvalidBlocks",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
+        "sourceLine": 301,
+        "summary": "Build a repair function from a repair-call implementation.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn makerepairinvalidblocks const build a repair function from a repair-call implementation. combinators packages/agents/server/src/assistantturn/blockrepair.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "repairInvalidBlocks",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
+        "sourceLine": 333,
+        "summary": "Default Anthropic-backed invalid-block repair function.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn repairinvalidblocks const default anthropic-backed invalid-block repair function. combinators packages/agents/server/src/assistantturn/blockrepair.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "RepairInvalidBlocks",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
+        "sourceLine": 111,
+        "summary": "Repair function shape used by the Anthropic turn kernel.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn repairinvalidblocks type repair function shape used by the anthropic turn kernel. combinators packages/agents/server/src/assistantturn/blockrepair.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
         "symbolName": "scanChunk",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 68,
+        "sourceLine": 75,
         "summary": "Fold one chunk of structured-output JSON text into the scan state, returning",
         "categories": [
           "parsing"
@@ -317,7 +445,7 @@
         "symbolName": "ScanState",
         "exportKind": "interface",
         "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-        "sourceLine": 18,
+        "sourceLine": 25,
         "summary": "The carry state of the incremental block extractor between chunks.",
         "categories": [
           "models"

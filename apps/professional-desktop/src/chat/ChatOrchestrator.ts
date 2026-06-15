@@ -24,10 +24,11 @@ import {
 } from "@beep/agents-use-cases/public";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import { Thread } from "@beep/workspace-use-cases/server";
-import { Effect, Match, Order, pipe, Ref, Stream } from "effect";
+import { Clock, Duration, Effect, Match, Metric, Order, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { UsageRecordSink } from "./UsageRecordSink.ts";
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import type { IndexedBlock, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public";
@@ -83,6 +84,17 @@ const blockToPlainText: (block: Block.Type) => string = Match.type<Block.Type>()
         A.map(b.children, (item) => A.join(A.map(item.children, inlineToPlainText), "")),
         "\n"
       ),
+    table: (b) =>
+      A.join(
+        A.map(b.children, (row) =>
+          A.join(
+            A.map(row.children, (cell) => A.join(A.map(cell.children, inlineToPlainText), "")),
+            "\t"
+          )
+        ),
+        "\n"
+      ),
+    youtube: (b) => `https://www.youtube.com/watch?v=${b.videoId}`,
   }),
   // hr carries no text.
   Match.orElse(() => "")
@@ -98,6 +110,69 @@ const blockToPlainText: (block: Block.Type) => string = Match.type<Block.Type>()
  */
 export const documentToPlainText = (document: Document.Type): string =>
   A.join(A.map(document.children, blockToPlainText), "\n");
+
+const UNTITLED_THREAD_TITLE = "New thread" as const;
+const DERIVED_THREAD_TITLE_MAX_CHARS = 64;
+
+const deriveThreadTitle = (document: Document.Type): O.Option<string> =>
+  pipe(
+    documentToPlainText(document),
+    Str.split("\n"),
+    A.map(Str.trim),
+    A.findFirst(Str.isNonEmpty),
+    O.filter(Str.isNonEmpty),
+    O.map(Str.slice(0, DERIVED_THREAD_TITLE_MAX_CHARS)),
+    O.map(Str.trim),
+    O.filter(Str.isNonEmpty)
+  );
+
+const turnHasUserMessage = (turn: Thread.TimelineTurn): boolean =>
+  A.some(turn.items, (item) => item.kind === "message" && item.role === "user");
+
+const isUserMessageItem = (item: Thread.TimelineItem): item is Thread.TimelineMessageItem =>
+  item.kind === "message" && item.role === "user";
+
+const firstUserMessageTurn = (timeline: Thread.ThreadTimeline): O.Option<Thread.TimelineTurn> =>
+  pipe(timeline.turns, A.findFirst(turnHasUserMessage));
+
+const firstUserMessageTurnId = (timeline: Thread.ThreadTimeline): O.Option<WorkspaceIdentity.TurnId> =>
+  pipe(
+    firstUserMessageTurn(timeline),
+    O.map((turn) => turn.turnId)
+  );
+
+const isFirstUserMessageTurn = (timeline: Thread.ThreadTimeline, turnId: WorkspaceIdentity.TurnId): boolean =>
+  pipe(
+    firstUserMessageTurnId(timeline),
+    O.match({
+      onNone: () => false,
+      onSome: (firstUserTurnId) => firstUserTurnId === turnId,
+    })
+  );
+
+const userMessageContent = (turn: Thread.TimelineTurn): O.Option<Document.Type> =>
+  pipe(
+    turn.items,
+    A.findFirst(isUserMessageItem),
+    O.map((item) => item.content)
+  );
+
+const titleGuardForEditedFirstUserTurn = (
+  timeline: Thread.ThreadTimeline,
+  turnId: WorkspaceIdentity.TurnId
+): O.Option<string> =>
+  pipe(
+    firstUserMessageTurn(timeline),
+    O.flatMap((turn) =>
+      turn.turnId === turnId
+        ? pipe(
+            userMessageContent(turn),
+            O.flatMap(deriveThreadTitle),
+            O.orElse(() => O.some(UNTITLED_THREAD_TITLE))
+          )
+        : O.none()
+    )
+  );
 
 // ---------------------------------------------------------------------------
 // Persisted-order helpers
@@ -184,6 +259,23 @@ const fixtureUsageRecord = appendTurnFinalizationUsageRecord(
 // Stream-and-persist tail (shared by SendMessage and EditMessage)
 // ---------------------------------------------------------------------------
 
+const chatTurnsTotal = Metric.counter("agents_chat_turns_total", {
+  description: "Assistant turns prepared for streaming by the Professional Desktop sidecar",
+  incremental: true,
+});
+const chatTurnFailuresTotal = Metric.counter("agents_chat_turn_failures_total", {
+  description: "Assistant turns that failed before successful completion",
+  incremental: true,
+});
+const chatTurnDuration = Metric.timer("agents_chat_turn_duration", {
+  description: "Server-side assistant turn duration",
+  boundaries: [100, 250, 500, 1000, 2000, 4000, 8000, 16000, 30000, 60000],
+});
+const chatBlocksStreamedTotal = Metric.counter("agents_chat_blocks_streamed_total", {
+  description: "Assistant blocks streamed to the chat client",
+  incremental: true,
+});
+
 /**
  * Build the assistant-turn stream for a thread: stream the kernel turn,
  * collecting indexed blocks as they pass, and on **successful completion only**
@@ -195,50 +287,120 @@ const streamAndPersist = (
   store: Thread.ThreadStore["Service"],
   kernel: AgentTurnKernel["Service"],
   usage: UsageRecordSink["Service"],
-  threadId: WorkspaceIdentity.ThreadId
+  threadId: WorkspaceIdentity.ThreadId,
+  kind: "send" | "edit"
 ): Stream.Stream<AssistantBlock, ChatActionError> =>
   Stream.unwrap(
     Effect.gen(function* () {
-      const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("GetTimeline")));
-      const history = projectTimelineToHistory(timeline);
-      const collected = A.empty<IndexedBlock>();
-      const persisted = yield* Ref.make(false);
-
-      // Persist runs once, only on success: sort collected blocks by envelope
-      // index, lift to a Document, append the assistant turn, then append the
-      // finalized-turn usage record. Its failure channel is ChatActionError.
-      const persist: Effect.Effect<void, ChatActionError> = Effect.gen(function* () {
-        if (yield* Ref.getAndSet(persisted, true)) return;
-        const blocks = A.map(A.sortWith(collected, indexOf, Order.Number), (indexed) => indexed.block);
-        const content = assistantContentToDocument(blocks);
-        yield* store
-          .appendTurn({ threadId, parentTurnId: O.none(), role: "assistant", content })
-          .pipe(Effect.catch(toChatActionError("SendMessage.persistAssistant")));
-        yield* usage.append(fixtureUsageRecord);
+      const startedAt = yield* Clock.currentTimeMillis;
+      const trackTurnFailure = (phase: "kernel" | "persist" | "prepare") =>
+        Metric.update(Metric.withAttributes(chatTurnFailuresTotal, { kind, phase }), 1);
+      const recordTurnDuration = Effect.gen(function* () {
+        const completedAt = yield* Clock.currentTimeMillis;
+        yield* Metric.update(
+          Metric.withAttributes(chatTurnDuration, { kind }),
+          Duration.millis(completedAt - startedAt)
+        );
       });
 
-      return kernel.streamTurn(history).pipe(
-        Stream.tap((indexed) =>
-          Effect.sync(() => {
-            collected.push(indexed);
-          })
-        ),
-        // wire stays bare blocks; envelope indices are a handler-side concern
-        Stream.map((indexed): AssistantBlock => indexed.block),
-        // success path only — persist nothing on error/interrupt (no onExit).
-        // onEnd widens the error channel with persist's ChatActionError.
-        Stream.onEnd(persist),
-        // translate the kernel's TurnGenerationError to the client-safe wire
-        // error; the persist ChatActionError passes through unchanged (std-09).
-        Stream.tapError((error) =>
-          Effect.logWarning("chat stream failed", { context: "SendMessage.kernel", detail: error })
-        ),
-        Stream.mapError(
-          (error: TurnGenerationError | ChatActionError): ChatActionError =>
-            S.is(ChatActionError)(error) ? error : ChatActionError.new(error.message)
-        )
-      );
+      return yield* Effect.gen(function* () {
+        const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("GetTimeline")));
+        const history = projectTimelineToHistory(timeline);
+        yield* Metric.update(Metric.withAttributes(chatTurnsTotal, { kind }), 1);
+        let collected: ReadonlyArray<IndexedBlock> = A.empty<IndexedBlock>();
+        const persisted = yield* Ref.make(false);
+
+        // Persist runs once, only on success: sort collected blocks by envelope
+        // index, lift to a Document, append the assistant turn, then append the
+        // finalized-turn usage record. Its failure channel is ChatActionError.
+        const persist: Effect.Effect<void, ChatActionError> = Effect.gen(function* () {
+          if (yield* Ref.getAndSet(persisted, true)) return;
+          const blocks = A.map(A.sortWith(collected, indexOf, Order.Number), (indexed) => indexed.block);
+          const content = assistantContentToDocument(blocks);
+          yield* store
+            .appendTurn({ threadId, parentTurnId: O.none(), role: "assistant", content })
+            .pipe(Effect.catch(toChatActionError("SendMessage.persistAssistant")));
+          yield* usage.append(fixtureUsageRecord);
+        });
+
+        const persistWithTelemetry = persist.pipe(
+          Effect.tapError((error) =>
+            trackTurnFailure("persist").pipe(
+              Effect.andThen(
+                Effect.logWarning("chat stream failed", {
+                  context: "SendMessage.persistAssistant",
+                  detail: error,
+                })
+              )
+            )
+          )
+        );
+
+        return kernel.streamTurn(history).pipe(
+          Stream.tap(
+            Effect.fnUntraced(function* (indexed: IndexedBlock) {
+              collected = A.append(collected, indexed);
+              yield* Metric.update(Metric.withAttributes(chatBlocksStreamedTotal, { kind }), 1);
+            })
+          ),
+          Stream.tapError((error) =>
+            trackTurnFailure("kernel").pipe(
+              Effect.andThen(Effect.logWarning("chat stream failed", { context: "SendMessage.kernel", detail: error }))
+            )
+          ),
+          // wire stays bare blocks; envelope indices are a handler-side concern
+          Stream.map((indexed): AssistantBlock => indexed.block),
+          // success path only — persist nothing on error/interrupt (no onExit).
+          // onEnd widens the error channel with persist's ChatActionError.
+          Stream.onEnd(persistWithTelemetry),
+          // translate the kernel's TurnGenerationError to the client-safe wire
+          // error; the persist ChatActionError passes through unchanged (std-09).
+          Stream.mapError(
+            (error: TurnGenerationError | ChatActionError): ChatActionError =>
+              S.is(ChatActionError)(error) ? error : ChatActionError.new(error.message)
+          ),
+          Stream.ensuring(recordTurnDuration)
+        );
+      }).pipe(Effect.tapError(() => trackTurnFailure("prepare").pipe(Effect.andThen(recordTurnDuration))));
     })
+  );
+
+const setTitleFromFirstUserMessage = (
+  store: Thread.ThreadStore["Service"],
+  threadId: WorkspaceIdentity.ThreadId,
+  content: Document.Type,
+  emptyTitle: string = UNTITLED_THREAD_TITLE
+): Effect.Effect<void> =>
+  pipe(
+    deriveThreadTitle(content),
+    O.map((title) =>
+      store.setTitleIfEmpty({ threadId, emptyTitle, title }).pipe(
+        Effect.catch((error) =>
+          Effect.logWarning("chat title derivation skipped", {
+            context: "SendMessage.setTitleIfEmpty",
+            detail: error,
+          })
+        )
+      )
+    ),
+    O.getOrElse(() => Effect.void)
+  );
+
+const titleGuardForEditedTurn = (
+  store: Thread.ThreadStore["Service"],
+  threadId: WorkspaceIdentity.ThreadId,
+  turnId: WorkspaceIdentity.TurnId
+): Effect.Effect<O.Option<string>> =>
+  store.timeline(threadId).pipe(
+    Effect.map((timeline) =>
+      isFirstUserMessageTurn(timeline, turnId) ? titleGuardForEditedFirstUserTurn(timeline, turnId) : O.none()
+    ),
+    Effect.catch((error) =>
+      Effect.logWarning("chat title derivation skipped", {
+        context: "EditMessage.firstUserTitleGate",
+        detail: error,
+      }).pipe(Effect.as(O.none<string>()))
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -281,12 +443,13 @@ export const makeChatOperations = (
     content: Document.Type
   ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
-      store
-        .appendTurn({ threadId, parentTurnId: O.none(), role: "user", content })
-        .pipe(
-          Effect.catch(toChatActionError("SendMessage")),
-          Effect.as(streamAndPersist(store, kernel, usage, threadId))
-        )
+      Effect.gen(function* () {
+        yield* store
+          .appendTurn({ threadId, parentTurnId: O.none(), role: "user", content })
+          .pipe(Effect.catch(toChatActionError("SendMessage")));
+        yield* setTitleFromFirstUserMessage(store, threadId, content);
+        return streamAndPersist(store, kernel, usage, threadId, "send");
+      })
     ).pipe(Stream.withSpan("agents.chat.send_message")),
 
   editMessage: (
@@ -295,12 +458,18 @@ export const makeChatOperations = (
     content: Document.Type
   ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
-      store
-        .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })
-        .pipe(
-          Effect.catch(toChatActionError("EditMessage")),
-          Effect.as(streamAndPersist(store, kernel, usage, threadId))
-        )
+      Effect.gen(function* () {
+        const titleGuard = yield* titleGuardForEditedTurn(store, threadId, turnId);
+        yield* store
+          .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })
+          .pipe(Effect.catch(toChatActionError("EditMessage")));
+        yield* pipe(
+          titleGuard,
+          O.map((emptyTitle) => setTitleFromFirstUserMessage(store, threadId, content, emptyTitle)),
+          O.getOrElse(() => Effect.void)
+        );
+        return streamAndPersist(store, kernel, usage, threadId, "edit");
+      })
     ).pipe(Stream.withSpan("agents.chat.edit_message")),
 });
 

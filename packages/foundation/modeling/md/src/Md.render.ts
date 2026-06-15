@@ -8,12 +8,12 @@
 import { $MdId } from "@beep/identity";
 import { HtmlFragment, Markdown, TaggedErrorClass } from "@beep/schema";
 import { A, Html, Str, thunkEmptyStr } from "@beep/utils";
-import { Effect, flow, identity, Match, Result, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, flow, identity, Match, Number as N, Result, SchemaGetter, SchemaIssue } from "effect";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Document as DocumentSchema } from "./Md.model.ts";
+import { Document as DocumentSchema, TableCell, TableRow } from "./Md.model.ts";
 import {
   escapeHtmlUrlAttribute,
   escapeMarkdownDestination,
@@ -24,7 +24,7 @@ import {
   renderInlineCode,
   sanitizeCodeFenceLanguage,
 } from "./Md.utils.ts";
-import type { Block, Document, H1, H2, H3, H4, H5, H6, Inline, Li, TaskItem } from "./Md.model.ts";
+import type { Block, Document, H1, H2, H3, H4, H5, H6, Inline, Li, Table, TaskItem } from "./Md.model.ts";
 
 const $I = $MdId.create("Md.render");
 const joinEmpty = A.join("");
@@ -136,6 +136,80 @@ const renderHtmlTaskItem = (item: TaskItem): string => {
 
   return `<li><input type="checkbox" disabled${checked} /> ${renderHtmlInlines(item.children)}</li>`;
 };
+
+const renderMarkdownTableCell = (cell: TableCell): string =>
+  pipe(renderMarkdownInlines(cell.children), Str.replace(/\|/g, "\\|"), Str.replace(lineSeparatorPattern, "<br/>"));
+
+const renderMarkdownTableFence = (cells: string): string => `| ${cells} |`;
+
+const tableRowColumnCount = (row: TableRow): number => A.length(row.children);
+
+const tableColumnCount = (rows: ReadonlyArray<TableRow>): number =>
+  pipe(
+    rows,
+    A.reduce(0, (max, row) => N.max(max, tableRowColumnCount(row)))
+  );
+
+const renderMarkdownTableSeparator = (columns: number): string =>
+  pipe(
+    A.makeBy(columns, () => "---"),
+    A.join(" | "),
+    renderMarkdownTableFence
+  );
+
+const renderMarkdownTableRow = (row: TableRow): string =>
+  pipe(row.children, A.map(renderMarkdownTableCell), A.join(" | "), renderMarkdownTableFence);
+
+const renderMarkdownTable = (block: Table): string => {
+  const columns = tableColumnCount(block.children);
+  if (columns === 0) {
+    return "";
+  }
+
+  if (block.headerRow) {
+    return pipe(block.children, A.map(renderMarkdownTableRow), ([header, ...body]) =>
+      A.join([header, renderMarkdownTableSeparator(columns), ...body], "\n")
+    );
+  }
+
+  const emptyHeader = renderMarkdownTableRow(
+    TableRow.make({
+      children: A.makeBy(columns, () => TableCell.make({ children: [] })),
+    })
+  );
+
+  return pipe(block.children, A.map(renderMarkdownTableRow), (rows) =>
+    A.join([emptyHeader, renderMarkdownTableSeparator(columns), ...rows], "\n")
+  );
+};
+
+const renderHtmlTableCell =
+  (tag: "td" | "th") =>
+  (cell: TableCell): string =>
+    `<${tag}>${renderHtmlInlines(cell.children)}</${tag}>`;
+
+const renderHtmlTableRow =
+  (tag: "td" | "th") =>
+  (row: TableRow): string =>
+    `<tr>${pipe(row.children, A.map(renderHtmlTableCell(tag)), joinEmpty)}</tr>`;
+
+const renderHtmlTable = (block: Table): string => {
+  if (block.headerRow) {
+    const header = pipe(block.children, A.head, O.map(renderHtmlTableRow("th")));
+    const body = pipe(block.children, A.drop(1), A.map(renderHtmlTableRow("td")), joinEmpty);
+
+    return `<table>${pipe(
+      header,
+      O.map((row) => `<thead>${row}</thead>`),
+      O.getOrElse(thunkEmptyStr)
+    )}<tbody>${body}</tbody></table>`;
+  }
+
+  return `<table><tbody>${pipe(block.children, A.map(renderHtmlTableRow("td")), joinEmpty)}</tbody></table>`;
+};
+
+const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/watch?v=${videoId}`;
+const youtubeEmbedUrl = (videoId: string): string => `https://www.youtube-nocookie.com/embed/${videoId}`;
 
 // Built-in adapters keep `rawHtml` escaped by default; trusted passthrough is a custom-adapter concern.
 const renderEscapedRawHtmlAsMarkdown = ({ value }: { readonly value: string }): string => escapeMarkdownText(value);
@@ -367,6 +441,8 @@ export const renderMarkdownBlock: (block: Block) => string = Match.type<Block>()
         ),
         A.join("\n")
       ),
+    table: renderMarkdownTable,
+    youtube: (block) => youtubeWatchUrl(block.videoId),
     hr: () => "---",
   })
 );
@@ -401,6 +477,9 @@ export const renderHtmlBlock: (block: Block) => string = Match.type<Block>().pip
     li: renderHtmlListItem,
     taskList: (block) =>
       `<ul class="contains-task-list">${pipe(block.children, A.map(renderHtmlTaskItem), joinEmpty)}</ul>`,
+    table: renderHtmlTable,
+    youtube: (block) =>
+      `<iframe src="${escapeHtmlUrlAttribute(youtubeEmbedUrl(block.videoId))}" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`,
     hr: () => "<hr />",
   })
 );

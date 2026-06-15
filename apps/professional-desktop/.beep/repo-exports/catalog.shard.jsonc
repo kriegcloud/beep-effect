@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "27d91026f9ee30ae6c8ae48f7a190b147601a94372166d5a5be9884f660a7b91",
+    "digest": "3a7e4d84a56350670351a5c3d774eb1f9a503ad18d9660ca393edca05db2f37c",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -22,18 +22,23 @@
       },
       {
         "path": "apps/professional-desktop/src/App.tsx",
-        "sha256": "414f2791763eb23b4b4298e71fc39e70f4ee4fd72f3c5724640c1b9de10f5a0d",
-        "bytes": 781
+        "sha256": "8fb2b796ce8a695c851e81b1cb5c98d23ee3899c2d6b730105971482e021f6e9",
+        "bytes": 994
       },
       {
         "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
-        "sha256": "ca7607743aec80ab01cd9ab587964166b1140a75636157a008b344c1eadfe0be",
-        "bytes": 14345
+        "sha256": "f15cced9d818564468a4a0707f85c2d57e5b90b9bac7b83fdd42749ffa2dc7d8",
+        "bytes": 20549
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
         "sha256": "aee38a82829fbcf76a9d625f7acf16788cd8a46f71cd8c5e826842215dd7f197",
         "bytes": 3421
+      },
+      {
+        "path": "apps/professional-desktop/src/chat/ui/ChatTurnErrorToasts.tsx",
+        "sha256": "183c6fd4538e9842a3b640dad385278ab4b68f617fad4a22a3ffb97155b5f5ed",
+        "bytes": 1125
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Composer.tsx",
@@ -52,8 +57,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/StreamingBlocks.tsx",
-        "sha256": "bc13a84316fa5632e18f698f80cf2cee5c55d66dbd4ebfad7ae5b7410f41e1ef",
-        "bytes": 2989
+        "sha256": "5e53078bbcf2353091069ec73c1af3bb32638407b1e822177fe60de7975ba795",
+        "bytes": 6862
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Thread.tsx",
@@ -67,8 +72,8 @@
       },
       {
         "path": "apps/professional-desktop/src/main.tsx",
-        "sha256": "0677ac0f3d13bc26ed43d5802ccdb70d3af89facab0eae8ab21e025a227464a3",
-        "bytes": 456
+        "sha256": "78798dfe8647666b5ecd4530aa0c5044dde62a33aef0227f0e6b16c00349bf1b",
+        "bytes": 612
       },
       {
         "path": "apps/professional-desktop/src/runtime/Layer.ts",
@@ -77,13 +82,23 @@
       },
       {
         "path": "apps/professional-desktop/src/runtime/Observability.ts",
-        "sha256": "15a58232f8d3abedbf6b5a7de33c3191d50c3b080d346bb897ad13bf159a6dd7",
-        "bytes": 1723
+        "sha256": "993c0d4d243fcba654a0ab9a75a848dd53db5a90b378063c5d707bdca328dec3",
+        "bytes": 3640
       },
       {
         "path": "apps/professional-desktop/src/runtime/Pglite.ts",
         "sha256": "679665f5be391f185e9873b11bf0b83c1452e9ca72605678e83cca2439024da6",
         "bytes": 6844
+      },
+      {
+        "path": "apps/professional-desktop/src/runtime/ProfessionalAtomProvider.tsx",
+        "sha256": "9a226d625d07f99e449cb11456a599e37efc56c2d9f87fb5d72dd115ad574865",
+        "bytes": 1119
+      },
+      {
+        "path": "apps/professional-desktop/src/runtime/ProfessionalAtomRuntime.ts",
+        "sha256": "cdb955f9d7de5ac471552b045abdfa82549b1fe88d7cc22c85128035a51298a3",
+        "bytes": 668
       },
       {
         "path": "generator:repo-exports-catalog",
@@ -116,7 +131,7 @@
     "counts": {
       "publicExportEntries": 0,
       "uniqueSymbols": 0,
-      "sourceFiles": 13
+      "sourceFiles": 16
     },
     "exports": []
   }

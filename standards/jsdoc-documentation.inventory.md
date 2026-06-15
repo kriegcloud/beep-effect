@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-15T11:50:41.631Z
+Generated: 2026-06-15T19:39:10.395Z
 
 ## Scope
 
@@ -14,18 +14,18 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 19 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 62 |
-| publicModules | 1226 |
-| publicExports | 12347 |
-| openModules | 114 |
-| openExports | 1576 |
-| missingExportExamples | 1243 |
-| missingExportCategories | 62 |
-| missingExportSince | 62 |
+| publicModules | 1240 |
+| publicExports | 12413 |
+| openModules | 113 |
+| openExports | 1591 |
+| missingExportExamples | 1255 |
+| missingExportCategories | 63 |
+| missingExportSince | 63 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 25 |
 | unsafeExampleFindings | 171 |
-| schemaAnnotationFindings | 159 |
+| schemaAnnotationFindings | 165 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -46,7 +46,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
-| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 11 | 31 | 0 | 2 |
+| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 12 | 39 | 0 | 4 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
 | 8 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 9 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
@@ -58,9 +58,9 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
 | 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 91 | 536 | 0 | 130 |
 | 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
-| 18 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 6 | 11 | 1 | 1 |
-| 19 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 23 | 0 | 15 |
-| 20 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 6 | 15 | 0 | 1 |
+| 18 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 7 | 17 | 0 | 3 |
+| 19 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 24 | 0 | 15 |
+| 20 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 10 | 26 | 0 | 2 |
 | 21 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
 | 22 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 83 | 0 | 11 |
 | 23 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
@@ -68,7 +68,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 25 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 87 | 0 | 24 |
 | 26 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
 | 27 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 20 | 66 | 0 | 13 |
+| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 23 | 70 | 0 | 13 |
 | 29 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
 | 30 | `@beep/workspace-server` | `packages/workspace/server` | needs-remediation | 6 | 14 | 0 | 4 |
 | 31 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
@@ -79,10 +79,10 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 36 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
 | 37 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 30 | 78 | 0 | 10 |
 | 38 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 39 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 58 | 0 | 18 |
+| 39 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 66 | 0 | 23 |
 | 40 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
 | 41 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
-| 42 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 141 | 0 | 38 |
+| 42 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 155 | 0 | 43 |
 | 43 | `@beep/workspace-domain` | `packages/workspace/domain` | needs-remediation | 27 | 60 | 0 | 8 |
 | 44 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 155 | 0 | 20 |
 | 45 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 178 | 0 | 17 |
@@ -96,8 +96,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 53 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
 | 54 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
 | 55 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 56 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 3 | 16 | 0 | 0 |
-| 57 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 12 | 20 | 0 | 12 |
+| 56 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 5 | 26 | 0 | 0 |
+| 57 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 15 | 23 | 0 | 12 |
 | 58 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
 | 59 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
 | 60 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
@@ -115,7 +115,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 72 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
 | 73 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
 | 74 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 75 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 19 | 0 | 4 |
+| 75 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 20 | 0 | 4 |
 | 76 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
 | 77 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
 | 78 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
@@ -145,8 +145,14 @@ Export findings:
 Path: `packages/agents/domain`
 
 Export findings:
-- `src/values/AssistantContent/AssistantContent.model.ts:114` `InlineNode` (type) - missing @example
-- `src/values/AssistantContent/AssistantContent.model.ts:303` `AssistantBlock` (type) - missing @example
+- `src/turn/index.ts:49` `export type {
+  AssistantBlock as AssistantBlockType,
+  AssistantContent as AssistantContentType,
+  InlineNode as InlineNodeType,
+} from "../values/AssistantContent/index.js";` (re-export) - missing @example, @category, @since
+- `src/values/AssistantContent/AssistantContent.behavior.ts:78` `blockToMd` (const) - 2 schema annotation/type-alias gap(s)
+- `src/values/AssistantContent/AssistantContent.model.ts:118` `InlineNode` (type) - missing @example
+- `src/values/AssistantContent/AssistantContent.model.ts:469` `AssistantBlock` (type) - missing @example
 
 ### @beep/architecture-lab-ui
 
@@ -556,10 +562,9 @@ Export findings:
 
 Path: `packages/agents/server`
 
-Module findings:
-- `src/AssistantTurn/ScanState.ts:1` (none) - missing summary; missing @since
-
 Export findings:
+- `src/AssistantTurn/BlockRepair.ts:100` `BlockRepairCall` (type) - missing @example
+- `src/AssistantTurn/BlockRepair.ts:111` `RepairInvalidBlocks` (type) - missing @example
 - `src/index.ts:15` `export * as AssistantTurn from "./AssistantTurn/index.js";` (re-export) - missing @example
 
 ### @beep/workspace-use-cases
@@ -568,10 +573,10 @@ Path: `packages/workspace/use-cases`
 
 Export findings:
 - `src/aggregates/Thread/Thread.errors.ts:103` `ThreadStoreError` (type) - 1 unsafe example violation(s)
-- `src/aggregates/Thread/ThreadStore.ts:41` `CreateThreadInput` (interface) - 1 unsafe example violation(s)
-- `src/aggregates/Thread/ThreadStore.ts:60` `AppendTurnInput` (interface) - 1 unsafe example violation(s)
-- `src/aggregates/Thread/ThreadStore.ts:81` `AppendTurnResult` (interface) - 1 unsafe example violation(s)
-- `src/aggregates/Thread/ThreadStore.ts:100` `ThreadStoreShape` (interface) - 1 unsafe example violation(s)
+- `src/aggregates/Thread/ThreadStore.ts:42` `CreateThreadInput` (interface) - 1 unsafe example violation(s)
+- `src/aggregates/Thread/ThreadStore.ts:61` `AppendTurnInput` (interface) - 1 unsafe example violation(s)
+- `src/aggregates/Thread/ThreadStore.ts:82` `AppendTurnResult` (interface) - 1 unsafe example violation(s)
+- `src/aggregates/Thread/ThreadStore.ts:136` `ThreadStoreShape` (interface) - 1 unsafe example violation(s)
 - `src/aggregates/Thread/ThreadTimeline.ts:24` `TimelineMessageItem` (class) - missing @example
 - `src/aggregates/Thread/ThreadTimeline.ts:41` `TimelineToolCallItem` (class) - missing @example
 - `src/aggregates/Thread/ThreadTimeline.ts:77` `TimelineItem` (type) - missing @example
@@ -589,6 +594,7 @@ Path: `packages/foundation/ui-system/editor`
 
 Export findings:
 - `src/artifact-ref-node.tsx:23` `SerializedArtifactRefNode` (type) - missing @example
+- `src/youtube-node.tsx:32` `SerializedYouTubeNode` (type) - missing @example
 
 ### @beep/nlp-mcp
 
@@ -779,6 +785,7 @@ Export findings:
 Path: `packages/foundation/modeling/lexical`
 
 Export findings:
+- `src/Lexical.codec.ts:652` `nodeToBlocks` (const) - 2 schema annotation/type-alias gap(s)
 - `src/Lexical.model.ts:276` `BaseNode` (namespace) - missing @example
 - `src/Lexical.model.ts:364` `ElementNode` (namespace) - missing @example
 - `src/Lexical.model.ts:431` `TextBase` (namespace) - missing @example
@@ -794,9 +801,13 @@ Export findings:
 - `src/Lexical.model.ts:1034` `LinkNode` (namespace) - missing @example
 - `src/Lexical.model.ts:1103` `CodeNode` (namespace) - missing @example
 - `src/Lexical.model.ts:1173` `ArtifactRefNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1215` `LexicalNode` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Lexical.model.ts:1254` `LexicalNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1328` `SerializedEditorState` (namespace) - missing @example
+- `src/Lexical.model.ts:1242` `YouTubeNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1325` `TableCellNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1397` `TableRowNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1471` `TableNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1517` `LexicalNode` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Lexical.model.ts:1560` `LexicalNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1642` `SerializedEditorState` (namespace) - missing @example
 
 ### @beep/langextract
 
@@ -867,10 +878,15 @@ Export findings:
 - `src/Md.model.ts:1325` `TaskList` (namespace) - missing @example
 - `src/Md.model.ts:1375` `BlockQuote` (namespace) - missing @example
 - `src/Md.model.ts:1434` `Pre` (namespace) - missing @example
-- `src/Md.model.ts:1486` `Hr` (namespace) - missing @example
-- `src/Md.model.ts:1529` `Block` (type) - missing @example
-- `src/Md.model.ts:1537` `Block` (namespace) - missing @example
-- `src/Md.model.ts:1609` `Document` (namespace) - missing @example
+- `src/Md.model.ts:1490` `TableCell` (namespace) - missing @example
+- `src/Md.model.ts:1540` `TableRow` (namespace) - missing @example
+- `src/Md.model.ts:1596` `Table` (namespace) - missing @example
+- `src/Md.model.ts:1648` `YouTube` (namespace) - missing @example
+- `src/Md.model.ts:1691` `Hr` (namespace) - missing @example
+- `src/Md.model.ts:1751` `Block` (type) - missing @example
+- `src/Md.model.ts:1759` `Block` (namespace) - missing @example
+- `src/Md.model.ts:1835` `Document` (namespace) - missing @example
+- `src/Md.ts:852` `table` (const) - 2 schema annotation/type-alias gap(s)
 
 ### @beep/workspace-domain
 
@@ -1037,8 +1053,8 @@ Export findings:
 Path: `apps/professional-desktop`
 
 Export findings:
-- `src/chat/ChatOrchestrator.ts:99` `documentToPlainText` (const) - missing @example
-- `src/chat/ChatOrchestrator.ts:259` `makeChatOperations` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:111` `documentToPlainText` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:421` `makeChatOperations` (const) - missing @example
 - `src/chat/UsageRecordSink.ts:27` `UsageRecordSinkShape` (interface) - missing @example
 - `src/chat/UsageRecordSink.ts:38` `UsageRecordSink` (class) - missing @example
 - `src/chat/UsageRecordSink.ts:51` `makeInMemoryUsageRecordSink` (const) - missing @example
@@ -1047,7 +1063,7 @@ Export findings:
 - `src/runtime/Layer.ts:50` `ChatHandlersLayer` (type) - missing @example
 - `src/runtime/Layer.ts:82` `RuntimeLive` (const) - missing @example
 - `src/runtime/Layer.ts:97` `RuntimeTest` (const) - missing @example
-- `src/runtime/Observability.ts:32` `ObservabilityLive` (const) - missing @example
+- `src/runtime/Observability.ts:94` `ObservabilityLive` (const) - missing @example
 - `src/runtime/Pglite.ts:168` `PgliteDrizzleLive` (const) - missing @example
 
 ### @beep/architecture-lab-use-cases
@@ -2381,10 +2397,10 @@ Export findings:
 Path: `packages/agents/client`
 
 Export findings:
-- `src/Chat.atoms.ts:218` `StreamingTurn` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:262` `EditTarget` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:367` `TurnRequest` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:375` `TurnRequest` (type) - missing @example
+- `src/Chat.atoms.ts:220` `StreamingTurn` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:289` `EditTarget` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:394` `TurnRequest` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:402` `TurnRequest` (type) - missing @example
 
 ### @beep/observability
 

@@ -1,0 +1,171 @@
+/**
+ * Real Anthropic chat parity E2E (gated).
+ *
+ * Drives the same chat orchestration used by the sidecar, but swaps the fixture
+ * turn kernel for the live Anthropic kernel and keeps the real Drizzle/PgLite
+ * persistence boundary. It is intentionally opt-in because it spends Anthropic
+ * tokens and requires a real `AI_ANTHROPIC_API_KEY`.
+ *
+ * Required env:
+ * - `BEEP_TEST_REAL_ANTHROPIC_CHAT=1`
+ * - `AI_ANTHROPIC_API_KEY`
+ * - `BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers` or `BEEP_TEST_DATABASE_URL`
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { fileURLToPath } from "node:url";
+import { AnthropicTurnKernel } from "@beep/agents-server/AnthropicTurnKernel";
+import { AgentTurnKernel } from "@beep/agents-use-cases/public";
+import * as Md from "@beep/md/Md.model";
+import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
+import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { Thread as ThreadLayers } from "@beep/workspace-server";
+import { Thread } from "@beep/workspace-use-cases/server";
+import { describe, expect, it, layer } from "@effect/vitest";
+import { Effect, Layer, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Stream from "effect/Stream";
+import * as Str from "effect/String";
+import { makeChatOperations } from "@/chat/ChatOrchestrator";
+import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
+
+const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
+
+const shouldRunRealAnthropic = Bun.env.BEEP_TEST_REAL_ANTHROPIC_CHAT === "1";
+const anthropicApiKeyEnv = "AI_ANTHROPIC_API_KEY";
+
+const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
+const userDocument = (text: string): Md.Document.Type =>
+  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
+
+const prompt = [
+  "Return exactly these three rich blocks and no prose:",
+  "1. A mermaid diagram code block with language mermaid. Use: graph TD\\n  A[Client] --> B[Sidecar] --> C[Persisted @beep/md]",
+  "2. A table block with headerRow true, columns Feature and Status, and one row Rich blocks / Ready.",
+  "3. A youtube block with videoId dQw4w9WgXcQ.",
+].join("\n");
+
+const migrateAll = Effect.fnUntraced(function* () {
+  const info = yield* TestDatabaseInfo;
+  const db = yield* makeDrizzle();
+  const migrationsSchema = pipe(
+    info.schema,
+    O.getOrElse(() => "drizzle")
+  );
+  yield* migrate(db, { migrationsFolder, migrationsSchema });
+});
+
+const hasStreamedMermaid = (blocks: ReadonlyArray<unknown>): boolean =>
+  A.some(
+    blocks,
+    (block) =>
+      P.isObject(block) &&
+      block.type === "code" &&
+      block.language === "mermaid" &&
+      P.isString(block.code) &&
+      Str.includes("graph")(block.code)
+  );
+
+const hasStreamedTable = (blocks: ReadonlyArray<unknown>): boolean =>
+  A.some(blocks, (block) => P.isObject(block) && block.type === "table");
+
+const hasStreamedYouTube = (blocks: ReadonlyArray<unknown>): boolean =>
+  A.some(blocks, (block) => P.isObject(block) && block.type === "youtube" && block.videoId === "dQw4w9WgXcQ");
+
+const persistedAssistantDocuments = (timeline: Thread.ThreadTimeline): ReadonlyArray<Md.Document.Type> =>
+  pipe(
+    timeline.turns,
+    A.flatMap((turn) =>
+      pipe(
+        A.map(turn.items, (item) =>
+          item.kind === "message" && item.role === "assistant" ? O.some(item.content) : O.none()
+        ),
+        A.getSomes
+      )
+    )
+  );
+
+const hasPersistedMermaid = (document: Md.Document.Type): boolean =>
+  A.some(
+    document.children,
+    (block) => block._tag === "pre" && O.contains(block.language, "mermaid") && Str.includes("graph")(block.value)
+  );
+
+const hasPersistedTable = (document: Md.Document.Type): boolean =>
+  A.some(document.children, (block) => block._tag === "table");
+
+const hasPersistedYouTube = (document: Md.Document.Type): boolean =>
+  A.some(document.children, (block) => block._tag === "youtube" && block.videoId === "dQw4w9WgXcQ");
+
+const RealAnthropicChatLayer = Layer.mergeAll(
+  ThreadLayers.ThreadStoreDrizzleLayer,
+  UsageRecordSinkDrizzle,
+  AnthropicTurnKernel
+).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makePgliteLayer()));
+
+const hasAnthropicApiKey =
+  P.isString(Bun.env[anthropicApiKeyEnv]) && Str.isNonEmpty(Str.trim(Bun.env[anthropicApiKeyEnv]));
+const enabledWithoutApiKey = shouldRunRealAnthropic && !hasAnthropicApiKey;
+const enabledWithoutDatabase = shouldRunRealAnthropic && !shouldRunPgliteIntegration;
+const shouldRun = shouldRunRealAnthropic && hasAnthropicApiKey && shouldRunPgliteIntegration;
+
+if (!shouldRunRealAnthropic) {
+  describe.skip("Professional desktop real Anthropic chat parity E2E (set BEEP_TEST_REAL_ANTHROPIC_CHAT=1)", () => {});
+} else if (enabledWithoutApiKey) {
+  describe("Professional desktop real Anthropic chat parity E2E", () => {
+    it("requires AI_ANTHROPIC_API_KEY when enabled", () => {
+      expect.fail("Set AI_ANTHROPIC_API_KEY.");
+    });
+  });
+} else if (enabledWithoutDatabase) {
+  describe("Professional desktop real Anthropic chat parity E2E", () => {
+    it("requires a PgLite integration database when enabled", () => {
+      expect.fail("Set BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers or BEEP_TEST_DATABASE_URL.");
+    });
+  });
+} else if (shouldRun) {
+  describe("Professional desktop real Anthropic chat parity E2E", { concurrent: false }, () => {
+    layer(RealAnthropicChatLayer, { timeout: "10 minutes" })((it) => {
+      it.effect(
+        "streams and persists mermaid, table, and youtube blocks as @beep/md",
+        Effect.fnUntraced(function* () {
+          yield* migrateAll();
+          const store = yield* Thread.ThreadStore;
+          const kernel = yield* AgentTurnKernel;
+          const usage = yield* UsageRecordSink;
+          const ops = makeChatOperations(store, kernel, usage);
+
+          const workspaceId = decodeWorkspaceId(3);
+          const thread = yield* ops.createThread(workspaceId, "Real Anthropic rich blocks");
+
+          const streamed = yield* ops.sendMessage(thread.id, userDocument(prompt)).pipe(Stream.runCollect);
+
+          expect(hasStreamedMermaid(streamed)).toBe(true);
+          expect(hasStreamedTable(streamed)).toBe(true);
+          expect(hasStreamedYouTube(streamed)).toBe(true);
+
+          const timeline = yield* ops.getTimeline(thread.id);
+          const documents = persistedAssistantDocuments(timeline);
+          expect(A.length(documents)).toBeGreaterThan(0);
+
+          const document = documents[0];
+          if (document === undefined) {
+            expect.fail("Expected a persisted assistant document.");
+          }
+
+          expect(hasPersistedMermaid(document)).toBe(true);
+          expect(hasPersistedTable(document)).toBe(true);
+          expect(hasPersistedYouTube(document)).toBe(true);
+        }),
+        pgliteIntegrationTimeoutMillis
+      );
+    });
+  });
+}

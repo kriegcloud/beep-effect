@@ -33,10 +33,14 @@ import {
   RawHtml,
   RawMarkdown,
   Strong,
+  Table,
+  TableCell,
+  TableRow,
   TaskItem,
   TaskList,
   Text,
   Ul,
+  YouTube,
 } from "./Md.model.ts";
 import {
   HtmlFragmentAdapter,
@@ -217,6 +221,39 @@ export type TaskListItemInput =
       readonly checked?: boolean;
     };
 
+/**
+ * Input accepted by table cell constructors.
+ *
+ * @example
+ * ```ts
+ * import type { TableCellInput } from "@beep/md/Md"
+ *
+ * const cell: TableCellInput = "Name"
+ * console.log(cell)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TableCellInput = InlineContent | TableCell;
+
+/**
+ * Input accepted by table row constructors.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { TableRowInput } from "@beep/md/Md"
+ *
+ * const row: TableRowInput = [Md.tableCell("Name")]
+ * console.log(row)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TableRowInput = TableRow | ReadonlyArray<TableCellInput>;
+
 const blockTemplateFormattingLinePattern = /[\r\n]/;
 const isTemplateStringsArray = (input: unknown): input is TemplateStringsArray =>
   A.isArray(input) && P.hasProperty(input, "raw");
@@ -228,6 +265,8 @@ const isBlockInputArray = (input: BlockContent): input is ReadonlyArray<BlockInp
 const isBlock = S.is(BlockSchema);
 const isLi = S.is(Li);
 const isTaskItem = S.is(TaskItem);
+const isTableCell = S.is(TableCell);
+const isTableRow = S.is(TableRow);
 
 const isBlockTemplateBlockValue = (input: BlockTemplateValue): input is Block => isBlock(input);
 
@@ -364,6 +403,12 @@ const asTaskItem = (input: TaskListItemInput): TaskItem => {
 
   return P.isBoolean(input.checked) ? taskItem(input.text, { checked: input.checked }) : taskItem(input.text);
 };
+
+const asTableCell = (input: TableCellInput): TableCell =>
+  isTableCell(input) ? input : TableCell.make({ children: asInlineArray(input) });
+
+const asTableRow = (input: TableRowInput): TableRow =>
+  isTableRow(input) ? input : TableRow.make({ children: A.map(input, asTableCell) });
 
 /**
  * Creates plain escaped inline text.
@@ -758,6 +803,75 @@ export const pre = (value: string, options: { readonly language?: string } = {})
   Pre.make({ value, language: O.fromUndefinedOr(options.language) });
 
 /**
+ * Creates a table cell with inline content.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ *
+ * const node = Md.tableCell("Name")
+ * console.log(node._tag) // "tableCell"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const tableCell = (children: InlineContent): TableCell => TableCell.make({ children: asInlineArray(children) });
+
+/**
+ * Creates a table row from table cells.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ *
+ * const node = Md.tableRow(["Name", "Value"])
+ * console.log(node._tag) // "tableRow"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const tableRow = (children: ReadonlyArray<TableCellInput>): TableRow =>
+  TableRow.make({ children: A.map(children, asTableCell) });
+
+/**
+ * Creates a Markdown table block.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ *
+ * const node = Md.table([["Name", "Value"]], { headerRow: true })
+ * console.log(node._tag) // "table"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const table = (children: ReadonlyArray<TableRowInput>, options: { readonly headerRow?: boolean } = {}): Table =>
+  Table.make({
+    headerRow: O.getOrElse(O.fromUndefinedOr(options.headerRow), thunkFalse),
+    children: A.map(children, asTableRow),
+  });
+
+/**
+ * Creates a YouTube embed block.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ *
+ * const node = Md.youtube("dQw4w9WgXcQ")
+ * console.log(node._tag) // "youtube"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const youtube = (videoId: string): YouTube => YouTube.make({ videoId });
+
+/**
  * Creates a horizontal rule block.
  *
  * @example
@@ -841,8 +955,12 @@ export const Md = {
   renderWith,
   renderWithUnsafe,
   strong,
+  table,
+  tableCell,
+  tableRow,
   taskItem,
   taskList,
   text,
   ul,
+  youtube,
 } as const;

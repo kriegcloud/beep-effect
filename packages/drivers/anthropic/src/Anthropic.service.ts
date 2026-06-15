@@ -7,6 +7,7 @@
 
 import { AnthropicClient, AnthropicLanguageModel } from "@effect/ai-anthropic";
 import { Config, Duration, ExecutionPlan, Layer, Schedule } from "effect";
+import { AiError } from "effect/unstable/ai";
 import { FetchHttpClient } from "effect/unstable/http";
 import {
   ANTHROPIC_API_KEY_ENV,
@@ -16,7 +17,6 @@ import {
   ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS,
   AnthropicLanguageModelOptions,
 } from "./Anthropic.config.ts";
-import type * as AiError from "effect/unstable/ai/AiError";
 
 /**
  * Live Anthropic client layer.
@@ -104,7 +104,7 @@ export const makeAnthropicTurnPlan = () =>
     attempts: ANTHROPIC_DEFAULT_RETRY_ATTEMPTS,
     provide: AnthropicLanguageModelLive,
     schedule: Schedule.exponential(Duration.millis(ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS), 2),
-    while: (error: AiError.AiError) => error.isRetryable,
+    while: (error: AiError.AiError | Config.ConfigError) => AiError.isAiError(error) && error.isRetryable,
   });
 
 /**

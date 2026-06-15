@@ -31,6 +31,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./public": "./src/public.ts",
+    "./server": "./src/server.ts",
     "./proof": "./src/proof.ts",
     "./test": "./src/test.ts",
     "./package.json": "./package.json"

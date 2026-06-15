@@ -10,6 +10,7 @@
 
 import * as Md from "@beep/md/Md.model";
 import { Match } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { AssistantBlock, InlineNode } from "./AssistantContent.model.js";
 
@@ -53,7 +54,7 @@ export const inlineToMd = (node: InlineNode): Md.Inline.Type =>
       }),
   });
 
-const inlinesToMd = (inlines: ReadonlyArray<InlineNode>): ReadonlyArray<Md.Inline.Type> => inlines.map(inlineToMd);
+const inlinesToMd = (inlines: ReadonlyArray<InlineNode>): ReadonlyArray<Md.Inline.Type> => A.map(inlines, inlineToMd);
 
 /**
  * Lift a single {@link AssistantBlock} into a `@beep/md` block node.
@@ -91,7 +92,7 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
         children: [Md.P.make({ children: inlinesToMd(b.children) })],
       }),
     list: (b): Md.Block.Type => {
-      const children = b.items.map((item) => Md.Li.make({ children: inlinesToMd(item.children) }));
+      const children = A.map(b.items, (item) => Md.Li.make({ children: inlinesToMd(item.children) }));
       return b.listType === "number" ? Md.Ol.make({ children }) : Md.Ul.make({ children });
     },
     code: (b): Md.Block.Type =>
@@ -99,6 +100,16 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
         language: O.fromNullishOr(b.language),
         value: b.code,
       }),
+    table: (b): Md.Block.Type =>
+      Md.Table.make({
+        headerRow: b.headerRow === true,
+        children: A.map(b.rows, (row) =>
+          Md.TableRow.make({
+            children: A.map(row.cells, (cell) => Md.TableCell.make({ children: inlinesToMd(cell.children) })),
+          })
+        ),
+      }),
+    youtube: (b): Md.Block.Type => Md.YouTube.make({ videoId: b.videoId }),
   });
 
 /**
@@ -119,4 +130,4 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
  * @since 0.0.0
  */
 export const assistantContentToDocument = (blocks: ReadonlyArray<AssistantBlock>): Md.Document.Type =>
-  Md.Document.make({ children: blocks.map(blockToMd) });
+  Md.Document.make({ children: A.map(blocks, blockToMd) });

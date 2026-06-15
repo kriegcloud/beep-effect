@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f9e74c3546a10b9efa36927959fc8cfe97357dd927d7e13ccd01c9dc13dcc342",
+    "digest": "54fcc0a025e9f196e5e3f7aaa29535933d050bcab122c962cc12924bcdb93320",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -62,18 +62,18 @@
       },
       {
         "path": "packages/agents/domain/src/turn/index.ts",
-        "sha256": "5f51dc4b4edf2757dedb9f9e4ab96a7bb1fb59343a4a0dd13d0bd60da34e6cc0",
-        "bytes": 712
+        "sha256": "b83e4d3ab3d6d6cbaef28894e6b3107deda217359d5e87404515a28158e72b7d",
+        "bytes": 1078
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sha256": "02a21e7e886547d80d37a831920bd017f3b21412c0c4734cfdff3924aabc776b",
-        "bytes": 4123
+        "sha256": "343819fe29bad2dbc542366a493281be440bcb1ad131c4a3e883b76e51292c45",
+        "bytes": 4554
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sha256": "10bfea3466acadd1bd86c8f1b18d2a1c8dbda8ba4f8bdb75b66a3096cf964a22",
-        "bytes": 8955
+        "sha256": "1a69430b38298b817027198ce9ae07330bcebee5a96e4aa10e587c0327137206",
+        "bytes": 13670
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/index.ts",
@@ -117,8 +117,8 @@
       "@beep/agents-domain/values/AssistantContent"
     ],
     "counts": {
-      "publicExportEntries": 75,
-      "uniqueSymbols": 19,
+      "publicExportEntries": 92,
+      "uniqueSymbols": 26,
       "sourceFiles": 12
     },
     "exports": [
@@ -207,10 +207,10 @@
         "symbolName": "AssistantBlock",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 448,
         "summary": "A single block of an assistant turn.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -220,7 +220,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . assistantblock const a single block of an assistant turn. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . assistantblock const a single block of an assistant turn. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -232,7 +232,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 303,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -256,7 +256,7 @@
         "symbolName": "AssistantContent",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 323,
+        "sourceLine": 489,
         "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
         "categories": [
           "value-objects"
@@ -281,7 +281,7 @@
         "symbolName": "assistantContentToDocument",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 121,
+        "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
           "value-objects"
@@ -306,7 +306,7 @@
         "symbolName": "blockToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 77,
+        "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
           "value-objects"
@@ -331,7 +331,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -373,7 +373,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -398,10 +398,10 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -411,7 +411,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . inlinenode const inline content held by an assistant block. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . inlinenode const inline content held by an assistant block. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -423,7 +423,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -447,7 +447,7 @@
         "symbolName": "inlineToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 34,
+        "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
           "value-objects"
@@ -472,7 +472,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -497,7 +497,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -522,7 +522,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -547,7 +547,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -594,10 +594,85 @@
         "importSpecifier": "@beep/agents-domain",
         "exportSubpath": ".",
         "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "TableBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 388,
+        "summary": "A rectangular data table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . tableblock class a rectangular data table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "TableCellBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 293,
+        "summary": "A single table cell in an assistant-generated table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . tablecellblock class a single table cell in an assistant-generated table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "TableRowBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 319,
+        "summary": "A single row in an assistant-generated table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . tablerowblock class a single row in an assistant-generated table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -645,6 +720,31 @@
         "since": [],
         "tags": [],
         "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . values sourcefile packages/agents/domain/src/values/index.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/domain/src/index.ts",
+        "symbolName": "YouTubeBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 418,
+        "summary": "An embedded YouTube video.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain . youtubeblock class an embedded youtube video. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -856,10 +956,10 @@
         "symbolName": "AssistantBlock",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 448,
         "summary": "A single block of an assistant turn.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -869,7 +969,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblock const a single block of an assistant turn. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblock const a single block of an assistant turn. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -881,7 +981,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 303,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -894,6 +994,55 @@
           "@since"
         ],
         "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblock type runtime type for {@link assistantblock}. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "AssistantBlockType",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 448,
+        "summary": "A single block of an assistant turn.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblocktype const a single block of an assistant turn. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "AssistantBlockType",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 469,
+        "summary": "Runtime type for {@link AssistantBlock}.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantblocktype type runtime type for {@link assistantblock}. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -922,7 +1071,7 @@
         "symbolName": "assistantContentToDocument",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 121,
+        "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
           "value-objects"
@@ -944,10 +1093,35 @@
         "importSpecifier": "@beep/agents-domain/turn",
         "exportSubpath": "./turn",
         "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "AssistantContentType",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 489,
+        "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn assistantcontenttype class a complete assistant turn as structured rich text. this is the forced-tool value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
         "symbolName": "blockToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 77,
+        "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
           "value-objects"
@@ -972,7 +1146,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -997,7 +1171,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -1022,10 +1196,10 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -1035,7 +1209,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinenode const inline content held by an assistant block. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinenode const inline content held by an assistant block. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1047,7 +1221,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -1068,10 +1242,59 @@
         "importSpecifier": "@beep/agents-domain/turn",
         "exportSubpath": "./turn",
         "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "InlineNodeType",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 105,
+        "summary": "Inline content held by an assistant block.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinenodetype const inline content held by an assistant block. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
+        "symbolName": "InlineNodeType",
+        "exportKind": "type",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 118,
+        "summary": "Runtime type for {@link InlineNode}.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/turn ./turn inlinenodetype type runtime type for {@link inlinenode}. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/turn",
+        "exportSubpath": "./turn",
+        "exportedFromPath": "packages/agents/domain/src/turn/index.ts",
         "symbolName": "inlineToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 34,
+        "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
           "value-objects"
@@ -1096,7 +1319,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -1121,7 +1344,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -1146,7 +1369,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -1171,7 +1394,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -1196,7 +1419,7 @@
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -1221,10 +1444,10 @@
         "symbolName": "AssistantBlock",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 290,
+        "sourceLine": 448,
         "summary": "A single block of an assistant turn.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -1234,7 +1457,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values assistantblock const a single block of an assistant turn. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values assistantblock const a single block of an assistant turn. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1246,7 +1469,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 303,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -1270,7 +1493,7 @@
         "symbolName": "AssistantContent",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 323,
+        "sourceLine": 489,
         "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
         "categories": [
           "value-objects"
@@ -1295,7 +1518,7 @@
         "symbolName": "assistantContentToDocument",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 121,
+        "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
           "value-objects"
@@ -1320,7 +1543,7 @@
         "symbolName": "blockToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 77,
+        "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
           "value-objects"
@@ -1345,7 +1568,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -1370,7 +1593,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -1395,10 +1618,10 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -1408,7 +1631,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values inlinenode const inline content held by an assistant block. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values inlinenode const inline content held by an assistant block. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1420,7 +1643,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -1444,7 +1667,7 @@
         "symbolName": "inlineToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 34,
+        "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
           "value-objects"
@@ -1469,7 +1692,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -1494,7 +1717,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -1519,7 +1742,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -1544,7 +1767,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -1566,10 +1789,85 @@
         "importSpecifier": "@beep/agents-domain/values",
         "exportSubpath": "./values",
         "exportedFromPath": "packages/agents/domain/src/values/index.ts",
+        "symbolName": "TableBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 388,
+        "summary": "A rectangular data table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values tableblock class a rectangular data table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/agents/domain/src/values/index.ts",
+        "symbolName": "TableCellBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 293,
+        "summary": "A single table cell in an assistant-generated table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values tablecellblock class a single table cell in an assistant-generated table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/agents/domain/src/values/index.ts",
+        "symbolName": "TableRowBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 319,
+        "summary": "A single row in an assistant-generated table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values tablerowblock class a single row in an assistant-generated table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/agents/domain/src/values/index.ts",
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -1588,16 +1886,16 @@
         "packageName": "@beep/agents-domain",
         "packagePath": "packages/agents/domain",
         "topoOrder": 0,
-        "importSpecifier": "@beep/agents-domain/values/AssistantContent",
-        "exportSubpath": "./values/AssistantContent",
-        "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
-        "symbolName": "AssistantBlock",
-        "exportKind": "const",
+        "importSpecifier": "@beep/agents-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/agents/domain/src/values/index.ts",
+        "symbolName": "YouTubeBlock",
+        "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 290,
-        "summary": "A single block of an assistant turn.",
+        "sourceLine": 418,
+        "summary": "An embedded YouTube video.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -1607,7 +1905,32 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent assistantblock const a single block of an assistant turn. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values ./values youtubeblock class an embedded youtube video. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values/AssistantContent",
+        "exportSubpath": "./values/AssistantContent",
+        "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
+        "symbolName": "AssistantBlock",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 448,
+        "summary": "A single block of an assistant turn.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent assistantblock const a single block of an assistant turn. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1619,7 +1942,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 303,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -1643,7 +1966,7 @@
         "symbolName": "AssistantContent",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 323,
+        "sourceLine": 489,
         "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
         "categories": [
           "value-objects"
@@ -1668,7 +1991,7 @@
         "symbolName": "assistantContentToDocument",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 121,
+        "sourceLine": 132,
         "summary": "Lift an ordered list of assistant blocks into a complete `@beep/md`",
         "categories": [
           "value-objects"
@@ -1693,7 +2016,7 @@
         "symbolName": "blockToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 77,
+        "sourceLine": 78,
         "summary": "Lift a single {@link AssistantBlock} into a `@beep/md` block node.",
         "categories": [
           "value-objects"
@@ -1718,7 +2041,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -1743,7 +2066,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -1768,10 +2091,10 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
-          "schemas"
+          "value-objects"
         ],
         "since": [
           "0.0.0"
@@ -1781,7 +2104,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent inlinenode const inline content held by an assistant block. schemas packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent inlinenode const inline content held by an assistant block. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       },
       {
         "packageName": "@beep/agents-domain",
@@ -1793,7 +2116,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -1817,7 +2140,7 @@
         "symbolName": "inlineToMd",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.behavior.ts",
-        "sourceLine": 34,
+        "sourceLine": 35,
         "summary": "Lift a single {@link InlineNode} into a `@beep/md` inline node.",
         "categories": [
           "value-objects"
@@ -1842,7 +2165,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -1867,7 +2190,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -1892,7 +2215,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -1917,7 +2240,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -1939,10 +2262,85 @@
         "importSpecifier": "@beep/agents-domain/values/AssistantContent",
         "exportSubpath": "./values/AssistantContent",
         "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
+        "symbolName": "TableBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 388,
+        "summary": "A rectangular data table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent tableblock class a rectangular data table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values/AssistantContent",
+        "exportSubpath": "./values/AssistantContent",
+        "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
+        "symbolName": "TableCellBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 293,
+        "summary": "A single table cell in an assistant-generated table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent tablecellblock class a single table cell in an assistant-generated table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values/AssistantContent",
+        "exportSubpath": "./values/AssistantContent",
+        "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
+        "symbolName": "TableRowBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 319,
+        "summary": "A single row in an assistant-generated table.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent tablerowblock class a single row in an assistant-generated table. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values/AssistantContent",
+        "exportSubpath": "./values/AssistantContent",
+        "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -1956,6 +2354,31 @@
           "@since"
         ],
         "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent textinline class a run of styled text. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
+      },
+      {
+        "packageName": "@beep/agents-domain",
+        "packagePath": "packages/agents/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-domain/values/AssistantContent",
+        "exportSubpath": "./values/AssistantContent",
+        "exportedFromPath": "packages/agents/domain/src/values/AssistantContent/index.ts",
+        "symbolName": "YouTubeBlock",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
+        "sourceLine": 418,
+        "summary": "An embedded YouTube video.",
+        "categories": [
+          "value-objects"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-domain packages/agents/domain @beep/agents-domain/values/assistantcontent ./values/assistantcontent youtubeblock class an embedded youtube video. value-objects packages/agents/domain/src/values/assistantcontent/assistantcontent.model.ts"
       }
     ]
   }

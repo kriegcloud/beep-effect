@@ -12,13 +12,15 @@
  * @since 0.0.0
  */
 import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
-import { ChatRpcs } from "@beep/agents-use-cases/public";
+import { ChatActionError, ChatRpcs } from "@beep/agents-use-cases/public";
 import { Document } from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { Clock, Duration, Effect, Layer, Metric, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { Atom, AtomRegistry, AtomRpc, Reactivity } from "effect/unstable/reactivity";
@@ -247,6 +249,31 @@ export class StreamingTurn extends S.Class<StreamingTurn>("StreamingTurn")(
 export const streamingTurnAtom = Atom.make<O.Option<StreamingTurn>>(O.none());
 
 /**
+ * The latest failed assistant turn, surfaced for app/UI-layer toast handling.
+ *
+ * @example
+ * ```ts
+ * import { turnErrorAtom } from "@beep/agents-client"
+ *
+ * console.log(turnErrorAtom)
+ * ```
+ *
+ * @category atoms
+ * @since 0.0.0
+ */
+export const turnErrorAtom = Atom.make<O.Option<ChatActionError>>(O.none());
+
+const fallbackTurnErrorMessage = "Assistant turn failed" as const;
+
+const messageFromUnknownError = (error: unknown): string => {
+  const message = P.hasProperty(error, "message") && P.isString(error.message) ? Str.trim(error.message) : "";
+  return Str.isNonEmpty(message) ? message : fallbackTurnErrorMessage;
+};
+
+const toTurnError = (error: unknown): ChatActionError =>
+  S.is(ChatActionError)(error) ? error : ChatActionError.new(messageFromUnknownError(error));
+
+/**
  * When set, the composer is editing an existing turn's message.
  *
  * @example
@@ -426,6 +453,7 @@ export const runTurnAtom = ChatClient.runtime.fn<TurnRequest>()(
     const turnKeys = [timelineKey(turn.threadId), THREADS_KEY];
     const startedAt = yield* Clock.currentTimeMillis;
     let blocks: ReadonlyArray<AssistantBlock> = [];
+    ctx.set(turnErrorAtom, O.none());
     ctx.set(streamingTurnAtom, O.some({ ...turnState, blocks }));
     yield* Reactivity.mutation(
       Stream.runForEach(
@@ -449,6 +477,8 @@ export const runTurnAtom = ChatClient.runtime.fn<TurnRequest>()(
       Effect.tapError(
         Effect.fnUntraced(function* (error) {
           ctx.set(streamingTurnAtom, O.none());
+          const turnError = toTurnError(error);
+          ctx.set(turnErrorAtom, O.some(turnError));
           yield* Effect.logError("assistant turn failed", error);
         })
       ),

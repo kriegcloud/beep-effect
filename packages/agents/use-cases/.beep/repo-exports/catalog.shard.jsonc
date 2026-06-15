@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f97b5218063eaf1ba97ebe762a67cbd75f0e4020e95d3097f9829f98bf504494",
+    "digest": "7fdb7403ed1a0cf498b1116053d67b2296bb2667b70014578bc4c298abce6855",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/agents/use-cases/package.json",
-        "sha256": "336a1e06ac4d83cb4106d2972d6f1b2342f8b00459376a3ddb38d4c8e5f668b2",
-        "bytes": 2001
+        "sha256": "1d8e709b0078869d1b8e49e2057a23fd02edee9f59dc8032a96fd3b7cc4e2a38",
+        "bytes": 2036
       },
       {
         "path": "packages/agents/use-cases/src/index.ts",
@@ -51,9 +51,19 @@
         "bytes": 1596
       },
       {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.repair-errors.ts",
+        "sha256": "d678f8720070a040d20214e37dd900bd6e10e933886d45113f293bca4fe8dbeb",
+        "bytes": 1181
+      },
+      {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/index.ts",
         "sha256": "8e5808d19a76cfc15bc8edc9f26928a161ee1de8ac0c36ba469a1dd66b2df70d",
         "bytes": 944
+      },
+      {
+        "path": "packages/agents/use-cases/src/processes/AssistantTurn/server.ts",
+        "sha256": "cd0d30e98709517dff1a217cf2ae9fd2af1be49770ed33f26fd5b4db627c2922",
+        "bytes": 402
       },
       {
         "path": "packages/agents/use-cases/src/processes/Chat/Chat.errors.ts",
@@ -121,6 +131,11 @@
         "bytes": 2946
       },
       {
+        "path": "packages/agents/use-cases/src/server.ts",
+        "sha256": "783c19abca08c8b2e9375c69477e5f0dc02c1324c3a9c9b3dc4e74c03be0a9c5",
+        "bytes": 688
+      },
+      {
         "path": "packages/agents/use-cases/src/test.ts",
         "sha256": "8ca092807bcf54f5de4143d831dc442d240d4bf284b9679ab2955f7c9d85db2d",
         "bytes": 426
@@ -151,12 +166,13 @@
       "@beep/agents-use-cases",
       "@beep/agents-use-cases/proof",
       "@beep/agents-use-cases/public",
+      "@beep/agents-use-cases/server",
       "@beep/agents-use-cases/test"
     ],
     "counts": {
-      "publicExportEntries": 178,
-      "uniqueSymbols": 46,
-      "sourceFiles": 20
+      "publicExportEntries": 180,
+      "uniqueSymbols": 48,
+      "sourceFiles": 23
     },
     "exports": [
       {
@@ -3430,6 +3446,48 @@
           "@since"
         ],
         "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public userturnhistoryitem class the plain-text prompt projection of a single thread item. the kernel consumes models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/server",
+        "exportSubpath": "./server",
+        "exportedFromPath": "packages/agents/use-cases/src/server.ts",
+        "symbolName": "AssistantTurn",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/server.ts",
+        "sourceLine": 22,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/server ./server assistantturn sourcefile packages/agents/use-cases/src/processes/assistantturn/server.ts"
+      },
+      {
+        "packageName": "@beep/agents-use-cases",
+        "packagePath": "packages/agents/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-use-cases/server",
+        "exportSubpath": "./server",
+        "exportedFromPath": "packages/agents/use-cases/src/server.ts",
+        "symbolName": "BlockRepairFailed",
+        "exportKind": "class",
+        "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.repair-errors.ts",
+        "sourceLine": 29,
+        "summary": "Port failure raised when the block-repair adapter cannot complete its repair call.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/server ./server blockrepairfailed class port failure raised when the block-repair adapter cannot complete its repair call. errors packages/agents/use-cases/src/processes/assistantturn/assistantturn.repair-errors.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",

@@ -2,9 +2,8 @@
 
 ## Status
 
-Lifecycle: `planned` — ready for a `/goal` session. Dependency
-`goals/desktop-chat-surface` is closed (`completed-retained`), so this packet is
-unblocked.
+Lifecycle: `completed-retained` — implementation and P4 proof are complete.
+Dependency `goals/desktop-chat-surface` is closed (`completed-retained`).
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -77,9 +76,25 @@ additions with round-trip + JSON-boundary tests, and verify no regression in the
 `@beep/md`/`@beep/lexical-schema` consumers (NOT `apps/oip-web`, which imports
 none of md/lexical/editor). Mermaid avoids this (reuses `Pre`).
 
+## Latest Evidence
+
+- P0 revalidation is recorded in
+  [`history/2026-06-15-p0-revalidation.md`](./history/2026-06-15-p0-revalidation.md).
+- Local fixture, foundation, integration, generated-artifact, and aggregate
+  proof progress is recorded in
+  [`history/2026-06-15-verification-progress.md`](./history/2026-06-15-verification-progress.md).
+- `bun run beep yeet verify` passed on 2026-06-15 and wrote a successful Yeet
+  verdict for branch `feat/chat-surface-parity`.
+- Real-LLM E2E passed on 2026-06-15 via 1Password secret-reference injection:
+  `chat-real-anthropic.e2e.test.ts` streamed and persisted mermaid, table, and
+  youtube blocks through the live Anthropic kernel and PgLite integration path.
+- Closeout reflection:
+  [`history/reflections/2026-06-15-codex.md`](./history/reflections/2026-06-15-codex.md).
+
 ## Outcome
 
-TBD — populated at P4 close by the implementing session.
+Full POC parity is implemented and retained: P1 observability/UX, P2 repair,
+P3 rich blocks, and P4 real-LLM plus Yeet verification are complete.
 
 ## Notes
 

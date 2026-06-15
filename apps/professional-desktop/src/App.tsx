@@ -11,7 +11,9 @@
  * @since 0.0.0
  */
 
+import { Toaster } from "@beep/ui/components/sonner";
 import { ChatApp } from "./chat/ui/ChatApp.tsx";
+import { ChatTurnErrorToasts } from "./chat/ui/ChatTurnErrorToasts.tsx";
 import type { JSX } from "react";
 
 /**
@@ -28,5 +30,11 @@ import type { JSX } from "react";
  * @since 0.0.0
  */
 export function App(): JSX.Element {
-  return <ChatApp />;
+  return (
+    <>
+      <ChatApp />
+      <ChatTurnErrorToasts />
+      <Toaster richColors />
+    </>
+  );
 }
