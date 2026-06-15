@@ -7,7 +7,7 @@
 
 import { $PandocAstId } from "@beep/identity";
 import { A } from "@beep/utils";
-import * as Effect from "effect/Effect";
+import { Effect, Match } from "effect";
 import * as S from "effect/Schema";
 import {
   BlockQuote,
@@ -49,25 +49,43 @@ const $I = $PandocAstId.create("Pandoc.codec");
 /**
  * Generic Pandoc constructor wire shape.
  *
- * @category wire
+ * @category models
  * @since 0.0.0
  */
-export const PandocConstructorWire = S.Struct({
-  c: S.optionalKey(S.Unknown),
-  t: S.String,
-}).pipe(
-  $I.annoteSchema("PandocConstructorWire", {
+export class PandocConstructorWire extends S.Class<PandocConstructorWire>($I`PandocConstructorWire`)(
+  {
+    c: S.optionalKey(S.Unknown).annotateKey({
+      description: "Optional Pandoc constructor payload.",
+    }),
+    t: S.String.annotateKey({
+      description: "Pandoc constructor tag.",
+    }),
+  },
+  $I.annote("PandocConstructorWire", {
     description: "Generic Pandoc constructor wire shape.",
   })
-);
+) {}
 
 /**
- * Runtime type for {@link PandocConstructorWire}.
+ * Companion namespace for {@link PandocConstructorWire}.
  *
- * @category wire
+ * @category models
  * @since 0.0.0
  */
-export type PandocConstructorWire = typeof PandocConstructorWire.Type;
+export declare namespace PandocConstructorWire {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly c?: unknown;
+    readonly t: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Pandoc JSON document wire shape.
@@ -81,31 +99,52 @@ export type PandocConstructorWire = typeof PandocConstructorWire.Type;
  * console.log(decode({ "pandoc-api-version": [1, 23, 1], meta: {}, blocks: [] }).blocks.length)
  * ```
  *
- * @category wire
+ * @category models
  * @since 0.0.0
  */
-export const PandocJsonWire = S.Struct({
-  "pandoc-api-version": PandocApiVersion,
-  blocks: S.Array(S.Unknown),
-  meta: PandocMeta,
-}).pipe(
-  $I.annoteSchema("PandocJsonWire", {
+export class PandocJsonWire extends S.Class<PandocJsonWire>($I`PandocJsonWire`)(
+  {
+    "pandoc-api-version": PandocApiVersion.annotateKey({
+      description: "Pandoc API version tuple.",
+    }),
+    blocks: S.Array(S.Unknown).annotateKey({
+      description: "Pandoc block constructor array.",
+    }),
+    meta: PandocMeta.annotateKey({
+      description: "Pandoc metadata map.",
+    }),
+  },
+  $I.annote("PandocJsonWire", {
     description: "Pandoc JSON document wire shape.",
   })
-);
+) {}
 
 /**
- * Runtime type for {@link PandocJsonWire}.
+ * Companion namespace for {@link PandocJsonWire}.
  *
- * @category wire
+ * @category models
  * @since 0.0.0
  */
-export type PandocJsonWire = typeof PandocJsonWire.Type;
+export declare namespace PandocJsonWire {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly blocks: ReadonlyArray<unknown>;
+    readonly meta: PandocMeta;
+    readonly "pandoc-api-version": PandocApiVersion;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
 
 /**
  * Pandoc JSON string codec.
  *
- * @category wire
+ * @category codecs
  * @since 0.0.0
  */
 export const PandocJsonFromString = S.fromJsonString(PandocJsonWire).pipe(
@@ -117,7 +156,7 @@ export const PandocJsonFromString = S.fromJsonString(PandocJsonWire).pipe(
 /**
  * Runtime type for {@link PandocJsonFromString}.
  *
- * @category wire
+ * @category codecs
  * @since 0.0.0
  */
 export type PandocJsonFromString = typeof PandocJsonFromString.Type;
@@ -178,121 +217,118 @@ const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
 const unknownBlock = (constructor: string, payload: unknown): UnknownBlock =>
   UnknownBlock.make({ constructor, payload });
 
+const decodeChildInline = (
+  input: unknown,
+  make: (children: ReadonlyArray<PandocInline.Type>) => PandocInline.Type
+): Effect.Effect<PandocInline.Type, S.SchemaError> => Effect.map(decodeInlines(input), make);
+
+const decodeAttributedTextInline = (
+  input: unknown,
+  make: (attr: PandocAttr, text: string) => PandocInline.Type
+): Effect.Effect<PandocInline.Type, S.SchemaError> =>
+  Effect.flatMap(decodeCodePayloadWire(input), ([attrWire, text]) =>
+    Effect.map(attrFromWire(attrWire), (attr) => make(attr, text))
+  );
+
+const decodeTargetInline = (
+  input: unknown,
+  make: (attr: PandocAttr, children: ReadonlyArray<PandocInline.Type>, target: PandocTarget) => PandocInline.Type
+): Effect.Effect<PandocInline.Type, S.SchemaError> =>
+  Effect.flatMap(decodeLinkPayloadWire(input), ([attrWire, childrenWire, targetWire]) =>
+    Effect.flatMap(attrFromWire(attrWire), (attr) =>
+      Effect.flatMap(decodeInlines(childrenWire), (children) =>
+        Effect.map(targetFromWire(targetWire), (target) => make(attr, children, target))
+      )
+    )
+  );
+
+const decodeAttributedInlineChildren = (
+  input: unknown,
+  make: (attr: PandocAttr, children: ReadonlyArray<PandocInline.Type>) => PandocInline.Type
+): Effect.Effect<PandocInline.Type, S.SchemaError> =>
+  Effect.flatMap(decodeDivPayloadWire(input), ([attrWire, childrenWire]) =>
+    Effect.flatMap(attrFromWire(attrWire), (attr) =>
+      Effect.map(decodeInlines(childrenWire), (children) => make(attr, children))
+    )
+  );
+
 const decodeInline = (input: unknown): Effect.Effect<PandocInline.Type, S.SchemaError> =>
-  Effect.flatMap(decodeConstructor(input), (wire): Effect.Effect<PandocInline.Type, S.SchemaError> => {
-    if (wire.t === "Str") {
-      return Effect.map(decodeString(wire.c), (text) => Str.make({ text }));
-    }
-    if (wire.t === "Space") {
-      return Effect.succeed(Space.make({}));
-    }
-    if (wire.t === "SoftBreak") {
-      return Effect.succeed(SoftBreak.make({}));
-    }
-    if (wire.t === "LineBreak") {
-      return Effect.succeed(LineBreak.make({}));
-    }
-    if (wire.t === "Emph") {
-      return Effect.map(decodeInlines(wire.c), (children) => Emph.make({ children }));
-    }
-    if (wire.t === "Strong") {
-      return Effect.map(decodeInlines(wire.c), (children) => Strong.make({ children }));
-    }
-    if (wire.t === "Strikeout") {
-      return Effect.map(decodeInlines(wire.c), (children) => Strikeout.make({ children }));
-    }
-    if (wire.t === "Code") {
-      return Effect.flatMap(decodeCodePayloadWire(wire.c), ([attrWire, text]) =>
-        Effect.map(attrFromWire(attrWire), (attr) => Code.make({ attr, text }))
-      );
-    }
-    if (wire.t === "Link") {
-      return Effect.flatMap(decodeLinkPayloadWire(wire.c), ([attrWire, childrenWire, targetWire]) =>
-        Effect.flatMap(attrFromWire(attrWire), (attr) =>
-          Effect.flatMap(decodeInlines(childrenWire), (children) =>
-            Effect.map(targetFromWire(targetWire), (target) => Link.make({ attr, children, target }))
-          )
+  Effect.flatMap(decodeConstructor(input), (wire) =>
+    Match.value(wire.t).pipe(
+      Match.when("Str", () => Effect.map(decodeString(wire.c), (text) => Str.make({ text }))),
+      Match.when("Space", () => Effect.succeed(Space.make({}))),
+      Match.when("SoftBreak", () => Effect.succeed(SoftBreak.make({}))),
+      Match.when("LineBreak", () => Effect.succeed(LineBreak.make({}))),
+      Match.when("Emph", () => decodeChildInline(wire.c, (children) => Emph.make({ children }))),
+      Match.when("Strong", () => decodeChildInline(wire.c, (children) => Strong.make({ children }))),
+      Match.when("Strikeout", () => decodeChildInline(wire.c, (children) => Strikeout.make({ children }))),
+      Match.when("Code", () => decodeAttributedTextInline(wire.c, (attr, text) => Code.make({ attr, text }))),
+      Match.when("Link", () =>
+        decodeTargetInline(wire.c, (attr, children, target) => Link.make({ attr, children, target }))
+      ),
+      Match.when("Image", () =>
+        decodeTargetInline(wire.c, (attr, children, target) => Image.make({ attr, children, target }))
+      ),
+      Match.when("Span", () =>
+        decodeAttributedInlineChildren(wire.c, (attr, children) => Span.make({ attr, children }))
+      ),
+      Match.when("Note", () =>
+        Effect.map(
+          Effect.flatMap(decodeNotePayloadWire(wire.c), (blocks) => Effect.forEach(blocks, decodeBlock)),
+          (blocks) => Note.make({ blocks })
         )
-      );
-    }
-    if (wire.t === "Image") {
-      return Effect.flatMap(decodeLinkPayloadWire(wire.c), ([attrWire, childrenWire, targetWire]) =>
-        Effect.flatMap(attrFromWire(attrWire), (attr) =>
-          Effect.flatMap(decodeInlines(childrenWire), (children) =>
-            Effect.map(targetFromWire(targetWire), (target) => Image.make({ attr, children, target }))
-          )
+      ),
+      Match.when("Math", () =>
+        Effect.map(decodeMathPayloadWire(wire.c), ([mathTypeWire, text]) =>
+          Math.make({ mathType: mathTypeWire.t === "DisplayMath" ? "DisplayMath" : "InlineMath", text })
         )
-      );
-    }
-    if (wire.t === "Span") {
-      return Effect.flatMap(decodeDivPayloadWire(wire.c), ([attrWire, childrenWire]) =>
-        Effect.flatMap(attrFromWire(attrWire), (attr) =>
-          Effect.map(decodeInlines(childrenWire), (children) => Span.make({ attr, children }))
-        )
-      );
-    }
-    if (wire.t === "Note") {
-      return Effect.map(
-        Effect.flatMap(decodeNotePayloadWire(wire.c), (blocks) => Effect.forEach(blocks, decodeBlock)),
-        (blocks) => Note.make({ blocks })
-      );
-    }
-    if (wire.t === "Math") {
-      return Effect.map(decodeMathPayloadWire(wire.c), ([mathTypeWire, text]) =>
-        Math.make({ mathType: mathTypeWire.t === "DisplayMath" ? "DisplayMath" : "InlineMath", text })
-      );
-    }
-    return Effect.succeed(unknownInline(wire.t, wire.c));
-  });
+      ),
+      Match.orElse(() => Effect.succeed(unknownInline(wire.t, wire.c)))
+    )
+  );
+
+const decodeAttributedBlockChildren = (
+  input: unknown,
+  make: (attr: PandocAttr, children: ReadonlyArray<PandocBlock.Type>) => PandocBlock.Type
+): Effect.Effect<PandocBlock.Type, S.SchemaError> =>
+  Effect.flatMap(decodeDivPayloadWire(input), ([attrWire, childrenWire]) =>
+    Effect.flatMap(attrFromWire(attrWire), (attr) =>
+      Effect.map(decodeBlockList(childrenWire), (children) => make(attr, children))
+    )
+  );
 
 const decodeBlock = (input: unknown): Effect.Effect<PandocBlock.Type, S.SchemaError> =>
-  Effect.flatMap(decodeConstructor(input), (wire): Effect.Effect<PandocBlock.Type, S.SchemaError> => {
-    if (wire.t === "Plain") {
-      return Effect.map(decodeInlines(wire.c), (children) => Plain.make({ children }));
-    }
-    if (wire.t === "Para") {
-      return Effect.map(decodeInlines(wire.c), (children) => Para.make({ children }));
-    }
-    if (wire.t === "Header") {
-      return Effect.flatMap(decodeHeaderPayloadWire(wire.c), ([level, attrWire, childrenWire]) =>
-        Effect.flatMap(attrFromWire(attrWire), (attr) =>
-          Effect.map(decodeInlines(childrenWire), (children) => Header.make({ attr, children, level }))
+  Effect.flatMap(decodeConstructor(input), (wire) =>
+    Match.value(wire.t).pipe(
+      Match.when("Plain", () => Effect.map(decodeInlines(wire.c), (children) => Plain.make({ children }))),
+      Match.when("Para", () => Effect.map(decodeInlines(wire.c), (children) => Para.make({ children }))),
+      Match.when("Header", () =>
+        Effect.flatMap(decodeHeaderPayloadWire(wire.c), ([level, attrWire, childrenWire]) =>
+          Effect.flatMap(attrFromWire(attrWire), (attr) =>
+            Effect.map(decodeInlines(childrenWire), (children) => Header.make({ attr, children, level }))
+          )
         )
-      );
-    }
-    if (wire.t === "BlockQuote") {
-      return Effect.map(decodeBlockList(wire.c), (children) => BlockQuote.make({ children }));
-    }
-    if (wire.t === "CodeBlock") {
-      return Effect.flatMap(decodeCodePayloadWire(wire.c), ([attrWire, text]) =>
-        Effect.map(attrFromWire(attrWire), (attr) => CodeBlock.make({ attr, text }))
-      );
-    }
-    if (wire.t === "BulletList") {
-      return Effect.map(decodeBlockItems(wire.c), (items) => BulletList.make({ items }));
-    }
-    if (wire.t === "OrderedList") {
-      return Effect.flatMap(decodeOrderedListPayloadWire(wire.c), ([[start, style, delimiter], itemWire]) =>
-        Effect.map(decodeBlockItems(itemWire), (items) =>
-          OrderedList.make({ delimiter: delimiter.t, items, start, style: style.t })
+      ),
+      Match.when("BlockQuote", () => Effect.map(decodeBlockList(wire.c), (children) => BlockQuote.make({ children }))),
+      Match.when("CodeBlock", () =>
+        Effect.flatMap(decodeCodePayloadWire(wire.c), ([attrWire, text]) =>
+          Effect.map(attrFromWire(attrWire), (attr) => CodeBlock.make({ attr, text }))
         )
-      );
-    }
-    if (wire.t === "HorizontalRule") {
-      return Effect.succeed(HorizontalRule.make({}));
-    }
-    if (wire.t === "Div") {
-      return Effect.flatMap(decodeDivPayloadWire(wire.c), ([attrWire, childrenWire]) =>
-        Effect.flatMap(attrFromWire(attrWire), (attr) =>
-          Effect.map(decodeBlockList(childrenWire), (children) => Div.make({ attr, children }))
+      ),
+      Match.when("BulletList", () => Effect.map(decodeBlockItems(wire.c), (items) => BulletList.make({ items }))),
+      Match.when("OrderedList", () =>
+        Effect.flatMap(decodeOrderedListPayloadWire(wire.c), ([[start, style, delimiter], itemWire]) =>
+          Effect.map(decodeBlockItems(itemWire), (items) =>
+            OrderedList.make({ delimiter: delimiter.t, items, start, style: style.t })
+          )
         )
-      );
-    }
-    if (wire.t === "Table") {
-      return Effect.succeed(Table.make({ attr: PandocAttr.empty, caption: [], payload: wire.c }));
-    }
-    return Effect.succeed(unknownBlock(wire.t, wire.c));
-  });
+      ),
+      Match.when("HorizontalRule", () => Effect.succeed(HorizontalRule.make({}))),
+      Match.when("Div", () => decodeAttributedBlockChildren(wire.c, (attr, children) => Div.make({ attr, children }))),
+      Match.when("Table", () => Effect.succeed(Table.make({ attr: PandocAttr.empty, caption: [], payload: wire.c }))),
+      Match.orElse(() => Effect.succeed(unknownBlock(wire.t, wire.c)))
+    )
+  );
 
 const encodeAttr = (
   attr: PandocAttr.Type
@@ -309,85 +345,49 @@ const encodeBlockItems = (
   items: ReadonlyArray<ReadonlyArray<PandocBlock.Type>>
 ): ReadonlyArray<ReadonlyArray<unknown>> => A.map(items, encodeBlocks);
 
-const encodeInline = (inline: PandocInline.Type): unknown => {
-  if (inline._tag === "str") {
-    return { c: inline.text, t: "Str" };
-  }
-  if (inline._tag === "space") {
-    return { t: "Space" };
-  }
-  if (inline._tag === "softbreak") {
-    return { t: "SoftBreak" };
-  }
-  if (inline._tag === "linebreak") {
-    return { t: "LineBreak" };
-  }
-  if (inline._tag === "emph") {
-    return { c: encodeInlines(inline.children), t: "Emph" };
-  }
-  if (inline._tag === "strong") {
-    return { c: encodeInlines(inline.children), t: "Strong" };
-  }
-  if (inline._tag === "strikeout") {
-    return { c: encodeInlines(inline.children), t: "Strikeout" };
-  }
-  if (inline._tag === "code") {
-    return { c: [encodeAttr(inline.attr), inline.text], t: "Code" };
-  }
-  if (inline._tag === "link") {
-    return { c: [encodeAttr(inline.attr), encodeInlines(inline.children), encodeTarget(inline.target)], t: "Link" };
-  }
-  if (inline._tag === "image") {
-    return { c: [encodeAttr(inline.attr), encodeInlines(inline.children), encodeTarget(inline.target)], t: "Image" };
-  }
-  if (inline._tag === "span") {
-    return { c: [encodeAttr(inline.attr), encodeInlines(inline.children)], t: "Span" };
-  }
-  if (inline._tag === "note") {
-    return { c: encodeBlocks(inline.blocks), t: "Note" };
-  }
-  if (inline._tag === "math") {
-    return { c: [{ t: inline.mathType }, inline.text], t: "Math" };
-  }
-  return { c: inline.payload, t: inline.constructor };
-};
+const encodeInline = Match.type<PandocInline.Type>().pipe(
+  Match.tagsExhaustive({
+    str: (inline) => ({ c: inline.text, t: "Str" }),
+    space: () => ({ t: "Space" }),
+    softbreak: () => ({ t: "SoftBreak" }),
+    linebreak: () => ({ t: "LineBreak" }),
+    emph: (inline) => ({ c: encodeInlines(inline.children), t: "Emph" }),
+    strong: (inline) => ({ c: encodeInlines(inline.children), t: "Strong" }),
+    strikeout: (inline) => ({ c: encodeInlines(inline.children), t: "Strikeout" }),
+    code: (inline) => ({ c: [encodeAttr(inline.attr), inline.text], t: "Code" }),
+    link: (inline) => ({
+      c: [encodeAttr(inline.attr), encodeInlines(inline.children), encodeTarget(inline.target)],
+      t: "Link",
+    }),
+    image: (inline) => ({
+      c: [encodeAttr(inline.attr), encodeInlines(inline.children), encodeTarget(inline.target)],
+      t: "Image",
+    }),
+    span: (inline) => ({ c: [encodeAttr(inline.attr), encodeInlines(inline.children)], t: "Span" }),
+    note: (inline) => ({ c: encodeBlocks(inline.blocks), t: "Note" }),
+    math: (inline) => ({ c: [{ t: inline.mathType }, inline.text], t: "Math" }),
+    unknownInline: (inline) => ({ c: inline.payload, t: inline.constructor }),
+  })
+);
 
-const encodeBlock = (block: PandocBlock.Type): unknown => {
-  if (block._tag === "plain") {
-    return { c: encodeInlines(block.children), t: "Plain" };
-  }
-  if (block._tag === "para") {
-    return { c: encodeInlines(block.children), t: "Para" };
-  }
-  if (block._tag === "header") {
-    return { c: [block.level, encodeAttr(block.attr), encodeInlines(block.children)], t: "Header" };
-  }
-  if (block._tag === "blockquote") {
-    return { c: encodeBlocks(block.children), t: "BlockQuote" };
-  }
-  if (block._tag === "codeblock") {
-    return { c: [encodeAttr(block.attr), block.text], t: "CodeBlock" };
-  }
-  if (block._tag === "bulletlist") {
-    return { c: encodeBlockItems(block.items), t: "BulletList" };
-  }
-  if (block._tag === "orderedlist") {
-    return {
+const encodeBlock = Match.type<PandocBlock.Type>().pipe(
+  Match.tagsExhaustive({
+    plain: (block) => ({ c: encodeInlines(block.children), t: "Plain" }),
+    para: (block) => ({ c: encodeInlines(block.children), t: "Para" }),
+    header: (block) => ({ c: [block.level, encodeAttr(block.attr), encodeInlines(block.children)], t: "Header" }),
+    blockquote: (block) => ({ c: encodeBlocks(block.children), t: "BlockQuote" }),
+    codeblock: (block) => ({ c: [encodeAttr(block.attr), block.text], t: "CodeBlock" }),
+    bulletlist: (block) => ({ c: encodeBlockItems(block.items), t: "BulletList" }),
+    orderedlist: (block) => ({
       c: [[block.start, { t: block.style }, { t: block.delimiter }], encodeBlockItems(block.items)],
       t: "OrderedList",
-    };
-  }
-  if (block._tag === "horizontalrule") {
-    return { t: "HorizontalRule" };
-  }
-  if (block._tag === "div") {
-    return { c: [encodeAttr(block.attr), encodeBlocks(block.children)], t: "Div" };
-  }
-  if (block._tag === "table") {
-    return { c: block.payload, t: "Table" };
-  }
-  return { c: block.payload, t: block.constructor };
-};
+    }),
+    horizontalrule: () => ({ t: "HorizontalRule" }),
+    div: (block) => ({ c: [encodeAttr(block.attr), encodeBlocks(block.children)], t: "Div" }),
+    table: (block) => ({ c: block.payload, t: "Table" }),
+    unknownBlock: (block) => ({ c: block.payload, t: block.constructor }),
+  })
+);
 
 /**
  * Decodes a Pandoc JSON object into the internal schema-first document model.
@@ -446,11 +446,13 @@ export const decodePandocJsonString = (input: string): Effect.Effect<PandocDocum
  * @since 0.0.0
  */
 export const encodePandocJson = (document: PandocDocument.Type): Effect.Effect<PandocJsonWire, S.SchemaError> =>
-  Effect.succeed({
-    "pandoc-api-version": document.apiVersion,
-    blocks: encodeBlocks(document.blocks),
-    meta: document.meta,
-  });
+  Effect.succeed(
+    PandocJsonWire.make({
+      "pandoc-api-version": document.apiVersion,
+      blocks: encodeBlocks(document.blocks),
+      meta: document.meta,
+    })
+  );
 
 /**
  * Encodes an internal Pandoc document model to a Pandoc JSON string.

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "47364405dc571477ef0f18f0db0cd6c367b31aa82d13b5edd44894da09a309e0",
+    "digest": "18c5519b46b9d20eebf6cc281e2465e5d061ff317aff8f9c6343ab1aa227f507",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,7 +22,7 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/package.json",
-        "sha256": "11f80e107963b75b630c7c4901b667749184abab7f179dcfce177ee4556a5309",
+        "sha256": "126c0ad15ea9245a5e2b285669eadc56783fb4685953a5420975f096ac09e1bf",
         "bytes": 2991
       },
       {
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sha256": "7890a6c96e3e14535577aca7b767bd2517e119fb1b2c6405c0f66b5393a73d45",
-        "bytes": 16635
+        "sha256": "f7634957c3ec6f16e3827596404ebb9dfe3f61c7ea304335a8380ce153899912",
+        "bytes": 17917
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sha256": "e7e3ae028ebaee68a784543a328ffe653d3a89040ec80f4ffd6cfd8558709983",
-        "bytes": 24082
+        "sha256": "bc1a85ef61e23682ec22effb0b2631999880e8d1b34c35f4dfe392a6afd7b350",
+        "bytes": 26594
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",
@@ -385,7 +385,7 @@
         "symbolName": "documentToPandoc",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 803,
+        "sourceLine": 791,
         "summary": "Maps the canonical `@beep/md` AST into a Pandoc document with a structured",
         "categories": [
           "mapping"
@@ -410,7 +410,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 721,
+        "sourceLine": 709,
         "summary": "Result of mapping an `@beep/md` document to Pandoc.",
         "categories": [
           "models"
@@ -434,7 +434,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 741,
+        "sourceLine": 729,
         "summary": "Companion namespace for {@link DocumentToPandocResult}.",
         "categories": [
           "models"
@@ -531,7 +531,7 @@
         "symbolName": "encodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 471,
+        "sourceLine": 473,
         "summary": "Encodes an internal Pandoc document model to a Pandoc JSON string.",
         "categories": [
           "codecs"
@@ -1327,12 +1327,12 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/index.ts",
         "symbolName": "PandocConstructorWire",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
         "sourceLine": 55,
         "summary": "Generic Pandoc constructor wire shape.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -1341,7 +1341,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocconstructorwire const generic pandoc constructor wire shape. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocconstructorwire class generic pandoc constructor wire shape. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -1351,12 +1351,12 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/index.ts",
         "symbolName": "PandocConstructorWire",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 70,
-        "summary": "Runtime type for {@link PandocConstructorWire}.",
+        "sourceLine": 75,
+        "summary": "Companion namespace for {@link PandocConstructorWire}.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -1365,7 +1365,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocconstructorwire type runtime type for {@link pandocconstructorwire}. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocconstructorwire namespace companion namespace for {@link pandocconstructorwire}. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -1546,10 +1546,10 @@
         "symbolName": "PandocJsonFromString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 111,
+        "sourceLine": 150,
         "summary": "Pandoc JSON string codec.",
         "categories": [
-          "wire"
+          "codecs"
         ],
         "since": [
           "0.0.0"
@@ -1558,7 +1558,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonfromstring const pandoc json string codec. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonfromstring const pandoc json string codec. codecs packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -1570,10 +1570,10 @@
         "symbolName": "PandocJsonFromString",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 123,
+        "sourceLine": 162,
         "summary": "Runtime type for {@link PandocJsonFromString}.",
         "categories": [
-          "wire"
+          "codecs"
         ],
         "since": [
           "0.0.0"
@@ -1582,7 +1582,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonfromstring type runtime type for {@link pandocjsonfromstring}. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonfromstring type runtime type for {@link pandocjsonfromstring}. codecs packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -1592,12 +1592,12 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/index.ts",
         "symbolName": "PandocJsonWire",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 87,
+        "sourceLine": 105,
         "summary": "Pandoc JSON document wire shape.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -1607,7 +1607,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonwire const pandoc json document wire shape. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonwire class pandoc json document wire shape. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -1617,12 +1617,12 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/index.ts",
         "symbolName": "PandocJsonWire",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 103,
-        "summary": "Runtime type for {@link PandocJsonWire}.",
+        "sourceLine": 128,
+        "summary": "Companion namespace for {@link PandocJsonWire}.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -1631,7 +1631,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonwire type runtime type for {@link pandocjsonwire}. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast . pandocjsonwire namespace companion namespace for {@link pandocjsonwire}. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -2129,7 +2129,7 @@
         "symbolName": "pandocToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 776,
+        "sourceLine": 764,
         "summary": "Maps a Pandoc document into the canonical `@beep/md` AST with a structured",
         "categories": [
           "mapping"
@@ -2154,7 +2154,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 677,
+        "sourceLine": 665,
         "summary": "Result of mapping a Pandoc document to `@beep/md`.",
         "categories": [
           "models"
@@ -2178,7 +2178,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 697,
+        "sourceLine": 685,
         "summary": "Companion namespace for {@link PandocToDocumentResult}.",
         "categories": [
           "models"
@@ -2855,7 +2855,7 @@
         "symbolName": "encodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 471,
+        "sourceLine": 473,
         "summary": "Encodes an internal Pandoc document model to a Pandoc JSON string.",
         "categories": [
           "codecs"
@@ -2878,12 +2878,12 @@
         "exportSubpath": "./Pandoc.codec",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
         "symbolName": "PandocConstructorWire",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
         "sourceLine": 55,
         "summary": "Generic Pandoc constructor wire shape.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2892,7 +2892,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocconstructorwire const generic pandoc constructor wire shape. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocconstructorwire class generic pandoc constructor wire shape. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -2902,12 +2902,12 @@
         "exportSubpath": "./Pandoc.codec",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
         "symbolName": "PandocConstructorWire",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 70,
-        "summary": "Runtime type for {@link PandocConstructorWire}.",
+        "sourceLine": 75,
+        "summary": "Companion namespace for {@link PandocConstructorWire}.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2916,7 +2916,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocconstructorwire type runtime type for {@link pandocconstructorwire}. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocconstructorwire namespace companion namespace for {@link pandocconstructorwire}. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -2928,10 +2928,10 @@
         "symbolName": "PandocJsonFromString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 111,
+        "sourceLine": 150,
         "summary": "Pandoc JSON string codec.",
         "categories": [
-          "wire"
+          "codecs"
         ],
         "since": [
           "0.0.0"
@@ -2940,7 +2940,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonfromstring const pandoc json string codec. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonfromstring const pandoc json string codec. codecs packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -2952,10 +2952,10 @@
         "symbolName": "PandocJsonFromString",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 123,
+        "sourceLine": 162,
         "summary": "Runtime type for {@link PandocJsonFromString}.",
         "categories": [
-          "wire"
+          "codecs"
         ],
         "since": [
           "0.0.0"
@@ -2964,7 +2964,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonfromstring type runtime type for {@link pandocjsonfromstring}. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonfromstring type runtime type for {@link pandocjsonfromstring}. codecs packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -2974,12 +2974,12 @@
         "exportSubpath": "./Pandoc.codec",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
         "symbolName": "PandocJsonWire",
-        "exportKind": "const",
+        "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 87,
+        "sourceLine": 105,
         "summary": "Pandoc JSON document wire shape.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -2989,7 +2989,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonwire const pandoc json document wire shape. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonwire class pandoc json document wire shape. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -2999,12 +2999,12 @@
         "exportSubpath": "./Pandoc.codec",
         "exportedFromPath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
         "symbolName": "PandocJsonWire",
-        "exportKind": "type",
+        "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 103,
-        "summary": "Runtime type for {@link PandocJsonWire}.",
+        "sourceLine": 128,
+        "summary": "Companion namespace for {@link PandocJsonWire}.",
         "categories": [
-          "wire"
+          "models"
         ],
         "since": [
           "0.0.0"
@@ -3013,7 +3013,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonwire type runtime type for {@link pandocjsonwire}. wire packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
+        "searchText": "@beep/pandoc-ast packages/foundation/modeling/pandoc-ast @beep/pandoc-ast/pandoc.codec ./pandoc.codec pandocjsonwire namespace companion namespace for {@link pandocjsonwire}. models packages/foundation/modeling/pandoc-ast/src/pandoc.codec.ts"
       },
       {
         "packageName": "@beep/pandoc-ast",
@@ -3025,7 +3025,7 @@
         "symbolName": "documentToPandoc",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 803,
+        "sourceLine": 791,
         "summary": "Maps the canonical `@beep/md` AST into a Pandoc document with a structured",
         "categories": [
           "mapping"
@@ -3050,7 +3050,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 721,
+        "sourceLine": 709,
         "summary": "Result of mapping an `@beep/md` document to Pandoc.",
         "categories": [
           "models"
@@ -3074,7 +3074,7 @@
         "symbolName": "DocumentToPandocResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 741,
+        "sourceLine": 729,
         "summary": "Companion namespace for {@link DocumentToPandocResult}.",
         "categories": [
           "models"
@@ -3098,7 +3098,7 @@
         "symbolName": "pandocToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 776,
+        "sourceLine": 764,
         "summary": "Maps a Pandoc document into the canonical `@beep/md` AST with a structured",
         "categories": [
           "mapping"
@@ -3123,7 +3123,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 677,
+        "sourceLine": 665,
         "summary": "Result of mapping a Pandoc document to `@beep/md`.",
         "categories": [
           "models"
@@ -3147,7 +3147,7 @@
         "symbolName": "PandocToDocumentResult",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sourceLine": 697,
+        "sourceLine": 685,
         "summary": "Companion namespace for {@link PandocToDocumentResult}.",
         "categories": [
           "models"
