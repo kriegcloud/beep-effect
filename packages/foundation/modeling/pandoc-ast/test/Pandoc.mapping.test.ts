@@ -4,10 +4,76 @@ import { documentToPandoc, pandocToDocument } from "@beep/pandoc-ast/Pandoc.mapp
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import type * as Pandoc from "@beep/pandoc-ast/Pandoc.model";
 
 const fixture = (name: string): Effect.Effect<string> =>
   Effect.promise(() => Bun.file(new URL(`./fixtures/${name}`, import.meta.url)).text());
 const text = (value: string): Md.Text => Md.Text.make({ value });
+const inlineListPandocJson = () => ({
+  "pandoc-api-version": [1, 23, 1],
+  blocks: [
+    {
+      c: [
+        [
+          {
+            c: [
+              { c: "alpha", t: "Str" },
+              { t: "Space" },
+              { c: [{ c: "beta", t: "Str" }], t: "Emph" },
+              { t: "Space" },
+              { c: [["", [], []], [{ c: "docs", t: "Str" }], ["https://example.com", ""]], t: "Link" },
+            ],
+            t: "Plain",
+          },
+        ],
+      ],
+      t: "BulletList",
+    },
+  ],
+  meta: {},
+});
+
+const inlineListDocument = (): Md.Document =>
+  Md.Document.make({
+    children: [
+      Md.Ul.make({
+        children: [
+          Md.Li.make({
+            children: [
+              text("alpha "),
+              Md.Em.make({ children: [text("beta")] }),
+              text(" "),
+              Md.A.make({ children: [text("docs")], href: "https://example.com" }),
+            ],
+          }),
+        ],
+      }),
+    ],
+  });
+
+const expectUl = (block: Md.Block | undefined): Md.Ul => {
+  expect(block?._tag).toBe("ul");
+  if (block?._tag !== "ul") {
+    throw new Error("expected unordered list block");
+  }
+  return block;
+};
+
+const expectBulletList = (block: Pandoc.PandocBlock | undefined): Pandoc.BulletList => {
+  expect(block?._tag).toBe("bulletlist");
+  if (block?._tag !== "bulletlist") {
+    throw new Error("expected Pandoc bullet list block");
+  }
+  return block;
+};
+
+const expectPlain = (block: Pandoc.PandocBlock | undefined): Pandoc.Plain => {
+  expect(block?._tag).toBe("plain");
+  if (block?._tag !== "plain") {
+    throw new Error("expected Pandoc plain block");
+  }
+  return block;
+};
 
 describe("Pandoc.mapping", () => {
   it("maps md-core Pandoc JSON to @beep/md with a supported report", () =>
@@ -79,37 +145,11 @@ describe("Pandoc.mapping", () => {
   it("preserves inline structure inside list items in both mapping directions", () =>
     Effect.runPromise(
       Effect.gen(function* () {
-        const pandoc = yield* decodePandocJson({
-          "pandoc-api-version": [1, 23, 1],
-          blocks: [
-            {
-              c: [
-                [
-                  {
-                    c: [
-                      { c: "alpha", t: "Str" },
-                      { t: "Space" },
-                      { c: [{ c: "beta", t: "Str" }], t: "Emph" },
-                      { t: "Space" },
-                      { c: [["", [], []], [{ c: "docs", t: "Str" }], ["https://example.com", ""]], t: "Link" },
-                    ],
-                    t: "Plain",
-                  },
-                ],
-              ],
-              t: "BulletList",
-            },
-          ],
-          meta: {},
-        });
+        const pandoc = yield* decodePandocJson(inlineListPandocJson());
         const mappedMd = yield* pandocToDocument(pandoc);
-        const list = mappedMd.document.children[0];
+        const list = expectUl(mappedMd.document.children[0]);
 
         expect(mappedMd.report.issues).toEqual([]);
-        expect(list?._tag).toBe("ul");
-        if (list?._tag !== "ul") {
-          return;
-        }
         expect(A.map(list.children[0]?.children ?? [], (inline) => inline._tag)).toEqual([
           "text",
           "text",
@@ -118,36 +158,13 @@ describe("Pandoc.mapping", () => {
           "a",
         ]);
 
-        const document = Md.Document.make({
-          children: [
-            Md.Ul.make({
-              children: [
-                Md.Li.make({
-                  children: [
-                    text("alpha "),
-                    Md.Em.make({ children: [text("beta")] }),
-                    text(" "),
-                    Md.A.make({ children: [text("docs")], href: "https://example.com" }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        });
+        const document = inlineListDocument();
         const mappedPandoc = yield* documentToPandoc(document);
-        const block = mappedPandoc.pandoc.blocks[0];
+        const block = expectBulletList(mappedPandoc.pandoc.blocks[0]);
 
         expect(mappedPandoc.report.issues).toEqual([]);
-        expect(block?._tag).toBe("bulletlist");
-        if (block?._tag !== "bulletlist") {
-          return;
-        }
-        const firstItemBlock = block.items[0]?.[0];
+        const firstItemBlock = expectPlain(block.items[0]?.[0]);
 
-        expect(firstItemBlock?._tag).toBe("plain");
-        if (firstItemBlock?._tag !== "plain") {
-          return;
-        }
         expect(A.map(firstItemBlock.children, (inline) => inline._tag)).toEqual(["str", "emph", "str", "link"]);
       })
     ));
