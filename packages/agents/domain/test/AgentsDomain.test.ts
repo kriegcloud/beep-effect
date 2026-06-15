@@ -15,6 +15,9 @@ import { baseEntityFixtureInput } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
+
+const AgentModeArbitrary = S.toArbitrary(AgentMode);
 
 const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
 const assistantContentSchemaId = (schema: { readonly ast: { readonly annotations: Record<string, unknown> } }) =>
@@ -75,6 +78,18 @@ describe("@beep/agents-domain", () => {
     expect(constructed.mode).toBe("deterministic_fixture");
     expect(constructed.skillFixtureKey).toBe("skill.review");
   });
+
+  it("round-trips schema-derived agent modes", () =>
+    fc.assert(
+      fc.property(AgentModeArbitrary, (mode) => {
+        const decoded = S.decodeUnknownSync(AgentMode)(mode);
+        const encoded = S.encodeSync(AgentMode)(decoded);
+
+        expect(encoded).toBe(mode);
+        expect(AgentMode.is.deterministic_fixture(decoded)).toBe(true);
+      }),
+      { numRuns: 25 }
+    ));
 
   it("preserves turn compatibility exports for assistant content blocks", () => {
     const assistantContentDocument = S.toJsonSchemaDocument(Turn.AssistantContent.AssistantContent);

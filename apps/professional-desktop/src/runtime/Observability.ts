@@ -20,7 +20,7 @@
 
 import { layerFilteredDevTools } from "@beep/observability/server";
 import { O } from "@beep/utils";
-import { Config, Effect, Layer } from "effect";
+import { Config, Effect, HashSet, Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import { Otlp, OtlpSerialization } from "effect/unstable/observability";
 
@@ -49,11 +49,11 @@ const OtlpLive: Layer.Layer<never> = Layer.unwrap(
   }).pipe(Effect.orDie)
 );
 
-const localDevToolsHostnames = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+const localDevToolsHostnames = HashSet.make("localhost", "127.0.0.1", "::1", "[::1]");
 
 const isLocalDevToolsUrl = (url: string): boolean => {
   try {
-    return localDevToolsHostnames.has(new URL(url).hostname);
+    return HashSet.has(localDevToolsHostnames, new URL(url).hostname);
   } catch {
     return false;
   }
