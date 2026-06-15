@@ -51,6 +51,12 @@
         "../../../packages/workspace/tables/src/entities/Turn/index.ts"
       ],
       "@beep/drizzle": ["../../../packages/drivers/drizzle/src/index.ts"],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
+      ],
       "@beep/workspace-domain": [
         "../../../packages/workspace/domain/src/index.ts"
       ],

@@ -7,19 +7,16 @@ import {
   PostgresClient,
   PostgresDrizzle,
 } from "@beep/postgres";
-import { makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
-import { A, Str } from "@beep/utils";
+import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { A } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
-import type { SqlTestHooks } from "@beep/test-utils";
 
-const sharedConnectionUri = pipe(Bun.env.BEEP_TEST_DATABASE_URL, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+const { shouldRunPgliteIntegration, makePgliteLayer } = makePgliteIntegrationGate();
 const migrationsFolder = fileURLToPath(new URL("./fixtures/migrations", import.meta.url));
-const shouldUseTestcontainers = Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers";
-const shouldRunPgliteIntegration = O.isSome(sharedConnectionUri) || shouldUseTestcontainers;
 
 const driverNotes = pgTable("driver_notes", {
   body: text("body").notNull(),
@@ -31,32 +28,6 @@ const migratedNotes = pgTable("driver_migrated_notes", {
   body: text("body").notNull(),
   id: serial("id").primaryKey(),
 });
-
-const makePgliteLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
-  pipe(
-    sharedConnectionUri,
-    O.match({
-      onNone: () =>
-        hooks === undefined
-          ? Layer.fresh(makePgliteSqlTestLayer({ mode: "testcontainers" }))
-          : Layer.fresh(makePgliteSqlTestLayer({ hooks, mode: "testcontainers" })),
-      onSome: (connectionUri) =>
-        hooks === undefined
-          ? Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                mode: "external",
-              })
-            )
-          : Layer.fresh(
-              makePgliteSqlTestLayer({
-                external: { connectionUri },
-                hooks,
-                mode: "external",
-              })
-            ),
-    })
-  );
 
 const makePostgresClientLayer = () =>
   Layer.unwrap(Effect.map(Effect.service(NativePgClient.PgClient), PostgresClient.fromPgClient)).pipe(

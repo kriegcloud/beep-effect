@@ -9,13 +9,28 @@
   },
   "references": [
     {
+      "path": "../domain/tsconfig.json"
+    },
+    {
       "path": "../../foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/md/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/schema/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/utils/tsconfig.json"
+    },
+    {
+      "path": "../../shared/domain/tsconfig.json"
+    },
+    {
+      "path": "../../workspace/domain/tsconfig.json"
+    },
+    {
+      "path": "../../workspace/use-cases/tsconfig.json"
     }
   ]
 }

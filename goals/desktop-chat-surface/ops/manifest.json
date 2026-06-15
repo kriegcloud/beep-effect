@@ -5,7 +5,7 @@
     "title": "Desktop Chat Surface",
     "status": "active",
     "created": "2026-06-12",
-    "updated": "2026-06-12",
+    "updated": "2026-06-14",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/desktop-chat-surface",
@@ -38,22 +38,22 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Implement",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "in-progress"
     },
     {
       "id": "P3",
       "name": "Close",
-      "status": "pending"
+      "status": "in-progress"
     }
   ],
   "verificationCommands": [

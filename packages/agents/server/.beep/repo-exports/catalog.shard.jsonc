@@ -1,0 +1,362 @@
+{
+  "standard": "repo-exports-catalog-shard",
+  "schemaVersion": "repo-exports-catalog-shard/v1",
+  "deterministic": true,
+  "source": {
+    "packageUniverseCommand": "bun run topo-sort",
+    "generator": "bun run beep quality repo-exports-catalog --package-shard",
+    "inputs": [
+      "package.json exports",
+      "TypeScript exported declarations",
+      "JSDoc comments"
+    ]
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "digest": "1acc32e57875238b210f0c6a790a076f333e5116f123816d9903de3b158f12a7",
+    "inputs": [
+      {
+        "path": "generator:repo-exports-catalog",
+        "sha256": "e6cae6330d6bd8d281c78e74b8a14825f906499b3c002f6ff5f73886e4ef3fb4",
+        "bytes": 33
+      },
+      {
+        "path": "packages/agents/server/package.json",
+        "sha256": "72a306197582b62d8a14e8846c34a51f5fbb9b32591632634f599b4e8a94e745",
+        "bytes": 2836
+      },
+      {
+        "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "sha256": "88390663e86647d636f06408a4c9a960f8f38eaa7c8583a1e9075b9826467221",
+        "bytes": 1751
+      },
+      {
+        "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+        "sha256": "5a6b496f2f411ed38def8169214d6bc25ccedb3094d61f6a985661f41a0a8ec1",
+        "bytes": 5962
+      },
+      {
+        "path": "packages/agents/server/src/AssistantTurn/index.ts",
+        "sha256": "9cedaa02e12b4901c3e160b5a97560bef71f4adf5c97f77c37ec5408a99171fd",
+        "bytes": 1066
+      },
+      {
+        "path": "packages/agents/server/src/AssistantTurn/ScanState.ts",
+        "sha256": "8f739353ea34a419e49df74809dd8dc027a33aaa10e3ce80210c0954220be833",
+        "bytes": 2938
+      },
+      {
+        "path": "packages/agents/server/src/index.ts",
+        "sha256": "30c2ea0149d72cc09fa100e1da19aeb7114bf88f1d7e53f4861882de11f5f633",
+        "bytes": 281
+      },
+      {
+        "path": "packages/agents/server/src/test.ts",
+        "sha256": "91c0c5595c8fd631b627a4c88d7c2b0a2b8146e68ae6dbd079b87e3177d84c45",
+        "bytes": 500
+      },
+      {
+        "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
+        "sha256": "8f4f5647d3e06f1897d77ac0cc3fced5bd5a70db762b557c286ec2c178b0faab",
+        "bytes": 19885
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
+        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
+        "bytes": 20920
+      },
+      {
+        "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
+        "sha256": "5d7d12f4417b8f8e0e703747a4987e2200fc2813807b45ba4f56ab875c005a6a",
+        "bytes": 41729
+      }
+    ]
+  },
+  "package": {
+    "packageName": "@beep/agents-server",
+    "packagePath": "packages/agents/server",
+    "topoOrder": 0,
+    "status": "has-public-exports",
+    "importSpecifiers": [
+      "@beep/agents-server",
+      "@beep/agents-server/AnthropicTurnCodec",
+      "@beep/agents-server/AnthropicTurnKernel",
+      "@beep/agents-server/AssistantTurn",
+      "@beep/agents-server/test"
+    ],
+    "counts": {
+      "publicExportEntries": 11,
+      "uniqueSymbols": 8,
+      "sourceFiles": 6
+    },
+    "exports": [
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/server/src/index.ts",
+        "symbolName": "AssistantTurn",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "sourceLine": 22,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server . assistantturn sourcefile packages/agents/server/src/assistantturn/index.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AnthropicTurnCodec",
+        "exportSubpath": "./AnthropicTurnCodec",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "symbolName": "assistantBlockOutput",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "sourceLine": 34,
+        "summary": "Per-block Anthropic codec for decoding individually streamed array elements.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/anthropicturncodec ./anthropicturncodec assistantblockoutput const per-block anthropic codec for decoding individually streamed array elements. codecs packages/agents/server/src/assistantturn/anthropicturncodec.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AnthropicTurnCodec",
+        "exportSubpath": "./AnthropicTurnCodec",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "symbolName": "assistantOutput",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "sourceLine": 51,
+        "summary": "Whole-envelope Anthropic codec for the assistant turn. Its `jsonSchema`",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/anthropicturncodec ./anthropicturncodec assistantoutput const whole-envelope anthropic codec for the assistant turn. its `jsonschema` codecs packages/agents/server/src/assistantturn/anthropicturncodec.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AnthropicTurnKernel",
+        "exportSubpath": "./AnthropicTurnKernel",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+        "symbolName": "AnthropicTurnKernel",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+        "sourceLine": 128,
+        "summary": "Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/anthropicturnkernel ./anthropicturnkernel anthropicturnkernel const live anthropic-backed {@link agentturnkernel} layer. self-contained: the layers packages/agents/server/src/assistantturn/anthropicturnkernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "AnthropicTurnKernel",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
+        "sourceLine": 128,
+        "summary": "Live Anthropic-backed {@link AgentTurnKernel} Layer. Self-contained: the",
+        "categories": [
+          "layers"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn anthropicturnkernel const live anthropic-backed {@link agentturnkernel} layer. self-contained: the layers packages/agents/server/src/assistantturn/anthropicturnkernel.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "assistantBlockOutput",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "sourceLine": 34,
+        "summary": "Per-block Anthropic codec for decoding individually streamed array elements.",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn assistantblockoutput const per-block anthropic codec for decoding individually streamed array elements. codecs packages/agents/server/src/assistantturn/anthropicturncodec.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "assistantOutput",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
+        "sourceLine": 51,
+        "summary": "Whole-envelope Anthropic codec for the assistant turn. Its `jsonSchema`",
+        "categories": [
+          "codecs"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn assistantoutput const whole-envelope anthropic codec for the assistant turn. its `jsonschema` codecs packages/agents/server/src/assistantturn/anthropicturncodec.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "initialScanState",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
+        "sourceLine": 39,
+        "summary": "The empty scan state used to begin scanning a fresh structured-output stream.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn initialscanstate const the empty scan state used to begin scanning a fresh structured-output stream. constructors packages/agents/server/src/assistantturn/scanstate.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "scanChunk",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
+        "sourceLine": 68,
+        "summary": "Fold one chunk of structured-output JSON text into the scan state, returning",
+        "categories": [
+          "parsing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn scanchunk const fold one chunk of structured-output json text into the scan state, returning parsing packages/agents/server/src/assistantturn/scanstate.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/AssistantTurn",
+        "exportSubpath": "./AssistantTurn",
+        "exportedFromPath": "packages/agents/server/src/AssistantTurn/index.ts",
+        "symbolName": "ScanState",
+        "exportKind": "interface",
+        "sourcePath": "packages/agents/server/src/AssistantTurn/ScanState.ts",
+        "sourceLine": 18,
+        "summary": "The carry state of the incremental block extractor between chunks.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/assistantturn ./assistantturn scanstate interface the carry state of the incremental block extractor between chunks. models packages/agents/server/src/assistantturn/scanstate.ts"
+      },
+      {
+        "packageName": "@beep/agents-server",
+        "packagePath": "packages/agents/server",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-server/test",
+        "exportSubpath": "./test",
+        "exportedFromPath": "packages/agents/server/src/test.ts",
+        "symbolName": "AgentsServerInitialScanState",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/server/src/test.ts",
+        "sourceLine": 24,
+        "summary": "Deterministic seed scan state re-exported for tests and fixtures.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-server packages/agents/server @beep/agents-server/test ./test agentsserverinitialscanstate const deterministic seed scan state re-exported for tests and fixtures. testing packages/agents/server/src/test.ts"
+      }
+    ]
+  }
+}

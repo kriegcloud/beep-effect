@@ -78,6 +78,7 @@ export const DeprecatedApisESLintConfig: DeprecatedApisESLintConfigShape = [
           allowDefaultProject: [
             "apps/*/dtslint/*.ts",
             "apps/*/dtslint/*.tsx",
+            "apps/*/scripts/*.ts",
             "packages/_internal/*/drizzle.config.ts",
             "packages/drivers/*/scripts/*.ts",
             "packages/drivers/*/test/fixtures/*.ts",

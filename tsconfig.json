@@ -108,6 +108,12 @@
       "@beep/agents-domain": [
         "./packages/agents/domain/src/index.ts"
       ],
+      "@beep/agents-client": [
+        "./packages/agents/client/src/index.ts"
+      ],
+      "@beep/agents-client/Chat.atoms": [
+        "./packages/agents/client/src/Chat.atoms.ts"
+      ],
       "@beep/agents-use-cases": [
         "./packages/agents/use-cases/src/index.ts"
       ],
@@ -116,6 +122,21 @@
       ],
       "@beep/agents-use-cases/test": [
         "./packages/agents/use-cases/src/test.ts"
+      ],
+      "@beep/agents-server": [
+        "./packages/agents/server/src/index.ts"
+      ],
+      "@beep/agents-server/test": [
+        "./packages/agents/server/src/test.ts"
+      ],
+      "@beep/agents-server/AssistantTurn": [
+        "./packages/agents/server/src/AssistantTurn/index.ts"
+      ],
+      "@beep/agents-server/AnthropicTurnCodec": [
+        "./packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts"
+      ],
+      "@beep/agents-server/AnthropicTurnKernel": [
+        "./packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts"
       ],
       "@beep/epistemic-domain": ["./packages/epistemic/domain/src/index.ts"],
       "@beep/law-practice-domain": [
@@ -273,6 +294,13 @@
       "@beep/epistemic-domain/values/ClaimLifecycle": [
         "./packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
       ],
+      "@beep/epistemic-tables": ["./packages/epistemic/tables/src/index.ts"],
+      "@beep/epistemic-tables/entities": [
+        "./packages/epistemic/tables/src/entities/index.ts"
+      ],
+      "@beep/epistemic-tables/entities/UsageRecord": [
+        "./packages/epistemic/tables/src/entities/UsageRecord/index.ts"
+      ],
       "@beep/law-practice-domain/entities": [
         "./packages/law-practice/domain/src/entities/index.ts"
       ],
@@ -424,6 +452,33 @@
       ],
       "@beep/workspace-tables/entities/Turn": [
         "./packages/workspace/tables/src/entities/Turn/index.ts"
+      ],
+      "@beep/workspace-use-cases": [
+        "./packages/workspace/use-cases/src/index.ts"
+      ],
+      "@beep/workspace-use-cases/public": [
+        "./packages/workspace/use-cases/src/public.ts"
+      ],
+      "@beep/workspace-use-cases/server": [
+        "./packages/workspace/use-cases/src/server.ts"
+      ],
+      "@beep/workspace-use-cases/aggregates/Thread": [
+        "./packages/workspace/use-cases/src/aggregates/Thread/index.ts"
+      ],
+      "@beep/workspace-use-cases/aggregates/Thread/server": [
+        "./packages/workspace/use-cases/src/aggregates/Thread/server.ts"
+      ],
+      "@beep/workspace-server": [
+        "./packages/workspace/server/src/index.ts"
+      ],
+      "@beep/workspace-server/layer": [
+        "./packages/workspace/server/src/Layer.ts"
+      ],
+      "@beep/workspace-server/test": [
+        "./packages/workspace/server/src/test.ts"
+      ],
+      "@beep/workspace-server/aggregates/Thread": [
+        "./packages/workspace/server/src/aggregates/Thread/index.ts"
       ],
       "@beep/architecture-lab-domain": [
         "./packages/architecture-lab/domain/src/index.ts"
@@ -1203,6 +1258,12 @@
       ],
       "@beep/editor/viewer": [
         "./packages/foundation/ui-system/editor/src/viewer.tsx"
+      ],
+      "@beep/agents-client/ClientObservability": [
+        "./packages/agents/client/src/ClientObservability.ts"
+      ],
+      "@beep/agents-domain/turn": [
+        "./packages/agents/domain/src/turn/index.ts"
       ]
     }
   }

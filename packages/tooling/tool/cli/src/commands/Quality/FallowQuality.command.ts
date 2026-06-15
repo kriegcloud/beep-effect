@@ -548,33 +548,70 @@ const auditFindingsForCount = (
       : O.none()
   );
 
+// A duplication clone group is "source-involving" when at least one of its
+// instances lives under a package/app `src/` tree. Introduced duplication that
+// is confined to test or config files is idiomatic, intentionally-repetitive
+// boilerplate that fallow cannot selectively ignore; it is reported advisory
+// (inherited-adjacent) rather than blocking, while real source-code duplication
+// still blocks. See goals/desktop-chat-surface/history/2026-06-14-fallow-audit-investigation.md.
+const AuditDuplicationCloneGroups = S.Struct({
+  clone_groups: S.Array(
+    S.Struct({
+      introduced: S.optionalKey(S.Boolean),
+      instances: S.Array(S.Struct({ file: S.String })),
+    })
+  ),
+});
+const decodeAuditDuplicationOption = S.decodeUnknownOption(AuditDuplicationCloneGroups);
+
+const cloneGroupTouchesSource = (group: { readonly instances: ReadonlyArray<{ readonly file: string }> }): boolean =>
+  A.some(group.instances, (instance) => Str.includes("/src/")(normalizePath(instance.file)));
+
+// Count introduced duplication clone groups confined to test/config files (no
+// source involvement). Fail closed: when the clone groups cannot be parsed,
+// report none as test-only so real source-code regressions still block.
+const introducedTestOnlyDuplicationCount = (document: unknown): number =>
+  pipe(
+    unknownRecordProperty(document, "duplication"),
+    O.flatMap(decodeAuditDuplicationOption),
+    O.map((duplication) =>
+      A.length(
+        A.filter(duplication.clone_groups, (group) => (group.introduced ?? false) && !cloneGroupTouchesSource(group))
+      )
+    ),
+    O.getOrElse(() => 0)
+  );
+
 const normalizeAuditFindings = (document: unknown): ReadonlyArray<FallowFinding> => {
   const attribution = pipe(unknownRecordProperty(document, "attribution"), O.getOrUndefined);
   if (attribution === undefined) {
     return A.empty();
   }
 
+  const countOf = (key: string): number =>
+    pipe(
+      unknownNumberProperty(attribution, key),
+      O.getOrElse(() => 0)
+    );
+
+  // Split introduced duplication: source-involving groups block; test/config-only
+  // groups are advisory (folded into the inherited-adjacent duplication bucket).
+  const duplicationIntroduced = countOf("duplication_introduced");
+  const duplicationTestOnly = Math.min(duplicationIntroduced, introducedTestOnlyDuplicationCount(document));
+  const duplicationSourceIntroduced = duplicationIntroduced - duplicationTestOnly;
+
   const candidates = [
-    ["dead_code_introduced", "dead-code", "introduced"],
-    ["dead_code_inherited", "dead-code", "inherited-adjacent"],
-    ["complexity_introduced", "complexity", "introduced"],
-    ["complexity_inherited", "complexity", "inherited-adjacent"],
-    ["duplication_introduced", "duplication", "introduced"],
-    ["duplication_inherited", "duplication", "inherited-adjacent"],
+    ["dead-code", "introduced", countOf("dead_code_introduced")],
+    ["dead-code", "inherited-adjacent", countOf("dead_code_inherited")],
+    ["complexity", "introduced", countOf("complexity_introduced")],
+    ["complexity", "inherited-adjacent", countOf("complexity_inherited")],
+    ["duplication", "introduced", duplicationSourceIntroduced],
+    ["duplication", "inherited-adjacent", countOf("duplication_inherited") + duplicationTestOnly],
   ] as const;
 
   return pipe(
     candidates,
-    A.flatMap(([key, rule, attributionKind]) =>
-      auditFindingsForCount(
-        rule,
-        attributionKind,
-        pipe(
-          unknownNumberProperty(attribution, key),
-          O.getOrElse(() => 0)
-        )
-      )
-    )
+    A.flatMap(([rule, attributionKind, count]) => auditFindingsForCount(rule, attributionKind, count))
   );
 };
 

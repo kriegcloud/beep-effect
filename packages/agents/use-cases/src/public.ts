@@ -6,6 +6,35 @@
  */
 
 /**
+ * Assistant-turn generation kernel contracts, errors, and port tag.
+ *
+ * @example
+ * ```ts
+ * import { AgentTurnKernel, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public"
+ *
+ * console.log(AgentTurnKernel, TurnGenerationError, TurnHistoryItem)
+ * ```
+ *
+ * @category use-cases
+ * @since 0.0.0
+ */
+export * from "./processes/AssistantTurn/index.js";
+/**
+ * Chat wire contract: rpc declarations, the `ChatRpcs` group, and the
+ * client-safe `ChatActionError` carried on every chat request.
+ *
+ * @example
+ * ```ts
+ * import { ChatActionError, ChatRpcs } from "@beep/agents-use-cases/public"
+ *
+ * console.log(ChatRpcs, ChatActionError)
+ * ```
+ *
+ * @category protocols
+ * @since 0.0.0
+ */
+export * from "./processes/Chat/index.js";
+/**
  * Candidate output command contracts accepted by the runtime SDK.
  *
  * @example

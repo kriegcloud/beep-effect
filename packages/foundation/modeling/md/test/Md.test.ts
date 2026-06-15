@@ -106,11 +106,13 @@ console.log("beep")
     const doc = Md.make([Md.p([text]), pre]);
 
     expect(S.decodeUnknownSync(Inline)(text)).toEqual(text);
-    expect(S.decodeUnknownSync(Block)(pre)).toEqual(pre);
-    expect(S.decodeUnknownSync(Document)(doc)).toEqual(doc);
-    expect(S.decodeUnknownSync(Pre)(Pre.make({ value: "x", language: O.some("ts") }))).toEqual(
-      Pre.make({ value: "x", language: O.some("ts") })
-    );
+    // Pre.language is a codec field (OptionFromNullOr: Option<string> <-> string
+    // | null), so Pre's encoded form differs from a constructed instance. Decode
+    // through the encoded form rather than feeding a decoded instance back in.
+    expect(S.decodeUnknownSync(Block)(S.encodeSync(Block)(pre))).toEqual(pre);
+    expect(S.decodeUnknownSync(Document)(S.encodeSync(Document)(doc))).toEqual(doc);
+    const tsPre = Pre.make({ value: "x", language: O.some("ts") });
+    expect(S.decodeUnknownSync(Pre)(S.encodeSync(Pre)(tsPre))).toEqual(tsPre);
     expect(S.decodeUnknownSync(Text)(Text.make({ value: "Hello" }))).toEqual(text);
   });
 
@@ -127,6 +129,29 @@ console.log("beep")
         expect(renderMarkdownInline(decodedInline)).toEqual(expect.any(String));
         expect(renderMarkdownBlock(decodedBlock)).toEqual(expect.any(String));
         expect(Result.isSuccess(Md.render(decodedDocument))).toBe(true);
+      }),
+      { numRuns: 50 }
+    ));
+
+  it("encoded documents survive a JSON boundary (jsonb columns, rpc/ndjson wire)", () => {
+    // Regression: a real Option in an encoded node does not survive
+    // JSON.stringify/parse. Persisting a Document into a jsonb column or sending
+    // it over the rpc wire must decode back identically. Code blocks carry the
+    // only Option field (Pre.language), so they are the canonical case.
+    const doc = Md.make([
+      Md.pre("const x = 1", { language: "ts" }),
+      Md.pre("no language here"),
+      Md.p([Md.text("hello")]),
+    ]);
+    const throughJson = JSON.parse(JSON.stringify(S.encodeSync(Document)(doc)));
+    expect(S.decodeUnknownSync(Document)(throughJson)).toEqual(doc);
+  });
+
+  it("every encoded document survives a JSON boundary", () =>
+    fc.assert(
+      fc.property(DocumentArbitrary, (document) => {
+        const throughJson = JSON.parse(JSON.stringify(S.encodeSync(Document)(document)));
+        expect(S.decodeUnknownSync(Document)(throughJson)).toEqual(document);
       }),
       { numRuns: 50 }
     ));
