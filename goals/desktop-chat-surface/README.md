@@ -58,13 +58,19 @@ switched to the JSON-safe `S.OptionFromNullOr(S.String)` (Type unchanged). Now
 guarded by a `@beep/md` JSON-boundary property test and a DB-backed
 chat-persist PGlite integration test.
 
+The **real-LLM E2E now passes** over the live HTTP/ndjson rpc wire +
+pglite-socket persistence: the Anthropic forced-tool kernel streamed a
+paragraph + code block, the assistant turn finalized and persisted, and a fresh
+`GetTimeline` decoded the persisted Document (incl. the code block) over the
+wire. See `history/2026-06-14-finalize-bug-rootcause-fix.md`.
+
 Two items remain: (1) `bun run beep yeet verify` is blocked solely by the pilot
 `fallow:audit` lane flagging the new packages' standard test/config boilerplate
 as `introduced` duplication (+ one proven-scanner complexity) — a tooling-gap
 needing a repo-wide baseline decision, not a feature defect (every other lane is
-green; `fallow:dead-code` was driven to green). (2) The real-LLM E2E + full
-`tauri build` bundle need an Anthropic key + a dev-machine bundle run (the
-fixture path is keyless).
+green; `fallow:dead-code` was driven to green). (2) The full `tauri build`
+bundle needs a dev-machine bundle run (the runnable sidecar + rpc + real-LLM +
+persistence surface is validated; only the packaged-binary bundling is unrun).
 
 ## Latest Evidence
 

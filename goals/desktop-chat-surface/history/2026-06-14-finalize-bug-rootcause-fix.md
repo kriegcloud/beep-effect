@@ -83,6 +83,32 @@ confirmed with the repo owner before editing the shared foundation schema.
 - Integration lane green (3/3): chat-persist, UsageRecordSink, sidecar-smoke.
 
 The fixture-path assistant turn now finalizes, persists, and reads back across a
-relaunch. The same fix unblocks the real-LLM path (transport-level, not
-agent-level); the Anthropic kernel still needs a key + a live run to prove
-end-to-end.
+relaunch.
+
+## Live real-LLM E2E (validated)
+
+Ran the **real Anthropic kernel** (`CHAT_AGENT=anthropic`, key resolved via
+`op read` into the sidecar env — never written to disk) against the live bun
+sidecar over the actual HTTP/ndjson rpc wire + pglite-socket persistence, driven
+by a standalone `RpcClient` (the same transport the client atoms use):
+
+```
+e2e: SendMessage (real Anthropic) — streaming...
+e2e: block { type: "paragraph" }
+e2e: block { type: "code" }
+e2e: stream complete { blocks: "2" }
+e2e: timeline after reload { turns: "2", roles: "user,assistant" }
+e2e: assistant content blocks { tags: "p,pre" }
+e2e: PASS — real assistant turn streamed + persisted + read back
+```
+
+This proves end-to-end, over the real production path (not in-process):
+- the Anthropic forced-tool structured-output kernel streams valid blocks;
+- the assistant turn **finalizes and persists** over the live transport (the
+  exact bug that previously hung);
+- a fresh `GetTimeline` (the relaunch case) **decodes the persisted Document
+  over the rpc wire**, including the `pre` code block — the JSON boundary the
+  fix addressed.
+
+The full `tauri build` bundle still needs a dev-machine run; the runnable
+surface (sidecar + rpc + real LLM + persistence) is validated.
