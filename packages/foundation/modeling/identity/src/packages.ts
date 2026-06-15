@@ -50,10 +50,8 @@ const generatedComposers = $I.compose(
   "identity",
   "langextract",
   "md",
-  "messages",
   "nlp",
   "observability",
-  "ontology",
   "rdf",
   "schema",
   "semantic-web",
@@ -95,7 +93,6 @@ const generatedComposers = $I.compose(
   "face-detection",
   "ffmpeg",
   "postgres",
-  "sandbox",
   "anthropic",
   "venice-ai",
   "xai",
@@ -173,21 +170,6 @@ export const $DataId = composers.$DataId;
 export const $IdentityId = composers.$IdentityId;
 
 /**
- * Identity composer for the `@beep/messages` package.
- *
- * @example
- * ```typescript
- * import { $MessagesId } from "@beep/identity"
- *
- * const id = $MessagesId.make("Envelope")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $MessagesId = composers.$MessagesId;
-
-/**
  * Identity composer for the `@beep/schema` package.
  *
  * @example
@@ -216,21 +198,6 @@ export const $SchemaId = composers.$SchemaId;
  * @category configuration
  */
 export const $RdfId: Identity.IdentityComposer<"@beep/rdf"> = composers.$RdfId;
-
-/**
- * Identity composer for the `@beep/ontology` package.
- *
- * @example
- * ```typescript
- * import { $OntologyId } from "@beep/identity"
- *
- * const id = $OntologyId.make("Ontology")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $OntologyId: Identity.IdentityComposer<"@beep/ontology"> = composers.$OntologyId;
 
 /**
  * Identity composer for the `@beep/types` package.
@@ -803,25 +770,6 @@ export const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg"> = composers.$F
  * @category configuration
  */
 export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composers.$PostgresId;
-
-// --- billing ---
-
-/**
- * Identity composer for the `@beep/sandbox` package.
- *
- * Pre-registered ahead of sandbox package creation.
- *
- * @example
- * ```typescript
- * import { $SandboxId } from "@beep/identity"
- *
- * const id = $SandboxId.make("Worktree")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $SandboxId: Identity.IdentityComposer<"@beep/sandbox"> = composers.$SandboxId;
 
 /**
  * Identity composer for `@beep/anthropic`.

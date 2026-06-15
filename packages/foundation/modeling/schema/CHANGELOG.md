@@ -48,4 +48,3 @@
   - @beep/utils@0.0.1
   - @beep/identity@0.1.0
   - @beep/data@0.0.1
-  - @beep/messages@0.0.1

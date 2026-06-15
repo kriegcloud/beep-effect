@@ -66,13 +66,11 @@ Since v0.0.0
 - [$LexicalSchemaId](#lexicalschemaid)
 - [$LibpffId](#libpffid)
 - [$MdId](#mdid)
-- [$MessagesId](#messagesid)
 - [$NlpId](#nlpid)
 - [$NlpMcpId](#nlpmcpid)
 - [$ObservabilityId](#observabilityid)
 - [$OipWebId](#oipwebid)
 - [$OnepasswordCliId](#onepasswordcliid)
-- [$OntologyId](#ontologyid)
 - [$OpenaiCompatId](#openaicompatid)
 - [$PhoenixId](#phoenixid)
 - [$PostgresId](#postgresid)
@@ -85,7 +83,6 @@ Since v0.0.0
 - [$RepoDocgenId](#repodocgenid)
 - [$RepoUtilsId](#repoutilsid)
 - [$RunpodId](#runpodid)
-- [$SandboxId](#sandboxid)
 - [$SanityId](#sanityid)
 - [$SchemaId](#schemaid)
 - [$SemanticWebId](#semanticwebid)
@@ -135,7 +132,7 @@ console.log(id)
 declare const $AcpId: Identity.IdentityComposer<"@beep/acp">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L888)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L836)
 
 Since v0.0.0
 
@@ -159,7 +156,7 @@ const id = $AgentsDomainId.make("Agent")
 declare const $AgentsDomainId: Identity.IdentityComposer<"@beep/agents-domain">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L631)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L598)
 
 Since v0.0.0
 
@@ -183,7 +180,7 @@ const id = $AgentsUseCasesId.make("RuntimeScope")
 declare const $AgentsUseCasesId: Identity.IdentityComposer<"@beep/agents-use-cases">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L646)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L613)
 
 Since v0.0.0
 
@@ -208,7 +205,7 @@ console.log(id)
 declare const $AiProviderCliId: Identity.IdentityComposer<"@beep/ai-provider-cli">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1153)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1101)
 
 Since v0.0.0
 
@@ -233,7 +230,7 @@ console.log(id)
 declare const $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1250)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1198)
 
 Since v0.0.0
 
@@ -258,7 +255,7 @@ console.log(id)
 declare const $AnthropicId: Identity.IdentityComposer<"@beep/anthropic">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L840)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L788)
 
 Since v0.0.0
 
@@ -283,7 +280,7 @@ console.log(id)
 declare const $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architecture-lab-client">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1054)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1002)
 
 Since v0.0.0
 
@@ -308,7 +305,7 @@ console.log(id)
 declare const $ArchitectureLabConfigId: Identity.IdentityComposer<"@beep/architecture-lab-config">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1003)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L951)
 
 Since v0.0.0
 
@@ -333,7 +330,7 @@ console.log(id)
 declare const $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architecture-lab-domain">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L969)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L917)
 
 Since v0.0.0
 
@@ -358,7 +355,7 @@ console.log(id)
 declare const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1088)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1036)
 
 Since v0.0.0
 
@@ -383,7 +380,7 @@ console.log(id)
 declare const $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architecture-lab-server">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1020)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L968)
 
 Since v0.0.0
 
@@ -408,7 +405,7 @@ console.log(id)
 declare const $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architecture-lab-tables">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1037)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L985)
 
 Since v0.0.0
 
@@ -433,7 +430,7 @@ console.log(id)
 declare const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture-lab-ui">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1071)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1019)
 
 Since v0.0.0
 
@@ -458,7 +455,7 @@ console.log(id)
 declare const $ArchitectureLabUseCasesId: Identity.IdentityComposer<"@beep/architecture-lab-use-cases">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L986)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L934)
 
 Since v0.0.0
 
@@ -483,7 +480,7 @@ void id
 declare const $BoxId: Identity.IdentityComposer<"@beep/box">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1282)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1230)
 
 Since v0.0.0
 
@@ -507,7 +504,7 @@ const id = $ChalkId.make("Formatter")
 declare const $ChalkId: Identity.IdentityComposer<"@beep/chalk">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L539)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L506)
 
 Since v0.0.0
 
@@ -531,7 +528,7 @@ const id = $ColorsId.make("Palette")
 declare const $ColorsId: Identity.IdentityComposer<"@beep/colors">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L524)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L491)
 
 Since v0.0.0
 
@@ -555,7 +552,7 @@ const id = $DataId.make("Calendar")
 declare const $DataId: Identity.IdentityComposer<"@beep/data">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L158)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L155)
 
 Since v0.0.0
 
@@ -580,7 +577,7 @@ console.log(id)
 declare const $DiscordId: Identity.IdentityComposer<"@beep/discord">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1137)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1085)
 
 Since v0.0.0
 
@@ -602,7 +599,7 @@ console.log($DrizzleId)
 declare const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L741)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L708)
 
 Since v0.0.0
 
@@ -624,7 +621,7 @@ console.log($DuckdbId)
 declare const $DuckdbId: Identity.IdentityComposer<"@beep/duckdb">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L757)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L724)
 
 Since v0.0.0
 
@@ -649,7 +646,7 @@ void id
 declare const $EditorId: Identity.IdentityComposer<"@beep/editor">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1426)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1374)
 
 Since v0.0.0
 
@@ -673,7 +670,7 @@ const id = $EpistemicDomainId.make("Evidence")
 declare const $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-domain">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L616)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L583)
 
 Since v0.0.0
 
@@ -695,7 +692,7 @@ console.log($FaceDetectionId)
 declare const $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L773)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L740)
 
 Since v0.0.0
 
@@ -717,7 +714,7 @@ console.log($FfmpegId)
 declare const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L789)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L756)
 
 Since v0.0.0
 
@@ -742,7 +739,7 @@ void id
 declare const $FileProcessingId: Identity.IdentityComposer<"@beep/file-processing">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1330)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1278)
 
 Since v0.0.0
 
@@ -767,7 +764,7 @@ void id
 declare const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1378)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1326)
 
 Since v0.0.0
 
@@ -792,7 +789,7 @@ console.log(id)
 declare const $FormId: Identity.IdentityComposer<"@beep/form">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1266)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1214)
 
 Since v0.0.0
 
@@ -817,7 +814,7 @@ console.log(id)
 declare const $HubspotId: Identity.IdentityComposer<"@beep/hubspot">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1185)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1133)
 
 Since v0.0.0
 
@@ -868,7 +865,7 @@ const id = $IdentityId.make("Composer")
 declare const $IdentityId: Identity.IdentityComposer<"@beep/identity">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L173)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L170)
 
 Since v0.0.0
 
@@ -892,7 +889,7 @@ const id = $InfraId.make("Deploy")
 declare const $InfraId: Identity.IdentityComposer<"@beep/infra">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L569)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L536)
 
 Since v0.0.0
 
@@ -917,7 +914,7 @@ console.log(id)
 declare const $KonvaId: Identity.IdentityComposer<"@beep/konva">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1217)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1165)
 
 Since v0.0.0
 
@@ -941,7 +938,7 @@ const id = $LangExtractId.make("Extraction")
 declare const $LangExtractId: Identity.IdentityComposer<"@beep/langextract">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L494)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L461)
 
 Since v0.0.0
 
@@ -965,7 +962,7 @@ const id = $LawPracticeDomainId.make("Matter")
 declare const $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice-domain">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L661)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L628)
 
 Since v0.0.0
 
@@ -990,7 +987,7 @@ void id
 declare const $LexicalSchemaId: Identity.IdentityComposer<"@beep/lexical-schema">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1410)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1358)
 
 Since v0.0.0
 
@@ -1015,7 +1012,7 @@ void id
 declare const $LibpffId: Identity.IdentityComposer<"@beep/libpff">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1362)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1310)
 
 Since v0.0.0
 
@@ -1037,31 +1034,7 @@ console.log($MdId)
 declare const $MdId: Identity.IdentityComposer<"@beep/md">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L709)
-
-Since v0.0.0
-
-## $MessagesId
-
-Identity composer for the `@beep/messages` package.
-
-**Example**
-
-```ts
-```typescript
-import { $MessagesId } from "@beep/identity"
-
-const id = $MessagesId.make("Envelope")
-```
-```
-
-**Signature**
-
-```ts
-declare const $MessagesId: Identity.IdentityComposer<"@beep/messages">
-```
-
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L188)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L676)
 
 Since v0.0.0
 
@@ -1085,7 +1058,7 @@ const id = $NlpId.make("Tokenizer")
 declare const $NlpId: Identity.IdentityComposer<"@beep/nlp">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L479)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L446)
 
 Since v0.0.0
 
@@ -1110,7 +1083,7 @@ void id
 declare const $NlpMcpId: Identity.IdentityComposer<"@beep/nlp-mcp">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1298)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1246)
 
 Since v0.0.0
 
@@ -1134,7 +1107,7 @@ const id = $ObservabilityId.make("Tracer")
 declare const $ObservabilityId: Identity.IdentityComposer<"@beep/observability">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L509)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L476)
 
 Since v0.0.0
 
@@ -1156,7 +1129,7 @@ console.log($OipWebId)
 declare const $OipWebId: Identity.IdentityComposer<"@beep/oip-web">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L725)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L692)
 
 Since v0.0.0
 
@@ -1181,31 +1154,7 @@ console.log(id)
 declare const $OnepasswordCliId: Identity.IdentityComposer<"@beep/onepassword-cli">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1121)
-
-Since v0.0.0
-
-## $OntologyId
-
-Identity composer for the `@beep/ontology` package.
-
-**Example**
-
-```ts
-```typescript
-import { $OntologyId } from "@beep/identity"
-
-const id = $OntologyId.make("Ontology")
-```
-```
-
-**Signature**
-
-```ts
-declare const $OntologyId: Identity.IdentityComposer<"@beep/ontology">
-```
-
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L233)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1069)
 
 Since v0.0.0
 
@@ -1230,7 +1179,7 @@ console.log(id)
 declare const $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L904)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L852)
 
 Since v0.0.0
 
@@ -1255,7 +1204,7 @@ console.log(id)
 declare const $PhoenixId: Identity.IdentityComposer<"@beep/phoenix">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1201)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1149)
 
 Since v0.0.0
 
@@ -1277,7 +1226,7 @@ console.log($PostgresId)
 declare const $PostgresId: Identity.IdentityComposer<"@beep/postgres">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L805)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L772)
 
 Since v0.0.0
 
@@ -1301,7 +1250,7 @@ const id = $ProfessionalDesktopId.make("Workbench")
 declare const $ProfessionalDesktopId: Identity.IdentityComposer<"@beep/professional-desktop">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L677)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L644)
 
 Since v0.0.0
 
@@ -1325,7 +1274,7 @@ const id = $RdfId.make("Iri")
 declare const $RdfId: Identity.IdentityComposer<"@beep/rdf">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L218)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L200)
 
 Since v0.0.0
 
@@ -1349,7 +1298,7 @@ const id = $RepoAiMetricsId.make("AgentTask")
 declare const $RepoAiMetricsId: Identity.IdentityComposer<"@beep/repo-ai-metrics">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L297)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L264)
 
 Since v0.0.0
 
@@ -1373,7 +1322,7 @@ const id = $RepoCliId.make("Command")
 declare const $RepoCliId: Identity.IdentityComposer<"@beep/repo-cli">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L312)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L279)
 
 Since v0.0.0
 
@@ -1398,7 +1347,7 @@ console.log(id)
 declare const $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1234)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1182)
 
 Since v0.0.0
 
@@ -1422,7 +1371,7 @@ const id = $RepoConfigsId.make("Command")
 declare const $RepoConfigsId: Identity.IdentityComposer<"@beep/repo-configs">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L327)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L294)
 
 Since v0.0.0
 
@@ -1446,7 +1395,7 @@ const id = $RepoDocgenId.make("Generator")
 declare const $RepoDocgenId: Identity.IdentityComposer<"@beep/repo-docgen">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L554)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L521)
 
 Since v0.0.0
 
@@ -1470,7 +1419,7 @@ const id = $RepoUtilsId.make("FileTree")
 declare const $RepoUtilsId: Identity.IdentityComposer<"@beep/repo-utils">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L342)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L309)
 
 Since v0.0.0
 
@@ -1495,33 +1444,7 @@ console.log(id)
 declare const $RunpodId: Identity.IdentityComposer<"@beep/runpod">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1105)
-
-Since v0.0.0
-
-## $SandboxId
-
-Identity composer for the `@beep/sandbox` package.
-
-Pre-registered ahead of sandbox package creation.
-
-**Example**
-
-```ts
-```typescript
-import { $SandboxId } from "@beep/identity"
-
-const id = $SandboxId.make("Worktree")
-```
-```
-
-**Signature**
-
-```ts
-declare const $SandboxId: Identity.IdentityComposer<"@beep/sandbox">
-```
-
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L824)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1053)
 
 Since v0.0.0
 
@@ -1546,7 +1469,7 @@ console.log(id)
 declare const $SanityId: Identity.IdentityComposer<"@beep/sanity">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1169)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1117)
 
 Since v0.0.0
 
@@ -1570,7 +1493,7 @@ const id = $SchemaId.make("EntityId")
 declare const $SchemaId: Identity.IdentityComposer<"@beep/schema">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L203)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L185)
 
 Since v0.0.0
 
@@ -1594,7 +1517,7 @@ const id = $SemanticWebId.make("Triple")
 declare const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L464)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L431)
 
 Since v0.0.0
 
@@ -1618,7 +1541,7 @@ const id = $SharedClientId.make("HttpClient")
 declare const $SharedClientId: Identity.IdentityComposer<"@beep/shared-client">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L404)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L371)
 
 Since v0.0.0
 
@@ -1642,7 +1565,7 @@ const id = $SharedConfigId.make("DatabaseUrl")
 declare const $SharedConfigId: Identity.IdentityComposer<"@beep/shared-config">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L449)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L416)
 
 Since v0.0.0
 
@@ -1666,7 +1589,7 @@ const id = $SharedDomainId.make("TenantId")
 declare const $SharedDomainId: Identity.IdentityComposer<"@beep/shared-domain">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L374)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L341)
 
 Since v0.0.0
 
@@ -1690,7 +1613,7 @@ const id = $SharedServerId.make("Middleware")
 declare const $SharedServerId: Identity.IdentityComposer<"@beep/shared-server">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L419)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L386)
 
 Since v0.0.0
 
@@ -1714,7 +1637,7 @@ const id = $SharedTablesId.make("AuditColumns")
 declare const $SharedTablesId: Identity.IdentityComposer<"@beep/shared-tables">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L389)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L356)
 
 Since v0.0.0
 
@@ -1738,7 +1661,7 @@ const id = $SharedUiId.make("ThemeProvider")
 declare const $SharedUiId: Identity.IdentityComposer<"@beep/shared-ui">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L434)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L401)
 
 Since v0.0.0
 
@@ -1762,7 +1685,7 @@ const id = $SharedUseCasesId.make("Workflow")
 declare const $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-cases">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L584)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L551)
 
 Since v0.0.0
 
@@ -1786,7 +1709,7 @@ const id = $TestUtilsId.make("Fixture")
 declare const $TestUtilsId: Identity.IdentityComposer<"@beep/test-utils">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L357)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L324)
 
 Since v0.0.0
 
@@ -1811,7 +1734,7 @@ void id
 declare const $TikaId: Identity.IdentityComposer<"@beep/tika">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1346)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1294)
 
 Since v0.0.0
 
@@ -1835,7 +1758,7 @@ const id = $TypesId.make("NonEmpty")
 declare const $TypesId: Identity.IdentityComposer<"@beep/types">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L248)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L215)
 
 Since v0.0.0
 
@@ -1859,7 +1782,7 @@ const id = $UiId.make("Button")
 declare const $UiId: Identity.IdentityComposer<"@beep/ui">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L280)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L247)
 
 Since v0.0.0
 
@@ -1884,7 +1807,7 @@ void id
 declare const $UsptoId: Identity.IdentityComposer<"@beep/uspto">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1394)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1342)
 
 Since v0.0.0
 
@@ -1908,7 +1831,7 @@ const id = $UtilsId.make("Retry")
 declare const $UtilsId: Identity.IdentityComposer<"@beep/utils">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L263)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L230)
 
 Since v0.0.0
 
@@ -1930,7 +1853,7 @@ console.log($VeniceAiId)
 declare const $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L856)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L804)
 
 Since v0.0.0
 
@@ -1955,7 +1878,7 @@ void id
 declare const $WinkId: Identity.IdentityComposer<"@beep/wink">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1314)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L1262)
 
 Since v0.0.0
 
@@ -1979,7 +1902,7 @@ const id = $WorkspaceDomainId.make("ContextPacket")
 declare const $WorkspaceDomainId: Identity.IdentityComposer<"@beep/workspace-domain">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L601)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L568)
 
 Since v0.0.0
 
@@ -2004,7 +1927,7 @@ console.log(id)
 declare const $WorkspaceServerId: Identity.IdentityComposer<"@beep/workspace-server">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L953)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L901)
 
 Since v0.0.0
 
@@ -2029,7 +1952,7 @@ console.log(id)
 declare const $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L920)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L868)
 
 Since v0.0.0
 
@@ -2054,7 +1977,7 @@ console.log(id)
 declare const $WorkspaceUseCasesId: Identity.IdentityComposer<"@beep/workspace-use-cases">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L936)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L884)
 
 Since v0.0.0
 
@@ -2076,7 +1999,7 @@ console.log($XaiId)
 declare const $XaiId: Identity.IdentityComposer<"@beep/xai">
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L872)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L820)
 
 Since v0.0.0
 
@@ -2095,9 +2018,9 @@ console.log(RepoPkgs)
 **Signature**
 
 ```ts
-declare const RepoPkgs: { $LangExtractId: Identity.IdentityComposer<"@beep/langextract">; $InfraId: Identity.IdentityComposer<"@beep/infra">; $ChalkId: Identity.IdentityComposer<"@beep/chalk">; $ColorsId: Identity.IdentityComposer<"@beep/colors">; $DataId: Identity.IdentityComposer<"@beep/data">; $IdentityId: Identity.IdentityComposer<"@beep/identity">; $LangextractId: Identity.IdentityComposer<"@beep/langextract">; $MdId: Identity.IdentityComposer<"@beep/md">; $MessagesId: Identity.IdentityComposer<"@beep/messages">; $NlpId: Identity.IdentityComposer<"@beep/nlp">; $ObservabilityId: Identity.IdentityComposer<"@beep/observability">; $OntologyId: Identity.IdentityComposer<"@beep/ontology">; $RdfId: Identity.IdentityComposer<"@beep/rdf">; $SchemaId: Identity.IdentityComposer<"@beep/schema">; $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web">; $TypesId: Identity.IdentityComposer<"@beep/types">; $UiId: Identity.IdentityComposer<"@beep/ui">; $UtilsId: Identity.IdentityComposer<"@beep/utils">; $AgentsDomainId: Identity.IdentityComposer<"@beep/agents-domain">; $AgentsUseCasesId: Identity.IdentityComposer<"@beep/agents-use-cases">; $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-domain">; $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice-domain">; $ProfessionalDesktopId: Identity.IdentityComposer<"@beep/professional-desktop">; $WorkspaceDomainId: Identity.IdentityComposer<"@beep/workspace-domain">; $RepoAiMetricsId: Identity.IdentityComposer<"@beep/repo-ai-metrics">; $RepoCliId: Identity.IdentityComposer<"@beep/repo-cli">; $RepoConfigsId: Identity.IdentityComposer<"@beep/repo-configs">; $RepoDocgenId: Identity.IdentityComposer<"@beep/repo-docgen">; $RepoUtilsId: Identity.IdentityComposer<"@beep/repo-utils">; $TestUtilsId: Identity.IdentityComposer<"@beep/test-utils">; $DbAdminId: Identity.IdentityComposer<"@beep/db-admin">; $SharedDomainId: Identity.IdentityComposer<"@beep/shared-domain">; $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-cases">; $SharedServerId: Identity.IdentityComposer<"@beep/shared-server">; $SharedClientId: Identity.IdentityComposer<"@beep/shared-client">; $SharedTablesId: Identity.IdentityComposer<"@beep/shared-tables">; $SharedUiId: Identity.IdentityComposer<"@beep/shared-ui">; $SharedConfigId: Identity.IdentityComposer<"@beep/shared-config">; $OipWebId: Identity.IdentityComposer<"@beep/oip-web">; $DrizzleId: Identity.IdentityComposer<"@beep/drizzle">; $DuckdbId: Identity.IdentityComposer<"@beep/duckdb">; $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection">; $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg">; $PostgresId: Identity.IdentityComposer<"@beep/postgres">; $SandboxId: Identity.IdentityComposer<"@beep/sandbox">; $AnthropicId: Identity.IdentityComposer<"@beep/anthropic">; $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai">; $XaiId: Identity.IdentityComposer<"@beep/xai">; $AcpId: Identity.IdentityComposer<"@beep/acp">; $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat">; $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables">; $WorkspaceUseCasesId: Identity.IdentityComposer<"@beep/workspace-use-cases">; $WorkspaceServerId: Identity.IdentityComposer<"@beep/workspace-server">; $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architecture-lab-domain">; $ArchitectureLabUseCasesId: Identity.IdentityComposer<"@beep/architecture-lab-use-cases">; $ArchitectureLabConfigId: Identity.IdentityComposer<"@beep/architecture-lab-config">; $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architecture-lab-server">; $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architecture-lab-tables">; $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architecture-lab-client">; $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture-lab-ui">; $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof">; $RunpodId: Identity.IdentityComposer<"@beep/runpod">; $OnepasswordCliId: Identity.IdentityComposer<"@beep/onepassword-cli">; $DiscordId: Identity.IdentityComposer<"@beep/discord">; $AiProviderCliId: Identity.IdentityComposer<"@beep/ai-provider-cli">; $SanityId: Identity.IdentityComposer<"@beep/sanity">; $HubspotId: Identity.IdentityComposer<"@beep/hubspot">; $PhoenixId: Identity.IdentityComposer<"@beep/phoenix">; $KonvaId: Identity.IdentityComposer<"@beep/konva">; $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph">; $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync">; $FormId: Identity.IdentityComposer<"@beep/form">; $NlpMcpId: Identity.IdentityComposer<"@beep/nlp-mcp">; $WinkId: Identity.IdentityComposer<"@beep/wink">; $FileProcessingId: Identity.IdentityComposer<"@beep/file-processing">; $TikaId: Identity.IdentityComposer<"@beep/tika">; $LibpffId: Identity.IdentityComposer<"@beep/libpff">; $BoxId: Identity.IdentityComposer<"@beep/box">; $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl">; $UsptoId: Identity.IdentityComposer<"@beep/uspto">; $LexicalSchemaId: Identity.IdentityComposer<"@beep/lexical-schema">; $EditorId: Identity.IdentityComposer<"@beep/editor">; }
+declare const RepoPkgs: { $LangExtractId: Identity.IdentityComposer<"@beep/langextract">; $InfraId: Identity.IdentityComposer<"@beep/infra">; $ChalkId: Identity.IdentityComposer<"@beep/chalk">; $ColorsId: Identity.IdentityComposer<"@beep/colors">; $DataId: Identity.IdentityComposer<"@beep/data">; $IdentityId: Identity.IdentityComposer<"@beep/identity">; $LangextractId: Identity.IdentityComposer<"@beep/langextract">; $MdId: Identity.IdentityComposer<"@beep/md">; $NlpId: Identity.IdentityComposer<"@beep/nlp">; $ObservabilityId: Identity.IdentityComposer<"@beep/observability">; $RdfId: Identity.IdentityComposer<"@beep/rdf">; $SchemaId: Identity.IdentityComposer<"@beep/schema">; $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web">; $TypesId: Identity.IdentityComposer<"@beep/types">; $UiId: Identity.IdentityComposer<"@beep/ui">; $UtilsId: Identity.IdentityComposer<"@beep/utils">; $AgentsDomainId: Identity.IdentityComposer<"@beep/agents-domain">; $AgentsUseCasesId: Identity.IdentityComposer<"@beep/agents-use-cases">; $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-domain">; $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice-domain">; $ProfessionalDesktopId: Identity.IdentityComposer<"@beep/professional-desktop">; $WorkspaceDomainId: Identity.IdentityComposer<"@beep/workspace-domain">; $RepoAiMetricsId: Identity.IdentityComposer<"@beep/repo-ai-metrics">; $RepoCliId: Identity.IdentityComposer<"@beep/repo-cli">; $RepoConfigsId: Identity.IdentityComposer<"@beep/repo-configs">; $RepoDocgenId: Identity.IdentityComposer<"@beep/repo-docgen">; $RepoUtilsId: Identity.IdentityComposer<"@beep/repo-utils">; $TestUtilsId: Identity.IdentityComposer<"@beep/test-utils">; $DbAdminId: Identity.IdentityComposer<"@beep/db-admin">; $SharedDomainId: Identity.IdentityComposer<"@beep/shared-domain">; $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-cases">; $SharedServerId: Identity.IdentityComposer<"@beep/shared-server">; $SharedClientId: Identity.IdentityComposer<"@beep/shared-client">; $SharedTablesId: Identity.IdentityComposer<"@beep/shared-tables">; $SharedUiId: Identity.IdentityComposer<"@beep/shared-ui">; $SharedConfigId: Identity.IdentityComposer<"@beep/shared-config">; $OipWebId: Identity.IdentityComposer<"@beep/oip-web">; $DrizzleId: Identity.IdentityComposer<"@beep/drizzle">; $DuckdbId: Identity.IdentityComposer<"@beep/duckdb">; $FaceDetectionId: Identity.IdentityComposer<"@beep/face-detection">; $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg">; $PostgresId: Identity.IdentityComposer<"@beep/postgres">; $AnthropicId: Identity.IdentityComposer<"@beep/anthropic">; $VeniceAiId: Identity.IdentityComposer<"@beep/venice-ai">; $XaiId: Identity.IdentityComposer<"@beep/xai">; $AcpId: Identity.IdentityComposer<"@beep/acp">; $OpenaiCompatId: Identity.IdentityComposer<"@beep/openai-compat">; $WorkspaceTablesId: Identity.IdentityComposer<"@beep/workspace-tables">; $WorkspaceUseCasesId: Identity.IdentityComposer<"@beep/workspace-use-cases">; $WorkspaceServerId: Identity.IdentityComposer<"@beep/workspace-server">; $ArchitectureLabDomainId: Identity.IdentityComposer<"@beep/architecture-lab-domain">; $ArchitectureLabUseCasesId: Identity.IdentityComposer<"@beep/architecture-lab-use-cases">; $ArchitectureLabConfigId: Identity.IdentityComposer<"@beep/architecture-lab-config">; $ArchitectureLabServerId: Identity.IdentityComposer<"@beep/architecture-lab-server">; $ArchitectureLabTablesId: Identity.IdentityComposer<"@beep/architecture-lab-tables">; $ArchitectureLabClientId: Identity.IdentityComposer<"@beep/architecture-lab-client">; $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture-lab-ui">; $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof">; $RunpodId: Identity.IdentityComposer<"@beep/runpod">; $OnepasswordCliId: Identity.IdentityComposer<"@beep/onepassword-cli">; $DiscordId: Identity.IdentityComposer<"@beep/discord">; $AiProviderCliId: Identity.IdentityComposer<"@beep/ai-provider-cli">; $SanityId: Identity.IdentityComposer<"@beep/sanity">; $HubspotId: Identity.IdentityComposer<"@beep/hubspot">; $PhoenixId: Identity.IdentityComposer<"@beep/phoenix">; $KonvaId: Identity.IdentityComposer<"@beep/konva">; $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph">; $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync">; $FormId: Identity.IdentityComposer<"@beep/form">; $NlpMcpId: Identity.IdentityComposer<"@beep/nlp-mcp">; $WinkId: Identity.IdentityComposer<"@beep/wink">; $FileProcessingId: Identity.IdentityComposer<"@beep/file-processing">; $TikaId: Identity.IdentityComposer<"@beep/tika">; $LibpffId: Identity.IdentityComposer<"@beep/libpff">; $BoxId: Identity.IdentityComposer<"@beep/box">; $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl">; $UsptoId: Identity.IdentityComposer<"@beep/uspto">; $LexicalSchemaId: Identity.IdentityComposer<"@beep/lexical-schema">; $EditorId: Identity.IdentityComposer<"@beep/editor">; }
 ```
 
-[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L693)
+[Source](https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/packages.ts#L660)
 
 Since v0.0.0

@@ -252,12 +252,6 @@
         ]
       },
       {
-        "name": "@beep/messages",
-        "patterns": [
-          "packages/foundation/modeling/messages/src/**"
-        ]
-      },
-      {
         "name": "@beep/nlp",
         "patterns": [
           "packages/foundation/capability/nlp/src/**"
@@ -285,12 +279,6 @@
         "name": "@beep/onepassword-cli",
         "patterns": [
           "packages/drivers/onepassword-cli/src/**"
-        ]
-      },
-      {
-        "name": "@beep/ontology",
-        "patterns": [
-          "packages/foundation/modeling/ontology/src/**"
         ]
       },
       {
@@ -363,12 +351,6 @@
         "name": "@beep/runpod",
         "patterns": [
           "packages/drivers/runpod/src/**"
-        ]
-      },
-      {
-        "name": "@beep/sandbox",
-        "patterns": [
-          "packages/foundation/capability/sandbox/src/**"
         ]
       },
       {
@@ -1161,17 +1143,6 @@
         ]
       },
       {
-        "from": "@beep/messages",
-        "allow": [
-          "@beep/messages",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/messages",
-          "@beep/utils"
-        ]
-      },
-      {
         "from": "@beep/nlp",
         "allow": [
           "@beep/identity",
@@ -1262,21 +1233,6 @@
           "@beep/onepassword-cli",
           "@beep/schema",
           "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/ontology",
-        "allow": [
-          "@beep/identity",
-          "@beep/ontology",
-          "@beep/rdf",
-          "@beep/schema"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/ontology",
-          "@beep/rdf",
-          "@beep/schema"
         ]
       },
       {
@@ -1533,23 +1489,6 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/runpod",
-          "@beep/schema",
-          "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/sandbox",
-        "allow": [
-          "@beep/identity",
-          "@beep/observability",
-          "@beep/sandbox",
-          "@beep/schema",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/observability",
-          "@beep/sandbox",
           "@beep/schema",
           "@beep/utils"
         ]

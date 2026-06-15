@@ -19,9 +19,6 @@
     },
     {
       "path": "../../primitive/types/tsconfig.json"
-    },
-    {
-      "path": "../messages/tsconfig.json"
     }
   ]
 }

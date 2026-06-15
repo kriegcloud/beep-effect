@@ -510,20 +510,6 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/messages",
-      "generatedRuleFrom": "@beep/messages",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/foundation/modeling/messages/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
       "ruleId": "@beep/nlp",
       "generatedRuleFrom": "@beep/nlp",
       "sourceClass": "manifest-derived",
@@ -586,20 +572,6 @@
       "sourceRefs": [
         "package.json",
         "packages/drivers/onepassword-cli/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/ontology",
-      "generatedRuleFrom": "@beep/ontology",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/foundation/modeling/ontology/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
@@ -768,20 +740,6 @@
       "sourceRefs": [
         "package.json",
         "packages/drivers/runpod/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/sandbox",
-      "generatedRuleFrom": "@beep/sandbox",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/foundation/capability/sandbox/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],

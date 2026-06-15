@@ -687,21 +687,28 @@ describe("tsconfig-sync", () => {
 
             yield* bootstrapRootConfig(rootDir, {
               workspaces: ["packages/foundation/*/*"],
-              references: ["packages/foundation/modeling/messages"],
+              references: ["packages/foundation/modeling/example-docgen"],
               paths: {
-                "@beep/messages": ["./packages/foundation/modeling/messages/src/index.ts"],
-                "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
+                "@beep/example-docgen": ["./packages/foundation/modeling/example-docgen/src/index.ts"],
+                "@beep/example-docgen/*": ["./packages/foundation/modeling/example-docgen/src/*"],
               },
               testFileMatch: ["packages/foundation/*/*/dtslint/**/*.tst.*"],
               syncpackSources: ["package.json", "packages/foundation/*/*/package.json"],
             });
 
             yield* bootstrapWorkspace(rootDir, {
-              relativeDir: "packages/foundation/modeling/messages",
-              packageName: "@beep/messages",
+              relativeDir: "packages/foundation/modeling/example-docgen",
+              packageName: "@beep/example-docgen",
             });
 
-            const docgenPath = path.join(rootDir, "packages", "foundation", "modeling", "messages", "docgen.json");
+            const docgenPath = path.join(
+              rootDir,
+              "packages",
+              "foundation",
+              "modeling",
+              "example-docgen",
+              "docgen.json"
+            );
             yield* writeTextFile(
               docgenPath,
               `{
@@ -709,7 +716,7 @@ describe("tsconfig-sync", () => {
   "exclude": [
     "src/internal/**/*.ts"
   ],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/messages/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/example-docgen/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -741,11 +748,11 @@ describe("tsconfig-sync", () => {
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/messages": [
-        "../../../../packages/foundation/modeling/messages/src/index.ts"
+      "@beep/example-docgen": [
+        "../../../../packages/foundation/modeling/example-docgen/src/index.ts"
       ],
-      "@beep/messages/*": [
-        "../../../../packages/foundation/modeling/messages/src/*.ts"
+      "@beep/example-docgen/*": [
+        "../../../../packages/foundation/modeling/example-docgen/src/*.ts"
       ]
     }
   }
@@ -755,7 +762,7 @@ describe("tsconfig-sync", () => {
 
             const drift = yield* syncTsconfigAtRoot(rootDir, {
               mode: "check",
-              filter: "@beep/messages",
+              filter: "@beep/example-docgen",
               verbose: false,
             }).pipe(
               Effect.match({
@@ -768,7 +775,7 @@ describe("tsconfig-sync", () => {
 
             const syncResult = yield* syncTsconfigAtRoot(rootDir, {
               mode: "sync",
-              filter: "@beep/messages",
+              filter: "@beep/example-docgen",
               verbose: false,
             });
 
@@ -784,11 +791,11 @@ describe("tsconfig-sync", () => {
 
             expect(syncedText).toContain('"exclude": ["src/internal/**/*.ts"],');
             expect(syncedText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
-            expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages"]).toEqual([
-              "../../../../packages/foundation/modeling/messages/src/index.ts",
+            expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/example-docgen"]).toEqual([
+              "../../../../packages/foundation/modeling/example-docgen/src/index.ts",
             ]);
-            expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/messages/*"]).toEqual([
-              "../../../../packages/foundation/modeling/messages/src/*.ts",
+            expect(syncedDocgen.examplesCompilerOptions?.paths?.["@beep/example-docgen/*"]).toEqual([
+              "../../../../packages/foundation/modeling/example-docgen/src/*.ts",
             ]);
           })
         )

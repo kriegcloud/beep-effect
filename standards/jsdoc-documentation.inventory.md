@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-15T06:24:31.351Z
+Generated: 2026-06-15T07:27:42.567Z
 
 ## Scope
 
@@ -10,21 +10,21 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 90 |
-| cleanPackages | 20 |
+| packages | 87 |
+| cleanPackages | 19 |
 | packagesWithoutPublicSrcSurface | 2 |
-| packagesNeedingRemediation | 64 |
-| publicModules | 1256 |
-| publicExports | 12629 |
+| packagesNeedingRemediation | 62 |
+| publicModules | 1224 |
+| publicExports | 12325 |
 | openModules | 114 |
-| openExports | 1656 |
-| missingExportExamples | 1300 |
+| openExports | 1575 |
+| missingExportExamples | 1242 |
 | missingExportCategories | 62 |
 | missingExportSince | 62 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 25 |
-| unsafeExampleFindings | 194 |
+| unsafeExampleFindings | 171 |
 | schemaAnnotationFindings | 159 |
 | rootPolicyOpen | 0 |
 
@@ -47,90 +47,87 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
 | 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 10 | 29 | 0 | 2 |
-| 7 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 1 | 6 | 0 | 6 |
-| 8 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
-| 9 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 10 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
-| 11 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 6 | 9 | 0 | 3 |
-| 12 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | clean | 5 | 55 | 0 | 0 |
-| 13 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 35 | 192 | 0 | 11 |
-| 14 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
-| 15 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
-| 16 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
-| 17 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 91 | 535 | 0 | 130 |
-| 18 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
-| 19 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 6 | 11 | 1 | 1 |
-| 20 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 23 | 0 | 15 |
-| 21 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 6 | 15 | 0 | 1 |
-| 22 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 23 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 83 | 0 | 11 |
-| 24 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
-| 25 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 9 | 80 | 0 | 30 |
-| 26 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 87 | 0 | 24 |
-| 27 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
-| 28 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 29 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 20 | 63 | 0 | 12 |
-| 30 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 31 | `@beep/workspace-server` | `packages/workspace/server` | needs-remediation | 6 | 14 | 0 | 4 |
-| 32 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
-| 33 | `@beep/uspto` | `packages/drivers/uspto` | needs-remediation | 5 | 22 | 0 | 7 |
-| 34 | `@beep/sandbox` | `packages/foundation/capability/sandbox` | needs-remediation | 29 | 290 | 0 | 75 |
-| 35 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
-| 36 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 37 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 5 | 28 | 0 | 9 |
-| 38 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 39 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 30 | 78 | 0 | 10 |
-| 40 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 41 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 58 | 0 | 18 |
-| 42 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
-| 43 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
-| 44 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 141 | 0 | 38 |
-| 45 | `@beep/workspace-domain` | `packages/workspace/domain` | needs-remediation | 27 | 60 | 0 | 8 |
-| 46 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 155 | 0 | 20 |
-| 47 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 178 | 0 | 17 |
-| 48 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 256 | 0 | 4 |
-| 49 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
-| 50 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 4 | 13 | 0 | 3 |
-| 51 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
-| 52 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 53 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
-| 54 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 104 | 0 | 4 |
-| 55 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 56 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
-| 57 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 58 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 3 | 16 | 0 | 0 |
-| 59 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 12 | 20 | 0 | 12 |
-| 60 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
-| 61 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
-| 62 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
-| 63 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 64 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
-| 65 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
-| 66 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 67 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 64 | 652 | 2 | 81 |
-| 68 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
-| 69 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
-| 70 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
-| 71 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
-| 72 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
-| 73 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 74 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
-| 75 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 76 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 77 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 19 | 0 | 4 |
-| 78 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
-| 79 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
-| 80 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
-| 81 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 82 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 506 | 108 | 64 |
-| 83 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
-| 84 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
-| 85 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
-| 86 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
-| 87 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 6 | 12 | 0 | 4 |
-| 88 | `@beep/messages` | `packages/foundation/modeling/messages` | clean | 2 | 6 | 0 | 0 |
-| 89 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
-| 90 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
+| 8 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 9 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
+| 10 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 6 | 9 | 0 | 3 |
+| 11 | `@beep/repo-codegraph` | `packages/tooling/library/repo-codegraph` | clean | 5 | 55 | 0 | 0 |
+| 12 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 35 | 192 | 0 | 11 |
+| 13 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
+| 14 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
+| 15 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
+| 16 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 91 | 536 | 0 | 130 |
+| 17 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
+| 18 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 6 | 11 | 1 | 1 |
+| 19 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 23 | 0 | 15 |
+| 20 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 6 | 15 | 0 | 1 |
+| 21 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
+| 22 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 83 | 0 | 11 |
+| 23 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
+| 24 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 9 | 80 | 0 | 30 |
+| 25 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 7 | 87 | 0 | 24 |
+| 26 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
+| 27 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 28 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 20 | 63 | 0 | 12 |
+| 29 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
+| 30 | `@beep/workspace-server` | `packages/workspace/server` | needs-remediation | 6 | 14 | 0 | 4 |
+| 31 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
+| 32 | `@beep/uspto` | `packages/drivers/uspto` | needs-remediation | 5 | 22 | 0 | 7 |
+| 33 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
+| 34 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
+| 35 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 5 | 28 | 0 | 9 |
+| 36 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
+| 37 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 30 | 78 | 0 | 10 |
+| 38 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 39 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 58 | 0 | 18 |
+| 40 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
+| 41 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
+| 42 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 141 | 0 | 38 |
+| 43 | `@beep/workspace-domain` | `packages/workspace/domain` | needs-remediation | 27 | 60 | 0 | 8 |
+| 44 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 155 | 0 | 20 |
+| 45 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 178 | 0 | 17 |
+| 46 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 256 | 0 | 4 |
+| 47 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
+| 48 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 4 | 13 | 0 | 3 |
+| 49 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
+| 50 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
+| 51 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
+| 52 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 101 | 0 | 4 |
+| 53 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 54 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
+| 55 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 56 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 3 | 16 | 0 | 0 |
+| 57 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 12 | 20 | 0 | 12 |
+| 58 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
+| 59 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
+| 60 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
+| 61 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 62 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
+| 63 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
+| 64 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
+| 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 64 | 652 | 2 | 81 |
+| 66 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
+| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
+| 68 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
+| 69 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
+| 70 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
+| 71 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 72 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
+| 73 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 74 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 75 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 19 | 0 | 4 |
+| 76 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
+| 77 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
+| 78 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
+| 79 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 80 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 506 | 108 | 64 |
+| 81 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
+| 82 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
+| 83 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
+| 84 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
+| 85 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 6 | 12 | 0 | 4 |
+| 86 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
+| 87 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -150,24 +147,6 @@ Path: `packages/agents/domain`
 Export findings:
 - `src/turn/AssistantContent.ts:114` `InlineNode` (type) - missing @example
 - `src/turn/AssistantContent.ts:303` `AssistantBlock` (type) - missing @example
-
-### @beep/ontology
-
-Path: `packages/foundation/modeling/ontology`
-
-Export findings:
-- `src/index.ts:22` `export { Ontology } from "./create.ts";` (re-export) - missing @example
-- `src/index.ts:29` `export {
-  getOntologyKeyMetadata,
-  getOntologyMetadata,
-  isOntologyClassAnnotationDraft,
-  isOntologyPredicateAnnotationDraft,
-  OntologyAssemblyError,
-} from "./model.ts";` (re-export) - missing @example
-- `src/index.ts:42` `export { parseJsonLdOntology, projectJsonLdContext, projectJsonLdOntology } from "./projections/jsonld.ts";` (re-export) - missing @example
-- `src/index.ts:49` `export { projectMarkdown } from "./projections/markdown.ts";` (re-export) - missing @example
-- `src/index.ts:56` `export { projectTurtle } from "./projections/turtle.ts";` (re-export) - missing @example
-- `src/index.ts:14` `VERSION` (const) - missing @example
 
 ### @beep/architecture-lab-ui
 
@@ -341,8 +320,8 @@ Export findings:
 - `src/commands/Purge/index.ts:14` `export * from "./Purge.command.js";` (re-export) - missing @example
 - `src/commands/Quality/ChangesetGraph.ts:27` `export { ChangesetGraphError } from "./Quality.errors.js";` (re-export) - missing @example
 - `src/commands/Quality/Quality.command.ts:51` `export { QualityScriptCommandError } from "./Quality.errors.js";` (re-export) - missing @example
-- `src/commands/Quality/Quality.command.ts:2522` `fullRepoExportsCatalogEscalationCommandForTesting` (const) - missing @example
-- `src/commands/Quality/Quality.command.ts:2590` `affectedRepoExportsCatalogPlanForTesting` (const) - missing @example
+- `src/commands/Quality/Quality.command.ts:2620` `fullRepoExportsCatalogEscalationCommandForTesting` (const) - missing @example
+- `src/commands/Quality/Quality.command.ts:2688` `affectedRepoExportsCatalogPlanForTesting` (const) - missing @example
 - `src/commands/Quality/index.ts:14` `export { qualityFallowCommand } from "./FallowQuality.command.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:21` `export * from "./internal/TurboConfigProof.js";` (re-export) - missing @example
 - `src/commands/Quality/index.ts:28` `export {
@@ -746,87 +725,6 @@ Export findings:
 - `src/index.ts:21` `export * from "./Uspto.errors.ts";` (re-export) - missing @example
 - `src/index.ts:28` `export * from "./Uspto.models.ts";` (re-export) - missing @example
 - `src/index.ts:35` `export * from "./Uspto.service.ts";` (re-export) - missing @example
-
-### @beep/sandbox
-
-Path: `packages/foundation/capability/sandbox`
-
-Export findings:
-- `src/Agent.provider.ts:365` `ParsedStreamEvent` (type) - missing @example
-- `src/Agent.provider.ts:392` `CodexEffort` (type) - missing @example
-- `src/Agent.provider.ts:419` `ClaudeEffort` (type) - missing @example
-- `src/Agent.provider.ts:598` `AgentProvider` (interface) - 1 unsafe example violation(s)
-- `src/AgentStreamEmitter.ts:58` `AgentStreamEvent` (type) - missing @example
-- `src/AgentStreamEmitter.ts:66` `AgentStreamEvent` (namespace) - missing @example
-- `src/AgentStreamEmitter.ts:90` `AgentStreamEmitterShape` (interface) - 1 unsafe example violation(s)
-- `src/Display.ts:44` `Severity` (type) - missing @example
-- `src/Display.ts:245` `DisplayEntry` (type) - missing @example
-- `src/Display.ts:261` `DisplayServiceShape` (interface) - 1 unsafe example violation(s)
-- `src/Image.ts:46` `ContainerImageRuntime` (type) - missing @example
-- `src/Init.ts:64` `SandboxAgentName` (type) - missing @example
-- `src/Init.ts:91` `SandboxInitProviderName` (type) - missing @example
-- `src/Orchestrator.ts:114` `OrchestrateOptions` (interface) - 1 unsafe example violation(s)
-- `src/Prompt.ts:98` `BuiltInPromptArgKey` (type) - missing @example
-- `src/Prompt.ts:125` `PromptArgValue` (type) - missing @example
-- `src/Prompt.ts:152` `PromptArgs` (type) - missing @example
-- `src/Prompt.ts:181` `PromptSource` (type) - missing @example
-- `src/RecoveryMessage.ts:41` `FailedStep` (type) - missing @example
-- `src/Run.ts:110` `LoggingOptionKind` (type) - missing @example
-- `src/Run.ts:251` `LoggingOption` (type) - missing @example
-- `src/Run.ts:374` `RunOptions` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.errors.ts:672` `SandboxError` (type) - missing @example
-- `src/Sandbox.errors.ts:680` `SandboxError` (namespace) - missing @example
-- `src/Sandbox.observability.ts:157` `SandboxPhaseAttributes` (type) - missing @example
-- `src/Sandbox.process.ts:147` `SandboxProcessShape` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:43` `SandboxProviderKind` (type) - missing @example
-- `src/Sandbox.provider.ts:130` `InteractiveExecOptions` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:299` `BranchStrategy` (type) - missing @example
-- `src/Sandbox.provider.ts:315` `SandboxHandle` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:340` `BindMountSandboxHandle` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:358` `IsolatedSandboxHandle` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:376` `NoSandboxHandle` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:392` `BindMountSandboxProvider` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:414` `IsolatedSandboxProvider` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:435` `NoSandboxProvider` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:459` `SandboxProvider` (type) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:478` `BindMountSandboxProviderConfig` (interface) - 1 unsafe example violation(s)
-- `src/Sandbox.provider.ts:499` `IsolatedSandboxProviderConfig` (interface) - 1 unsafe example violation(s)
-- `src/Session.ts:73` `SessionId` (type) - missing @example
-- `src/Session.ts:104` `SessionStore` (interface) - 1 unsafe example violation(s)
-- `src/Template.ts:44` `SandboxTemplateName` (type) - missing @example
-- `src/TextDeltaBuffer.ts:63` `TextDeltaFlush` (type) - 1 unsafe example violation(s)
-- `src/createSandbox.ts:34` `CreateSandboxOptions` (interface) - 1 unsafe example violation(s)
-- `src/createWorktree.ts:66` `Worktree` (interface) - 1 unsafe example violation(s)
-- `src/index.ts:14` `export * from "./Agent.provider.ts";` (re-export) - missing @example
-- `src/index.ts:21` `export * from "./AgentStreamEmitter.ts";` (re-export) - missing @example
-- `src/index.ts:28` `export * from "./createSandbox.ts";` (re-export) - missing @example
-- `src/index.ts:35` `export * from "./createWorktree.ts";` (re-export) - missing @example
-- `src/index.ts:42` `export * from "./Display.ts";` (re-export) - missing @example
-- `src/index.ts:49` `export * from "./Env.ts";` (re-export) - missing @example
-- `src/index.ts:56` `export * from "./Image.ts";` (re-export) - missing @example
-- `src/index.ts:63` `export * from "./Init.ts";` (re-export) - missing @example
-- `src/index.ts:70` `export * from "./interactive.ts";` (re-export) - missing @example
-- `src/index.ts:77` `export * from "./Lifecycle.ts";` (re-export) - missing @example
-- `src/index.ts:84` `export * from "./Orchestrator.ts";` (re-export) - missing @example
-- `src/index.ts:91` `export * from "./Prompt.ts";` (re-export) - missing @example
-- `src/index.ts:98` `export * from "./RecoveryMessage.ts";` (re-export) - missing @example
-- `src/index.ts:105` `export * from "./Run.ts";` (re-export) - missing @example
-- `src/index.ts:112` `export * from "./resolveCwd.ts";` (re-export) - missing @example
-- `src/index.ts:119` `export * from "./Sandbox.error-handler.ts";` (re-export) - missing @example
-- `src/index.ts:126` `export * from "./Sandbox.errors.ts";` (re-export) - missing @example
-- `src/index.ts:133` `export * from "./Sandbox.observability.ts";` (re-export) - missing @example
-- `src/index.ts:140` `export * from "./Sandbox.process.ts";` (re-export) - missing @example
-- `src/index.ts:147` `export * from "./Sandbox.provider.ts";` (re-export) - missing @example
-- `src/index.ts:154` `export * from "./Sandbox.providers.ts";` (re-export) - missing @example
-- `src/index.ts:161` `export * from "./Session.ts";` (re-export) - missing @example
-- `src/index.ts:168` `export * from "./SyncIn.ts";` (re-export) - missing @example
-- `src/index.ts:175` `export * from "./SyncOut.ts";` (re-export) - missing @example
-- `src/index.ts:182` `export * from "./Template.ts";` (re-export) - missing @example
-- `src/index.ts:189` `export * from "./TextDeltaBuffer.ts";` (re-export) - missing @example
-- `src/index.ts:196` `export * from "./terminalCleanup.ts";` (re-export) - missing @example
-- `src/index.ts:203` `export * from "./Worktree.ts";` (re-export) - missing @example
-- `src/terminalCleanup.ts:37` `TerminalCleanupStdin` (interface) - 1 unsafe example violation(s)
-- `src/terminalCleanup.ts:56` `TerminalCleanupStdout` (interface) - 1 unsafe example violation(s)
 
 ### @beep/phoenix
 

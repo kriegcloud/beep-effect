@@ -157,9 +157,6 @@
       "path": "packages/foundation/capability/observability"
     },
     {
-      "path": "packages/foundation/capability/sandbox"
-    },
-    {
       "path": "packages/foundation/capability/semantic-web"
     },
     {
@@ -170,12 +167,6 @@
     },
     {
       "path": "packages/foundation/modeling/md"
-    },
-    {
-      "path": "packages/foundation/modeling/messages"
-    },
-    {
-      "path": "packages/foundation/modeling/ontology"
     },
     {
       "path": "packages/foundation/modeling/rdf"

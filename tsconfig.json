@@ -59,10 +59,6 @@
       "@beep/schema/Glob": [
         "./packages/foundation/modeling/schema/src/Glob/index.ts"
       ],
-      "@beep/messages": [
-        "./packages/foundation/modeling/messages/src/index.ts"
-      ],
-      "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
       "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
       "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
       "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],
@@ -378,10 +374,6 @@
       "@beep/agents-use-cases/proof": [
         "./packages/agents/use-cases/src/proof.ts"
       ],
-      "@beep/sandbox": [
-        "./packages/foundation/capability/sandbox/src/index.ts"
-      ],
-      "@beep/sandbox/*": ["./packages/foundation/capability/sandbox/src/*"],
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
@@ -1123,9 +1115,6 @@
       "@beep/firecrawl/*": ["./packages/drivers/firecrawl/src/*"],
       "@beep/rdf": ["./packages/foundation/modeling/rdf/src/index.ts"],
       "@beep/rdf/*": ["./packages/foundation/modeling/rdf/src/*"],
-      "@beep/ontology": [
-        "./packages/foundation/modeling/ontology/src/index.ts"
-      ],
       "@beep/repo-cli/commands/Fallow": [
         "./packages/tooling/tool/cli/src/commands/Fallow/index.ts"
       ],
