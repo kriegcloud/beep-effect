@@ -1,5 +1,5 @@
 /**
- * Incremental JSON block scanner state for assistant-turn streams.
+ * Incremental assistant-turn scan state helpers.
  *
  * @packageDocumentation
  * @since 0.0.0

@@ -294,6 +294,12 @@
         ]
       },
       {
+        "name": "@beep/pandoc-ast",
+        "patterns": [
+          "packages/foundation/modeling/pandoc-ast/src/**"
+        ]
+      },
+      {
         "name": "@beep/phoenix",
         "patterns": [
           "packages/drivers/phoenix/src/**"
@@ -1267,6 +1273,23 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/openai-compat",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/pandoc-ast",
+        "allow": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/pandoc-ast",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/pandoc-ast",
           "@beep/schema",
           "@beep/utils"
         ]

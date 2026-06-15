@@ -1173,6 +1173,21 @@
       ],
       "@beep/agents-domain/turn": [
         "./packages/agents/domain/src/turn/index.ts"
+      ],
+      "@beep/pandoc-ast": [
+        "./packages/foundation/modeling/pandoc-ast/src/index.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.codec": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.mapping": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.model": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts"
+      ],
+      "@beep/pandoc-ast/Pandoc.report": [
+        "./packages/foundation/modeling/pandoc-ast/src/Pandoc.report.ts"
       ]
     }
   }
