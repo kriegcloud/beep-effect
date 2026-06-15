@@ -35,11 +35,18 @@ const ContactSubmissionErrorReason = LiteralKit(["config", "decode", "provider",
 
 type ContactSubmissionErrorReason = typeof ContactSubmissionErrorReason.Type;
 
-type ContactSubmissionErrorOptions = {
-  readonly provider?: string;
-  readonly providerReason?: string;
-  readonly status?: number;
-};
+
+export class ContactSubmissionErrorOptions extends S.Class<ContactSubmissionErrorOptions>($I`ContactSubmissionErrorOptions`)(
+	{
+		provider: S.optionalKey(S.String),
+		providerReason: S.optionalKey(S.String),
+		status: S.optionalKey(S.Finite),
+	},
+	$I.annote("ContactSubmissionErrorOptions", {
+		description: "Contact submission error options.",
+	})
+) {}
+
 
 class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I`ContactSubmissionError`)(
   "ContactSubmissionError",

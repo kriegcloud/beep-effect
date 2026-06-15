@@ -352,6 +352,8 @@
     "@types/node": "^25.9.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@tanstack/react-form": "^1.33.0",
+    "@tanstack/react-form-devtools": "^0.2.29",
     "@tanstack/react-router": "^1.170.15",
     "@vitejs/plugin-react": "^6.0.2",
     "babel-plugin-annotate-pure-calls": "^0.5.0",

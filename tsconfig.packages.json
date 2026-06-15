@@ -190,6 +190,9 @@
       "path": "packages/foundation/ui-system/form"
     },
     {
+      "path": "packages/foundation/ui-system/inputs"
+    },
+    {
       "path": "packages/foundation/ui-system/ui"
     },
     {

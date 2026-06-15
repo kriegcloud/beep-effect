@@ -1168,6 +1168,12 @@
       ],
       "@beep/editor/youtube-node": [
         "./packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      ],
+      "@beep/inputs": [
+        "./packages/foundation/ui-system/inputs/src/index.ts"
+      ],
+      "@beep/inputs/*": [
+        "./packages/foundation/ui-system/inputs/src/*"
       ]
     }
   }
