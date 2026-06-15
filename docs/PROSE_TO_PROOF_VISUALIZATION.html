@@ -27,7 +27,7 @@
     --safe:#7cc293;
     --membrane:#d7ccbe;
     --neutral:#8893a0;
-    --ink:#e9eef3; --ink-dim:#9aa6b1; --ink-faint:#586673;
+    --ink:#e9eef3; --ink-dim:#9aa6b1; --ink-faint:#6b7886;
     --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.05);
     --card:rgba(255,255,255,.022);
     --mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -48,7 +48,7 @@
   .wrap{max-width:1060px;margin:0 auto}
 
   /* shared tab bar */
-  .tabbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  .tabbar{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:18px;
     padding:11px 20px;margin:0 -20px 0;border-bottom:1px solid var(--line);
     background:rgba(10,13,16,.82);backdrop-filter:blur(10px)}
   .tabbar .brand{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:700;font-size:.96rem;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
@@ -57,8 +57,8 @@
   .tabbar .tab{font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;color:var(--ink-dim);text-decoration:none;padding:7px 13px;border-radius:6px;border:1px solid transparent;transition:.18s}
   .tabbar .tab:hover{color:var(--ink);background:rgba(255,255,255,.04)}
   .tabbar .tab.on{color:var(--ink);background:rgba(95,198,214,.10);border-color:rgba(95,198,214,.3)}
-  .tabbar .conn{margin-left:auto;font-family:var(--mono);font-size:.66rem;color:var(--safe);display:flex;align-items:center;gap:7px}
-  .tabbar .conn::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--safe);box-shadow:0 0 8px var(--safe)}
+  .tabbar .tbnet{margin-left:auto;font-family:var(--mono);font-size:.66rem;color:var(--safe);display:flex;align-items:center;gap:7px}
+  .tabbar .tbnet::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--safe);box-shadow:0 0 8px var(--safe)}
 
   header{padding:34px 0 26px}
   .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint)}
@@ -255,7 +255,7 @@
       <a class="tab" href="PROSE_TO_PROOF_GRAPH.html">Graph</a>
       <a class="tab" href="PROSE_TO_PROOF_CHAT.html">Chat</a>
     </div>
-    <span class="conn">local · on device</span>
+    <span class="tbnet">local · on device</span>
   </nav>
 <div class="wrap">
 
@@ -319,7 +319,7 @@
 
       <!-- the document -->
       <div class="doc" id="doc" data-stage="portal" data-trust="proving" data-loc="local">
-        <div class="docbar"><span class="dot3"><i></i><i></i><i></i></span> response-to-office-action.md · matter: Aanstoot · grinder burr sensor</div>
+        <div class="docbar"><span class="dot3"><i></i><i></i><i></i></span> response-to-office-action.md · matter: Aanstoot · grinder burr sensor · illustrative</div>
         <h4>Remarks</h4>
         <p>Claim 1 recites a <span class="link term" tabindex="0" data-card="term" id="span-sensor">burr alignment sensor</span> that registers alignment <em>prior to</em> grinding. Reference 1 (to <span class="link party" tabindex="0" data-card="party" id="span-halvorsen">Halvorsen</span>) instead teaches a sensor that measures grind size <span class="hl">downstream of the grinding operation</span> — a different function at a different stage of the apparatus.</p>
         <p>Support for the recited limitation appears throughout the specification and is depicted in <span class="link fig" tabindex="0" data-card="fig" id="span-fig3">Figure&nbsp;3</span>, which shows the sensor positioned at the burr interface, registering relative burr position before any grinding occurs.</p>
@@ -334,8 +334,8 @@
       <!-- viewer + subgraph -->
       <div class="panecol">
         <div class="cadview" id="cadview" data-stage="portal" data-loc="local">
-          <div class="cadhead"><i class="mdot" style="background:var(--inferred)"></i> figure 3 · burr interface · live CAD</div>
-          <div class="cadwrap" id="cadwrap">
+          <div class="cadhead"><i class="mdot" style="background:var(--inferred)"></i> figure 3 · burr interface · live 3D</div>
+          <div class="cadwrap" id="cadwrap" role="img" aria-label="Interactive 3D render of the patent figure — a conical grinder burr with the claimed alignment sensor highlighted. Drag to orbit, scroll to zoom. Illustrative, not a loaded CAD file.">
             <div class="cadfallback">
               <span>3D viewer needs WebGL (offline build falls back to the locator).</span>
               <span class="loc">artifact://cad/grinder_v3.step</span>
@@ -354,7 +354,7 @@
             <li><button class="sgitem party" data-action="cad"><span class="sgicon">◆</span><span class="sgbody"><span class="sgt">Inventor email — sensor placement <span class="kind">email</span></span><span class="sgm">Aanstoot thread · 2026-02-11 · "before the grind, not after"</span></span><span class="arw">↗</span></button></li>
             <li><button class="sgitem fig" data-action="cad"><span class="sgicon">◆</span><span class="sgbody"><span class="sgt">CAD source — grinder_v3.step <span class="kind">artifact</span></span><span class="sgm">12 revisions · last edited 2026-01-30</span></span><span class="arw">↗</span></button></li>
             <li><button class="sgitem term" data-action="scroll" data-target="span-fig3"><span class="sgicon">◆</span><span class="sgbody"><span class="sgt">Prior response — distinguished art <span class="kind">work product</span></span><span class="sgm">2025-09 · same teaching-away argument, allowed</span></span><span class="arw">↗</span></button></li>
-            <li><button class="sgitem party" data-action="scroll" data-target="span-halvorsen"><span class="sgicon">◆</span><span class="sgbody"><span class="sgt">Deadline — respond by Apr 12 <span class="kind">docket</span></span><span class="sgm">Non-final action · 3-month statutory period</span></span><span class="arw">↗</span></button></li>
+            <li><button class="sgitem party" data-action="scroll" data-target="span-halvorsen"><span class="sgicon">◆</span><span class="sgbody"><span class="sgt">Deadline — respond by Apr 12 <span class="kind">docket</span></span><span class="sgm">Non-final action · ~3-month shortened period (extendable)</span></span><span class="arw">↗</span></button></li>
           </ul>
         </div>
       </div>
@@ -520,6 +520,7 @@ document.querySelectorAll('#sglist .sgitem').forEach(btn => {
   function scheduleHide(){ clearTimeout(hideTimer); hideTimer = setTimeout(hide, 220); }
 
   document.querySelectorAll('.link').forEach(link => {
+    link.setAttribute('role','button');
     link.addEventListener('mouseenter', () => show(link));
     link.addEventListener('mouseleave', scheduleHide);
     link.addEventListener('focus', () => show(link));

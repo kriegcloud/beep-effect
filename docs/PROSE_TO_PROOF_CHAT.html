@@ -19,7 +19,7 @@
     --safe:#7cc293;
     --membrane:#d7ccbe;
     --neutral:#8893a0;
-    --ink:#e9eef3; --ink-dim:#9aa6b1; --ink-faint:#586673;
+    --ink:#e9eef3; --ink-dim:#9aa6b1; --ink-faint:#6b7886;
     --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.05);
     --card:rgba(255,255,255,.022);
     --mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -37,7 +37,7 @@
   .wrap{max-width:880px;margin:0 auto}
 
   /* shared tab bar */
-  .tabbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  .tabbar{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:18px;
     padding:11px 20px;margin:0 -20px 0;border-bottom:1px solid var(--line);
     background:rgba(10,13,16,.82);backdrop-filter:blur(10px)}
   .tabbar .brand{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:700;font-size:.96rem;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
@@ -58,7 +58,7 @@
   .thesis b{color:var(--ink);font-weight:600}
 
   /* mode toggle */
-  .modes{display:flex;align-items:center;gap:8px;margin:20px 0 6px}
+  .modes{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:20px 0 6px}
   .modes .lbl{font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-right:4px}
   .mode{font-family:var(--mono);font-size:.72rem;color:var(--ink-dim);background:var(--card);border:1px solid var(--line);border-radius:20px;padding:6px 13px;cursor:pointer;transition:.15s}
   .mode:hover{border-color:rgba(255,255,255,.25);color:var(--ink)}
@@ -74,7 +74,8 @@
   .ans{font-size:.95rem;color:var(--ink);line-height:1.62}
   .ans p{margin-bottom:9px}
   .cite{display:inline;border-bottom:1px dashed var(--logic);color:var(--logic-soft);cursor:pointer;padding:0 1px;border-radius:2px;transition:background .15s}
-  .cite:hover,.cite:focus-visible{background:rgba(95,198,214,.14);outline:none}
+  .cite:hover{background:rgba(95,198,214,.14)}
+  .cite:focus-visible{background:rgba(95,198,214,.14);outline:2px solid var(--logic);outline-offset:2px;border-radius:3px}
   .cite::before{content:"⌖ ";font-family:var(--mono);font-size:.8em;color:var(--logic);opacity:.7}
 
   /* grounding expander */
@@ -152,13 +153,13 @@
           <button class="groundbtn open"><span class="chev">▸</span><span class="net">⓰</span> View source graph <span class="badge">1 subgraph</span></button>
           <div class="groundpanel open">
             <div class="groundstat"><span class="ns"></span><span class="tbadges"></span></div>
-            <div class="minicanvaswrap"><canvas></canvas><span class="minihint">click a citation ↑ · drag · scroll-zoom</span></div>
+            <div class="minicanvaswrap"><canvas role="img" aria-label="Source subgraph that grounds the answer above — the nodes and labelled relationships the assistant relied on. Click a citation in the answer to highlight the relevant nodes."></canvas><span class="minihint">click a citation ↑ · drag · scroll-zoom</span></div>
           </div>
         </div>
       </div>
 
       <!-- turn 2 -->
-      <div class="msg user"><div class="who" style="justify-content:flex-end"><i style="background:var(--logic)"></i> you</div><div class="bubble user">Any conflicts before I take Beacon Roasters as a client?</div></div>
+      <div class="msg user"><div class="who" style="justify-content:flex-end"><i style="background:var(--logic)"></i> you</div><div class="bubble user">Any conflicts if I take on the Beacon Roasters matter?</div></div>
 
       <div class="msg assistant" data-graph="g2">
         <div class="who"><i style="background:var(--safe)"></i> assistant · graph-rag</div>
@@ -170,7 +171,7 @@
           <button class="groundbtn"><span class="chev">▸</span><span class="net">⓰</span> View source graph <span class="badge">1 subgraph</span></button>
           <div class="groundpanel">
             <div class="groundstat"><span class="ns"></span><span class="tbadges"></span></div>
-            <div class="minicanvaswrap"><canvas></canvas><span class="minihint">the walls hold · only the attorney node joins</span></div>
+            <div class="minicanvaswrap"><canvas role="img" aria-label="Source subgraph that grounds the answer above — the nodes and labelled relationships the assistant relied on. Click a citation in the answer to highlight the relevant nodes."></canvas><span class="minihint">the walls hold · only the attorney node joins</span></div>
           </div>
         </div>
       </div>
@@ -230,12 +231,13 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
   nodes.forEach(n=>n.degree=0); links.forEach(l=>{l.source.degree++;l.target.degree++;});
   let scale=opts.scale||1.05, tx=0, ty=0, centered=false, alpha=1;
   let hover=null, dragging=null, panning=false, last=null, focusSet=null;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches; let visible=true;
   const radius=n=>Math.max(4,Math.sqrt(n.degree+1)*3.0);
 
   function resize(){ const r=canvas.getBoundingClientRect(); W=r.width; H=r.height; DPR=Math.min(window.devicePixelRatio||1,2);
     canvas.width=Math.max(1,W*DPR); canvas.height=Math.max(1,H*DPR);
     if(!centered && W>0){ tx=W/2; ty=H/2; centered=true; } }
-  function reheat(a=0.8){ alpha=Math.max(alpha,a); }
+  function reheat(a=0.8){ alpha=Math.max(alpha,a); if(reduced){ for(let i=0;i<360 && alpha>=0.01;i++) tick(); draw(); } }
   function tick(){ if(alpha<0.005) return;
     for(let i=0;i<nodes.length;i++){ const a=nodes[i];
       for(let j=i+1;j<nodes.length;j++){ const b=nodes[j];
@@ -271,13 +273,15 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
         ctx.fillStyle='rgba(233,238,243,0.85)'; ctx.fillText(n.label,n.x,n.y+r+2/scale); }
       ctx.globalAlpha=1; }
     ctx.restore(); }
-  function frame(){ tick(); draw(); requestAnimationFrame(frame); }
+  function frame(){ requestAnimationFrame(frame); if(!visible) return; if(!reduced) tick(); draw(); }
   function pick(sx,sy){ const [wx,wy]=s2w(sx,sy); let best=null,bd=1e9; for(const n of nodes){ const d=Math.hypot(n.x-wx,n.y-wy); if(d<radius(n)+6/scale&&d<bd){bd=d;best=n;} } return best; }
 
-  canvas.addEventListener('mousemove',e=>{ const r=canvas.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
-    if(dragging){ const [wx,wy]=s2w(sx,sy); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; reheat(0.4); return; }
-    if(panning&&last){ tx+=sx-last[0]; ty+=sy-last[1]; last=[sx,sy]; return; }
-    hover=pick(sx,sy); const tip=document.getElementById('gtip');
+  window.addEventListener('mousemove',e=>{ const r=canvas.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top;
+    if(dragging){ const [wx,wy]=s2w(sx,sy); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; reheat(0.4); if(reduced) draw(); return; }
+    if(panning&&last){ tx+=sx-last[0]; ty+=sy-last[1]; last=[sx,sy]; if(reduced||!visible) draw(); return; }
+    const inB=sx>=0&&sy>=0&&sx<=r.width&&sy<=r.height; const tip=document.getElementById('gtip');
+    if(!inB){ if(hover){ hover=null; if(reduced) draw(); } tip.classList.remove('show'); return; }
+    const n=pick(sx,sy); if(n!==hover){ hover=n; if(reduced) draw(); }
     if(hover){ tip.innerHTML=`<div class="tt"><i style="background:${hover.type==='matter'?COL.matter:COL[hover.type]}"></i>${hover.label}</div><div class="tm">${ntype(hover)} · ${hover.degree} edge${hover.degree===1?'':'s'}</div>`;
       tip.style.left=Math.min(e.clientX+13,window.innerWidth-230)+'px'; tip.style.top=(e.clientY+13)+'px'; tip.classList.add('show'); }
     else tip.classList.remove('show'); });
@@ -285,11 +289,12 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
   canvas.addEventListener('mousedown',e=>{ const r=canvas.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top; const n=pick(sx,sy); if(n){dragging=n;}else{panning=true;last=[sx,sy];} });
   window.addEventListener('mouseup',()=>{dragging=null;panning=false;});
   canvas.addEventListener('wheel',e=>{ e.preventDefault(); const r=canvas.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,[wx,wy]=s2w(sx,sy);
-    scale=Math.max(0.4,Math.min(3.4,scale*(e.deltaY<0?1.12:0.89))); tx=sx-wx*scale; ty=sy-wy*scale; },{passive:false});
+    scale=Math.max(0.4,Math.min(3.4,scale*(e.deltaY<0?1.12:0.89))); tx=sx-wx*scale; ty=sy-wy*scale; if(reduced) draw(); },{passive:false});
   function ntype(n){ return n.type==='matter'?'matter':n.type==='entity'?'proven entity':n.type==='claim'?'proposed':n.type==='artifact'?'evidence':'external'; }
 
-  if('ResizeObserver' in window) new ResizeObserver(()=>resize()).observe(canvas);
-  window.addEventListener('resize',resize); resize(); frame();
+  if('ResizeObserver' in window) new ResizeObserver(()=>{resize(); if(reduced||!visible) draw();}).observe(canvas);
+  if('IntersectionObserver' in window) new IntersectionObserver(es=>{ visible=es[0].isIntersecting; if(visible&&reduced) reheat(1); }).observe(canvas);
+  window.addEventListener('resize',()=>{resize(); if(reduced) draw();}); resize(); if(reduced) reheat(1); frame();
   return { focus(ids){ focusSet=ids&&ids.length?new Set(ids):null; reheat(0.4); }, resize,
     counts(){ return {n:nodes.length,e:links.length}; }, types(){ return [...new Set(nodes.map(n=>n.type))]; } };
 }
@@ -306,7 +311,8 @@ document.querySelectorAll('.msg.assistant').forEach(msg=>{
   msg.querySelector('.tbadges').innerHTML=api.types().map(t=>`<span class="tb">${TYPE_LABEL[t]}</span>`).join('');
   // expander
   const btn=msg.querySelector('.groundbtn'), panel=msg.querySelector('.groundpanel');
-  btn.addEventListener('click',()=>{ const open=panel.classList.toggle('open'); btn.classList.toggle('open',open); if(open) setTimeout(()=>api.resize(),30); });
+  btn.setAttribute('aria-expanded', panel.classList.contains('open'));
+  btn.addEventListener('click',()=>{ const open=panel.classList.toggle('open'); btn.classList.toggle('open',open); btn.setAttribute('aria-expanded',open); if(open) setTimeout(()=>api.resize(),30); });
   // citations
   msg.querySelectorAll('.cite').forEach(c=>{
     const ids=(c.dataset.focus||'').split(',').filter(Boolean);
@@ -316,7 +322,7 @@ document.querySelectorAll('.msg.assistant').forEach(msg=>{
   });
 });
 // mode toggle (visual)
-document.querySelectorAll('.mode').forEach(m=>m.addEventListener('click',()=>{ document.querySelectorAll('.mode').forEach(x=>x.classList.remove('on')); m.classList.add('on'); }));
+document.querySelectorAll('.mode').forEach(m=>{ m.setAttribute('aria-pressed', m.classList.contains('on')); m.addEventListener('click',()=>{ document.querySelectorAll('.mode').forEach(x=>{x.classList.remove('on'); x.setAttribute('aria-pressed','false');}); m.classList.add('on'); m.setAttribute('aria-pressed','true'); }); });
 </script>
 </body>
 </html>

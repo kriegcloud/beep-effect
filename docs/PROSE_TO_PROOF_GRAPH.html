@@ -19,7 +19,7 @@
     --safe:#7cc293;
     --membrane:#d7ccbe;
     --neutral:#8893a0;
-    --ink:#e9eef3; --ink-dim:#9aa6b1; --ink-faint:#586673;
+    --ink:#e9eef3; --ink-dim:#9aa6b1; --ink-faint:#6b7886;
     --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.05);
     --card:rgba(255,255,255,.022);
     --mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -37,7 +37,7 @@
   .wrap{max-width:1060px;margin:0 auto}
 
   /* shared tab bar */
-  .tabbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+  .tabbar{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:center;gap:18px;
     padding:11px 20px;margin:0 -20px 0;border-bottom:1px solid var(--line);
     background:rgba(10,13,16,.82);backdrop-filter:blur(10px)}
   .tabbar .brand{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:700;font-size:.96rem;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
@@ -144,7 +144,7 @@
     </div>
 
     <div class="stage" id="stage">
-      <canvas id="gcanvas"></canvas>
+      <canvas id="gcanvas" role="img" aria-label="Interactive force-directed knowledge graph of the practice: matters, clients, inventors, patents, claims, prior art and evidence — colour-coded by type and joined by labelled relationships. An illustrative dummy of the live Graph-RAG view."></canvas>
       <div class="legend2">
         <span><i style="background:var(--safe)"></i> proven entity</span>
         <span><i style="background:var(--retrieval)"></i> proposed / claim</span>
@@ -269,6 +269,7 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
 
   let scale = 1, tx = 0, ty = 0, centered=false;
   let alpha = 1;
+  let visible = true;
   let hover=null, selected=null, dragging=null, panning=false, last=null, query='', showLabels=true, focusSet=null;
   let visibleIds=null;
 
@@ -278,9 +279,9 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
     const r = canvas.getBoundingClientRect();
     W=r.width; H=r.height; DPR=Math.min(window.devicePixelRatio||1,2);
     canvas.width=W*DPR; canvas.height=H*DPR;
-    if(!centered){ tx=W/2; ty=H/2; centered=true; }
+    if(!centered && W>0){ tx=W/2; ty=H/2; centered=true; }
   }
-  function reheat(a=0.9){ alpha=Math.max(alpha,a); }
+  function reheat(a=0.9){ alpha=Math.max(alpha,a); if(reduced){ for(let i=0;i<360 && alpha>=0.01;i++) tick(); draw(); } }
 
   function tick(){
     if(alpha<0.005) return;
@@ -390,7 +391,7 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
     ctx.restore();
   }
 
-  function frame(){ tick(); draw(); requestAnimationFrame(frame); }
+  function frame(){ requestAnimationFrame(frame); if(!visible) return; if(!reduced) tick(); draw(); }
 
   function pick(sx,sy){
     const [wx,wy]=s2w(sx,sy);
@@ -402,13 +403,16 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
   }
 
   // events
-  canvas.addEventListener('mousemove', e=>{
+  window.addEventListener('mousemove', e=>{
     const r=canvas.getBoundingClientRect(), sx=e.clientX-r.left, sy=e.clientY-r.top;
-    if(dragging){ const [wx,wy]=s2w(sx,sy); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; reheat(0.5); return; }
-    if(panning&&last){ tx+=sx-last[0]; ty+=sy-last[1]; last=[sx,sy]; return; }
-    const n=pick(sx,sy);
-    hover=n; canvas.classList.toggle('onnode',!!n);
+    if(dragging){ const [wx,wy]=s2w(sx,sy); dragging.x=wx; dragging.y=wy; dragging.vx=0; dragging.vy=0; reheat(0.5); if(reduced) draw(); return; }
+    if(panning&&last){ tx+=sx-last[0]; ty+=sy-last[1]; last=[sx,sy]; if(reduced||!visible) draw(); return; }
+    const inB = sx>=0 && sy>=0 && sx<=r.width && sy<=r.height;
     const tip=document.getElementById('gtip');
+    if(!inB){ if(hover){ hover=null; canvas.classList.remove('onnode'); if(reduced) draw(); } tip.classList.remove('show'); return; }
+    const n=pick(sx,sy);
+    if(n!==hover){ hover=n; if(reduced) draw(); }
+    canvas.classList.toggle('onnode',!!n);
     if(n){ tip.innerHTML=`<div class="tt"><i style="background:${n.type==='matter'?COL.matter:COL[n.type]}"></i>${n.label}</div><div class="tm">${ntype(n)} · ${n.degree} edge${n.degree===1?'':'s'}</div>`;
       tip.style.left=Math.min(e.clientX+14,window.innerWidth-250)+'px'; tip.style.top=(e.clientY+14)+'px'; tip.classList.add('show'); }
     else tip.classList.remove('show');
@@ -435,7 +439,7 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
     const r=canvas.getBoundingClientRect(), sx=e.clientX-r.left, sy=e.clientY-r.top;
     const [wx,wy]=s2w(sx,sy);
     const f=e.deltaY<0?1.12:0.89; scale=Math.max(0.3,Math.min(4.2,scale*f));
-    tx=sx-wx*scale; ty=sy-wy*scale;
+    tx=sx-wx*scale; ty=sy-wy*scale; if(reduced) draw();
   },{passive:false});
 
   function ntype(n){ return n.type==='matter'?'matter':n.type==='entity'?'proven entity':n.type==='claim'?'proposed':n.type==='artifact'?'evidence':'external'; }
@@ -445,9 +449,10 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
     return {out,inc};
   }
 
-  if('ResizeObserver' in window) new ResizeObserver(()=>resize()).observe(canvas);
-  window.addEventListener('resize',resize);
-  resize(); frame();
+  if('ResizeObserver' in window) new ResizeObserver(()=>{resize(); if(reduced||!visible) draw();}).observe(canvas);
+  window.addEventListener('resize',()=>{resize(); if(reduced) draw();});
+  if('IntersectionObserver' in window) new IntersectionObserver(es=>{ visible=es[0].isIntersecting; }).observe(canvas);
+  resize(); if(reduced) reheat(1); frame();
 
   return {
     setSearch(q){ query=(q||'').trim().toLowerCase(); focusSet=null; reheat(0.3); },
