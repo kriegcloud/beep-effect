@@ -144,11 +144,9 @@ const renderMarkdownTableFence = (cells: string): string => `| ${cells} |`;
 
 const tableRowColumnCount = (row: TableRow): number => A.length(row.children);
 
-const tableColumnCount = (rows: ReadonlyArray<TableRow>): number =>
-  pipe(
-    rows,
-    A.reduce(0, (max, row) => N.max(max, tableRowColumnCount(row)))
-  );
+const tableColumnCount: (rows: ReadonlyArray<TableRow>) => number = A.reduce(0, (max, row) =>
+  N.max(max, tableRowColumnCount(row))
+);
 
 const renderMarkdownTableSeparator = (columns: number): string =>
   pipe(

@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-06-15",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -29,7 +33,7 @@
     },
     {
       "file": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-      "symbol": "anonymous@230",
+      "symbol": "anonymous@234",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/agents-domain",
