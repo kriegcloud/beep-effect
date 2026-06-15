@@ -65,6 +65,7 @@
     "@beep/agents-domain": "workspace:^",
     "@beep/agents-use-cases": "workspace:^",
     "@beep/anthropic": "workspace:^",
+    "@beep/identity": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

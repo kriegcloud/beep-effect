@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "53ed6dac7e465618b965aa6734c82d78243194cbebc41ddba5151b2c26fa3c6a",
+    "digest": "49f2ddd49625b46645cabab620879e11215e36c374e2312a43c49be21aa4a970",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/anthropic/package.json",
-        "sha256": "669aea9b15dbacb049150059cf54eeabf82b99ee43851194c7a84b753e758c1d",
-        "bytes": 2328
+        "sha256": "367a5688997cded4ab404e09f1b597c6740b90904b71e88f7c3c797c15adba8a",
+        "bytes": 2363
       },
       {
         "path": "packages/drivers/anthropic/src/Anthropic.config.ts",
@@ -31,14 +31,24 @@
         "bytes": 4105
       },
       {
+        "path": "packages/drivers/anthropic/src/Anthropic.errors.ts",
+        "sha256": "969f8ab4bdc22901c74ad345da2e33c6d3361a5645e65e1767d06bd4adb970b1",
+        "bytes": 937
+      },
+      {
+        "path": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sha256": "6a5cd215b0aa3adc008265cd0969c3e3f098630193f83ea9a79478ce11933049",
+        "bytes": 4459
+      },
+      {
         "path": "packages/drivers/anthropic/src/Anthropic.service.ts",
-        "sha256": "bca74c3b75b4775e7add4e1d82a2f98ce83fda7c053651dfaf16fa700308b43e",
-        "bytes": 3317
+        "sha256": "449d38eed66c94e9e12aa9461746792cdf4bc841661d9ee60179c8227ca95123",
+        "bytes": 3352
       },
       {
         "path": "packages/drivers/anthropic/src/index.ts",
-        "sha256": "a304598df3509872fc0995b09e0723a63cd9f2b3f1e0ef22e96f1791e68e8b94",
-        "bytes": 899
+        "sha256": "4031b4aa047f3606db470be51dc672b796d930743931b46c4063e7a54907da29",
+        "bytes": 1416
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -66,9 +76,9 @@
       "@beep/anthropic"
     ],
     "counts": {
-      "publicExportEntries": 14,
-      "uniqueSymbols": 14,
-      "sourceFiles": 3
+      "publicExportEntries": 22,
+      "uniqueSymbols": 22,
+      "sourceFiles": 5
     },
     "exports": [
       {
@@ -229,6 +239,106 @@
         "importSpecifier": "@beep/anthropic",
         "exportSubpath": ".",
         "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_REPAIR_ATTEMPTS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 61,
+        "summary": "Acquisition attempts used by the repair execution plan.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_repair_attempts const acquisition attempts used by the repair execution plan. configuration packages/drivers/anthropic/src/anthropic.repair.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_REPAIR_MAX_TOKENS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 46,
+        "summary": "Token budget used for repair calls.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_repair_max_tokens const token budget used for repair calls. configuration packages/drivers/anthropic/src/anthropic.repair.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_REPAIR_MODEL",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 31,
+        "summary": "Haiku model used for repair calls.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_repair_model const haiku model used for repair calls. configuration packages/drivers/anthropic/src/anthropic.repair.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "ANTHROPIC_REPAIR_RETRY_BASE_DELAY_MILLIS",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 76,
+        "summary": "Base delay for repair-call acquisition retries.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . anthropic_repair_retry_base_delay_millis const base delay for repair-call acquisition retries. configuration packages/drivers/anthropic/src/anthropic.repair.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
         "symbolName": "AnthropicApproximatePrice",
         "exportKind": "class",
         "sourcePath": "packages/drivers/anthropic/src/Anthropic.config.ts",
@@ -355,6 +465,57 @@
         "importSpecifier": "@beep/anthropic",
         "exportSubpath": ".",
         "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "collectToolParamsJson",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 122,
+        "summary": "Collect streamed forced-tool params into one JSON string.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . collecttoolparamsjson const collect streamed forced-tool params into one json string. combinators packages/drivers/anthropic/src/anthropic.repair.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "generateAnthropicToolJson",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 149,
+        "summary": "Run a forced-tool Anthropic call and return the streamed tool-params JSON.",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . generateanthropictooljson const run a forced-tool anthropic call and return the streamed tool-params json. combinators packages/drivers/anthropic/src/anthropic.repair.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
         "symbolName": "makeAnthropicLanguageModelLayer",
         "exportKind": "const",
         "sourcePath": "packages/drivers/anthropic/src/Anthropic.service.ts",
@@ -372,6 +533,31 @@
           "@since"
         ],
         "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . makeanthropiclanguagemodellayer const build an anthropic language-model layer. layers packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "makeAnthropicRepairPlan",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.repair.ts",
+        "sourceLine": 96,
+        "summary": "Build the Anthropic repair-call execution plan.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . makeanthropicrepairplan const build the anthropic repair-call execution plan. configuration packages/drivers/anthropic/src/anthropic.repair.ts"
       },
       {
         "packageName": "@beep/anthropic",
@@ -398,6 +584,31 @@
           "@since"
         ],
         "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . makeanthropicturnplan const build an acquisition-only execution plan for anthropic turns. configuration packages/drivers/anthropic/src/anthropic.service.ts"
+      },
+      {
+        "packageName": "@beep/anthropic",
+        "packagePath": "packages/drivers/anthropic",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/anthropic",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/drivers/anthropic/src/index.ts",
+        "symbolName": "RepairError",
+        "exportKind": "class",
+        "sourcePath": "packages/drivers/anthropic/src/Anthropic.errors.ts",
+        "sourceLine": 31,
+        "summary": "Technical failure raised while running an Anthropic repair helper.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/anthropic packages/drivers/anthropic @beep/anthropic . repairerror class technical failure raised while running an anthropic repair helper. errors packages/drivers/anthropic/src/anthropic.errors.ts"
       },
       {
         "packageName": "@beep/anthropic",

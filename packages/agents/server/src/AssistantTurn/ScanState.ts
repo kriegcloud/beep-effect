@@ -1,3 +1,10 @@
+/**
+ * Incremental JSON block scanner state for assistant-turn streams.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as A from "effect/Array";
 
 /**
@@ -52,7 +59,7 @@ export const initialScanState: ScanState = {
  * ```ts
  * import { initialScanState, scanChunk } from "@beep/agents-server/AssistantTurn"
  *
- * const envelope = JSON.stringify({ blocks: [{ type: "paragraph" }] })
+ * const envelope = '{"blocks":[{"type":"paragraph"}]}'
  * const [, completed] = scanChunk(initialScanState, envelope)
  * console.log(completed) // ['{"type":"paragraph"}']
  * ```

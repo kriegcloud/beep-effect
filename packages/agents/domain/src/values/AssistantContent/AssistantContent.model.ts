@@ -1,6 +1,6 @@
 /**
- * Assistant-turn block schema — the stratified (non-recursive) block→inline
- * subset of rich text used for forced-tool structured outputs. Blocks contain
+ * AssistantContent value-object model — the stratified (non-recursive)
+ * block-to-inline subset of rich text used for forced-tool structured outputs. Blocks contain
  * inlines and inlines contain nothing, so the schema is non-recursive. Field
  * annotations become JSON-Schema descriptions that steer generation.
  *
@@ -9,9 +9,13 @@
  */
 
 import { $AgentsDomainId } from "@beep/identity/packages";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const $I = $AgentsDomainId.create("turn/AssistantContent");
+const $I = $AgentsDomainId.create("values/AssistantContent/AssistantContent.model");
+const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
 
 // ---------------------------------------------------------------------------
 // Inlines (stratified, non-recursive — inlines contain no blocks)
@@ -22,7 +26,7 @@ const $I = $AgentsDomainId.create("turn/AssistantContent");
  *
  * @example
  * ```ts
- * import { TextInline } from "@beep/agents-domain/turn"
+ * import { TextInline } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const inline = S.decodeUnknownSync(TextInline)({
@@ -33,7 +37,7 @@ const $I = $AgentsDomainId.create("turn/AssistantContent");
  * console.log(inline.text)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class TextInline extends S.Class<TextInline>($I`TextInline`)(
@@ -58,7 +62,7 @@ export class TextInline extends S.Class<TextInline>($I`TextInline`)(
  *
  * @example
  * ```ts
- * import { LinkInline } from "@beep/agents-domain/turn"
+ * import { LinkInline } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const inline = S.decodeUnknownSync(LinkInline)({
@@ -69,7 +73,7 @@ export class TextInline extends S.Class<TextInline>($I`TextInline`)(
  * console.log(inline.url)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class LinkInline extends S.Class<LinkInline>($I`LinkInline`)(
@@ -88,14 +92,14 @@ export class LinkInline extends S.Class<LinkInline>($I`LinkInline`)(
  *
  * @example
  * ```ts
- * import { InlineNode } from "@beep/agents-domain/turn"
+ * import { InlineNode } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const node = S.decodeUnknownSync(InlineNode)({ type: "text", text: "Hello" })
  * console.log(node.type)
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
 export const InlineNode = S.Union([TextInline, LinkInline]).pipe(
@@ -108,13 +112,13 @@ export const InlineNode = S.Union([TextInline, LinkInline]).pipe(
 /**
  * Runtime type for {@link InlineNode}.
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export type InlineNode = typeof InlineNode.Type;
 
 // ---------------------------------------------------------------------------
-// Blocks (v1 md-aligned scope only — no table/mermaid/youtube)
+// Blocks (structured assistant turn block vocabulary)
 // ---------------------------------------------------------------------------
 
 /**
@@ -122,7 +126,7 @@ export type InlineNode = typeof InlineNode.Type;
  *
  * @example
  * ```ts
- * import { ParagraphBlock } from "@beep/agents-domain/turn"
+ * import { ParagraphBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const block = S.decodeUnknownSync(ParagraphBlock)({
@@ -132,7 +136,7 @@ export type InlineNode = typeof InlineNode.Type;
  * console.log(block.type)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class ParagraphBlock extends S.Class<ParagraphBlock>($I`ParagraphBlock`)(
@@ -150,7 +154,7 @@ export class ParagraphBlock extends S.Class<ParagraphBlock>($I`ParagraphBlock`)(
  *
  * @example
  * ```ts
- * import { HeadingBlock } from "@beep/agents-domain/turn"
+ * import { HeadingBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const block = S.decodeUnknownSync(HeadingBlock)({
@@ -161,7 +165,7 @@ export class ParagraphBlock extends S.Class<ParagraphBlock>($I`ParagraphBlock`)(
  * console.log(block.level)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class HeadingBlock extends S.Class<HeadingBlock>($I`HeadingBlock`)(
@@ -180,7 +184,7 @@ export class HeadingBlock extends S.Class<HeadingBlock>($I`HeadingBlock`)(
  *
  * @example
  * ```ts
- * import { QuoteBlock } from "@beep/agents-domain/turn"
+ * import { QuoteBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const block = S.decodeUnknownSync(QuoteBlock)({
@@ -190,7 +194,7 @@ export class HeadingBlock extends S.Class<HeadingBlock>($I`HeadingBlock`)(
  * console.log(block.type)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
@@ -208,7 +212,7 @@ export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
  *
  * @example
  * ```ts
- * import { ListBlock } from "@beep/agents-domain/turn"
+ * import { ListBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const block = S.decodeUnknownSync(ListBlock)({
@@ -219,7 +223,7 @@ export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
  * console.log(block.listType)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class ListBlock extends S.Class<ListBlock>($I`ListBlock`)(
@@ -242,7 +246,7 @@ export class ListBlock extends S.Class<ListBlock>($I`ListBlock`)(
  *
  * @example
  * ```ts
- * import { CodeBlock } from "@beep/agents-domain/turn"
+ * import { CodeBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const block = S.decodeUnknownSync(CodeBlock)({
@@ -253,7 +257,7 @@ export class ListBlock extends S.Class<ListBlock>($I`ListBlock`)(
  * console.log(block.code)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class CodeBlock extends S.Class<CodeBlock>($I`CodeBlock`)(
@@ -270,11 +274,165 @@ export class CodeBlock extends S.Class<CodeBlock>($I`CodeBlock`)(
 ) {}
 
 /**
+ * A single table cell in an assistant-generated table.
+ *
+ * @example
+ * ```ts
+ * import { TableCellBlock } from "@beep/agents-domain/values/AssistantContent"
+ * import * as S from "effect/Schema"
+ *
+ * const cell = S.decodeUnknownSync(TableCellBlock)({
+ *   children: [{ type: "text", text: "Name" }],
+ * })
+ * console.log(cell.children.length)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export class TableCellBlock extends S.Class<TableCellBlock>($I`TableCellBlock`)(
+  {
+    children: S.Array(InlineNode).annotateKey({ description: "Inline content of the cell" }),
+  },
+  $I.annote("TableCellBlock", {
+    description: "A single table cell in an assistant-generated table.",
+  })
+) {}
+
+/**
+ * A single row in an assistant-generated table.
+ *
+ * @example
+ * ```ts
+ * import { TableRowBlock } from "@beep/agents-domain/values/AssistantContent"
+ * import * as S from "effect/Schema"
+ *
+ * const row = S.decodeUnknownSync(TableRowBlock)({
+ *   cells: [{ children: [{ type: "text", text: "Name" }] }],
+ * })
+ * console.log(row.cells.length)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export class TableRowBlock extends S.Class<TableRowBlock>($I`TableRowBlock`)(
+  {
+    cells: S.Array(TableCellBlock).annotateKey({ description: "Cells in column order" }),
+  },
+  $I.annote("TableRowBlock", {
+    description: "A single row in an assistant-generated table.",
+  })
+) {}
+
+const isRectangularNonEmptyTableRows = (rows: ReadonlyArray<TableRowBlock>): boolean =>
+  pipe(
+    rows,
+    A.head,
+    O.match({
+      onNone: () => false,
+      onSome: (firstRow) => {
+        const width = A.length(firstRow.cells);
+        return width > 0 && A.every(rows, (row) => A.length(row.cells) === width);
+      },
+    })
+  );
+
+const RectangularTableRows = S.Array(TableRowBlock)
+  .check(
+    S.makeFilter(isRectangularNonEmptyTableRows, {
+      identifier: $I`RectangularTableRowsCheck`,
+      title: "Rectangular Table Rows",
+      description: "Checks that table rows are non-empty and have the same non-zero cell count.",
+      message: "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
+    })
+  )
+  .pipe(
+    $I.annoteSchema("RectangularTableRows", {
+      description: "Non-empty assistant table rows with a consistent non-zero cell count.",
+    })
+  );
+
+const YouTubeVideoId = S.String.check(
+  S.isPattern(youtubeVideoIdPattern, {
+    identifier: $I`YouTubeVideoIdPatternCheck`,
+    title: "YouTube Video ID",
+    description: "Checks that a YouTube embed references only the bare 11-character video id.",
+    message: "YouTube blocks must use the bare 11-character video id, not a URL.",
+  })
+).pipe(
+  $I.annoteSchema("YouTubeVideoId", {
+    description: "Bare 11-character YouTube video id accepted by assistant content blocks.",
+  })
+);
+
+/**
+ * A rectangular data table.
+ *
+ * @example
+ * ```ts
+ * import { TableBlock } from "@beep/agents-domain/values/AssistantContent"
+ * import * as S from "effect/Schema"
+ *
+ * const block = S.decodeUnknownSync(TableBlock)({
+ *   type: "table",
+ *   headerRow: true,
+ *   rows: [{ cells: [{ children: [{ type: "text", text: "Name" }] }] }],
+ * })
+ * console.log(block.type)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export class TableBlock extends S.Class<TableBlock>($I`TableBlock`)(
+  {
+    type: S.tag("table"),
+    headerRow: S.optionalKey(S.Boolean.annotate({ description: "Render the first row as a header row" })).annotateKey({
+      description: "Render the first row as a header row",
+    }),
+    rows: RectangularTableRows.annotateKey({
+      description: "Rows in order; every row must have the same number of cells",
+    }),
+  },
+  $I.annote("TableBlock", {
+    description: "A rectangular data table.",
+  })
+) {}
+
+/**
+ * An embedded YouTube video.
+ *
+ * @example
+ * ```ts
+ * import { YouTubeBlock } from "@beep/agents-domain/values/AssistantContent"
+ * import * as S from "effect/Schema"
+ *
+ * const block = S.decodeUnknownSync(YouTubeBlock)({ type: "youtube", videoId: "dQw4w9WgXcQ" })
+ * console.log(block.videoId)
+ * ```
+ *
+ * @category value-objects
+ * @since 0.0.0
+ */
+export class YouTubeBlock extends S.Class<YouTubeBlock>($I`YouTubeBlock`)(
+  {
+    type: S.tag("youtube"),
+    videoId: YouTubeVideoId.annotateKey({
+      description: "The bare 11-character YouTube video id; extract it from watch/share/embed URLs.",
+    }),
+  },
+  $I.annote("YouTubeBlock", {
+    description: "An embedded YouTube video.",
+  })
+) {}
+
+/**
  * A single block of an assistant turn.
  *
  * @example
  * ```ts
- * import { AssistantBlock } from "@beep/agents-domain/turn"
+ * import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const block = S.decodeUnknownSync(AssistantBlock)({
@@ -284,10 +442,18 @@ export class CodeBlock extends S.Class<CodeBlock>($I`CodeBlock`)(
  * console.log(block.type)
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
-export const AssistantBlock = S.Union([ParagraphBlock, HeadingBlock, QuoteBlock, ListBlock, CodeBlock]).pipe(
+export const AssistantBlock = S.Union([
+  ParagraphBlock,
+  HeadingBlock,
+  QuoteBlock,
+  ListBlock,
+  CodeBlock,
+  TableBlock,
+  YouTubeBlock,
+]).pipe(
   S.toTaggedUnion("type"),
   $I.annoteSchema("AssistantBlock", {
     description: "A single block of an assistant turn.",
@@ -297,7 +463,7 @@ export const AssistantBlock = S.Union([ParagraphBlock, HeadingBlock, QuoteBlock,
 /**
  * Runtime type for {@link AssistantBlock}.
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export type AssistantBlock = typeof AssistantBlock.Type;
@@ -308,7 +474,7 @@ export type AssistantBlock = typeof AssistantBlock.Type;
  *
  * @example
  * ```ts
- * import { AssistantContent } from "@beep/agents-domain/turn"
+ * import { AssistantContent } from "@beep/agents-domain/values/AssistantContent"
  * import * as S from "effect/Schema"
  *
  * const content = S.decodeUnknownSync(AssistantContent)({
@@ -317,7 +483,7 @@ export type AssistantBlock = typeof AssistantBlock.Type;
  * console.log(content.blocks.length)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class AssistantContent extends S.Class<AssistantContent>($I`AssistantContent`)(
