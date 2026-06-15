@@ -2,7 +2,6 @@
 "@beep/schema": patch
 "@beep/rdf": patch
 "@beep/oip-web": patch
-"@beep/ontology": patch
 "@beep/hubspot": patch
 "@beep/file-processing": patch
 "@beep/agents-use-cases": patch

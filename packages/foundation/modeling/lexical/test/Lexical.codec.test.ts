@@ -36,7 +36,26 @@ describe("Lexical.codec", () => {
           ],
         }),
         MdModel.BlockQuote.make({ children: [MdModel.P.make({ children: [mdText("Measure twice.")] })] }),
+        MdModel.Pre.make({ value: "flowchart TD\nA[Start] --> B[Done]", language: O.some("mermaid") }),
         MdModel.Pre.make({ value: 'console.log("beep")\nexport {}', language: O.some("typescript") }),
+        MdModel.Table.make({
+          headerRow: true,
+          children: [
+            MdModel.TableRow.make({
+              children: [
+                MdModel.TableCell.make({ children: [mdText("Name")] }),
+                MdModel.TableCell.make({ children: [mdText("Value")] }),
+              ],
+            }),
+            MdModel.TableRow.make({
+              children: [
+                MdModel.TableCell.make({ children: [mdText("Language")] }),
+                MdModel.TableCell.make({ children: [MdModel.Code.make({ value: "ts" })] }),
+              ],
+            }),
+          ],
+        }),
+        MdModel.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
         MdModel.Ul.make({ children: [MdModel.Li.make({ children: [mdText("alpha")] })] }),
         MdModel.Ol.make({ children: [MdModel.Li.make({ children: [mdText("first")] })] }),
         MdModel.TaskList.make({

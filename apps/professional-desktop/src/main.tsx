@@ -3,6 +3,7 @@ import { AppThemeProvider, ThemeMode } from "@beep/ui/themes";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.js";
+import { ProfessionalAtomProvider } from "./runtime/ProfessionalAtomProvider.tsx";
 
 const root = document.getElementById("root");
 
@@ -10,7 +11,9 @@ if (root !== null) {
   createRoot(root).render(
     <StrictMode>
       <AppThemeProvider defaultMode={ThemeMode.Enum.light}>
-        <App />
+        <ProfessionalAtomProvider>
+          <App />
+        </ProfessionalAtomProvider>
       </AppThemeProvider>
     </StrictMode>
   );

@@ -1,4 +1,10 @@
 import {
+  FallowReportFinding,
+  FallowReportOk,
+  FallowReportPayload,
+  FindingAttributionSummary,
+} from "@beep/repo-cli/test/Quality";
+import {
   assessBaseFreshnessForTesting,
   buildQualityIssueIndex,
   buildYeetRunPlanForTesting,
@@ -28,6 +34,7 @@ import {
   publishPathsOutsideIntentForTesting,
   publishRestagePathsForTesting,
   publishUpstreamMismatchWarningForTesting,
+  QualityIssueIndex,
   qualityIssuesFromStepResult,
   RepoPlanStep,
   RepoRunContext,
@@ -36,6 +43,7 @@ import {
   renderYeetStatusSummary,
   repoProofStepDefinition,
   restoreStashedWorktreeForTesting,
+  runYeetFallowFeedbackForTesting,
   shouldSkipCommitForReusablePublishForTesting,
   stashUnstagedWorktreeForTesting,
   summarizePublishPathsForTesting,
@@ -51,6 +59,7 @@ import {
   YeetVerdict,
   yeetStatusNextCommandForTesting,
 } from "@beep/repo-cli/test/Yeet";
+import { NonNegativeInt } from "@beep/schema";
 import { provideScopedLayer } from "@beep/test-utils";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -241,6 +250,49 @@ const prePushFailureIssues = (runContext: RepoRunContext, output: string) =>
       output,
     })
   );
+
+const fallowOkEnvelope = (options: {
+  readonly advisory: boolean;
+  readonly blocking: boolean;
+  readonly feature: "audit" | "health";
+  readonly findingId: string;
+}): FallowReportOk => {
+  const attribution = options.blocking ? "introduced" : "inherited-adjacent";
+  const finding = FallowReportFinding.make({
+    attribution,
+    blocking: options.blocking,
+    featureFamily: options.feature,
+    id: options.findingId,
+    parser: `fallow/${options.feature}/v1`,
+    sourceRef: `packages/example/src/${options.feature}.ts`,
+    subCategory: `fallow:${options.feature}:fixture`,
+  });
+
+  return FallowReportOk.make({
+    schemaVersion: "fallow-report-envelope/v1",
+    toolVersion: "fallow-test",
+    command: `beep quality fallow ${options.feature}`,
+    subcommand: options.feature,
+    baseRef: "origin/main",
+    generatedAt: "2026-06-15T00:00:00.000Z",
+    advisory: options.advisory,
+    dirtyWorktree: false,
+    reportPath: `.beep/fallow/${options.feature}.json`,
+    rawOutputRef: `.beep/fallow/raw/${options.feature}.json`,
+    attributionKinds: [attribution],
+    findingAttributionSummary: FindingAttributionSummary.make({
+      introduced: NonNegativeInt.make(options.blocking ? 1 : 0),
+      inheritedAdjacent: NonNegativeInt.make(options.blocking ? 0 : 1),
+      notApplicable: NonNegativeInt.make(0),
+    }),
+    status: "ok",
+    exitStatus: NonNegativeInt.make(options.blocking ? 1 : 0),
+    report: FallowReportPayload.make({
+      findingCount: NonNegativeInt.make(1),
+      findings: [finding],
+    }),
+  });
+};
 
 const repoScopedFeedbackStep = (label: string, task: string, filters: ReadonlyArray<string>): RepoPlanStep =>
   RepoPlanStep.make({
@@ -999,6 +1051,57 @@ describe("yeet planner", () => {
 });
 
 describe("yeet quality issue index", () => {
+  it("ignores strict Fallow envelopes when advisory feedback reads a mixed output directory", () =>
+    Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const fromDir = path.join(tmpDir, ".beep", "fallow");
+          const emitPath = path.join(tmpDir, ".beep", "yeet", "fallow-quality-issues.json");
+          const auditText = yield* encodeJson(
+            fallowOkEnvelope({
+              advisory: false,
+              blocking: true,
+              feature: "audit",
+              findingId: "audit-promoted",
+            })
+          );
+          const healthText = yield* encodeJson(
+            fallowOkEnvelope({
+              advisory: true,
+              blocking: false,
+              feature: "health",
+              findingId: "health-advisory",
+            })
+          );
+
+          yield* fs.makeDirectory(fromDir, { recursive: true });
+          yield* fs.writeFileString(path.join(fromDir, "audit.json"), `${auditText}\n`);
+          yield* fs.writeFileString(path.join(fromDir, "health.json"), `${healthText}\n`);
+          yield* runYeetFallowFeedbackForTesting({ advisory: true, emit: emitPath, from: fromDir });
+
+          const emittedText = yield* fs.readFileString(emitPath);
+          const index = yield* S.decodeUnknownEffect(S.fromJsonString(QualityIssueIndex))(emittedText);
+
+          expect(index.issues).toHaveLength(1);
+          expect(index.issues[0]).toMatchObject({
+            id: "fallow:health:health-advisory",
+            blocking: false,
+            subCategory: "fallow:health:fixture",
+            tool: "fallow",
+          });
+          expect(index.packages).toEqual([
+            expect.objectContaining({
+              blockingCount: 0,
+              issueCount: 1,
+              packageName: "@beep/root",
+            }),
+          ]);
+        })
+      )
+    ));
+
   it("parses known TypeScript diagnostics and falls back to raw command failures", () => {
     const checkStep = feedbackStep("feedback:check", "check");
     const testStep = feedbackStep("feedback:test", "test");

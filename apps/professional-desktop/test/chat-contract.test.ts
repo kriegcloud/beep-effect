@@ -6,7 +6,7 @@
  * UsageRecordSink. The orchestration operations are exercised directly via
  * their use-case Effects/streams (no rpc transport).
  */
-import { Turn } from "@beep/agents-domain";
+import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
 import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
@@ -15,8 +15,11 @@ import { provideScopedLayer } from "@beep/test-utils";
 import { ThreadStoreInMemoryLayer } from "@beep/workspace-server/aggregates/Thread";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
-import { Array as A, Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect";
+import { Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink } from "@/chat/UsageRecordSink";
 
@@ -24,6 +27,11 @@ const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 
 const userDocument = (text: string): Md.Document.Type =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
+
+const userParagraphDocument = (paragraphs: ReadonlyArray<string>): Md.Document.Type =>
+  Md.Document.make({
+    children: A.map(paragraphs, (text) => Md.P.make({ children: [Md.Text.make({ value: text })] })),
+  });
 
 // Build the chat operations + the usage Ref over the provided in-memory stack.
 const makeStack = Effect.gen(function* () {
@@ -45,6 +53,9 @@ const messageItems = (timeline: Thread.ThreadTimeline): ReadonlyArray<MessageIte
         item.kind === "message" ? [{ role: item.role, content: item.content }] : []
     )
   );
+
+const userTurns = (timeline: Thread.ThreadTimeline): ReadonlyArray<Thread.TimelineTurn> =>
+  A.filter(timeline.turns, (turn) => A.some(turn.items, (item) => item.kind === "message" && item.role === "user"));
 
 describe("@beep/professional-desktop chat contract", () => {
   it.effect("happy path: send streams fixture blocks, persists user+assistant turns, appends one usage record", () =>
@@ -69,7 +80,7 @@ describe("@beep/professional-desktop chat contract", () => {
       const items = messageItems(timeline);
       expect(items.map((m) => m.role)).toEqual(["user", "assistant"]);
       expect(items[0]?.content).toStrictEqual(content);
-      expect(items[1]?.content).toStrictEqual(Turn.assistantContentToDocument([...expectedBlocks]));
+      expect(items[1]?.content).toStrictEqual(assistantContentToDocument([...expectedBlocks]));
 
       // 3) exactly one usage record, provider "fixture"
       const usage = yield* Ref.get(usageRef);
@@ -77,6 +88,154 @@ describe("@beep/professional-desktop chat contract", () => {
       expect(usage[0]?.provider).toBe("fixture");
     }).pipe(provideScopedLayer(StackLayer))
   );
+
+  it.effect("derives a thread title from the first non-empty user line without overwriting existing titles", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const longTitle = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-title-that-will-be-truncated";
+
+      const trimmed = yield* operations.createThread(workspaceId, "New thread");
+      const leadingBlank = yield* operations.createThread(workspaceId, "New thread");
+      const empty = yield* operations.createThread(workspaceId, "New thread");
+      const truncated = yield* operations.createThread(workspaceId, "New thread");
+      const existing = yield* operations.createThread(workspaceId, "Pinned title");
+
+      yield* Stream.runDrain(operations.sendMessage(trimmed.id, userDocument("  Draft fee memo  \nignored")));
+      yield* Stream.runDrain(
+        operations.sendMessage(leadingBlank.id, userParagraphDocument(["   ", "Later block title"]))
+      );
+      yield* Stream.runDrain(operations.sendMessage(empty.id, userDocument("  \n  ")));
+      yield* Stream.runDrain(operations.sendMessage(truncated.id, userDocument(longTitle)));
+      yield* Stream.runDrain(operations.sendMessage(existing.id, userDocument("Replacement title")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (thread) => thread.title);
+      expect(titles).toEqual(
+        expect.arrayContaining([
+          "Draft fee memo",
+          "Later block title",
+          "New thread",
+          Str.slice(0, 64)(longTitle),
+          "Pinned title",
+        ])
+      );
+      expect(titles).not.toContain("Replacement title");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("continues the assistant stream when best-effort title persistence fails", () =>
+    Effect.gen(function* () {
+      const store = yield* Thread.ThreadStore;
+      const kernel = yield* AgentTurnKernel;
+      const { ref: usageRef, sink } = yield* makeInMemoryUsageRecordSink;
+      const titleFailingStore = Thread.ThreadStore.of({
+        ...store,
+        setTitleIfEmpty: Effect.fn("Thread.ThreadStore.setTitleIfEmpty")(function* () {
+          return yield* Thread.ThreadStoreUnavailable.make({ reason: "title unavailable" });
+        }),
+      });
+      const operations = makeChatOperations(titleFailingStore, kernel, sink);
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+      const content = userDocument("Best effort title");
+
+      const expectedBlocks = fixtureBlocksFor([{ role: "user", text: "Best effort title" }]);
+      const emitted = yield* Stream.runCollect(operations.sendMessage(thread.id, content));
+
+      expect([...emitted]).toStrictEqual([...expectedBlocks]);
+      const timeline = yield* operations.getTimeline(thread.id);
+      expect(messageItems(timeline).map((m) => m.role)).toEqual(["user", "assistant"]);
+      const usage = yield* Ref.get(usageRef);
+      expect(usage).toHaveLength(1);
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("derives a thread title when editing the first user turn from blank content", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("  \n  ")));
+      const timeline = yield* operations.getTimeline(thread.id);
+      const firstUserTurn = O.getOrThrow(A.head(userTurns(timeline)));
+
+      yield* Stream.runDrain(operations.editMessage(thread.id, firstUserTurn.turnId, userDocument("Edited title")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
+      expect(titles).toContain("Edited title");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("updates a derived thread title when editing the first user turn", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("Draft memo")));
+      const timeline = yield* operations.getTimeline(thread.id);
+      const firstUserTurn = O.getOrThrow(A.head(userTurns(timeline)));
+
+      yield* Stream.runDrain(operations.editMessage(thread.id, firstUserTurn.turnId, userDocument("Final memo")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
+      expect(titles).toContain("Final memo");
+      expect(titles).not.toContain("Draft memo");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("does not derive a thread title when editing a later user turn", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("  \n  ")));
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument(" \t ")));
+      const timeline = yield* operations.getTimeline(thread.id);
+      const laterUserTurn = O.getOrThrow(A.get(userTurns(timeline), 1));
+
+      yield* Stream.runDrain(
+        operations.editMessage(thread.id, laterUserTurn.turnId, userDocument("Later edited title"))
+      );
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
+      expect(titles).toContain("New thread");
+      expect(titles).not.toContain("Later edited title");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it("projects table cells and youtube embeds into turn-history plain text", () => {
+    const content = Md.Document.make({
+      children: [
+        Md.Table.make({
+          headerRow: true,
+          children: [
+            Md.TableRow.make({
+              children: [
+                Md.TableCell.make({ children: [Md.Text.make({ value: "Feature" })] }),
+                Md.TableCell.make({ children: [Md.Text.make({ value: "Status" })] }),
+              ],
+            }),
+            Md.TableRow.make({
+              children: [
+                Md.TableCell.make({ children: [Md.Text.make({ value: "Rich blocks" })] }),
+                Md.TableCell.make({ children: [Md.Code.make({ value: "Ready" })] }),
+              ],
+            }),
+          ],
+        }),
+        Md.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
+      ],
+    });
+
+    const text = documentToPlainText(content);
+
+    expect(text).toContain("Feature\tStatus");
+    expect(text).toContain("Rich blocks\tReady");
+    expect(text).toContain("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+  });
 
   it.effect("cancel leaves no partial assistant row and appends no usage record", () =>
     Effect.gen(function* () {

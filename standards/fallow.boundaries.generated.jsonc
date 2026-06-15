@@ -555,6 +555,7 @@
           "@beep/agents-server",
           "@beep/agents-use-cases",
           "@beep/anthropic",
+          "@beep/identity",
           "@beep/test-utils"
         ],
         "allowTypeOnly": [
@@ -562,6 +563,7 @@
           "@beep/agents-server",
           "@beep/agents-use-cases",
           "@beep/anthropic",
+          "@beep/identity",
           "@beep/test-utils"
         ]
       },
@@ -624,11 +626,13 @@
         "from": "@beep/anthropic",
         "allow": [
           "@beep/anthropic",
-          "@beep/identity"
+          "@beep/identity",
+          "@beep/schema"
         ],
         "allowTypeOnly": [
           "@beep/anthropic",
-          "@beep/identity"
+          "@beep/identity",
+          "@beep/schema"
         ]
       },
       {

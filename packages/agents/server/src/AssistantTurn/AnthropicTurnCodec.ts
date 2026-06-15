@@ -5,8 +5,8 @@
  * JSON Schema plus a codec that decodes model output back into the domain type.
  * It THROWS at module load if the schema ever grows a construct the provider
  * cannot express (recursion, `Unknown`, `S.optional`, ...), so importing this
- * module doubles as a structural guarantee that the v1 md-aligned block scope
- * (paragraph/heading/quote/list/code) stays provider-expressible.
+ * module doubles as a structural guarantee that the rich md-aligned block scope
+ * stays provider-expressible.
  *
  * Provider adaptation belongs in the server slice, never in the domain.
  *
@@ -14,8 +14,110 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
+import {
+  AssistantContent,
+  CodeBlock,
+  HeadingBlock,
+  ListBlock,
+  ParagraphBlock,
+  QuoteBlock,
+  TableBlock,
+  YouTubeBlock,
+} from "@beep/agents-domain/values/AssistantContent";
+import { make } from "@beep/identity";
+import { flow, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { AnthropicStructuredOutput } from "effect/unstable/ai";
+
+// cspell:words gantt
+
+const { $AgentsServerId } = make("agents-server");
+const $I = $AgentsServerId.create("AssistantTurn/AnthropicTurnCodec");
+
+const mermaidDiagramTypes: ReadonlyArray<string> = [
+  "flowchart",
+  "graph",
+  "sequenceDiagram",
+  "classDiagram",
+  "stateDiagram",
+  "stateDiagram-v2",
+  "erDiagram",
+  "gantt",
+  "gitGraph",
+  "pie",
+  "mindmap",
+  "timeline",
+  "journey",
+  "quadrantChart",
+];
+
+const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
+
+const firstToken: (source: string) => O.Option<string> = flow(Str.match(/\S+/u), O.flatMap(A.get(0)));
+
+const isValidMermaidCodeBlock = (block: CodeBlock): boolean =>
+  block.language !== "mermaid" ||
+  pipe(
+    firstToken(block.code),
+    O.match({
+      onNone: () => false,
+      onSome: (token) => A.contains(mermaidDiagramTypes, token),
+    })
+  );
+
+const isValidTableBlock = (block: TableBlock): boolean =>
+  pipe(
+    block.rows,
+    A.head,
+    O.map((row) => A.length(row.cells)),
+    O.match({
+      onNone: () => false,
+      onSome: (width) => width > 0 && A.every(block.rows, (row) => A.length(row.cells) === width),
+    })
+  );
+
+const isValidYouTubeBlock = (block: YouTubeBlock): boolean =>
+  pipe(block.videoId, Str.match(youtubeVideoIdPattern), O.isSome);
+
+const CheckedCodeBlock = CodeBlock.check(
+  S.makeFilter(isValidMermaidCodeBlock, {
+    identifier: $I`CheckedMermaidCodeBlock`,
+    title: "Checked Mermaid Code Block",
+    description: "Checks mermaid code blocks for a non-empty recognized mermaid diagram declaration.",
+    message: `Mermaid code blocks must start with one of: ${A.join(mermaidDiagramTypes, ", ")}`,
+  })
+);
+
+const CheckedTableBlock = TableBlock.check(
+  S.makeFilter(isValidTableBlock, {
+    identifier: $I`CheckedTableBlock`,
+    title: "Checked Table Block",
+    description: "Checks assistant table blocks for at least one row, one cell, and rectangular row arity.",
+    message: "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
+  })
+);
+
+const CheckedYouTubeBlock = YouTubeBlock.check(
+  S.makeFilter(isValidYouTubeBlock, {
+    identifier: $I`CheckedYouTubeBlock`,
+    title: "Checked YouTube Block",
+    description: "Checks assistant YouTube blocks for a bare 11-character YouTube video id.",
+    message: "YouTube blocks must use the bare 11-character video id, not a URL.",
+  })
+);
+
+const CheckedAssistantBlock = S.Union([
+  ParagraphBlock,
+  HeadingBlock,
+  QuoteBlock,
+  ListBlock,
+  CheckedCodeBlock,
+  CheckedTableBlock,
+  CheckedYouTubeBlock,
+]).pipe(S.toTaggedUnion("type"));
 
 /**
  * Per-block Anthropic codec for decoding individually streamed array elements.
@@ -31,7 +133,7 @@ import { AnthropicStructuredOutput } from "effect/unstable/ai";
  * @category codecs
  * @since 0.0.0
  */
-export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(Turn.AssistantBlock);
+export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(CheckedAssistantBlock);
 
 /**
  * Whole-envelope Anthropic codec for the assistant turn. Its `jsonSchema`
@@ -48,4 +150,4 @@ export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(T
  * @category codecs
  * @since 0.0.0
  */
-export const assistantOutput = AnthropicStructuredOutput.toCodecAnthropic(Turn.AssistantContent);
+export const assistantOutput = AnthropicStructuredOutput.toCodecAnthropic(AssistantContent);

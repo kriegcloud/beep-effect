@@ -1,6 +1,5 @@
 ---
 "@beep/data": patch
-"@beep/ontology": patch
 "@beep/rdf": patch
 "@beep/shared-domain": patch
 "@beep/test-utils": patch

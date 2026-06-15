@@ -2,7 +2,7 @@
 
 import { CheckCircleIcon, InfoIcon, SpinnerIcon, WarningIcon, XCircleIcon } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
-import { Toaster as Sonner } from "sonner";
+import { Toaster as Sonner, toast } from "sonner";
 import type React from "react";
 import type { ToasterProps } from "sonner";
 
@@ -55,4 +55,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
  * @category components
  * @since 0.0.0
  */
-export { Toaster };
+/**
+ * Sonner toast controller.
+ *
+ * @example
+ * ```tsx
+ * import { toast } from "@beep/ui/components/sonner"
+ *
+ * toast.error("Could not complete the request")
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
+export { Toaster, toast };
