@@ -94,18 +94,8 @@ const decodeCompilerOptionsText = (value: string) =>
 const resolveCompilerOptionsInput = (filePath: O.Option<string>, text: O.Option<string>) =>
   pipe(
     [
-      pipe(
-        filePath,
-        O.map((value) => Effect.succeed(O.some(value as Configuration.CompilerOptionsInput)))
-      ),
-      pipe(
-        text,
-        O.map((value) =>
-          decodeCompilerOptionsText(value).pipe(
-            Effect.map((decoded) => O.some(decoded as Configuration.CompilerOptionsInput))
-          )
-        )
-      ),
+      O.map(filePath, (value) => Effect.succeed(O.some(value))),
+      O.map(text, (value) => decodeCompilerOptionsText(value).pipe(Effect.map((decoded) => O.some(decoded)))),
     ] satisfies ReadonlyArray<
       O.Option<Effect.Effect<O.Option<Configuration.CompilerOptionsInput>, Domain.DocgenError>>
     >,
