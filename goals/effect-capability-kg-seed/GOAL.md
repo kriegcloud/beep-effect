@@ -1,6 +1,6 @@
 # GOAL: Prove the Effect capability KG seed
 
-Repo: `beep-effect2`.
+Repo: `beep-effect`.
 
 Outcome: implement the first deterministic seed proof that turns Effect v4
 `Combiner`, `Reducer`, `Filter`, and adjacent helper JSDoc/AST facts into an

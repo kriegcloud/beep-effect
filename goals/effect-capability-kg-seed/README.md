@@ -49,7 +49,7 @@ coverage in
   `Combiner` (9 symbols), `Reducer` (3), `Filter` (29), `Option` (65),
   `Struct` (23), `Array` (135), `Record` (43), `Number` (30), `String` (63),
   and `Boolean` (17).
-- Seed report snapshot: 4,112 graph edges, 417 `defines` edges, 304 repo export
+- Seed report snapshot: 4,245 graph edges, 417 `defines` edges, 425 repo export
   catalog visibility facts, and four advisory findings: three suggestions
   (`Combiner`, `Reducer`, `Filter`) plus one decline/no-match.
 - `bunx turbo run check --filter=@beep/repo-utils` passed.

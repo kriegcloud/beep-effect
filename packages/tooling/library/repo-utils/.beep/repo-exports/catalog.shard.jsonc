@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d8adb0104643cb025ceaa5be05a51339cb609f0438c5a3c5263183bf9c8553fe",
+    "digest": "f2b232509a4315724c559da159e0257babdd8f1de10696b3a916ea07b6af925b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sha256": "7bfe3645e27e6a06f572926a0cda12f762e8d7626c945af1957ec244ba62f766",
-        "bytes": 52206
+        "sha256": "2882625bcfd8f2cc684e425fba19907f4c57cb91da994be6cfbbae4063f06496",
+        "bytes": 52631
       },
       {
         "path": "packages/tooling/library/repo-utils/src/errors/CyclicDependencyError.ts",
@@ -5294,7 +5294,7 @@
         "symbolName": "adviseEffectCapabilitySeedFixtures",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 1520,
+        "sourceLine": 1540,
         "summary": "Run deterministic advisory matching over seed fixtures.",
         "categories": [
           "utilities"
@@ -5321,7 +5321,7 @@
         "symbolName": "buildEffectCapabilitySeedReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 1539,
+        "sourceLine": 1559,
         "summary": "Build the deterministic Effect capability KG seed report.",
         "categories": [
           "utilities"
@@ -5348,7 +5348,7 @@
         "symbolName": "defaultEffectCapabilitySeedFixtures",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 1478,
+        "sourceLine": 1498,
         "summary": "Default tiny advisory fixtures for the seed proof.",
         "categories": [
           "fixtures"

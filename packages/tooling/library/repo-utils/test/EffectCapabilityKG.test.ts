@@ -12,6 +12,14 @@ import { REPO_ROOT, TestLayer } from "./TSMorph.test-support.js";
 import type { EffectCapabilityAdvisoryScenario, EffectCapabilitySeedReport } from "@beep/repo-utils/EffectCapabilityKG";
 
 const TIMEOUT = 60_000;
+const EXPECTED_SEED_REPORT_SNAPSHOT = {
+  modules: 10,
+  edges: 4_245,
+  definesEdges: 417,
+  catalogVisibility: 425,
+  advisoryFindings: 4,
+} as const;
+
 type EffectCapabilitySeedFinding = ReturnType<typeof adviseEffectCapabilitySeedFixtures>[number];
 
 const findModule = (report: EffectCapabilitySeedReport, name: string) =>
@@ -28,6 +36,13 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
       const report = yield* buildEffectCapabilitySeedReport(REPO_ROOT);
 
       expect(report.seedModules).toEqual(["Combiner", "Reducer", "Filter"]);
+      expect(report.modules).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.modules);
+      expect(report.edges).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.edges);
+      expect(report.catalogVisibility).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.catalogVisibility);
+      expect(report.advisoryFindings).toHaveLength(EXPECTED_SEED_REPORT_SNAPSHOT.advisoryFindings);
+      expect(A.filter(report.edges, (edge) => edge.relation === "defines")).toHaveLength(
+        EXPECTED_SEED_REPORT_SNAPSHOT.definesEdges
+      );
       const moduleNames = pipe(
         report.modules,
         A.map((module) => module.moduleName)
@@ -136,6 +151,7 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
 
       expect(report.catalogVisibility.length).toBeGreaterThan(0);
       expect(report.catalogVisibility.some((entry) => entry.packageName === "@beep/utils")).toBe(true);
+      expect(report.catalogVisibility.some((entry) => entry.packageName === "@beep/schema")).toBe(true);
       expect(
         report.catalogVisibility.some(
           (entry) => entry.moduleName === "String" && entry.importSpecifier === "@beep/utils/Str"
@@ -198,6 +214,34 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
       expect(findings).toHaveLength(1);
       expect(finding.scenario).toBe("fold-aggregate");
       expect(finding.suggestedSymbols).toContain("symbol:Reducer.make");
+    }),
+    TIMEOUT
+  );
+
+  it.effect(
+    "declines classified suggestions when no deterministic symbols can be cited",
+    Effect.fn(function* () {
+      const report = yield* buildEffectCapabilitySeedReport(REPO_ROOT);
+      const findings = adviseEffectCapabilitySeedFixtures(
+        {
+          ...report,
+          modules: A.filter(report.modules, (module) => module.moduleName !== "Combiner"),
+        },
+        [
+          EffectCapabilitySeedFixture.make({
+            id: "merge-without-combiner",
+            scenario: "merge-combine",
+            text: "Merge and combine configuration values with an explicit strategy.",
+          }),
+        ]
+      );
+      const finding = findings[0]!;
+
+      expect(findings).toHaveLength(1);
+      expect(finding.scenario).toBe("merge-combine");
+      expect(finding.decision).toBe("decline");
+      expect(finding.suggestedSymbols).toHaveLength(0);
+      expect(finding.evidence).toHaveLength(1);
     }),
     TIMEOUT
   );

@@ -543,7 +543,6 @@ const adjacentModules: ReadonlyArray<EffectCapabilitySeedModuleName> = [
   "Boolean",
 ];
 const allSourceModules = A.appendAll(seedModules, adjacentModules);
-const adjacentCatalogPackageNames = ["@beep/utils"];
 
 const decodeProjectInspectionRequest = S.decodeUnknownEffect(TsMorphProjectInspectionRequest);
 const decodeCatalogIndex = S.decodeUnknownEffect(CatalogIndex);
@@ -1245,9 +1244,18 @@ const catalogImportSpecifierSuffixes: Record<EffectCapabilitySeedModuleName, Rea
   Boolean: ["/Boolean", "/Bool"],
 };
 
+const sourcePathFileName = (sourcePath: string): string =>
+  pipe(
+    Str.split(sourcePath, /[\\/]/u),
+    A.filter(Str.isNonEmpty),
+    A.last,
+    O.getOrElse(() => sourcePath)
+  );
+
 const sourcePathReferencesModule = (entry: CatalogEntry, moduleName: EffectCapabilitySeedModuleName): boolean =>
-  A.some([`${moduleName}.ts`, `${moduleName}.d.ts`, `${moduleName}.d.mts`, `${moduleName}.d.cts`], (sourceFileName) =>
-    Str.includes(sourceFileName)(entry.sourcePath)
+  A.contains(
+    [`${moduleName}.ts`, `${moduleName}.d.ts`, `${moduleName}.d.mts`, `${moduleName}.d.cts`],
+    sourcePathFileName(entry.sourcePath)
   );
 
 const importSpecifierReferencesModule = (entry: CatalogEntry, moduleName: EffectCapabilitySeedModuleName): boolean =>
@@ -1297,7 +1305,7 @@ const readCatalogVisibility = Effect.fn(function* (
   let entries = A.empty<EffectCapabilityCatalogVisibility>();
 
   for (const indexPackage of index.packages) {
-    if (!A.contains(adjacentCatalogPackageNames, indexPackage.packageName) || O.isNone(indexPackage.shardPath)) {
+    if (O.isNone(indexPackage.shardPath)) {
       continue;
     }
 
@@ -1453,6 +1461,18 @@ const findingForFixture = (
   }
 
   const suggestedSymbols = suggestedSymbolsForScenario(scenario, report);
+  if (suggestedSymbols.length === 0) {
+    return EffectCapabilityAdvisoryFinding.make({
+      fixtureId: fixture.id,
+      scenario,
+      decision: "decline",
+      confidence: 0.3,
+      suggestedSymbols,
+      rationale: `Matched ${scenario} language, but no deterministic seed symbols were available to cite.`,
+      evidence: [fixtureEvidence(fixture, scenario)],
+    });
+  }
+
   return EffectCapabilityAdvisoryFinding.make({
     fixtureId: fixture.id,
     scenario,

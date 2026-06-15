@@ -61,8 +61,8 @@ Before marking the packet closed (and `status` → `completed-retained` / `compl
   `packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts`.
 - Tests:
   `packages/tooling/library/repo-utils/test/EffectCapabilityKG.test.ts`.
-- Deterministic report snapshot: 10 modules, 4,112 graph edges, 417
-  module-to-symbol `defines` edges, 304 catalog visibility facts, three
+- Deterministic report snapshot: 10 modules, 4,245 graph edges, 417
+  module-to-symbol `defines` edges, 425 catalog visibility facts, three
   advisory suggestions, and one decline/no-match finding.
 - `bunx turbo run check --filter=@beep/repo-utils` passed.
 - `bunx turbo run test --filter=@beep/repo-utils` passed: 17 files, 184 tests.
