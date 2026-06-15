@@ -29,7 +29,7 @@ export * from "./AssistantContent.js";
  * console.log(Module)
  * ```
  *
- * @category mapping
+ * @category lifting
  * @since 0.0.0
  */
 export * from "./BlockToMd.js";

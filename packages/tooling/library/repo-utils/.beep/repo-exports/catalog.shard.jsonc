@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f2b232509a4315724c559da159e0257babdd8f1de10696b3a916ea07b6af925b",
+    "digest": "b35818c5ae272acabf964a9a80de626b95288e5fb0cf82c5c6967d888351e102",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sha256": "2882625bcfd8f2cc684e425fba19907f4c57cb91da994be6cfbbae4063f06496",
-        "bytes": 52631
+        "sha256": "79c4c2a0d11086ad5370e95e94304474a533d07c94db89bb5a12c3ca9900bed3",
+        "bytes": 53268
       },
       {
         "path": "packages/tooling/library/repo-utils/src/errors/CyclicDependencyError.ts",
@@ -5294,7 +5294,7 @@
         "symbolName": "adviseEffectCapabilitySeedFixtures",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 1540,
+        "sourceLine": 1547,
         "summary": "Run deterministic advisory matching over seed fixtures.",
         "categories": [
           "utilities"
@@ -5321,7 +5321,7 @@
         "symbolName": "buildEffectCapabilitySeedReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 1559,
+        "sourceLine": 1570,
         "summary": "Build the deterministic Effect capability KG seed report.",
         "categories": [
           "utilities"
@@ -5348,7 +5348,7 @@
         "symbolName": "defaultEffectCapabilitySeedFixtures",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 1498,
+        "sourceLine": 1503,
         "summary": "Default tiny advisory fixtures for the seed proof.",
         "categories": [
           "fixtures"
@@ -5573,7 +5573,7 @@
         "symbolName": "EffectCapabilitySeedError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 446,
+        "sourceLine": 451,
         "summary": "Typed error emitted by the Effect capability KG seed extractor.",
         "categories": [
           "errors"
@@ -5598,7 +5598,7 @@
         "symbolName": "EffectCapabilitySeedFixture",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 378,
+        "sourceLine": 383,
         "summary": "Fixture input for the seed advisory proof.",
         "categories": [
           "models"
@@ -5673,7 +5673,7 @@
         "symbolName": "EffectCapabilitySeedReport",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
-        "sourceLine": 418,
+        "sourceLine": 423,
         "summary": "Schema-first report produced by the Effect capability KG seed extractor.",
         "categories": [
           "models"

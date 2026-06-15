@@ -362,6 +362,11 @@ class EffectCapabilityGraphEdge extends S.Class<EffectCapabilityGraphEdge>($I`Ef
 /**
  * Fixture input for the seed advisory proof.
  *
+ * The fixture scenario is the author's declared seed intent. Advisory matching
+ * still classifies the fixture text and returns the classified scenario on the
+ * finding so downstream routers can observe drift between declared intent and
+ * detected capability language.
+ *
  * @example
  * ```ts
  * import { EffectCapabilitySeedFixture } from "@beep/repo-utils/EffectCapabilityKG"
@@ -1522,7 +1527,9 @@ export const defaultEffectCapabilitySeedFixtures: ReadonlyArray<EffectCapability
  * Run deterministic advisory matching over seed fixtures.
  *
  * @param report - Capability seed report that provides extracted evidence.
- * @param fixtures - Tiny fixture set to classify.
+ * @param fixtures - Tiny fixture set to classify. Each fixture's `scenario`
+ * identifies declared intent; returned findings use the text-classified
+ * scenario as the advisory routing result.
  * @returns Findings that either suggest seed symbols or decline with evidence.
  * @example
  * ```ts
@@ -1544,6 +1551,10 @@ export const adviseEffectCapabilitySeedFixtures = (
 
 /**
  * Build the deterministic Effect capability KG seed report.
+ *
+ * The seed proof intentionally depends on the vendored Effect v4 corpus at
+ * `.repos/effect-v4`. Missing corpus or catalog files fail as
+ * {@link EffectCapabilitySeedError} instead of falling back to process CWD.
  *
  * @param repoRootPath - Absolute repository root path.
  * @returns Effect that extracts upstream Effect v4 source/JSDoc/catalog evidence.

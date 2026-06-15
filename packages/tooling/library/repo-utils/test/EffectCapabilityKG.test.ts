@@ -29,6 +29,12 @@ const EXPECTED_ADJACENT_MODULE_NAMES: ReadonlyArray<EffectCapabilitySeedModuleNa
 ];
 const EXPECTED_MODULE_NAMES = [...EXPECTED_SEED_MODULE_NAMES, ...EXPECTED_ADJACENT_MODULE_NAMES];
 const EXPECTED_ADVISORY_FINDINGS = 4;
+const EXPECTED_SEED_SYMBOL_COUNTS = {
+  Combiner: 9,
+  Reducer: 3,
+  Filter: 29,
+} satisfies Record<"Combiner" | "Reducer" | "Filter", number>;
+const EXPECTED_SEED_LOCAL_EDGES = 329;
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 type EffectCapabilitySeedFinding = ReturnType<typeof adviseEffectCapabilitySeedFixtures>[number];
@@ -46,6 +52,9 @@ const findFindingByScenario = (
 ) => A.findFirst(findings, (finding) => finding.scenario === scenario);
 const isCombinerGraphNode = (nodeId: string): boolean =>
   nodeId === "module:Combiner" || Str.startsWith("symbol:Combiner.")(nodeId);
+const isSeedGraphNode = (nodeId: string): boolean =>
+  A.some(EXPECTED_SEED_MODULE_NAMES, (moduleName) => nodeId === `module:${moduleName}`) ||
+  A.some(EXPECTED_SEED_MODULE_NAMES, (moduleName) => Str.startsWith(`symbol:${moduleName}.`)(nodeId));
 const writeSeedRepoFile = Effect.fn("EffectCapabilityKGTest.writeSeedRepoFile")(function* (
   repoRootPath: string,
   relativePath: string,
@@ -124,7 +133,17 @@ layer(TestLayer, { timeout: TIMEOUT })("EffectCapabilityKG", (it) => {
         A.reduce(0, (total, module) => total + module.symbols.length)
       );
       const definesEdges = A.filter(report.edges, (edge) => edge.relation === "defines");
+      const seedLocalEdges = A.filter(report.edges, (edge) => isSeedGraphNode(edge.from) || isSeedGraphNode(edge.to));
+      const seedSymbolCounts = Object.fromEntries(
+        pipe(
+          report.modules,
+          A.filter((module) => A.contains(EXPECTED_SEED_MODULE_NAMES, module.moduleName)),
+          A.map((module) => [module.moduleName, module.symbols.length] as const)
+        )
+      );
       expect(definesEdges).toHaveLength(extractedSymbolCount);
+      expect(seedSymbolCounts).toEqual(EXPECTED_SEED_SYMBOL_COUNTS);
+      expect(seedLocalEdges).toHaveLength(EXPECTED_SEED_LOCAL_EDGES);
       expect(report.edges.length).toBeGreaterThan(extractedSymbolCount);
 
       const moduleNames = pipe(

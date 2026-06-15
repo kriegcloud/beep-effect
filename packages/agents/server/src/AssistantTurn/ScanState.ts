@@ -1,10 +1,3 @@
-/**
- * Incremental structured-output scan state helpers for assistant turns.
- *
- * @packageDocumentation
- * @since 0.0.0
- */
-
 import * as A from "effect/Array";
 
 /**
