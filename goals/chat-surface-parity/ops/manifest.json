@@ -3,13 +3,13 @@
   "initiative": {
     "id": "chat-surface-parity",
     "title": "Chat Surface Parity",
-    "status": "planned",
+    "status": "active",
     "created": "2026-06-15",
     "updated": "2026-06-15",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/chat-surface-parity",
-  "lifecycle": "planned",
+  "lifecycle": "active",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -38,27 +38,27 @@
     {
       "id": "P0",
       "name": "Research",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P1",
       "name": "Observability & UX gaps",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P2",
       "name": "Block repair loop",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P3",
       "name": "Rich blocks",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P4",
       "name": "Verify & close",
-      "status": "pending"
+      "status": "blocked"
     }
   ],
   "verificationCommands": [
@@ -66,6 +66,7 @@
     "jq . goals/chat-surface-parity/ops/manifest.json",
     "rg -n \"chat-surface-parity|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/chat-surface-parity",
     "git diff --check -- goals/chat-surface-parity",
+    "bun run beep yeet verify",
     "bun run beep lint reflection-artifacts"
   ],
   "stopConditions": [

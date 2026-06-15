@@ -1197,6 +1197,308 @@ export declare namespace ArtifactRefNode {
 }
 
 /**
+ * Package-owned YouTube decorator block node.
+ *
+ * Mirrors the serialized shape used by the editor runtime:
+ * `{ type: "youtube", videoID, format }`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { YouTubeNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const node = S.decodeUnknownSync(YouTubeNode)({
+ *   type: "youtube", version: 1, videoID: "dQw4w9WgXcQ", format: ""
+ * })
+ * console.log(node.videoID)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class YouTubeNode extends BaseNode.extend<YouTubeNode>($I`YouTubeNode`)(
+  {
+    type: S.tag("youtube"),
+    videoID: S.String.annotateKey({ description: "The bare YouTube video id rendered by the decorator block." }),
+    format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the embed." }),
+  },
+  $I.annote("YouTubeNode", { description: "A serialized YouTube decorator block node." })
+) {
+  /**
+   * Plain-text projection of a YouTube node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: YouTubeNode.Type) => `https://www.youtube.com/watch?v=${node.videoID}\n`;
+}
+
+/**
+ * Companion namespace for {@link YouTubeNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace YouTubeNode {
+  /**
+   * Companion decoded type for {@link YouTubeNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends BaseNode.Type {
+    readonly format: ElementFormat;
+    readonly type: "youtube";
+    readonly videoID: string;
+  }
+
+  /**
+   * Companion encoded type for {@link YouTubeNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends BaseNode.Encoded {
+    readonly format: ElementFormat;
+    readonly type: "youtube";
+    readonly videoID: string;
+  }
+}
+
+/**
+ * Serialized table cell node from `@lexical/table`.
+ *
+ * @example
+ * ```ts
+ * import { TableCellNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(TableCellNode.name) // "TableCellNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCellNode`)(
+  {
+    type: S.tag("tablecell"),
+    headerState: S.Finite.annotateKey({
+      description: "TableCellHeaderState bitmask: 0 none, 1 row header, 2 column header, 3 both.",
+    }),
+    colSpan: S.Finite.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional colspan for merged table cells." })
+    ),
+    rowSpan: S.Finite.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional rowspan for merged table cells." })
+    ),
+    width: S.Finite.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional cell width emitted by Lexical table nodes." })
+    ),
+    backgroundColor: S.NullOr(S.String).pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional cell background color emitted by Lexical table nodes." })
+    ),
+    verticalAlign: S.String.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional vertical alignment emitted by Lexical table nodes." })
+    ),
+  },
+  $I.annote("TableCellNode", { description: "A serialized Lexical table cell element node." })
+) {
+  /**
+   * Plain-text projection of a table cell node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: TableCellNode.Type) => `${Str.trim(childText(node.children))}\t`;
+}
+
+/**
+ * Companion namespace for {@link TableCellNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TableCellNode {
+  /**
+   * Companion decoded type for {@link TableCellNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly backgroundColor: O.Option<string | null>;
+    readonly colSpan: O.Option<number>;
+    readonly headerState: number;
+    readonly rowSpan: O.Option<number>;
+    readonly type: "tablecell";
+    readonly verticalAlign: O.Option<string>;
+    readonly width: O.Option<number>;
+  }
+
+  /**
+   * Companion encoded type for {@link TableCellNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly backgroundColor?: string | null | undefined;
+    readonly colSpan?: number | undefined;
+    readonly headerState: number;
+    readonly rowSpan?: number | undefined;
+    readonly type: "tablecell";
+    readonly verticalAlign?: string | undefined;
+    readonly width?: number | undefined;
+  }
+}
+
+/**
+ * Serialized table row node from `@lexical/table`.
+ *
+ * @example
+ * ```ts
+ * import { TableRowNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(TableRowNode.name) // "TableRowNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TableRowNode extends ElementNode.extend<TableRowNode>($I`TableRowNode`)(
+  {
+    type: S.tag("tablerow"),
+    height: S.Finite.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional row height emitted by Lexical table nodes." })
+    ),
+  },
+  $I.annote("TableRowNode", { description: "A serialized Lexical table row element node." })
+) {
+  /**
+   * Plain-text projection of a table row node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: TableRowNode.Type) => `${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link TableRowNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TableRowNode {
+  /**
+   * Companion decoded type for {@link TableRowNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly height: O.Option<number>;
+    readonly type: "tablerow";
+  }
+
+  /**
+   * Companion encoded type for {@link TableRowNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly height?: number | undefined;
+    readonly type: "tablerow";
+  }
+}
+
+/**
+ * Serialized table node from `@lexical/table`.
+ *
+ * @example
+ * ```ts
+ * import { TableNode } from "@beep/lexical-schema/Lexical.model"
+ *
+ * console.log(TableNode.name) // "TableNode"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TableNode extends ElementNode.extend<TableNode>($I`TableNode`)(
+  {
+    type: S.tag("table"),
+    colWidths: S.Array(S.Finite).pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional table column widths emitted by Lexical table nodes." })
+    ),
+    rowStriping: S.Boolean.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional row-striping flag emitted by Lexical table nodes." })
+    ),
+    frozenColumnCount: S.Finite.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional number of frozen columns emitted by Lexical table nodes." })
+    ),
+    frozenRowCount: S.Finite.pipe(
+      S.OptionFromOptional,
+      S.annotateKey({ description: "Optional number of frozen rows emitted by Lexical table nodes." })
+    ),
+  },
+  $I.annote("TableNode", { description: "A serialized Lexical table element node." })
+) {
+  /**
+   * Plain-text projection of a table node.
+   *
+   * @category getters
+   * @since 0.0.0
+   */
+  static readonly toText = (node: TableNode.Type) => `${childText(node.children)}\n`;
+}
+
+/**
+ * Companion namespace for {@link TableNode}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TableNode {
+  /**
+   * Companion decoded type for {@link TableNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Type extends ElementNode.Type {
+    readonly colWidths: O.Option<ReadonlyArray<number>>;
+    readonly frozenColumnCount: O.Option<number>;
+    readonly frozenRowCount: O.Option<number>;
+    readonly rowStriping: O.Option<boolean>;
+    readonly type: "table";
+  }
+
+  /**
+   * Companion encoded type for {@link TableNode}.
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export interface Encoded extends ElementNode.Encoded {
+    readonly colWidths?: ReadonlyArray<number> | undefined;
+    readonly frozenColumnCount?: number | undefined;
+    readonly frozenRowCount?: number | undefined;
+    readonly rowStriping?: boolean | undefined;
+    readonly type: "table";
+  }
+}
+
+/**
  * The tagged union of all v1 serialized Lexical nodes, discriminated by
  * Lexical's own `type` key.
  *
@@ -1218,6 +1520,7 @@ export const LexicalNode = S.Union([
   TabNode,
   LineBreakNode,
   ArtifactRefNode,
+  YouTubeNode,
   // elements
   RootNode,
   ParagraphNode,
@@ -1227,6 +1530,9 @@ export const LexicalNode = S.Union([
   ListItemNode,
   LinkNode,
   CodeNode,
+  TableNode,
+  TableRowNode,
+  TableCellNode,
 ]).pipe(S.toTaggedUnion("type"));
 
 /**
@@ -1263,6 +1569,7 @@ export declare namespace LexicalNode {
     | TabNode.Type
     | LineBreakNode.Type
     | ArtifactRefNode.Type
+    | YouTubeNode.Type
     | RootNode.Type
     | ParagraphNode.Type
     | HeadingNode.Type
@@ -1270,7 +1577,10 @@ export declare namespace LexicalNode {
     | ListNode.Type
     | ListItemNode.Type
     | LinkNode.Type
-    | CodeNode.Type;
+    | CodeNode.Type
+    | TableNode.Type
+    | TableRowNode.Type
+    | TableCellNode.Type;
 
   /**
    * Companion encoded type for {@link LexicalNode}.
@@ -1283,6 +1593,7 @@ export declare namespace LexicalNode {
     | TabNode.Encoded
     | LineBreakNode.Encoded
     | ArtifactRefNode.Encoded
+    | YouTubeNode.Encoded
     | RootNode.Encoded
     | ParagraphNode.Encoded
     | HeadingNode.Encoded
@@ -1290,7 +1601,10 @@ export declare namespace LexicalNode {
     | ListNode.Encoded
     | ListItemNode.Encoded
     | LinkNode.Encoded
-    | CodeNode.Encoded;
+    | CodeNode.Encoded
+    | TableNode.Encoded
+    | TableRowNode.Encoded
+    | TableCellNode.Encoded;
 }
 
 /**
@@ -1402,6 +1716,10 @@ export const nodeToPlainText: (node: LexicalNode.Type) => string = LexicalNode.m
   listitem: ListItemNode.toText,
   link: LinkNode.toText,
   code: CodeNode.toText,
+  youtube: YouTubeNode.toText,
+  table: TableNode.toText,
+  tablerow: TableRowNode.toText,
+  tablecell: TableCellNode.toText,
 });
 
 /**

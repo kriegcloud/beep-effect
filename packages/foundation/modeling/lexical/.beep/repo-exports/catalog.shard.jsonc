@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a80d4b66cfa35a588387cba1c964a2f3960253df6d2bfa0e36edbbd1969232a7",
+    "digest": "fd6b6604726c684dca394f3fef3cccf88c4e83dde747d7dd6c76d2d4d5eba003",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sha256": "56b8f5132987ed7fb327f947b37ae1339d44fd53955dfda3d7bcbbd21c8f7f86",
-        "bytes": 19179
+        "sha256": "45e5b71ccd52b2fcb2660cff0b07ac813d475f6ccfdf301100f25b9d1aae5dc9",
+        "bytes": 23226
       },
       {
         "path": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sha256": "27b3a1a859377d85c2ecb8648226125b893f1466c042a9a7fb2391795d9eb23e",
-        "bytes": 34943
+        "sha256": "d91ec538a2cc0bf59797f4324cc4551534b0b145be9e0dc09c8b31f901482a8f",
+        "bytes": 43544
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -69,8 +69,8 @@
       "@beep/lexical-schema/Lexical.model"
     ],
     "counts": {
-      "publicExportEntries": 167,
-      "uniqueSymbols": 32,
+      "publicExportEntries": 191,
+      "uniqueSymbols": 36,
       "sourceFiles": 3
     },
     "exports": [
@@ -84,7 +84,7 @@
         "symbolName": "ARTIFACT_URI_PREFIX",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 57,
+        "sourceLine": 61,
         "summary": "URI scheme that round-trips {@link ArtifactRefNode} through the Md AST as a",
         "categories": [
           "constants"
@@ -207,7 +207,7 @@
         "symbolName": "blockToLexical",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 261,
+        "sourceLine": 291,
         "summary": "Lift one Md block into its serialized Lexical node.",
         "categories": [
           "combinators"
@@ -331,7 +331,7 @@
         "symbolName": "documentToEditorState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 388,
+        "sourceLine": 460,
         "summary": "Lift a full Md document into a serialized Lexical editor state.",
         "categories": [
           "combinators"
@@ -356,7 +356,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1368,
+        "sourceLine": 1682,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -381,7 +381,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 577,
+        "sourceLine": 694,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -406,7 +406,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1424,
+        "sourceLine": 1742,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -629,7 +629,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1215,
+        "sourceLine": 1517,
         "summary": "The tagged union of all v1 serialized Lexical nodes, discriminated by",
         "categories": [
           "models"
@@ -654,7 +654,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1254,
+        "sourceLine": 1560,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -678,7 +678,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1552,
         "summary": "{@inheritDoc LexicalNode}",
         "categories": [
           "models"
@@ -999,7 +999,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 539,
+        "sourceLine": 652,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -1024,7 +1024,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1392,
+        "sourceLine": 1706,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -1196,7 +1196,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1315,
+        "sourceLine": 1629,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -1221,7 +1221,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1328,
+        "sourceLine": 1642,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -1234,6 +1234,153 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . serializededitorstate namespace companion namespace for {@link serializededitorstate}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableCellNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1281,
+        "summary": "Serialized table cell node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . tablecellnode class serialized table cell node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableCellNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1325,
+        "summary": "Companion namespace for {@link TableCellNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . tablecellnode namespace companion namespace for {@link tablecellnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1434,
+        "summary": "Serialized table node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . tablenode class serialized table node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1471,
+        "summary": "Companion namespace for {@link TableNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . tablenode namespace companion namespace for {@link tablenode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableRowNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1372,
+        "summary": "Serialized table row node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . tablerownode class serialized table row node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableRowNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1397,
+        "summary": "Companion namespace for {@link TableRowNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . tablerownode namespace companion namespace for {@link tablerownode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
       },
       {
         "packageName": "@beep/lexical-schema",
@@ -1461,13 +1608,62 @@
         "packageName": "@beep/lexical-schema",
         "packagePath": "packages/foundation/modeling/lexical",
         "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1219,
+        "summary": "Package-owned YouTube decorator block node.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . youtubenode class package-owned youtube decorator block node. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1242,
+        "summary": "Companion namespace for {@link YouTubeNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . youtubenode namespace companion namespace for {@link youtubenode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
         "importSpecifier": "@beep/lexical-schema/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
         "symbolName": "ARTIFACT_URI_PREFIX",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 57,
+        "sourceLine": 61,
         "summary": "URI scheme that round-trips {@link ArtifactRefNode} through the Md AST as a",
         "categories": [
           "constants"
@@ -1590,7 +1786,7 @@
         "symbolName": "blockToLexical",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 261,
+        "sourceLine": 291,
         "summary": "Lift one Md block into its serialized Lexical node.",
         "categories": [
           "combinators"
@@ -1714,7 +1910,7 @@
         "symbolName": "documentToEditorState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 388,
+        "sourceLine": 460,
         "summary": "Lift a full Md document into a serialized Lexical editor state.",
         "categories": [
           "combinators"
@@ -1739,7 +1935,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1368,
+        "sourceLine": 1682,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -1764,7 +1960,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 577,
+        "sourceLine": 694,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -1789,7 +1985,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1424,
+        "sourceLine": 1742,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -2012,7 +2208,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1215,
+        "sourceLine": 1517,
         "summary": "The tagged union of all v1 serialized Lexical nodes, discriminated by",
         "categories": [
           "models"
@@ -2037,7 +2233,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1254,
+        "sourceLine": 1560,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -2061,7 +2257,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1552,
         "summary": "{@inheritDoc LexicalNode}",
         "categories": [
           "models"
@@ -2382,7 +2578,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 539,
+        "sourceLine": 652,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -2407,7 +2603,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1392,
+        "sourceLine": 1706,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -2579,7 +2775,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1315,
+        "sourceLine": 1629,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -2604,7 +2800,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1328,
+        "sourceLine": 1642,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -2617,6 +2813,153 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index serializededitorstate namespace companion namespace for {@link serializededitorstate}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableCellNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1281,
+        "summary": "Serialized table cell node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index tablecellnode class serialized table cell node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableCellNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1325,
+        "summary": "Companion namespace for {@link TableCellNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index tablecellnode namespace companion namespace for {@link tablecellnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1434,
+        "summary": "Serialized table node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index tablenode class serialized table node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1471,
+        "summary": "Companion namespace for {@link TableNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index tablenode namespace companion namespace for {@link tablenode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableRowNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1372,
+        "summary": "Serialized table row node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index tablerownode class serialized table row node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "TableRowNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1397,
+        "summary": "Companion namespace for {@link TableRowNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index tablerownode namespace companion namespace for {@link tablerownode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
       },
       {
         "packageName": "@beep/lexical-schema",
@@ -2844,13 +3187,62 @@
         "packageName": "@beep/lexical-schema",
         "packagePath": "packages/foundation/modeling/lexical",
         "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1219,
+        "summary": "Package-owned YouTube decorator block node.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index youtubenode class package-owned youtube decorator block node. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1242,
+        "summary": "Companion namespace for {@link YouTubeNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index youtubenode namespace companion namespace for {@link youtubenode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
         "importSpecifier": "@beep/lexical-schema/Lexical.codec",
         "exportSubpath": "./Lexical.codec",
         "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
         "symbolName": "ARTIFACT_URI_PREFIX",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 57,
+        "sourceLine": 61,
         "summary": "URI scheme that round-trips {@link ArtifactRefNode} through the Md AST as a",
         "categories": [
           "constants"
@@ -2875,7 +3267,7 @@
         "symbolName": "blockToLexical",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 261,
+        "sourceLine": 291,
         "summary": "Lift one Md block into its serialized Lexical node.",
         "categories": [
           "combinators"
@@ -2900,7 +3292,7 @@
         "symbolName": "documentToEditorState",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 388,
+        "sourceLine": 460,
         "summary": "Lift a full Md document into a serialized Lexical editor state.",
         "categories": [
           "combinators"
@@ -2925,7 +3317,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 577,
+        "sourceLine": 694,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -2950,7 +3342,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 539,
+        "sourceLine": 652,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -3172,7 +3564,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1368,
+        "sourceLine": 1682,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -3197,7 +3589,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1424,
+        "sourceLine": 1742,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -3420,7 +3812,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1215,
+        "sourceLine": 1517,
         "summary": "The tagged union of all v1 serialized Lexical nodes, discriminated by",
         "categories": [
           "models"
@@ -3445,7 +3837,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1254,
+        "sourceLine": 1560,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -3469,7 +3861,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1246,
+        "sourceLine": 1552,
         "summary": "{@inheritDoc LexicalNode}",
         "categories": [
           "models"
@@ -3790,7 +4182,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1392,
+        "sourceLine": 1706,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -3962,7 +4354,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1315,
+        "sourceLine": 1629,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -3987,7 +4379,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1328,
+        "sourceLine": 1642,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -4000,6 +4392,153 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model serializededitorstate namespace companion namespace for {@link serializededitorstate}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "TableCellNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1281,
+        "summary": "Serialized table cell node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model tablecellnode class serialized table cell node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "TableCellNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1325,
+        "summary": "Companion namespace for {@link TableCellNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model tablecellnode namespace companion namespace for {@link tablecellnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "TableNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1434,
+        "summary": "Serialized table node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model tablenode class serialized table node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "TableNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1471,
+        "summary": "Companion namespace for {@link TableNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model tablenode namespace companion namespace for {@link tablenode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "TableRowNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1372,
+        "summary": "Serialized table row node from `@lexical/table`.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model tablerownode class serialized table row node from `@lexical/table`. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "TableRowNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1397,
+        "summary": "Companion namespace for {@link TableRowNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model tablerownode namespace companion namespace for {@link tablerownode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
       },
       {
         "packageName": "@beep/lexical-schema",
@@ -4197,6 +4736,55 @@
           "@since"
         ],
         "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model textnode namespace companion namespace for {@link textnode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1219,
+        "summary": "Package-owned YouTube decorator block node.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model youtubenode class package-owned youtube decorator block node. models packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "namespace",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 1242,
+        "summary": "Companion namespace for {@link YouTubeNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model youtubenode namespace companion namespace for {@link youtubenode}. models packages/foundation/modeling/lexical/src/lexical.model.ts"
       }
     ]
   }

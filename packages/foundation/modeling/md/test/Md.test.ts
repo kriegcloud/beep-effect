@@ -72,6 +72,14 @@ describe("@beep/md", () => {
       Md.ol(["Ordered List Item 1", "Ordered List Item 2"]),
       Md.taskList([Md.taskItem("Task List Item 1", { checked: true }), Md.taskItem("Task List Item 2")]),
       Md.pre(`console.log("beep")`, { language: "ts" }),
+      Md.table(
+        [
+          ["Name", "Value"],
+          ["Language", Md.code("ts")],
+        ],
+        { headerRow: true }
+      ),
+      Md.youtube("dQw4w9WgXcQ"),
       Md.blockquote`Hello World!`,
     ]);
 
@@ -93,6 +101,12 @@ Some text
 \`\`\`ts
 console.log("beep")
 \`\`\`
+
+| Name | Value |
+| --- | --- |
+| Language | \`ts\` |
+
+https://www.youtube.com/watch?v=dQw4w9WgXcQ
 
 > Hello World!`;
 
@@ -140,6 +154,15 @@ console.log("beep")
     // only Option field (Pre.language), so they are the canonical case.
     const doc = Md.make([
       Md.pre("const x = 1", { language: "ts" }),
+      Md.pre("flowchart TD\nA-->B", { language: "mermaid" }),
+      Md.table(
+        [
+          ["Name", "Value"],
+          ["Language", Md.code("ts")],
+        ],
+        { headerRow: true }
+      ),
+      Md.youtube("dQw4w9WgXcQ"),
       Md.pre("no language here"),
       Md.p([Md.text("hello")]),
     ]);

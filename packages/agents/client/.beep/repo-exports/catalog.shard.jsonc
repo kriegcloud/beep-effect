@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e6d38861f48331a224c6239fb41f8a7bf3edaebc95595eed544b2041036d6dd2",
+    "digest": "c96e268c82aa82e6c724309dbb10f7b7f3fa695d9b2e97720c1af53646900d20",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -27,8 +27,8 @@
       },
       {
         "path": "packages/agents/client/src/Chat.atoms.ts",
-        "sha256": "fcbd254568908a4d9d10c8a2c1ec5104d7b31809cbfbe2bbf567926b441c2d75",
-        "bytes": 15316
+        "sha256": "eb81f95c69e92812373ff4340f4524d4102760126626534fef8549a4c430d0d3",
+        "bytes": 15880
       },
       {
         "path": "packages/agents/client/src/ClientObservability.ts",
@@ -68,8 +68,8 @@
       "@beep/agents-client/ClientObservability"
     ],
     "counts": {
-      "publicExportEntries": 34,
-      "uniqueSymbols": 16,
+      "publicExportEntries": 36,
+      "uniqueSymbols": 17,
       "sourceFiles": 3
     },
     "exports": [
@@ -183,7 +183,7 @@
         "symbolName": "EditTarget",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 262,
+        "sourceLine": 277,
         "summary": "When set, the composer is editing an existing turn's message.",
         "categories": [
           "models"
@@ -208,7 +208,7 @@
         "symbolName": "editTargetAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 285,
+        "sourceLine": 300,
         "summary": "The turn currently being edited, if any.",
         "categories": [
           "atoms"
@@ -233,7 +233,7 @@
         "symbolName": "EditTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 348,
+        "sourceLine": 363,
         "summary": "A request to edit an existing turn's message and regenerate from there.",
         "categories": [
           "models"
@@ -258,7 +258,7 @@
         "symbolName": "reportDecodeFailureAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 310,
+        "sourceLine": 325,
         "summary": "Composer content failing schema decode is a bug — count and log it.",
         "categories": [
           "atoms"
@@ -283,7 +283,7 @@
         "symbolName": "runTurnAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 404,
+        "sourceLine": 419,
         "summary": "Drives one assistant turn: fires the streaming rpc, appends blocks into",
         "categories": [
           "atoms"
@@ -334,7 +334,7 @@
         "symbolName": "SendTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 330,
+        "sourceLine": 345,
         "summary": "A request to send a brand-new user message to a thread.",
         "categories": [
           "models"
@@ -456,10 +456,35 @@
         "importSpecifier": "@beep/agents-client",
         "exportSubpath": ".",
         "exportedFromPath": "packages/agents/client/src/index.ts",
+        "symbolName": "turnErrorAtom",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
+        "sourceLine": 262,
+        "summary": "The latest failed assistant turn, surfaced for app/UI-layer toast handling.",
+        "categories": [
+          "atoms"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-client packages/agents/client @beep/agents-client . turnerroratom const the latest failed assistant turn, surfaced for app/ui-layer toast handling. atoms packages/agents/client/src/chat.atoms.ts"
+      },
+      {
+        "packageName": "@beep/agents-client",
+        "packagePath": "packages/agents/client",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-client",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/agents/client/src/index.ts",
         "symbolName": "TurnRequest",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 367,
+        "sourceLine": 382,
         "summary": "A turn the user wants to run: a fresh send or an edit-regenerate.",
         "categories": [
           "schemas"
@@ -484,7 +509,7 @@
         "symbolName": "TurnRequest",
         "exportKind": "type",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 375,
+        "sourceLine": 390,
         "summary": "Runtime type for {@link TurnRequest}.",
         "categories": [
           "models"
@@ -583,7 +608,7 @@
         "symbolName": "EditTarget",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 262,
+        "sourceLine": 277,
         "summary": "When set, the composer is editing an existing turn's message.",
         "categories": [
           "models"
@@ -608,7 +633,7 @@
         "symbolName": "editTargetAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 285,
+        "sourceLine": 300,
         "summary": "The turn currently being edited, if any.",
         "categories": [
           "atoms"
@@ -633,7 +658,7 @@
         "symbolName": "EditTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 348,
+        "sourceLine": 363,
         "summary": "A request to edit an existing turn's message and regenerate from there.",
         "categories": [
           "models"
@@ -658,7 +683,7 @@
         "symbolName": "reportDecodeFailureAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 310,
+        "sourceLine": 325,
         "summary": "Composer content failing schema decode is a bug — count and log it.",
         "categories": [
           "atoms"
@@ -683,7 +708,7 @@
         "symbolName": "runTurnAtom",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 404,
+        "sourceLine": 419,
         "summary": "Drives one assistant turn: fires the streaming rpc, appends blocks into",
         "categories": [
           "atoms"
@@ -734,7 +759,7 @@
         "symbolName": "SendTurnRequest",
         "exportKind": "class",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 330,
+        "sourceLine": 345,
         "summary": "A request to send a brand-new user message to a thread.",
         "categories": [
           "models"
@@ -856,10 +881,35 @@
         "importSpecifier": "@beep/agents-client/Chat.atoms",
         "exportSubpath": "./Chat.atoms",
         "exportedFromPath": "packages/agents/client/src/Chat.atoms.ts",
+        "symbolName": "turnErrorAtom",
+        "exportKind": "const",
+        "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
+        "sourceLine": 262,
+        "summary": "The latest failed assistant turn, surfaced for app/UI-layer toast handling.",
+        "categories": [
+          "atoms"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/agents-client packages/agents/client @beep/agents-client/chat.atoms ./chat.atoms turnerroratom const the latest failed assistant turn, surfaced for app/ui-layer toast handling. atoms packages/agents/client/src/chat.atoms.ts"
+      },
+      {
+        "packageName": "@beep/agents-client",
+        "packagePath": "packages/agents/client",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/agents-client/Chat.atoms",
+        "exportSubpath": "./Chat.atoms",
+        "exportedFromPath": "packages/agents/client/src/Chat.atoms.ts",
         "symbolName": "TurnRequest",
         "exportKind": "const",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 367,
+        "sourceLine": 382,
         "summary": "A turn the user wants to run: a fresh send or an edit-regenerate.",
         "categories": [
           "schemas"
@@ -884,7 +934,7 @@
         "symbolName": "TurnRequest",
         "exportKind": "type",
         "sourcePath": "packages/agents/client/src/Chat.atoms.ts",
-        "sourceLine": 375,
+        "sourceLine": 390,
         "summary": "Runtime type for {@link TurnRequest}.",
         "categories": [
           "models"

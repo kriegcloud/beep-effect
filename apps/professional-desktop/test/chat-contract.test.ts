@@ -6,7 +6,7 @@
  * UsageRecordSink. The orchestration operations are exercised directly via
  * their use-case Effects/streams (no rpc transport).
  */
-import { Turn } from "@beep/agents-domain";
+import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
 import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
@@ -69,7 +69,7 @@ describe("@beep/professional-desktop chat contract", () => {
       const items = messageItems(timeline);
       expect(items.map((m) => m.role)).toEqual(["user", "assistant"]);
       expect(items[0]?.content).toStrictEqual(content);
-      expect(items[1]?.content).toStrictEqual(Turn.assistantContentToDocument([...expectedBlocks]));
+      expect(items[1]?.content).toStrictEqual(assistantContentToDocument([...expectedBlocks]));
 
       // 3) exactly one usage record, provider "fixture"
       const usage = yield* Ref.get(usageRef);

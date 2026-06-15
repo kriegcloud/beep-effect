@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ef03817bf55ca628d5f172df5e43946af91f0e1278ed5357cd6184463664a205",
+    "digest": "525d85d6afd623a8fb67e3c68702afa9558d6e99d3da78f914fb61f6e4aca3eb",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-        "sha256": "2ceadde9f9f60a6b84c9614751803b74e4ec0577e51493149baa7b66ba76b4e3",
-        "bytes": 3688
+        "sha256": "5a2d734c7bb11838c12e19b691d8f5cbff7a38bb9532607f1e6ed5e7c9a695e1",
+        "bytes": 4942
       },
       {
         "path": "packages/workspace/use-cases/src/aggregates/Thread/ThreadTimeline.ts",
@@ -95,8 +95,8 @@
       "@beep/workspace-use-cases/server"
     ],
     "counts": {
-      "publicExportEntries": 25,
-      "uniqueSymbols": 16,
+      "publicExportEntries": 26,
+      "uniqueSymbols": 17,
       "sourceFiles": 8
     },
     "exports": [
@@ -299,7 +299,7 @@
         "symbolName": "AppendTurnInput",
         "exportKind": "interface",
         "sourcePath": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-        "sourceLine": 60,
+        "sourceLine": 61,
         "summary": "Input accepted by {@link ThreadStoreShape.appendTurn}.",
         "categories": [
           "repositories"
@@ -324,7 +324,7 @@
         "symbolName": "AppendTurnResult",
         "exportKind": "interface",
         "sourcePath": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-        "sourceLine": 81,
+        "sourceLine": 82,
         "summary": "Result returned by {@link ThreadStoreShape.appendTurn}.",
         "categories": [
           "repositories"
@@ -349,7 +349,7 @@
         "symbolName": "CreateThreadInput",
         "exportKind": "interface",
         "sourcePath": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-        "sourceLine": 41,
+        "sourceLine": 42,
         "summary": "Input accepted by {@link ThreadStoreShape.createThread}.",
         "categories": [
           "repositories"
@@ -371,10 +371,35 @@
         "importSpecifier": "@beep/workspace-use-cases/aggregates/Thread/server",
         "exportSubpath": "./aggregates/Thread/server",
         "exportedFromPath": "packages/workspace/use-cases/src/aggregates/Thread/server.ts",
+        "symbolName": "SetThreadTitleIfEmptyInput",
+        "exportKind": "class",
+        "sourcePath": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
+        "sourceLine": 111,
+        "summary": "Input accepted by {@link ThreadStoreShape.setTitleIfEmpty}.",
+        "categories": [
+          "repositories"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-use-cases packages/workspace/use-cases @beep/workspace-use-cases/aggregates/thread/server ./aggregates/thread/server setthreadtitleifemptyinput class input accepted by {@link threadstoreshape.settitleifempty}. repositories packages/workspace/use-cases/src/aggregates/thread/threadstore.ts"
+      },
+      {
+        "packageName": "@beep/workspace-use-cases",
+        "packagePath": "packages/workspace/use-cases",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-use-cases/aggregates/Thread/server",
+        "exportSubpath": "./aggregates/Thread/server",
+        "exportedFromPath": "packages/workspace/use-cases/src/aggregates/Thread/server.ts",
         "symbolName": "ThreadStore",
         "exportKind": "class",
         "sourcePath": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-        "sourceLine": 128,
+        "sourceLine": 167,
         "summary": "Cross-concept ThreadStore service.",
         "categories": [
           "repositories"
@@ -474,7 +499,7 @@
         "symbolName": "ThreadStoreShape",
         "exportKind": "interface",
         "sourcePath": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-        "sourceLine": 100,
+        "sourceLine": 136,
         "summary": "Cross-concept ThreadStore contract.",
         "categories": [
           "repositories"

@@ -2,9 +2,10 @@
 
 ## Status
 
-Lifecycle: `planned` — ready for a `/goal` session. Dependency
-`goals/desktop-chat-surface` is closed (`completed-retained`), so this packet is
-unblocked.
+Lifecycle: `active` — implementation and local proof are complete through P3,
+with P4 closeout blocked on the real-LLM E2E proof. Dependency
+`goals/desktop-chat-surface` is closed (`completed-retained`), so this packet
+is otherwise unblocked.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -77,9 +78,22 @@ additions with round-trip + JSON-boundary tests, and verify no regression in the
 `@beep/md`/`@beep/lexical-schema` consumers (NOT `apps/oip-web`, which imports
 none of md/lexical/editor). Mermaid avoids this (reuses `Pre`).
 
+## Latest Evidence
+
+- P0 revalidation is recorded in
+  [`history/2026-06-15-p0-revalidation.md`](./history/2026-06-15-p0-revalidation.md).
+- Local fixture, foundation, integration, generated-artifact, and aggregate
+  proof progress is recorded in
+  [`history/2026-06-15-verification-progress.md`](./history/2026-06-15-verification-progress.md).
+- `bun run beep yeet verify` passed on 2026-06-15 and wrote a successful Yeet
+  verdict for branch `feat/chat-surface-parity`.
+- Real-LLM E2E remains the open P4 acceptance item because Anthropic credentials
+  are unavailable from this session. Use a working 1Password MCP auth path or an
+  unsandboxed user terminal for any `op`-backed secret injection.
+
 ## Outcome
 
-TBD — populated at P4 close by the implementing session.
+TBD — populated at P4 close after the real-LLM E2E proof and closeout reflection.
 
 ## Notes
 

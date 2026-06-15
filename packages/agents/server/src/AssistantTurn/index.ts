@@ -35,6 +35,20 @@ export * from "./AnthropicTurnCodec.js";
  */
 export * from "./AnthropicTurnKernel.js";
 /**
+ * Assistant-turn invalid-block repair adapter.
+ *
+ * @example
+ * ```ts
+ * import { repairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ *
+ * console.log(repairInvalidBlocks)
+ * ```
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export * from "./BlockRepair.js";
+/**
  * Incremental completed-block extractor and its carry state.
  *
  * @example

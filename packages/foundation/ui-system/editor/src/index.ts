@@ -51,6 +51,34 @@ export * from "./artifact-ref-node.tsx";
  */
 export * from "./composer.tsx";
 /**
+ * Mermaid code decorator plugin.
+ *
+ * @example
+ * ```ts
+ * import { MermaidCodeDecoratorPlugin } from "@beep/editor"
+ *
+ * console.log(MermaidCodeDecoratorPlugin.name) // "MermaidCodeDecoratorPlugin"
+ * ```
+ *
+ * @since 0.0.0
+ * @category components
+ */
+export * from "./mermaid-code-decorator-plugin.tsx";
+/**
+ * Mermaid SVG renderer.
+ *
+ * @example
+ * ```ts
+ * import { MermaidView } from "@beep/editor"
+ *
+ * console.log(MermaidView.name) // "MermaidView"
+ * ```
+ *
+ * @since 0.0.0
+ * @category components
+ */
+export * from "./mermaid-view.tsx";
+/**
  * Node registration for the schema v1 vocabulary.
  *
  * @example
@@ -92,3 +120,31 @@ export * from "./theme.ts";
  * @category components
  */
 export * from "./viewer.tsx";
+/**
+ * YouTube iframe embed component.
+ *
+ * @example
+ * ```ts
+ * import { YouTubeEmbed } from "@beep/editor"
+ *
+ * console.log(YouTubeEmbed.name) // "YouTubeEmbed"
+ * ```
+ *
+ * @since 0.0.0
+ * @category components
+ */
+export * from "./youtube-embed.tsx";
+/**
+ * YouTube runtime Lexical node.
+ *
+ * @example
+ * ```ts
+ * import { YouTubeNode } from "@beep/editor"
+ *
+ * console.log(YouTubeNode.getType()) // "youtube"
+ * ```
+ *
+ * @since 0.0.0
+ * @category components
+ */
+export * from "./youtube-node.tsx";

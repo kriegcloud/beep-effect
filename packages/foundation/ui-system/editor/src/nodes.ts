@@ -15,8 +15,10 @@ import { CodeNode } from "@lexical/code";
 import { LinkNode } from "@lexical/link";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
+import { TableCellNode, TableNode, TableRowNode } from "@lexical/table";
 import { LineBreakNode, ParagraphNode, TabNode, TextNode } from "lexical";
 import { ArtifactRefNode } from "./artifact-ref-node.tsx";
+import { YouTubeNode } from "./youtube-node.tsx";
 import type { Klass, LexicalNode, LexicalNodeReplacement } from "lexical";
 
 /**
@@ -43,5 +45,9 @@ export const editorNodes: ReadonlyArray<Klass<LexicalNode> | LexicalNodeReplacem
   ListItemNode,
   LinkNode,
   CodeNode,
+  TableNode,
+  TableRowNode,
+  TableCellNode,
+  YouTubeNode,
   ArtifactRefNode,
 ];

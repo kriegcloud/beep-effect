@@ -12,9 +12,10 @@
  */
 
 import { $WorkspaceUseCasesId } from "@beep/identity/packages";
+import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { Context } from "effect";
+import * as S from "effect/Schema";
 import type { Document } from "@beep/md/Md.model";
-import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import type { Message, MessageRole } from "@beep/workspace-domain/entities/Message";
 import type { Thread } from "@beep/workspace-domain/entities/Thread";
 import type { Turn } from "@beep/workspace-domain/entities/Turn";
@@ -84,6 +85,41 @@ export interface AppendTurnResult {
 }
 
 /**
+ * Input accepted by {@link ThreadStoreShape.setTitleIfEmpty}.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { SetThreadTitleIfEmptyInput } from "@beep/workspace-use-cases/aggregates/Thread/server"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
+ * import * as S from "effect/Schema"
+ *
+ * const program = Effect.gen(function* () {
+ *   const threadId = yield* S.decodeUnknownEffect(Workspace.ThreadId)(1)
+ *   return SetThreadTitleIfEmptyInput.make({
+ *     emptyTitle: "New thread",
+ *     threadId,
+ *     title: "Matter intake",
+ *   })
+ * })
+ * console.log(program)
+ * ```
+ *
+ * @category repositories
+ * @since 0.0.0
+ */
+export class SetThreadTitleIfEmptyInput extends S.Class<SetThreadTitleIfEmptyInput>($I`SetThreadTitleIfEmptyInput`)(
+  {
+    emptyTitle: S.NonEmptyString,
+    threadId: WorkspaceIdentity.ThreadId,
+    title: S.NonEmptyString,
+  },
+  $I.annote("SetThreadTitleIfEmptyInput", {
+    description: "Compare-and-set title update accepted by the ThreadStore when a thread still has its empty title.",
+  })
+) {}
+
+/**
  * Cross-concept ThreadStore contract.
  *
  * @example
@@ -107,6 +143,9 @@ export interface ThreadStoreShape {
   readonly listThreads: (
     workspaceId: WorkspaceIdentity.WorkspaceId
   ) => Effect.Effect<ReadonlyArray<Thread>, ThreadStoreUnavailable>;
+  readonly setTitleIfEmpty: (
+    input: SetThreadTitleIfEmptyInput
+  ) => Effect.Effect<void, ThreadStoreNotFound | ThreadStoreUnavailable>;
   readonly timeline: (
     threadId: WorkspaceIdentity.ThreadId
   ) => Effect.Effect<ThreadTimeline, ThreadStoreNotFound | ThreadStoreUnavailable>;

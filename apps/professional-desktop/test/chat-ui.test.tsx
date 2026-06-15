@@ -15,13 +15,13 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ChatApp } from "@/chat/ui/ChatApp";
 import { MessageView } from "@/chat/ui/MessageView";
 import { StreamingBlocks } from "@/chat/ui/StreamingBlocks";
-import type { Turn } from "@beep/agents-domain";
+import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
 afterEach(cleanup);
 
 describe("StreamingBlocks", () => {
-  it("renders the v1 block vocabulary to the expected tags", () => {
-    const blocks: ReadonlyArray<Turn.AssistantBlock> = [
+  it("renders the assistant block vocabulary to the expected tags", () => {
+    const blocks: ReadonlyArray<AssistantBlock> = [
       { type: "heading", level: "h2", children: [{ type: "text", text: "Title" }] },
       {
         type: "paragraph",
@@ -36,6 +36,16 @@ describe("StreamingBlocks", () => {
       { type: "list", listType: "bullet", items: [{ children: [{ type: "text", text: "one" }] }] },
       { type: "list", listType: "number", items: [{ children: [{ type: "text", text: "two" }] }] },
       { type: "code", code: "console.log('beep')" },
+      { type: "code", language: "mermaid", code: "graph TD\n  A --> B" },
+      {
+        type: "table",
+        headerRow: true,
+        rows: [
+          { cells: [{ children: [{ type: "text", text: "Name" }] }, { children: [{ type: "text", text: "Value" }] }] },
+          { cells: [{ children: [{ type: "text", text: "Language" }] }, { children: [{ type: "text", text: "TS" }] }] },
+        ],
+      },
+      { type: "youtube", videoId: "dQw4w9WgXcQ" },
     ];
 
     const { container } = render(<StreamingBlocks blocks={blocks} />);
@@ -49,6 +59,12 @@ describe("StreamingBlocks", () => {
     expect(container.querySelector("ul")).toHaveTextContent("one");
     expect(container.querySelector("ol")).toHaveTextContent("two");
     expect(container.querySelector("pre code")).toHaveTextContent("console.log('beep')");
+    expect(container.querySelector("[data-testid='mermaid-diagram']")).toHaveTextContent("Rendering diagram");
+    expect(container.querySelector("table")).toHaveTextContent("Language");
+    expect(container.querySelector("iframe")).toHaveAttribute(
+      "src",
+      "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ"
+    );
   });
 
   it("renders nothing problematic for an empty block array", () => {

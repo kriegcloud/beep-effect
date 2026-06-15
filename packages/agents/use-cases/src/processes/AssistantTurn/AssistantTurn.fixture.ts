@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
+import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import { A } from "@beep/utils";
 import { Layer, Stream } from "effect";
 import * as O from "effect/Option";
@@ -17,7 +17,7 @@ import * as S from "effect/Schema";
 import { AgentTurnKernel } from "./AssistantTurn.kernel.js";
 import type { IndexedBlock, TurnHistoryItem } from "./AssistantTurn.contracts.js";
 
-const decodeBlock = S.decodeUnknownSync(Turn.AssistantBlock);
+const decodeBlock = S.decodeUnknownSync(AssistantBlock);
 
 const lastUserPrompt = (history: ReadonlyArray<TurnHistoryItem>): O.Option<string> =>
   O.map(
@@ -46,7 +46,7 @@ const lastUserPrompt = (history: ReadonlyArray<TurnHistoryItem>): O.Option<strin
  * @category fixtures
  * @since 0.0.0
  */
-export const fixtureBlocksFor = (history: ReadonlyArray<TurnHistoryItem>): ReadonlyArray<Turn.AssistantBlock> =>
+export const fixtureBlocksFor = (history: ReadonlyArray<TurnHistoryItem>): ReadonlyArray<AssistantBlock> =>
   O.match(
     O.filter(lastUserPrompt(history), (prompt) => prompt.length > 0),
     {

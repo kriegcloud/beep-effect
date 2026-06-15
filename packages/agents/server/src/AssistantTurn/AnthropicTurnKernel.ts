@@ -1,8 +1,8 @@
 /**
  * Anthropic streaming implementation of the {@link AgentTurnKernel} port.
  *
- * v1 md-aligned block scope only (paragraph/heading/quote/list/code) — no
- * mermaid/table/youtube, hence no semantic validators and no batched repair.
+ * Rich md-aligned block scope (paragraph/heading/quote/list/code, mermaid as
+ * code, table, and youtube) streams through the forced-tool surface.
  * The model is driven through the idiomatic forced-tool surface: a Toolkit with
  * a single non-strict `respond` tool whose parameters schema is the assistant
  * envelope, forced via `toolChoice`. The Anthropic provider maps
@@ -11,21 +11,26 @@
  * element of the top-level `"blocks"` array, which is decoded through the
  * provider-adapted per-block codec and emitted as an {@link IndexedBlock}.
  *
- * Invalid slices are dropped-and-logged (no repair tail in v1).
+ * Invalid slices are held for a sequential repair tail after the forced-tool
+ * envelope completes. Blocks that still cannot be repaired are dropped and
+ * logged; failed repair calls become turn-generation failures.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
+import { AssistantContent } from "@beep/agents-domain/values/AssistantContent";
 import { AgentTurnKernel, TurnGenerationError } from "@beep/agents-use-cases/public";
 import { AnthropicTurnPlan } from "@beep/anthropic";
-import { Effect, Filter, Layer, Metric, Result, Stream } from "effect";
+import { Effect, Filter, Layer, Metric, Ref, Result, Stream } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { LanguageModel, Tool, Toolkit } from "effect/unstable/ai";
 import { assistantBlockOutput } from "./AnthropicTurnCodec.ts";
+import { IssueReport, repairInvalidBlocks } from "./BlockRepair.ts";
 import { initialScanState, scanChunk } from "./ScanState.ts";
 import type { IndexedBlock, TurnHistoryItem } from "@beep/agents-use-cases/public";
+import type { BlockRepairFailed } from "@beep/agents-use-cases/server";
 import type { Config } from "effect";
 import type { AiError, Response } from "effect/unstable/ai";
 
@@ -33,6 +38,9 @@ const SYSTEM_PROMPT = [
   "You are a helpful assistant in a rich-text chat application.",
   "Respond with well-structured content: use headings for sections,",
   "lists for enumerations, code blocks for code, and quotes when citing.",
+  'Use code blocks with language="mermaid" for diagrams; there is no separate mermaid block type.',
+  "Use table blocks for rectangular data and keep every row the same width.",
+  "Use youtube blocks only with the bare 11-character video id, never a full URL.",
   "Keep responses focused and conversational.",
 ].join(" ");
 
@@ -47,7 +55,7 @@ const blocksValidated = Metric.counter("agents_assistant_turn_blocks_total", {
 // every emitted block is still schema-validated on the way through the scanner.
 const RespondTool = Tool.make("respond", {
   description: "Deliver the assistant response as rich-text blocks. You MUST respond with a JSON object.",
-  parameters: Turn.AssistantContent,
+  parameters: AssistantContent,
 }).annotate(Tool.Strict, false);
 
 const RespondToolkit = Toolkit.make(RespondTool);
@@ -58,21 +66,38 @@ const markValid = Metric.update(Metric.withAttributes(blocksValidated, { result:
 const markInvalid = Metric.update(Metric.withAttributes(blocksValidated, { result: "invalid" }), 1);
 
 // Validate-and-route: a valid slice emits as IndexedBlock; an invalid slice is
-// dropped after a log + metric (Result.fail is skipped by filterMapEffect).
+// held for the batched repair tail (Result.fail is skipped by filterMapEffect).
 // matchEffect keeps the filter effect total (error channel `never`).
-const routeBlock = Filter.makeEffect(([slice, index]: [string, number]) =>
-  Effect.matchEffect(decodeSlice(slice), {
-    onSuccess: (block): Effect.Effect<Result.Result<IndexedBlock, void>> =>
-      Effect.as(markValid, Result.succeed<IndexedBlock>({ index, block })),
-    onFailure: (error): Effect.Effect<Result.Result<IndexedBlock, void>> =>
-      Effect.as(
-        Effect.andThen(markInvalid, () =>
-          Effect.logInfo("assistant-turn block failed validation, dropped", { index, issue: error.message })
+const routeBlock = (failures: Ref.Ref<ReadonlyArray<IssueReport>>) =>
+  Filter.makeEffect(([slice, index]: [string, number]) =>
+    Effect.matchEffect(decodeSlice(slice), {
+      onSuccess: (block): Effect.Effect<Result.Result<IndexedBlock, void>> =>
+        Effect.as(markValid, Result.succeed<IndexedBlock>({ index, block })),
+      onFailure: (error): Effect.Effect<Result.Result<IndexedBlock, void>> =>
+        Effect.as(
+          Effect.andThen(
+            Ref.update(
+              failures,
+              A.append(
+                IssueReport.make({
+                  index,
+                  raw: slice,
+                  report: error.message,
+                })
+              )
+            ),
+            () =>
+              Effect.andThen(markInvalid, () =>
+                Effect.logInfo("assistant-turn block failed validation, held for repair", {
+                  index,
+                  issue: error.message,
+                })
+              )
+          ),
+          Result.fail<void>(undefined)
         ),
-        Result.fail<void>(undefined)
-      ),
-  })
-);
+    })
+  );
 
 type RespondStreamPart = Response.StreamPart<Toolkit.Tools<typeof RespondToolkit>>;
 
@@ -95,17 +120,36 @@ const streamTurn = (history: ReadonlyArray<TurnHistoryItem>): Stream.Stream<Inde
     AiError.AiError | Config.ConfigError
   >;
 
-  return parts.pipe(
-    Stream.takeUntil((part) => part.type === "tool-params-end"),
-    Stream.flatMap((part) => (part.type === "tool-params-delta" ? Stream.succeed(part.delta) : Stream.empty)),
-    // mapAccum flattens the returned slices array into stream elements
-    Stream.mapAccum(() => initialScanState, scanChunk),
-    Stream.zipWithIndex,
-    Stream.filterMapEffect(routeBlock),
-    Stream.mapError((error) =>
-      TurnGenerationError.make({ message: `Anthropic assistant turn failed: ${error.message}` })
-    ),
-    Stream.withSpan("agents.assistant_turn.stream")
+  return Stream.unwrap(
+    Effect.gen(function* () {
+      const failures = yield* Ref.make<ReadonlyArray<IssueReport>>(A.empty<IssueReport>());
+      const validated = parts.pipe(
+        Stream.takeUntil((part) => part.type === "tool-params-end"),
+        Stream.flatMap((part) => (part.type === "tool-params-delta" ? Stream.succeed(part.delta) : Stream.empty)),
+        // mapAccum flattens the returned slices array into stream elements
+        Stream.mapAccum(() => initialScanState, scanChunk),
+        Stream.zipWithIndex,
+        Stream.filterMapEffect(routeBlock(failures))
+      );
+
+      const repairTail = Stream.unwrap(
+        Effect.gen(function* () {
+          const failed = yield* Ref.getAndSet(failures, A.empty<IssueReport>());
+          if (A.isReadonlyArrayEmpty(failed)) {
+            return Stream.empty;
+          }
+          return Stream.fromIterable(yield* repairInvalidBlocks(failed));
+        })
+      );
+
+      return validated.pipe(
+        Stream.concat(repairTail),
+        Stream.mapError((error: AiError.AiError | Config.ConfigError | BlockRepairFailed) =>
+          TurnGenerationError.make({ message: `Anthropic assistant turn failed: ${error.message}` })
+        ),
+        Stream.withSpan("agents.assistant_turn.stream")
+      );
+    })
   );
 };
 
