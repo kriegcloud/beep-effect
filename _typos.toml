@@ -59,6 +59,9 @@ odf = "odf"
 opf = "opf"
 vor = "vor"
 
+# 3D / Three.js material API names (not typos)
+metalness = "metalness"
+
 [files]
 extend-exclude = [
   # Exploration capture files are verbatim, append-only human dumps

@@ -451,7 +451,7 @@ const mdListText = (items: ReadonlyArray<Md.Li | Md.TaskItem>): string =>
     "\n"
   );
 
-const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/watch?v=${videoId}`;
+const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
 
 const mdTableText = (block: Md.Table): string =>
   A.join(

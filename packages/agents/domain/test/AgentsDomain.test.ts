@@ -23,7 +23,13 @@ const AgentModeArbitrary = S.toArbitrary(AgentMode);
 const repoRoot = fileURLToPath(new URL("../../../..", import.meta.url));
 const assistantContentSchemaId = (schema: {
   readonly ast: { readonly annotations: Record<string, unknown> | undefined };
-}) => String(schema.ast.annotations?.schemaId);
+}): symbol => {
+  const schemaId = schema.ast.annotations?.schemaId;
+  if (typeof schemaId !== "symbol") {
+    throw new Error("expected an interned schemaId annotation symbol");
+  }
+  return schemaId;
+};
 const turnCompatibilityBarrelImportPattern =
   /^\s*import\s+(?:type\s+)?[\s\S]*?\s+from\s+["']@beep\/agents-domain(?:\/turn)?["'];?/gmu;
 const assistantContentSymbolPattern = /\b(?:AssistantBlock|AssistantContent)\b/u;

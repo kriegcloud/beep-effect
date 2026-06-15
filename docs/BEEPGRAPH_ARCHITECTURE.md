@@ -5,7 +5,8 @@
 > **Date**: 2026-06-15
 > **Supersedes**: the "BeepGraph (Effect-native TrustGraph rewrite)" framing in
 > `standards/memory-architecture/01-memory-layer-taxonomy.md:105`
-> **Evidence base**: `~/YeeBois/dev/effect-ontology/packages/@core-v2/docs/ontology_research/trustgraph_comparison_research.md`
+> **Evidence base**: external research notes — the effect-ontology TrustGraph
+> comparison study (maintained outside this repository; not tracked here)
 
 ---
 
