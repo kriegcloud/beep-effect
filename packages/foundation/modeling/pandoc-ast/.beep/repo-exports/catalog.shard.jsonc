@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "89af24acf375b615886ad041fa266fc6f08f7c645ebebf2d78a06168b3fd276f",
+    "digest": "e3e14fcc06da14cdc35bf8a99a59f208c723694b8a1b0f6456fecdf605bde665",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/package.json",
-        "sha256": "eb413cef2242a904e2bdd8c5506074667a9428fe3c05f369f83d5b5ba609b9f1",
-        "bytes": 2973
+        "sha256": "126c0ad15ea9245a5e2b285669eadc56783fb4685953a5420975f096ac09e1bf",
+        "bytes": 2991
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/index.ts",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sha256": "d375870526667220d0a915829716b1e71fe6ed85e10774cfbd3f26ce788ca7b8",
-        "bytes": 24289
+        "sha256": "2e246f21c3dba19163be75f0b6d7ce920409fed0861d3a702e5358af49cbcd28",
+        "bytes": 23723
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
@@ -287,7 +287,7 @@
         "symbolName": "decodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 536,
+        "sourceLine": 527,
         "summary": "Decodes a Pandoc JSON object into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -312,7 +312,7 @@
         "symbolName": "decodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 558,
+        "sourceLine": 549,
         "summary": "Decodes a Pandoc JSON string into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -506,7 +506,7 @@
         "symbolName": "encodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 577,
+        "sourceLine": 568,
         "summary": "Encodes an internal Pandoc document model to Pandoc JSON object form.",
         "categories": [
           "codecs"
@@ -531,7 +531,7 @@
         "symbolName": "encodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 602,
+        "sourceLine": 593,
         "summary": "Encodes an internal Pandoc document model to a Pandoc JSON string.",
         "categories": [
           "codecs"
@@ -2878,7 +2878,7 @@
         "symbolName": "decodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 536,
+        "sourceLine": 527,
         "summary": "Decodes a Pandoc JSON object into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -2903,7 +2903,7 @@
         "symbolName": "decodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 558,
+        "sourceLine": 549,
         "summary": "Decodes a Pandoc JSON string into the internal schema-first document model.",
         "categories": [
           "codecs"
@@ -2928,7 +2928,7 @@
         "symbolName": "encodePandocJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 577,
+        "sourceLine": 568,
         "summary": "Encodes an internal Pandoc document model to Pandoc JSON object form.",
         "categories": [
           "codecs"
@@ -2953,7 +2953,7 @@
         "symbolName": "encodePandocJsonString",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/pandoc-ast/src/Pandoc.codec.ts",
-        "sourceLine": 602,
+        "sourceLine": 593,
         "summary": "Encodes an internal Pandoc document model to a Pandoc JSON string.",
         "categories": [
           "codecs"

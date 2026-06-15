@@ -172,8 +172,17 @@ const LinkPayloadWire = S.Tuple([AttrWire, S.Array(S.Unknown), TargetWire]);
 const NotePayloadWire = S.Array(S.Unknown);
 const MathPayloadWire = S.Tuple([PandocConstructorWire, S.String]);
 const OrderedListPayloadWire = S.Tuple([S.Tuple([S.Int, S.Unknown, S.Unknown]), S.Unknown]);
-const TablePayloadWire = S.Tuple([S.Unknown, S.Unknown, S.Unknown, S.Unknown, S.Unknown, S.Unknown]);
 const TableCaptionWithShortWire = S.Tuple([S.Array(S.Unknown).pipe(S.NullOr), S.Array(S.Unknown)]);
+const TableCaptionWire = S.Union([TableCaptionWithShortWire, S.Array(S.Unknown), PandocConstructorWire]);
+const TableHeadOrFootWire = S.Union([S.Tuple([AttrWire, S.Array(S.Unknown)]), S.Array(S.Unknown)]);
+const TablePayloadWire = S.Tuple([
+  AttrWire,
+  TableCaptionWire,
+  S.Array(S.Unknown),
+  TableHeadOrFootWire,
+  S.Array(S.Unknown),
+  TableHeadOrFootWire,
+]);
 
 const decodeConstructor = S.decodeUnknownEffect(PandocConstructorWire);
 const decodeWire = S.decodeUnknownEffect(PandocJsonWire);
@@ -203,13 +212,8 @@ const listNumberStyleFromWire = (input: unknown): Effect.Effect<PandocListNumber
 const listNumberDelimiterFromWire = (input: unknown): Effect.Effect<PandocListNumberDelimiter, S.SchemaError> =>
   Effect.flatMap(decodeConstructor(input), (wire) => decodeListNumberDelimiter(wire.t));
 
-const defaultAttr = (): PandocAttr => PandocAttr.make({ classes: [], id: "", keyValues: [] });
-
 const attrFromWire = (input: unknown): Effect.Effect<PandocAttr, S.SchemaError> =>
   Effect.map(decodeAttrWire(input), ([id, classes, keyValues]) => PandocAttr.make({ classes, id, keyValues }));
-
-const attrFromWireOrDefault = (input: unknown): Effect.Effect<PandocAttr> =>
-  attrFromWire(input).pipe(Effect.orElseSucceed(defaultAttr));
 
 const targetFromWire = (input: unknown): Effect.Effect<PandocTarget, S.SchemaError> =>
   Effect.map(decodeTargetWire(input), ([url, title]) => PandocTarget.make({ title, url }));
@@ -226,25 +230,9 @@ const unknownInline = (constructor: string, payload: unknown): UnknownInline =>
 const unknownBlock = (constructor: string, payload: unknown): UnknownBlock =>
   UnknownBlock.make({ constructor, payload });
 
-// Constructor decode failures have no Pandoc tag to preserve, so use sentinels outside the Pandoc constructor set.
-const MalformedInlineConstructor = "MalformedInline";
-const MalformedBlockConstructor = "MalformedBlock";
+const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type, S.SchemaError> => decodeInline(input);
 
-const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type> =>
-  decodeConstructor(input).pipe(
-    Effect.matchEffect({
-      onFailure: () => Effect.succeed(unknownInline(MalformedInlineConstructor, input)),
-      onSuccess: (wire) => decodeInline(input).pipe(Effect.orElseSucceed(() => unknownInline(wire.t, wire.c))),
-    })
-  );
-
-const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type> =>
-  decodeConstructor(input).pipe(
-    Effect.matchEffect({
-      onFailure: () => Effect.succeed(unknownBlock(MalformedBlockConstructor, input)),
-      onSuccess: (wire) => decodeBlock(input).pipe(Effect.orElseSucceed(() => unknownBlock(wire.t, wire.c))),
-    })
-  );
+const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type, S.SchemaError> => decodeBlock(input);
 
 const decodeBlockListOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<PandocBlock.Type>, S.SchemaError> =>
   Effect.flatMap(decodeUnknownBlockList(input), (values) => Effect.forEach(values, decodeBlockOrUnknown));
@@ -253,7 +241,10 @@ const decodeBlockItemOrUnknown = (input: unknown): Effect.Effect<ReadonlyArray<P
   decodeUnknownBlockList(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed([unknownBlock("MalformedListItem", input)]),
-      onSuccess: (values) => Effect.forEach(values, decodeBlockOrUnknown),
+      onSuccess: (values) =>
+        Effect.forEach(values, decodeBlockOrUnknown).pipe(
+          Effect.orElseSucceed(() => [unknownBlock("MalformedListItem", input)])
+        ),
     })
   );
 
@@ -424,7 +415,7 @@ const decodeTableBlock = (payload: unknown): Effect.Effect<PandocBlock.Type, S.S
     Effect.matchEffect({
       onFailure: () => Effect.succeed(unknownBlock("Table", payload)),
       onSuccess: ([attrWire, captionWire]) =>
-        Effect.flatMap(attrFromWireOrDefault(attrWire), (attr) =>
+        Effect.flatMap(attrFromWire(attrWire), (attr) =>
           Effect.map(captionFromWireOrEmpty(captionWire), (caption) => Table.make({ attr, caption, payload }))
         ),
     })
