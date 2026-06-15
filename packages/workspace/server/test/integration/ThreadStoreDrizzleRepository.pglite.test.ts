@@ -6,6 +6,7 @@ import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
 import { makeDrizzleThreadStore } from "@beep/workspace-server/aggregates/Thread";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -40,11 +41,23 @@ if (!shouldRunPgliteIntegration) {
           const store = yield* makeDrizzleThreadStore();
           const workspaceId = yield* decodeWorkspaceId(2);
 
-          const thread = yield* store.createThread({ title: "Matter intake", workspaceId });
-          expect(thread.title).toBe("Matter intake");
+          const thread = yield* store.createThread({ title: "New thread", workspaceId });
+          expect(thread.title).toBe("New thread");
+
+          yield* store.setTitleIfEmpty({
+            threadId: thread.id,
+            emptyTitle: "New thread",
+            title: "Matter intake",
+          });
+          yield* store.setTitleIfEmpty({
+            threadId: thread.id,
+            emptyTitle: "New thread",
+            title: "Ignored replacement",
+          });
 
           const threads = yield* store.listThreads(workspaceId);
           expect(threads.map((t) => t.id)).toEqual([thread.id]);
+          expect(A.map(threads, (thread) => thread.title)).toEqual(["Matter intake"]);
 
           const first = yield* store.appendTurn({
             threadId: thread.id,

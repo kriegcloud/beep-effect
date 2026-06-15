@@ -18,7 +18,7 @@ import { fromMessageRow, toMessageInsert } from "@beep/workspace-tables/entities
 import { fromThreadRow, toThreadInsert } from "@beep/workspace-tables/entities/Thread";
 import { fromTurnRow, toTurnInsert } from "@beep/workspace-tables/entities/Turn";
 import * as ThreadStoreServer from "@beep/workspace-use-cases/server";
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { Effect, HashMap, Order, pipe, Ref } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -196,6 +196,26 @@ export const makeInMemoryThreadStore = Effect.fn("Workspace.ThreadStore.makeInMe
         A.filter((thread) => Number(encodeWorkspaceId(thread.workspaceId)) === encoded)
       );
     }),
+    setTitleIfEmpty: Effect.fn("Workspace.ThreadStore.setTitleIfEmpty")(function* (input) {
+      const state = yield* Ref.get(store);
+      const threadId = threadIdToNumber(input.threadId);
+      const current = HashMap.get(state.threads, threadId);
+      if (O.isNone(current)) {
+        return yield* ThreadStoreServer.Thread.ThreadStoreNotFound.make({ threadId: input.threadId });
+      }
+      if (current.value.title !== input.emptyTitle) {
+        return;
+      }
+      const thread = makeThreadEntity({
+        id: threadId,
+        title: input.title,
+        workspaceId: Number(encodeWorkspaceId(current.value.workspaceId)),
+      });
+      yield* Ref.set(store, {
+        ...state,
+        threads: HashMap.set(state.threads, threadId, thread),
+      });
+    }),
     appendTurn: Effect.fn("Workspace.ThreadStore.appendTurn")(function* (input) {
       const state = yield* Ref.get(store);
       const threadId = threadIdToNumber(input.threadId);
@@ -307,6 +327,27 @@ export const makeDrizzleThreadStore = Effect.fn("Workspace.ThreadStore.makeDrizz
         .where(eq(threadTable.workspaceId, encoded))
         .pipe(repositoryUnavailable("list Thread", THREAD_TABLE_NAME));
       return A.map(rows as ReadonlyArray<ThreadRow>, fromThreadRow);
+    }),
+    setTitleIfEmpty: Effect.fn("Workspace.ThreadStore.drizzleSetTitleIfEmpty")(function* (input) {
+      const threadId = threadIdToNumber(input.threadId);
+      const rows = yield* db
+        .select()
+        .from(threadTable)
+        .where(eq(threadTable.id, threadId))
+        .limit(1)
+        .pipe(repositoryUnavailable("select Thread", THREAD_TABLE_NAME));
+      const thread = A.head(rows as ReadonlyArray<ThreadRow>);
+      if (O.isNone(thread)) {
+        return yield* ThreadStoreServer.Thread.ThreadStoreNotFound.make({ threadId: input.threadId });
+      }
+      if (thread.value.title !== input.emptyTitle) {
+        return;
+      }
+      yield* db
+        .update(threadTable)
+        .set({ title: input.title })
+        .where(and(eq(threadTable.id, threadId), eq(threadTable.title, input.emptyTitle)))
+        .pipe(repositoryUnavailable("update Thread title", THREAD_TABLE_NAME), Effect.asVoid);
     }),
     appendTurn: Effect.fn("Workspace.ThreadStore.drizzleAppendTurn")(function* (input) {
       const threadId = threadIdToNumber(input.threadId);

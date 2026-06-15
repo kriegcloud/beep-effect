@@ -14,16 +14,24 @@
  * @since 0.0.0
  */
 
-import { Turn } from "@beep/agents-domain";
-import { AgentTurnKernel, ChatActionError, ChatRpcs, TurnHistoryItem } from "@beep/agents-use-cases/public";
+import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent";
+import {
+  AgentTurnKernel,
+  AssistantTurnHistoryItem,
+  ChatActionError,
+  ChatRpcs,
+  UserTurnHistoryItem,
+} from "@beep/agents-use-cases/public";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import { Thread } from "@beep/workspace-use-cases/server";
-import { Effect, Match, Order, pipe, Ref, Stream } from "effect";
+import { Clock, Duration, Effect, Match, Metric, Order, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { UsageRecordSink } from "./UsageRecordSink.ts";
-import type { IndexedBlock, TurnGenerationError } from "@beep/agents-use-cases/public";
+import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
+import type { IndexedBlock, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import type { Block, Document, Inline } from "@beep/md/Md.model";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
@@ -92,6 +100,21 @@ const blockToPlainText: (block: Block.Type) => string = Match.type<Block.Type>()
 export const documentToPlainText = (document: Document.Type): string =>
   A.join(A.map(document.children, blockToPlainText), "\n");
 
+const UNTITLED_THREAD_TITLE = "New thread" as const;
+const DERIVED_THREAD_TITLE_MAX_CHARS = 64;
+
+const deriveThreadTitle = (document: Document.Type): O.Option<string> =>
+  pipe(
+    documentToPlainText(document),
+    Str.split("\n"),
+    A.head,
+    O.map(Str.trim),
+    O.filter(Str.isNonEmpty),
+    O.map(Str.slice(0, DERIVED_THREAD_TITLE_MAX_CHARS)),
+    O.map(Str.trim),
+    O.filter(Str.isNonEmpty)
+  );
+
 // ---------------------------------------------------------------------------
 // Persisted-order helpers
 // ---------------------------------------------------------------------------
@@ -107,10 +130,9 @@ const projectTimelineToHistory = (timeline: Thread.ThreadTimeline): ReadonlyArra
         (item): ReadonlyArray<TurnHistoryItem> =>
           item.kind === "message"
             ? [
-                TurnHistoryItem.make({
-                  role: item.role === "assistant" ? "assistant" : "user",
-                  text: documentToPlainText(item.content),
-                }),
+                item.role === "assistant"
+                  ? AssistantTurnHistoryItem.make({ text: documentToPlainText(item.content) })
+                  : UserTurnHistoryItem.make({ text: documentToPlainText(item.content) }),
               ]
             : []
       )
@@ -178,6 +200,23 @@ const fixtureUsageRecord = appendTurnFinalizationUsageRecord(
 // Stream-and-persist tail (shared by SendMessage and EditMessage)
 // ---------------------------------------------------------------------------
 
+const chatTurnsTotal = Metric.counter("agents_chat_turns_total", {
+  description: "Assistant turns started by the Professional Desktop sidecar",
+  incremental: true,
+});
+const chatTurnFailuresTotal = Metric.counter("agents_chat_turn_failures_total", {
+  description: "Assistant turns that failed before successful completion",
+  incremental: true,
+});
+const chatTurnDuration = Metric.timer("agents_chat_turn_duration", {
+  description: "Server-side assistant turn duration",
+  boundaries: [100, 250, 500, 1000, 2000, 4000, 8000, 16000, 30000, 60000],
+});
+const chatBlocksStreamedTotal = Metric.counter("agents_chat_blocks_streamed_total", {
+  description: "Assistant blocks streamed to the chat client",
+  incremental: true,
+});
+
 /**
  * Build the assistant-turn stream for a thread: stream the kernel turn,
  * collecting indexed blocks as they pass, and on **successful completion only**
@@ -189,14 +228,26 @@ const streamAndPersist = (
   store: Thread.ThreadStore["Service"],
   kernel: AgentTurnKernel["Service"],
   usage: UsageRecordSink["Service"],
-  threadId: WorkspaceIdentity.ThreadId
-): Stream.Stream<Turn.AssistantBlock, ChatActionError> =>
+  threadId: WorkspaceIdentity.ThreadId,
+  kind: "send" | "edit"
+): Stream.Stream<AssistantBlock, ChatActionError> =>
   Stream.unwrap(
     Effect.gen(function* () {
+      yield* Metric.update(Metric.withAttributes(chatTurnsTotal, { kind }), 1);
+      const startedAt = yield* Clock.currentTimeMillis;
       const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("GetTimeline")));
       const history = projectTimelineToHistory(timeline);
-      const collected = A.empty<IndexedBlock>();
+      let collected: ReadonlyArray<IndexedBlock> = A.empty<IndexedBlock>();
       const persisted = yield* Ref.make(false);
+
+      const trackTurnFailure = Metric.update(Metric.withAttributes(chatTurnFailuresTotal, { kind }), 1);
+      const recordTurnDuration = Effect.gen(function* () {
+        const completedAt = yield* Clock.currentTimeMillis;
+        yield* Metric.update(
+          Metric.withAttributes(chatTurnDuration, { kind }),
+          Duration.millis(completedAt - startedAt)
+        );
+      });
 
       // Persist runs once, only on success: sort collected blocks by envelope
       // index, lift to a Document, append the assistant turn, then append the
@@ -204,7 +255,7 @@ const streamAndPersist = (
       const persist: Effect.Effect<void, ChatActionError> = Effect.gen(function* () {
         if (yield* Ref.getAndSet(persisted, true)) return;
         const blocks = A.map(A.sortWith(collected, indexOf, Order.Number), (indexed) => indexed.block);
-        const content = Turn.assistantContentToDocument(blocks);
+        const content = assistantContentToDocument(blocks);
         yield* store
           .appendTurn({ threadId, parentTurnId: O.none(), role: "assistant", content })
           .pipe(Effect.catch(toChatActionError("SendMessage.persistAssistant")));
@@ -212,27 +263,45 @@ const streamAndPersist = (
       });
 
       return kernel.streamTurn(history).pipe(
-        Stream.tap((indexed) =>
-          Effect.sync(() => {
-            collected.push(indexed);
+        Stream.tap(
+          Effect.fnUntraced(function* (indexed: IndexedBlock) {
+            collected = A.append(collected, indexed);
+            yield* Metric.update(Metric.withAttributes(chatBlocksStreamedTotal, { kind }), 1);
           })
         ),
         // wire stays bare blocks; envelope indices are a handler-side concern
-        Stream.map((indexed): Turn.AssistantBlock => indexed.block),
+        Stream.map((indexed): AssistantBlock => indexed.block),
         // success path only — persist nothing on error/interrupt (no onExit).
         // onEnd widens the error channel with persist's ChatActionError.
-        Stream.onEnd(persist),
+        Stream.onEnd(recordTurnDuration.pipe(Effect.andThen(persist))),
         // translate the kernel's TurnGenerationError to the client-safe wire
         // error; the persist ChatActionError passes through unchanged (std-09).
         Stream.tapError((error) =>
-          Effect.logWarning("chat stream failed", { context: "SendMessage.kernel", detail: error })
+          trackTurnFailure.pipe(
+            Effect.andThen(Effect.logWarning("chat stream failed", { context: "SendMessage.kernel", detail: error }))
+          )
         ),
         Stream.mapError(
           (error: TurnGenerationError | ChatActionError): ChatActionError =>
             S.is(ChatActionError)(error) ? error : ChatActionError.new(error.message)
         )
       );
-    })
+    }).pipe(Effect.tapError(() => Metric.update(Metric.withAttributes(chatTurnFailuresTotal, { kind }), 1)))
+  );
+
+const setTitleFromFirstUserMessage = (
+  store: Thread.ThreadStore["Service"],
+  threadId: WorkspaceIdentity.ThreadId,
+  content: Document.Type
+): Effect.Effect<void, ChatActionError> =>
+  pipe(
+    deriveThreadTitle(content),
+    O.map((title) =>
+      store
+        .setTitleIfEmpty({ threadId, emptyTitle: UNTITLED_THREAD_TITLE, title })
+        .pipe(Effect.catch(toChatActionError("SendMessage.setTitleIfEmpty")))
+    ),
+    O.getOrElse(() => Effect.void)
   );
 
 // ---------------------------------------------------------------------------
@@ -273,28 +342,29 @@ export const makeChatOperations = (
   sendMessage: (
     threadId: WorkspaceIdentity.ThreadId,
     content: Document.Type
-  ): Stream.Stream<Turn.AssistantBlock, ChatActionError> =>
+  ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
-      store
-        .appendTurn({ threadId, parentTurnId: O.none(), role: "user", content })
-        .pipe(
-          Effect.catch(toChatActionError("SendMessage")),
-          Effect.as(streamAndPersist(store, kernel, usage, threadId))
-        )
+      Effect.gen(function* () {
+        yield* store
+          .appendTurn({ threadId, parentTurnId: O.none(), role: "user", content })
+          .pipe(Effect.catch(toChatActionError("SendMessage")));
+        yield* setTitleFromFirstUserMessage(store, threadId, content);
+        return streamAndPersist(store, kernel, usage, threadId, "send");
+      })
     ).pipe(Stream.withSpan("agents.chat.send_message")),
 
   editMessage: (
     threadId: WorkspaceIdentity.ThreadId,
     turnId: WorkspaceIdentity.TurnId,
     content: Document.Type
-  ): Stream.Stream<Turn.AssistantBlock, ChatActionError> =>
+  ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
-      store
-        .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })
-        .pipe(
-          Effect.catch(toChatActionError("EditMessage")),
-          Effect.as(streamAndPersist(store, kernel, usage, threadId))
-        )
+      Effect.gen(function* () {
+        yield* store
+          .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })
+          .pipe(Effect.catch(toChatActionError("EditMessage")));
+        return streamAndPersist(store, kernel, usage, threadId, "edit");
+      })
     ).pipe(Stream.withSpan("agents.chat.edit_message")),
 });
 

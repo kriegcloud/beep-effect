@@ -76,6 +76,78 @@ const fixture = {
         children: [text('console.log("beep")'), { type: "linebreak", version: 1 }, text("export {}")],
       },
       {
+        type: "youtube",
+        version: 1,
+        videoID: "dQw4w9WgXcQ",
+        format: "",
+      },
+      {
+        ...element,
+        type: "table",
+        children: [
+          {
+            ...element,
+            type: "tablerow",
+            children: [
+              {
+                ...element,
+                type: "tablecell",
+                headerState: 1,
+                children: [
+                  {
+                    ...element,
+                    type: "paragraph",
+                    children: [text("Name")],
+                  },
+                ],
+              },
+              {
+                ...element,
+                type: "tablecell",
+                headerState: 1,
+                children: [
+                  {
+                    ...element,
+                    type: "paragraph",
+                    children: [text("Value")],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            ...element,
+            type: "tablerow",
+            children: [
+              {
+                ...element,
+                type: "tablecell",
+                headerState: 0,
+                children: [
+                  {
+                    ...element,
+                    type: "paragraph",
+                    children: [text("Language")],
+                  },
+                ],
+              },
+              {
+                ...element,
+                type: "tablecell",
+                headerState: 0,
+                children: [
+                  {
+                    ...element,
+                    type: "paragraph",
+                    children: [text("ts", 16)],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
         ...element,
         type: "list",
         listType: "check",
@@ -118,15 +190,31 @@ describe("Lexical.model", () => {
       "paragraph",
       "quote",
       "code",
+      "youtube",
+      "table",
       "list",
       "artifact-ref",
     ]);
     expect(state.root.children[1]).toMatchObject({ textFormat: O.some(0), textStyle: O.some("") });
     expect(state.root.children[3]).toMatchObject({ language: O.some("typescript"), theme: O.none() });
-    expect(state.root.children[4]).toMatchObject({
+    expect(state.root.children[4]).toMatchObject({ videoID: "dQw4w9WgXcQ", format: "" });
+    const table = state.root.children[5];
+    expect(table?.type).toBe("table");
+    if (table?.type !== "table") {
+      expect.fail("Expected decoded table node");
+    }
+    expect(table.rowStriping).toEqual(O.none());
+    const header = table.children[0];
+    expect(header?.type).toBe("tablerow");
+    if (header?.type !== "tablerow") {
+      expect.fail("Expected decoded table header row");
+    }
+    expect(header.children[0]).toMatchObject({ headerState: 1 });
+    expect(header.children[1]).toMatchObject({ headerState: 1 });
+    expect(state.root.children[6]).toMatchObject({
       children: [{ checked: O.some(true) }, { checked: O.none() }],
     });
-    expect(state.root.children[5]).toMatchObject({ artifactId: "artifact-123", label: O.some("Quarterly report") });
+    expect(state.root.children[7]).toMatchObject({ artifactId: "artifact-123", label: O.some("Quarterly report") });
   });
 
   it("round-trips the fixture through decode/encode without wire drift", () => {
@@ -151,7 +239,7 @@ describe("Lexical.model", () => {
   });
 
   it("rejects nodes outside the v1 union", () => {
-    expect(() => S.decodeUnknownSync(LexicalNode)({ type: "youtube", version: 1, videoID: "x" })).toThrow();
+    expect(() => S.decodeUnknownSync(LexicalNode)({ type: "mermaid", version: 1, source: "flowchart TD" })).toThrow();
   });
 
   it("projects plain text", () => {
@@ -160,6 +248,9 @@ describe("Lexical.model", () => {
     expect(plain).toContain("Plan");
     expect(plain).toContain("See the docs");
     expect(plain).toContain('console.log("beep")');
+    expect(plain).toContain("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    expect(plain).toContain("Name");
+    expect(plain).toContain("Language");
     expect(plain).toContain("[artifact:artifact-123]");
 
     const node = S.decodeUnknownSync(LexicalNode)({ type: "linebreak", version: 1 });

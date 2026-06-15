@@ -40,5 +40,7 @@ services:
       - "4318:4318"
     volumes:
       - ./docker/grafana/otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
+      - ./docker/grafana/chat-dashboards.yaml:/otel-lgtm/grafana/conf/provisioning/dashboards/chat-dashboards.yaml:ro
+      - ./docker/grafana/chat-dashboard.json:/otel-lgtm/grafana-dashboard-professional-desktop-chat.json:ro
 volumes:
   redis_data:

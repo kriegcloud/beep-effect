@@ -315,6 +315,7 @@
     "recharts": "^3.8.1",
     "@streamdown/math": "^1.0.2",
     "@streamdown/mermaid": "^1.0.2",
+    "mermaid": "^11.15.0",
     "ai": "^6.0.205",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",

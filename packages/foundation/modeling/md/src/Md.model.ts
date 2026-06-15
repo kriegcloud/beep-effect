@@ -1456,6 +1456,211 @@ export declare namespace Pre {
 }
 
 /**
+ * Table cell containing inline Markdown content.
+ *
+ * @example
+ * ```ts
+ * import { TableCell, Text } from "@beep/md/Md.model"
+ *
+ * const node = TableCell.make({ children: [Text.make({ value: "Name" })] })
+ * console.log(node._tag) // "tableCell"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TableCell extends S.TaggedClass<TableCell>($I`TableCell`)(
+  "tableCell",
+  {
+    children: InlineChildren.annotateKey({
+      description: "Inline nodes rendered inside this table cell.",
+    }),
+  },
+  $I.annote("TableCell", {
+    description: "Table cell containing inline Markdown content.",
+  })
+) {}
+
+/**
+ * Companion namespace for {@link TableCell}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TableCell {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "tableCell";
+    readonly children: InlineChildren.Type;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "tableCell";
+    readonly children: InlineChildren.Encoded;
+  }
+}
+
+/**
+ * Table row containing cells in column order.
+ *
+ * @example
+ * ```ts
+ * import { TableCell, TableRow, Text } from "@beep/md/Md.model"
+ *
+ * const node = TableRow.make({ children: [TableCell.make({ children: [Text.make({ value: "Name" })] })] })
+ * console.log(node._tag) // "tableRow"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class TableRow extends S.TaggedClass<TableRow>($I`TableRow`)(
+  "tableRow",
+  {
+    children: S.Array(TableCell).annotateKey({
+      description: "Table cells in column order.",
+    }),
+  },
+  $I.annote("TableRow", {
+    description: "Table row containing cells in column order.",
+  })
+) {}
+
+/**
+ * Companion namespace for {@link TableRow}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace TableRow {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "tableRow";
+    readonly children: ReadonlyArray<TableCell.Type>;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "tableRow";
+    readonly children: ReadonlyArray<TableCell.Encoded>;
+  }
+}
+
+/**
+ * Markdown table block.
+ *
+ * @example
+ * ```ts
+ * import { Table, TableCell, TableRow, Text } from "@beep/md/Md.model"
+ *
+ * const node = Table.make({
+ *   headerRow: true,
+ *   children: [TableRow.make({ children: [TableCell.make({ children: [Text.make({ value: "Name" })] })] })]
+ * })
+ * console.log(node._tag) // "table"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class Table extends S.TaggedClass<Table>($I`Table`)(
+  "table",
+  {
+    headerRow: S.Boolean.annotateKey({
+      description: "Whether the first row renders as a table header.",
+    }),
+    children: S.Array(TableRow).annotateKey({
+      description: "Table rows in display order.",
+    }),
+  },
+  $I.annote("Table", {
+    description: "Markdown table block with inline cell content.",
+  })
+) {}
+
+/**
+ * Companion namespace for {@link Table}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace Table {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "table";
+    readonly children: ReadonlyArray<TableRow.Type>;
+    readonly headerRow: boolean;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded {
+    readonly _tag: "table";
+    readonly children: ReadonlyArray<TableRow.Encoded>;
+    readonly headerRow: boolean;
+  }
+}
+
+/**
+ * YouTube video embed block.
+ *
+ * @example
+ * ```ts
+ * import { YouTube } from "@beep/md/Md.model"
+ *
+ * const node = YouTube.make({ videoId: "dQw4w9WgXcQ" })
+ * console.log(node._tag) // "youtube"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class YouTube extends S.TaggedClass<YouTube>($I`YouTube`)(
+  "youtube",
+  {
+    videoId: S.String.annotateKey({
+      description: "Bare YouTube video id rendered as an embedded video.",
+    }),
+  },
+  $I.annote("YouTube", {
+    description: "YouTube video embed block.",
+  })
+) {}
+
+/**
+ * Companion namespace for {@link YouTube}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace YouTube {
+  /**
+   * @since 0.0.0
+   */
+  export interface Type {
+    readonly _tag: "youtube";
+    readonly videoId: string;
+  }
+
+  /**
+   * @since 0.0.0
+   */
+  export interface Encoded extends Type {}
+}
+
+/**
  * Horizontal rule block.
  *
  * @example
@@ -1513,7 +1718,24 @@ export declare namespace Hr {
  * @category models
  * @since 0.0.0
  */
-export const Block = S.Union([H1, H2, H3, H4, H5, H6, P, BlockQuote, Pre, Ul, Ol, Li, TaskList, Hr]).pipe(
+export const Block = S.Union([
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  P,
+  BlockQuote,
+  Pre,
+  Ul,
+  Ol,
+  Li,
+  TaskList,
+  Table,
+  YouTube,
+  Hr,
+]).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("Block", {
     description: "Discriminated union of block Markdown AST nodes.",
@@ -1552,6 +1774,8 @@ export declare namespace Block {
     | Ol.Type
     | Li.Type
     | TaskList.Type
+    | Table.Type
+    | YouTube.Type
     | Hr.Type;
 
   /**
@@ -1571,6 +1795,8 @@ export declare namespace Block {
     | Ol.Encoded
     | Li.Encoded
     | TaskList.Encoded
+    | Table.Encoded
+    | YouTube.Encoded
     | Hr.Encoded;
 }
 

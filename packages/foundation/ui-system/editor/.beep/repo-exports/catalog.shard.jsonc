@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d33b5bbb85b1edfbea8aa078ad625595beab4be362ade5f9decf7b43d6184286",
+    "digest": "38bab4a85764fc39dd979c0d90f5fb4f690e98c43802d55bc8db37f20465cdfd",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/ui-system/editor/package.json",
-        "sha256": "f9757dee997088544e11ded0b616c850effdb5c48373ad61f9106752553e2253",
-        "bytes": 3396
+        "sha256": "2dd834cd33f0bfadb141aa8045290eebccd333cb9eee29e9912eabc52da47428",
+        "bytes": 3921
       },
       {
         "path": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
@@ -37,13 +37,23 @@
       },
       {
         "path": "packages/foundation/ui-system/editor/src/index.ts",
-        "sha256": "5724f364e90f01507491ff4af88e48ca0c565eff4c4cb267ff4927da50205b23",
-        "bytes": 1777
+        "sha256": "6169e748aec455ffc818867474b265620ac7acc28cf0b545673bc9618185fdbc",
+        "bytes": 2839
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx",
+        "sha256": "979d5f587619193a0828684c6ee000b23220ed79982210667fb8895f98d9a9e1",
+        "bytes": 3928
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
+        "sha256": "5a477eb9ee640ac49d522a60a61a254893dec53a65151c07213d207a6078e5a3",
+        "bytes": 3326
       },
       {
         "path": "packages/foundation/ui-system/editor/src/nodes.ts",
-        "sha256": "ec65368e038a387f2c6f90be192139bfdafa33d7f11d88c1188005eb327152d6",
-        "bytes": 1309
+        "sha256": "fdd5f3ec88182870f71642b8024f9f8e4f9043b6fc77256f6625275a75b5f21e",
+        "bytes": 1493
       },
       {
         "path": "packages/foundation/ui-system/editor/src/theme.ts",
@@ -52,8 +62,18 @@
       },
       {
         "path": "packages/foundation/ui-system/editor/src/viewer.tsx",
-        "sha256": "0afb1788a2c25d3b3147c455783e37fb2d143295c00fec13545f906f17a6ab05",
-        "bytes": 1986
+        "sha256": "1d917bd8bb1fcd2392c8fa72197be1c64d1da6bc18e0a4aeed13a2f1c69fcb64",
+        "bytes": 2105
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/youtube-embed.tsx",
+        "sha256": "d52427c30ee85f00d483488ae7c660584bf7c0131e72d0e18dbf71abfd8aee21",
+        "bytes": 1029
+      },
+      {
+        "path": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sha256": "b7ad8d9ce324e5df9ccc6e9b9b0ff2979b71b849827aa38e97872eacc699ef93",
+        "bytes": 4336
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -81,14 +101,18 @@
       "@beep/editor",
       "@beep/editor/artifact-ref-node",
       "@beep/editor/composer",
+      "@beep/editor/mermaid-code-decorator-plugin",
+      "@beep/editor/mermaid-view",
       "@beep/editor/nodes",
       "@beep/editor/theme",
-      "@beep/editor/viewer"
+      "@beep/editor/viewer",
+      "@beep/editor/youtube-embed",
+      "@beep/editor/youtube-node"
     ],
     "counts": {
-      "publicExportEntries": 19,
-      "uniqueSymbols": 10,
-      "sourceFiles": 6
+      "publicExportEntries": 33,
+      "uniqueSymbols": 17,
+      "sourceFiles": 10
     },
     "exports": [
       {
@@ -123,6 +147,31 @@
         "importSpecifier": "@beep/editor",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "$createYouTubeNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 143,
+        "summary": "Create a YouTube embed node.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . $createyoutubenode const create a youtube embed node. constructors packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
         "symbolName": "$isArtifactRefNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
@@ -140,6 +189,31 @@
           "@since"
         ],
         "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . $isartifactrefnode const type guard for {@link artifactrefnode}. guards packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "$isYouTubeNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 158,
+        "summary": "Type guard for {@link YouTubeNode}.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . $isyoutubenode const type guard for {@link youtubenode}. guards packages/foundation/ui-system/editor/src/youtube-node.tsx"
       },
       {
         "packageName": "@beep/editor",
@@ -201,7 +275,7 @@
         "symbolName": "editorNodes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/editor/src/nodes.ts",
-        "sourceLine": 35,
+        "sourceLine": 37,
         "summary": "The Lexical node classes matching the `@beep/lexical-schema` v1 union.",
         "categories": [
           "configuration"
@@ -251,7 +325,7 @@
         "symbolName": "EditorViewer",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/editor/src/viewer.tsx",
-        "sourceLine": 47,
+        "sourceLine": 48,
         "summary": "Read-only Lexical viewer over the `@beep/lexical-schema` v1 node",
         "categories": [
           "components"
@@ -298,6 +372,56 @@
         "importSpecifier": "@beep/editor",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "MermaidCodeDecoratorPlugin",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx",
+        "sourceLine": 121,
+        "summary": "Decorates read-only Mermaid code blocks in-place.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . mermaidcodedecoratorplugin function decorates read-only mermaid code blocks in-place. components packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "MermaidView",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
+        "sourceLine": 51,
+        "summary": "Renders Mermaid source to SVG and falls back to source text on render",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . mermaidview function renders mermaid source to svg and falls back to source text on render components packages/foundation/ui-system/editor/src/mermaid-view.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
         "symbolName": "SerializedArtifactRefNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/ui-system/editor/src/artifact-ref-node.tsx",
@@ -314,6 +438,30 @@
           "@since"
         ],
         "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . serializedartifactrefnode type serialized wire shape of {@link artifactrefnode} — pinned to the models packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "SerializedYouTubeNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 32,
+        "summary": "Serialized wire shape of {@link YouTubeNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . serializedyoutubenode type serialized wire shape of {@link youtubenode}. models packages/foundation/ui-system/editor/src/youtube-node.tsx"
       },
       {
         "packageName": "@beep/editor",
@@ -339,6 +487,56 @@
           "@category"
         ],
         "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . version const package version. configuration packages/foundation/ui-system/editor/src/index.ts"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "YouTubeEmbed",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-embed.tsx",
+        "sourceLine": 26,
+        "summary": "Renders a privacy-enhanced YouTube iframe from a bare video id.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . youtubeembed function renders a privacy-enhanced youtube iframe from a bare video id. components packages/foundation/ui-system/editor/src/youtube-embed.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/index.ts",
+        "symbolName": "YouTubeNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 47,
+        "summary": "Block-level Lexical decorator node for YouTube embeds.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor . youtubenode class block-level lexical decorator node for youtube embeds. components packages/foundation/ui-system/editor/src/youtube-node.tsx"
       },
       {
         "packageName": "@beep/editor",
@@ -493,13 +691,63 @@
         "packageName": "@beep/editor",
         "packagePath": "packages/foundation/ui-system/editor",
         "topoOrder": 0,
+        "importSpecifier": "@beep/editor/mermaid-code-decorator-plugin",
+        "exportSubpath": "./mermaid-code-decorator-plugin",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx",
+        "symbolName": "MermaidCodeDecoratorPlugin",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx",
+        "sourceLine": 121,
+        "summary": "Decorates read-only Mermaid code blocks in-place.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/mermaid-code-decorator-plugin ./mermaid-code-decorator-plugin mermaidcodedecoratorplugin function decorates read-only mermaid code blocks in-place. components packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/mermaid-view",
+        "exportSubpath": "./mermaid-view",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
+        "symbolName": "MermaidView",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/mermaid-view.tsx",
+        "sourceLine": 51,
+        "summary": "Renders Mermaid source to SVG and falls back to source text on render",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/mermaid-view ./mermaid-view mermaidview function renders mermaid source to svg and falls back to source text on render components packages/foundation/ui-system/editor/src/mermaid-view.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
         "importSpecifier": "@beep/editor/nodes",
         "exportSubpath": "./nodes",
         "exportedFromPath": "packages/foundation/ui-system/editor/src/nodes.ts",
         "symbolName": "editorNodes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/editor/src/nodes.ts",
-        "sourceLine": 35,
+        "sourceLine": 37,
         "summary": "The Lexical node classes matching the `@beep/lexical-schema` v1 union.",
         "categories": [
           "configuration"
@@ -549,7 +797,7 @@
         "symbolName": "EditorViewer",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/editor/src/viewer.tsx",
-        "sourceLine": 47,
+        "sourceLine": 48,
         "summary": "Read-only Lexical viewer over the `@beep/lexical-schema` v1 node",
         "categories": [
           "components"
@@ -563,6 +811,130 @@
           "@since"
         ],
         "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/viewer ./viewer editorviewer function read-only lexical viewer over the `@beep/lexical-schema` v1 node components packages/foundation/ui-system/editor/src/viewer.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/youtube-embed",
+        "exportSubpath": "./youtube-embed",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/youtube-embed.tsx",
+        "symbolName": "YouTubeEmbed",
+        "exportKind": "function",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-embed.tsx",
+        "sourceLine": 26,
+        "summary": "Renders a privacy-enhanced YouTube iframe from a bare video id.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/youtube-embed ./youtube-embed youtubeembed function renders a privacy-enhanced youtube iframe from a bare video id. components packages/foundation/ui-system/editor/src/youtube-embed.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/youtube-node",
+        "exportSubpath": "./youtube-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "symbolName": "$createYouTubeNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 143,
+        "summary": "Create a YouTube embed node.",
+        "categories": [
+          "constructors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/youtube-node ./youtube-node $createyoutubenode const create a youtube embed node. constructors packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/youtube-node",
+        "exportSubpath": "./youtube-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "symbolName": "$isYouTubeNode",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 158,
+        "summary": "Type guard for {@link YouTubeNode}.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/youtube-node ./youtube-node $isyoutubenode const type guard for {@link youtubenode}. guards packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/youtube-node",
+        "exportSubpath": "./youtube-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "symbolName": "SerializedYouTubeNode",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 32,
+        "summary": "Serialized wire shape of {@link YouTubeNode}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/youtube-node ./youtube-node serializedyoutubenode type serialized wire shape of {@link youtubenode}. models packages/foundation/ui-system/editor/src/youtube-node.tsx"
+      },
+      {
+        "packageName": "@beep/editor",
+        "packagePath": "packages/foundation/ui-system/editor",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/editor/youtube-node",
+        "exportSubpath": "./youtube-node",
+        "exportedFromPath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "symbolName": "YouTubeNode",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/ui-system/editor/src/youtube-node.tsx",
+        "sourceLine": 47,
+        "summary": "Block-level Lexical decorator node for YouTube embeds.",
+        "categories": [
+          "components"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/editor packages/foundation/ui-system/editor @beep/editor/youtube-node ./youtube-node youtubenode class block-level lexical decorator node for youtube embeds. components packages/foundation/ui-system/editor/src/youtube-node.tsx"
       }
     ]
   }

@@ -40,9 +40,13 @@
     ".": "./src/index.ts",
     "./artifact-ref-node": "./src/artifact-ref-node.tsx",
     "./composer": "./src/composer.tsx",
+    "./mermaid-code-decorator-plugin": "./src/mermaid-code-decorator-plugin.tsx",
+    "./mermaid-view": "./src/mermaid-view.tsx",
     "./nodes": "./src/nodes.ts",
     "./theme": "./src/theme.ts",
     "./viewer": "./src/viewer.tsx",
+    "./youtube-embed": "./src/youtube-embed.tsx",
+    "./youtube-node": "./src/youtube-node.tsx",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -62,9 +66,13 @@
       ".": "./dist/index.js",
       "./artifact-ref-node": "./dist/artifact-ref-node.js",
       "./composer": "./dist/composer.js",
+      "./mermaid-code-decorator-plugin": "./dist/mermaid-code-decorator-plugin.js",
+      "./mermaid-view": "./dist/mermaid-view.js",
       "./nodes": "./dist/nodes.js",
       "./theme": "./dist/theme.js",
       "./viewer": "./dist/viewer.js",
+      "./youtube-embed": "./dist/youtube-embed.js",
+      "./youtube-node": "./dist/youtube-node.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
@@ -79,8 +87,10 @@
     "@lexical/markdown": "catalog:",
     "@lexical/react": "catalog:",
     "@lexical/rich-text": "catalog:",
+    "@lexical/table": "catalog:",
     "effect": "catalog:",
-    "lexical": "catalog:"
+    "lexical": "catalog:",
+    "mermaid": "catalog:"
   },
   "devDependencies": {
     "@beep/md": "workspace:^",
