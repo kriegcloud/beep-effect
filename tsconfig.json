@@ -1173,6 +1173,12 @@
       ],
       "@beep/agents-domain/turn": [
         "./packages/agents/domain/src/turn/index.ts"
+      ],
+      "@beep/pandoc-ast": [
+        "./packages/foundation/modeling/pandoc-ast/src/index.ts"
+      ],
+      "@beep/pandoc-ast/*": [
+        "./packages/foundation/modeling/pandoc-ast/src/*"
       ]
     }
   }

@@ -977,6 +977,21 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/modeling/pandoc-ast": {
+      "name": "@beep/pandoc-ast",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/md": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/foundation/modeling/rdf": {
       "name": "@beep/rdf",
       "version": "0.0.0",
@@ -2109,6 +2124,8 @@
     "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
 
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
+
+    "@beep/pandoc-ast": ["@beep/pandoc-ast@workspace:packages/foundation/modeling/pandoc-ast"],
 
     "@beep/phoenix": ["@beep/phoenix@workspace:packages/drivers/phoenix"],
 

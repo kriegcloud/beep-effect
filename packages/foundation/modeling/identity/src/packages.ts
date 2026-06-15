@@ -131,7 +131,8 @@ const generatedComposers = $I.compose(
   "uspto",
   "lexical-schema",
   "editor",
-  "html"
+  "html",
+  "pandoc-ast"
 );
 
 const composers = {
@@ -1406,3 +1407,19 @@ export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = comp
  * @category configuration
  */
 export const $HtmlId: Identity.IdentityComposer<"@beep/html"> = composers.$HtmlId;
+
+/**
+ * Identity composer for `@beep/pandoc-ast`.
+ *
+ * @example
+ * ```typescript
+ * import { $PandocAstId } from "@beep/identity"
+ *
+ * const id = $PandocAstId.make("PandocAst")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $PandocAstId: Identity.IdentityComposer<"@beep/pandoc-ast"> = composers.$PandocAstId;

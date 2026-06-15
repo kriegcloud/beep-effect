@@ -169,6 +169,9 @@
       "path": "packages/foundation/modeling/md"
     },
     {
+      "path": "packages/foundation/modeling/pandoc-ast"
+    },
+    {
       "path": "packages/foundation/modeling/rdf"
     },
     {
