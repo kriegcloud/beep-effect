@@ -9,7 +9,7 @@ struct ProfessionalDesktopHealth {
     app: &'static str,
     desktop_shell: &'static str,
     runtime_connection: &'static str,
-    slices: [&'static str; 5],
+    slices: [&'static str; 4],
     status: &'static str,
 }
 
@@ -19,13 +19,7 @@ fn professional_desktop_health() -> ProfessionalDesktopHealth {
         app: "@beep/professional-desktop",
         desktop_shell: "minimal",
         runtime_connection: "pending",
-        slices: [
-            "workspace",
-            "agents",
-            "epistemic",
-            "law-practice",
-            "wealth-management",
-        ],
+        slices: ["workspace", "agents", "epistemic", "law-practice"],
         status: "ready",
     }
 }

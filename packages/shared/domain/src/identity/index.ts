@@ -192,20 +192,6 @@ export * as LawPractice from "./LawPractice.ts";
  */
 export * as Shared from "./Shared.ts";
 /**
- * Wealth-management entity-id registry namespace.
- *
- * @example
- * ```ts
- * import * as WealthManagement from "@beep/shared-domain/identity/WealthManagement"
- *
- * console.log(WealthManagement.HouseholdId.tableName)
- * ```
- *
- * @category entity-ids
- * @since 0.0.0
- */
-export * as WealthManagement from "./WealthManagement.ts";
-/**
  * Workspace entity-id registry namespace.
  *
  * @example

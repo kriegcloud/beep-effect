@@ -72,7 +72,7 @@ Define a shared repo-owned Next.js config with the standard plugin stack.
 import { defineBeepNextConfig } from "@beep/repo-configs/next"
 const config = defineBeepNextConfig({
   repoRoot: "/repo",
-  allowedDevOrigins: ["codedank-web.localhost"],
+  allowedDevOrigins: ["oip-web.localhost"],
   env: { NEXT_DISABLE_PWA: "1" }
 })
 console.log(config)
@@ -120,7 +120,7 @@ Build the shared repo-owned Next.js base config before plugin wrapping.
 import { makeBeepNextBaseConfig } from "@beep/repo-configs/next"
 const config = makeBeepNextBaseConfig({
   repoRoot: "/repo",
-  allowedDevOrigins: ["codedank-web.localhost"]
+  allowedDevOrigins: ["oip-web.localhost"]
 })
 console.log(config)
 ```
@@ -194,7 +194,7 @@ User-authored input options accepted by `defineBeepNextConfig`.
 import type { BeepNextConfigOptionsInput } from "@beep/repo-configs/next"
 const options: BeepNextConfigOptionsInput = {
   repoRoot: "/repo",
-  allowedDevOrigins: ["codedank-web.localhost"],
+  allowedDevOrigins: ["oip-web.localhost"],
   env: { ANALYZE: "1" }
 }
 console.log(options)
@@ -342,7 +342,7 @@ import * as S from "effect/Schema"
 import { BeepNextConfigOptions } from "@beep/repo-configs/next"
 const program = S.decodeUnknownEffect(BeepNextConfigOptions)({
   repoRoot: "/repo",
-  allowedDevOrigins: ["codedank-web.localhost"]
+  allowedDevOrigins: ["oip-web.localhost"]
 })
 console.log(Effect.runPromise(program))
 ```

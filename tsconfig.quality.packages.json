@@ -7,22 +7,10 @@
       "path": "apps/architecture-lab-proof"
     },
     {
-      "path": "apps/canvas"
-    },
-    {
-      "path": "apps/codedank-web"
-    },
-    {
       "path": "apps/oip-web"
     },
     {
       "path": "apps/professional-desktop"
-    },
-    {
-      "path": "apps/professional-runtime-proof"
-    },
-    {
-      "path": "apps/stack-installer"
     },
     {
       "path": "apps/storybook"
@@ -65,21 +53,6 @@
     },
     {
       "path": "packages/architecture-lab/use-cases"
-    },
-    {
-      "path": "packages/canvas/client"
-    },
-    {
-      "path": "packages/canvas/domain"
-    },
-    {
-      "path": "packages/canvas/server"
-    },
-    {
-      "path": "packages/canvas/ui"
-    },
-    {
-      "path": "packages/canvas/use-cases"
     },
     {
       "path": "packages/drivers/acp"
@@ -226,15 +199,6 @@
       "path": "packages/foundation/ui-system/ui"
     },
     {
-      "path": "packages/installer/domain"
-    },
-    {
-      "path": "packages/installer/server"
-    },
-    {
-      "path": "packages/installer/use-cases"
-    },
-    {
       "path": "packages/law-practice/domain"
     },
     {
@@ -281,9 +245,6 @@
     },
     {
       "path": "packages/tooling/tool/docgen"
-    },
-    {
-      "path": "packages/wealth-management/domain"
     },
     {
       "path": "packages/workspace/domain"

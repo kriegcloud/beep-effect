@@ -108,51 +108,9 @@
         ]
       },
       {
-        "name": "@beep/canvas",
-        "patterns": [
-          "apps/canvas/src/**"
-        ]
-      },
-      {
-        "name": "@beep/canvas-client",
-        "patterns": [
-          "packages/canvas/client/src/**"
-        ]
-      },
-      {
-        "name": "@beep/canvas-domain",
-        "patterns": [
-          "packages/canvas/domain/src/**"
-        ]
-      },
-      {
-        "name": "@beep/canvas-server",
-        "patterns": [
-          "packages/canvas/server/src/**"
-        ]
-      },
-      {
-        "name": "@beep/canvas-ui",
-        "patterns": [
-          "packages/canvas/ui/src/**"
-        ]
-      },
-      {
-        "name": "@beep/canvas-use-cases",
-        "patterns": [
-          "packages/canvas/use-cases/src/**"
-        ]
-      },
-      {
         "name": "@beep/chalk",
         "patterns": [
           "packages/foundation/capability/chalk/src/**"
-        ]
-      },
-      {
-        "name": "@beep/codedank-web",
-        "patterns": [
-          "apps/codedank-web/src/**"
         ]
       },
       {
@@ -258,24 +216,6 @@
         ]
       },
       {
-        "name": "@beep/installer-domain",
-        "patterns": [
-          "packages/installer/domain/src/**"
-        ]
-      },
-      {
-        "name": "@beep/installer-server",
-        "patterns": [
-          "packages/installer/server/src/**"
-        ]
-      },
-      {
-        "name": "@beep/installer-use-cases",
-        "patterns": [
-          "packages/installer/use-cases/src/**"
-        ]
-      },
-      {
         "name": "@beep/konva",
         "patterns": [
           "packages/drivers/konva/src/**"
@@ -375,12 +315,6 @@
         "name": "@beep/professional-desktop",
         "patterns": [
           "apps/professional-desktop/src/**"
-        ]
-      },
-      {
-        "name": "@beep/professional-runtime-proof",
-        "patterns": [
-          "apps/professional-runtime-proof/src/**"
         ]
       },
       {
@@ -498,12 +432,6 @@
         ]
       },
       {
-        "name": "@beep/stack-installer",
-        "patterns": [
-          "apps/stack-installer/src/**"
-        ]
-      },
-      {
         "name": "@beep/storybook",
         "patterns": [
           "apps/storybook/src/**"
@@ -549,12 +477,6 @@
         "name": "@beep/venice-ai",
         "patterns": [
           "packages/drivers/venice-ai/src/**"
-        ]
-      },
-      {
-        "name": "@beep/wealth-management-domain",
-        "patterns": [
-          "packages/wealth-management/domain/src/**"
         ]
       },
       {
@@ -877,112 +799,6 @@
         ]
       },
       {
-        "from": "@beep/canvas",
-        "allow": [
-          "@beep/canvas",
-          "@beep/canvas-domain",
-          "@beep/canvas-server",
-          "@beep/canvas-use-cases",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/ui"
-        ],
-        "allowTypeOnly": [
-          "@beep/canvas",
-          "@beep/canvas-domain",
-          "@beep/canvas-server",
-          "@beep/canvas-use-cases",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/ui"
-        ]
-      },
-      {
-        "from": "@beep/canvas-client",
-        "allow": [
-          "@beep/canvas-client",
-          "@beep/canvas-domain",
-          "@beep/canvas-use-cases",
-          "@beep/identity"
-        ],
-        "allowTypeOnly": [
-          "@beep/canvas-client",
-          "@beep/canvas-domain",
-          "@beep/canvas-use-cases",
-          "@beep/identity"
-        ]
-      },
-      {
-        "from": "@beep/canvas-domain",
-        "allow": [
-          "@beep/canvas-domain",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/shared-domain"
-        ],
-        "allowTypeOnly": [
-          "@beep/canvas-domain",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/shared-domain"
-        ]
-      },
-      {
-        "from": "@beep/canvas-server",
-        "allow": [
-          "@beep/canvas-domain",
-          "@beep/canvas-server",
-          "@beep/canvas-use-cases",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/test-utils",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/canvas-domain",
-          "@beep/canvas-server",
-          "@beep/canvas-use-cases",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/test-utils",
-          "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/canvas-ui",
-        "allow": [
-          "@beep/canvas-domain",
-          "@beep/canvas-ui",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/canvas-domain",
-          "@beep/canvas-ui",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/canvas-use-cases",
-        "allow": [
-          "@beep/canvas-domain",
-          "@beep/canvas-use-cases",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/canvas-domain",
-          "@beep/canvas-use-cases",
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/utils"
-        ]
-      },
-      {
         "from": "@beep/chalk",
         "allow": [
           "@beep/chalk",
@@ -995,21 +811,6 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/codedank-web",
-        "allow": [
-          "@beep/codedank-web",
-          "@beep/repo-configs",
-          "@beep/repo-utils",
-          "@beep/ui"
-        ],
-        "allowTypeOnly": [
-          "@beep/codedank-web",
-          "@beep/repo-configs",
-          "@beep/repo-utils",
-          "@beep/ui"
         ]
       },
       {
@@ -1267,59 +1068,6 @@
           "@beep/repo-ai-metrics",
           "@beep/schema",
           "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/installer-domain",
-        "allow": [
-          "@beep/identity",
-          "@beep/installer-domain",
-          "@beep/schema",
-          "@beep/shared-domain"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/installer-domain",
-          "@beep/schema",
-          "@beep/shared-domain"
-        ]
-      },
-      {
-        "from": "@beep/installer-server",
-        "allow": [
-          "@beep/ai-provider-cli",
-          "@beep/discord",
-          "@beep/installer-domain",
-          "@beep/installer-server",
-          "@beep/installer-use-cases",
-          "@beep/onepassword-cli",
-          "@beep/shared-domain"
-        ],
-        "allowTypeOnly": [
-          "@beep/ai-provider-cli",
-          "@beep/discord",
-          "@beep/installer-domain",
-          "@beep/installer-server",
-          "@beep/installer-use-cases",
-          "@beep/onepassword-cli",
-          "@beep/shared-domain"
-        ]
-      },
-      {
-        "from": "@beep/installer-use-cases",
-        "allow": [
-          "@beep/identity",
-          "@beep/installer-domain",
-          "@beep/installer-use-cases",
-          "@beep/schema",
-          "@beep/shared-domain"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/installer-domain",
-          "@beep/installer-use-cases",
-          "@beep/schema",
-          "@beep/shared-domain"
         ]
       },
       {
@@ -1619,31 +1367,6 @@
           "@beep/workspace-domain",
           "@beep/workspace-server",
           "@beep/workspace-use-cases"
-        ]
-      },
-      {
-        "from": "@beep/professional-runtime-proof",
-        "allow": [
-          "@beep/agents-domain",
-          "@beep/agents-use-cases",
-          "@beep/epistemic-domain",
-          "@beep/law-practice-domain",
-          "@beep/professional-runtime-proof",
-          "@beep/shared-domain",
-          "@beep/utils",
-          "@beep/wealth-management-domain",
-          "@beep/workspace-domain"
-        ],
-        "allowTypeOnly": [
-          "@beep/agents-domain",
-          "@beep/agents-use-cases",
-          "@beep/epistemic-domain",
-          "@beep/law-practice-domain",
-          "@beep/professional-runtime-proof",
-          "@beep/shared-domain",
-          "@beep/utils",
-          "@beep/wealth-management-domain",
-          "@beep/workspace-domain"
         ]
       },
       {
@@ -1964,33 +1687,6 @@
         ]
       },
       {
-        "from": "@beep/stack-installer",
-        "allow": [
-          "@beep/ai-provider-cli",
-          "@beep/discord",
-          "@beep/identity",
-          "@beep/installer-server",
-          "@beep/installer-use-cases",
-          "@beep/onepassword-cli",
-          "@beep/schema",
-          "@beep/shared-domain",
-          "@beep/stack-installer",
-          "@beep/ui"
-        ],
-        "allowTypeOnly": [
-          "@beep/ai-provider-cli",
-          "@beep/discord",
-          "@beep/identity",
-          "@beep/installer-server",
-          "@beep/installer-use-cases",
-          "@beep/onepassword-cli",
-          "@beep/schema",
-          "@beep/shared-domain",
-          "@beep/stack-installer",
-          "@beep/ui"
-        ]
-      },
-      {
         "from": "@beep/storybook",
         "allow": [
           "@beep/storybook",
@@ -2100,23 +1796,6 @@
           "@beep/schema",
           "@beep/utils",
           "@beep/venice-ai"
-        ]
-      },
-      {
-        "from": "@beep/wealth-management-domain",
-        "allow": [
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/shared-domain",
-          "@beep/test-utils",
-          "@beep/wealth-management-domain"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/shared-domain",
-          "@beep/test-utils",
-          "@beep/wealth-management-domain"
         ]
       },
       {

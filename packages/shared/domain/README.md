@@ -69,7 +69,7 @@ language and the encoded side is the persistence row shape.
 
 - **Date promoted:** 2026-05-02
 - **Shared product semantics:** A human account identity that multiple product slices may reference without depending on a tenancy slice.
-- **Current consumers:** `apps/professional-runtime-proof` composes the law and wealth scenario fixtures through this model; `@beep/shared-domain/entity/Principal` already uses shared user identity for actor provenance.
+- **Current consumers:** `@beep/shared-domain/entity/Principal` uses shared user identity for actor provenance; workspace, agents, law-practice, and shared table packages depend on the shared entity contract.
 - **Rejected homes:**
   - Owning slice - `tenancy` owns future lifecycle authority, but user identity is cross-slice product language used by workspace, epistemic, agents, law, and wealth contexts.
   - Foundation - user identity is product semantics, not domain-agnostic modeling substrate.
@@ -82,7 +82,7 @@ language and the encoded side is the persistence row shape.
 
 - **Date promoted:** 2026-05-02
 - **Shared product semantics:** The organization-scoped relationship between a shared user and the organization they belong to.
-- **Current consumers:** `apps/professional-runtime-proof` composes the law and wealth scenario fixtures through this model; all BaseEntity-backed product slices share `Identity.Shared.OrganizationId` tenant scoping.
+- **Current consumers:** all BaseEntity-backed product slices share `Identity.Shared.OrganizationId` tenant scoping; workspace, agents, law-practice, and shared table packages consume the shared entity contract.
 - **Rejected homes:**
   - Owning slice - `tenancy` owns future lifecycle workflows such as invites and role changes, but the membership noun is cross-slice product language.
   - Foundation - membership is product policy language, not reusable domain-agnostic substrate.
@@ -95,9 +95,9 @@ language and the encoded side is the persistence row shape.
 
 - **Date promoted:** 2026-05-14
 - **Shared product semantics:** A credential input in installer flows is a reference to a 1Password item field, never a plaintext secret.
-- **Current consumers:** `@beep/installer-domain`, `@beep/installer-use-cases`, `@beep/installer-server`.
+- **Current consumers:** no active product-slice package consumers in this checkout; driver-side probe contracts still share the no-plaintext-secret vocabulary.
 - **Rejected homes:**
-  - Owning slice - `installer` owns validation and resolution behavior, but the reference is shared with driver and app contracts without importing installer internals directly.
+  - Owning slice - removed installer packages owned validation and resolution behavior; the reference remains shared with driver-side contracts without importing slice internals directly.
   - Foundation - this is product security language for the Stack Installer, not a domain-agnostic string primitive.
 - **Surface:** `@beep/shared-domain/values`, `@beep/shared-domain/values/OnePasswordReference`, `Values.OnePasswordReference.OnePasswordReference`.
 - **Runtime limits:** no live Layers.

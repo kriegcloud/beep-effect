@@ -62,14 +62,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "apps/canvas/src/App.tsx",
-      "kind": "new-map-set",
-      "reason": "The Canvas React runtime keeps local native Map instances for ephemeral viewport/template lookup state used by React rendering, not persisted domain modeling.",
-      "owner": "@beep/canvas",
-      "issue": "CANVAS-REACT-EPHEMERAL-MAP"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/drivers/box/scripts/generate.ts",
       "kind": "new-map-set",
       "reason": "The Box OpenAPI generator script uses native Set and Map collections for deterministic one-shot code generation indexes before emitting package source.",

@@ -39,7 +39,7 @@ export * from "./NextConfig.model.ts";
  * import { defineBeepNextConfig } from "@beep/repo-configs/next"
  * const config = defineBeepNextConfig({
  *   repoRoot: "/repo",
- *   allowedDevOrigins: ["codedank-web.localhost"]
+ *   allowedDevOrigins: ["oip-web.localhost"]
  * })
  * console.log(config)
  * ```

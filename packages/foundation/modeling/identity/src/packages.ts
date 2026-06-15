@@ -60,15 +60,13 @@ const generatedComposers = $I.compose(
   "types",
   "ui",
   "utils",
-  "scratchpad",
-  // P3 Professional Runtime Proof Packages
+
+  // Professional runtime packages
   "agents-domain",
   "agents-use-cases",
   "epistemic-domain",
   "law-practice-domain",
   "professional-desktop",
-  "professional-runtime-proof",
-  "wealth-management-domain",
   "workspace-domain",
 
   // Repository Tooling Packages
@@ -91,24 +89,12 @@ const generatedComposers = $I.compose(
   "shared-ui",
   "shared-config",
 
-  "codedank-web",
   "oip-web",
   "drizzle",
   "duckdb",
   "face-detection",
   "ffmpeg",
   "postgres",
-
-  // IAM Slice Packages
-  "iam-domain",
-  "iam-use-cases",
-  "iam-server",
-  "iam-tables",
-
-  // Billing Slice Packages
-  "billing-domain",
-  "billing-use-cases",
-  "billing-server",
   "sandbox",
   "anthropic",
   "venice-ai",
@@ -125,16 +111,7 @@ const generatedComposers = $I.compose(
   "architecture-lab-tables",
   "architecture-lab-client",
   "architecture-lab-ui",
-  "canvas-domain",
-  "canvas-use-cases",
-  "canvas-server",
-  "canvas-client",
-  "canvas-ui",
   "architecture-lab-proof",
-  "stack-installer",
-  "installer-domain",
-  "installer-use-cases",
-  "installer-server",
   "runpod",
   "onepassword-cli",
   "discord",
@@ -143,7 +120,6 @@ const generatedComposers = $I.compose(
   "hubspot",
   "phoenix",
   "konva",
-  "canvas",
   "repo-codegraph",
   "ai-sync",
   "form",
@@ -686,22 +662,6 @@ export const $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice
   composers.$LawPracticeDomainId;
 
 /**
- * Identity composer for the `@beep/wealth-management-domain` package.
- *
- * @example
- * ```typescript
- * import { $WealthManagementDomainId } from "@beep/identity"
- *
- * const id = $WealthManagementDomainId.make("Household")
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $WealthManagementDomainId: Identity.IdentityComposer<"@beep/wealth-management-domain"> =
-  composers.$WealthManagementDomainId;
-
-/**
  * Identity composer for the `@beep/professional-desktop` package.
  *
  * @example
@@ -716,22 +676,6 @@ export const $WealthManagementDomainId: Identity.IdentityComposer<"@beep/wealth-
  */
 export const $ProfessionalDesktopId: Identity.IdentityComposer<"@beep/professional-desktop"> =
   composers.$ProfessionalDesktopId;
-
-/**
- * Identity composer for the `@beep/professional-runtime-proof` package.
- *
- * @example
- * ```typescript
- * import { $ProfessionalRuntimeProofId } from "@beep/identity"
- *
- * const id = $ProfessionalRuntimeProofId.make("RuntimeHarness")
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $ProfessionalRuntimeProofId: Identity.IdentityComposer<"@beep/professional-runtime-proof"> =
-  composers.$ProfessionalRuntimeProofId;
 
 /**
  * RepoPkgs - export object containing all package IdentityComposer's
@@ -763,22 +707,6 @@ export const RepoPkgs = composers;
  * @category configuration
  */
 export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
-
-/**
- * $codedank web id export.
- *
- * @since 0.0.0
- *
- * @example
- * ```ts
- * import { $CodedankWebId } from "@beep/identity/packages"
- *
- * console.log($CodedankWebId)
- * ```
- *
- * @category configuration
- */
-export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
 
 /**
  * $oip web id export.
@@ -877,144 +805,6 @@ export const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg"> = composers.$F
 export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composers.$PostgresId;
 
 // --- billing ---
-
-/**
- * Identity composer for the `@beep/billing-domain` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $BillingDomainId } from "@beep/identity"
- *
- * const id = $BillingDomainId.make("Invoice")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $BillingDomainId: Identity.IdentityComposer<"@beep/billing-domain"> = composers.$BillingDomainId;
-
-/**
- * Identity composer for the `@beep/billing-server` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $BillingServerId } from "@beep/identity"
- *
- * const id = $BillingServerId.make("Webhook")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $BillingServerId: Identity.IdentityComposer<"@beep/billing-server"> = composers.$BillingServerId;
-
-/**
- * Identity composer for the `@beep/billing-use-cases` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $BillingUseCasesId } from "@beep/identity"
- *
- * const id = $BillingUseCasesId.make("ChargeCustomer")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $BillingUseCasesId: Identity.IdentityComposer<"@beep/billing-use-cases"> = composers.$BillingUseCasesId;
-
-// --- iam ---
-
-/**
- * Identity composer for the `@beep/iam-domain` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $IamDomainId } from "@beep/identity"
- *
- * const id = $IamDomainId.make("User")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $IamDomainId: Identity.IdentityComposer<"@beep/iam-domain"> = composers.$IamDomainId;
-
-/**
- * Identity composer for the `@beep/iam-server` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $IamServerId } from "@beep/identity"
- *
- * const id = $IamServerId.make("AuthMiddleware")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $IamServerId: Identity.IdentityComposer<"@beep/iam-server"> = composers.$IamServerId;
-
-/**
- * Identity composer for the `@beep/iam-tables` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $IamTablesId } from "@beep/identity"
- *
- * const id = $IamTablesId.make("UsersTable")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $IamTablesId: Identity.IdentityComposer<"@beep/iam-tables"> = composers.$IamTablesId;
-
-/**
- * Identity composer for the `@beep/iam-use-cases` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $IamUseCasesId } from "@beep/identity"
- *
- * const id = $IamUseCasesId.make("LoginUser")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $IamUseCasesId: Identity.IdentityComposer<"@beep/iam-use-cases"> = composers.$IamUseCasesId;
-
-/**
- * Identity composer for the `@beep/scratchpad` package.
- *
- * Pre-registered ahead of slice creation.
- *
- * @example
- * ```typescript
- * import { $ScratchpadId } from "@beep/identity"
- *
- * const id = $ScratchpadId.make("entity-schema")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = composers.$ScratchpadId;
 
 /**
  * Identity composer for the `@beep/sandbox` package.
@@ -1298,70 +1088,6 @@ export const $ArchitectureLabUiId: Identity.IdentityComposer<"@beep/architecture
 export const $ArchitectureLabProofId: Identity.IdentityComposer<"@beep/architecture-lab-proof"> =
   composers.$ArchitectureLabProofId;
 
-// --- stack installer ---
-
-/**
- * Identity composer for `@beep/stack-installer`.
- *
- * @example
- * ```typescript
- * import { $StackInstallerId } from "@beep/identity"
- *
- * const id = $StackInstallerId.make("Workbench")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $StackInstallerId: Identity.IdentityComposer<"@beep/stack-installer"> = composers.$StackInstallerId;
-
-/**
- * Identity composer for `@beep/installer-domain`.
- *
- * @example
- * ```ts
- * import { $InstallerDomainId } from "@beep/identity/packages"
- *
- * console.log($InstallerDomainId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $InstallerDomainId: Identity.IdentityComposer<"@beep/installer-domain"> = composers.$InstallerDomainId;
-
-/**
- * Identity composer for `@beep/installer-use-cases`.
- *
- * @example
- * ```ts
- * import { $InstallerUseCasesId } from "@beep/identity/packages"
- *
- * console.log($InstallerUseCasesId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $InstallerUseCasesId: Identity.IdentityComposer<"@beep/installer-use-cases"> =
-  composers.$InstallerUseCasesId;
-
-/**
- * Identity composer for `@beep/installer-server`.
- *
- * @example
- * ```ts
- * import { $InstallerServerId } from "@beep/identity/packages"
- *
- * console.log($InstallerServerId)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const $InstallerServerId: Identity.IdentityComposer<"@beep/installer-server"> = composers.$InstallerServerId;
-
 /**
  * Identity composer for `@beep/runpod`.
  *
@@ -1489,102 +1215,6 @@ export const $PhoenixId: Identity.IdentityComposer<"@beep/phoenix"> = composers.
  * @category configuration
  */
 export const $KonvaId: Identity.IdentityComposer<"@beep/konva"> = composers.$KonvaId;
-
-/**
- * Identity composer for `@beep/canvas-domain`.
- *
- * @example
- * ```typescript
- * import { $CanvasDomainId } from "@beep/identity"
- *
- * const id = $CanvasDomainId.make("CanvasProject")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CanvasDomainId: Identity.IdentityComposer<"@beep/canvas-domain"> = composers.$CanvasDomainId;
-
-/**
- * Identity composer for `@beep/canvas-use-cases`.
- *
- * @example
- * ```typescript
- * import { $CanvasUseCasesId } from "@beep/identity"
- *
- * const id = $CanvasUseCasesId.make("CanvasProjectUseCases")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CanvasUseCasesId: Identity.IdentityComposer<"@beep/canvas-use-cases"> = composers.$CanvasUseCasesId;
-
-/**
- * Identity composer for `@beep/canvas-server`.
- *
- * @example
- * ```typescript
- * import { $CanvasServerId } from "@beep/identity"
- *
- * const id = $CanvasServerId.make("CanvasProjectBundleRepository")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CanvasServerId: Identity.IdentityComposer<"@beep/canvas-server"> = composers.$CanvasServerId;
-
-/**
- * Identity composer for `@beep/canvas-client`.
- *
- * @example
- * ```typescript
- * import { $CanvasClientId } from "@beep/identity"
- *
- * const id = $CanvasClientId.make("CanvasEditorState")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CanvasClientId: Identity.IdentityComposer<"@beep/canvas-client"> = composers.$CanvasClientId;
-
-/**
- * Identity composer for `@beep/canvas-ui`.
- *
- * @example
- * ```typescript
- * import { $CanvasUiId } from "@beep/identity"
- *
- * const id = $CanvasUiId.make("CanvasEditor")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CanvasUiId: Identity.IdentityComposer<"@beep/canvas-ui"> = composers.$CanvasUiId;
-
-/**
- * Identity composer for `@beep/canvas`.
- *
- * @example
- * ```typescript
- * import { $CanvasId } from "@beep/identity"
- *
- * const id = $CanvasId.make("Canvas")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $CanvasId: Identity.IdentityComposer<"@beep/canvas"> = composers.$CanvasId;
 
 /**
  * Identity composer for `@beep/repo-codegraph`.

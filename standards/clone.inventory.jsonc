@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-13",
+  "generatedOn": "2026-06-15",
   "entries": [
     {
       "id": "reuse-clone:106:1b46bfa60220fba4",
@@ -21,16 +21,6 @@
         "packages/drivers/openai-compat/src/OpenAiCompatLanguageModel.service.ts#model",
         "packages/drivers/venice-ai/src/VeniceAiLanguageModel.service.ts#model",
         "packages/drivers/xai/src/XAiLanguageModel.service.ts#model"
-      ]
-    },
-    {
-      "id": "reuse-clone:50:e45aa804d1bbf3ff",
-      "title": "Structural clone of ArchitectureLab across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/domain/src/identity/ArchitectureLab.ts#ArchitectureLab",
-        "packages/canvas/domain/src/identity/Canvas.ts#Canvas"
       ]
     },
     {
@@ -61,17 +51,6 @@
       "members": [
         "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.model.ts#RepoCodegraphLookupScore",
         "packages/tooling/tool/cli/src/commands/Files/Files.schemas.ts#NormalizeManifestSummary"
-      ]
-    },
-    {
-      "id": "reuse-clone:55:fb970e2ee704361a",
-      "title": "Structural clone of ListWorkItemsQuery across 2 packages",
-      "occurrences": 3,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.commands.ts#ListWorkItemsQuery",
-        "packages/architecture-lab/use-cases/src/entities/Worker/Worker.commands.ts#ListWorkersQuery",
-        "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.commands.ts#ListCanvasProjectsQuery"
       ]
     },
     {
@@ -174,16 +153,6 @@
       ]
     },
     {
-      "id": "reuse-clone:67:81dd0a0fe06ee287",
-      "title": "Structural clone of makeWorkItemToolHandlers across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/server/src/aggregates/WorkItem/WorkItem.tools.ts#makeWorkItemToolHandlers",
-        "packages/canvas/server/src/aggregates/CanvasProject/CanvasProject.tools.ts#makeCanvasProjectToolHandlers"
-      ]
-    },
-    {
       "id": "reuse-clone:68:bad99edc0346bfea",
       "title": "Structural clone of MetadataBase across 2 packages",
       "occurrences": 2,
@@ -219,16 +188,6 @@
       ]
     },
     {
-      "id": "reuse-clone:78:fed9cebaf7f004c3",
-      "title": "Structural clone of WorkItemInvalidTransition across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/domain/src/aggregates/WorkItem/WorkItem.errors.ts#WorkItemInvalidTransition",
-        "packages/canvas/domain/src/aggregates/CanvasProject/CanvasProject.errors.ts#CanvasProjectInvalidTransition"
-      ]
-    },
-    {
       "id": "reuse-clone:79:63a1abc1a60cb7d7",
       "title": "Structural clone of RealtimeServer across 2 packages",
       "occurrences": 2,
@@ -258,16 +217,6 @@
       "members": [
         "packages/law-practice/domain/src/entities/LegalClient/LegalClient.model.ts#LegalClient",
         "packages/workspace/domain/src/entities/ContextPacket/ContextPacket.model.ts#ContextPacket"
-      ]
-    },
-    {
-      "id": "reuse-clone:86:c632c2cef570aec7",
-      "title": "Structural clone of WorkItemRepositoryShape across 2 packages",
-      "occurrences": 2,
-      "packages": 2,
-      "members": [
-        "packages/architecture-lab/use-cases/src/aggregates/WorkItem/WorkItem.repository.ts#WorkItemRepositoryShape",
-        "packages/canvas/use-cases/src/aggregates/CanvasProject/CanvasProject.repository.ts#CanvasProjectRepositoryShape"
       ]
     },
     {

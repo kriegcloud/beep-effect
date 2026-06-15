@@ -87,7 +87,7 @@ surface for future work:
 - No Word-like editor UI.
 - No Tauri sidecar or bundled Pandoc binary in the first goal.
 - No real DOCX import/export command in the first goal.
-- No arbitrary OOXML parser.
+- No arbitrary Open XML parser.
 - No tracked-changes/redline model.
 - No full Pandoc AST mirror before DOCX-core proof.
 - No lossless table or custom-style mapping in the first goal.

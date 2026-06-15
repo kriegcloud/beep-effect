@@ -13,7 +13,7 @@ describe("AllowedDevOrigin", () => {
       Effect.gen(function* () {
         expect(yield* decodeAllowedDevOrigin("local-origin.dev")).toBe("local-origin.dev");
         expect(yield* decodeAllowedDevOrigin("*.local-origin.dev")).toBe("*.local-origin.dev");
-        expect(yield* decodeAllowedDevOrigin(" codedank-web.localhost ")).toBe("codedank-web.localhost");
+        expect(yield* decodeAllowedDevOrigin(" oip-web.localhost ")).toBe("oip-web.localhost");
       })
     ));
 

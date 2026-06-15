@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "ac4108f9473b5e3cfffbe54af2330f44e428c08d79364da7ce754f4d62442201",
+    "digest": "4e0c66f13fdaeef8a8bdfe3b5eac017073671d4219c27e5123ab2ed34d12e6a0",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -77,8 +77,8 @@
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/generated/EffectLawsAllowlistSnapshot.ts",
-        "sha256": "ae3cbfec200f223f0710b003bfa1a42b3e718e3b3f0e82d4d1614da81b04b3d5",
-        "bytes": 10593
+        "sha256": "edf3957929fe12dde9c26e76a6d60998dd818fab35c86b45a7797668b1aa1c6d",
+        "bytes": 10212
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/internal/eslint/RuleAstSchemas.ts",
@@ -97,8 +97,8 @@
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/next/index.ts",
-        "sha256": "b5461c44de50e73411718cf85a1d7f50ab96b1063fb252f4825b3dbe04c75fbf",
-        "bytes": 1415
+        "sha256": "59e69e46b88777b06f168c42b71c0fef9afe1354e4155f1bbac326fbcfeaf509",
+        "bytes": 1410
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/next/internal.ts",
@@ -162,8 +162,8 @@
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/next/NextConfig.model.ts",
-        "sha256": "d20c16bb3c66dddf8091223137f853f10f48d6619868aa38269f51d0f4e78f0f",
-        "bytes": 19517
+        "sha256": "7508af3ff5437c4000a57b376e5b44b6e6e82714a55bfc2c9f908f18d54efc0b",
+        "bytes": 19512
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/next/security.ts",
@@ -177,8 +177,8 @@
       },
       {
         "path": "packages/tooling/policy-pack/repo-configs/src/next/SharedNextConfig.model.ts",
-        "sha256": "de5d65684ea8a46475844f1b022ab097afec21b6690b17e3a18961ea3c68d158",
-        "bytes": 20698
+        "sha256": "b1b027e0ccfe6cfff8b62d4e56268f7c5c8cd415bf9449b24a01626f138ec45f",
+        "bytes": 20678
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",

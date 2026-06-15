@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "783eaa567667bbf948ec4a367011edb3de55ee865334bec99fc18882accfedf6",
+    "digest": "735dd65b5398c95c1907ef4e7480e12bdffc398c682ceb84d9e8c6c2c7065177",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/shared/domain/package.json",
-        "sha256": "4bb1b66a448f4e329090221a3e386b5bf852ff423c0a6af81d27ca53d5ebf192",
-        "bytes": 4604
+        "sha256": "eb34c7e499cf47e71f10a2400733625ece0163d69279fe0a722da66d7779ee69",
+        "bytes": 4455
       },
       {
         "path": "packages/shared/domain/src/aggregates.ts",
@@ -147,8 +147,8 @@
       },
       {
         "path": "packages/shared/domain/src/identity/index.ts",
-        "sha256": "ea294be6b8d5a77311433eccd46dce3365535063a4dc73c4f8fa4e2984c0d849",
-        "bytes": 5807
+        "sha256": "3d6d534ff5439db6d4a821d9818615d9edec8f9be54f796dd28d2309fb75e899",
+        "bytes": 5472
       },
       {
         "path": "packages/shared/domain/src/identity/LawPractice.ts",
@@ -159,11 +159,6 @@
         "path": "packages/shared/domain/src/identity/Shared.ts",
         "sha256": "af5d1c00c6d3a567db14087998e78a0898b2c7852310f0ed2187d7886e19b5ad",
         "bytes": 8691
-      },
-      {
-        "path": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sha256": "1c8db7da090ab4c67a6eb7c0d4967fc900375225063b8f985a8d03e7ee547aea",
-        "bytes": 3977
       },
       {
         "path": "packages/shared/domain/src/identity/Workspace.ts",
@@ -262,7 +257,6 @@
       "@beep/shared-domain/identity/index",
       "@beep/shared-domain/identity/LawPractice",
       "@beep/shared-domain/identity/Shared",
-      "@beep/shared-domain/identity/WealthManagement",
       "@beep/shared-domain/identity/Workspace",
       "@beep/shared-domain/index",
       "@beep/shared-domain/values",
@@ -276,9 +270,9 @@
       "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
     ],
     "counts": {
-      "publicExportEntries": 303,
-      "uniqueSymbols": 116,
-      "sourceFiles": 37
+      "publicExportEntries": 293,
+      "uniqueSymbols": 111,
+      "sourceFiles": 36
     },
     "exports": [
       {
@@ -3050,23 +3044,6 @@
         "importSpecifier": "@beep/shared-domain/identity",
         "exportSubpath": "./identity",
         "exportedFromPath": "packages/shared/domain/src/identity.ts",
-        "symbolName": "WealthManagement",
-        "exportKind": "SourceFile",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 8,
-        "summary": "",
-        "categories": [],
-        "since": [],
-        "tags": [],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity ./identity wealthmanagement sourcefile packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity",
-        "exportSubpath": "./identity",
-        "exportedFromPath": "packages/shared/domain/src/identity.ts",
         "symbolName": "Workspace",
         "exportKind": "SourceFile",
         "sourcePath": "packages/shared/domain/src/identity/Workspace.ts",
@@ -3520,23 +3497,6 @@
         "since": [],
         "tags": [],
         "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/index ./identity/index shared sourcefile packages/shared/domain/src/identity/shared.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/index",
-        "exportSubpath": "./identity/index",
-        "exportedFromPath": "packages/shared/domain/src/identity/index.ts",
-        "symbolName": "WealthManagement",
-        "exportKind": "SourceFile",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 8,
-        "summary": "",
-        "categories": [],
-        "since": [],
-        "tags": [],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/index ./identity/index wealthmanagement sourcefile packages/shared/domain/src/identity/wealthmanagement.ts"
       },
       {
         "packageName": "@beep/shared-domain",
@@ -4254,206 +4214,6 @@
           "@since"
         ],
         "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/shared ./identity/shared userid type companion type for {@link userid.type}. entity-ids packages/shared/domain/src/identity/shared.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "AccountId",
-        "exportKind": "const",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 141,
-        "summary": "Account entity identifier.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement accountid const account entity identifier. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "AccountId",
-        "exportKind": "type",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 164,
-        "summary": "Runtime type for {@link AccountId}.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement accountid type runtime type for {@link accountid}. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "HouseholdId",
-        "exportKind": "const",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 27,
-        "summary": "Household entity identifier.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement householdid const household entity identifier. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "HouseholdId",
-        "exportKind": "type",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 50,
-        "summary": "Runtime type for {@link HouseholdId}.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement householdid type runtime type for {@link householdid}. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "PartyId",
-        "exportKind": "const",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 103,
-        "summary": "Party entity identifier.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement partyid const party entity identifier. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "PartyId",
-        "exportKind": "type",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 126,
-        "summary": "Runtime type for {@link PartyId}.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement partyid type runtime type for {@link partyid}. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "WealthClientId",
-        "exportKind": "const",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 65,
-        "summary": "Wealth client entity identifier.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement wealthclientid const wealth client entity identifier. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
-      },
-      {
-        "packageName": "@beep/shared-domain",
-        "packagePath": "packages/shared/domain",
-        "topoOrder": 0,
-        "importSpecifier": "@beep/shared-domain/identity/WealthManagement",
-        "exportSubpath": "./identity/WealthManagement",
-        "exportedFromPath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "symbolName": "WealthClientId",
-        "exportKind": "type",
-        "sourcePath": "packages/shared/domain/src/identity/WealthManagement.ts",
-        "sourceLine": 88,
-        "summary": "Runtime type for {@link WealthClientId}.",
-        "categories": [
-          "entity-ids"
-        ],
-        "since": [
-          "0.0.0"
-        ],
-        "tags": [
-          "@example",
-          "@category",
-          "@since"
-        ],
-        "searchText": "@beep/shared-domain packages/shared/domain @beep/shared-domain/identity/wealthmanagement ./identity/wealthmanagement wealthclientid type runtime type for {@link wealthclientid}. entity-ids packages/shared/domain/src/identity/wealthmanagement.ts"
       },
       {
         "packageName": "@beep/shared-domain",

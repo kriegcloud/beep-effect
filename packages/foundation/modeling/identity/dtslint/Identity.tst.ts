@@ -2,13 +2,7 @@ import {
   $AgentsDomainId,
   $AgentsUseCasesId,
   $EpistemicDomainId,
-  $InstallerDomainId,
-  $InstallerServerId,
-  $InstallerUseCasesId,
   $LawPracticeDomainId,
-  $ProfessionalRuntimeProofId,
-  $StackInstallerId,
-  $WealthManagementDomainId,
   $WorkspaceDomainId,
   make,
 } from "@beep/identity";
@@ -49,25 +43,12 @@ describe("Identity", () => {
     expect($SchemaId.symbol()).type.toBe<IdentitySymbol<"@beep/schema">>();
   });
 
-  it("preserves literal types for P3 package composers", () => {
+  it("preserves literal types for professional runtime package composers", () => {
     expect($WorkspaceDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/workspace-domain">>();
     expect($EpistemicDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/epistemic-domain">>();
     expect($AgentsDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/agents-domain">>();
     expect($AgentsUseCasesId).type.toBeAssignableTo<IdentityComposer<"@beep/agents-use-cases">>();
     expect($LawPracticeDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/law-practice-domain">>();
-    expect($WealthManagementDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/wealth-management-domain">>();
-    expect($ProfessionalRuntimeProofId).type.toBeAssignableTo<IdentityComposer<"@beep/professional-runtime-proof">>();
-    expect($ProfessionalRuntimeProofId`RuntimeHarness`).type.toBe<
-      IdentityString<`@beep/professional-runtime-proof/${string}`>
-    >();
-  });
-
-  it("preserves literal types for Stack Installer package composers", () => {
-    expect($StackInstallerId).type.toBeAssignableTo<IdentityComposer<"@beep/stack-installer">>();
-    expect($InstallerDomainId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-domain">>();
-    expect($InstallerUseCasesId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-use-cases">>();
-    expect($InstallerServerId).type.toBeAssignableTo<IdentityComposer<"@beep/installer-server">>();
-    expect($InstallerDomainId`AIStackManifest`).type.toBe<IdentityString<`@beep/installer-domain/${string}`>>();
   });
 
   it("preserves literal types for annote and derived titles", () => {

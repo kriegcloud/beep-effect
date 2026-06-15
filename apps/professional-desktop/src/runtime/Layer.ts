@@ -60,7 +60,7 @@ export type ChatHandlersLayer = Layer.Layer<Layer.Success<typeof ChatHandlersLiv
  */
 const TurnKernelLive: Layer.Layer<AgentTurnKernel> = Layer.unwrap(
   Effect.gen(function* () {
-    const agent = yield* Config.literals(["anthropic", "fixture"] as const, "CHAT_AGENT").pipe(
+    const agent = yield* Config.literals(["anthropic", "fixture"], "CHAT_AGENT").pipe(
       Config.withDefault("anthropic" as const)
     );
     return agent === "fixture" ? FixtureTurnKernel : AnthropicTurnKernel;

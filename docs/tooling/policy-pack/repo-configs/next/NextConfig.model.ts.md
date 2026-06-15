@@ -134,7 +134,7 @@ Public Next.js configuration schema.
 import { defineNextConfig } from "@beep/repo-configs/next"
 import type { NextConfig } from "next"
 const config = defineNextConfig({
-  allowedDevOrigins: ["codedank-web.localhost"],
+  allowedDevOrigins: ["oip-web.localhost"],
   reactStrictMode: true
 } satisfies NextConfig)
 console.log(config)

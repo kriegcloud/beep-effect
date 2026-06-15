@@ -32,7 +32,7 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 - [`standards/repo-exports.catalog.md`](../standards/repo-exports.catalog.md) —
   canonical export lookup (refresh: `bun run repo-exports:catalog`).
 - Package families: `packages/{foundation,shared,drivers,tooling}` (substrate),
-  `packages/{workspace,agent-capability,epistemic,law-practice,wealth-management,canvas,architecture-lab,installer}`
+  `packages/{workspace,agent-capability,epistemic,law-practice,architecture-lab}`
   (slices), `apps/*` (runtimes).
 
 ## Explorations

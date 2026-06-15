@@ -128,8 +128,8 @@ boundary surfaces.
 **OnePasswordReference** (promoted 2026-05-14)  
 
 - Shared semantics: A credential input in installer flows is a reference to a 1Password item field, never a plaintext secret.  
-- Current consumers: `@beep/installer-domain`, `@beep/installer-use-cases`, `@beep/installer-server`.  
-- Rejected homes: Owning slice (`installer` owns validation/resolution); Foundation (product security language, not domain-agnostic substrate).  
+- Current consumers: no active product-slice package consumers in this checkout; driver-side probe contracts still share the no-plaintext-secret vocabulary.  
+- Rejected homes: Foundation (product security language, not domain-agnostic substrate).  
 - Surface: `@beep/shared-domain/values/OnePasswordReference`.  
 - Runtime limits: value object only — no live Layers.  
 - Full record (including coupling acceptors + removal trigger): see `packages/shared/domain/README.md`.
@@ -200,9 +200,6 @@ Current slices at a glance (checkout snapshot):
 | `agents`     | Skills, capabilities, and agent governance         | `domain`, `use-cases`              |
 | `epistemic`            | Evidence, claims, candidate work, and provenance   | `domain`                           |
 | `law-practice`         | IP law practice models and workflows               | `domain`                           |
-| `wealth-management`    | Todox wealth-advisor runtime                       | `domain`                           |
-| `canvas`               | Knowledge workspace and graph surface              | `domain`, `use-cases`, `server`, `client`, `ui` |
-| `installer`            | Stack and dependency installation logic            | `domain`, `use-cases`, `server`    |
 | `architecture-lab`     | Canonical executable architecture proof            | `domain`, `use-cases`, `config`, `server`, `tables`, `client`, `ui` |
 
 This list is a point-in-time view. The live workspace graph is produced by
@@ -215,11 +212,8 @@ every current slice has every canonical role.
 Entry points and public surfaces:
 
 - `professional-desktop` — Tauri desktop shell
-- `stack-installer` — Tauri-based installation tool
-- `canvas` — Canvas app surface
 - `oip-web` — Public site for Oppold IP Law
-- `codedank-web` — Additional web surface
-- Proof harnesses (`architecture-lab-proof`, `professional-runtime-proof`)
+- `architecture-lab-proof` — Executable architecture proof harness
 
 ---
 
@@ -229,7 +223,6 @@ beep-effect exists to power local-first, evidence-backed agentic runtimes for pr
 
 **Primary proofs**
 
-- **Todox.ai Wealth Management Runtime** — Local advisor workspace with candidate claims, evidence-backed memory, approval gates, and full provenance. Forces the platform to solve bitemporal history, cost attribution, and governed agent skills.
 - **Agentic Solo Practice Law Firm (OIP)** — IP attorney runtime for context capture, document drafting, matter memory, and safe administrative loops under explicit attorney approval. Forces the same epistemic and approval primitives.
 
 See the full product definition and runtime proofs in [`goals/agentic-professional-runtime/`](goals/agentic-professional-runtime/).

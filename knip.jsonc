@@ -41,8 +41,7 @@
   // ignored above), so their usage isn't visible in the import graph.
   // ws + @types/ws: genuinely imported by @beep/xai (src/XAi.service.ts) — knip misses the
   // `import WebSocket from "ws"` default import; @types/ws supplies its types.
-  // @beep/repo-utils (apps' docgen.json) + @beep/test-utils (canvas/server test) are referenced
-  // from config/test surfaces knip doesn't parse.
+  // @beep/repo-utils is referenced from app docgen.json files knip doesn't parse.
   "ignoreDependencies": [
     "@effect/vitest",
     "@effect/language-service",
@@ -82,8 +81,6 @@
   // pre-provisioned to encode intended slice wiring and are deliberately unused until built out.
   // Excluded wholesale so that intentional scaffolding doesn't read as dependency drift.
   "ignoreWorkspaces": [
-    "packages/canvas/client",
-    "packages/canvas/ui",
     "packages/drivers/konva",
     "packages/shared/client",
     "packages/shared/config",

@@ -62,68 +62,6 @@
         "@types/node": "catalog:",
       },
     },
-    "apps/canvas": {
-      "name": "@beep/canvas",
-      "version": "0.0.4",
-      "dependencies": {
-        "@beep/canvas-domain": "workspace:^",
-        "@beep/canvas-server": "workspace:^",
-        "@beep/canvas-use-cases": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/ui": "workspace:^",
-        "@effect/atom-react": "catalog:",
-        "@phosphor-icons/react": "catalog:",
-        "@tauri-apps/api": "catalog:",
-        "effect": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@tauri-apps/cli": "catalog:",
-        "@testing-library/dom": "catalog:",
-        "@testing-library/jest-dom": "catalog:",
-        "@testing-library/react": "catalog:",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
-        "jsdom": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
-    "apps/codedank-web": {
-      "name": "@beep/codedank-web",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/repo-configs": "workspace:^",
-        "@beep/ui": "workspace:^",
-        "@next/bundle-analyzer": "catalog:",
-        "@next/mdx": "catalog:",
-        "next": "catalog:",
-        "next-pwa": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/repo-utils": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@mdx-js/loader": "catalog:",
-        "@tailwindcss/postcss": "catalog:",
-        "@testing-library/dom": "catalog:",
-        "@testing-library/react": "catalog:",
-        "@types/mdx": "catalog:",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "babel-plugin-react-compiler": "catalog:",
-        "jsdom": "catalog:",
-        "tailwindcss": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "apps/oip-web": {
       "name": "@beep/oip-web",
       "version": "0.1.4",
@@ -201,61 +139,6 @@
         "@tauri-apps/cli": "catalog:",
         "@testing-library/dom": "catalog:",
         "@testing-library/jest-dom": "catalog:",
-        "@testing-library/react": "catalog:",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
-        "jsdom": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
-    "apps/professional-runtime-proof": {
-      "name": "@beep/professional-runtime-proof",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/agents-domain": "workspace:^",
-        "@beep/agents-use-cases": "workspace:^",
-        "@beep/epistemic-domain": "workspace:^",
-        "@beep/law-practice-domain": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@beep/wealth-management-domain": "workspace:^",
-        "@beep/workspace-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "apps/stack-installer": {
-      "name": "@beep/stack-installer",
-      "version": "0.0.4",
-      "dependencies": {
-        "@beep/ai-provider-cli": "workspace:^",
-        "@beep/discord": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/installer-server": "workspace:^",
-        "@beep/installer-use-cases": "workspace:^",
-        "@beep/onepassword-cli": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "@beep/ui": "workspace:^",
-        "@effect/atom-react": "catalog:",
-        "@effect/platform-bun": "catalog:",
-        "@phosphor-icons/react": "catalog:",
-        "@tauri-apps/api": "catalog:",
-        "effect": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@tauri-apps/cli": "catalog:",
-        "@testing-library/dom": "catalog:",
         "@testing-library/react": "catalog:",
         "@types/node": "catalog:",
         "@types/react": "catalog:",
@@ -496,81 +379,6 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/architecture-lab-domain": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/canvas/client": {
-      "name": "@beep/canvas-client",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/canvas-domain": "workspace:^",
-        "@beep/canvas-use-cases": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/canvas/domain": {
-      "name": "@beep/canvas-domain",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/canvas/server": {
-      "name": "@beep/canvas-server",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/canvas-domain": "workspace:^",
-        "@beep/canvas-use-cases": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/test-utils": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/canvas/ui": {
-      "name": "@beep/canvas-ui",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/canvas-domain": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/canvas/use-cases": {
-      "name": "@beep/canvas-use-cases",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/canvas-domain": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
@@ -1393,52 +1201,6 @@
         "react-dom": "^19",
       },
     },
-    "packages/installer/domain": {
-      "name": "@beep/installer-domain",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer/server": {
-      "name": "@beep/installer-server",
-      "version": "0.0.3",
-      "dependencies": {
-        "@beep/ai-provider-cli": "workspace:^",
-        "@beep/discord": "workspace:^",
-        "@beep/installer-domain": "workspace:^",
-        "@beep/installer-use-cases": "workspace:^",
-        "@beep/onepassword-cli": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/installer/use-cases": {
-      "name": "@beep/installer-use-cases",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/installer-domain": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/law-practice/domain": {
       "name": "@beep/law-practice-domain",
       "version": "0.0.2",
@@ -1737,21 +1499,6 @@
         "@effect/vitest": "catalog:",
         "@types/babel__code-frame": "catalog:",
         "@types/doctrine": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/wealth-management/domain": {
-      "name": "@beep/wealth-management-domain",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/test-utils": "workspace:^",
-        "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -2327,21 +2074,7 @@
 
     "@beep/box": ["@beep/box@workspace:packages/drivers/box"],
 
-    "@beep/canvas": ["@beep/canvas@workspace:apps/canvas"],
-
-    "@beep/canvas-client": ["@beep/canvas-client@workspace:packages/canvas/client"],
-
-    "@beep/canvas-domain": ["@beep/canvas-domain@workspace:packages/canvas/domain"],
-
-    "@beep/canvas-server": ["@beep/canvas-server@workspace:packages/canvas/server"],
-
-    "@beep/canvas-ui": ["@beep/canvas-ui@workspace:packages/canvas/ui"],
-
-    "@beep/canvas-use-cases": ["@beep/canvas-use-cases@workspace:packages/canvas/use-cases"],
-
     "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
-
-    "@beep/codedank-web": ["@beep/codedank-web@workspace:apps/codedank-web"],
 
     "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
@@ -2377,12 +2110,6 @@
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
-    "@beep/installer-domain": ["@beep/installer-domain@workspace:packages/installer/domain"],
-
-    "@beep/installer-server": ["@beep/installer-server@workspace:packages/installer/server"],
-
-    "@beep/installer-use-cases": ["@beep/installer-use-cases@workspace:packages/installer/use-cases"],
-
     "@beep/konva": ["@beep/konva@workspace:packages/drivers/konva"],
 
     "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
@@ -2416,8 +2143,6 @@
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 
     "@beep/professional-desktop": ["@beep/professional-desktop@workspace:apps/professional-desktop"],
-
-    "@beep/professional-runtime-proof": ["@beep/professional-runtime-proof@workspace:apps/professional-runtime-proof"],
 
     "@beep/rdf": ["@beep/rdf@workspace:packages/foundation/modeling/rdf"],
 
@@ -2457,8 +2182,6 @@
 
     "@beep/shared-use-cases": ["@beep/shared-use-cases@workspace:packages/shared/use-cases"],
 
-    "@beep/stack-installer": ["@beep/stack-installer@workspace:apps/stack-installer"],
-
     "@beep/storybook": ["@beep/storybook@workspace:apps/storybook"],
 
     "@beep/test-utils": ["@beep/test-utils@workspace:packages/tooling/test-kit/test-utils"],
@@ -2474,8 +2197,6 @@
     "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
     "@beep/venice-ai": ["@beep/venice-ai@workspace:packages/drivers/venice-ai"],
-
-    "@beep/wealth-management-domain": ["@beep/wealth-management-domain@workspace:packages/wealth-management/domain"],
 
     "@beep/wink": ["@beep/wink@workspace:packages/drivers/wink"],
 
@@ -3045,7 +2766,7 @@
 
     "@img/sharp-linuxmusl-x64": ["@img/sharp-linuxmusl-x64@0.35.1", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-x64": "1.3.0" }, "os": "linux", "cpu": "x64" }, "sha512-LjBoSd/c5JU0/K5MwzDMlgsSRP2bPn98JQGFFQAOLQ0bU/1z4ekxUdSKY9BmlwSh/cA+OrvpgsWqfZyYfVHBRw=="],
 
-    "@img/sharp-wasm32": ["@img/sharp-wasm32@0.34.5", "", { "dependencies": { "@emnapi/runtime": "^1.7.0" }, "cpu": "none" }, "sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw=="],
+    "@img/sharp-wasm32": ["@img/sharp-wasm32@0.35.1", "", { "dependencies": { "@emnapi/runtime": "^1.11.0" } }, "sha512-PCQUoQdZyE8tp3HpbevuihfUmgSP4qWI0FGEPWoeXqaS+cUrFfemabHQiebUmUmlUhCuNnQMxGrQ+CPqK4hnxg=="],
 
     "@img/sharp-webcontainers-wasm32": ["@img/sharp-webcontainers-wasm32@0.35.1", "", { "dependencies": { "@img/sharp-wasm32": "0.35.1" }, "cpu": "none" }, "sha512-xU2ml2bU2OPxYVvW2A6ae4M1g5QKyhKG06P4FAt+YEaFQQO0919Qx+XxIZEUuWTMoDViLpMws2/dQwoe/VcA6A=="],
 
@@ -3622,8 +3343,6 @@
     "@tailwindcss/postcss": ["@tailwindcss/postcss@4.3.0", "", { "dependencies": { "@alloc/quick-lru": "^5.2.0", "@tailwindcss/node": "4.3.0", "@tailwindcss/oxide": "4.3.0", "postcss": "^8.5.10", "tailwindcss": "4.3.0" } }, "sha512-Jm05Tjx+9yCLGv5qw1c+84Psds8MnyrEQYCB+FFk2lgGiUjlRqdxke4mVTuYrj2xnVZqKim2Apr5ySuQRYAw/w=="],
 
     "@tailwindcss/typography": ["@tailwindcss/typography@0.5.20", "", { "dependencies": { "postcss-selector-parser": "6.0.10" }, "peerDependencies": { "tailwindcss": ">=3.0.0 || >=4.0.0 || insiders" } }, "sha512-hwbzQuNUfcPvbegQFatVPl/MY/tcM9KLl963hQ5laJKPh81TEZ1+dNG9PirGvcaDBkp+BCshExAyKVPW91dozw=="],
-
-    "@tauri-apps/api": ["@tauri-apps/api@2.11.0", "", {}, "sha512-7CinYODhky9lmO23xHnUFv0Xt43fbtWMyxZcLcRBlFkcgXKuEirBvHpmtJ89YMhyeGcq20Wuc47Fa4XjyniywA=="],
 
     "@tauri-apps/cli": ["@tauri-apps/cli@2.11.2", "", { "optionalDependencies": { "@tauri-apps/cli-darwin-arm64": "2.11.2", "@tauri-apps/cli-darwin-x64": "2.11.2", "@tauri-apps/cli-linux-arm-gnueabihf": "2.11.2", "@tauri-apps/cli-linux-arm64-gnu": "2.11.2", "@tauri-apps/cli-linux-arm64-musl": "2.11.2", "@tauri-apps/cli-linux-riscv64-gnu": "2.11.2", "@tauri-apps/cli-linux-x64-gnu": "2.11.2", "@tauri-apps/cli-linux-x64-musl": "2.11.2", "@tauri-apps/cli-win32-arm64-msvc": "2.11.2", "@tauri-apps/cli-win32-ia32-msvc": "2.11.2", "@tauri-apps/cli-win32-x64-msvc": "2.11.2" }, "bin": { "tauri": "tauri.js" } }, "sha512-bk3HemqvGRoy+5D/dVMUQHKMYLglD0jVnMm/0iGMH6ufZ+p8r14m6BpIixwij3PBvZdvORUp1YifTD8QxVZ1Nw=="],
 
@@ -6065,7 +5784,7 @@
 
     "strip-final-newline": ["strip-final-newline@2.0.0", "", {}, "sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA=="],
 
-    "strip-indent": ["strip-indent@3.0.0", "", { "dependencies": { "min-indent": "^1.0.0" } }, "sha512-laJTa3Jb+VQpaC6DseHhF7dXVqHTfJPCRDaEbid/drOhgitgYku/letMUqOXFoWV0zIIUbjpdH2t+tYj4bQMRQ=="],
+    "strip-indent": ["strip-indent@4.1.1", "", {}, "sha512-SlyRoSkdh1dYP0PzclLE7r0M9sgbFKKMFXpFRUMNuKhQSbC6VQIGzq3E0qsfvGJaUFJPGv6Ws1NZ/haTAjfbMA=="],
 
     "strip-json-comments": ["strip-json-comments@5.0.3", "", {}, "sha512-1tB5mhVo7U+ETBKNf92xT4hrQa3pm0MZ0PQvuDnWgAAGHDsfp4lPSpiS6psrSiet87wyGPh9ft6wmhOMQ0hDiw=="],
 
@@ -6535,9 +6254,7 @@
 
     "@grpc/proto-loader/yargs": ["yargs@17.7.2", "", { "dependencies": { "cliui": "^8.0.1", "escalade": "^3.1.1", "get-caller-file": "^2.0.5", "require-directory": "^2.1.1", "string-width": "^4.2.3", "y18n": "^5.0.5", "yargs-parser": "^21.1.1" } }, "sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w=="],
 
-    "@img/sharp-freebsd-wasm32/@img/sharp-wasm32": ["@img/sharp-wasm32@0.35.1", "", { "dependencies": { "@emnapi/runtime": "^1.11.0" } }, "sha512-PCQUoQdZyE8tp3HpbevuihfUmgSP4qWI0FGEPWoeXqaS+cUrFfemabHQiebUmUmlUhCuNnQMxGrQ+CPqK4hnxg=="],
-
-    "@img/sharp-webcontainers-wasm32/@img/sharp-wasm32": ["@img/sharp-wasm32@0.35.1", "", { "dependencies": { "@emnapi/runtime": "^1.11.0" } }, "sha512-PCQUoQdZyE8tp3HpbevuihfUmgSP4qWI0FGEPWoeXqaS+cUrFfemabHQiebUmUmlUhCuNnQMxGrQ+CPqK4hnxg=="],
+    "@img/sharp-wasm32/@emnapi/runtime": ["@emnapi/runtime@1.11.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-55coeOFKHv1ywEcUXJtWU5f+Jr/W5tZDvZig8DLKSwUN1JpROQ4rk/SNOQiFWmaR/VKF4zuFyW1B8JduOSv6Pg=="],
 
     "@joshwooding/vite-plugin-react-docgen-typescript/glob": ["glob@13.0.6", "", { "dependencies": { "minimatch": "^10.2.2", "minipass": "^7.1.3", "path-scurry": "^2.0.2" } }, "sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw=="],
 
@@ -7031,13 +6748,13 @@
 
     "rc/strip-json-comments": ["strip-json-comments@2.0.1", "", {}, "sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ=="],
 
-    "react-docgen/strip-indent": ["strip-indent@4.1.1", "", {}, "sha512-SlyRoSkdh1dYP0PzclLE7r0M9sgbFKKMFXpFRUMNuKhQSbC6VQIGzq3E0qsfvGJaUFJPGv6Ws1NZ/haTAjfbMA=="],
-
     "read-yaml-file/js-yaml": ["js-yaml@3.14.2", "", { "dependencies": { "argparse": "^1.0.7", "esprima": "^4.0.0" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg=="],
 
     "readdirp/picomatch": ["picomatch@2.3.2", "", {}, "sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA=="],
 
     "recast/source-map": ["source-map@0.6.1", "", {}, "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="],
+
+    "redent/strip-indent": ["strip-indent@3.0.0", "", { "dependencies": { "min-indent": "^1.0.0" } }, "sha512-laJTa3Jb+VQpaC6DseHhF7dXVqHTfJPCRDaEbid/drOhgitgYku/letMUqOXFoWV0zIIUbjpdH2t+tYj4bQMRQ=="],
 
     "remarkable/argparse": ["argparse@1.0.10", "", { "dependencies": { "sprintf-js": "~1.0.2" } }, "sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg=="],
 
@@ -7212,10 +6929,6 @@
     "@grpc/proto-loader/yargs/string-width": ["string-width@4.2.3", "", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
 
     "@grpc/proto-loader/yargs/yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
-
-    "@img/sharp-freebsd-wasm32/@img/sharp-wasm32/@emnapi/runtime": ["@emnapi/runtime@1.11.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-55coeOFKHv1ywEcUXJtWU5f+Jr/W5tZDvZig8DLKSwUN1JpROQ4rk/SNOQiFWmaR/VKF4zuFyW1B8JduOSv6Pg=="],
-
-    "@img/sharp-webcontainers-wasm32/@img/sharp-wasm32/@emnapi/runtime": ["@emnapi/runtime@1.11.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-55coeOFKHv1ywEcUXJtWU5f+Jr/W5tZDvZig8DLKSwUN1JpROQ4rk/SNOQiFWmaR/VKF4zuFyW1B8JduOSv6Pg=="],
 
     "@manypkg/find-root/find-up/locate-path": ["locate-path@5.0.0", "", { "dependencies": { "p-locate": "^4.1.0" } }, "sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g=="],
 
@@ -7525,6 +7238,8 @@
 
     "next/sharp/@img/sharp-linuxmusl-x64": ["@img/sharp-linuxmusl-x64@0.34.5", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-x64": "1.2.4" }, "os": "linux", "cpu": "x64" }, "sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q=="],
 
+    "next/sharp/@img/sharp-wasm32": ["@img/sharp-wasm32@0.34.5", "", { "dependencies": { "@emnapi/runtime": "^1.7.0" }, "cpu": "none" }, "sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw=="],
+
     "next/sharp/@img/sharp-win32-arm64": ["@img/sharp-win32-arm64@0.34.5", "", { "os": "win32", "cpu": "arm64" }, "sha512-WQ3AgWCWYSb2yt+IG8mnC6Jdk9Whs7O0gxphblsLvdhSpSTtmu69ZG1Gkb6NuvxsNACwiPV6cNSZNzt0KPsw7g=="],
 
     "next/sharp/@img/sharp-win32-ia32": ["@img/sharp-win32-ia32@0.34.5", "", { "os": "win32", "cpu": "ia32" }, "sha512-FV9m/7NmeCmSHDD5j4+4pNI8Cp3aW+JvLoXcTUo0IqyjSfAZJ8dIUmijx1qaJsIiU+Hosw6xM5KijAWRJCSgNg=="],
@@ -7787,6 +7502,8 @@
 
     "@vercel/analytics/next/sharp/@img/sharp-linuxmusl-x64": ["@img/sharp-linuxmusl-x64@0.34.5", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-x64": "1.2.4" }, "os": "linux", "cpu": "x64" }, "sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q=="],
 
+    "@vercel/analytics/next/sharp/@img/sharp-wasm32": ["@img/sharp-wasm32@0.34.5", "", { "dependencies": { "@emnapi/runtime": "^1.7.0" }, "cpu": "none" }, "sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw=="],
+
     "@vercel/analytics/next/sharp/@img/sharp-win32-arm64": ["@img/sharp-win32-arm64@0.34.5", "", { "os": "win32", "cpu": "arm64" }, "sha512-WQ3AgWCWYSb2yt+IG8mnC6Jdk9Whs7O0gxphblsLvdhSpSTtmu69ZG1Gkb6NuvxsNACwiPV6cNSZNzt0KPsw7g=="],
 
     "@vercel/analytics/next/sharp/@img/sharp-win32-ia32": ["@img/sharp-win32-ia32@0.34.5", "", { "os": "win32", "cpu": "ia32" }, "sha512-FV9m/7NmeCmSHDD5j4+4pNI8Cp3aW+JvLoXcTUo0IqyjSfAZJ8dIUmijx1qaJsIiU+Hosw6xM5KijAWRJCSgNg=="],
@@ -7834,6 +7551,8 @@
     "@vercel/speed-insights/next/sharp/@img/sharp-linuxmusl-arm64": ["@img/sharp-linuxmusl-arm64@0.34.5", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-arm64": "1.2.4" }, "os": "linux", "cpu": "arm64" }, "sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg=="],
 
     "@vercel/speed-insights/next/sharp/@img/sharp-linuxmusl-x64": ["@img/sharp-linuxmusl-x64@0.34.5", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-x64": "1.2.4" }, "os": "linux", "cpu": "x64" }, "sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q=="],
+
+    "@vercel/speed-insights/next/sharp/@img/sharp-wasm32": ["@img/sharp-wasm32@0.34.5", "", { "dependencies": { "@emnapi/runtime": "^1.7.0" }, "cpu": "none" }, "sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw=="],
 
     "@vercel/speed-insights/next/sharp/@img/sharp-win32-arm64": ["@img/sharp-win32-arm64@0.34.5", "", { "os": "win32", "cpu": "arm64" }, "sha512-WQ3AgWCWYSb2yt+IG8mnC6Jdk9Whs7O0gxphblsLvdhSpSTtmu69ZG1Gkb6NuvxsNACwiPV6cNSZNzt0KPsw7g=="],
 
@@ -7922,6 +7641,8 @@
     "next-pwa/next/sharp/@img/sharp-linuxmusl-arm64": ["@img/sharp-linuxmusl-arm64@0.34.5", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-arm64": "1.2.4" }, "os": "linux", "cpu": "arm64" }, "sha512-fprJR6GtRsMt6Kyfq44IsChVZeGN97gTD331weR1ex1c1rypDEABN6Tm2xa1wE6lYb5DdEnk03NZPqA7Id21yg=="],
 
     "next-pwa/next/sharp/@img/sharp-linuxmusl-x64": ["@img/sharp-linuxmusl-x64@0.34.5", "", { "optionalDependencies": { "@img/sharp-libvips-linuxmusl-x64": "1.2.4" }, "os": "linux", "cpu": "x64" }, "sha512-Jg8wNT1MUzIvhBFxViqrEhWDGzqymo3sV7z7ZsaWbZNDLXRJZoRGrjulp60YYtV4wfY8VIKcWidjojlLcWrd8Q=="],
+
+    "next-pwa/next/sharp/@img/sharp-wasm32": ["@img/sharp-wasm32@0.34.5", "", { "dependencies": { "@emnapi/runtime": "^1.7.0" }, "cpu": "none" }, "sha512-OdWTEiVkY2PHwqkbBI8frFxQQFekHaSSkUIJkwzclWZe64O1X4UlUjqqqLaPbUpMOQk6FBu/HtlGXNblIs0huw=="],
 
     "next-pwa/next/sharp/@img/sharp-win32-arm64": ["@img/sharp-win32-arm64@0.34.5", "", { "os": "win32", "cpu": "arm64" }, "sha512-WQ3AgWCWYSb2yt+IG8mnC6Jdk9Whs7O0gxphblsLvdhSpSTtmu69ZG1Gkb6NuvxsNACwiPV6cNSZNzt0KPsw7g=="],
 

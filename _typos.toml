@@ -47,6 +47,18 @@ ND = "ND"
 Som = "Som"
 HPE = "HPE"
 
+# MIME/file-extension tokens and generated doc anchors.
+aas = "aas"
+aso = "aso"
+caf = "caf"
+colorts = "colorts"
+fo = "fo"
+gam = "gam"
+iif = "iif"
+odf = "odf"
+opf = "opf"
+vor = "vor"
+
 [files]
 extend-exclude = [
   # Exploration capture files are verbatim, append-only human dumps

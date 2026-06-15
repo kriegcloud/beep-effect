@@ -18,7 +18,7 @@ describe("NextConfig", () => {
         ];
       };
       const input = {
-        allowedDevOrigins: ["codedank-web.localhost"],
+        allowedDevOrigins: ["oip-web.localhost"],
         cacheComponents: true,
         headers,
         pageExtensions: ["ts", "tsx", "mdx"],
@@ -33,7 +33,7 @@ describe("NextConfig", () => {
 
       const decoded = yield* decodeNextConfig(input);
 
-      expect(decoded.allowedDevOrigins).toEqual(["codedank-web.localhost"]);
+      expect(decoded.allowedDevOrigins).toEqual(["oip-web.localhost"]);
       expect(decoded.headers).toBe(headers);
       expect(headersCalled).toBe(false);
       expect(decoded.experimental?.mcpServer).toBe(true);

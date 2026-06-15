@@ -4,14 +4,8 @@ import {
   $AgentsUseCasesId,
   $EpistemicDomainId,
   $I,
-  $InstallerDomainId,
-  $InstallerServerId,
-  $InstallerUseCasesId,
   $LawPracticeDomainId,
-  $ProfessionalRuntimeProofId,
   $SchemaId,
-  $StackInstallerId,
-  $WealthManagementDomainId,
   $WorkspaceDomainId,
 } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -250,22 +244,12 @@ describe("@beep/identity", () => {
     expect($I.create("custom").make("CustomService")).toBe("@beep/custom/CustomService");
   });
 
-  it("exports P3 professional runtime proof package composers", () => {
+  it("exports professional runtime package composers", () => {
     expect($WorkspaceDomainId.make("ContextPacket")).toBe("@beep/workspace-domain/ContextPacket");
     expect($EpistemicDomainId.make("Evidence")).toBe("@beep/epistemic-domain/Evidence");
     expect($AgentsDomainId.make("Agent")).toBe("@beep/agents-domain/Agent");
     expect($AgentsUseCasesId.make("RuntimeScope")).toBe("@beep/agents-use-cases/RuntimeScope");
     expect($LawPracticeDomainId.make("Matter")).toBe("@beep/law-practice-domain/Matter");
-    expect($WealthManagementDomainId.make("Household")).toBe("@beep/wealth-management-domain/Household");
-    expect($ProfessionalRuntimeProofId.make("RuntimeHarness")).toBe("@beep/professional-runtime-proof/RuntimeHarness");
-  });
-
-  it("exports Stack Installer package composers", () => {
-    expect($StackInstallerId.make("Workbench")).toBe("@beep/stack-installer/Workbench");
-    expect($InstallerDomainId.make("HostDependency")).toBe("@beep/installer-domain/HostDependency");
-    expect($InstallerDomainId.make("AIStackManifest")).toBe("@beep/installer-domain/AIStackManifest");
-    expect($InstallerUseCasesId.make("P1ManualProofRequest")).toBe("@beep/installer-use-cases/P1ManualProofRequest");
-    expect($InstallerServerId.make("InstallerServer")).toBe("@beep/installer-server/InstallerServer");
   });
 });
 // bench

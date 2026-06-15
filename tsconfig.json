@@ -102,33 +102,20 @@
       "@beep/repo-docgen/*": ["./packages/tooling/tool/docgen/src/*"],
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/md": ["./packages/foundation/modeling/md/src/index.ts"],
-      "@beep/professional-runtime-proof": [
-        "./apps/professional-runtime-proof/src/index.ts"
-      ],
-      "@beep/agents-domain": [
-        "./packages/agents/domain/src/index.ts"
-      ],
-      "@beep/agents-client": [
-        "./packages/agents/client/src/index.ts"
-      ],
+      "@beep/agents-domain": ["./packages/agents/domain/src/index.ts"],
+      "@beep/agents-client": ["./packages/agents/client/src/index.ts"],
       "@beep/agents-client/Chat.atoms": [
         "./packages/agents/client/src/Chat.atoms.ts"
       ],
-      "@beep/agents-use-cases": [
-        "./packages/agents/use-cases/src/index.ts"
-      ],
+      "@beep/agents-use-cases": ["./packages/agents/use-cases/src/index.ts"],
       "@beep/agents-use-cases/public": [
         "./packages/agents/use-cases/src/public.ts"
       ],
       "@beep/agents-use-cases/test": [
         "./packages/agents/use-cases/src/test.ts"
       ],
-      "@beep/agents-server": [
-        "./packages/agents/server/src/index.ts"
-      ],
-      "@beep/agents-server/test": [
-        "./packages/agents/server/src/test.ts"
-      ],
+      "@beep/agents-server": ["./packages/agents/server/src/index.ts"],
+      "@beep/agents-server/test": ["./packages/agents/server/src/test.ts"],
       "@beep/agents-server/AssistantTurn": [
         "./packages/agents/server/src/AssistantTurn/index.ts"
       ],
@@ -141,9 +128,6 @@
       "@beep/epistemic-domain": ["./packages/epistemic/domain/src/index.ts"],
       "@beep/law-practice-domain": [
         "./packages/law-practice/domain/src/index.ts"
-      ],
-      "@beep/wealth-management-domain": [
-        "./packages/wealth-management/domain/src/index.ts"
       ],
       "@beep/workspace-domain": ["./packages/workspace/domain/src/index.ts"],
       "@beep/repo-docgen/schema.json": [
@@ -316,21 +300,6 @@
       "@beep/law-practice-domain/entities/PatentAsset": [
         "./packages/law-practice/domain/src/entities/PatentAsset/index.ts"
       ],
-      "@beep/wealth-management-domain/entities": [
-        "./packages/wealth-management/domain/src/entities/index.ts"
-      ],
-      "@beep/wealth-management-domain/entities/Account": [
-        "./packages/wealth-management/domain/src/entities/Account/index.ts"
-      ],
-      "@beep/wealth-management-domain/entities/Household": [
-        "./packages/wealth-management/domain/src/entities/Household/index.ts"
-      ],
-      "@beep/wealth-management-domain/entities/Party": [
-        "./packages/wealth-management/domain/src/entities/Party/index.ts"
-      ],
-      "@beep/wealth-management-domain/entities/WealthClient": [
-        "./packages/wealth-management/domain/src/entities/WealthClient/index.ts"
-      ],
       "@beep/workspace-domain/entities": [
         "./packages/workspace/domain/src/entities/index.ts"
       ],
@@ -403,9 +372,6 @@
       "@beep/shared-domain/identity/Shared": [
         "./packages/shared/domain/src/identity/Shared.ts"
       ],
-      "@beep/shared-domain/identity/WealthManagement": [
-        "./packages/shared/domain/src/identity/WealthManagement.ts"
-      ],
       "@beep/shared-domain/identity/Workspace": [
         "./packages/shared/domain/src/identity/Workspace.ts"
       ],
@@ -468,9 +434,7 @@
       "@beep/workspace-use-cases/aggregates/Thread/server": [
         "./packages/workspace/use-cases/src/aggregates/Thread/server.ts"
       ],
-      "@beep/workspace-server": [
-        "./packages/workspace/server/src/index.ts"
-      ],
+      "@beep/workspace-server": ["./packages/workspace/server/src/index.ts"],
       "@beep/workspace-server/layer": [
         "./packages/workspace/server/src/Layer.ts"
       ],
@@ -620,69 +584,6 @@
       ],
       "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
       "@beep/konva/*": ["./packages/drivers/konva/src/*"],
-      "@beep/canvas-client": ["./packages/canvas/client/src/index.ts"],
-      "@beep/canvas-domain": ["./packages/canvas/domain/src/index.ts"],
-      "@beep/canvas-server": ["./packages/canvas/server/src/index.ts"],
-      "@beep/canvas-ui": ["./packages/canvas/ui/src/index.ts"],
-      "@beep/canvas-use-cases": ["./packages/canvas/use-cases/src/index.ts"],
-      "@beep/canvas-domain/aggregates": [
-        "./packages/canvas/domain/src/aggregates/index.ts"
-      ],
-      "@beep/canvas-domain/aggregates/CanvasProject": [
-        "./packages/canvas/domain/src/aggregates/CanvasProject/index.ts"
-      ],
-      "@beep/canvas-domain/identity": [
-        "./packages/canvas/domain/src/identity/index.ts"
-      ],
-      "@beep/canvas-domain/identity/Canvas": [
-        "./packages/canvas/domain/src/identity/Canvas.ts"
-      ],
-      "@beep/canvas-server/aggregates/CanvasProject": [
-        "./packages/canvas/server/src/aggregates/CanvasProject/index.ts"
-      ],
-      "@beep/canvas-server/layer": ["./packages/canvas/server/src/Layer.ts"],
-      "@beep/canvas-server/test": ["./packages/canvas/server/src/test.ts"],
-      "@beep/canvas-use-cases/aggregates/CanvasProject": [
-        "./packages/canvas/use-cases/src/aggregates/CanvasProject/index.ts"
-      ],
-      "@beep/canvas-use-cases/aggregates/CanvasProject/server": [
-        "./packages/canvas/use-cases/src/aggregates/CanvasProject/server.ts"
-      ],
-      "@beep/canvas-use-cases/public": [
-        "./packages/canvas/use-cases/src/public.ts"
-      ],
-      "@beep/canvas-use-cases/server": [
-        "./packages/canvas/use-cases/src/server.ts"
-      ],
-      "@beep/installer-domain": ["./packages/installer/domain/src/index.ts"],
-      "@beep/installer-domain/aggregates": [
-        "./packages/installer/domain/src/aggregates/index.ts"
-      ],
-      "@beep/installer-domain/entities": [
-        "./packages/installer/domain/src/entities/index.ts"
-      ],
-      "@beep/installer-domain/identity": [
-        "./packages/installer/domain/src/identity/index.ts"
-      ],
-      "@beep/installer-domain/values": [
-        "./packages/installer/domain/src/values/index.ts"
-      ],
-      "@beep/installer-server": ["./packages/installer/server/src/index.ts"],
-      "@beep/installer-server/layer": [
-        "./packages/installer/server/src/Layer.ts"
-      ],
-      "@beep/installer-server/test": [
-        "./packages/installer/server/src/test.ts"
-      ],
-      "@beep/installer-use-cases": [
-        "./packages/installer/use-cases/src/index.ts"
-      ],
-      "@beep/installer-use-cases/public": [
-        "./packages/installer/use-cases/src/public.ts"
-      ],
-      "@beep/installer-use-cases/server": [
-        "./packages/installer/use-cases/src/server.ts"
-      ],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
       "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
       "@beep/repo-cli/commands/AIMetrics": [
@@ -1232,18 +1133,14 @@
         "./packages/tooling/tool/cli/src/commands/Corpus/index.ts"
       ],
       "@beep/uspto": ["./packages/drivers/uspto/src/index.ts"],
-      "@beep/uspto/*": [
-        "./packages/drivers/uspto/src/*"
-      ],
+      "@beep/uspto/*": ["./packages/drivers/uspto/src/*"],
       "@beep/lexical-schema": [
         "./packages/foundation/modeling/lexical/src/index.ts"
       ],
       "@beep/lexical-schema/*": [
         "./packages/foundation/modeling/lexical/src/*"
       ],
-      "@beep/editor": [
-        "./packages/foundation/ui-system/editor/src/index.ts"
-      ],
+      "@beep/editor": ["./packages/foundation/ui-system/editor/src/index.ts"],
       "@beep/editor/artifact-ref-node": [
         "./packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
       ],
@@ -1262,9 +1159,7 @@
       "@beep/agents-client/ClientObservability": [
         "./packages/agents/client/src/ClientObservability.ts"
       ],
-      "@beep/agents-domain/turn": [
-        "./packages/agents/domain/src/turn/index.ts"
-      ]
+      "@beep/agents-domain/turn": ["./packages/agents/domain/src/turn/index.ts"]
     }
   }
 }

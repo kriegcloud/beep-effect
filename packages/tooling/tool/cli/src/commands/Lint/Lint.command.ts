@@ -46,28 +46,21 @@ const DEPRECATED_API_LINT_ESLINT_BIN = "node_modules/.bin/eslint";
 const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=8192";
 const DEPRECATED_API_LINT_SHARDS = [
   "apps/architecture-lab-proof",
-  "apps/canvas",
-  "apps/codedank-web",
   "apps/oip-web",
   "apps/professional-desktop",
-  "apps/professional-runtime-proof",
-  "apps/stack-installer",
   "infra",
   "packages/_internal",
   "packages/agents",
   "packages/architecture-lab",
-  "packages/canvas",
   "packages/drivers",
   "packages/epistemic",
   "packages/foundation/capability",
   "packages/foundation/modeling",
   "packages/foundation/primitive",
   "packages/foundation/ui-system",
-  "packages/installer",
   "packages/law-practice",
   "packages/shared",
   "packages/tooling",
-  "packages/wealth-management",
   "packages/workspace",
 ] as const;
 const REQUIRED_TAGGED_UNIONS = [

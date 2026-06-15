@@ -82,9 +82,6 @@
       "@beep/shared-domain/identity/Shared": [
         "../../../packages/shared/domain/src/identity/Shared.ts"
       ],
-      "@beep/shared-domain/identity/WealthManagement": [
-        "../../../packages/shared/domain/src/identity/WealthManagement.ts"
-      ],
       "@beep/shared-domain/identity/Workspace": [
         "../../../packages/shared/domain/src/identity/Workspace.ts"
       ],

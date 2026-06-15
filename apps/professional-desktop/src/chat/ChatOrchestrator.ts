@@ -195,7 +195,7 @@ const streamAndPersist = (
     Effect.gen(function* () {
       const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("GetTimeline")));
       const history = projectTimelineToHistory(timeline);
-      const collected: Array<IndexedBlock> = [];
+      const collected = A.empty<IndexedBlock>();
       const persisted = yield* Ref.make(false);
 
       // Persist runs once, only on success: sort collected blocks by envelope
@@ -229,7 +229,7 @@ const streamAndPersist = (
         ),
         Stream.mapError(
           (error: TurnGenerationError | ChatActionError): ChatActionError =>
-            error._tag === "ChatActionError" ? error : ChatActionError.new(error.message)
+            S.is(ChatActionError)(error) ? error : ChatActionError.new(error.message)
         )
       );
     })

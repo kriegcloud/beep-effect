@@ -137,9 +137,9 @@ Recorded 2026-06-12 from a full stack exploration (agent sweeps + doc reads).
   Tauri command (`professional_desktop_health`). State pattern:
   `@effect/atom-react` `Atom.family` + tagged-union load state
   (`src/App.tsx`).
-- `apps/professional-runtime-proof` — headless contract harness for the v1
-  runtime data loop (law-patent-intake scenario, deterministic fixture
-  agent).
+- The former professional runtime proof app has been removed; remaining runtime
+  data-loop fixtures live under the goal packet until that design is retired or
+  moved.
 
 ### Conversation data model
 

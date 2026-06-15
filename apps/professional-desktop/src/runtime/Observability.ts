@@ -14,6 +14,7 @@
  * @since 0.0.0
  */
 
+import { O } from "@beep/utils";
 import { Config, Effect, Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 import { Otlp, OtlpSerialization } from "effect/unstable/observability";
@@ -31,7 +32,7 @@ import { Otlp, OtlpSerialization } from "effect/unstable/observability";
 export const ObservabilityLive: Layer.Layer<never> = Layer.unwrap(
   Effect.gen(function* () {
     const endpoint = yield* Config.option(Config.string("OTEL_EXPORTER_OTLP_ENDPOINT"));
-    if (endpoint._tag === "None") {
+    if (O.isNone(endpoint)) {
       return Layer.empty;
     }
     return Otlp.layerFromConfig({

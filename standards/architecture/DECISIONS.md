@@ -801,16 +801,15 @@ cases executable, branchable, decodable, and documentable from one schema. The
 architecture already treats schemas as executable contracts; finite cases need
 the same runtime evidence as ordinary object fields.
 
-## 2026-05-20: Correct Stack Installer To One Pre-v1 Slice
+## 2026-05-20: Stack Installer Pre-v1 Slice
 
-- **Status:** Active
+- **Status:** Retired 2026-06-15
 
 Decision:
 
-Stack Installer uses one installer slice before v1:
-`packages/installer/{domain,use-cases,server}` with package names
-`@beep/installer-domain`, `@beep/installer-use-cases`, and
-`@beep/installer-server`.
+Stack Installer used one installer slice before v1. That slice and app have
+since been removed from the live workspace before any compatibility contract
+was published.
 
 The earlier category topology for `installer-dependencies`,
 `installer-security`, `installer-providers`, `installer-channels`, and

@@ -46,21 +46,6 @@ describe("P3 identity namespace types", () => {
     expect<typeof Identity.Shared.MembershipId.tableName>().type.toBe<"shared_membership">();
   });
 
-  it("preserves WealthManagement companion aliases and literals", () => {
-    expect<Identity.WealthManagement.HouseholdId>().type.toBe<
-      EntityId.EntityIdValueFor<"WealthManagementHouseholdId">
-    >();
-    expect<Identity.WealthManagement.WealthClientId>().type.toBe<
-      EntityId.EntityIdValueFor<"WealthManagementWealthClientId">
-    >();
-    expect<Identity.WealthManagement.PartyId>().type.toBe<EntityId.EntityIdValueFor<"WealthManagementPartyId">>();
-    expect<Identity.WealthManagement.AccountId>().type.toBe<EntityId.EntityIdValueFor<"WealthManagementAccountId">>();
-    expect<typeof Identity.WealthManagement.HouseholdId.tableName>().type.toBe<"wealth_management_household">();
-    expect<typeof Identity.WealthManagement.WealthClientId.tableName>().type.toBe<"wealth_management_wealth_client">();
-    expect<typeof Identity.WealthManagement.PartyId.tableName>().type.toBe<"wealth_management_party">();
-    expect<typeof Identity.WealthManagement.AccountId.tableName>().type.toBe<"wealth_management_account">();
-  });
-
   it("preserves Workspace companion aliases and literals", () => {
     expect<Identity.Workspace.WorkspaceId>().type.toBe<EntityId.EntityIdValueFor<"WorkspaceWorkspaceId">>();
     expect<Identity.Workspace.EmailArtifactId>().type.toBe<EntityId.EntityIdValueFor<"WorkspaceEmailArtifactId">>();

@@ -30,7 +30,7 @@ describe("Shared Next.js config preset", () => {
   it("builds the current shared base config with additive app overrides", () => {
     const config = makeBeepNextBaseConfig({
       repoRoot: "/repo",
-      allowedDevOrigins: ["codedank-web.localhost"],
+      allowedDevOrigins: ["oip-web.localhost"],
       additionalPageExtensions: ["mdoc"],
       additionalTranspilePackages: ["@beep/shared-ui"],
       additionalOptimizePackageImports: ["@beep/ui"],
@@ -43,7 +43,7 @@ describe("Shared Next.js config preset", () => {
       },
     });
 
-    expect(config.allowedDevOrigins).toEqual(["codedank-web.localhost"]);
+    expect(config.allowedDevOrigins).toEqual(["oip-web.localhost"]);
     expect(config.pageExtensions).toEqual(["ts", "tsx", "md", "mdx", "mdoc", "story.tsx"]);
     expect(config.transpilePackages).toEqual([
       "@beep/ui",
@@ -66,7 +66,7 @@ describe("Shared Next.js config preset", () => {
       let headersCalled = false;
       const config = defineBeepNextConfig({
         repoRoot: "/repo",
-        allowedDevOrigins: ["codedank-web.localhost"],
+        allowedDevOrigins: ["oip-web.localhost"],
         mdx: false,
         pwa: false,
         bundleAnalyzer: false,
@@ -101,7 +101,7 @@ describe("Shared Next.js config preset", () => {
   it("can disable every shared feature wrapper explicitly", () => {
     const config = defineBeepNextConfig({
       repoRoot: "/repo",
-      allowedDevOrigins: ["codedank-web.localhost"],
+      allowedDevOrigins: ["oip-web.localhost"],
       securityHeaders: false,
       mdx: false,
       pwa: false,
