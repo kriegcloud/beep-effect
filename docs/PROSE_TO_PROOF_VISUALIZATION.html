@@ -47,7 +47,20 @@
   }
   .wrap{max-width:1060px;margin:0 auto}
 
-  header{padding:62px 0 26px}
+  /* shared tab bar */
+  .tabbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:18px;
+    padding:11px 20px;margin:0 -20px 0;border-bottom:1px solid var(--line);
+    background:rgba(10,13,16,.82);backdrop-filter:blur(10px)}
+  .tabbar .brand{display:flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:700;font-size:.96rem;color:var(--ink);text-decoration:none;letter-spacing:-.01em}
+  .tabbar .brand .logo{display:grid;place-items:center;width:25px;height:25px;border:1px solid var(--logic);border-radius:6px;color:var(--logic);font-family:var(--mono);font-size:.95rem}
+  .tabbar .tabs{display:flex;gap:4px}
+  .tabbar .tab{font-family:var(--mono);font-size:.74rem;letter-spacing:.04em;color:var(--ink-dim);text-decoration:none;padding:7px 13px;border-radius:6px;border:1px solid transparent;transition:.18s}
+  .tabbar .tab:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+  .tabbar .tab.on{color:var(--ink);background:rgba(95,198,214,.10);border-color:rgba(95,198,214,.3)}
+  .tabbar .conn{margin-left:auto;font-family:var(--mono);font-size:.66rem;color:var(--safe);display:flex;align-items:center;gap:7px}
+  .tabbar .conn::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--safe);box-shadow:0 0 8px var(--safe)}
+
+  header{padding:34px 0 26px}
   .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-faint)}
   .eyebrow b{color:var(--retrieval-soft);font-weight:500}
   .eyebrow i{color:var(--logic-soft);font-style:normal;font-weight:500}
@@ -235,6 +248,15 @@
 </style>
 </head>
 <body class="lens-stage">
+  <nav class="tabbar">
+    <a class="brand" href="PROSE_TO_PROOF_VISUALIZATION.html"><span class="logo">⊢</span> Prose-to-Proof</a>
+    <div class="tabs">
+      <a class="tab on" href="PROSE_TO_PROOF_VISUALIZATION.html">Workbench</a>
+      <a class="tab" href="PROSE_TO_PROOF_GRAPH.html">Graph</a>
+      <a class="tab" href="PROSE_TO_PROOF_CHAT.html">Chat</a>
+    </div>
+    <span class="conn">local · on device</span>
+  </nav>
 <div class="wrap">
 
   <header>
