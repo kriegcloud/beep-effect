@@ -22,8 +22,8 @@
  * Gated on the same PgLite integration env as the other `.pglite` suites.
  */
 import { fileURLToPath } from "node:url";
-import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import { FixtureTurnKernel } from "@beep/agents-use-cases/proof";
+import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";

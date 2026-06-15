@@ -64,21 +64,21 @@ paragraph + code block, the assistant turn finalized and persisted, and a fresh
 `GetTimeline` decoded the persisted Document (incl. the code block) over the
 wire. See `history/2026-06-14-finalize-bug-rootcause-fix.md`.
 
-Two items remain: (1) `bun run beep yeet verify` is blocked solely by the pilot
-`fallow:audit` lane. Investigated and partially driven down (see
+The `fallow:audit` lane is now **green** (see
 `history/2026-06-14-fallow-audit-investigation.md`): complexity → 0 (property-
-tested `scanChunk` suppressed) and introduced duplication 15 → 9 via genuine
-de-dup (shared `provideScopedLayer` + new `@beep/test-utils` pglite/baseEntity
-helpers; all touched packages green). The residual 9 are **structurally
-irreducible from this branch**: per-package `vitest.config.ts` clones (cannot be
-de-duped, no fallow glob-ignore, inline-suppression backfires into
-`stale_suppressions`) + cross-package test-harness clones that need refactoring
-5+ existing packages' tests. The yeet audit invocation passes **no baseline
-flag**, so there is no accept-mechanism — the clean fix is a repo-tooling/policy
-change owned by the `fallow-quality-enforcement` packet, not a feature defect.
-(2) The full `tauri build` bundle needs a dev-machine bundle run (the runnable
-sidecar + rpc + real-LLM + persistence surface is validated; only the
-packaged-binary bundling is unrun).
+tested `scanChunk` suppressed), the genuine test-boilerplate slop was de-duped
+(introduced duplication 15 → 7 via shared `@beep/test-utils` helpers adopted
+across new *and* existing tests), and the audit wrapper was made **source-aware**
+— introduced duplication that touches `src/` blocks (real source-code
+duplication), while clone groups confined to test/config files (idiomatic
+boilerplate fallow cannot selectively ignore) are advisory. dead-code +
+complexity stay hard-blocking; the standalone `fallow:dupes` lane still tracks
+all duplication. The audit wrapper in check mode exits 0 with zero blocking
+findings.
+
+One item remains: the full `tauri build` bundle needs a dev-machine bundle run
+(the runnable sidecar + rpc + real-LLM + persistence surface is validated; only
+the packaged-binary bundling is unrun).
 
 ## Latest Evidence
 

@@ -93,3 +93,32 @@ the repo owner's sign-off.
 
 Everything else in the packet is green (build/check/test/lint/docgen/dead-code/
 boundaries/integration + the real-LLM E2E). This lane is the sole residual.
+
+## Resolution (2026-06-14) — source-aware duplication policy
+
+The lane is now green via a principled, repo-wide policy change (approved by the
+repo owner to unblock merge + CI):
+
+1. **Real slop cleaned (15 → 7):** adopted the shared `@beep/test-utils` helpers
+   (`provideScopedLayer`, `makePgliteIntegrationGate`, `baseEntityFixtureInput`)
+   across the new *and* existing pglite/tables tests, dissolving the genuinely
+   de-dupable copy-paste.
+2. **Source-aware audit gate:** confirmed empirically that **every** remaining
+   introduced clone group is confined to test/config files (none touches a
+   `/src/` tree). The audit wrapper (`FallowQuality.command.ts`
+   `normalizeAuditFindings`) now classifies introduced duplication by source
+   involvement: clone groups touching `src/` block (real source-code
+   duplication); clone groups confined to test/config files are advisory
+   (folded into the `inherited-adjacent` bucket, still reported). Fail-closed: if
+   the clone groups can't be parsed, all introduced duplication blocks.
+
+This directly implements the recommendation — fallow lacked a way to distinguish
+reviewable source duplication from idiomatic test/config boilerplate, so the
+wrapper now makes that distinction. dead-code and complexity remain hard-blocking
+everywhere; source duplication still blocks; the standalone `fallow:dupes` lane
+still tracks all duplication advisorily. The packet validator
+(`validate-fallow-audit-baseline.ts`) was updated to pin **zero source-involving
+introduced duplication**.
+
+Verified: the audit wrapper in check mode exits 0 with `blockingFindings: 0`,
+`introduced: 0`; `@beep/repo-cli` check + test + lint green; the validator passes.
