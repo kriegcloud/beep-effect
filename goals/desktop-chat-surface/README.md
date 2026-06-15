@@ -49,6 +49,15 @@ migration (PGlite integration test), chat UI, app-local `runtime/Layer.ts`, and 
 bun sidecar that **boots + serves rpc + migrates PGlite in this environment**;
 Tauri packaging bun-compiles + `cargo check` passes. Reflection written + passing.
 
+The one bug the live browser E2E surfaced — the assistant turn not
+finalizing/persisting in the live transport — is **fixed and regression-tested**
+(see `history/2026-06-14-finalize-bug-rootcause-fix.md`). Root cause: the md
+model's `Pre.language` used `S.Option(S.String)`, whose encoded form is a real
+Option instance that does not survive a JSON boundary (jsonb column + rpc wire);
+switched to the JSON-safe `S.OptionFromNullOr(S.String)` (Type unchanged). Now
+guarded by a `@beep/md` JSON-boundary property test and a DB-backed
+chat-persist PGlite integration test.
+
 Two items remain: (1) `bun run beep yeet verify` is blocked solely by the pilot
 `fallow:audit` lane flagging the new packages' standard test/config boilerplate
 as `introduced` duplication (+ one proven-scanner complexity) — a tooling-gap
@@ -66,9 +75,13 @@ fixture path is keyless).
 - [`history/2026-06-14-e2e-fixture-browser.md`](./history/2026-06-14-e2e-fixture-browser.md)
   — keyless fixture-mode **browser E2E**: app renders, create thread + user
   message persist across reload, assistant turn **streams block-by-block** as
-  structured rich text, Stop control renders. One localized bug: the assistant
-  turn does not finalize/persist in the live streaming transport (fix-direction
-  recorded; a live-transport integration test is the follow-on).
+  structured rich text, Stop control renders. Surfaced one localized bug (now
+  fixed — see next entry).
+- [`history/2026-06-14-finalize-bug-rootcause-fix.md`](./history/2026-06-14-finalize-bug-rootcause-fix.md)
+  — root cause + fix for the assistant-turn finalize/persist bug: md
+  `Pre.language` `S.Option` → JSON-safe `S.OptionFromNullOr`; guarded by a
+  `@beep/md` JSON-boundary property test + a DB-backed chat-persist PGlite
+  integration test. All affected packages green.
 - [`history/reflections/2026-06-14-claude.md`](./history/reflections/2026-06-14-claude.md)
   — closeout reflection (`reflection-artifacts` lint passes).
 - [`research/2026-06-14-port-findings.md`](./research/2026-06-14-port-findings.md)
