@@ -94,6 +94,7 @@ const generatedComposers = $I.compose(
   "ffmpeg",
   "postgres",
   "anthropic",
+	"scratchpad",
   "venice-ai",
   "xai",
   "acp",
@@ -1372,3 +1373,19 @@ export const $LexicalSchemaId: Identity.IdentityComposer<"@beep/lexical-schema">
  * @category configuration
  */
 export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$EditorId;
+
+/**
+ * Identity composer for `@beep/scratchpad`.
+ *
+ * @example
+ * ```typescript
+ * import { $ScratchpadId } from "@beep/identity"
+ *
+ * const id = $ScratchpadId.make("Scratchpad")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $ScratchpadId: Identity.IdentityComposer<"@beep/scratchpad"> = composers.$ScratchpadId;
