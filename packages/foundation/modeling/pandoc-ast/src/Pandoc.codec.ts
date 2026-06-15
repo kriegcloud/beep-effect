@@ -234,7 +234,7 @@ const decodeInlineOrUnknown = (input: unknown): Effect.Effect<PandocInline.Type>
     })
   );
 
-const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type, S.SchemaError> =>
+const decodeBlockOrUnknown = (input: unknown): Effect.Effect<PandocBlock.Type> =>
   decodeConstructor(input).pipe(
     Effect.matchEffect({
       onFailure: () => Effect.succeed(unknownBlock("MalformedBlock", input)),
