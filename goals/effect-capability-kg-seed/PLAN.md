@@ -1,17 +1,17 @@
-# <Goal Title> Plan
+# Effect Capability KG Seed Plan
 
 ## Status
 
-Status: `pending`
+Status: `complete`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Inspect source hierarchy and confirm scope. | Required facts and blockers are recorded. |
-| P1 Implement | pending | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
-| P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
-| P3 Close | pending | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
+| P0 Research | complete | Confirm implementation home, inspect existing tooling APIs, and record exact package verification commands. | Source inventory, package choice, and verification lane are recorded in this plan or `research/`. |
+| P1 Implement | complete | Build the smallest deterministic seed extraction and advisory fixture proof that satisfies `SPEC.md`. | Seed graph/report, fixture findings, and tests satisfy acceptance. |
+| P2 Verify | complete | Run packet checks plus package-specific checks and capture evidence. | Verification is green or blockers are documented with commands and paths. |
+| P3 Close | complete | Update packet evidence/status, write reflection, and prepare handoff/publish if requested. | Packet status and evidence are updated; a closeout reflection exists. |
 
 ## P3 Closeout Checklist
 
@@ -34,12 +34,59 @@ Before marking the packet closed (and `status` → `completed-retained` / `compl
 - Preserve unrelated worktree changes.
 - Keep `SPEC.md` normative and update it only when the contract changes.
 - Keep this plan current; archive old run outputs under `history/`.
+- Do not install hooks, choose graph/vector storage, or implement hard
+  enforcement in this packet.
+- During P0, prefer reuse of `@beep/repo-utils` and `@beep/repo-codegraph`
+  before introducing a new package.
+
+## P0 Research Result
+
+- Implementation home: `packages/tooling/library/repo-utils`.
+- Rationale: this package already owns `TSMorphService`, JSDoc extraction
+  helpers, filesystem/path services, and canonical JSDoc category
+  normalization. Keeping the seed here avoids a new package and avoids adding a
+  `ts-morph` dependency to `@beep/repo-codegraph`.
+- Repo export visibility source: read
+  `standards/repo-exports.catalog.{md,jsonc}` as deterministic catalog input.
+  No export catalog refresh is planned unless this packet adds or changes
+  package public exports.
+- Package verification lane:
+  - `bunx turbo run check --filter=@beep/repo-utils`
+  - `bunx turbo run test --filter=@beep/repo-utils`
+  - `bunx turbo run lint --filter=@beep/repo-utils`
+
+## Closeout Evidence
+
+- Implementation:
+  `packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts`.
+- Tests:
+  `packages/tooling/library/repo-utils/test/EffectCapabilityKG.test.ts`.
+- Deterministic report snapshot: 10 modules, 4,112 graph edges, 417
+  module-to-symbol `defines` edges, 304 catalog visibility facts, three
+  advisory suggestions, and one decline/no-match finding.
+- `bunx turbo run check --filter=@beep/repo-utils` passed.
+- `bunx turbo run test --filter=@beep/repo-utils` passed: 17 files, 184 tests.
+- `bun run --cwd packages/tooling/library/repo-utils lint` passed.
+- `bun run --cwd packages/tooling/library/repo-utils docgen` passed.
+- `bun run repo-exports:catalog:check` passed after refreshing the
+  `@beep/repo-utils` package shard and root aggregate from shards.
+- `bun run beep lint reflection-artifacts` passed.
+- `bunx turbo run lint --filter=@beep/repo-utils` remains blocked by unrelated
+  formatter drift in `packages/foundation/modeling/identity/src/packages.ts`.
+  The touched package's direct lint command is green.
 
 ## Verification Commands
 
 ```sh
-test "$(wc -m < goals/<slug>/GOAL.md)" -le 4000
-jq . goals/<slug>/ops/manifest.json
-rg -n "<slug>|GOAL.md|agentLaunchers|packetAnchorDocument" goals/<slug>
-git diff --check -- goals/<slug>
+test "$(wc -m < goals/effect-capability-kg-seed/GOAL.md)" -le 4000
+jq . goals/effect-capability-kg-seed/ops/manifest.json
+rg -n "effect-capability-kg-seed|GOAL.md|agentLaunchers|packetAnchorDocument" goals/effect-capability-kg-seed
+git diff --check -- goals/effect-capability-kg-seed
+bunx turbo run check --filter=@beep/repo-utils
+bunx turbo run test --filter=@beep/repo-utils
+bunx turbo run lint --filter=@beep/repo-utils
+bun run --cwd packages/tooling/library/repo-utils lint
+bun run --cwd packages/tooling/library/repo-utils docgen
+bun run repo-exports:catalog:check
+bun run beep lint reflection-artifacts
 ```

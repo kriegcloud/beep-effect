@@ -94,7 +94,7 @@ const generatedComposers = $I.compose(
   "ffmpeg",
   "postgres",
   "anthropic",
-	"scratchpad",
+  "scratchpad",
   "venice-ai",
   "xai",
   "acp",

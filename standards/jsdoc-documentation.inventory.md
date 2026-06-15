@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-15T07:27:42.567Z
+Generated: 2026-06-15T11:30:20.769Z
 
 ## Scope
 
@@ -14,8 +14,8 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | cleanPackages | 19 |
 | packagesWithoutPublicSrcSurface | 2 |
 | packagesNeedingRemediation | 62 |
-| publicModules | 1224 |
-| publicExports | 12325 |
+| publicModules | 1225 |
+| publicExports | 12342 |
 | openModules | 114 |
 | openExports | 1575 |
 | missingExportExamples | 1242 |
@@ -92,7 +92,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 49 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
 | 50 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
 | 51 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
-| 52 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 101 | 0 | 4 |
+| 52 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 102 | 0 | 4 |
 | 53 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
 | 54 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
 | 55 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
@@ -105,7 +105,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 62 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
 | 63 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
 | 64 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 64 | 652 | 2 | 81 |
+| 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 668 | 2 | 81 |
 | 66 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
 | 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
 | 68 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |

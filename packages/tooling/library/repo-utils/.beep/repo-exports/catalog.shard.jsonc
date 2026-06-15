@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "272a3a2bd45d1cda9715eaea2193ca2cf230e96f6a53293441a433fcdeeb9ee8",
+    "digest": "49c14b0a81bcb5b7cd6b604d5b21fa8360bd7b97744792eabd77dd90abdf2cf7",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -39,6 +39,11 @@
         "path": "packages/tooling/library/repo-utils/src/DependencyIndex.ts",
         "sha256": "2f1910339630f913f1066dff5f24648267fdd42ab4198cac98f6b8e880eba859",
         "bytes": 3615
+      },
+      {
+        "path": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sha256": "887df4cb3ea029feb05bdfb88b4b630f7edb0f9c72661b74dc9266c359df5053",
+        "bytes": 47231
       },
       {
         "path": "packages/tooling/library/repo-utils/src/errors/CyclicDependencyError.ts",
@@ -371,6 +376,7 @@
       "@beep/repo-utils",
       "@beep/repo-utils/Dependencies",
       "@beep/repo-utils/DependencyIndex",
+      "@beep/repo-utils/EffectCapabilityKG",
       "@beep/repo-utils/errors/CyclicDependencyError",
       "@beep/repo-utils/errors/DomainError",
       "@beep/repo-utils/errors/index",
@@ -436,9 +442,9 @@
       "@beep/repo-utils/Workspaces"
     ],
     "counts": {
-      "publicExportEntries": 1719,
-      "uniqueSymbols": 504,
-      "sourceFiles": 64
+      "publicExportEntries": 1735,
+      "uniqueSymbols": 515,
+      "sourceFiles": 65
     },
     "exports": [
       {
@@ -5277,6 +5283,410 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/dependencyindex ./dependencyindex buildrepodependencyindex const build a complete dependency index for the entire monorepo. utilities packages/tooling/library/repo-utils/src/dependencyindex.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "adviseEffectCapabilitySeedFixtures",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 1434,
+        "summary": "Run deterministic advisory matching over seed fixtures.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg adviseeffectcapabilityseedfixtures const run deterministic advisory matching over seed fixtures. utilities packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "buildEffectCapabilitySeedReport",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 1453,
+        "summary": "Build the deterministic Effect capability KG seed report.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg buildeffectcapabilityseedreport const build the deterministic effect capability kg seed report. utilities packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "defaultEffectCapabilitySeedFixtures",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 1392,
+        "summary": "Default tiny advisory fixtures for the seed proof.",
+        "categories": [
+          "fixtures"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg defaulteffectcapabilityseedfixtures const default tiny advisory fixtures for the seed proof. fixtures packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityAdvisoryDecision",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 205,
+        "summary": "Advisory decision emitted by the seed proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityadvisorydecision const advisory decision emitted by the seed proof. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityAdvisoryDecision",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 223,
+        "summary": "Runtime type for {@link EffectCapabilityAdvisoryDecision}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityadvisorydecision type runtime type for {@link effectcapabilityadvisorydecision}. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityAdvisoryScenario",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 169,
+        "summary": "Advisory scenarios covered by the seed proof fixtures.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityadvisoryscenario const advisory scenarios covered by the seed proof fixtures. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityAdvisoryScenario",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 192,
+        "summary": "Runtime type for {@link EffectCapabilityAdvisoryScenario}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityadvisoryscenario type runtime type for {@link effectcapabilityadvisoryscenario}. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityNodeKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 85,
+        "summary": "Node kinds emitted by the seed capability graph.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilitynodekind const node kinds emitted by the seed capability graph. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityNodeKind",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 113,
+        "summary": "Runtime type for {@link EffectCapabilityNodeKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilitynodekind type runtime type for {@link effectcapabilitynodekind}. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityRelationKind",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 126,
+        "summary": "Relation kinds emitted by the seed capability graph.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityrelationkind const relation kinds emitted by the seed capability graph. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilityRelationKind",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 156,
+        "summary": "Runtime type for {@link EffectCapabilityRelationKind}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityrelationkind type runtime type for {@link effectcapabilityrelationkind}. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilitySeedError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 446,
+        "summary": "Typed error emitted by the Effect capability KG seed extractor.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityseederror class typed error emitted by the effect capability kg seed extractor. errors packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilitySeedFixture",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 378,
+        "summary": "Fixture input for the seed advisory proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityseedfixture class fixture input for the seed advisory proof. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilitySeedModuleName",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 43,
+        "summary": "Seed module names covered by the first Effect capability KG proof.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityseedmodulename const seed module names covered by the first effect capability kg proof. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilitySeedModuleName",
+        "exportKind": "type",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 72,
+        "summary": "Runtime type for {@link EffectCapabilitySeedModuleName}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityseedmodulename type runtime type for {@link effectcapabilityseedmodulename}. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/EffectCapabilityKG",
+        "exportSubpath": "./EffectCapabilityKG",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "symbolName": "EffectCapabilitySeedReport",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts",
+        "sourceLine": 418,
+        "summary": "Schema-first report produced by the Effect capability KG seed extractor.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/effectcapabilitykg ./effectcapabilitykg effectcapabilityseedreport class schema-first report produced by the effect capability kg seed extractor. models packages/tooling/library/repo-utils/src/effectcapabilitykg.ts"
       },
       {
         "packageName": "@beep/repo-utils",
