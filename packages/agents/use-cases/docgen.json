@@ -62,6 +62,12 @@
       "@beep/agents-domain/values/AssistantContent": [
         "../../../packages/agents/domain/src/values/AssistantContent/index.ts"
       ],
+      "@beep/agents-domain/values": [
+        "../../../packages/agents/domain/src/values/index.ts"
+      ],
+      "@beep/agents-domain/values/AssistantContent": [
+        "../../../packages/agents/domain/src/values/AssistantContent/index.ts"
+      ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

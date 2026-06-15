@@ -49,7 +49,7 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/agents-use-cases",
-      "reason": "Internal kernel stream-element pairing { block, index } whose block field is already the annotated Turn.AssistantBlock schema; the wrapper is a type-level signature for the AgentTurnKernel port, never decoded from untrusted input."
+      "reason": "Internal kernel stream-element pairing { block, index } whose block field is already the annotated AssistantBlock schema; the wrapper is a type-level signature for the AgentTurnKernel port, never decoded from untrusted input."
     },
     {
       "file": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
