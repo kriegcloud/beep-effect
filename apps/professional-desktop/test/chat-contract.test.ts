@@ -19,6 +19,7 @@ import { Array as A, Deferred, Effect, Fiber, Layer, Ref, Stream } from "effect"
 import * as S from "effect/Schema";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink } from "@/chat/UsageRecordSink";
+import type { IndexedBlock, TurnHistoryItem } from "@beep/agents-use-cases/public";
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 
@@ -129,5 +130,29 @@ describe("@beep/professional-desktop chat contract", () => {
       expect(items.map((m) => m.role)).toEqual(["user", "assistant", "user", "assistant"]);
       expect(documentToPlainText(items[2]!.content)).toBe("second");
     }).pipe(provideScopedLayer(StackLayer))
+  );
+
+  it.effect("projects role-tagged turn history for the kernel", () =>
+    Effect.gen(function* () {
+      const historyRef = yield* Ref.make<ReadonlyArray<TurnHistoryItem>>(A.empty());
+      const CaptureKernel = Layer.succeed(AgentTurnKernel)({
+        streamTurn: (history: ReadonlyArray<TurnHistoryItem>): Stream.Stream<IndexedBlock> =>
+          Stream.unwrap(Ref.set(historyRef, history).pipe(Effect.as(Stream.empty))),
+      });
+
+      yield* Effect.gen(function* () {
+        const { operations } = yield* makeStack;
+        const workspaceId = decodeWorkspaceId(1);
+        const thread = yield* operations.createThread(workspaceId, "History");
+
+        yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("first")));
+        yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("second")));
+      }).pipe(provideScopedLayer(Layer.merge(ThreadStoreInMemoryLayer, CaptureKernel)));
+
+      const history = yield* Ref.get(historyRef);
+
+      expect(A.map(history, (item) => item.role)).toEqual(["user", "assistant", "user"]);
+      expect(A.map(history, (item) => item.text)).toEqual(["first", "", "second"]);
+    })
   );
 });

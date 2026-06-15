@@ -1,6 +1,11 @@
 import { Agent, AgentMode, Turn } from "@beep/agents-domain";
 import * as TurnSubpath from "@beep/agents-domain/turn";
-import { AssistantBlock, ParagraphBlock, TextInline } from "@beep/agents-domain/values/AssistantContent";
+import {
+  AssistantBlock,
+  AssistantContent,
+  ParagraphBlock,
+  TextInline,
+} from "@beep/agents-domain/values/AssistantContent";
 import * as Agents from "@beep/shared-domain/identity/Agents";
 import { baseEntityFixtureInput } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -41,6 +46,13 @@ describe("@beep/agents-domain", () => {
     expect(Turn.AssistantContent.AssistantBlock).toBe(AssistantBlock);
     expect(TurnSubpath.AssistantBlock).toBe(AssistantBlock);
     expect(TurnSubpath.AssistantContent.AssistantBlock).toBe(AssistantBlock);
+    expect(Turn.AssistantContent.AssistantContent).toBe(AssistantContent);
+    expect(TurnSubpath.AssistantContent.AssistantContent).toBe(AssistantContent);
+    expect(S.toJsonSchemaDocument(Turn.AssistantBlock)).toStrictEqual(S.toJsonSchemaDocument(AssistantBlock));
+    expect(S.toJsonSchemaDocument(TurnSubpath.AssistantBlock)).toStrictEqual(S.toJsonSchemaDocument(AssistantBlock));
+    expect(S.toJsonSchemaDocument(Turn.AssistantContent.AssistantContent)).toStrictEqual(
+      S.toJsonSchemaDocument(AssistantContent)
+    );
 
     const decoded = S.decodeUnknownSync(Turn.AssistantBlock)({
       type: "paragraph",
