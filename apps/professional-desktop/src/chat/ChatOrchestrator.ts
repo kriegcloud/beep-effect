@@ -382,6 +382,7 @@ export const makeChatOperations = (
         yield* store
           .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })
           .pipe(Effect.catch(toChatActionError("EditMessage")));
+        yield* setTitleFromFirstUserMessage(store, threadId, content);
         return streamAndPersist(store, kernel, usage, threadId, "edit");
       })
     ).pipe(Stream.withSpan("agents.chat.edit_message")),

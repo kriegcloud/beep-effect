@@ -74,12 +74,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "histogram_quantile(0.5, sum by (le) (rate(ui_turn_perceived_latency_milliseconds_bucket[5m])))",
+          "expr": "histogram_quantile(0.5, sum by (le) (rate(ui_turn_perceived_latency_milliseconds_bucket{service_name=\"professional-desktop-web\"}[5m])))",
           "legendFormat": "p50"
         },
         {
           "refId": "B",
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(ui_turn_perceived_latency_milliseconds_bucket[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(ui_turn_perceived_latency_milliseconds_bucket{service_name=\"professional-desktop-web\"}[5m])))",
           "legendFormat": "p95"
         }
       ]
@@ -122,7 +122,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(increase(ui_editor_decode_failures_total[1h])) or vector(0)",
+          "expr": "sum(increase(ui_editor_decode_failures_total{service_name=\"professional-desktop-web\"}[1h])) or vector(0)",
           "legendFormat": "failures"
         }
       ]

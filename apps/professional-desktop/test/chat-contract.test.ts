@@ -131,6 +131,26 @@ describe("@beep/professional-desktop chat contract", () => {
     }).pipe(provideScopedLayer(StackLayer))
   );
 
+  it.effect("derives a thread title when editing the first user turn from blank content", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("  \n  ")));
+      const timeline = yield* operations.getTimeline(thread.id);
+      const firstUserTurn = timeline.turns.find((turn) =>
+        turn.items.some((item) => item.kind === "message" && item.role === "user")
+      );
+
+      expect(firstUserTurn).toBeDefined();
+      yield* Stream.runDrain(operations.editMessage(thread.id, firstUserTurn!.turnId, userDocument("Edited title")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
+      expect(titles).toContain("Edited title");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
   it("projects table cells and youtube embeds into turn-history plain text", () => {
     const content = Md.Document.make({
       children: [

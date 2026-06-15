@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "0328877d970638f0ea2f43264928b9eb69ea8ff34d10afa41e1641ba9c3808c9",
+    "digest": "7f297e7f8ac63442b63e62c711e1c413ec5edf4e4b8955e419c661962bf7fd82",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/docgen/src/CLI.ts",
-        "sha256": "3433e1ab9b01913f6ce9127bc85abfd0d879b869365c940c0ed2d773fc05d79f",
-        "bytes": 6420
+        "sha256": "489a6dba38e986a01bd5182ecd3c7db0e8ad5971a3245a678c825a408466ba24",
+        "bytes": 6219
       },
       {
         "path": "packages/tooling/tool/docgen/src/Configuration.ts",
@@ -492,7 +492,7 @@
         "symbolName": "cli",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/CLI.ts",
-        "sourceLine": 207,
+        "sourceLine": 197,
         "summary": "Runs the docgen command with the package version banner.",
         "categories": [
           "cli-commands"
@@ -517,7 +517,7 @@
         "symbolName": "docgenCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/docgen/src/CLI.ts",
-        "sourceLine": 147,
+        "sourceLine": 137,
         "summary": "Builds the `docgen` CLI command and wires configuration loading to the core program.",
         "categories": [
           "cli-commands"
