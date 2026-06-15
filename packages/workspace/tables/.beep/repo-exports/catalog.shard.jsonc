@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "154c9736de6c7a3a8a53f6d7343f342c3f82f46bf8bf45e1fc615703385438ad",
+    "digest": "e370acc6ac8aceb711bc26b14afd964949edf9b36028c61d5bafa9a9f305e6fe",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -67,8 +67,13 @@
       },
       {
         "path": "packages/workspace/tables/src/entities/Message/index.ts",
-        "sha256": "efedc0cee678e314173fabb0022f75ed7e2e263fd075100165ad08c49a8cea16",
-        "bytes": 364
+        "sha256": "8e3aa43c90f40d71826404a9f65ca98046c789fa363f030a2bad2eb2c9dd7307",
+        "bytes": 630
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Message/Message.converters.ts",
+        "sha256": "d0eb17cb536c237352b29b2c8138b999f268138c22eca8cd1c92afd1bcaa3180",
+        "bytes": 1936
       },
       {
         "path": "packages/workspace/tables/src/entities/Message/Message.table.ts",
@@ -77,8 +82,13 @@
       },
       {
         "path": "packages/workspace/tables/src/entities/Thread/index.ts",
-        "sha256": "e98dd59c7a62f4e1bdfdf408c8cf49d74e70c12602b7db02c274fd4c2a4dc0cb",
-        "bytes": 358
+        "sha256": "fb6525130c11a9614bfdd04f77f16229ff61c1445fd95b4d659761a71100eae3",
+        "bytes": 618
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Thread/Thread.converters.ts",
+        "sha256": "65a40fd23db2e4a006337d31d46d220e9e6f0f3769dc276473906f7bf8d93ab1",
+        "bytes": 1899
       },
       {
         "path": "packages/workspace/tables/src/entities/Thread/Thread.table.ts",
@@ -87,8 +97,13 @@
       },
       {
         "path": "packages/workspace/tables/src/entities/Turn/index.ts",
-        "sha256": "8cfca1d04865a6826a1adb63be7dc58a3753cc0f4f33db1c9011871d411513b8",
-        "bytes": 346
+        "sha256": "cb29cbac287135c07ba8f99050e8d213ac7ec186d1dcd2577d7f23305993d98c",
+        "bytes": 594
+      },
+      {
+        "path": "packages/workspace/tables/src/entities/Turn/Turn.converters.ts",
+        "sha256": "20af195845d9f9fa62c3cf763d5351185fef51717dba42588c480a25ebe53109",
+        "bytes": 1825
       },
       {
         "path": "packages/workspace/tables/src/entities/Turn/Turn.table.ts",
@@ -122,9 +137,9 @@
       "@beep/workspace-tables/entities/Turn"
     ],
     "counts": {
-      "publicExportEntries": 13,
-      "uniqueSymbols": 8,
-      "sourceFiles": 13
+      "publicExportEntries": 25,
+      "uniqueSymbols": 20,
+      "sourceFiles": 16
     },
     "exports": [
       {
@@ -336,6 +351,81 @@
         "importSpecifier": "@beep/workspace-tables/entities/Message",
         "exportSubpath": "./entities/Message",
         "exportedFromPath": "packages/workspace/tables/src/entities/Message/index.ts",
+        "symbolName": "fromMessageRow",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Message/Message.converters.ts",
+        "sourceLine": 83,
+        "summary": "Convert a selected persistence row into a Message entity.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/message ./entities/message frommessagerow const convert a selected persistence row into a message entity. tables packages/workspace/tables/src/entities/message/message.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Message",
+        "exportSubpath": "./entities/Message",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Message/index.ts",
+        "symbolName": "MessageInsert",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/entities/Message/Message.converters.ts",
+        "sourceLine": 43,
+        "summary": "Insertable workspace Message row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/message ./entities/message messageinsert type insertable workspace message row. tables packages/workspace/tables/src/entities/message/message.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Message",
+        "exportSubpath": "./entities/Message",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Message/index.ts",
+        "symbolName": "MessageRow",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/entities/Message/Message.converters.ts",
+        "sourceLine": 27,
+        "summary": "Selected workspace Message row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/message ./entities/message messagerow type selected workspace message row. tables packages/workspace/tables/src/entities/message/message.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Message",
+        "exportSubpath": "./entities/Message",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Message/index.ts",
         "symbolName": "Table",
         "exportKind": "const",
         "sourcePath": "packages/workspace/tables/src/entities/Message/Message.table.ts",
@@ -353,6 +443,56 @@
           "@since"
         ],
         "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/message ./entities/message table const pglite/postgres drizzle table for the workspace message entity. tables packages/workspace/tables/src/entities/message/message.table.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Message",
+        "exportSubpath": "./entities/Message",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Message/index.ts",
+        "symbolName": "toMessageInsert",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Message/Message.converters.ts",
+        "sourceLine": 65,
+        "summary": "Convert a Message entity into its persistence insert row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/message ./entities/message tomessageinsert const convert a message entity into its persistence insert row. tables packages/workspace/tables/src/entities/message/message.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Thread",
+        "exportSubpath": "./entities/Thread",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "symbolName": "fromThreadRow",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Thread/Thread.converters.ts",
+        "sourceLine": 83,
+        "summary": "Convert a selected persistence row into a Thread entity.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/thread ./entities/thread fromthreadrow const convert a selected persistence row into a thread entity. tables packages/workspace/tables/src/entities/thread/thread.converters.ts"
       },
       {
         "packageName": "@beep/workspace-tables",
@@ -383,6 +523,106 @@
         "packageName": "@beep/workspace-tables",
         "packagePath": "packages/workspace/tables",
         "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Thread",
+        "exportSubpath": "./entities/Thread",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "symbolName": "ThreadInsert",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/entities/Thread/Thread.converters.ts",
+        "sourceLine": 43,
+        "summary": "Insertable workspace Thread row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/thread ./entities/thread threadinsert type insertable workspace thread row. tables packages/workspace/tables/src/entities/thread/thread.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Thread",
+        "exportSubpath": "./entities/Thread",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "symbolName": "ThreadRow",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/entities/Thread/Thread.converters.ts",
+        "sourceLine": 27,
+        "summary": "Selected workspace Thread row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/thread ./entities/thread threadrow type selected workspace thread row. tables packages/workspace/tables/src/entities/thread/thread.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Thread",
+        "exportSubpath": "./entities/Thread",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Thread/index.ts",
+        "symbolName": "toThreadInsert",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Thread/Thread.converters.ts",
+        "sourceLine": 65,
+        "summary": "Convert a Thread entity into its persistence insert row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/thread ./entities/thread tothreadinsert const convert a thread entity into its persistence insert row. tables packages/workspace/tables/src/entities/thread/thread.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Turn",
+        "exportSubpath": "./entities/Turn",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "symbolName": "fromTurnRow",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Turn/Turn.converters.ts",
+        "sourceLine": 83,
+        "summary": "Convert a selected persistence row into a Turn entity.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/turn ./entities/turn fromturnrow const convert a selected persistence row into a turn entity. tables packages/workspace/tables/src/entities/turn/turn.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
         "importSpecifier": "@beep/workspace-tables/entities/Turn",
         "exportSubpath": "./entities/Turn",
         "exportedFromPath": "packages/workspace/tables/src/entities/Turn/index.ts",
@@ -403,6 +643,81 @@
           "@since"
         ],
         "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/turn ./entities/turn table const pglite/postgres drizzle table for the workspace turn entity. tables packages/workspace/tables/src/entities/turn/turn.table.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Turn",
+        "exportSubpath": "./entities/Turn",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "symbolName": "toTurnInsert",
+        "exportKind": "const",
+        "sourcePath": "packages/workspace/tables/src/entities/Turn/Turn.converters.ts",
+        "sourceLine": 65,
+        "summary": "Convert a Turn entity into its persistence insert row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/turn ./entities/turn toturninsert const convert a turn entity into its persistence insert row. tables packages/workspace/tables/src/entities/turn/turn.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Turn",
+        "exportSubpath": "./entities/Turn",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "symbolName": "TurnInsert",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/entities/Turn/Turn.converters.ts",
+        "sourceLine": 43,
+        "summary": "Insertable workspace Turn row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/turn ./entities/turn turninsert type insertable workspace turn row. tables packages/workspace/tables/src/entities/turn/turn.converters.ts"
+      },
+      {
+        "packageName": "@beep/workspace-tables",
+        "packagePath": "packages/workspace/tables",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/workspace-tables/entities/Turn",
+        "exportSubpath": "./entities/Turn",
+        "exportedFromPath": "packages/workspace/tables/src/entities/Turn/index.ts",
+        "symbolName": "TurnRow",
+        "exportKind": "type",
+        "sourcePath": "packages/workspace/tables/src/entities/Turn/Turn.converters.ts",
+        "sourceLine": 27,
+        "summary": "Selected workspace Turn row.",
+        "categories": [
+          "tables"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/workspace-tables packages/workspace/tables @beep/workspace-tables/entities/turn ./entities/turn turnrow type selected workspace turn row. tables packages/workspace/tables/src/entities/turn/turn.converters.ts"
       }
     ]
   }

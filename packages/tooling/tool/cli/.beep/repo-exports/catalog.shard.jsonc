@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "adb32b9881a837c17e55b9ef206f70c5bc08c76b8f64e931b2b35ba28309a10a",
+    "digest": "92f920fcb78b04a60e619b516ca3f410ece6b91bbf1501cf69631569c81928de",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -77,8 +77,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sha256": "2144552e6ab5dc6e14e03ff1ef61f65bc7b3c78e1e2db220d35c733c64d2693c",
-        "bytes": 81206
+        "sha256": "cff32f77ee6c26fa475b1edb982161fa8fd0e93cb98957c1b311e4ca719c5d32",
+        "bytes": 81591
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlanExecution.ts",
@@ -2636,7 +2636,7 @@
         "symbolName": "decodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2620,
+        "sourceLine": 2632,
         "summary": "Decode operation-plan JSON text.",
         "categories": [
           "codecs"
@@ -2686,7 +2686,7 @@
         "symbolName": "encodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2607,
+        "sourceLine": 2619,
         "summary": "Encode an operation plan as JSON text.",
         "categories": [
           "codecs"
@@ -2761,7 +2761,7 @@
         "symbolName": "makeArchitectureOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2496,
+        "sourceLine": 2508,
         "summary": "Build a write-capable operation plan from the accepted WorkItem proof files.",
         "categories": [
           "constructors"
@@ -2786,7 +2786,7 @@
         "symbolName": "makeArchitecturePackageOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2575,
+        "sourceLine": 2587,
         "summary": "Build a shell-only slice role package operation plan.",
         "categories": [
           "constructors"
@@ -2811,7 +2811,7 @@
         "symbolName": "makeCanonicalSliceOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2446,
+        "sourceLine": 2458,
         "summary": "Build the canonical architecture lab WorkItem operation plan.",
         "categories": [
           "constructors"
@@ -3682,7 +3682,7 @@
         "symbolName": "decodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2620,
+        "sourceLine": 2632,
         "summary": "Decode operation-plan JSON text.",
         "categories": [
           "codecs"
@@ -3732,7 +3732,7 @@
         "symbolName": "encodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2607,
+        "sourceLine": 2619,
         "summary": "Encode an operation plan as JSON text.",
         "categories": [
           "codecs"
@@ -3807,7 +3807,7 @@
         "symbolName": "makeArchitectureOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2496,
+        "sourceLine": 2508,
         "summary": "Build a write-capable operation plan from the accepted WorkItem proof files.",
         "categories": [
           "constructors"
@@ -3832,7 +3832,7 @@
         "symbolName": "makeArchitecturePackageOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2575,
+        "sourceLine": 2587,
         "summary": "Build a shell-only slice role package operation plan.",
         "categories": [
           "constructors"
@@ -3857,7 +3857,7 @@
         "symbolName": "makeCanonicalSliceOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2446,
+        "sourceLine": 2458,
         "summary": "Build the canonical architecture lab WorkItem operation plan.",
         "categories": [
           "constructors"
@@ -4628,7 +4628,7 @@
         "symbolName": "decodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2620,
+        "sourceLine": 2632,
         "summary": "Decode operation-plan JSON text.",
         "categories": [
           "codecs"
@@ -4678,7 +4678,7 @@
         "symbolName": "encodeCanonicalSliceOperationPlanJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2607,
+        "sourceLine": 2619,
         "summary": "Encode an operation plan as JSON text.",
         "categories": [
           "codecs"
@@ -4753,7 +4753,7 @@
         "symbolName": "makeArchitectureOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2496,
+        "sourceLine": 2508,
         "summary": "Build a write-capable operation plan from the accepted WorkItem proof files.",
         "categories": [
           "constructors"
@@ -4778,7 +4778,7 @@
         "symbolName": "makeArchitecturePackageOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2575,
+        "sourceLine": 2587,
         "summary": "Build a shell-only slice role package operation plan.",
         "categories": [
           "constructors"
@@ -4803,7 +4803,7 @@
         "symbolName": "makeCanonicalSliceOperationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Architecture/OperationPlan.ts",
-        "sourceLine": 2446,
+        "sourceLine": 2458,
         "summary": "Build the canonical architecture lab WorkItem operation plan.",
         "categories": [
           "constructors"

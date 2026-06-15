@@ -1,0 +1,235 @@
+{
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/workspace/server/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/workspace-server": [
+        "../../../packages/workspace/server/src/index.ts"
+      ],
+      "@beep/workspace-server/layer": [
+        "../../../packages/workspace/server/src/Layer.ts"
+      ],
+      "@beep/workspace-server/test": [
+        "../../../packages/workspace/server/src/test.ts"
+      ],
+      "@beep/workspace-server/aggregates/Thread": [
+        "../../../packages/workspace/server/src/aggregates/Thread/index.ts"
+      ],
+      "@beep/md": ["../../../packages/foundation/modeling/md/src/index.ts"],
+      "@beep/md/Md": ["../../../packages/foundation/modeling/md/src/Md.ts"],
+      "@beep/md/Md.model": [
+        "../../../packages/foundation/modeling/md/src/Md.model.ts"
+      ],
+      "@beep/md/Md.render": [
+        "../../../packages/foundation/modeling/md/src/Md.render.ts"
+      ],
+      "@beep/md/Md.utils": [
+        "../../../packages/foundation/modeling/md/src/Md.utils.ts"
+      ],
+      "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
+      "@beep/postgres/client": [
+        "../../../packages/drivers/postgres/src/PostgresClient.service.ts"
+      ],
+      "@beep/postgres/drizzle": [
+        "../../../packages/drivers/postgres/src/PostgresDrizzle.service.ts"
+      ],
+      "@beep/postgres/errors": [
+        "../../../packages/drivers/postgres/src/Postgres.errors.ts"
+      ],
+      "@beep/postgres/format": [
+        "../../../packages/drivers/postgres/src/PostgresDiagnostics.service.ts"
+      ],
+      "@beep/postgres/interop": [
+        "../../../packages/drivers/postgres/src/PostgresInterop.models.ts"
+      ],
+      "@beep/postgres/sqlstate": [
+        "../../../packages/drivers/postgres/src/PostgresSqlState.models.ts"
+      ],
+      "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
+      "@beep/shared-domain/aggregates": [
+        "../../../packages/shared/domain/src/aggregates.ts"
+      ],
+      "@beep/shared-domain/entities": [
+        "../../../packages/shared/domain/src/entities.ts"
+      ],
+      "@beep/shared-domain/entities/Membership": [
+        "../../../packages/shared/domain/src/entities/Membership/index.ts"
+      ],
+      "@beep/shared-domain/entities/Organization": [
+        "../../../packages/shared/domain/src/entities/Organization/index.ts"
+      ],
+      "@beep/shared-domain/entities/User": [
+        "../../../packages/shared/domain/src/entities/User/index.ts"
+      ],
+      "@beep/shared-domain/entity": [
+        "../../../packages/shared/domain/src/entity.ts"
+      ],
+      "@beep/shared-domain/entity/BaseEntity": [
+        "../../../packages/shared/domain/src/entity/BaseEntity.ts"
+      ],
+      "@beep/shared-domain/entity/EntityId": [
+        "../../../packages/shared/domain/src/entity/EntityId.ts"
+      ],
+      "@beep/shared-domain/entity/EntityRef": [
+        "../../../packages/shared/domain/src/entity/EntityRef.ts"
+      ],
+      "@beep/shared-domain/entity/Principal": [
+        "../../../packages/shared/domain/src/entity/Principal.ts"
+      ],
+      "@beep/shared-domain/entity/SourceKind": [
+        "../../../packages/shared/domain/src/entity/SourceKind.ts"
+      ],
+      "@beep/shared-domain/entity/primitives": [
+        "../../../packages/shared/domain/src/entity/primitives.ts"
+      ],
+      "@beep/shared-domain/identity": [
+        "../../../packages/shared/domain/src/identity.ts"
+      ],
+      "@beep/shared-domain/identity/Agents": [
+        "../../../packages/shared/domain/src/identity/Agents.ts"
+      ],
+      "@beep/shared-domain/identity/Epistemic": [
+        "../../../packages/shared/domain/src/identity/Epistemic.ts"
+      ],
+      "@beep/shared-domain/identity/LawPractice": [
+        "../../../packages/shared/domain/src/identity/LawPractice.ts"
+      ],
+      "@beep/shared-domain/identity/Shared": [
+        "../../../packages/shared/domain/src/identity/Shared.ts"
+      ],
+      "@beep/shared-domain/identity/WealthManagement": [
+        "../../../packages/shared/domain/src/identity/WealthManagement.ts"
+      ],
+      "@beep/shared-domain/identity/Workspace": [
+        "../../../packages/shared/domain/src/identity/Workspace.ts"
+      ],
+      "@beep/shared-domain/values": [
+        "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/LocalDate": [
+        "../../../packages/shared/domain/src/values/LocalDate/index.ts"
+      ],
+      "@beep/shared-domain/values/OnePasswordReference": [
+        "../../../packages/shared/domain/src/values/OnePasswordReference/index.ts"
+      ],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"],
+      "@beep/workspace-domain": [
+        "../../../packages/workspace/domain/src/index.ts"
+      ],
+      "@beep/workspace-domain/entities": [
+        "../../../packages/workspace/domain/src/entities/index.ts"
+      ],
+      "@beep/workspace-domain/entities/ApprovalGate": [
+        "../../../packages/workspace/domain/src/entities/ApprovalGate/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateDraft": [
+        "../../../packages/workspace/domain/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateProject": [
+        "../../../packages/workspace/domain/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/workspace-domain/entities/CandidateTask": [
+        "../../../packages/workspace/domain/src/entities/CandidateTask/index.ts"
+      ],
+      "@beep/workspace-domain/entities/ContextPacket": [
+        "../../../packages/workspace/domain/src/entities/ContextPacket/index.ts"
+      ],
+      "@beep/workspace-domain/entities/EmailArtifact": [
+        "../../../packages/workspace/domain/src/entities/EmailArtifact/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Message": [
+        "../../../packages/workspace/domain/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Thread": [
+        "../../../packages/workspace/domain/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Turn": [
+        "../../../packages/workspace/domain/src/entities/Turn/index.ts"
+      ],
+      "@beep/workspace-domain/entities/Workspace": [
+        "../../../packages/workspace/domain/src/entities/Workspace/index.ts"
+      ],
+      "@beep/workspace-domain/values": [
+        "../../../packages/workspace/domain/src/values/index.ts"
+      ],
+      "@beep/workspace-domain/values/ApprovalDecision": [
+        "../../../packages/workspace/domain/src/values/ApprovalDecision/index.ts"
+      ],
+      "@beep/workspace-domain/values/CandidateLifecycle": [
+        "../../../packages/workspace/domain/src/values/CandidateLifecycle/index.ts"
+      ],
+      "@beep/workspace-tables": [
+        "../../../packages/workspace/tables/src/index.ts"
+      ],
+      "@beep/workspace-tables/entities": [
+        "../../../packages/workspace/tables/src/entities/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateDraft": [
+        "../../../packages/workspace/tables/src/entities/CandidateDraft/index.ts"
+      ],
+      "@beep/workspace-tables/entities/CandidateProject": [
+        "../../../packages/workspace/tables/src/entities/CandidateProject/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Message": [
+        "../../../packages/workspace/tables/src/entities/Message/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Thread": [
+        "../../../packages/workspace/tables/src/entities/Thread/index.ts"
+      ],
+      "@beep/workspace-tables/entities/Turn": [
+        "../../../packages/workspace/tables/src/entities/Turn/index.ts"
+      ],
+      "@beep/workspace-use-cases": [
+        "../../../packages/workspace/use-cases/src/index.ts"
+      ],
+      "@beep/workspace-use-cases/public": [
+        "../../../packages/workspace/use-cases/src/public.ts"
+      ],
+      "@beep/workspace-use-cases/server": [
+        "../../../packages/workspace/use-cases/src/server.ts"
+      ],
+      "@beep/workspace-use-cases/aggregates/Thread": [
+        "../../../packages/workspace/use-cases/src/aggregates/Thread/index.ts"
+      ],
+      "@beep/workspace-use-cases/aggregates/Thread/server": [
+        "../../../packages/workspace/use-cases/src/aggregates/Thread/server.ts"
+      ]
+    }
+  }
+}

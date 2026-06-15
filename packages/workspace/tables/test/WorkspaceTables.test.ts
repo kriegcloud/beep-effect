@@ -12,6 +12,22 @@ import * as Turn from "@beep/workspace-tables/entities/Turn";
 import { describe, expect, it } from "@effect/vitest";
 import { getColumns } from "drizzle-orm";
 import { getTableConfig } from "drizzle-orm/pg-core";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const systemPrincipal = { component: "Runtime", kind: "System" };
+const baseEntityInput = (entityType: string, id: number) => ({
+  createdAt: id,
+  createdByPrincipal: systemPrincipal,
+  entityType,
+  id,
+  orgId: 1,
+  rowVersion: 1,
+  schemaVersion: "0.0.0",
+  source: "System",
+  updatedAt: id + 1,
+  updatedByPrincipal: systemPrincipal,
+});
 
 const expectBaseProjectionColumns = (table: typeof CandidateDraft.Table | typeof CandidateProject.Table) => {
   const columns = getColumns(table);
@@ -77,5 +93,55 @@ describe("WorkspaceTables", () => {
     expect(Message.Table.entitySchema).toBe(MessageModel);
     expect(getColumns(Message.Table).content.columnType).toBe("PgJsonb");
     expect(getColumns(Message.Table).role.name).toBe("role");
+  });
+
+  it("round-trips Thread, Turn, and Message rows through the converters", () => {
+    const thread = S.decodeUnknownSync(ThreadModel)({
+      ...baseEntityInput("WorkspaceThread", 10),
+      title: "Matter intake",
+      workspaceId: 2,
+    });
+    const threadInsert = Thread.toThreadInsert(thread);
+    expect("id" in threadInsert).toBe(false);
+    expect(threadInsert.title).toBe("Matter intake");
+    expect(threadInsert.workspaceId).toBe(2);
+    expect(threadInsert.entityType).toBe("WorkspaceThread");
+    expect(Thread.fromThreadRow({ ...threadInsert, id: 10 }).title).toBe("Matter intake");
+
+    const message = S.decodeUnknownSync(MessageModel)({
+      ...baseEntityInput("WorkspaceMessage", 20),
+      content: { _tag: "document", children: [] },
+      role: "user",
+      threadId: 10,
+      turnId: 30,
+    });
+    const messageInsert = Message.toMessageInsert(message);
+    expect("id" in messageInsert).toBe(false);
+    expect(messageInsert.role).toBe("user");
+    expect(messageInsert.threadId).toBe(10);
+    expect(Message.fromMessageRow({ ...messageInsert, id: 20 }).role).toBe("user");
+
+    const turn = S.decodeUnknownSync(TurnModel)({
+      ...baseEntityInput("WorkspaceTurn", 30),
+      items: [{ itemType: "message", messageId: 20 }],
+      parentTurnId: null,
+      threadId: 10,
+      turnIndex: 0,
+    });
+    const turnInsert = Turn.toTurnInsert(turn);
+    expect("id" in turnInsert).toBe(false);
+    expect(turnInsert.threadId).toBe(10);
+    expect(turnInsert.turnIndex).toBe(0);
+    expect(turnInsert.parentTurnId).toBe(null);
+    const roundTripped = Turn.fromTurnRow({
+      ...turnInsert,
+      id: 30,
+      // $inferInsert types parentTurnId as optional (number | null | undefined);
+      // the select-row converter expects number | null, so resolve the absent
+      // optional to its concrete null before round-tripping.
+      parentTurnId: turnInsert.parentTurnId ?? null,
+    });
+    expect(roundTripped.items[0]?.itemType).toBe("message");
+    expect(O.isNone(roundTripped.parentTurnId)).toBe(true);
   });
 });

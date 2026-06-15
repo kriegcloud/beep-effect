@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2b0b79c33d25e9477280c4e1a2888bea2aeccfc8efc953bdd9ada911da1f1bb3",
+    "digest": "9b18a30c2fd4c16d84f8afa6cf7bd1bf93204bb77e0b20caedc279985cfbb9b6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/_internal/db-admin/package.json",
-        "sha256": "da89626bab487d333837f2e8ad6813ae1182951867428702374991d9b2f18d43",
-        "bytes": 2420
+        "sha256": "97fe009df3f39fdd08b222415a8b95aac3864c0137721fd06517fe3637ff0fd7",
+        "bytes": 2465
       },
       {
         "path": "packages/_internal/db-admin/src/index.ts",
@@ -34,6 +34,11 @@
         "path": "packages/_internal/db-admin/src/migrations/ArchitectureLab.ts",
         "sha256": "a678660425337aeaa00f633e632b97be640691ddf8ab307b7c8a6a1f77fbc72a",
         "bytes": 1736
+      },
+      {
+        "path": "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+        "sha256": "e4b3e5921042692595f4895971edc8736f31f214a390e47a94914715ed1e2842",
+        "bytes": 864
       },
       {
         "path": "packages/_internal/db-admin/src/migrations/WorkspaceThread.ts",
@@ -47,8 +52,8 @@
       },
       {
         "path": "packages/_internal/db-admin/src/targets.ts",
-        "sha256": "a3b187e3d80dc3521cd22f4160b19d7337dd51ce9b64ead793d5875b1dc4f0c3",
-        "bytes": 1433
+        "sha256": "d7e3270860b9f2097871ddd8bef5f10e8bc4b424443fd0ab481eda298327f425",
+        "bytes": 1682
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -76,14 +81,15 @@
       "@beep/db-admin",
       "@beep/db-admin/index",
       "@beep/db-admin/migrations/ArchitectureLab",
+      "@beep/db-admin/migrations/EpistemicUsage",
       "@beep/db-admin/migrations/WorkspaceThread",
       "@beep/db-admin/schema",
       "@beep/db-admin/targets"
     ],
     "counts": {
-      "publicExportEntries": 19,
-      "uniqueSymbols": 7,
-      "sourceFiles": 5
+      "publicExportEntries": 23,
+      "uniqueSymbols": 8,
+      "sourceFiles": 6
     },
     "exports": [
       {
@@ -121,7 +127,7 @@
         "symbolName": "DbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 41,
+        "sourceLine": 48,
         "summary": "All db-admin migration targets owned by the current repo.",
         "categories": [
           "configuration"
@@ -143,10 +149,35 @@
         "importSpecifier": "@beep/db-admin",
         "exportSubpath": ".",
         "exportedFromPath": "packages/_internal/db-admin/src/index.ts",
+        "symbolName": "EpistemicUsageMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+        "sourceLine": 25,
+        "summary": "Epistemic usage migration target used to prove usage-record persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin . epistemicusagemigrationtarget const epistemic usage migration target used to prove usage-record persistence. configuration packages/_internal/db-admin/src/migrations/epistemicusage.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/_internal/db-admin/src/index.ts",
         "symbolName": "listDbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 56,
+        "sourceLine": 67,
         "summary": "List registered db-admin migration targets.",
         "categories": [
           "configuration"
@@ -221,7 +252,7 @@
         "symbolName": "DbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 41,
+        "sourceLine": 48,
         "summary": "All db-admin migration targets owned by the current repo.",
         "categories": [
           "configuration"
@@ -243,10 +274,35 @@
         "importSpecifier": "@beep/db-admin/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/_internal/db-admin/src/index.ts",
+        "symbolName": "EpistemicUsageMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+        "sourceLine": 25,
+        "summary": "Epistemic usage migration target used to prove usage-record persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/index ./index epistemicusagemigrationtarget const epistemic usage migration target used to prove usage-record persistence. configuration packages/_internal/db-admin/src/migrations/epistemicusage.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/_internal/db-admin/src/index.ts",
         "symbolName": "listDbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 56,
+        "sourceLine": 67,
         "summary": "List registered db-admin migration targets.",
         "categories": [
           "configuration"
@@ -335,6 +391,31 @@
           "@since"
         ],
         "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/migrations/architecturelab ./migrations/architecturelab dbadminmigrationtarget class db-admin migration target metadata. configuration packages/_internal/db-admin/src/migrations/architecturelab.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/migrations/EpistemicUsage",
+        "exportSubpath": "./migrations/EpistemicUsage",
+        "exportedFromPath": "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+        "symbolName": "EpistemicUsageMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+        "sourceLine": 25,
+        "summary": "Epistemic usage migration target used to prove usage-record persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/migrations/epistemicusage ./migrations/epistemicusage epistemicusagemigrationtarget const epistemic usage migration target used to prove usage-record persistence. configuration packages/_internal/db-admin/src/migrations/epistemicusage.ts"
       },
       {
         "packageName": "@beep/db-admin",
@@ -496,7 +577,7 @@
         "symbolName": "DbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 41,
+        "sourceLine": 48,
         "summary": "All db-admin migration targets owned by the current repo.",
         "categories": [
           "configuration"
@@ -518,10 +599,35 @@
         "importSpecifier": "@beep/db-admin/targets",
         "exportSubpath": "./targets",
         "exportedFromPath": "packages/_internal/db-admin/src/targets.ts",
+        "symbolName": "EpistemicUsageMigrationTarget",
+        "exportKind": "const",
+        "sourcePath": "packages/_internal/db-admin/src/migrations/EpistemicUsage.ts",
+        "sourceLine": 25,
+        "summary": "Epistemic usage migration target used to prove usage-record persistence.",
+        "categories": [
+          "configuration"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/db-admin packages/_internal/db-admin @beep/db-admin/targets ./targets epistemicusagemigrationtarget const epistemic usage migration target used to prove usage-record persistence. configuration packages/_internal/db-admin/src/migrations/epistemicusage.ts"
+      },
+      {
+        "packageName": "@beep/db-admin",
+        "packagePath": "packages/_internal/db-admin",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/db-admin/targets",
+        "exportSubpath": "./targets",
+        "exportedFromPath": "packages/_internal/db-admin/src/targets.ts",
         "symbolName": "listDbAdminMigrationTargets",
         "exportKind": "const",
         "sourcePath": "packages/_internal/db-admin/src/targets.ts",
-        "sourceLine": 56,
+        "sourceLine": 67,
         "summary": "List registered db-admin migration targets.",
         "categories": [
           "configuration"

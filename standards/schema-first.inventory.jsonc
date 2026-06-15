@@ -1,12 +1,20 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-13",
+  "generatedOn": "2026-06-14",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
     "infra/**/*.ts"
   ],
   "entries": [
+    {
+      "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
+      "symbol": "UsageRecordSinkShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/professional-desktop",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
     {
       "file": "infra/src/OipWeb.ts",
       "symbol": "OipWebRuntimeSecrets",
@@ -22,6 +30,38 @@
       "status": "exception",
       "owner": "@beep/agents-domain",
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/agents/domain/src/turn/AssistantContent.ts",
+      "symbol": "anonymous@230",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/agents-domain",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/agents/server/src/AssistantTurn/ScanState.ts",
+      "symbol": "ScanState",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/agents-server",
+      "reason": "Internal carry state of the incremental streaming-JSON scanner (folded with let-destructuring per chunk), not a serialization-boundary DTO; a runtime schema codec would add no decode value and regress the hot scan loop."
+    },
+    {
+      "file": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
+      "symbol": "IndexedBlock",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/agents-use-cases",
+      "reason": "Internal kernel stream-element pairing { block, index } whose block field is already the annotated Turn.AssistantBlock schema; the wrapper is a type-level signature for the AgentTurnKernel port, never decoded from untrusted input."
+    },
+    {
+      "file": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",
+      "symbol": "AgentTurnKernelShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/agents-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/agents/use-cases/src/processes/ProfessionalRuntime/ProfessionalRuntime.service.ts",
@@ -2080,6 +2120,58 @@
       "line": 23,
       "owner": "@beep/repo-cli",
       "reason": "Exception: CLI tsconfig-sync command-behavior test; Schema codecs are incidental JSON-boundary plumbing for tsconfig fixtures and CLI output, not schema-value laws."
+    },
+    {
+      "file": "packages/workspace/tables/test/WorkspaceTables.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 99,
+      "owner": "@beep/workspace-tables",
+      "reason": "Exception: golden converter round-trip test (decode -> toInsert -> fromRow) asserting concrete Thread/Turn/Message table column mappings and jsonb/text storage kinds; this is targeted table-projection coverage, not a schema-value property law for S.toArbitrary."
+    },
+    {
+      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
+      "symbol": "AppendTurnInput",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/workspace-use-cases",
+      "reason": "Type-level parameter shape of the ThreadStoreShape.appendTurn port method (already an exception); its fields are existing annotated schemas (Document, MessageRole, branded ids) and the input is never decoded from untrusted input, so a wrapper codec adds no decode value."
+    },
+    {
+      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
+      "symbol": "AppendTurnResult",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/workspace-use-cases",
+      "reason": "Type-level return shape of the ThreadStoreShape.appendTurn port method (already an exception); its turn/message fields are the existing annotated Turn and Message entity schemas, so the wrapper is an internal signature, not a serialization boundary."
+    },
+    {
+      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
+      "symbol": "CreateThreadInput",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/workspace-use-cases",
+      "reason": "Type-level parameter shape of the ThreadStoreShape.createThread port method (already an exception); its title/workspaceId fields are existing annotated schemas and the input is never decoded from untrusted input, so a wrapper codec adds no decode value."
+    },
+    {
+      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
+      "symbol": "ThreadStoreShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/workspace-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/workspace/use-cases/test/ThreadTimeline.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 12,
+      "owner": "@beep/workspace-use-cases",
+      "reason": "Exception: golden decode test exercising the ThreadTimeline tagged-union item resolution (message vs tool_call) over fixed fixtures; targeted boundary-decode coverage, not a schema-value property law for S.toArbitrary."
     }
   ]
 }

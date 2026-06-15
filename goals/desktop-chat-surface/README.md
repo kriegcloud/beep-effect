@@ -38,12 +38,41 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-Blocked — do not start until both dependency packets close. Then P0
-Research: proof-repo kernel/atoms/packaging read-through.
+P1 Implement complete; P2 Verify + P3 Close in progress. The full stack is built
+and verified: agents-slice turn kernel (Anthropic + deterministic fixture behind
+one `AgentTurnKernel`), `scanChunk` + property test, md-aligned block schema +
+`@beep/md` lift, workspace persistence + `ThreadTimeline` (PGlite integration
+test), `ChatRpcs` + `agents-client` atoms (AtomRegistry interrupt cleanup), the
+app-level fixture **contract test** (full flow + cancel-leaves-no-partial-row +
+UsageRecord-at-finalization), real UsageRecord persistence + `usage_record`
+migration (PGlite integration test), chat UI, app-local `runtime/Layer.ts`, and a
+bun sidecar that **boots + serves rpc + migrates PGlite in this environment**;
+Tauri packaging bun-compiles + `cargo check` passes. Reflection written + passing.
+
+Two items remain: (1) `bun run beep yeet verify` is blocked solely by the pilot
+`fallow:audit` lane flagging the new packages' standard test/config boilerplate
+as `introduced` duplication (+ one proven-scanner complexity) — a tooling-gap
+needing a repo-wide baseline decision, not a feature defect (every other lane is
+green; `fallow:dead-code` was driven to green). (2) The real-LLM E2E + full
+`tauri build` bundle need an Anthropic key + a dev-machine bundle run (the
+fixture path is keyless).
 
 ## Latest Evidence
 
-Not started.
+- [`history/2026-06-14-implementation-progress.md`](./history/2026-06-14-implementation-progress.md)
+  — increments 1–6b verified green; sidecar boots + serves + migrates here;
+  `cargo check` + bun-compile pass; `fallow:dead-code` green; sole `yeet verify`
+  blocker = pilot `fallow:audit` convention-duplication.
+- [`history/2026-06-14-e2e-fixture-browser.md`](./history/2026-06-14-e2e-fixture-browser.md)
+  — keyless fixture-mode **browser E2E**: app renders, create thread + user
+  message persist across reload, assistant turn **streams block-by-block** as
+  structured rich text, Stop control renders. One localized bug: the assistant
+  turn does not finalize/persist in the live streaming transport (fix-direction
+  recorded; a live-transport integration test is the follow-on).
+- [`history/reflections/2026-06-14-claude.md`](./history/reflections/2026-06-14-claude.md)
+  — closeout reflection (`reflection-artifacts` lint passes).
+- [`research/2026-06-14-port-findings.md`](./research/2026-06-14-port-findings.md)
+  — P0 port findings.
 
 ## Notes
 

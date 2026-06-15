@@ -1,0 +1,106 @@
+/**
+ * Deterministic fixture implementation of the assistant-turn generation kernel.
+ *
+ * This kernel performs no real LLM work: it derives a fixed, scripted block
+ * sequence from the last `user` item's text. It is total (never fails) and
+ * deterministic, which makes it the CI contract agent for the turn pipeline.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { Turn } from "@beep/agents-domain";
+import { A } from "@beep/utils";
+import { Layer, Stream } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { AgentTurnKernel } from "./AssistantTurn.kernel.js";
+import type { IndexedBlock, TurnHistoryItem } from "./AssistantTurn.contracts.js";
+
+const decodeBlock = S.decodeUnknownSync(Turn.AssistantBlock);
+
+const lastUserPrompt = (history: ReadonlyArray<TurnHistoryItem>): O.Option<string> =>
+  O.map(
+    A.findLast(history, (item) => item.role === "user"),
+    (item) => item.text
+  );
+
+/**
+ * Derive the deterministic scripted block sequence the fixture kernel emits for
+ * a given history. Exposed as a pure helper so contract tests can assert the
+ * exact sequence without consuming a stream.
+ *
+ * For a non-empty last-user prompt `p` the script is: an `h2` heading "Echo",
+ * a paragraph "You said: &lt;p&gt;", a two-item bullet list, and a `text` code
+ * block echoing `p`. For an empty prompt or no user item, a single paragraph
+ * "No input." is produced.
+ *
+ * @example
+ * ```ts
+ * import { fixtureBlocksFor } from "@beep/agents-use-cases/proof"
+ *
+ * const blocks = fixtureBlocksFor([{ role: "user", text: "hi" }])
+ * console.log(blocks.length) // 4
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
+export const fixtureBlocksFor = (history: ReadonlyArray<TurnHistoryItem>): ReadonlyArray<Turn.AssistantBlock> =>
+  O.match(
+    O.filter(lastUserPrompt(history), (prompt) => prompt.length > 0),
+    {
+      onNone: () => [
+        decodeBlock({
+          type: "paragraph",
+          children: [{ type: "text", text: "No input." }],
+        }),
+      ],
+      onSome: (prompt) => [
+        decodeBlock({
+          type: "heading",
+          level: "h2",
+          children: [{ type: "text", text: "Echo" }],
+        }),
+        decodeBlock({
+          type: "paragraph",
+          children: [{ type: "text", text: `You said: ${prompt}` }],
+        }),
+        decodeBlock({
+          type: "list",
+          listType: "bullet",
+          items: [
+            { children: [{ type: "text", text: "Received your message" }] },
+            { children: [{ type: "text", text: "Echoing it back" }] },
+          ],
+        }),
+        decodeBlock({
+          type: "code",
+          language: "text",
+          code: prompt,
+        }),
+      ],
+    }
+  );
+
+const toIndexedBlocks = (history: ReadonlyArray<TurnHistoryItem>): ReadonlyArray<IndexedBlock> =>
+  A.map(fixtureBlocksFor(history), (block, index) => ({ index, block }));
+
+/**
+ * Deterministic, total fixture {@link AgentTurnKernel} Layer with no
+ * requirements and no real LLM. Its `streamTurn` emits the
+ * {@link fixtureBlocksFor} sequence as an indexed stream.
+ *
+ * @example
+ * ```ts
+ * import { FixtureTurnKernel } from "@beep/agents-use-cases/proof"
+ *
+ * console.log(FixtureTurnKernel)
+ * ```
+ *
+ * @category fixtures
+ * @since 0.0.0
+ */
+export const FixtureTurnKernel: Layer.Layer<AgentTurnKernel> = Layer.succeed(AgentTurnKernel)({
+  streamTurn: (history) => Stream.fromIterable(toIndexedBlocks(history)),
+});

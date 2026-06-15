@@ -37,7 +37,13 @@
       "path": "packages/_internal/db-admin"
     },
     {
+      "path": "packages/agents/client"
+    },
+    {
       "path": "packages/agents/domain"
+    },
+    {
+      "path": "packages/agents/server"
     },
     {
       "path": "packages/agents/use-cases"
@@ -155,6 +161,9 @@
     },
     {
       "path": "packages/epistemic/domain"
+    },
+    {
+      "path": "packages/epistemic/tables"
     },
     {
       "path": "packages/foundation/capability/chalk"
@@ -283,7 +292,13 @@
       "path": "packages/workspace/domain"
     },
     {
+      "path": "packages/workspace/server"
+    },
+    {
       "path": "packages/workspace/tables"
+    },
+    {
+      "path": "packages/workspace/use-cases"
     }
   ]
 }

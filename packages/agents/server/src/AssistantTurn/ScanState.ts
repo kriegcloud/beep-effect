@@ -1,0 +1,101 @@
+import * as A from "effect/Array";
+
+/**
+ * The carry state of the incremental block extractor between chunks.
+ *
+ * @example
+ * ```ts
+ * import { initialScanState } from "@beep/agents-server/AssistantTurn"
+ * import type { ScanState } from "@beep/agents-server/AssistantTurn"
+ *
+ * const state: ScanState = initialScanState
+ * console.log(state.depth)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface ScanState {
+  readonly current: string;
+  readonly depth: number;
+  readonly escaped: boolean;
+  readonly inBlocksArray: boolean;
+  readonly inString: boolean;
+}
+
+/**
+ * The empty scan state used to begin scanning a fresh structured-output stream.
+ *
+ * @example
+ * ```ts
+ * import { initialScanState } from "@beep/agents-server/AssistantTurn"
+ *
+ * console.log(initialScanState.inBlocksArray) // false
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const initialScanState: ScanState = {
+  inBlocksArray: false,
+  depth: 0,
+  inString: false,
+  escaped: false,
+  current: "",
+};
+
+/**
+ * Fold one chunk of structured-output JSON text into the scan state, returning
+ * the next state plus any block element slices that completed within the chunk.
+ *
+ * @example
+ * ```ts
+ * import { initialScanState, scanChunk } from "@beep/agents-server/AssistantTurn"
+ *
+ * const envelope = JSON.stringify({ blocks: [{ type: "paragraph" }] })
+ * const [, completed] = scanChunk(initialScanState, envelope)
+ * console.log(completed) // ['{"type":"paragraph"}']
+ * ```
+ *
+ * @category parsing
+ * @since 0.0.0
+ */
+export const scanChunk = (state: ScanState, text: string): [ScanState, Array<string>] => {
+  let { current, depth, escaped, inBlocksArray, inString } = state;
+  const completed = A.empty<string>();
+  for (const char of text) {
+    if (depth > 0) current += char;
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    switch (char) {
+      case '"':
+        inString = true;
+        break;
+      case "[":
+        if (!inBlocksArray) inBlocksArray = true;
+        else if (depth > 0) depth++;
+        break;
+      case "{":
+        if (inBlocksArray) {
+          if (depth === 0) current = "{";
+          depth++;
+        }
+        break;
+      case "}":
+      case "]":
+        if (depth > 0) {
+          depth--;
+          if (depth === 0) {
+            completed.push(current);
+            current = "";
+          }
+        }
+        break;
+    }
+  }
+  return [{ inBlocksArray, depth, inString, escaped, current }, completed];
+};
