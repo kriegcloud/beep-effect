@@ -7,7 +7,7 @@
  * names. Recursive container nodes (`#document`, `#fragment`) are emitted into
  * the generated `Html.model.ts` because they reference the recursive child list.
  *
- * @packageDocumentation @beep/html/Html.nodes
+ * @packageDocumentation \@beep/html/Html.nodes
  * @since 0.0.0
  */
 import { $HtmlId } from "@beep/identity";

@@ -8,7 +8,7 @@
  * (see `data/SOURCES.md`); attribute field bodies/types are emitted by effect's
  * `SchemaRepresentation.toCodeDocument`.
  *
- * @packageDocumentation @beep/html/Html.model
+ * @packageDocumentation \@beep/html/Html.model
  * @since 0.0.0
  */
 import { $HtmlId } from "@beep/identity";
@@ -271,7 +271,7 @@ export declare namespace Abbr {
 }
 
 /**
- * The <acronym> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <acronym> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -282,7 +282,7 @@ export class Acronym extends S.TaggedClass<Acronym>($I`Acronym`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Acronym", { description: "The <acronym> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Acronym", { description: "The <acronym> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Acronym}.
@@ -337,7 +337,7 @@ export declare namespace Address {
 }
 
 /**
- * The <applet> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <applet> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -348,7 +348,7 @@ export class Applet extends S.TaggedClass<Applet>($I`Applet`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Applet", { description: "The <applet> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Applet", { description: "The <applet> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Applet}.
@@ -562,12 +562,12 @@ export class Audio extends S.TaggedClass<Audio>($I`Audio`)(
   "audio",
   {
     ...GlobalAttributes,
-    autoplay: S.optionalKey(S.Boolean),
-    controls: S.optionalKey(S.Boolean),
+    autoplay: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    controls: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
     loading: S.optionalKey(S.Literals(["lazy", "eager"])),
-    loop: S.optionalKey(S.Boolean),
-    muted: S.optionalKey(S.Boolean),
+    loop: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    muted: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     preload: S.optionalKey(S.Literals(["auto", "none", "metadata"])),
     src: S.optionalKey(S.String),
     children: HtmlChildren,
@@ -584,12 +584,12 @@ export declare namespace Audio {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "audio";
-    readonly autoplay?: boolean;
-    readonly controls?: boolean;
+    readonly autoplay?: boolean | "";
+    readonly controls?: boolean | "";
     readonly crossorigin?: "anonymous" | "use-credentials";
     readonly loading?: "lazy" | "eager";
-    readonly loop?: boolean;
-    readonly muted?: boolean;
+    readonly loop?: boolean | "";
+    readonly muted?: boolean | "";
     readonly preload?: "auto" | "none" | "metadata";
     readonly src?: string;
     readonly children: HtmlChildren.Type;
@@ -597,12 +597,12 @@ export declare namespace Audio {
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "audio";
-    readonly autoplay?: boolean;
-    readonly controls?: boolean;
+    readonly autoplay?: boolean | "";
+    readonly controls?: boolean | "";
     readonly crossorigin?: "anonymous" | "use-credentials";
     readonly loading?: "lazy" | "eager";
-    readonly loop?: boolean;
-    readonly muted?: boolean;
+    readonly loop?: boolean | "";
+    readonly muted?: boolean | "";
     readonly preload?: "auto" | "none" | "metadata";
     readonly src?: string;
     readonly children: HtmlChildren.Encoded;
@@ -679,7 +679,7 @@ export declare namespace Base {
 }
 
 /**
- * The <basefont> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <basefont> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -689,7 +689,7 @@ export class Basefont extends S.TaggedClass<Basefont>($I`Basefont`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Basefont", { description: "The <basefont> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Basefont", { description: "The <basefont> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Basefont}.
@@ -775,7 +775,7 @@ export declare namespace Bdo {
 }
 
 /**
- * The <bgsound> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <bgsound> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -785,7 +785,7 @@ export class Bgsound extends S.TaggedClass<Bgsound>($I`Bgsound`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Bgsound", { description: "The <bgsound> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Bgsound", { description: "The <bgsound> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Bgsound}.
@@ -805,7 +805,7 @@ export declare namespace Bgsound {
 }
 
 /**
- * The <big> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <big> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -816,7 +816,7 @@ export class Big extends S.TaggedClass<Big>($I`Big`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Big", { description: "The <big> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Big", { description: "The <big> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Big}.
@@ -838,7 +838,7 @@ export declare namespace Big {
 }
 
 /**
- * The <blink> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <blink> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -849,7 +849,7 @@ export class Blink extends S.TaggedClass<Blink>($I`Blink`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Blink", { description: "The <blink> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Blink", { description: "The <blink> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Blink}.
@@ -1086,17 +1086,17 @@ export class Button extends S.TaggedClass<Button>($I`Button`)(
     ),
     command: S.optionalKey(S.String),
     commandfor: S.optionalKey(S.String),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     enctype: S.optionalKey(S.Literals(["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"])),
     form: S.optionalKey(S.String),
     formaction: S.optionalKey(S.String),
     formenctype: S.optionalKey(S.String),
     formmethod: S.optionalKey(S.Literals(["get", "post", "dialog"])),
-    formnovalidate: S.optionalKey(S.Boolean),
+    formnovalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     formtarget: S.optionalKey(S.String),
     method: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
-    novalidate: S.optionalKey(S.Boolean),
+    novalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     target: S.optionalKey(S.String),
     type: S.optionalKey(S.Literals(["submit", "reset", "button"])),
     value: S.optionalKey(S.String),
@@ -1182,17 +1182,17 @@ export declare namespace Button {
       | "impp";
     readonly command?: string;
     readonly commandfor?: string;
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly enctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
     readonly form?: string;
     readonly formaction?: string;
     readonly formenctype?: string;
     readonly formmethod?: "get" | "post" | "dialog";
-    readonly formnovalidate?: boolean;
+    readonly formnovalidate?: boolean | "";
     readonly formtarget?: string;
     readonly method?: string;
     readonly name?: string;
-    readonly novalidate?: boolean;
+    readonly novalidate?: boolean | "";
     readonly target?: string;
     readonly type?: "submit" | "reset" | "button";
     readonly value?: string;
@@ -1269,17 +1269,17 @@ export declare namespace Button {
       | "impp";
     readonly command?: string;
     readonly commandfor?: string;
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly enctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain";
     readonly form?: string;
     readonly formaction?: string;
     readonly formenctype?: string;
     readonly formmethod?: "get" | "post" | "dialog";
-    readonly formnovalidate?: boolean;
+    readonly formnovalidate?: boolean | "";
     readonly formtarget?: string;
     readonly method?: string;
     readonly name?: string;
-    readonly novalidate?: boolean;
+    readonly novalidate?: boolean | "";
     readonly target?: string;
     readonly type?: "submit" | "reset" | "button";
     readonly value?: string;
@@ -1363,7 +1363,7 @@ export declare namespace Caption {
 }
 
 /**
- * The <center> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <center> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -1374,7 +1374,7 @@ export class Center extends S.TaggedClass<Center>($I`Center`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Center", { description: "The <center> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Center", { description: "The <center> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Center}.
@@ -1697,7 +1697,7 @@ export class Details extends S.TaggedClass<Details>($I`Details`)(
   {
     ...GlobalAttributes,
     name: S.optionalKey(S.String),
-    open: S.optionalKey(S.Boolean),
+    open: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
   },
   $I.annote("Details", { description: "The <details> element." })
@@ -1713,14 +1713,14 @@ export declare namespace Details {
   export type Type = GlobalAttributesType & {
     readonly _tag: "details";
     readonly name?: string;
-    readonly open?: boolean;
+    readonly open?: boolean | "";
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "details";
     readonly name?: string;
-    readonly open?: boolean;
+    readonly open?: boolean | "";
     readonly children: HtmlChildren.Encoded;
   };
 }
@@ -1769,7 +1769,7 @@ export class Dialog extends S.TaggedClass<Dialog>($I`Dialog`)(
   {
     ...GlobalAttributes,
     closedby: S.optionalKey(S.Literals(["any", "closerequest", "none"])),
-    open: S.optionalKey(S.Boolean),
+    open: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
   },
   $I.annote("Dialog", { description: "The <dialog> element." })
@@ -1785,20 +1785,20 @@ export declare namespace Dialog {
   export type Type = GlobalAttributesType & {
     readonly _tag: "dialog";
     readonly closedby?: "any" | "closerequest" | "none";
-    readonly open?: boolean;
+    readonly open?: boolean | "";
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "dialog";
     readonly closedby?: "any" | "closerequest" | "none";
-    readonly open?: boolean;
+    readonly open?: boolean | "";
     readonly children: HtmlChildren.Encoded;
   };
 }
 
 /**
- * The <dir> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <dir> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -1809,7 +1809,7 @@ export class DirElement extends S.TaggedClass<DirElement>($I`DirElement`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("DirElement", { description: "The <dir> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("DirElement", { description: "The <dir> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link DirElement}.
@@ -1876,7 +1876,7 @@ export class Dl extends S.TaggedClass<Dl>($I`Dl`)(
   "dl",
   {
     ...GlobalAttributes,
-    compact: S.optionalKey(S.Boolean),
+    compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
   },
   $I.annote("Dl", { description: "The <dl> element." })
@@ -1891,13 +1891,13 @@ export declare namespace Dl {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "dl";
-    readonly compact?: boolean;
+    readonly compact?: boolean | "";
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "dl";
-    readonly compact?: boolean;
+    readonly compact?: boolean | "";
     readonly children: HtmlChildren.Encoded;
   };
 }
@@ -2100,7 +2100,7 @@ export class Fieldset extends S.TaggedClass<Fieldset>($I`Fieldset`)(
         "impp",
       ])
     ),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     form: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
     children: HtmlChildren,
@@ -2182,7 +2182,7 @@ export declare namespace Fieldset {
       | "tel-extension"
       | "email"
       | "impp";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly name?: string;
     readonly children: HtmlChildren.Type;
@@ -2255,7 +2255,7 @@ export declare namespace Fieldset {
       | "tel-extension"
       | "email"
       | "impp";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly name?: string;
     readonly children: HtmlChildren.Encoded;
@@ -2329,7 +2329,7 @@ export declare namespace Figure {
 }
 
 /**
- * The <font> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <font> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -2340,7 +2340,7 @@ export class Font extends S.TaggedClass<Font>($I`Font`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Font", { description: "The <font> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Font", { description: "The <font> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Font}.
@@ -2412,11 +2412,11 @@ export class Form extends S.TaggedClass<Form>($I`Form`)(
     formaction: S.optionalKey(S.String),
     formenctype: S.optionalKey(S.String),
     formmethod: S.optionalKey(S.String),
-    formnovalidate: S.optionalKey(S.Boolean),
+    formnovalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     formtarget: S.optionalKey(S.String),
     method: S.optionalKey(S.Literals(["get", "post", "dialog"])),
     name: S.optionalKey(S.String),
-    novalidate: S.optionalKey(S.Boolean),
+    novalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rel: S.optionalKey(
       S.Literals([
         "external",
@@ -2454,11 +2454,11 @@ export declare namespace Form {
     readonly formaction?: string;
     readonly formenctype?: string;
     readonly formmethod?: string;
-    readonly formnovalidate?: boolean;
+    readonly formnovalidate?: boolean | "";
     readonly formtarget?: string;
     readonly method?: "get" | "post" | "dialog";
     readonly name?: string;
-    readonly novalidate?: boolean;
+    readonly novalidate?: boolean | "";
     readonly rel?:
       | "external"
       | "help"
@@ -2484,11 +2484,11 @@ export declare namespace Form {
     readonly formaction?: string;
     readonly formenctype?: string;
     readonly formmethod?: string;
-    readonly formnovalidate?: boolean;
+    readonly formnovalidate?: boolean | "";
     readonly formtarget?: string;
     readonly method?: "get" | "post" | "dialog";
     readonly name?: string;
-    readonly novalidate?: boolean;
+    readonly novalidate?: boolean | "";
     readonly rel?:
       | "external"
       | "help"
@@ -2506,7 +2506,7 @@ export declare namespace Form {
 }
 
 /**
- * The <frame> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <frame> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -2516,7 +2516,7 @@ export class Frame extends S.TaggedClass<Frame>($I`Frame`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Frame", { description: "The <frame> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Frame", { description: "The <frame> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Frame}.
@@ -2536,7 +2536,7 @@ export declare namespace Frame {
 }
 
 /**
- * The <frameset> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <frameset> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -2547,7 +2547,7 @@ export class Frameset extends S.TaggedClass<Frameset>($I`Frameset`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Frameset", { description: "The <frameset> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Frameset", { description: "The <frameset> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Frameset}.
@@ -2898,7 +2898,7 @@ export class Hr extends S.TaggedClass<Hr>($I`Hr`)(
     ...GlobalAttributes,
     align: S.optionalKey(S.String),
     color: S.optionalKey(S.String),
-    noshade: S.optionalKey(S.Boolean),
+    noshade: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     size: S.optionalKey(S.Int),
     width: S.optionalKey(S.Int),
   },
@@ -2916,7 +2916,7 @@ export declare namespace Hr {
     readonly _tag: "hr";
     readonly align?: string;
     readonly color?: string;
-    readonly noshade?: boolean;
+    readonly noshade?: boolean | "";
     readonly size?: number;
     readonly width?: number;
   };
@@ -2925,7 +2925,7 @@ export declare namespace Hr {
     readonly _tag: "hr";
     readonly align?: string;
     readonly color?: string;
-    readonly noshade?: boolean;
+    readonly noshade?: boolean | "";
     readonly size?: number;
     readonly width?: number;
   };
@@ -3015,7 +3015,7 @@ export class Iframe extends S.TaggedClass<Iframe>($I`Iframe`)(
     ...GlobalAttributes,
     align: S.optionalKey(S.String),
     allow: S.optionalKey(S.String),
-    allowfullscreen: S.optionalKey(S.Boolean),
+    allowfullscreen: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     allowtransparency: S.optionalKey(S.String),
     frameborder: S.optionalKey(S.String),
     framespacing: S.optionalKey(S.String),
@@ -3065,7 +3065,7 @@ export declare namespace Iframe {
     readonly _tag: "iframe";
     readonly align?: string;
     readonly allow?: string;
-    readonly allowfullscreen?: boolean;
+    readonly allowfullscreen?: boolean | "";
     readonly allowtransparency?: string;
     readonly frameborder?: string;
     readonly framespacing?: string;
@@ -3103,7 +3103,7 @@ export declare namespace Iframe {
     readonly _tag: "iframe";
     readonly align?: string;
     readonly allow?: string;
-    readonly allowfullscreen?: boolean;
+    readonly allowfullscreen?: boolean | "";
     readonly allowtransparency?: string;
     readonly frameborder?: string;
     readonly framespacing?: string;
@@ -3151,13 +3151,13 @@ export class Img extends S.TaggedClass<Img>($I`Img`)(
     align: S.optionalKey(S.String),
     alt: S.optionalKey(S.String),
     border: S.optionalKey(S.String),
-    controls: S.optionalKey(S.Boolean),
+    controls: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
     decoding: S.optionalKey(S.Literals(["sync", "async", "auto"])),
     fetchpriority: S.optionalKey(S.Literals(["high", "low", "auto"])),
     height: S.optionalKey(S.Int),
     hspace: S.optionalKey(S.String),
-    ismap: S.optionalKey(S.Boolean),
+    ismap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     loading: S.optionalKey(S.Literals(["lazy", "eager"])),
     longdesc: S.optionalKey(S.String),
     lowsrc: S.optionalKey(S.String),
@@ -3185,13 +3185,13 @@ export declare namespace Img {
     readonly align?: string;
     readonly alt?: string;
     readonly border?: string;
-    readonly controls?: boolean;
+    readonly controls?: boolean | "";
     readonly crossorigin?: "anonymous" | "use-credentials";
     readonly decoding?: "sync" | "async" | "auto";
     readonly fetchpriority?: "high" | "low" | "auto";
     readonly height?: number;
     readonly hspace?: string;
-    readonly ismap?: boolean;
+    readonly ismap?: boolean | "";
     readonly loading?: "lazy" | "eager";
     readonly longdesc?: string;
     readonly lowsrc?: string;
@@ -3210,13 +3210,13 @@ export declare namespace Img {
     readonly align?: string;
     readonly alt?: string;
     readonly border?: string;
-    readonly controls?: boolean;
+    readonly controls?: boolean | "";
     readonly crossorigin?: "anonymous" | "use-credentials";
     readonly decoding?: "sync" | "async" | "auto";
     readonly fetchpriority?: "high" | "low" | "auto";
     readonly height?: number;
     readonly hspace?: string;
-    readonly ismap?: boolean;
+    readonly ismap?: boolean | "";
     readonly loading?: "lazy" | "eager";
     readonly longdesc?: string;
     readonly lowsrc?: string;
@@ -3243,7 +3243,7 @@ export class Input extends S.TaggedClass<Input>($I`Input`)(
     ...GlobalAttributes,
     accept: S.optionalKey(S.String),
     align: S.optionalKey(S.String),
-    alpha: S.optionalKey(S.Boolean),
+    alpha: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     alt: S.optionalKey(S.String),
     autocomplete: S.optionalKey(
       S.Literals([
@@ -3314,24 +3314,24 @@ export class Input extends S.TaggedClass<Input>($I`Input`)(
       ])
     ),
     border: S.optionalKey(S.String),
-    checked: S.optionalKey(S.Boolean),
+    checked: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     colorspace: S.optionalKey(S.Literals(["limited-srgb", "display-p3"])),
     dirname: S.optionalKey(S.String),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     form: S.optionalKey(S.String),
     hspace: S.optionalKey(S.String),
-    ismap: S.optionalKey(S.Boolean),
+    ismap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     list: S.optionalKey(S.String),
     max: S.optionalKey(S.String),
     maxlength: S.optionalKey(S.Int),
     min: S.optionalKey(S.String),
     minlength: S.optionalKey(S.Int),
-    multiple: S.optionalKey(S.Boolean),
+    multiple: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     name: S.optionalKey(S.String),
     pattern: S.optionalKey(S.String),
     placeholder: S.optionalKey(S.String),
-    readonly: S.optionalKey(S.Boolean),
-    required: S.optionalKey(S.Boolean),
+    readonly: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    required: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     size: S.optionalKey(S.Int),
     src: S.optionalKey(S.String),
     step: S.optionalKey(S.String),
@@ -3379,7 +3379,7 @@ export declare namespace Input {
     readonly _tag: "input";
     readonly accept?: string;
     readonly align?: string;
-    readonly alpha?: boolean;
+    readonly alpha?: boolean | "";
     readonly alt?: string;
     readonly autocomplete?:
       | "section-"
@@ -3447,24 +3447,24 @@ export declare namespace Input {
       | "email"
       | "impp";
     readonly border?: string;
-    readonly checked?: boolean;
+    readonly checked?: boolean | "";
     readonly colorspace?: "limited-srgb" | "display-p3";
     readonly dirname?: string;
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly hspace?: string;
-    readonly ismap?: boolean;
+    readonly ismap?: boolean | "";
     readonly list?: string;
     readonly max?: string;
     readonly maxlength?: number;
     readonly min?: string;
     readonly minlength?: number;
-    readonly multiple?: boolean;
+    readonly multiple?: boolean | "";
     readonly name?: string;
     readonly pattern?: string;
     readonly placeholder?: string;
-    readonly readonly?: boolean;
-    readonly required?: boolean;
+    readonly readonly?: boolean | "";
+    readonly required?: boolean | "";
     readonly size?: number;
     readonly src?: string;
     readonly step?: string;
@@ -3500,7 +3500,7 @@ export declare namespace Input {
     readonly _tag: "input";
     readonly accept?: string;
     readonly align?: string;
-    readonly alpha?: boolean;
+    readonly alpha?: boolean | "";
     readonly alt?: string;
     readonly autocomplete?:
       | "section-"
@@ -3568,24 +3568,24 @@ export declare namespace Input {
       | "email"
       | "impp";
     readonly border?: string;
-    readonly checked?: boolean;
+    readonly checked?: boolean | "";
     readonly colorspace?: "limited-srgb" | "display-p3";
     readonly dirname?: string;
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly hspace?: string;
-    readonly ismap?: boolean;
+    readonly ismap?: boolean | "";
     readonly list?: string;
     readonly max?: string;
     readonly maxlength?: number;
     readonly min?: string;
     readonly minlength?: number;
-    readonly multiple?: boolean;
+    readonly multiple?: boolean | "";
     readonly name?: string;
     readonly pattern?: string;
     readonly placeholder?: string;
-    readonly readonly?: boolean;
-    readonly required?: boolean;
+    readonly readonly?: boolean | "";
+    readonly required?: boolean | "";
     readonly size?: number;
     readonly src?: string;
     readonly step?: string;
@@ -3658,7 +3658,7 @@ export declare namespace Ins {
 }
 
 /**
- * The <isindex> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <isindex> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -3668,7 +3668,7 @@ export class Isindex extends S.TaggedClass<Isindex>($I`Isindex`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Isindex", { description: "The <isindex> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Isindex", { description: "The <isindex> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Isindex}.
@@ -3721,7 +3721,7 @@ export declare namespace Kbd {
 }
 
 /**
- * The <keygen> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <keygen> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -3731,7 +3731,7 @@ export class Keygen extends S.TaggedClass<Keygen>($I`Keygen`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Keygen", { description: "The <keygen> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Keygen", { description: "The <keygen> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Keygen}.
@@ -3876,7 +3876,7 @@ export class Link extends S.TaggedClass<Link>($I`Link`)(
     charset: S.optionalKey(S.String),
     color: S.optionalKey(S.String),
     crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     fetchpriority: S.optionalKey(S.Literals(["high", "low", "auto"])),
     href: S.optionalKey(S.String),
     hreflang: S.optionalKey(S.String),
@@ -3933,7 +3933,7 @@ export declare namespace Link {
     readonly charset?: string;
     readonly color?: string;
     readonly crossorigin?: "anonymous" | "use-credentials";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly fetchpriority?: "high" | "low" | "auto";
     readonly href?: string;
     readonly hreflang?: string;
@@ -3978,7 +3978,7 @@ export declare namespace Link {
     readonly charset?: string;
     readonly color?: string;
     readonly crossorigin?: "anonymous" | "use-credentials";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly fetchpriority?: "high" | "low" | "auto";
     readonly href?: string;
     readonly hreflang?: string;
@@ -4018,7 +4018,7 @@ export declare namespace Link {
 }
 
 /**
- * The <listing> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <listing> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4027,9 +4027,9 @@ export class Listing extends S.TaggedClass<Listing>($I`Listing`)(
   "listing",
   {
     ...GlobalAttributes,
-    children: HtmlChildren,
+    content: S.String,
   },
-  $I.annote("Listing", { description: "The <listing> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Listing", { description: "The <listing> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Listing}.
@@ -4041,12 +4041,12 @@ export declare namespace Listing {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "listing";
-    readonly children: HtmlChildren.Type;
+    readonly content: string;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "listing";
-    readonly children: HtmlChildren.Encoded;
+    readonly content: string;
   };
 }
 
@@ -4153,7 +4153,7 @@ export declare namespace Mark {
 }
 
 /**
- * The <marquee> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <marquee> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4164,11 +4164,11 @@ export class Marquee extends S.TaggedClass<Marquee>($I`Marquee`)(
     ...GlobalAttributes,
     behavior: S.optionalKey(S.String),
     direction: S.optionalKey(S.String),
-    loop: S.optionalKey(S.Boolean),
-    truespeed: S.optionalKey(S.Boolean),
+    loop: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    truespeed: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
   },
-  $I.annote("Marquee", { description: "The <marquee> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Marquee", { description: "The <marquee> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Marquee}.
@@ -4182,8 +4182,8 @@ export declare namespace Marquee {
     readonly _tag: "marquee";
     readonly behavior?: string;
     readonly direction?: string;
-    readonly loop?: boolean;
-    readonly truespeed?: boolean;
+    readonly loop?: boolean | "";
+    readonly truespeed?: boolean | "";
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
@@ -4191,8 +4191,8 @@ export declare namespace Marquee {
     readonly _tag: "marquee";
     readonly behavior?: string;
     readonly direction?: string;
-    readonly loop?: boolean;
-    readonly truespeed?: boolean;
+    readonly loop?: boolean | "";
+    readonly truespeed?: boolean | "";
     readonly children: HtmlChildren.Encoded;
   };
 }
@@ -4207,7 +4207,7 @@ export class Menu extends S.TaggedClass<Menu>($I`Menu`)(
   "menu",
   {
     ...GlobalAttributes,
-    compact: S.optionalKey(S.Boolean),
+    compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     label: S.optionalKey(S.String),
     type: S.optionalKey(S.String),
     children: HtmlChildren,
@@ -4224,7 +4224,7 @@ export declare namespace Menu {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "menu";
-    readonly compact?: boolean;
+    readonly compact?: boolean | "";
     readonly label?: string;
     readonly type?: string;
     readonly children: HtmlChildren.Type;
@@ -4232,7 +4232,7 @@ export declare namespace Menu {
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "menu";
-    readonly compact?: boolean;
+    readonly compact?: boolean | "";
     readonly label?: string;
     readonly type?: string;
     readonly children: HtmlChildren.Encoded;
@@ -4240,7 +4240,7 @@ export declare namespace Menu {
 }
 
 /**
- * The <menuitem> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <menuitem> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4251,7 +4251,7 @@ export class Menuitem extends S.TaggedClass<Menuitem>($I`Menuitem`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Menuitem", { description: "The <menuitem> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Menuitem", { description: "The <menuitem> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Menuitem}.
@@ -4423,7 +4423,7 @@ export declare namespace Meter {
 }
 
 /**
- * The <multicol> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <multicol> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4434,7 +4434,7 @@ export class Multicol extends S.TaggedClass<Multicol>($I`Multicol`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Multicol", { description: "The <multicol> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Multicol", { description: "The <multicol> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Multicol}.
@@ -4489,7 +4489,7 @@ export declare namespace Nav {
 }
 
 /**
- * The <nextid> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <nextid> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4499,7 +4499,7 @@ export class Nextid extends S.TaggedClass<Nextid>($I`Nextid`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Nextid", { description: "The <nextid> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Nextid", { description: "The <nextid> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Nextid}.
@@ -4519,7 +4519,7 @@ export declare namespace Nextid {
 }
 
 /**
- * The <nobr> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <nobr> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4530,7 +4530,7 @@ export class Nobr extends S.TaggedClass<Nobr>($I`Nobr`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Nobr", { description: "The <nobr> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Nobr", { description: "The <nobr> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Nobr}.
@@ -4552,7 +4552,7 @@ export declare namespace Nobr {
 }
 
 /**
- * The <noembed> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <noembed> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4563,7 +4563,7 @@ export class Noembed extends S.TaggedClass<Noembed>($I`Noembed`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Noembed", { description: "The <noembed> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Noembed", { description: "The <noembed> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Noembed}.
@@ -4585,7 +4585,7 @@ export declare namespace Noembed {
 }
 
 /**
- * The <noframes> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <noframes> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -4596,7 +4596,7 @@ export class Noframes extends S.TaggedClass<Noframes>($I`Noframes`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Noframes", { description: "The <noframes> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Noframes", { description: "The <noframes> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Noframes}.
@@ -4736,8 +4736,8 @@ export class ObjectElement extends S.TaggedClass<ObjectElement>($I`ObjectElement
     codebase: S.optionalKey(S.String),
     codetype: S.optionalKey(S.String),
     data: S.optionalKey(S.String),
-    declare: S.optionalKey(S.Boolean),
-    disabled: S.optionalKey(S.Boolean),
+    declare: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     form: S.optionalKey(S.String),
     height: S.optionalKey(S.Int),
     hspace: S.optionalKey(S.String),
@@ -4835,8 +4835,8 @@ export declare namespace ObjectElement {
     readonly codebase?: string;
     readonly codetype?: string;
     readonly data?: string;
-    readonly declare?: boolean;
-    readonly disabled?: boolean;
+    readonly declare?: boolean | "";
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly height?: number;
     readonly hspace?: string;
@@ -4925,8 +4925,8 @@ export declare namespace ObjectElement {
     readonly codebase?: string;
     readonly codetype?: string;
     readonly data?: string;
-    readonly declare?: boolean;
-    readonly disabled?: boolean;
+    readonly declare?: boolean | "";
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly height?: number;
     readonly hspace?: string;
@@ -4951,8 +4951,8 @@ export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
   "ol",
   {
     ...GlobalAttributes,
-    compact: S.optionalKey(S.Boolean),
-    reversed: S.optionalKey(S.Boolean),
+    compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    reversed: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     start: S.optionalKey(S.Int),
     type: S.optionalKey(S.Literals(["1", "a", "A", "i", "I"])),
     children: HtmlChildren,
@@ -4969,8 +4969,8 @@ export declare namespace Ol {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "ol";
-    readonly compact?: boolean;
-    readonly reversed?: boolean;
+    readonly compact?: boolean | "";
+    readonly reversed?: boolean | "";
     readonly start?: number;
     readonly type?: "1" | "a" | "A" | "i" | "I";
     readonly children: HtmlChildren.Type;
@@ -4978,8 +4978,8 @@ export declare namespace Ol {
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "ol";
-    readonly compact?: boolean;
-    readonly reversed?: boolean;
+    readonly compact?: boolean | "";
+    readonly reversed?: boolean | "";
     readonly start?: number;
     readonly type?: "1" | "a" | "A" | "i" | "I";
     readonly children: HtmlChildren.Encoded;
@@ -4996,7 +4996,7 @@ export class Optgroup extends S.TaggedClass<Optgroup>($I`Optgroup`)(
   "optgroup",
   {
     ...GlobalAttributes,
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     label: S.optionalKey(S.String),
     children: HtmlChildren,
   },
@@ -5012,14 +5012,14 @@ export declare namespace Optgroup {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "optgroup";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly label?: string;
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "optgroup";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly label?: string;
     readonly children: HtmlChildren.Encoded;
   };
@@ -5035,10 +5035,10 @@ export class Option extends S.TaggedClass<Option>($I`Option`)(
   "option",
   {
     ...GlobalAttributes,
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     label: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
-    selected: S.optionalKey(S.Boolean),
+    selected: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     value: S.optionalKey(S.String),
     children: HtmlChildren,
   },
@@ -5054,20 +5054,20 @@ export declare namespace Option {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "option";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly label?: string;
     readonly name?: string;
-    readonly selected?: boolean;
+    readonly selected?: boolean | "";
     readonly value?: string;
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "option";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly label?: string;
     readonly name?: string;
-    readonly selected?: boolean;
+    readonly selected?: boolean | "";
     readonly value?: string;
     readonly children: HtmlChildren.Encoded;
   };
@@ -5151,7 +5151,7 @@ export class Output extends S.TaggedClass<Output>($I`Output`)(
         "impp",
       ])
     ),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     for: S.optionalKey(S.String),
     form: S.optionalKey(S.String),
     name: S.optionalKey(S.String),
@@ -5234,7 +5234,7 @@ export declare namespace Output {
       | "tel-extension"
       | "email"
       | "impp";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly for?: string;
     readonly form?: string;
     readonly name?: string;
@@ -5308,7 +5308,7 @@ export declare namespace Output {
       | "tel-extension"
       | "email"
       | "impp";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly for?: string;
     readonly form?: string;
     readonly name?: string;
@@ -5353,7 +5353,7 @@ export declare namespace P {
 }
 
 /**
- * The <param> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <param> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -5363,7 +5363,7 @@ export class Param extends S.TaggedClass<Param>($I`Param`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Param", { description: "The <param> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Param", { description: "The <param> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Param}.
@@ -5416,7 +5416,7 @@ export declare namespace Picture {
 }
 
 /**
- * The <plaintext> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <plaintext> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -5425,9 +5425,9 @@ export class Plaintext extends S.TaggedClass<Plaintext>($I`Plaintext`)(
   "plaintext",
   {
     ...GlobalAttributes,
-    children: HtmlChildren,
+    content: S.String,
   },
-  $I.annote("Plaintext", { description: "The <plaintext> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Plaintext", { description: "The <plaintext> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Plaintext}.
@@ -5439,12 +5439,12 @@ export declare namespace Plaintext {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "plaintext";
-    readonly children: HtmlChildren.Type;
+    readonly content: string;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "plaintext";
-    readonly children: HtmlChildren.Encoded;
+    readonly content: string;
   };
 }
 
@@ -5560,7 +5560,7 @@ export declare namespace Q {
 }
 
 /**
- * The <rb> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <rb> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -5571,7 +5571,7 @@ export class Rb extends S.TaggedClass<Rb>($I`Rb`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Rb", { description: "The <rb> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Rb", { description: "The <rb> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Rb}.
@@ -5659,7 +5659,7 @@ export declare namespace Rt {
 }
 
 /**
- * The <rtc> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <rtc> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -5670,7 +5670,7 @@ export class Rtc extends S.TaggedClass<Rtc>($I`Rtc`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Rtc", { description: "The <rtc> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Rtc", { description: "The <rtc> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Rtc}.
@@ -5800,17 +5800,17 @@ export class Script extends S.TaggedClass<Script>($I`Script`)(
   "script",
   {
     ...GlobalAttributes,
-    async: S.optionalKey(S.Boolean),
+    async: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     blocking: S.optionalKey(S.String),
     charset: S.optionalKey(S.String),
     crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
-    defer: S.optionalKey(S.Boolean),
+    defer: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     event: S.optionalKey(S.String),
     fetchpriority: S.optionalKey(S.Literals(["high", "low", "auto"])),
     for: S.optionalKey(S.String),
     integrity: S.optionalKey(S.String),
     language: S.optionalKey(S.String),
-    nomodule: S.optionalKey(S.Boolean),
+    nomodule: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     referrerpolicy: S.optionalKey(S.String),
     src: S.optionalKey(S.String),
     type: S.optionalKey(S.String),
@@ -5828,17 +5828,17 @@ export declare namespace Script {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "script";
-    readonly async?: boolean;
+    readonly async?: boolean | "";
     readonly blocking?: string;
     readonly charset?: string;
     readonly crossorigin?: "anonymous" | "use-credentials";
-    readonly defer?: boolean;
+    readonly defer?: boolean | "";
     readonly event?: string;
     readonly fetchpriority?: "high" | "low" | "auto";
     readonly for?: string;
     readonly integrity?: string;
     readonly language?: string;
-    readonly nomodule?: boolean;
+    readonly nomodule?: boolean | "";
     readonly referrerpolicy?: string;
     readonly src?: string;
     readonly type?: string;
@@ -5847,17 +5847,17 @@ export declare namespace Script {
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "script";
-    readonly async?: boolean;
+    readonly async?: boolean | "";
     readonly blocking?: string;
     readonly charset?: string;
     readonly crossorigin?: "anonymous" | "use-credentials";
-    readonly defer?: boolean;
+    readonly defer?: boolean | "";
     readonly event?: string;
     readonly fetchpriority?: "high" | "low" | "auto";
     readonly for?: string;
     readonly integrity?: string;
     readonly language?: string;
-    readonly nomodule?: boolean;
+    readonly nomodule?: boolean | "";
     readonly referrerpolicy?: string;
     readonly src?: string;
     readonly type?: string;
@@ -6009,11 +6009,11 @@ export class Select extends S.TaggedClass<Select>($I`Select`)(
         "impp",
       ])
     ),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     form: S.optionalKey(S.String),
-    multiple: S.optionalKey(S.Boolean),
+    multiple: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     name: S.optionalKey(S.String),
-    required: S.optionalKey(S.Boolean),
+    required: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     size: S.optionalKey(S.Int),
     children: HtmlChildren,
   },
@@ -6094,11 +6094,11 @@ export declare namespace Select {
       | "tel-extension"
       | "email"
       | "impp";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
-    readonly multiple?: boolean;
+    readonly multiple?: boolean | "";
     readonly name?: string;
-    readonly required?: boolean;
+    readonly required?: boolean | "";
     readonly size?: number;
     readonly children: HtmlChildren.Type;
   };
@@ -6170,11 +6170,11 @@ export declare namespace Select {
       | "tel-extension"
       | "email"
       | "impp";
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
-    readonly multiple?: boolean;
+    readonly multiple?: boolean | "";
     readonly name?: string;
-    readonly required?: boolean;
+    readonly required?: boolean | "";
     readonly size?: number;
     readonly children: HtmlChildren.Encoded;
   };
@@ -6334,7 +6334,7 @@ export declare namespace Source {
 }
 
 /**
- * The <spacer> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <spacer> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -6344,7 +6344,7 @@ export class Spacer extends S.TaggedClass<Spacer>($I`Spacer`)(
   {
     ...GlobalAttributes,
   },
-  $I.annote("Spacer", { description: "The <spacer> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Spacer", { description: "The <spacer> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Spacer}.
@@ -6397,7 +6397,7 @@ export declare namespace Span {
 }
 
 /**
- * The <strike> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <strike> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -6408,7 +6408,7 @@ export class Strike extends S.TaggedClass<Strike>($I`Strike`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Strike", { description: "The <strike> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Strike", { description: "The <strike> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Strike}.
@@ -6739,7 +6739,7 @@ export class Td extends S.TaggedClass<Td>($I`Td`)(
     colspan: S.optionalKey(S.Int),
     headers: S.optionalKey(S.String),
     height: S.optionalKey(S.Int),
-    nowrap: S.optionalKey(S.Boolean),
+    nowrap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rowspan: S.optionalKey(S.Int),
     scope: S.optionalKey(S.String),
     valign: S.optionalKey(S.String),
@@ -6767,7 +6767,7 @@ export declare namespace Td {
     readonly colspan?: number;
     readonly headers?: string;
     readonly height?: number;
-    readonly nowrap?: boolean;
+    readonly nowrap?: boolean | "";
     readonly rowspan?: number;
     readonly scope?: string;
     readonly valign?: string;
@@ -6786,7 +6786,7 @@ export declare namespace Td {
     readonly colspan?: number;
     readonly headers?: string;
     readonly height?: number;
-    readonly nowrap?: boolean;
+    readonly nowrap?: boolean | "";
     readonly rowspan?: number;
     readonly scope?: string;
     readonly valign?: string;
@@ -6805,11 +6805,11 @@ export class Template extends S.TaggedClass<Template>($I`Template`)(
   "template",
   {
     ...GlobalAttributes,
-    shadowrootclonable: S.optionalKey(S.Boolean),
+    shadowrootclonable: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     shadowrootcustomelementregistry: S.optionalKey(S.String),
-    shadowrootdelegatesfocus: S.optionalKey(S.Boolean),
+    shadowrootdelegatesfocus: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     shadowrootmode: S.optionalKey(S.Literals(["open", "closed"])),
-    shadowrootserializable: S.optionalKey(S.Boolean),
+    shadowrootserializable: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     shadowrootslotassignment: S.optionalKey(S.Literals(["named", "manual"])),
     children: HtmlChildren,
   },
@@ -6825,22 +6825,22 @@ export declare namespace Template {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "template";
-    readonly shadowrootclonable?: boolean;
+    readonly shadowrootclonable?: boolean | "";
     readonly shadowrootcustomelementregistry?: string;
-    readonly shadowrootdelegatesfocus?: boolean;
+    readonly shadowrootdelegatesfocus?: boolean | "";
     readonly shadowrootmode?: "open" | "closed";
-    readonly shadowrootserializable?: boolean;
+    readonly shadowrootserializable?: boolean | "";
     readonly shadowrootslotassignment?: "named" | "manual";
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "template";
-    readonly shadowrootclonable?: boolean;
+    readonly shadowrootclonable?: boolean | "";
     readonly shadowrootcustomelementregistry?: string;
-    readonly shadowrootdelegatesfocus?: boolean;
+    readonly shadowrootdelegatesfocus?: boolean | "";
     readonly shadowrootmode?: "open" | "closed";
-    readonly shadowrootserializable?: boolean;
+    readonly shadowrootserializable?: boolean | "";
     readonly shadowrootslotassignment?: "named" | "manual";
     readonly children: HtmlChildren.Encoded;
   };
@@ -6926,14 +6926,14 @@ export class Textarea extends S.TaggedClass<Textarea>($I`Textarea`)(
     ),
     cols: S.optionalKey(S.Int),
     dirname: S.optionalKey(S.String),
-    disabled: S.optionalKey(S.Boolean),
+    disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     form: S.optionalKey(S.String),
     maxlength: S.optionalKey(S.Int),
     minlength: S.optionalKey(S.Int),
     name: S.optionalKey(S.String),
     placeholder: S.optionalKey(S.String),
-    readonly: S.optionalKey(S.Boolean),
-    required: S.optionalKey(S.Boolean),
+    readonly: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    required: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rows: S.optionalKey(S.Int),
     wrap: S.optionalKey(S.Literals(["soft", "hard"])),
     content: S.String,
@@ -7017,14 +7017,14 @@ export declare namespace Textarea {
       | "impp";
     readonly cols?: number;
     readonly dirname?: string;
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly maxlength?: number;
     readonly minlength?: number;
     readonly name?: string;
     readonly placeholder?: string;
-    readonly readonly?: boolean;
-    readonly required?: boolean;
+    readonly readonly?: boolean | "";
+    readonly required?: boolean | "";
     readonly rows?: number;
     readonly wrap?: "soft" | "hard";
     readonly content: string;
@@ -7099,14 +7099,14 @@ export declare namespace Textarea {
       | "impp";
     readonly cols?: number;
     readonly dirname?: string;
-    readonly disabled?: boolean;
+    readonly disabled?: boolean | "";
     readonly form?: string;
     readonly maxlength?: number;
     readonly minlength?: number;
     readonly name?: string;
     readonly placeholder?: string;
-    readonly readonly?: boolean;
-    readonly required?: boolean;
+    readonly readonly?: boolean | "";
+    readonly required?: boolean | "";
     readonly rows?: number;
     readonly wrap?: "soft" | "hard";
     readonly content: string;
@@ -7165,7 +7165,7 @@ export class Th extends S.TaggedClass<Th>($I`Th`)(
     colspan: S.optionalKey(S.Int),
     headers: S.optionalKey(S.String),
     height: S.optionalKey(S.Int),
-    nowrap: S.optionalKey(S.Boolean),
+    nowrap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rowspan: S.optionalKey(S.Int),
     scope: S.optionalKey(S.Literals(["row", "col", "rowgroup", "colgroup"])),
     valign: S.optionalKey(S.String),
@@ -7193,7 +7193,7 @@ export declare namespace Th {
     readonly colspan?: number;
     readonly headers?: string;
     readonly height?: number;
-    readonly nowrap?: boolean;
+    readonly nowrap?: boolean | "";
     readonly rowspan?: number;
     readonly scope?: "row" | "col" | "rowgroup" | "colgroup";
     readonly valign?: string;
@@ -7212,7 +7212,7 @@ export declare namespace Th {
     readonly colspan?: number;
     readonly headers?: string;
     readonly height?: number;
-    readonly nowrap?: boolean;
+    readonly nowrap?: boolean | "";
     readonly rowspan?: number;
     readonly scope?: "row" | "col" | "rowgroup" | "colgroup";
     readonly valign?: string;
@@ -7384,7 +7384,7 @@ export class Track extends S.TaggedClass<Track>($I`Track`)(
   "track",
   {
     ...GlobalAttributes,
-    default: S.optionalKey(S.Boolean),
+    default: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     kind: S.optionalKey(S.Literals(["subtitles", "captions", "descriptions", "chapters", "metadata"])),
     label: S.optionalKey(S.String),
     src: S.optionalKey(S.String),
@@ -7402,7 +7402,7 @@ export declare namespace Track {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "track";
-    readonly default?: boolean;
+    readonly default?: boolean | "";
     readonly kind?: "subtitles" | "captions" | "descriptions" | "chapters" | "metadata";
     readonly label?: string;
     readonly src?: string;
@@ -7411,7 +7411,7 @@ export declare namespace Track {
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "track";
-    readonly default?: boolean;
+    readonly default?: boolean | "";
     readonly kind?: "subtitles" | "captions" | "descriptions" | "chapters" | "metadata";
     readonly label?: string;
     readonly src?: string;
@@ -7420,7 +7420,7 @@ export declare namespace Track {
 }
 
 /**
- * The <tt> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <tt> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -7431,7 +7431,7 @@ export class Tt extends S.TaggedClass<Tt>($I`Tt`)(
     ...GlobalAttributes,
     children: HtmlChildren,
   },
-  $I.annote("Tt", { description: "The <tt> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Tt", { description: "The <tt> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Tt}.
@@ -7495,7 +7495,7 @@ export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
   "ul",
   {
     ...GlobalAttributes,
-    compact: S.optionalKey(S.Boolean),
+    compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     type: S.optionalKey(S.String),
     children: HtmlChildren,
   },
@@ -7511,14 +7511,14 @@ export declare namespace Ul {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "ul";
-    readonly compact?: boolean;
+    readonly compact?: boolean | "";
     readonly type?: string;
     readonly children: HtmlChildren.Type;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "ul";
-    readonly compact?: boolean;
+    readonly compact?: boolean | "";
     readonly type?: string;
     readonly children: HtmlChildren.Encoded;
   };
@@ -7567,14 +7567,14 @@ export class Video extends S.TaggedClass<Video>($I`Video`)(
   "video",
   {
     ...GlobalAttributes,
-    autoplay: S.optionalKey(S.Boolean),
-    controls: S.optionalKey(S.Boolean),
+    autoplay: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    controls: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
     height: S.optionalKey(S.Int),
     loading: S.optionalKey(S.Literals(["lazy", "eager"])),
-    loop: S.optionalKey(S.Boolean),
-    muted: S.optionalKey(S.Boolean),
-    playsinline: S.optionalKey(S.Boolean),
+    loop: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    muted: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
+    playsinline: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     poster: S.optionalKey(S.String),
     preload: S.optionalKey(S.Literals(["auto", "none", "metadata"])),
     src: S.optionalKey(S.String),
@@ -7593,14 +7593,14 @@ export declare namespace Video {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "video";
-    readonly autoplay?: boolean;
-    readonly controls?: boolean;
+    readonly autoplay?: boolean | "";
+    readonly controls?: boolean | "";
     readonly crossorigin?: "anonymous" | "use-credentials";
     readonly height?: number;
     readonly loading?: "lazy" | "eager";
-    readonly loop?: boolean;
-    readonly muted?: boolean;
-    readonly playsinline?: boolean;
+    readonly loop?: boolean | "";
+    readonly muted?: boolean | "";
+    readonly playsinline?: boolean | "";
     readonly poster?: string;
     readonly preload?: "auto" | "none" | "metadata";
     readonly src?: string;
@@ -7610,14 +7610,14 @@ export declare namespace Video {
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "video";
-    readonly autoplay?: boolean;
-    readonly controls?: boolean;
+    readonly autoplay?: boolean | "";
+    readonly controls?: boolean | "";
     readonly crossorigin?: "anonymous" | "use-credentials";
     readonly height?: number;
     readonly loading?: "lazy" | "eager";
-    readonly loop?: boolean;
-    readonly muted?: boolean;
-    readonly playsinline?: boolean;
+    readonly loop?: boolean | "";
+    readonly muted?: boolean | "";
+    readonly playsinline?: boolean | "";
     readonly poster?: string;
     readonly preload?: "auto" | "none" | "metadata";
     readonly src?: string;
@@ -7657,7 +7657,7 @@ export declare namespace Wbr {
 }
 
 /**
- * The <xmp> element. Obsolete / non-conforming (WHATWG \u00a716.2).
+ * The <xmp> element. Obsolete / non-conforming (WHATWG §16.2).
  *
  * @category elements
  * @since 0.0.0
@@ -7666,9 +7666,9 @@ export class Xmp extends S.TaggedClass<Xmp>($I`Xmp`)(
   "xmp",
   {
     ...GlobalAttributes,
-    children: HtmlChildren,
+    content: S.String,
   },
-  $I.annote("Xmp", { description: "The <xmp> element. Obsolete / non-conforming (WHATWG \\u00a716.2)." })
+  $I.annote("Xmp", { description: "The <xmp> element. Obsolete / non-conforming (WHATWG §16.2)." })
 ) {}
 /**
  * Companion namespace for {@link Xmp}.
@@ -7680,12 +7680,12 @@ export declare namespace Xmp {
   /** @since 0.0.0 */
   export type Type = GlobalAttributesType & {
     readonly _tag: "xmp";
-    readonly children: HtmlChildren.Type;
+    readonly content: string;
   };
   /** @since 0.0.0 */
   export type Encoded = GlobalAttributesEncoded & {
     readonly _tag: "xmp";
-    readonly children: HtmlChildren.Encoded;
+    readonly content: string;
   };
 }
 

@@ -155,6 +155,38 @@ export const ALLOWLIST_SNAPSHOT = {
       "reason": "scanChunk is the hot per-character branch of the incremental streaming structured-output JSON extractor (property-test proven); the switch dispatches on a single char inside a per-character loop that runs for every byte of every chunk. Replacing it with a per-char Match.value matcher allocates and re-evaluates predicates per character, materially de-optimizing the streaming scanner whose purpose is incremental throughput. The native switch is the correct primitive here.",
       "owner": "@beep/agents-server",
       "issue": "AGENTS-SERVER-SCANSTATE-HOT-CHAR-SCANNER-SWITCH"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/html/scripts/generate.ts",
+      "kind": "new-map-set",
+      "reason": "The HTML AST generator script uses native Set and Map collections for deterministic one-shot code-generation indexes before emitting package source.",
+      "owner": "@beep/html",
+      "issue": "HTML-GENERATOR-NATIVE-MAP-SET"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/html/scripts/generate.ts",
+      "kind": "object-method",
+      "reason": "The HTML AST generator script reads plain JSON-compatible records (vendored webref/WHATWG data and global-attribute keys) via Object methods at the code-generation boundary.",
+      "owner": "@beep/html",
+      "issue": "HTML-GENERATOR-OBJECT-METHOD"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/html/scripts/generate.ts",
+      "kind": "native-error",
+      "reason": "The HTML AST generator script throws a native Error as a defensive guard when SchemaRepresentation output deviates from the expected shape during one-shot code generation.",
+      "owner": "@beep/html",
+      "issue": "HTML-GENERATOR-NATIVE-ERROR-GUARD"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/foundation/modeling/html/src/Html.attributes.ts",
+      "kind": "object-method",
+      "reason": "The global-attribute overlay builds the ARIA and event-handler field bundles from const name lists via Object.fromEntries, preserving literal-key types in the schema field record.",
+      "owner": "@beep/html",
+      "issue": "HTML-ATTRIBUTES-OBJECT-FROM-ENTRIES"
     }
   ],
   "diagnostics": []

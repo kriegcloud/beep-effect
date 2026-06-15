@@ -21,9 +21,8 @@
  */
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime";
 import * as NodeServices from "@effect/platform-node/NodeServices";
-import { Effect, FileSystem, Layer, Logger, Path } from "effect";
+import { Effect, FileSystem, Layer, Logger, Path, SchemaRepresentation as SR } from "effect";
 import * as S from "effect/Schema";
-import * as SR from "effect/SchemaRepresentation";
 import { GlobalAttributes } from "../src/Html.attributes.ts";
 
 // ---------------------------------------------------------------------------
@@ -218,7 +217,9 @@ const buildModel = (data: RawData): { model: string; meta: string; conforming: n
   const rawTextEls = new Set<string>(classification.rawText);
 
   const valueSchema = (el: string, attr: string): S.Top => {
-    if (booleanAttrs.has(attr)) return S.optionalKey(S.Boolean);
+    // HTML boolean attributes accept true/false and the empty-string presence
+    // form (`disabled=""`); mirror the hand-authored `BooleanAttribute` overlay.
+    if (booleanAttrs.has(attr)) return S.optionalKey(S.Union([S.Boolean, S.Literal("")]));
     const vals = enumValues.get(`${el}/${attr}`);
     if (vals !== undefined && vals.length > 0) {
       const uniq = [...new Set(vals)];
@@ -278,7 +279,7 @@ const buildModel = (data: RawData): { model: string; meta: string; conforming: n
         : `    readonly children: HtmlChildren.${encoded ? "Encoded" : "Type"};`;
 
   const elementBlock = (e: El): string => {
-    const desc = `The <${e.tag}> element.${e.obsolete ? " Obsolete / non-conforming (WHATWG \\u00a716.2)." : ""}`;
+    const desc = `The <${e.tag}> element.${e.obsolete ? " Obsolete / non-conforming (WHATWG §16.2)." : ""}`;
     const runtimeFields = ["    ...GlobalAttributes,", e.runtime !== "" ? `    ${e.runtime},` : "", childField(e.kind)]
       .filter((l) => l !== "")
       .join("\n");
@@ -373,7 +374,7 @@ export const ${name} = taggedUnion<${types}, ${encodeds}>(
  * (see \`data/SOURCES.md\`); attribute field bodies/types are emitted by effect's
  * \`SchemaRepresentation.toCodeDocument\`.
  *
- * @packageDocumentation @beep/html/Html.model
+ * @packageDocumentation \\@beep/html/Html.model
  * @since 0.0.0
  */
 import { $HtmlId } from "@beep/identity";
@@ -474,7 +475,7 @@ ${unionMembers.map((m) => `    | ${m}.Encoded`).join("\n")};
  * Per-element metadata for the HTML AST: DOM interface, conformance tier, void /
  * raw-text classification, and (advisory) content categories.
  *
- * @packageDocumentation @beep/html/Html.meta
+ * @packageDocumentation \\@beep/html/Html.meta
  * @since 0.0.0
  */
 import * as S from "effect/Schema";

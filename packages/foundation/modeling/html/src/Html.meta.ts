@@ -4,7 +4,7 @@
  * Per-element metadata for the HTML AST: DOM interface, conformance tier, void /
  * raw-text classification, and (advisory) content categories.
  *
- * @packageDocumentation @beep/html/Html.meta
+ * @packageDocumentation \@beep/html/Html.meta
  * @since 0.0.0
  */
 import * as S from "effect/Schema";
@@ -618,7 +618,7 @@ export const ELEMENT_META: { readonly [tag: string]: HtmlElementMeta } = {
     interface: "HTMLPreElement",
     conformance: "non-conforming",
     void: false,
-    rawText: false,
+    rawText: true,
     categories: [],
   },
   main: {
@@ -810,7 +810,7 @@ export const ELEMENT_META: { readonly [tag: string]: HtmlElementMeta } = {
     interface: "HTMLElement",
     conformance: "non-conforming",
     void: false,
-    rawText: false,
+    rawText: true,
     categories: [],
   },
   pre: {
@@ -1176,7 +1176,7 @@ export const ELEMENT_META: { readonly [tag: string]: HtmlElementMeta } = {
     interface: "HTMLPreElement",
     conformance: "non-conforming",
     void: false,
-    rawText: false,
+    rawText: true,
     categories: [],
   },
 } as const;

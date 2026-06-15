@@ -14,7 +14,7 @@
  * `data-*` attributes are open-ended and modeled as the `dataset` record bag
  * (mirroring the DOM `HTMLElement.dataset` API) rather than enumerated keys.
  *
- * @packageDocumentation @beep/html/Html.attributes
+ * @packageDocumentation \@beep/html/Html.attributes
  * @since 0.0.0
  */
 import { $HtmlId } from "@beep/identity";
@@ -143,6 +143,17 @@ export const Popover = S.Literals(["auto", "manual", "hint"]).pipe(
 export const PopoverTargetAction = S.Literals(["toggle", "show", "hide"]).pipe(
   $I.annoteSchema("PopoverTargetAction", { description: "Action a popover invoker performs." })
 );
+/**
+ * An HTML boolean attribute value. The attribute's presence means `true`; the
+ * spec permits both `true`/`false` and the empty-string presence form (`""`,
+ * e.g. `disabled=""`) on the wire, so both are accepted.
+ *
+ * @category attributes
+ * @since 0.0.0
+ */
+export const BooleanAttribute = S.Union([S.Boolean, S.Literal("")]).pipe(
+  $I.annoteSchema("BooleanAttribute", { description: "HTML boolean attribute (true/false or empty-string presence)." })
+);
 
 // -----------------------------------------------------------------------------
 // field bundles
@@ -161,7 +172,7 @@ export const StandardGlobalAttributes = {
   accesskey: S.optionalKey(S.String),
   autocapitalize: S.optionalKey(AutoCapitalize),
   autocorrect: S.optionalKey(AutoCorrect),
-  autofocus: S.optionalKey(S.Boolean),
+  autofocus: S.optionalKey(BooleanAttribute),
   class: S.optionalKey(S.String),
   contenteditable: S.optionalKey(ContentEditable),
   dir: S.optionalKey(Dir),
@@ -172,13 +183,13 @@ export const StandardGlobalAttributes = {
   headingreset: S.optionalKey(S.String),
   hidden: S.optionalKey(Hidden),
   id: S.optionalKey(S.String),
-  inert: S.optionalKey(S.Boolean),
+  inert: S.optionalKey(BooleanAttribute),
   inputmode: S.optionalKey(InputMode),
   is: S.optionalKey(S.String),
   itemid: S.optionalKey(S.String),
   itemprop: S.optionalKey(S.String),
   itemref: S.optionalKey(S.String),
-  itemscope: S.optionalKey(S.Boolean),
+  itemscope: S.optionalKey(BooleanAttribute),
   itemtype: S.optionalKey(S.String),
   lang: S.optionalKey(S.String),
   nonce: S.optionalKey(S.String),

@@ -5,7 +5,7 @@
  * (conforming and obsolete) modeled as an `effect/Schema` `TaggedClass`, combined
  * into the {@link HtmlNode} discriminated union via `S.toTaggedUnion("_tag")`.
  *
- * @packageDocumentation @beep/html
+ * @packageDocumentation \@beep/html
  * @since 0.0.0
  */
 
