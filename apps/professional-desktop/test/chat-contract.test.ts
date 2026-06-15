@@ -55,9 +55,7 @@ const messageItems = (timeline: Thread.ThreadTimeline): ReadonlyArray<MessageIte
   );
 
 const userTurns = (timeline: Thread.ThreadTimeline): ReadonlyArray<Thread.TimelineTurn> =>
-  A.filter(timeline.turns, (turn) =>
-    A.some(turn.items, (item) => item.kind === "message" && item.role === "user")
-  );
+  A.filter(timeline.turns, (turn) => A.some(turn.items, (item) => item.kind === "message" && item.role === "user"));
 
 describe("@beep/professional-desktop chat contract", () => {
   it.effect("happy path: send streams fixture blocks, persists user+assistant turns, appends one usage record", () =>
@@ -169,6 +167,24 @@ describe("@beep/professional-desktop chat contract", () => {
     }).pipe(provideScopedLayer(StackLayer))
   );
 
+  it.effect("updates a derived thread title when editing the first user turn", () =>
+    Effect.gen(function* () {
+      const { operations } = yield* makeStack;
+      const workspaceId = decodeWorkspaceId(1);
+      const thread = yield* operations.createThread(workspaceId, "New thread");
+
+      yield* Stream.runDrain(operations.sendMessage(thread.id, userDocument("Draft memo")));
+      const timeline = yield* operations.getTimeline(thread.id);
+      const firstUserTurn = O.getOrThrow(A.head(userTurns(timeline)));
+
+      yield* Stream.runDrain(operations.editMessage(thread.id, firstUserTurn.turnId, userDocument("Final memo")));
+
+      const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
+      expect(titles).toContain("Final memo");
+      expect(titles).not.toContain("Draft memo");
+    }).pipe(provideScopedLayer(StackLayer))
+  );
+
   it.effect("does not derive a thread title when editing a later user turn", () =>
     Effect.gen(function* () {
       const { operations } = yield* makeStack;
@@ -180,7 +196,9 @@ describe("@beep/professional-desktop chat contract", () => {
       const timeline = yield* operations.getTimeline(thread.id);
       const laterUserTurn = O.getOrThrow(A.get(userTurns(timeline), 1));
 
-      yield* Stream.runDrain(operations.editMessage(thread.id, laterUserTurn.turnId, userDocument("Later edited title")));
+      yield* Stream.runDrain(
+        operations.editMessage(thread.id, laterUserTurn.turnId, userDocument("Later edited title"))
+      );
 
       const titles = A.map(yield* operations.listThreads(workspaceId), (item) => item.title);
       expect(titles).toContain("New thread");

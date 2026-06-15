@@ -129,8 +129,17 @@ const deriveThreadTitle = (document: Document.Type): O.Option<string> =>
 const turnHasUserMessage = (turn: Thread.TimelineTurn): boolean =>
   A.some(turn.items, (item) => item.kind === "message" && item.role === "user");
 
+const isUserMessageItem = (item: Thread.TimelineItem): item is Thread.TimelineMessageItem =>
+  item.kind === "message" && item.role === "user";
+
+const firstUserMessageTurn = (timeline: Thread.ThreadTimeline): O.Option<Thread.TimelineTurn> =>
+  pipe(timeline.turns, A.findFirst(turnHasUserMessage));
+
 const firstUserMessageTurnId = (timeline: Thread.ThreadTimeline): O.Option<WorkspaceIdentity.TurnId> =>
-  pipe(timeline.turns, A.findFirst(turnHasUserMessage), O.map((turn) => turn.turnId));
+  pipe(
+    firstUserMessageTurn(timeline),
+    O.map((turn) => turn.turnId)
+  );
 
 const isFirstUserMessageTurn = (timeline: Thread.ThreadTimeline, turnId: WorkspaceIdentity.TurnId): boolean =>
   pipe(
@@ -139,6 +148,30 @@ const isFirstUserMessageTurn = (timeline: Thread.ThreadTimeline, turnId: Workspa
       onNone: () => false,
       onSome: (firstUserTurnId) => firstUserTurnId === turnId,
     })
+  );
+
+const userMessageContent = (turn: Thread.TimelineTurn): O.Option<Document.Type> =>
+  pipe(
+    turn.items,
+    A.findFirst(isUserMessageItem),
+    O.map((item) => item.content)
+  );
+
+const titleGuardForEditedFirstUserTurn = (
+  timeline: Thread.ThreadTimeline,
+  turnId: WorkspaceIdentity.TurnId
+): O.Option<string> =>
+  pipe(
+    firstUserMessageTurn(timeline),
+    O.flatMap((turn) =>
+      turn.turnId === turnId
+        ? pipe(
+            userMessageContent(turn),
+            O.flatMap(deriveThreadTitle),
+            O.orElse(() => O.some(UNTITLED_THREAD_TITLE))
+          )
+        : O.none()
+    )
   );
 
 // ---------------------------------------------------------------------------
@@ -227,7 +260,7 @@ const fixtureUsageRecord = appendTurnFinalizationUsageRecord(
 // ---------------------------------------------------------------------------
 
 const chatTurnsTotal = Metric.counter("agents_chat_turns_total", {
-  description: "Assistant turns started by the Professional Desktop sidecar",
+  description: "Assistant turns prepared for streaming by the Professional Desktop sidecar",
   incremental: true,
 });
 const chatTurnFailuresTotal = Metric.counter("agents_chat_turn_failures_total", {
@@ -259,7 +292,6 @@ const streamAndPersist = (
 ): Stream.Stream<AssistantBlock, ChatActionError> =>
   Stream.unwrap(
     Effect.gen(function* () {
-      yield* Metric.update(Metric.withAttributes(chatTurnsTotal, { kind }), 1);
       const startedAt = yield* Clock.currentTimeMillis;
       const trackTurnFailure = (phase: "kernel" | "persist" | "prepare") =>
         Metric.update(Metric.withAttributes(chatTurnFailuresTotal, { kind, phase }), 1);
@@ -274,6 +306,7 @@ const streamAndPersist = (
       return yield* Effect.gen(function* () {
         const timeline = yield* store.timeline(threadId).pipe(Effect.catch(toChatActionError("GetTimeline")));
         const history = projectTimelineToHistory(timeline);
+        yield* Metric.update(Metric.withAttributes(chatTurnsTotal, { kind }), 1);
         let collected: ReadonlyArray<IndexedBlock> = A.empty<IndexedBlock>();
         const persisted = yield* Ref.make(false);
 
@@ -335,12 +368,13 @@ const streamAndPersist = (
 const setTitleFromFirstUserMessage = (
   store: Thread.ThreadStore["Service"],
   threadId: WorkspaceIdentity.ThreadId,
-  content: Document.Type
+  content: Document.Type,
+  emptyTitle: string = UNTITLED_THREAD_TITLE
 ): Effect.Effect<void> =>
   pipe(
     deriveThreadTitle(content),
     O.map((title) =>
-      store.setTitleIfEmpty({ threadId, emptyTitle: UNTITLED_THREAD_TITLE, title }).pipe(
+      store.setTitleIfEmpty({ threadId, emptyTitle, title }).pipe(
         Effect.catch((error) =>
           Effect.logWarning("chat title derivation skipped", {
             context: "SendMessage.setTitleIfEmpty",
@@ -352,18 +386,20 @@ const setTitleFromFirstUserMessage = (
     O.getOrElse(() => Effect.void)
   );
 
-const shouldDeriveTitleForEditedTurn = (
+const titleGuardForEditedTurn = (
   store: Thread.ThreadStore["Service"],
   threadId: WorkspaceIdentity.ThreadId,
   turnId: WorkspaceIdentity.TurnId
-): Effect.Effect<boolean> =>
+): Effect.Effect<O.Option<string>> =>
   store.timeline(threadId).pipe(
-    Effect.map((timeline) => isFirstUserMessageTurn(timeline, turnId)),
+    Effect.map((timeline) =>
+      isFirstUserMessageTurn(timeline, turnId) ? titleGuardForEditedFirstUserTurn(timeline, turnId) : O.none()
+    ),
     Effect.catch((error) =>
       Effect.logWarning("chat title derivation skipped", {
         context: "EditMessage.firstUserTitleGate",
         detail: error,
-      }).pipe(Effect.as(false))
+      }).pipe(Effect.as(O.none<string>()))
     )
   );
 
@@ -423,13 +459,15 @@ export const makeChatOperations = (
   ): Stream.Stream<AssistantBlock, ChatActionError> =>
     Stream.unwrap(
       Effect.gen(function* () {
-        const shouldDeriveTitle = yield* shouldDeriveTitleForEditedTurn(store, threadId, turnId);
+        const titleGuard = yield* titleGuardForEditedTurn(store, threadId, turnId);
         yield* store
           .appendTurn({ threadId, parentTurnId: O.some(turnId), role: "user", content })
           .pipe(Effect.catch(toChatActionError("EditMessage")));
-        if (shouldDeriveTitle) {
-          yield* setTitleFromFirstUserMessage(store, threadId, content);
-        }
+        yield* pipe(
+          titleGuard,
+          O.map((emptyTitle) => setTitleFromFirstUserMessage(store, threadId, content, emptyTitle)),
+          O.getOrElse(() => Effect.void)
+        );
         return streamAndPersist(store, kernel, usage, threadId, "edit");
       })
     ).pipe(Stream.withSpan("agents.chat.edit_message")),

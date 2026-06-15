@@ -8,7 +8,7 @@
 import { $MdId } from "@beep/identity";
 import { HtmlFragment, Markdown, TaggedErrorClass } from "@beep/schema";
 import { A, Html, Str, thunkEmptyStr } from "@beep/utils";
-import { Effect, flow, identity, Match, Result, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, flow, identity, Match, Number as N, Result, SchemaGetter, SchemaIssue } from "effect";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -144,11 +144,11 @@ const renderMarkdownTableFence = (cells: string): string => `| ${cells} |`;
 
 const tableRowColumnCount = (row: TableRow): number => A.length(row.children);
 
-const tableColumnCount: (rows: ReadonlyArray<TableRow>) => number = flow(
-  A.head,
-  O.map(tableRowColumnCount),
-  O.getOrElse(() => 0)
-);
+const tableColumnCount = (rows: ReadonlyArray<TableRow>): number =>
+  pipe(
+    rows,
+    A.reduce(0, (max, row) => N.max(max, tableRowColumnCount(row)))
+  );
 
 const renderMarkdownTableSeparator = (columns: number): string =>
   pipe(

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "62bd2d9dd843281a794b07e0e8192e4cdee181cfb5398f4b580859d7bb53617b",
+    "digest": "5f158e5702ee17aaa26bd94abaf3fdc1f880280c7c3bb40de0b207d2014d5bbb",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -67,8 +67,8 @@
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sha256": "b0cd296d20b3047a8bd2200f037b7dceb7c13e3f65cf6d4acc341da0013e1957",
-        "bytes": 12089
+        "sha256": "1a69430b38298b817027198ce9ae07330bcebee5a96e4aa10e587c0327137206",
+        "bytes": 13670
       },
       {
         "path": "packages/agents/domain/src/values/AssistantContent/index.ts",
@@ -201,7 +201,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 403,
+        "sourceLine": 448,
         "summary": "A single block of an assistant turn.",
         "categories": [
           "value-objects"
@@ -226,7 +226,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 424,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -250,7 +250,7 @@
         "symbolName": "AssistantContent",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 444,
+        "sourceLine": 489,
         "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
         "categories": [
           "value-objects"
@@ -325,7 +325,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -367,7 +367,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -392,7 +392,7 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
           "value-objects"
@@ -417,7 +417,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -466,7 +466,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -491,7 +491,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -516,7 +516,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -541,7 +541,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -591,7 +591,7 @@
         "symbolName": "TableBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 343,
+        "sourceLine": 388,
         "summary": "A rectangular data table.",
         "categories": [
           "value-objects"
@@ -616,7 +616,7 @@
         "symbolName": "TableCellBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 289,
+        "sourceLine": 293,
         "summary": "A single table cell in an assistant-generated table.",
         "categories": [
           "value-objects"
@@ -641,7 +641,7 @@
         "symbolName": "TableRowBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 315,
+        "sourceLine": 319,
         "summary": "A single row in an assistant-generated table.",
         "categories": [
           "value-objects"
@@ -666,7 +666,7 @@
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -708,7 +708,7 @@
         "symbolName": "YouTubeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 373,
+        "sourceLine": 418,
         "summary": "An embedded YouTube video.",
         "categories": [
           "value-objects"
@@ -933,7 +933,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 403,
+        "sourceLine": 448,
         "summary": "A single block of an assistant turn.",
         "categories": [
           "value-objects"
@@ -958,7 +958,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 424,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -982,7 +982,7 @@
         "symbolName": "AssistantContent",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 444,
+        "sourceLine": 489,
         "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
         "categories": [
           "value-objects"
@@ -1057,7 +1057,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -1082,7 +1082,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -1107,7 +1107,7 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
           "value-objects"
@@ -1132,7 +1132,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -1181,7 +1181,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -1206,7 +1206,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -1231,7 +1231,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -1256,7 +1256,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -1281,7 +1281,7 @@
         "symbolName": "TableBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 343,
+        "sourceLine": 388,
         "summary": "A rectangular data table.",
         "categories": [
           "value-objects"
@@ -1306,7 +1306,7 @@
         "symbolName": "TableCellBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 289,
+        "sourceLine": 293,
         "summary": "A single table cell in an assistant-generated table.",
         "categories": [
           "value-objects"
@@ -1331,7 +1331,7 @@
         "symbolName": "TableRowBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 315,
+        "sourceLine": 319,
         "summary": "A single row in an assistant-generated table.",
         "categories": [
           "value-objects"
@@ -1356,7 +1356,7 @@
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -1381,7 +1381,7 @@
         "symbolName": "YouTubeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 373,
+        "sourceLine": 418,
         "summary": "An embedded YouTube video.",
         "categories": [
           "value-objects"
@@ -1406,7 +1406,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 403,
+        "sourceLine": 448,
         "summary": "A single block of an assistant turn.",
         "categories": [
           "value-objects"
@@ -1431,7 +1431,7 @@
         "symbolName": "AssistantBlock",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 424,
+        "sourceLine": 469,
         "summary": "Runtime type for {@link AssistantBlock}.",
         "categories": [
           "value-objects"
@@ -1455,7 +1455,7 @@
         "symbolName": "AssistantContent",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 444,
+        "sourceLine": 489,
         "summary": "A complete assistant turn as structured rich text. This is the forced-tool",
         "categories": [
           "value-objects"
@@ -1530,7 +1530,7 @@
         "symbolName": "CodeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 259,
+        "sourceLine": 263,
         "summary": "A fenced code block.",
         "categories": [
           "value-objects"
@@ -1555,7 +1555,7 @@
         "symbolName": "HeadingBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 167,
+        "sourceLine": 171,
         "summary": "A section heading.",
         "categories": [
           "value-objects"
@@ -1580,7 +1580,7 @@
         "symbolName": "InlineNode",
         "exportKind": "const",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 101,
+        "sourceLine": 105,
         "summary": "Inline content held by an assistant block.",
         "categories": [
           "value-objects"
@@ -1605,7 +1605,7 @@
         "symbolName": "InlineNode",
         "exportKind": "type",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 114,
+        "sourceLine": 118,
         "summary": "Runtime type for {@link InlineNode}.",
         "categories": [
           "value-objects"
@@ -1654,7 +1654,7 @@
         "symbolName": "LinkInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 75,
+        "sourceLine": 79,
         "summary": "A hyperlink inline.",
         "categories": [
           "value-objects"
@@ -1679,7 +1679,7 @@
         "symbolName": "ListBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 225,
+        "sourceLine": 229,
         "summary": "A flat list of items.",
         "categories": [
           "value-objects"
@@ -1704,7 +1704,7 @@
         "symbolName": "ParagraphBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 138,
+        "sourceLine": 142,
         "summary": "A paragraph of inline content.",
         "categories": [
           "value-objects"
@@ -1729,7 +1729,7 @@
         "symbolName": "QuoteBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 196,
+        "sourceLine": 200,
         "summary": "A block quotation.",
         "categories": [
           "value-objects"
@@ -1754,7 +1754,7 @@
         "symbolName": "TableBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 343,
+        "sourceLine": 388,
         "summary": "A rectangular data table.",
         "categories": [
           "value-objects"
@@ -1779,7 +1779,7 @@
         "symbolName": "TableCellBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 289,
+        "sourceLine": 293,
         "summary": "A single table cell in an assistant-generated table.",
         "categories": [
           "value-objects"
@@ -1804,7 +1804,7 @@
         "symbolName": "TableRowBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 315,
+        "sourceLine": 319,
         "summary": "A single row in an assistant-generated table.",
         "categories": [
           "value-objects"
@@ -1829,7 +1829,7 @@
         "symbolName": "TextInline",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 39,
+        "sourceLine": 43,
         "summary": "A run of styled text.",
         "categories": [
           "value-objects"
@@ -1854,7 +1854,7 @@
         "symbolName": "YouTubeBlock",
         "exportKind": "class",
         "sourcePath": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-        "sourceLine": 373,
+        "sourceLine": 418,
         "summary": "An embedded YouTube video.",
         "categories": [
           "value-objects"

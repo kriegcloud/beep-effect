@@ -19,6 +19,47 @@ import { A } from "@beep/utils";
 import type { TableBlock } from "@beep/agents-domain/values/AssistantContent";
 import type { JSX, ReactNode } from "react";
 
+const stableOccurrenceKey = <Item,>(
+  items: ReadonlyArray<Item>,
+  item: Item,
+  index: number,
+  renderKey: (item: Item) => string
+): string => {
+  const baseKey = renderKey(item);
+  const occurrence = A.length(A.filter(A.take(items, index), (candidate) => renderKey(candidate) === baseKey));
+  return occurrence === 0 ? baseKey : `${baseKey}#${occurrence}`;
+};
+
+const inlineRenderKey = (node: InlineNode): string =>
+  InlineNode.match(node, {
+    text: (t) =>
+      `text:${t.text}:${t.bold === true ? "b" : ""}:${t.italic === true ? "i" : ""}:${t.code === true ? "c" : ""}`,
+    link: (l) => `link:${l.url}:${l.text}`,
+  });
+
+const inlinesRenderKey = (nodes: ReadonlyArray<InlineNode>): string => A.join(A.map(nodes, inlineRenderKey), "|");
+
+const tableCellRenderKey = (cell: TableBlock["rows"][number]["cells"][number]): string =>
+  `cell:${inlinesRenderKey(cell.children)}`;
+
+const tableRowRenderKey = (row: TableBlock["rows"][number]): string =>
+  `row:${A.join(A.map(row.cells, tableCellRenderKey), "|")}`;
+
+const blockRenderKey = (block: AssistantBlock): string =>
+  AssistantBlock.match(block, {
+    paragraph: (b) => `paragraph:${inlinesRenderKey(b.children)}`,
+    heading: (b) => `heading:${b.level}:${inlinesRenderKey(b.children)}`,
+    quote: (b) => `quote:${inlinesRenderKey(b.children)}`,
+    list: (b) =>
+      `list:${b.listType}:${A.join(
+        A.map(b.items, (item) => inlinesRenderKey(item.children)),
+        "|"
+      )}`,
+    code: (b) => `code:${b.language ?? ""}:${b.code}`,
+    table: (b) => `table:${b.headerRow === true ? "header" : "body"}:${A.join(A.map(b.rows, tableRowRenderKey), "|")}`,
+    youtube: (b) => `youtube:${b.videoId}`,
+  });
+
 const Inline = ({ node }: { readonly node: InlineNode }): ReactNode =>
   InlineNode.match(node, {
     text: (t) => {
@@ -38,7 +79,7 @@ const Inline = ({ node }: { readonly node: InlineNode }): ReactNode =>
 const Inlines = ({ nodes }: { readonly nodes: ReadonlyArray<InlineNode> }): JSX.Element => (
   <>
     {A.map(nodes, (node, i) => (
-      <Inline key={i} node={node} />
+      <Inline key={stableOccurrenceKey(nodes, node, i, inlineRenderKey)} node={node} />
     ))}
   </>
 );
@@ -53,11 +94,14 @@ const TableRow = ({
   <tr className="border-b last:border-b-0">
     {A.map(cells, (cell, i) =>
       header ? (
-        <th key={i} className="bg-muted px-3 py-2 text-left font-medium">
+        <th
+          key={stableOccurrenceKey(cells, cell, i, tableCellRenderKey)}
+          className="bg-muted px-3 py-2 text-left font-medium"
+        >
           <Inlines nodes={cell.children} />
         </th>
       ) : (
-        <td key={i} className="px-3 py-2 align-top">
+        <td key={stableOccurrenceKey(cells, cell, i, tableCellRenderKey)} className="px-3 py-2 align-top">
           <Inlines nodes={cell.children} />
         </td>
       )
@@ -80,7 +124,7 @@ const Table = ({ block }: { readonly block: TableBlock }): JSX.Element => {
         )}
         <tbody>
           {A.map(bodyRows, (row, i) => (
-            <TableRow key={i} cells={row.cells} header={false} />
+            <TableRow key={stableOccurrenceKey(bodyRows, row, i, tableRowRenderKey)} cells={row.cells} header={false} />
           ))}
         </tbody>
       </table>
@@ -88,7 +132,7 @@ const Table = ({ block }: { readonly block: TableBlock }): JSX.Element => {
   );
 };
 
-const Block = ({ block, index }: { readonly block: AssistantBlock; readonly index: number }): ReactNode =>
+const Block = ({ block, renderKey }: { readonly block: AssistantBlock; readonly renderKey: string }): ReactNode =>
   AssistantBlock.match(block, {
     paragraph: (b) => (
       <p className="my-2 leading-relaxed">
@@ -110,7 +154,7 @@ const Block = ({ block, index }: { readonly block: AssistantBlock; readonly inde
     ),
     list: (b) => {
       const items = A.map(b.items, (item, i) => (
-        <li key={i} className="ml-4">
+        <li key={stableOccurrenceKey(b.items, item, i, (value) => inlinesRenderKey(value.children))} className="ml-4">
           <Inlines nodes={item.children} />
         </li>
       ));
@@ -122,7 +166,7 @@ const Block = ({ block, index }: { readonly block: AssistantBlock; readonly inde
     },
     code: (b) =>
       b.language === "mermaid" ? (
-        <MermaidView renderKey={`stream:${index}`} source={b.code} />
+        <MermaidView renderKey={`stream:${renderKey}`} source={b.code} />
       ) : (
         <pre className="my-2 overflow-x-auto rounded bg-muted p-3 text-sm">
           <code>{b.code}</code>
@@ -146,10 +190,15 @@ const Block = ({ block, index }: { readonly block: AssistantBlock; readonly inde
  * @since 0.0.0
  */
 export function StreamingBlocks({ blocks }: { readonly blocks: ReadonlyArray<AssistantBlock> }): JSX.Element {
+  const keyedBlocks = A.map(blocks, (block, i) => ({
+    block,
+    renderKey: stableOccurrenceKey(blocks, block, i, blockRenderKey),
+  }));
+
   return (
     <div className="text-sm">
-      {A.map(blocks, (block, i) => (
-        <Block key={i} block={block} index={i} />
+      {A.map(keyedBlocks, ({ block, renderKey }) => (
+        <Block key={renderKey} block={block} renderKey={renderKey} />
       ))}
     </div>
   );

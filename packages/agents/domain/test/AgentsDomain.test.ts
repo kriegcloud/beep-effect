@@ -1,4 +1,4 @@
-import { Agent, AgentMode, assistantContentToDocument } from "@beep/agents-domain";
+import { Agent, AgentMode, assistantContentToDocument, TableBlock, YouTubeBlock } from "@beep/agents-domain";
 import * as Md from "@beep/md/Md.model";
 import * as Agents from "@beep/shared-domain/identity/Agents";
 import { baseEntityFixtureInput } from "@beep/test-utils";
@@ -76,5 +76,26 @@ describe("@beep/agents-domain", () => {
       }),
       Md.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
     ]);
+  });
+
+  it("rejects malformed assistant table and youtube blocks at the domain boundary", () => {
+    expect(() =>
+      S.decodeUnknownSync(TableBlock)({
+        type: "table",
+        rows: [
+          { cells: [{ children: [{ type: "text", text: "Name" }] }] },
+          {
+            cells: [{ children: [{ type: "text", text: "Value" }] }, { children: [{ type: "text", text: "Extra" }] }],
+          },
+        ],
+      })
+    ).toThrow(/Tables must contain/);
+
+    expect(() =>
+      S.decodeUnknownSync(YouTubeBlock)({
+        type: "youtube",
+        videoId: "https://youtu.be/dQw4w9WgXcQ",
+      })
+    ).toThrow(/YouTube blocks/);
   });
 });

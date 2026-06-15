@@ -136,7 +136,11 @@ export function MermaidCodeDecoratorPlugin(): JSX.Element {
   return (
     <>
       {targets.map((target) =>
-        createPortal(<MermaidView renderKey={`lexical:${target.key}`} source={target.source} />, target.container)
+        createPortal(
+          <MermaidView renderKey={`lexical:${target.key}`} source={target.source} />,
+          target.container,
+          target.key
+        )
       )}
     </>
   );

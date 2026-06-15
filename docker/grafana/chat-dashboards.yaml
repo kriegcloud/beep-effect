@@ -4,5 +4,5 @@ providers:
   - name: "professional-desktop-chat"
     type: file
     options:
-      path: /otel-lgtm/grafana-dashboard-professional-desktop-chat.json
+      path: /otel-lgtm/grafana/dashboards
       foldersFromFilesStructure: false

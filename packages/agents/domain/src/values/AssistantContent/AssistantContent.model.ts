@@ -9,9 +9,13 @@
  */
 
 import { $AgentsDomainId } from "@beep/identity/packages";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $AgentsDomainId.create("values/AssistantContent/AssistantContent.model");
+const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
 
 // ---------------------------------------------------------------------------
 // Inlines (stratified, non-recursive — inlines contain no blocks)
@@ -321,6 +325,47 @@ export class TableRowBlock extends S.Class<TableRowBlock>($I`TableRowBlock`)(
   })
 ) {}
 
+const isRectangularNonEmptyTableRows = (rows: ReadonlyArray<TableRowBlock>): boolean =>
+  pipe(
+    rows,
+    A.head,
+    O.match({
+      onNone: () => false,
+      onSome: (firstRow) => {
+        const width = A.length(firstRow.cells);
+        return width > 0 && A.every(rows, (row) => A.length(row.cells) === width);
+      },
+    })
+  );
+
+const RectangularTableRows = S.Array(TableRowBlock)
+  .check(
+    S.makeFilter(isRectangularNonEmptyTableRows, {
+      identifier: $I`RectangularTableRowsCheck`,
+      title: "Rectangular Table Rows",
+      description: "Checks that table rows are non-empty and have the same non-zero cell count.",
+      message: "Tables must contain at least one row, at least one cell, and every row must have the same cell count.",
+    })
+  )
+  .pipe(
+    $I.annoteSchema("RectangularTableRows", {
+      description: "Non-empty assistant table rows with a consistent non-zero cell count.",
+    })
+  );
+
+const YouTubeVideoId = S.String.check(
+  S.isPattern(youtubeVideoIdPattern, {
+    identifier: $I`YouTubeVideoIdPatternCheck`,
+    title: "YouTube Video ID",
+    description: "Checks that a YouTube embed references only the bare 11-character video id.",
+    message: "YouTube blocks must use the bare 11-character video id, not a URL.",
+  })
+).pipe(
+  $I.annoteSchema("YouTubeVideoId", {
+    description: "Bare 11-character YouTube video id accepted by assistant content blocks.",
+  })
+);
+
 /**
  * A rectangular data table.
  *
@@ -346,7 +391,7 @@ export class TableBlock extends S.Class<TableBlock>($I`TableBlock`)(
     headerRow: S.optionalKey(S.Boolean.annotate({ description: "Render the first row as a header row" })).annotateKey({
       description: "Render the first row as a header row",
     }),
-    rows: S.Array(TableRowBlock).annotateKey({
+    rows: RectangularTableRows.annotateKey({
       description: "Rows in order; every row must have the same number of cells",
     }),
   },
@@ -373,7 +418,7 @@ export class TableBlock extends S.Class<TableBlock>($I`TableBlock`)(
 export class YouTubeBlock extends S.Class<YouTubeBlock>($I`YouTubeBlock`)(
   {
     type: S.tag("youtube"),
-    videoId: S.String.annotateKey({
+    videoId: YouTubeVideoId.annotateKey({
       description: "The bare 11-character YouTube video id; extract it from watch/share/embed URLs.",
     }),
   },

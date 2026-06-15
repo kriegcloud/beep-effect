@@ -1,5 +1,5 @@
 import { Md } from "@beep/md";
-import { Block, Document, Inline, Pre, Text } from "@beep/md/Md.model";
+import { Block, Document, Inline, Pre, Table, TableCell, TableRow, Text } from "@beep/md/Md.model";
 import {
   DocumentToHtmlFragment,
   DocumentToMarkdown,
@@ -332,6 +332,18 @@ ${Md.h3("Inside")}
     expect(renderHtmlBlock(Md.pre("<x>", { language: "ts bad" }))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.pre("<x>"))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.hr)).toBe("<hr />");
+  });
+
+  it("renders later table rows when the first row has no cells", () => {
+    const table = Table.make({
+      headerRow: false,
+      children: [
+        TableRow.make({ children: [] }),
+        TableRow.make({ children: [TableCell.make({ children: [Text.make({ value: "Later" })] })] }),
+      ],
+    });
+
+    expect(renderMarkdownBlock(table)).toContain("| Later |");
   });
 
   it.effect(

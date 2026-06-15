@@ -39,6 +39,7 @@ const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/d
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
 
 const shouldRunRealAnthropic = Bun.env.BEEP_TEST_REAL_ANTHROPIC_CHAT === "1";
+const anthropicApiKeyEnv = "AI_ANTHROPIC_API_KEY";
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
@@ -109,11 +110,20 @@ const RealAnthropicChatLayer = Layer.mergeAll(
   AnthropicTurnKernel
 ).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makePgliteLayer()));
 
+const hasAnthropicApiKey =
+  P.isString(Bun.env[anthropicApiKeyEnv]) && Str.isNonEmpty(Str.trim(Bun.env[anthropicApiKeyEnv]));
+const enabledWithoutApiKey = shouldRunRealAnthropic && !hasAnthropicApiKey;
 const enabledWithoutDatabase = shouldRunRealAnthropic && !shouldRunPgliteIntegration;
-const shouldRun = shouldRunRealAnthropic && shouldRunPgliteIntegration;
+const shouldRun = shouldRunRealAnthropic && hasAnthropicApiKey && shouldRunPgliteIntegration;
 
 if (!shouldRunRealAnthropic) {
   describe.skip("Professional desktop real Anthropic chat parity E2E (set BEEP_TEST_REAL_ANTHROPIC_CHAT=1)", () => {});
+} else if (enabledWithoutApiKey) {
+  describe("Professional desktop real Anthropic chat parity E2E", () => {
+    it("requires AI_ANTHROPIC_API_KEY when enabled", () => {
+      expect.fail("Set AI_ANTHROPIC_API_KEY.");
+    });
+  });
 } else if (enabledWithoutDatabase) {
   describe("Professional desktop real Anthropic chat parity E2E", () => {
     it("requires a PgLite integration database when enabled", () => {

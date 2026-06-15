@@ -241,6 +241,14 @@ const repairItemToIndexed = Effect.fn("repairItemToIndexed")(function* (
   return O.some<IndexedBlock>({ block: checked.value, index: item.index });
 });
 
+const containsIndexedBlock = (blocks: ReadonlyArray<IndexedBlock>, index: number): boolean =>
+  A.some(blocks, (block) => block.index === index);
+
+const deduplicateIndexedBlocks = (blocks: ReadonlyArray<IndexedBlock>): ReadonlyArray<IndexedBlock> =>
+  A.reduce(blocks, A.empty<IndexedBlock>(), (deduplicated, block) =>
+    containsIndexedBlock(deduplicated, block.index) ? deduplicated : A.append(deduplicated, block)
+  );
+
 const attemptRepairs = (
   callRepair: BlockRepairCall,
   pending: ReadonlyArray<IssueReport>,
@@ -250,7 +258,8 @@ const attemptRepairs = (
     Effect.flatMap((envelope) =>
       Effect.forEach(envelope.repairs, (item) => repairItemToIndexed(pending, item), { concurrency: 1 })
     ),
-    Effect.map(A.getSomes)
+    Effect.map(A.getSomes),
+    Effect.map(deduplicateIndexedBlocks)
   );
 
 const runRepairAttempts = Effect.fn("runRepairAttempts")(function* (

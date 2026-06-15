@@ -68,6 +68,28 @@ describe("BlockRepair", () => {
   );
 
   it.effect(
+    "deduplicates repeated repaired indices",
+    Effect.fnUntraced(function* () {
+      const repair = makeRepairInvalidBlocks(() =>
+        Effect.succeed(
+          '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"First"}]}},{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Second"}]}}]}'
+        )
+      );
+
+      const repaired = yield* repair([invalidParagraph]);
+
+      expect(A.length(repaired)).toBe(1);
+      const first = A.head(repaired);
+      expect(O.isSome(first)).toBe(true);
+      if (O.isSome(first)) {
+        expect(first.value.index).toBe(0);
+        expect(first.value.block.type).toBe("paragraph");
+        expect(first.value.block.type === "paragraph" ? first.value.block.children[0]?.text : undefined).toBe("First");
+      }
+    })
+  );
+
+  it.effect(
     "maps a failed repair call to BlockRepairFailed",
     Effect.fnUntraced(function* () {
       const repair = makeRepairInvalidBlocks(() =>

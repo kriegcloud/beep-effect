@@ -4,9 +4,9 @@ Date: 2026-06-15
 
 ## Scope
 
-This is an interim evidence note, not P4 closeout. The local fixture and
-foundation proof lanes are materially stronger, but the real-LLM E2E acceptance
-item remains unproven because no Anthropic key is available in this session.
+This record includes interim proof snapshots and the final P4 closeout result.
+Earlier real-LLM "open" notes below are historical snapshots superseded by the
+`2026-06-15 Real-LLM E2E Closeout` section.
 
 ## Code Hygiene
 
@@ -48,7 +48,7 @@ item remains unproven because no Anthropic key is available in this session.
   `29.5.2`), so the PgLite integrations above ran with the real testcontainers
   gate instead of being skipped.
 
-## Real-LLM E2E Status
+## Historical Real-LLM E2E Status (Superseded)
 
 Real-LLM E2E remains unavailable in this session:
 
@@ -63,8 +63,9 @@ Real-LLM E2E remains unavailable in this session:
   and Drizzle/PgLite persistence path, then asserts mermaid, table, and youtube
   blocks both stream and persist as `@beep/md`.
 
-The acceptance item "real-LLM run rendering+persisting mermaid/table/youtube,
-recorded in history" is therefore still open.
+At this historical checkpoint, the acceptance item "real-LLM run
+rendering+persisting mermaid/table/youtube, recorded in history" was still open.
+The final closeout section below supersedes this status.
 
 ## 2026-06-15 Live Harness Check
 
@@ -102,9 +103,10 @@ bun run --cwd apps/professional-desktop test:integration -- chat-real-anthropic.
   It fails at the expected redacted config boundary:
   `ChatActionError: Anthropic assistant turn failed: SchemaError(Invalid data <redacted> at ["AI_ANTHROPIC_API_KEY"])`.
 
-The remaining P4 proof still needs a working allowed credential injection path;
-the fixture/foundation/local lanes do not prove the real-LLM mermaid/table/youtube
-acceptance item.
+At this continuation checkpoint, the remaining P4 proof still needed a working
+allowed credential injection path; the fixture/foundation/local lanes did not
+prove the real-LLM mermaid/table/youtube acceptance item. The final closeout
+section below supersedes this status.
 
 ## 2026-06-15 Real-LLM E2E Closeout
 

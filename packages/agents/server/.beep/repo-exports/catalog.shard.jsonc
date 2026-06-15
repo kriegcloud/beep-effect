@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "051de3e66610bb04fa255e9eb344a6c370d2c6b98039f2b01603744330376f4b",
+    "digest": "2494fc04977d74cd9928ac9665d757ef628583772ff1baac6205d52d6aa8b01c",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sha256": "7788fd4e68aaf52a9ae9b1ffbdf7c3c5bd3292d1064c443cdd0010fcc129684b",
-        "bytes": 11016
+        "sha256": "454338d344962230599793852bb221fb3b3f1d9f6d9e88842506899f7526fa1a",
+        "bytes": 11482
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/index.ts",
@@ -346,7 +346,7 @@
         "symbolName": "makeRepairInvalidBlocks",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 292,
+        "sourceLine": 301,
         "summary": "Build a repair function from a repair-call implementation.",
         "categories": [
           "combinators"
@@ -371,7 +371,7 @@
         "symbolName": "repairInvalidBlocks",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 324,
+        "sourceLine": 333,
         "summary": "Default Anthropic-backed invalid-block repair function.",
         "categories": [
           "combinators"
