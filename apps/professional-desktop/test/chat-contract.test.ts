@@ -11,7 +11,7 @@ import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proo
 import { AgentTurnKernel, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { provideScopedLayer } from "@beep/test-utils";
+import { assertSchemaArbitraryDecodesToSelf, provideScopedLayer } from "@beep/test-utils";
 import { ThreadStoreInMemoryLayer } from "@beep/workspace-server/aggregates/Thread";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
@@ -329,4 +329,8 @@ describe("@beep/professional-desktop chat contract", () => {
       expect(decodedHistory).toStrictEqual(history);
     })
   );
+
+  it("round-trips schema-derived turn history items through the wire contract", () => {
+    assertSchemaArbitraryDecodesToSelf(TurnHistoryItem, { numRuns: 25 });
+  });
 });

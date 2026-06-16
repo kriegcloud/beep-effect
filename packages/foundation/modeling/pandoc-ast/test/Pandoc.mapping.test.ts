@@ -75,6 +75,30 @@ const expectPlain = (block: Pandoc.PandocBlock | undefined): Pandoc.Plain => {
   return block;
 };
 
+const expectPara = (block: Pandoc.PandocBlock | undefined): Pandoc.Para => {
+  expect(block?._tag).toBe("para");
+  if (block?._tag !== "para") {
+    throw new Error("expected Pandoc para block");
+  }
+  return block;
+};
+
+const expectStr = (inline: Pandoc.PandocInline.Type | undefined): Pandoc.Str => {
+  expect(inline?._tag).toBe("str");
+  if (inline?._tag !== "str") {
+    throw new Error("expected Pandoc str inline");
+  }
+  return inline;
+};
+
+const expectLink = (inline: Pandoc.PandocInline.Type | undefined): Pandoc.Link => {
+  expect(inline?._tag).toBe("link");
+  if (inline?._tag !== "link") {
+    throw new Error("expected Pandoc link inline");
+  }
+  return inline;
+};
+
 const expectParagraphText = (block: Md.Block | undefined, value: string): void => {
   expect(block?._tag).toBe("p");
   if (block?._tag !== "p") {
@@ -150,6 +174,66 @@ describe("Pandoc.mapping", () => {
         expect(result.report.profile).toBe("gap");
         expect(A.map(result.report.issues, (entry) => entry.construct)).toEqual(
           expect.arrayContaining(["rawMarkdown", "TaskList"])
+        );
+      })
+    ));
+
+  it("degrades @beep/md tables and YouTube embeds to Pandoc with recorded lossiness", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = Md.Document.make({
+          children: [
+            Md.Table.make({
+              headerRow: true,
+              children: [
+                Md.TableRow.make({
+                  children: [
+                    Md.TableCell.make({ children: [text("Name")] }),
+                    Md.TableCell.make({ children: [text("Value")] }),
+                  ],
+                }),
+                Md.TableRow.make({
+                  children: [
+                    Md.TableCell.make({ children: [text("Rich")] }),
+                    Md.TableCell.make({ children: [text("Ready")] }),
+                  ],
+                }),
+              ],
+            }),
+            Md.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
+          ],
+        });
+
+        const result = yield* documentToPandoc(document);
+
+        expect(result.pandoc.blocks.map((block) => block._tag)).toEqual(["para", "para"]);
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toEqual(
+          expect.arrayContaining(["Table", "YouTube"])
+        );
+
+        const tableText = expectStr(expectPara(result.pandoc.blocks[0]).children[0]);
+        expect(tableText.text).toBe("Name | Value\nRich | Ready");
+
+        const youtubeLink = expectLink(expectPara(result.pandoc.blocks[1]).children[0]);
+        expect(youtubeLink.target.url).toBe("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+      })
+    ));
+
+  it("encodes reserved characters in YouTube watch URLs and placeholders empty tables", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const document = Md.Document.make({
+          children: [Md.Table.make({ headerRow: false, children: [] }), Md.YouTube.make({ videoId: "a b&c" })],
+        });
+
+        const result = yield* documentToPandoc(document);
+
+        expect(A.map(result.report.issues, (entry) => entry.construct)).toEqual(
+          expect.arrayContaining(["Table", "YouTube"])
+        );
+        expect(expectStr(expectPara(result.pandoc.blocks[0]).children[0]).text).toBe("[table]");
+        expect(expectLink(expectPara(result.pandoc.blocks[1]).children[0]).target.url).toBe(
+          "https://www.youtube.com/watch?v=a%20b%26c"
         );
       })
     ));

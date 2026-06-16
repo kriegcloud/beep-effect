@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "3a7e4d84a56350670351a5c3d774eb1f9a503ad18d9660ca393edca05db2f37c",
+    "digest": "dfe0475e9bb116ba0a46297f8db540dec1e347652f44aa02c401007aa97bb34e",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -82,8 +82,8 @@
       },
       {
         "path": "apps/professional-desktop/src/runtime/Observability.ts",
-        "sha256": "993c0d4d243fcba654a0ab9a75a848dd53db5a90b378063c5d707bdca328dec3",
-        "bytes": 3640
+        "sha256": "495efc022ae1921d0279bce7a14f8e07101c894ce236bcec7d5e7bb956547c30",
+        "bytes": 3661
       },
       {
         "path": "apps/professional-desktop/src/runtime/Pglite.ts",
