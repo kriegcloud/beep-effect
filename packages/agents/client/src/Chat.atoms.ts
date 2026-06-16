@@ -15,12 +15,9 @@ import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import { ChatActionError, ChatRpcs } from "@beep/agents-use-cases/public";
 import { Document } from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { A, O, P, Str } from "@beep/utils";
 import { Clock, Duration, Effect, Layer, Metric, Stream } from "effect";
-import * as A from "effect/Array";
-import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import { KeyValueStore } from "effect/unstable/persistence";
 import { Atom, AtomRegistry, AtomRpc, Reactivity } from "effect/unstable/reactivity";
@@ -40,7 +37,7 @@ type TurnId = WorkspaceIdentity.TurnId;
 const SERVER_URL = ((): string => {
   if (typeof window !== "undefined") {
     const origin = window.location.origin;
-    if (origin.startsWith("http://") || origin.startsWith("https://")) {
+    if (Str.startsWith(origin, "http://") || Str.startsWith(origin, "https://")) {
       return new URL("/rpc", origin).toString();
     }
   }

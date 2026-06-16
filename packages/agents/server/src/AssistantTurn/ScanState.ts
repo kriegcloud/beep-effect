@@ -5,7 +5,12 @@
  * @since 0.0.0
  */
 
+import { $AgentsServerId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
+
+const $I = $AgentsServerId.create("AssistantTurn/ScanState");
 
 /**
  * The carry state of the incremental block extractor between chunks.
@@ -22,13 +27,18 @@ import * as A from "effect/Array";
  * @category models
  * @since 0.0.0
  */
-export interface ScanState {
-  readonly current: string;
-  readonly depth: number;
-  readonly escaped: boolean;
-  readonly inBlocksArray: boolean;
-  readonly inString: boolean;
-}
+export class ScanState extends S.Class<ScanState>($I`ScanState`)(
+  {
+    current: S.String.pipe(SchemaUtils.withKeyDefaults("")),
+    depth: S.Finite.pipe(SchemaUtils.withKeyDefaults(0)),
+    escaped: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+    inBlocksArray: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+    inString: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+  },
+  $I.annote("ScanState", {
+    description: "The carry state of the incremental block extractor between chunks.",
+  })
+) {}
 
 /**
  * The empty scan state used to begin scanning a fresh structured-output stream.
@@ -43,13 +53,7 @@ export interface ScanState {
  * @category constructors
  * @since 0.0.0
  */
-export const initialScanState: ScanState = {
-  inBlocksArray: false,
-  depth: 0,
-  inString: false,
-  escaped: false,
-  current: "",
-};
+export const initialScanState: ScanState = ScanState.make()
 
 /**
  * Fold one chunk of structured-output JSON text into the scan state, returning

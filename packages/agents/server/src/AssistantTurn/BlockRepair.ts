@@ -6,6 +6,7 @@
  */
 
 import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
+import { IndexedBlock } from "@beep/agents-use-cases/public";
 import { BlockRepairFailed } from "@beep/agents-use-cases/server";
 import { generateAnthropicToolJson } from "@beep/anthropic";
 import { make } from "@beep/identity";
@@ -15,7 +16,6 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { AnthropicStructuredOutput, Tool, Toolkit } from "effect/unstable/ai";
 import { assistantBlockOutput } from "./AnthropicTurnCodec.ts";
-import type { IndexedBlock } from "@beep/agents-use-cases/public";
 import type { RepairError } from "@beep/anthropic";
 
 const { $AgentsServerId } = make("agents-server");
@@ -86,6 +86,15 @@ class RepairEnvelope extends S.Class<RepairEnvelope>($I`RepairEnvelope`)(
   })
 ) {}
 
+class RepairAttemptState extends S.Class<RepairAttemptState>($I`RepairAttemptState`)(
+  {
+    pending: S.Array(IssueReport),
+    repaired: S.Array(IndexedBlock),
+  },
+  $I.annote("RepairAttemptState", {
+    description: "",
+  })
+) {}
 interface RepairAttemptState {
   readonly pending: ReadonlyArray<IssueReport>;
   readonly repaired: ReadonlyArray<IndexedBlock>;

@@ -25,6 +25,7 @@ import {
   YouTubeBlock,
 } from "@beep/agents-domain/values/AssistantContent";
 import { make } from "@beep/identity";
+import {thunkFalse} from "@beep/utils";
 import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -74,7 +75,7 @@ const isValidTableBlock = (block: TableBlock): boolean =>
     A.head,
     O.map((row) => A.length(row.cells)),
     O.match({
-      onNone: () => false,
+      onNone: thunkFalse,
       onSome: (width) => width > 0 && A.every(block.rows, (row) => A.length(row.cells) === width),
     })
   );

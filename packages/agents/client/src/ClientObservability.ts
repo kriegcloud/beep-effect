@@ -29,8 +29,9 @@
  * @category observability
  * @since 0.0.0
  */
+
+import { P, Str } from "@beep/utils";
 import { Layer } from "effect";
-import * as P from "effect/Predicate";
 import { FetchHttpClient } from "effect/unstable/http";
 import { Otlp, OtlpSerialization } from "effect/unstable/observability";
 
@@ -42,7 +43,7 @@ const otlpBaseUrl = ((): string => {
   }
   if (typeof window !== "undefined") {
     const origin = window.location.origin;
-    if (origin.startsWith("http://") || origin.startsWith("https://")) {
+    if (Str.startsWith(origin, "http://") || Str.startsWith(origin,"https://")) {
       return new URL("/otlp", origin).toString();
     }
   }
@@ -65,13 +66,12 @@ const otlpBaseUrl = ((): string => {
  * @category layers
  * @since 0.0.0
  */
-export const ClientObservabilityLive: Layer.Layer<never> =
-  otlpBaseUrl === ""
-    ? Layer.empty
-    : Otlp.layer({
-        baseUrl: otlpBaseUrl,
-        resource: {
-          serviceName: "professional-desktop-web",
-          serviceVersion: "0.0.3",
-        },
-      }).pipe(Layer.provide([FetchHttpClient.layer, OtlpSerialization.layerJson]));
+export const ClientObservabilityLive: Layer.Layer<never> = Str.isEmpty(otlpBaseUrl)
+  ? Layer.empty
+  : Otlp.layer({
+      baseUrl: otlpBaseUrl,
+      resource: {
+        serviceName: "professional-desktop-web",
+        serviceVersion: "0.0.3",
+      },
+    }).pipe(Layer.provide([FetchHttpClient.layer, OtlpSerialization.layerJson]));

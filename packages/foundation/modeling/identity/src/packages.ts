@@ -62,6 +62,7 @@ const generatedComposers = $I.compose(
   // Professional runtime packages
   "agents-domain",
   "agents-use-cases",
+	"agents-server",
   "epistemic-domain",
   "law-practice-domain",
   "professional-desktop",
@@ -599,6 +600,21 @@ export const $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-doma
  * @since 0.0.0
  */
 export const $AgentsDomainId: Identity.IdentityComposer<"@beep/agents-domain"> = composers.$AgentsDomainId;
+
+/**
+ * Identity composer for the `@beep/agents-server` package.
+ *
+ * @example
+ * ```typescript
+ * import { $AgentsServerId } from "@beep/identity"
+ *
+ * const id = $AgentsServerId.make("Agent")
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $AgentsServerId: Identity.IdentityComposer<"@beep/agents-server"> = composers.$AgentsServerId;
 
 /**
  * Identity composer for the `@beep/agents-use-cases` package.

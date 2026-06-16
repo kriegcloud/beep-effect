@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
+import { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import { $AgentsUseCasesId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
-import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
 const $I = $AgentsUseCasesId.create("processes/AssistantTurn/AssistantTurn.contracts");
 
@@ -112,7 +112,12 @@ export type TurnHistoryItem = typeof TurnHistoryItem.Type;
  * @category models
  * @since 0.0.0
  */
-export interface IndexedBlock {
-  readonly block: AssistantBlock;
-  readonly index: number;
-}
+export class IndexedBlock extends S.Class<IndexedBlock>($I`IndexedBlock`)(
+  {
+    block: AssistantBlock,
+    index: S.Finite,
+  },
+  $I.annote("IndexedBlock", {
+    description: "",
+  })
+) {}

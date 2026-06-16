@@ -23,7 +23,7 @@
 
 import { editTargetAtom, runTurnAtom, streamingTurnAtom, threadTimelineAtoms } from "@beep/agents-client/Chat.atoms";
 import { Button } from "@beep/ui/components/button";
-import { A, O } from "@beep/utils";
+import { A, O, thunkNull} from "@beep/utils";
 import { useAtomMount, useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
 import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { useCallback, useRef } from "react";
@@ -79,7 +79,7 @@ const TurnRow = ({
         <CostRollup costMicros={turn.costMicros} />
         <div className="mt-1 flex items-center gap-2">
           {O.match(userMessage, {
-            onNone: () => null,
+            onNone: thunkNull,
             onSome: (item) =>
               item.kind === "message" ? (
                 <Button
@@ -182,7 +182,7 @@ export function Thread({ threadId }: { readonly threadId: ThreadId }): JSX.Eleme
       ))}
 
       {O.match(streamingHere, {
-        onNone: () => null,
+        onNone: thunkNull,
         onSome: (turn) => (
           <div className="mb-4 flex flex-col items-start" data-testid="turn-streaming">
             <div className="max-w-[80%] rounded-lg bg-muted/50 px-3 py-2">

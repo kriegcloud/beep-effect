@@ -23,6 +23,7 @@ import {
   UserTurnHistoryItem,
 } from "@beep/agents-use-cases/public";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
+import {thunkEmptyStr} from "@beep/utils";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { Clock, Duration, Effect, Match, Metric, Order, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
@@ -45,7 +46,7 @@ import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace"
  * styled wrappers (`strong`, `em`, `del`, `a`) contribute their children;
  * `img`/`br` contribute nothing.
  */
-const inlineToPlainText: (inline: Inline.Type) => string = Match.type<Inline.Type>().pipe(
+const inlineToPlainText: (inline: Inline) => string = Match.type<Inline>().pipe(
   Match.tags({
     text: (i) => i.value,
     code: (i) => i.value,
@@ -57,7 +58,7 @@ const inlineToPlainText: (inline: Inline.Type) => string = Match.type<Inline.Typ
     a: (i) => A.join(A.map(i.children, inlineToPlainText), ""),
   }),
   // img/br carry no text.
-  Match.orElse(() => "")
+  Match.orElse(thunkEmptyStr)
 );
 
 /**
@@ -97,7 +98,7 @@ const blockToPlainText: (block: Block.Type) => string = Match.type<Block.Type>()
     youtube: (b) => `https://www.youtube.com/watch?v=${b.videoId}`,
   }),
   // hr carries no text.
-  Match.orElse(() => "")
+  Match.orElse(thunkEmptyStr)
 );
 
 /**
