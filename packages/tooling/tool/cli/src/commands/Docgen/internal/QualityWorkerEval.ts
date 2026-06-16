@@ -26,11 +26,12 @@ import type { DocgenQualityFindingCode as DocgenQualityFindingCodeValue } from "
 
 const $I = $RepoCliId.create("commands/Docgen/internal/QualityWorkerEval");
 
-const QUALITY_WORKER_EVAL_SCHEMA_VERSION = 1 as const;
+const QUALITY_WORKER_EVAL_SCHEMA_VERSION = 2 as const;
 const DEFAULT_WORKER_EVAL_PACKET_LIMIT = 5;
 const DEFAULT_WORKER_EVAL_TIMEOUT = Duration.seconds(180);
 const DEFAULT_SOURCE_PACKET_LIMIT = 25;
 const JSON_FORMAT_MAX_LENGTH = 500_000;
+const TOKEN_ESTIMATE_CHARACTERS_PER_TOKEN = 3;
 
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 const decodeQualityReportJson = S.decodeUnknownEffect(S.fromJsonString(DocgenQualityReport));
@@ -185,7 +186,12 @@ export type DocgenQualityWorkerEvalScope = typeof DocgenQualityWorkerEvalScope.T
  * @category models
  * @since 0.0.0
  */
-export const DocgenQualityWorkerEvalPacketStatus = LiteralKit(["completed", "failed", "timed-out"]).pipe(
+export const DocgenQualityWorkerEvalPacketStatus = LiteralKit([
+  "completed",
+  "failed",
+  "timed-out",
+  "skipped-context",
+]).pipe(
   $I.annoteSchema("DocgenQualityWorkerEvalPacketStatus", {
     description: "Read-only packet execution status for worker eval.",
   })
@@ -337,6 +343,9 @@ class DocgenQualityWorkerEvalPacketResult extends S.Class<DocgenQualityWorkerEva
     packagePath: S.String,
     findingCodes: S.Array(DocgenQualityFindingCode),
     status: DocgenQualityWorkerEvalPacketStatus,
+    promptCharacters: S.Finite,
+    estimatedPromptTokens: S.Finite,
+    contextBudgetTokens: S.NullOr(S.Finite),
     localScore: S.NullOr(DocgenQualityWorkerEvalLocalScore),
     rationale: S.String,
     draftJsDoc: S.String,
@@ -361,6 +370,7 @@ class DocgenQualityWorkerEvalSummary extends S.Class<DocgenQualityWorkerEvalSumm
     completed: S.Finite,
     failed: S.Finite,
     timedOut: S.Finite,
+    skippedContext: S.Finite,
     candidates: S.Finite,
     needsHumanReview: S.Finite,
     rejected: S.Finite,
@@ -377,7 +387,7 @@ class DocgenQualityWorkerEvalSummary extends S.Class<DocgenQualityWorkerEvalSumm
  * ```ts
  * import type { DocgenQualityWorkerEvalReport } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  *
- * const report: Pick<DocgenQualityWorkerEvalReport, "schemaVersion"> = { schemaVersion: 1 }
+ * const report: Pick<DocgenQualityWorkerEvalReport, "schemaVersion"> = { schemaVersion: 2 }
  * console.log(report.schemaVersion)
  * ```
  * @category models
@@ -517,6 +527,7 @@ export class AnalyzeDocgenQualityWorkerEvalOptions extends S.Class<AnalyzeDocgen
     packetLimit: S.optional(S.Finite),
     provider: DocgenQualityWorkerEvalProvider,
     reasoningEffort: S.optional(DocgenQualityWorkerEvalReasoningEffort),
+    promptTokenBudget: S.optional(S.Finite),
     report: DocgenQualityReport,
     runner: S.optional(S.Any),
     scope: DocgenQualityWorkerEvalScope,
@@ -539,6 +550,36 @@ const errorMessage = (error: unknown): string =>
     : "Unknown worker eval failure.";
 
 const fileUrlPath = (value: string): string => decodeURIComponent(new URL(value).pathname);
+
+type PromptBudget = {
+  readonly contextBudgetTokens: number | null;
+  readonly estimatedPromptTokens: number;
+  readonly overBudget: boolean;
+  readonly prompt: string;
+  readonly promptCharacters: number;
+};
+
+const estimatePromptTokens = (prompt: string): number => Math.ceil(prompt.length / TOKEN_ESTIMATE_CHARACTERS_PER_TOKEN);
+
+const positiveBudget = (value: number | undefined): O.Option<number> =>
+  pipe(
+    O.fromUndefinedOr(value),
+    O.filter((budget) => Number.isFinite(budget) && budget > 0)
+  );
+
+const promptBudgetFor = (candidate: PacketCandidate, contextBudgetTokens: O.Option<number>): PromptBudget => {
+  const prompt = workerPrompt(candidate);
+  const estimatedPromptTokens = estimatePromptTokens(prompt);
+  const resolvedContextBudgetTokens = O.getOrNull(contextBudgetTokens);
+
+  return {
+    contextBudgetTokens: resolvedContextBudgetTokens,
+    estimatedPromptTokens,
+    overBudget: resolvedContextBudgetTokens !== null && estimatedPromptTokens > resolvedContextBudgetTokens,
+    prompt,
+    promptCharacters: prompt.length,
+  };
+};
 
 const providerHint = (provider: DocgenQualityWorkerEvalProvider): string =>
   Match.value(provider).pipe(
@@ -928,11 +969,13 @@ const failedPacketResult = ({
   candidate,
   durationMs,
   error,
+  promptBudget,
   status,
 }: {
   readonly candidate: PacketCandidate;
   readonly durationMs: number;
   readonly error: string;
+  readonly promptBudget: PromptBudget;
   readonly status: DocgenQualityWorkerEvalPacketStatus;
 }): DocgenQualityWorkerEvalPacketResult =>
   DocgenQualityWorkerEvalPacketResult.make({
@@ -943,6 +986,9 @@ const failedPacketResult = ({
     packagePath: candidate.packagePath,
     findingCodes: candidate.findingCodes,
     status,
+    promptCharacters: promptBudget.promptCharacters,
+    estimatedPromptTokens: promptBudget.estimatedPromptTokens,
+    contextBudgetTokens: promptBudget.contextBudgetTokens,
     localScore: null,
     rationale: "",
     draftJsDoc: "",
@@ -957,10 +1003,12 @@ const completedPacketResult = ({
   candidate,
   durationMs,
   output,
+  promptBudget,
 }: {
   readonly candidate: PacketCandidate;
   readonly durationMs: number;
   readonly output: DocgenQualityWorkerEvalWorkerOutput;
+  readonly promptBudget: PromptBudget;
 }): DocgenQualityWorkerEvalPacketResult =>
   DocgenQualityWorkerEvalPacketResult.make({
     packetId: candidate.packet.id,
@@ -970,6 +1018,9 @@ const completedPacketResult = ({
     packagePath: candidate.packagePath,
     findingCodes: candidate.findingCodes,
     status: "completed",
+    promptCharacters: promptBudget.promptCharacters,
+    estimatedPromptTokens: promptBudget.estimatedPromptTokens,
+    contextBudgetTokens: promptBudget.contextBudgetTokens,
     localScore: output.localScore,
     rationale: output.rationale,
     draftJsDoc: output.draftJsDoc,
@@ -984,6 +1035,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
   baseUrl,
   candidate,
   model,
+  promptBudget,
   provider,
   reasoningEffort,
   runner,
@@ -993,6 +1045,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
   readonly baseUrl?: string;
   readonly candidate: PacketCandidate;
   readonly model: string;
+  readonly promptBudget: PromptBudget;
   readonly provider: DocgenQualityWorkerEvalProvider;
   readonly reasoningEffort?: DocgenQualityWorkerEvalReasoningEffort;
   readonly runner: DocgenQualityWorkerEvalRunner;
@@ -1000,6 +1053,16 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
   readonly workingDirectory: string;
 }) {
   const startedAtMs = globalThis.performance.now();
+  if (promptBudget.overBudget) {
+    return failedPacketResult({
+      candidate,
+      durationMs: 0,
+      error: `Skipped before worker call: estimated prompt tokens (${promptBudget.estimatedPromptTokens}) exceed context budget (${promptBudget.contextBudgetTokens ?? "unknown"}).`,
+      promptBudget,
+      status: "skipped-context",
+    });
+  }
+
   const reasoningInput = pipe(
     O.fromNullishOr(reasoningEffort),
     O.map((value) => ({ reasoningEffort: value })),
@@ -1008,7 +1071,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
   const timed = yield* runner({
     ...O.getSomesStruct({ baseUrl: O.fromUndefinedOr(baseUrl) }),
     model,
-    prompt: workerPrompt(candidate),
+    prompt: promptBudget.prompt,
     provider,
     ...reasoningInput,
     workingDirectory,
@@ -1019,6 +1082,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
         candidate,
         durationMs: durationMsSince(startedAtMs),
         output,
+        promptBudget,
       })
     ),
     Effect.timeoutOption(timeout),
@@ -1030,6 +1094,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
       candidate,
       durationMs: durationMsSince(startedAtMs),
       error: errorMessage(timed.failure),
+      promptBudget,
       status: "failed",
     });
   }
@@ -1039,6 +1104,7 @@ const runPacketEval = Effect.fn("DocgenQualityWorkerEval.runPacketEval")(functio
       candidate,
       durationMs: durationMsSince(startedAtMs),
       error: `Timed out after ${Duration.toMillis(timeout)}ms.`,
+      promptBudget,
       status: "timed-out",
     });
   }
@@ -1058,6 +1124,7 @@ const summarizePacketResults = (
     completed: A.filter(packets, (packet) => packet.status === "completed").length,
     failed: A.filter(packets, (packet) => packet.status === "failed").length,
     timedOut: A.filter(packets, (packet) => packet.status === "timed-out").length,
+    skippedContext: A.filter(packets, (packet) => packet.status === "skipped-context").length,
     candidates: A.filter(packets, (packet) => packet.reviewDisposition === "candidate").length,
     needsHumanReview: A.filter(packets, (packet) => packet.reviewDisposition === "needs-human-review").length,
     rejected: A.filter(packets, (packet) => packet.reviewDisposition === "reject").length,
@@ -1078,6 +1145,10 @@ const recommendationForSummary = (summary: DocgenQualityWorkerEvalSummary): stri
 
   if (summary.completed === 0) {
     return "Keep workers experimental; no selected packets completed successfully.";
+  }
+
+  if (summary.skippedContext > 0) {
+    return "Keep workers read-only; skipped context packets need packet splitting or a larger context budget.";
   }
 
   if (summary.rejected > 0 || summary.failed > 0 || summary.timedOut > 0) {
@@ -1224,6 +1295,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     packetLimit = DEFAULT_WORKER_EVAL_PACKET_LIMIT,
     provider,
     reasoningEffort,
+    promptTokenBudget,
     report,
     runner,
     scope,
@@ -1235,17 +1307,33 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
     const resolvedBaseUrl = pipe(O.fromNullishOr(baseUrl), O.map(Str.trim), O.filter(Str.isNonEmpty), O.getOrUndefined);
     const candidates = A.map(report.remediationPackets, (packet) => packetCandidate(report, packet));
     const selected = selectQualityWorkerEvalPackets(candidates, packetLimit);
+    const contextBudgetTokens = positiveBudget(promptTokenBudget);
+    const selectedBudgets = pipe(
+      selected,
+      A.map((candidate) => ({ candidate, promptBudget: promptBudgetFor(candidate, contextBudgetTokens) }))
+    );
+    const needsRunner = A.some(selectedBudgets, ({ promptBudget }) => !promptBudget.overBudget);
     let packets: ReadonlyArray<DocgenQualityWorkerEvalPacketResult>;
     if (selected.length === 0) {
       packets = A.empty();
+    } else if (!needsRunner) {
+      packets = A.map(selectedBudgets, ({ candidate, promptBudget }) =>
+        failedPacketResult({
+          candidate,
+          durationMs: 0,
+          error: `Skipped before worker call: estimated prompt tokens (${promptBudget.estimatedPromptTokens}) exceed context budget (${promptBudget.contextBudgetTokens ?? "unknown"}).`,
+          promptBudget,
+          status: "skipped-context",
+        })
+      );
     } else {
       const resolvedRunner = runner ?? (yield* makeDefaultCodexRunner());
       packets = yield* Effect.acquireUseRelease(
         makeIsolatedWorkerEvalDirectory(),
         (workingDirectory) =>
           Effect.forEach(
-            selected,
-            (candidate) => {
+            selectedBudgets,
+            ({ candidate, promptBudget }) => {
               const reasoningInput = pipe(
                 O.fromNullishOr(reasoningEffort),
                 O.map((value) => ({ reasoningEffort: value })),
@@ -1256,6 +1344,7 @@ export const analyzeDocgenQualityWorkerEval = Effect.fn("DocgenQualityWorkerEval
                 ...O.getSomesStruct({ baseUrl: O.fromUndefinedOr(resolvedBaseUrl) }),
                 candidate,
                 model,
+                promptBudget,
                 provider,
                 ...reasoningInput,
                 runner: resolvedRunner,

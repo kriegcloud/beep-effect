@@ -2,7 +2,8 @@
 
 ## Status
 
-P0-P2 complete; local command implemented; live GPU smoke and Qwen acquisition pending
+P0-P1 complete; P2 hardening proof in progress; Qwen acquisition and live GPU
+smoke-plus-10 proof pending
 
 ## Overview
 
@@ -26,15 +27,14 @@ bun run beep docgen quality-worker-eval-local \
 ```
 
 The P0 model decision is intentionally research-gated. The packet recommends
-starting with Qwen3-Coder 30B-A3B GGUF, keeping Qwen3-Next 80B-A3B GGUF as the
-stretch candidate after the local wrapper proves stable, and retaining the
-already-installed Llama 3.3 70B GGUF as a non-coder control rather than the
-first coding-worker target.
+starting with Qwen3-Coder 30B-A3B GGUF Q6-class artifacts, falling back to
+Q4-class only if live Docker/ROCm proof rejects Q6, keeping Qwen3-Next 80B-A3B
+GGUF as the stretch candidate, and retaining the already-installed Llama 3.3
+70B GGUF as a non-coder diagnostic control.
 
-The non-GPU implementation proof is complete: focused docgen tests, repo-cli
-typecheck, repo-cli lint, packet manifest validation, GOAL length, command help,
-and diff whitespace checks all pass. The live GPU smoke is intentionally still
-pending because it should be explicit and operator-visible.
+The non-GPU implementation proof is being refreshed after the production
+hardening pass. The live GPU proof is intentionally still pending because it
+should be explicit and operator-visible.
 
 ## Read This First
 
@@ -52,6 +52,8 @@ pending because it should be explicit and operator-visible.
 - Bind only to localhost by default.
 - Use Docker first; do not require installing llama.cpp into the host OS.
 - Prefer `--split-mode layer` before tensor or row split.
+- Default local packet turns to `--packet-timeout-ms 600000`.
+- Treat oversized prompts as `skipped-context` before model calls.
 - Stop and remove the container by default; use `--keep-server` only for debug.
 - Keep model artifacts in `/home/elpresidank/ai/models` and reflect acquisitions
   in `/home/elpresidank/ai` manifests/docs.

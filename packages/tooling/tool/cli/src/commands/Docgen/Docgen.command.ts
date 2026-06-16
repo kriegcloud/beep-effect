@@ -216,6 +216,10 @@ const localWorkerReadinessTimeoutMsFlag = Flag.integer("readiness-timeout-ms").p
   Flag.withDefault(QualityWorkerLocalEvalDefaults.readinessTimeoutMs),
   Flag.withDescription("Milliseconds to wait for local llama.cpp readiness after Docker launch")
 );
+const localWorkerPacketTimeoutMsFlag = Flag.integer("packet-timeout-ms").pipe(
+  Flag.withDefault(QualityWorkerLocalEvalDefaults.packetTimeoutMs),
+  Flag.withDescription("Milliseconds to wait for each local worker packet turn")
+);
 const keepRunpodPodFlag = Flag.boolean("keep-pod").pipe(
   Flag.withDescription("Debug mode: leave the Runpod pod running instead of deleting it after the eval")
 );
@@ -1090,6 +1094,7 @@ const docgenQualityWorkerLocalEvalCommand = Command.make(
     splitMode: localWorkerSplitModeFlag,
     tensorSplit: localWorkerTensorSplitFlag,
     readinessTimeoutMs: localWorkerReadinessTimeoutMsFlag,
+    packetTimeoutMs: localWorkerPacketTimeoutMsFlag,
     otlp: qualityWorkerLocalEvalOtlpFlag,
     otlpBaseUrl: qualityWorkerLocalEvalOtlpBaseUrlFlag,
     otlpProject: qualityWorkerLocalEvalOtlpProjectFlag,
@@ -1116,6 +1121,7 @@ const docgenQualityWorkerLocalEvalCommand = Command.make(
       splitMode,
       tensorSplit,
       readinessTimeoutMs,
+      packetTimeoutMs,
       otlp,
       otlpBaseUrl,
       otlpProject,
@@ -1137,6 +1143,10 @@ const docgenQualityWorkerLocalEvalCommand = Command.make(
 
       if (readinessTimeoutMs <= 0) {
         return yield* DomainError.newMessage("--readiness-timeout-ms must be greater than zero.");
+      }
+
+      if (packetTimeoutMs <= 0) {
+        return yield* DomainError.newMessage("--packet-timeout-ms must be greater than zero.");
       }
 
       if (port <= 0 || port > 65_535) {
@@ -1198,6 +1208,7 @@ const docgenQualityWorkerLocalEvalCommand = Command.make(
         otlpEnabled: otlp,
         otlpProject,
         packetLimit,
+        packetTimeoutMs,
         parallel,
         port,
         provider: "ollama",

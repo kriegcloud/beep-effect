@@ -451,6 +451,17 @@ const mdListText = (items: ReadonlyArray<Md.Li | Md.TaskItem>): string =>
     "\n"
   );
 
+const mdTableText = (table: Md.Table): string =>
+  A.join(
+    A.map(table.children, (row) =>
+      A.join(
+        A.map(row.children, (cell) => mdInlinesText(cell.children)),
+        "\t"
+      )
+    ),
+    "\n"
+  );
+
 const mdBlockText: (block: Md.Block) => string = Match.type<Md.Block>().pipe(
   Match.tagsExhaustive({
     h1: (block) => mdInlinesText(block.children),
@@ -466,6 +477,8 @@ const mdBlockText: (block: Md.Block) => string = Match.type<Md.Block>().pipe(
     ol: (block) => mdListText(block.children),
     li: (block) => mdInlinesText(block.children),
     taskList: (block) => mdListText(block.children),
+    table: mdTableText,
+    youtube: (block) => `https://www.youtube.com/watch?v=${block.videoId}`,
     hr: () => "",
   })
 );
@@ -814,6 +827,32 @@ const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Project
             items: value,
           }),
         })),
+      table: (node) =>
+        Effect.succeed({
+          issues: [
+            issue({
+              construct: "Table",
+              direction: "md-to-pandoc",
+              message: "Md table structure has no v1 Pandoc-core mapping and is emitted as paragraph text.",
+              path,
+              severity: "lossy",
+            }),
+          ],
+          value: Para.make({ children: [Str.make({ text: mdBlockText(node) })] }),
+        }),
+      youtube: (node) =>
+        Effect.succeed({
+          issues: [
+            issue({
+              construct: "YouTube",
+              direction: "md-to-pandoc",
+              message: "Md YouTube embed has no v1 Pandoc-core mapping and is emitted as a paragraph link.",
+              path,
+              severity: "lossy",
+            }),
+          ],
+          value: Para.make({ children: [Str.make({ text: mdBlockText(node) })] }),
+        }),
       hr: () => Effect.succeed(emptyProjection(HorizontalRule.make({}))),
     })
   );

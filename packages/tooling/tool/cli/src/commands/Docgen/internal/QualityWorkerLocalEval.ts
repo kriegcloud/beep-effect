@@ -49,7 +49,7 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/QualityWorkerLocalEval");
 
-const QUALITY_WORKER_LOCAL_EVAL_SCHEMA_VERSION = 1 as const;
+const QUALITY_WORKER_LOCAL_EVAL_SCHEMA_VERSION = 2 as const;
 const JSON_FORMAT_MAX_LENGTH = 500_000;
 const DEFAULT_LOCAL_WORKER_PACKET_LIMIT = 10;
 const DEFAULT_LOCAL_WORKER_DOCKER_IMAGE = "rocm/llama.cpp:llama.cpp-b6652.amd0_rocm7.0.0_ubuntu24.04_server";
@@ -60,10 +60,12 @@ const DEFAULT_LOCAL_WORKER_CONTEXT_SIZE = 40_960;
 const DEFAULT_LOCAL_WORKER_PARALLEL = 1;
 const DEFAULT_LOCAL_WORKER_GPU_LAYERS = "all";
 const DEFAULT_LOCAL_WORKER_READINESS_TIMEOUT = Duration.minutes(30);
+const DEFAULT_LOCAL_WORKER_PACKET_TIMEOUT = Duration.minutes(10);
 const DEFAULT_LOCAL_WORKER_OTLP_BASE_URL = "http://localhost:6006";
 const DEFAULT_LOCAL_WORKER_OTLP_PROJECT = "beep-docgen-local-worker-eval";
 const CONTAINER_MODEL_ROOT = "/models";
 const READINESS_PATH = "/v1/models";
+const DEFAULT_CONTEXT_BUDGET_RATIO = 0.7;
 
 const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
 
@@ -235,6 +237,7 @@ export class RunDocgenQualityWorkerLocalEvalOptions extends S.Class<RunDocgenQua
     otlpEnabled: S.optional(S.Boolean),
     otlpProject: S.optional(S.String),
     packetLimit: S.optional(S.Finite),
+    packetTimeoutMs: S.optional(S.Finite),
     parallel: S.optional(S.Finite),
     port: S.optional(S.Finite),
     provider: DocgenQualityWorkerEvalProvider,
@@ -259,6 +262,7 @@ type QualityWorkerLocalEvalDefaultsValue = {
   readonly otlpBaseUrl: string;
   readonly otlpProject: string;
   readonly packetLimit: number;
+  readonly packetTimeoutMs: number;
   readonly parallel: number;
   readonly port: number;
   readonly readinessTimeoutMs: number;
@@ -286,6 +290,7 @@ export const QualityWorkerLocalEvalDefaults: QualityWorkerLocalEvalDefaultsValue
   otlpBaseUrl: DEFAULT_LOCAL_WORKER_OTLP_BASE_URL,
   otlpProject: DEFAULT_LOCAL_WORKER_OTLP_PROJECT,
   packetLimit: DEFAULT_LOCAL_WORKER_PACKET_LIMIT,
+  packetTimeoutMs: Duration.toMillis(DEFAULT_LOCAL_WORKER_PACKET_TIMEOUT),
   parallel: DEFAULT_LOCAL_WORKER_PARALLEL,
   port: DEFAULT_LOCAL_WORKER_PORT,
   readinessTimeoutMs: Duration.toMillis(DEFAULT_LOCAL_WORKER_READINESS_TIMEOUT),
@@ -397,6 +402,23 @@ const dockerCommand = (args: ReadonlyArray<string>, dockerRunner: DockerRunner) 
           })
     )
   );
+
+const ensureDockerImage = Effect.fn("DocgenQualityWorkerLocalEval.ensureDockerImage")(function* ({
+  dockerImage,
+  dockerRunner,
+}: {
+  readonly dockerImage: string;
+  readonly dockerRunner: DockerRunner;
+}) {
+  yield* dockerCommand(["version"], dockerRunner);
+  const inspect = yield* dockerRunner({ command: "docker", args: ["image", "inspect", dockerImage] });
+  if (inspect.exitCode === 0) {
+    return;
+  }
+
+  yield* Console.log(`docgen: pulling local worker Docker image ${dockerImage}`);
+  yield* dockerCommand(["pull", dockerImage], dockerRunner);
+});
 
 const codexBaseUrlFor = (serverBaseUrl: string): string => `${serverBaseUrl}/v1`;
 
@@ -754,11 +776,14 @@ const packetSpanAttributes = Effect.fn("DocgenQualityWorkerLocalEval.packetSpanA
   return {
     "beep.docgen.eval.duration_ms": packet.durationMs,
     "beep.docgen.eval.finding_count": A.length(packet.findingCodes),
+    "beep.docgen.eval.context_budget_tokens": packet.contextBudgetTokens ?? 0,
+    "beep.docgen.eval.estimated_prompt_tokens": packet.estimatedPromptTokens,
     "beep.docgen.eval.local_score": packet.localScore ?? 0,
     "beep.docgen.eval.model": model,
     "beep.docgen.eval.package_hash": yield* hashPublicIdentifier(packet.packageName),
     "beep.docgen.eval.packet_id_hash": yield* hashPublicIdentifier(packet.packetId),
     "beep.docgen.eval.policy_violation_count": A.length(packet.policyViolationCodes),
+    "beep.docgen.eval.prompt_characters": packet.promptCharacters,
     "beep.docgen.eval.provider": provider,
     "beep.docgen.eval.review_disposition": packet.reviewDisposition,
     "beep.docgen.eval.run_id": runId,
@@ -825,6 +850,7 @@ const emitLocalEvalOtlp = Effect.fn("DocgenQualityWorkerLocalEval.emitLocalEvalO
             "beep.docgen.eval.scope": workerEval.scope,
             "beep.docgen.eval.selected_packets": workerEval.summary.selectedPackets,
             "beep.docgen.eval.source_quality_report_hash": sourceQualityReportHash,
+            "beep.docgen.eval.skipped_context": workerEval.summary.skippedContext,
             "beep.docgen.eval.timed_out": workerEval.summary.timedOut,
             "openinference.span.kind": "EVALUATOR",
           });
@@ -872,6 +898,7 @@ const validateOptions = Effect.fn("DocgenQualityWorkerLocalEval.validateOptions"
   model,
   modelPath,
   packetLimit,
+  packetTimeoutMs,
   parallel,
   port,
   provider,
@@ -931,10 +958,17 @@ const validateOptions = Effect.fn("DocgenQualityWorkerLocalEval.validateOptions"
     });
   }
 
+  if (packetTimeoutMs !== undefined && packetTimeoutMs <= 0) {
+    return yield* DomainError.make({ message: "--packet-timeout-ms must be greater than zero." });
+  }
+
   if (readinessTimeoutMs !== undefined && readinessTimeoutMs <= 0) {
     return yield* DomainError.make({ message: "--readiness-timeout-ms must be greater than zero." });
   }
 });
+
+const contextBudgetTokensFor = (ctxSize: number): number =>
+  Math.max(1, Math.floor(ctxSize * DEFAULT_CONTEXT_BUDGET_RATIO));
 
 const recommendationFor = (
   workerEval: DocgenQualityWorkerEvalReport,
@@ -995,6 +1029,7 @@ export const runDocgenQualityWorkerLocalEval = Effect.fn(
   const runId = yield* hashPublicIdentifier(`${generatedAt}\u0000${options.model}\u0000${options.sourceQualityReport}`);
   const dockerRunner = makeDefaultDockerRunner();
   const plan = yield* resolveLocalDockerPlan({ options, runId });
+  yield* ensureDockerImage({ dockerImage: plan.dockerImage, dockerRunner });
   const keepServer = options.keepServer ?? false;
   const cleanupRef = yield* Ref.make(cleanupSkipped(keepServer));
   const { acquired, workerDurationMs, workerEval } = yield* Effect.acquireUseRelease(
@@ -1016,9 +1051,11 @@ export const runDocgenQualityWorkerLocalEval = Effect.fn(
         model: options.model,
         packetLimit: options.packetLimit ?? QualityWorkerLocalEvalDefaults.packetLimit,
         provider: options.provider,
+        promptTokenBudget: contextBudgetTokensFor(plan.ctxSize),
         report: options.report,
         scope: options.scope,
         sourceQualityReport: options.sourceQualityReport,
+        timeout: Duration.millis(options.packetTimeoutMs ?? QualityWorkerLocalEvalDefaults.packetTimeoutMs),
       });
 
       return {

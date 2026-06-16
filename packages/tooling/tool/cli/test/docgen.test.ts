@@ -2758,7 +2758,7 @@ export type TypeValue = string;
             A.dedupe
           );
 
-          expect(decoded.schemaVersion).toBe(1);
+          expect(decoded.schemaVersion).toBe(2);
           expect(decoded.provider).toBe("codex");
           expect(decoded.model).toBe("gpt-5.4-mini");
           expect(decoded.reasoningEffort).toBe("low");
@@ -2810,6 +2810,40 @@ export type TypeValue = string;
 
           expect(baseUrlReport.summary.completed).toBe(1);
           expect(O.getOrNull(observedBaseUrl)).toBe("https://pod-11434.proxy.runpod.net/v1");
+
+          let skippedRunnerCalls = 0;
+          const skippedRunner: DocgenQualityWorkerEvalRunner = () => {
+            skippedRunnerCalls += 1;
+            return Effect.succeed({
+              finalResponse: encodeJson({
+                localScore: 8,
+                rationale: "The draft adds an observable example and keeps required tags.",
+                draftJsDoc: "/**\\n * Demonstrates the exported symbol.\\n */",
+                policyViolationCodes: [],
+                reviewDisposition: "candidate",
+              }),
+            });
+          };
+          const skippedContextReport = yield* analyzeDocgenQualityWorkerEval({
+            codexSdkVersion: "test-sdk",
+            model: "qwen-test",
+            packetLimit: 1,
+            promptTokenBudget: 1,
+            provider: "ollama",
+            report,
+            runner: skippedRunner,
+            scope: "input",
+            sourceQualityReport: "quality.json",
+          });
+          const skippedPacket = skippedContextReport.packets[0];
+
+          expect(skippedRunnerCalls).toBe(0);
+          expect(skippedContextReport.summary.skippedContext).toBe(1);
+          expect(skippedContextReport.summary.completed).toBe(0);
+          expect(skippedPacket?.status).toBe("skipped-context");
+          expect(skippedPacket?.contextBudgetTokens).toBe(1);
+          expect(skippedPacket?.estimatedPromptTokens).toBeGreaterThan(1);
+          expect(skippedPacket?.error).toContain("Skipped before worker call");
 
           const outOfRangeScoreRunner: DocgenQualityWorkerEvalRunner = () =>
             Effect.succeed({
@@ -2990,7 +3024,7 @@ export const workerEvalValue = 1;
             const decoded = decodeWorkerEvalReportJson(yield* fs.readFileString(evalPath));
             const logLines = A.filter(yield* TestConsole.logLines, isString);
 
-            expect(decoded.schemaVersion).toBe(1);
+            expect(decoded.schemaVersion).toBe(2);
             expect(decoded.scope).toBe("input");
             expect(decoded.sourceQualityReport).toBe(qualityPath);
             expect(decoded.provider).toBe("codex");
@@ -3062,6 +3096,31 @@ export const workerEvalValue = 1;
           );
 
           expect((yield* TestConsole.errorLines).join("\n")).toContain("--confirm-local-gpu-eval");
+          expectReportedExit(exit);
+        })
+      )
+    )
+  );
+
+  it("rejects nonpositive local worker packet timeout values", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, () =>
+    Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const exit = yield* Effect.exit(
+            runDocgenCommand([
+              "quality-worker-eval-local",
+              "--all",
+              "--model",
+              "qwen3-coder-30b-a3b",
+              "--model-path",
+              "/home/elpresidank/ai/models/Qwen3-Coder-30B-A3B-Instruct-UD-Q6_K_XL.gguf",
+              "--packet-timeout-ms",
+              "0",
+              "--confirm-local-gpu-eval",
+            ])
+          );
+
+          expect((yield* TestConsole.errorLines).join("\n")).toContain("--packet-timeout-ms");
           expectReportedExit(exit);
         })
       )

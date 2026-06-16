@@ -5,7 +5,9 @@ Date: 2026-06-15
 ## Decision
 
 Use Docker-backed ROCm llama.cpp as the first local runtime and make
-Qwen3-Coder 30B-A3B GGUF the first coding-worker candidate.
+Qwen3-Coder 30B-A3B GGUF the first coding-worker candidate. Try a Q6-class GGUF
+first for documentation quality and fall back to Q4-class only if the live
+Docker/ROCm proof rejects Q6 on this workstation.
 
 Keep Qwen3-Next 80B-A3B GGUF as the stretch candidate after the local wrapper
 proves it can launch, probe, delegate worker packets, and clean up reliably.
@@ -49,6 +51,11 @@ agentic coding, browser-use, and repository-scale understanding.
 
 Source: [Qwen/Qwen3-Coder-30B-A3B-Instruct](https://huggingface.co/Qwen/Qwen3-Coder-30B-A3B-Instruct)
 
+llama.cpp requires a GGUF artifact, so the production proof uses the public
+Unsloth GGUF artifact family:
+
+Source: [unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF](https://huggingface.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF/tree/main)
+
 Why it is first:
 
 - It is coding-specific.
@@ -60,8 +67,10 @@ Why it is first:
 Recommended acquisition:
 
 - Public GGUF quant in `/home/elpresidank/ai/models`.
-- Prefer Q4_K_M or a comparable high-quality dynamic 4-bit quant for the first
-  smoke.
+- Prefer `Qwen3-Coder-30B-A3B-Instruct-UD-Q6_K_XL.gguf` for the first smoke and
+  strict 10-packet sample.
+- Fall back to `Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL.gguf` only if Q6 fails
+  live memory, launch, or stability proof.
 - Record the exact repo, file, sha256, and size in
   `/home/elpresidank/ai/manifests/model-assets.json`.
 
@@ -116,6 +125,8 @@ because the objective is documentation-quality coding assistance.
 - GPU layers: `all`
 - Split mode: `layer`
 - Readiness endpoint: `/v1/models`
+- Worker packet timeout: `600000ms`
+- Context preflight: skip packets estimated above 70% of `--ctx-size`
 - Cleanup: stop/remove unless `--keep-server`
 
 ## P0 Gate

@@ -24,15 +24,19 @@ Implementation requirements:
 7. Default to `--split-mode layer`, `--gpu-layers all`, `--ctx-size 40960`,
    and sequential packet eval.
 8. Delegate packet turns to the existing read-only worker eval command logic.
-9. Stop/remove the Docker container after the eval unless `--keep-server` is
+9. Default local packet turns to `--packet-timeout-ms 600000`.
+10. Skip over-budget packets before model calls using a conservative
+   prompt-token estimate and a 70% context budget.
+11. Stop/remove the Docker container after the eval unless `--keep-server` is
    passed.
-10. Emit sanitized schema-versioned wrapper JSON; do not keep raw unbounded logs.
-11. Keep normal tests fakeable; no live GPU/Docker proof in ordinary checks.
-12. Treat P0 model selection as evidence, not assumption.
+12. Emit sanitized schema-versioned wrapper JSON; do not keep raw unbounded logs.
+13. Keep normal tests fakeable; no live GPU/Docker proof in ordinary checks.
+14. Treat P0 model selection as evidence, not assumption.
 
 P0 recommendation:
 
-- First local candidate: Qwen3-Coder 30B-A3B GGUF.
+- First local candidate: Qwen3-Coder 30B-A3B GGUF, Q6-class first with Q4-class
+  fallback if live ROCm/llama.cpp proof rejects Q6.
 - Stretch candidate: Qwen3-Next 80B-A3B GGUF after the wrapper is stable.
 - Existing local control: Llama 3.3 70B GGUF, non-coder comparison only.
 
@@ -44,6 +48,8 @@ Verification:
 - `jq . goals/docgen-local-worker-eval/ops/manifest.json`
 - `test "$(wc -m < goals/docgen-local-worker-eval/GOAL.md)" -le 4000`
 - live GPU smoke is explicit/manual because it uses local GPU resources.
+- production live proof is one Qwen-backed smoke plus a strict 10-packet sample
+  with all selected packets completed.
 
 Stop conditions:
 
@@ -51,4 +57,3 @@ Stop conditions:
 - The selected model cannot fit or produces unstable output under layer split.
 - Implementing the path would require source edits or write-mode remediation.
 - A live proof would disturb unrelated running GPU jobs without operator consent.
-

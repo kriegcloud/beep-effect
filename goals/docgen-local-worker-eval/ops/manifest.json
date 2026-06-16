@@ -3,7 +3,7 @@
   "initiative": {
     "id": "docgen-local-worker-eval",
     "title": "Docgen Local Worker Eval",
-    "status": "p0-p2-complete-live-smoke-pending",
+    "status": "production-hardening-in-progress-live-proof-pending",
     "created": "2026-06-15",
     "updated": "2026-06-15",
     "packetAnchorDocument": "SPEC.md"
@@ -37,6 +37,8 @@
     "defaultPort": 18080,
     "defaultRuntime": "docker-rocm-llama-cpp",
     "defaultSplitMode": "layer",
+    "defaultPacketTimeoutMs": 600000,
+    "contextBudgetRatio": 0.7,
     "requiresExplicitModel": true,
     "requiresExplicitModelPath": true,
     "requiresConfirmation": true,
@@ -44,7 +46,8 @@
   },
   "modelResearch": {
     "artifact": "research/2026-06-15-local-coder-model-selection.md",
-    "firstCandidate": "Qwen3-Coder-30B-A3B-GGUF",
+    "firstCandidate": "Qwen3-Coder-30B-A3B-Instruct-UD-Q6_K_XL-GGUF",
+    "fallbackQuant": "Qwen3-Coder-30B-A3B-Instruct-UD-Q4_K_XL-GGUF",
     "stretchCandidate": "Qwen3-Next-80B-A3B-GGUF",
     "fallbackCandidate": "Qwen2.5-Coder-32B-Instruct-GGUF",
     "installedControl": "/home/elpresidank/ai/models/Llama-3.3-70B-Instruct-Q4_K_M.gguf"
@@ -63,11 +66,11 @@
     {
       "id": "P2",
       "name": "Non-GPU verification",
-      "status": "complete"
+      "status": "in-progress"
     },
     {
       "id": "P3",
-      "name": "Live local smoke",
+      "name": "Live local smoke plus strict 10-packet sample",
       "status": "pending"
     },
     {
