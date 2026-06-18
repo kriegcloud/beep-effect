@@ -20,33 +20,35 @@ const yamlRuntime = getGlobalYamlRuntime();
 const parseYamlResult = makeParseYamlForSchema(yamlRuntime, loadYamlModule);
 
 const invalidYamlInput: {
-  (content: unknown, message: string): SchemaIssue.InvalidValue;
-  (message: string): (content: unknown) => SchemaIssue.InvalidValue;
+  (content: unknown): (message: string) => SchemaIssue.InvalidValue;
+  (message: string, content: unknown): SchemaIssue.InvalidValue;
 } = dual(
   2,
-  (content: unknown, message: string): SchemaIssue.InvalidValue =>
+  (message: string, content: unknown): SchemaIssue.InvalidValue =>
     new SchemaIssue.InvalidValue(O.some(content), {
       message,
     })
 );
 
 const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Issue> =>
-  Effect.fail(invalidYamlInput(value, "Encoding unknown values to YAML text is not supported by YamlTextToUnknown."));
+  Effect.fail(invalidYamlInput(value)("Encoding unknown values to YAML text is not supported by YamlTextToUnknown."));
 
 const renderYamlIssueMessage = (messages: ReadonlyArray<string>): string =>
   `Invalid YAML input (${A.join(messages, "; ")}).`;
 
-const toYamlIssue = (input: string, cause: unknown): SchemaIssue.InvalidValue =>
-  invalidYamlInput(input, P.isError(cause) ? cause.message : "Invalid YAML input.");
+const renderYamlCauseMessage = (cause: unknown): string => (P.isError(cause) ? cause.message : "Invalid YAML input.");
+
+const toYamlIssue = (input: string): ((cause: unknown) => SchemaIssue.InvalidValue) =>
+  flow(renderYamlCauseMessage, invalidYamlInput(input));
 
 const decodeYamlUnknown = (input: string): Effect.Effect<unknown, SchemaIssue.Issue> =>
   Effect.try({
     try: () => parseYamlResult(input),
-    catch: (cause) => toYamlIssue(input, cause),
+    catch: toYamlIssue(input),
   }).pipe(
-    Effect.flatMap((parsed) =>
-      parsed.pipe(
-        Result.mapError((messages) => invalidYamlInput(input, renderYamlIssueMessage(messages))),
+    Effect.flatMap(
+      flow(
+        Result.mapError(flow(renderYamlIssueMessage, invalidYamlInput(input))),
         Result.match({
           onSuccess: Effect.succeed,
           onFailure: Effect.fail,
