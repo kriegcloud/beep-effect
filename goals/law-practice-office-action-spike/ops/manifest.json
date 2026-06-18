@@ -71,8 +71,7 @@
     "jq . goals/law-practice-office-action-spike/ops/manifest.json",
     "rg -n \"law-practice-office-action-spike|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/law-practice-office-action-spike",
     "git diff --check -- goals/law-practice-office-action-spike",
-    "bun run check --filter @beep/law-practice-domain",
-    "bun run check --filter @beep/law-practice-use-cases --filter @beep/law-practice-server",
+    "bun run check",
     "bun run beep lint reflection-artifacts"
   ],
   "stopConditions": [

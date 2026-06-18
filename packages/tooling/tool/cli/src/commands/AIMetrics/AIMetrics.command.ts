@@ -84,12 +84,14 @@ import {
   otlpExportResultToJson,
   privacyCheckToJson,
   queueAiMetricsLabels,
+  readAiMetricsOtlpSpanProjections,
   readEncryptedRawArchiveEnvelope,
   recordAiMetricsBenchmarkRun,
   renderAiMetricsForwarderTimerPlan,
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  runAiMetricsOtlpProjectionBatchExport,
   runAiMetricsRetentionCompact,
   runAiMetricsRetentionDelete,
   runAiMetricsRetentionRestoreDrill,
@@ -1652,22 +1654,28 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
     })
   );
   const endpoint = yield* defaultServiceEndpoint(spec, otlpBaseUrl);
+  const input = AiMetricsOtlpExportInput.make({
+    duckDbPath: spec.storage.duckDbPath,
+    endpoint,
+    ingestRunId,
+    target,
+  });
+  const duckDbLayer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath }));
+  const batch = yield* Effect.scoped(
+    Layer.build(duckDbLayer).pipe(
+      Effect.flatMap((context) => readAiMetricsOtlpSpanProjections(input).pipe(Effect.provide(context)))
+    )
+  );
+  const resolvedInput = AiMetricsOtlpExportInput.make({
+    duckDbPath: spec.storage.duckDbPath,
+    endpoint,
+    ingestRunId: batch.ingestRunId,
+    target,
+  });
   const result = yield* Effect.scoped(
-    Layer.build(
-      Layer.mergeAll(
-        DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: spec.storage.duckDbPath })),
-        layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))
-      )
-    ).pipe(
+    Layer.build(layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))).pipe(
       Effect.flatMap((context) =>
-        runAiMetricsOtlpExport(
-          AiMetricsOtlpExportInput.make({
-            duckDbPath: spec.storage.duckDbPath,
-            endpoint,
-            ingestRunId,
-            target,
-          })
-        ).pipe(Effect.provide(context))
+        runAiMetricsOtlpProjectionBatchExport(resolvedInput, batch).pipe(Effect.provide(context))
       )
     )
   );

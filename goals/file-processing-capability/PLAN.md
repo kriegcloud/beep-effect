@@ -50,7 +50,7 @@ Required Checks:
 
 ## P1: Minimum Vertical File-Processing Proof
 
-Status: pending
+Status: completed on 2026-06-18 by PR #262
 
 Goal: Prove `@beep/file-processing` as a `foundation/capability` package by
 landing the capability contracts, at least two importing consumers, and the
@@ -82,34 +82,31 @@ Implementation Steps:
 8. Add package README consumer table naming real current imports from at least
    two of `@beep/tika`, `@beep/libpff`, and `@beep/repo-cli`.
 9. Refresh or update package manifests, project references, exports, lockfile,
-   and repo export catalog as required by the repo tooling.
+   docgen metadata, and config-sync artifacts as required by the repo tooling.
 
 Exit Criteria:
 
-- [ ] Public schemas encode/decode through Effect schema APIs.
-- [ ] Service contracts compile without concrete driver imports.
-- [ ] At least two real consumers import `@beep/file-processing`, and the
+- [x] Public schemas encode/decode through Effect schema APIs.
+- [x] Service contracts compile without concrete driver imports.
+- [x] At least two real consumers import `@beep/file-processing`, and the
   package README records them.
-- [ ] `@beep/tika` proves one non-PST extraction path or typed
+- [x] `@beep/tika` proves one non-PST extraction path or typed
   engine-unavailable behavior.
-- [ ] `@beep/libpff` proves PST availability/export behavior, or records a
+- [x] `@beep/libpff` proves PST availability/export behavior, or records a
   typed engine-unavailable/fixture-unavailable deferral in tests.
-- [ ] `beep files process` writes the V1 manifest tree shape for generated
+- [x] `beep files process` writes the V1 manifest tree shape for generated
   fixtures.
-- [ ] Dtslint covers subpath imports and operation result types.
-- [ ] Unit tests cover operation schemas, strategy matching, and manifest
+- [x] Dtslint covers subpath imports and operation result types.
+- [x] Unit tests cover operation schemas, strategy matching, and manifest
   encoding.
 
 Required Checks:
 
-- `bun run --filter=@beep/file-processing check`
-- `bun run --filter=@beep/file-processing test`
-- `bun run --filter=@beep/file-processing lint`
-- `bun run --filter=@beep/tika check`
-- `bun run --filter=@beep/libpff check`
-- `bun run --filter=@beep/repo-cli check`
+- `bun run check`
+- `bun run test`
 - `bun run docgen:local`
-- `bun run repo-exports:catalog:check`
+- `bun run config-sync:check`
+- `bun run beep yeet verify` before claiming branch-level green
 
 Stop Conditions:
 
@@ -235,5 +232,6 @@ Exit Criteria:
 Required Checks:
 
 - `bun run docgen:local`
-- `bun run repo-exports:catalog:check`
+- `bun run config-sync:check`
+- `bun run beep yeet verify`
 - affected package `check`, `test`, and `lint`

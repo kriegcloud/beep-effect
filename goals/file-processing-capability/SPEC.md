@@ -2,10 +2,15 @@
 
 ## Status
 
-**PENDING IMPLEMENTATION**
+**P1 MINIMUM VERTICAL PROOF COMPLETE**
 
-Packet hardening completed on 2026-06-02. Package implementation has not
-started.
+Packet hardening completed on 2026-06-02. The minimum vertical implementation
+landed through the law-practice office-action branch and merged to `main` in
+PR #262 on 2026-06-18.
+
+The remaining phases are breadth and hardening work: complete broad Tika
+coverage, deepen libpff PST export, calibrate `beep files process` against
+generated and operator-local corpus inputs, and record final handoff evidence.
 
 ## Owner
 
@@ -14,7 +19,7 @@ started.
 ## Created / Updated
 
 - **Created:** 2026-06-02
-- **Updated:** 2026-06-02
+- **Updated:** 2026-06-18
 
 ## Purpose
 
@@ -65,17 +70,22 @@ The repo CLI is the first non-product consumer:
 | OCR | Strategy flag and skipped capability only in V1; no OCR implementation. |
 | Product semantics | Future document-management and legal-domain semantics stay outside this packet. |
 
-## Open Questions Before Package Implementation
+## P1 Decisions And Remaining Driver Questions
 
-These must be resolved in the implementation PR or explicitly deferred with a
-typed skip/failure policy:
+The P1 implementation resolved the minimum vertical decisions:
 
-- whether the first `@beep/libpff` proof uses a generated PST fixture, a public
-  sample fixture, or an engine-unavailable availability proof
-- exact generated fixture tooling for DOC, DOCX, RTF, HTML, PDF, text, Markdown,
-  and image metadata
-- whether an explicit `@beep/file-processing/node` entrypoint is needed, or
-  whether CLI-owned filesystem adapters are sufficient for V1
+- The first `@beep/libpff` proof records typed engine-unavailable behavior and
+  includes a synthetic child-artifact export proof.
+- Generated synthetic fixtures cover the P1 package and CLI proof surfaces.
+- No `@beep/file-processing/node` entrypoint was required for P1; filesystem
+  and process composition stayed in drivers, tooling, and the law-practice
+  server boundary.
+
+Remaining driver questions belong to P2/P3/P4:
+
+- broad Tika extraction and metadata proof for every non-PST V1 family
+- real/public PST export proof beyond the synthetic P1 child-artifact path
+- optional coverage profiling against operator-local corpus inputs
 
 ## Schema-First Operation Model
 

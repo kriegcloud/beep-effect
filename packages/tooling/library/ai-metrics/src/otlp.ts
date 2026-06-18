@@ -10,6 +10,7 @@ import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Effect, flow, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -460,6 +461,57 @@ const emitSpanProjection = Effect.fn("AiMetrics.otlp.emitSpanProjection")((proje
   )
 );
 
+const withOtlpExportSpan =
+  (input: AiMetricsOtlpExportInput) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+    effect.pipe(
+      Effect.withSpan("repo_ai_metrics.otlp.export", {
+        attributes: {
+          "ai_metrics.otlp.signal_scope": input.endpoint.signalScope,
+          "ai_metrics.otlp.trace_url": input.endpoint.traceUrl,
+          "ai_metrics.target": input.target,
+        },
+      })
+    );
+
+const runAiMetricsOtlpProjectionBatchExportUntraced: (
+  input: AiMetricsOtlpExportInput,
+  batch: AiMetricsOtlpSpanProjectionBatch
+) => Effect.Effect<AiMetricsOtlpExportResult> = Effect.fn("AiMetrics.runAiMetricsOtlpProjectionBatchExport.untraced")(
+  function* (input, batch) {
+    yield* Effect.forEach(batch.projections, emitSpanProjection, { discard: true, concurrency: 8 });
+
+    return AiMetricsOtlpExportResult.make({
+      endpointTraceUrl: input.endpoint.traceUrl,
+      ingestRunId: batch.ingestRunId,
+      sessionSpanCount: batch.sessionSpanCount,
+      spanCount: A.length(batch.projections),
+      target: input.target,
+      turnSpanCount: batch.turnSpanCount,
+    });
+  }
+);
+
+/**
+ * Emit a pre-resolved redacted AI metrics OTLP span projection batch.
+ *
+ * @example
+ * ```ts
+ * import { runAiMetricsOtlpProjectionBatchExport } from "@beep/repo-ai-metrics"
+ * console.log(runAiMetricsOtlpProjectionBatchExport)
+ * ```
+ * @category services
+ * @since 0.0.0
+ */
+export const runAiMetricsOtlpProjectionBatchExport: {
+  (input: AiMetricsOtlpExportInput, batch: AiMetricsOtlpSpanProjectionBatch): Effect.Effect<AiMetricsOtlpExportResult>;
+  (
+    batch: AiMetricsOtlpSpanProjectionBatch
+  ): (input: AiMetricsOtlpExportInput) => Effect.Effect<AiMetricsOtlpExportResult>;
+} = dual(2, (input: AiMetricsOtlpExportInput, batch: AiMetricsOtlpSpanProjectionBatch) =>
+  runAiMetricsOtlpProjectionBatchExportUntraced(input, batch).pipe(withOtlpExportSpan(input))
+);
+
 /**
  * Emit redacted AI metrics derived spans through the active Effect tracer.
  *
@@ -478,27 +530,10 @@ export const runAiMetricsOtlpExport: (
 )(
   function* (input) {
     const batch = yield* readAiMetricsOtlpSpanProjections(input);
-    yield* Effect.forEach(batch.projections, emitSpanProjection, { discard: true, concurrency: 8 });
 
-    return AiMetricsOtlpExportResult.make({
-      endpointTraceUrl: input.endpoint.traceUrl,
-      ingestRunId: batch.ingestRunId,
-      sessionSpanCount: batch.sessionSpanCount,
-      spanCount: A.length(batch.projections),
-      target: input.target,
-      turnSpanCount: batch.turnSpanCount,
-    });
+    return yield* runAiMetricsOtlpProjectionBatchExportUntraced(input, batch);
   },
-  (effect, input) =>
-    effect.pipe(
-      Effect.withSpan("repo_ai_metrics.otlp.export", {
-        attributes: {
-          "ai_metrics.otlp.signal_scope": input.endpoint.signalScope,
-          "ai_metrics.otlp.trace_url": input.endpoint.traceUrl,
-          "ai_metrics.target": input.target,
-        },
-      })
-    )
+  (effect, input) => effect.pipe(withOtlpExportSpan(input))
 );
 
 /**
