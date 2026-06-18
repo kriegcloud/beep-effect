@@ -19,15 +19,17 @@
  * Option") and the finalize hung the live stream. This test would have caught
  * that and guards against its return.
  *
- * Gated on the same PgLite integration env as the other `.pglite` suites.
+ * Gated on the same PgLite integration env as the other `.pglite` suites, but
+ * pinned to the in-process driver so it proves the desktop runtime wiring
+ * instead of Yeet's shared external SQL test server.
  */
-import { fileURLToPath } from "node:url";
 import { FixtureTurnKernel } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
+import { migrationsFolder } from "@beep/db-admin";
 import * as Md from "@beep/md/Md.model";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { describe, expect, layer } from "@effect/vitest";
@@ -38,8 +40,8 @@ import * as Stream from "effect/Stream";
 import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
-const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
+const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
@@ -59,7 +61,7 @@ const ChatPersistLayer = Layer.mergeAll(
   ThreadLayers.ThreadStoreDrizzleLayer,
   UsageRecordSinkDrizzle,
   FixtureTurnKernel
-).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makePgliteLayer()));
+).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makeInProcessPgliteLayer()));
 
 if (!shouldRunPgliteIntegration) {
   describe.skip("Professional desktop chat persistence PgLite integration", () => {});

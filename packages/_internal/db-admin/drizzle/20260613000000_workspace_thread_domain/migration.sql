@@ -12,7 +12,7 @@ CREATE TABLE workspace_thread (
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
 );
-
+--> statement-breakpoint
 CREATE TABLE workspace_turn (
   created_at BIGINT NOT NULL,
   created_by_principal JSONB NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE workspace_turn (
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
 );
-
+--> statement-breakpoint
 CREATE TABLE workspace_message (
   created_at BIGINT NOT NULL,
   created_by_principal JSONB NOT NULL,

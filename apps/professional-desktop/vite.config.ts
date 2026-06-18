@@ -2,9 +2,31 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+const initialVendorChunkGroups = [
+  { name: "react-vendor", test: /node_modules[\\/](react|react-dom)[\\/]/, priority: 50 },
+  { name: "mui-vendor", test: /node_modules[\\/](@mui|@emotion)[\\/]/, priority: 45 },
+  { name: "effect-vendor", test: /node_modules[\\/]effect[\\/]/, priority: 40 },
+  { name: "lexical-vendor", test: /node_modules[\\/](@lexical|lexical)[\\/]/, priority: 35 },
+  {
+    name: "ui-vendor",
+    test: /node_modules[\\/](sonner|tailwind-merge|clsx|class-variance-authority|@base-ui|@phosphor-icons)[\\/]/,
+    priority: 30,
+  },
+];
+
 export default defineConfig({
   clearScreen: false,
   plugins: [react()],
+  build: {
+    chunkSizeWarningLimit: 650,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: initialVendorChunkGroups,
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

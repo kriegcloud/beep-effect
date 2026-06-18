@@ -95,6 +95,9 @@
   },
   "references": [
     {
+      "path": "../../packages/_internal/db-admin/tsconfig.json"
+    },
+    {
       "path": "../../packages/agents/client/tsconfig.json"
     },
     {
@@ -105,6 +108,9 @@
     },
     {
       "path": "../../packages/agents/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../packages/drivers/pglite/tsconfig.json"
     },
     {
       "path": "../../packages/drivers/postgres/tsconfig.json"

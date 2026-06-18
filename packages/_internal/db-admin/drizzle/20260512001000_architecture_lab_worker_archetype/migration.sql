@@ -12,7 +12,7 @@ CREATE TABLE architecture_lab_worker (
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
 );
-
+--> statement-breakpoint
 ALTER TABLE architecture_lab_work_item
   ADD COLUMN assignee_id INTEGER,
   ADD COLUMN priority TEXT,

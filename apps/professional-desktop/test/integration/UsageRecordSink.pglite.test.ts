@@ -1,16 +1,16 @@
-import { fileURLToPath } from "node:url";
+import { migrationsFolder } from "@beep/db-admin";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import * as UsageRecordTable from "@beep/epistemic-tables/entities/UsageRecord";
 import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
-import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
-const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
+const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
 
 const decodeUsageAppend = S.decodeUnknownSync(TurnFinalizationUsageAppend);
 
@@ -52,7 +52,7 @@ const migrateEpistemicUsage = Effect.fnUntraced(function* () {
 
 const UsageRecordSinkLayer = UsageRecordSinkDrizzle.pipe(
   Layer.provideMerge(makeDrizzleLayer()),
-  Layer.provideMerge(makePgliteLayer())
+  Layer.provideMerge(makeInProcessPgliteLayer())
 );
 
 if (!shouldRunPgliteIntegration) {

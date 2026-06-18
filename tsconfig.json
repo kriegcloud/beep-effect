@@ -1182,7 +1182,9 @@
       ],
       "@beep/file-processing/PathSafety": [
         "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
-      ]
+      ],
+      "@beep/pglite": ["./packages/drivers/pglite/src/index.ts"],
+      "@beep/pglite/*": ["./packages/drivers/pglite/src/*"]
     }
   }
 }
