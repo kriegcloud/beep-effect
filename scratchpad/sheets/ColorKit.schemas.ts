@@ -882,14 +882,23 @@ export class ColorKit {
 		}
 
 		if (color instanceof ColorKit) {
-			this._color = {...color._color};
+			this._color = color._color;
 
-			this._rgbColor = {...color._rgbColor};
+			this._rgbColor = color._rgbColor;
+
+			this._isValid = color._isValid;
 
 			return;
 		}
 
-		const colorObject = toColor(color);
+		let colorObject: Color | undefined;
+
+		try {
+			colorObject = toColor(color);
+		} catch {
+			this._setNullColor();
+			return;
+		}
 
 		if (colorObject == null) {
 			this._setNullColor();
@@ -898,7 +907,14 @@ export class ColorKit {
 
 		this._color = colorObject;
 
-		const rgbColorObject = toRgbColor(this._color);
+		let rgbColorObject: RgbColor | undefined;
+
+		try {
+			rgbColorObject = toRgbColor(this._color);
+		} catch {
+			this._setNullColor();
+			return;
+		}
 
 		if (rgbColorObject == null) {
 			this._setNullColor();
@@ -1080,6 +1096,63 @@ const rgbNormalize = (val: number) => {
 		: ((val + 0.055) / 1.055) ** 2.4;
 };
 
+const HexColorPattern = /^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/;
+
+const DecimalNumberPattern = /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/;
+
+const parseNumberToken = (value: string): number | undefined => {
+	const trimmed = value.trim();
+
+	if (!DecimalNumberPattern.test(trimmed)) {
+		return;
+	}
+
+	const parsed = Number.parseFloat(trimmed);
+
+	return Number.isFinite(parsed)
+		? parsed
+		: undefined;
+};
+
+const parsePercentNumberToken = (value: string): number | undefined => {
+	const trimmed = value.trim();
+
+	return parseNumberToken(trimmed.endsWith("%")
+		? trimmed.slice(0, -1)
+		: trimmed);
+};
+
+const parseColorFunctionValues = (color: string, pattern: RegExp): ReadonlyArray<string> | undefined => {
+	const match = pattern.exec(color);
+
+	if (match == null) {
+		return;
+	}
+
+	const body = match[1];
+
+	if (body == null) {
+		return;
+	}
+
+	const values = body.split(",");
+
+	if (values.length < 3 || values.length > 4 || values.some((value) => value.trim().length === 0)) {
+		return;
+	}
+
+	return values;
+};
+
+const parseHexChannel = (value: string, index: number, width: 1 | 2): number => {
+	const token = value.slice(index * width, index * width + width);
+	const channel = width === 1
+		? `${token}${token}`
+		: token;
+
+	return Number.parseInt(channel, 16);
+};
+
 // eslint-disable-next-line max-lines-per-function
 const toColor: (color: string | Color) => Color | undefined = (color) => {
 	if (isObject(color)) {
@@ -1150,109 +1223,123 @@ const toColor: (color: string | Color) => Color | undefined = (color) => {
 	}
 };
 
-const hexToColor: (color: string) => Color = (color) => {
+const hexToColor: (color: string) => Color | undefined = (color) => {
+	if (!HexColorPattern.test(color)) {
+		return;
+	}
+
 	const parsedColor = color.substring(1);
 
-	const re = new RegExp(`.{1,${parsedColor.length >= 6 ? 2 : 1}}`, 'g');
-
-	let colors: string[] | RegExpMatchArray | null = parsedColor.match(re);
-
-	if (!colors || colors.length < 3) {
-		throw new Error(`The color '${color}' is illegal hex color`);
-	}
-
-	if (colors[0].length === 1) {
-		colors = colors.map((n) => n + n);
-	}
+	const channelWidth = parsedColor.length <= 4
+		? 1
+		: 2;
 
 	return RgbColor.make({
-		r: Number.parseInt(colors[0], 16),
+		r: parseHexChannel(parsedColor, 0, channelWidth),
 
-		g: Number.parseInt(colors[1], 16),
+		g: parseHexChannel(parsedColor, 1, channelWidth),
 
-		b: Number.parseInt(colors[2], 16),
+		b: parseHexChannel(parsedColor, 2, channelWidth),
 
-		a: colors.length > 3
-			? Number.parseInt(colors[3], 16) / 255
+		a: parsedColor.length === 4 || parsedColor.length === 8
+			? parseHexChannel(parsedColor, 3, channelWidth) / 255
 			: 1,
 	});
 };
 
-const rgbToColor: (color: string) => Color = (color) => {
-	const matcher = color.indexOf('(');
+const rgbToColor: (color: string) => Color | undefined = (color) => {
+	const values = parseColorFunctionValues(color, /^rgba?\((.*)\)$/);
 
-	if (matcher === -1) {
-		throw new Error(`The color '${color}' is illegal rgb color`);
+	if (values == null) {
+		return;
 	}
 
-	const values = color.substring(matcher + 1, color.length - 1).split(',');
+	const r = parseNumberToken(values[0]);
 
-	if (values.length < 3) {
-		throw new Error(`The color '${color}' is illegal rgb color`);
+	const g = parseNumberToken(values[1]);
+
+	const b = parseNumberToken(values[2]);
+
+	const a = values.length > 3
+		? parseNumberToken(values[3])
+		: 1;
+
+	if (r == null || g == null || b == null || a == null) {
+		return;
 	}
 
 	return RgbColor.make({
-		r: Number.parseInt(values[0], 10),
+		r,
 
-		g: Number.parseInt(values[1], 10),
+		g,
 
-		b: Number.parseInt(values[2], 10),
+		b,
 
-		a: values.length > 3
-			? Number.parseFloat(values[3])
-			: 1,
+		a,
 	});
 };
 
-const hslToColor: (color: string) => Color = (color) => {
-	const matcher = color.indexOf('(');
+const hslToColor: (color: string) => Color | undefined = (color) => {
+	const values = parseColorFunctionValues(color, /^hsla?\((.*)\)$/);
 
-	if (matcher === -1) {
-		throw new Error(`The color '${color}' is illegal hsl color`);
+	if (values == null) {
+		return;
 	}
 
-	const values = color.substring(matcher + 1, color.length - 1).split(',');
+	const h = parseNumberToken(values[0]);
 
-	if (values.length < 3) {
-		throw new Error(`The color '${color}' is illegal hsl color`);
+	const s = parsePercentNumberToken(values[1]);
+
+	const l = parsePercentNumberToken(values[2]);
+
+	const a = values.length > 3
+		? parseNumberToken(values[3])
+		: 1;
+
+	if (h == null || s == null || l == null || a == null) {
+		return;
 	}
 
 	return HslColor.make({
-		h: Number.parseInt(values[0], 10),
+		h,
 
-		s: Number.parseFloat(values[1]),
+		s,
 
-		l: Number.parseFloat(values[2]),
+		l,
 
-		a: values.length > 3
-			? Number.parseFloat(values[3])
-			: 1,
+		a,
 	});
 };
 
-const hsvToColor: (color: string) => Color = (color) => {
-	const matcher = color.indexOf('(');
+const hsvToColor: (color: string) => Color | undefined = (color) => {
+	const values = parseColorFunctionValues(color, /^hsva?\((.*)\)$/);
 
-	if (matcher === -1) {
-		throw new Error(`The color '${color}' is illegal hsv color`);
+	if (values == null) {
+		return;
 	}
 
-	const values = color.substring(matcher + 1, color.length - 1).split(',');
+	const h = parseNumberToken(values[0]);
 
-	if (values.length < 3) {
-		throw new Error(`The color '${color}' is illegal hsv color`);
+	const s = parsePercentNumberToken(values[1]);
+
+	const v = parsePercentNumberToken(values[2]);
+
+	const a = values.length > 3
+		? parseNumberToken(values[3])
+		: 1;
+
+	if (h == null || s == null || v == null || a == null) {
+		return;
 	}
 
 	return HsvColor.make({
-		h: Number.parseInt(values[0], 10),
+		h,
 
-		s: Number.parseFloat(values[1]),
+		s,
 
-		v: Number.parseFloat(values[2]),
+		v,
 
-		a: values.length > 3
-			? Number.parseFloat(values[3])
-			: 1,
+		a,
 	});
 };
 
