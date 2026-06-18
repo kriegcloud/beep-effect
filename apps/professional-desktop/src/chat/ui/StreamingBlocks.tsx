@@ -13,11 +13,11 @@
  */
 "use client";
 
-import type { TableBlock } from "@beep/agents-domain/values/AssistantContent";
 import { AssistantBlock, InlineNode } from "@beep/agents-domain/values/AssistantContent";
 import { MermaidView, YouTubeEmbed } from "@beep/editor";
 import { A, O } from "@beep/utils";
 import { Hash, MutableHashMap } from "effect";
+import type { TableBlock } from "@beep/agents-domain/values/AssistantContent";
 import type { JSX, ReactNode } from "react";
 
 /**

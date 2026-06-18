@@ -103,10 +103,8 @@ const readFileText = Effect.fn("YeetFallowFeedback.readFileText")(function* (
  * @example
  * ```ts
  * import { FallowFeedbackAllowedRoot } from "@beep/repo-cli/commands/Yeet/internal/FallowFeedback"
- *
  * console.log(FallowFeedbackAllowedRoot.key)
  * ```
- *
  * @category guards
  * @since 0.0.0
  */
@@ -126,14 +124,14 @@ export const FallowFeedbackAllowedRoot: Context.Reference<O.Option<string>> = Co
  * The symlink/traversal protection of {@link resolvePathWithinRoot} is preserved
  * — any candidate that escapes the supplied root is still rejected.
  *
+ * @param root - Absolute directory the advisory feedback reader/writer may resolve paths within.
+ * @returns A layer that sets {@link FallowFeedbackAllowedRoot} to the supplied root.
  * @example
  * ```ts
  * import { layerFallowFeedbackAllowedRoot } from "@beep/repo-cli/commands/Yeet/internal/FallowFeedback"
- *
  * const OutputRoot = layerFallowFeedbackAllowedRoot("/tmp/fallow-output")
  * console.log(OutputRoot)
  * ```
- *
  * @category guards
  * @since 0.0.0
  */

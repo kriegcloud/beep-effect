@@ -28,9 +28,9 @@ import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual, flow } from "effect/Function";
 import * as O from "effect/Option";
-import type { PlatformError } from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { PlatformError } from "effect/PlatformError";
 
 const $I = $FileProcessingId.create("PathSafety");
 
@@ -340,10 +340,7 @@ const canonicalizeExisting: (
   absolute: string
 ) => Effect.Effect<string, PlatformError> = Effect.fnUntraced(function* (fs, path, absolute) {
   const tryResolve = (target: string): Effect.Effect<O.Option<string>, never> =>
-    fs.realPath(target).pipe(
-      Effect.map(O.some),
-      Effect.orElseSucceed(O.none<string>)
-    );
+    fs.realPath(target).pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>));
 
   let current = absolute;
   let suffix: ReadonlyArray<string> = A.empty<string>();

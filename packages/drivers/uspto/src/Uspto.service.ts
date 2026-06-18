@@ -16,11 +16,11 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import type { HttpClientResponse } from "effect/unstable/http/HttpClientResponse";
-import type { UsptoConfigInput } from "./Uspto.config.ts";
 import { USPTO_API_URL } from "./Uspto.config.ts";
 import { UsptoError } from "./Uspto.errors.ts";
 import { UsptoApplicationMetadata, UsptoContinuity, UsptoDocumentReference } from "./Uspto.models.ts";
+import type { HttpClientResponse } from "effect/unstable/http/HttpClientResponse";
+import type { UsptoConfigInput } from "./Uspto.config.ts";
 
 const $I = $UsptoId.create("Uspto.service");
 

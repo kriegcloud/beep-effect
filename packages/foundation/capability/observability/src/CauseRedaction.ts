@@ -36,8 +36,8 @@ import { Cause, Effect, flow, Result } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { CauseSummary } from "./CauseDiagnostics.ts";
 import { CauseClassification, summarizeCause } from "./CauseDiagnostics.ts";
+import type { CauseSummary } from "./CauseDiagnostics.ts";
 
 const $I = $ObservabilityId.create("CauseRedaction");
 

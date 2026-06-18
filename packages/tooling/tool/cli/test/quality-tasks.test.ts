@@ -702,7 +702,6 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
-      "lint:reuse-inventory",
       "lint:typos",
     ]);
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
@@ -730,19 +729,9 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
-      "lint:reuse-inventory",
       "lint:typos",
     ]);
     expect(steps.find((step) => step.label === "lint:jsdoc")?.args).toEqual(["eslint", ".", "--max-warnings=0"]);
-    expect(steps.find((step) => step.label === "lint:reuse-inventory")?.args).toEqual([
-      "run",
-      "beep",
-      "reuse",
-      "inventory",
-      "--scope",
-      "packages/tooling/tool/cli,packages/tooling/library/repo-utils",
-      "--json",
-    ]);
   });
 
   it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
