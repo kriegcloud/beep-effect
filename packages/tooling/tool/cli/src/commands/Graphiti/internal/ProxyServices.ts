@@ -9,6 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import {
+  Chunk,
   Clock,
   Context,
   Deferred,
@@ -466,6 +467,20 @@ const parseContentLength = (request: HttpServerRequest.HttpServerRequest): O.Opt
     })
   );
 
+// Concatenate the bounded set of collected chunks into a single contiguous
+// buffer. Only invoked once the running total is known to be within the cap, so
+// the destination allocation is bounded by `maxBodyBytes`.
+const concatChunkedBody = (chunks: Chunk.Chunk<Uint8Array>, totalBytes: number): Uint8Array => {
+  const collected = Chunk.toReadonlyArray(chunks);
+  const buffer = new Uint8Array(totalBytes);
+  const writeChunk = (offset: number, chunk: Uint8Array): number => {
+    buffer.set(chunk, offset);
+    return offset + chunk.length;
+  };
+  A.reduce(collected, 0, writeChunk);
+  return buffer;
+};
+
 const readRequestBodyBytes: (
   request: HttpServerRequest.HttpServerRequest,
   maxBodyBytes: number
@@ -481,24 +496,81 @@ const readRequestBodyBytes: (
     return { _tag: "Oversized", declaredBytes };
   }
 
-  const requestBodyResult = yield* request.arrayBuffer.pipe(
-    Effect.map((buffer) => new Uint8Array(buffer)),
+  // Bounded streaming read: track a running total as chunks arrive and stop the
+  // stream as soon as the total crosses the cap. A client that omits or
+  // understates Content-Length (chunked upload) can no longer force the proxy to
+  // buffer the whole body before the size check runs; `takeUntil` keeps only the
+  // chunk that pushes past the cap and then halts, so peak memory stays bounded
+  // to ~maxBodyBytes plus a single trailing chunk.
+  const chunksRef = yield* Ref.make(Chunk.empty<Uint8Array>());
+  const totalRef = yield* Ref.make(0);
+
+  const boundedBody = request.stream.pipe(
+    Stream.mapAccum(
+      () => 0,
+      (runningTotal, chunk): readonly [number, ReadonlyArray<readonly [Uint8Array, number]>] => {
+        const nextTotal = runningTotal + chunk.length;
+        return [nextTotal, [[chunk, nextTotal]]];
+      }
+    ),
+    Stream.takeUntil(([, runningTotal]) => runningTotal > maxBodyBytes)
+  );
+
+  const drainResult = yield* boundedBody.pipe(
+    Stream.runForEach(
+      Effect.fnUntraced(function* ([chunk, runningTotal]) {
+        yield* Ref.update(chunksRef, (chunks) => Chunk.append(chunks, chunk));
+        yield* Ref.set(totalRef, runningTotal);
+      })
+    ),
     Effect.result
   );
 
-  if (Result.isFailure(requestBodyResult)) {
-    return { _tag: "ReadError", cause: requestBodyResult.failure };
+  if (Result.isFailure(drainResult)) {
+    return { _tag: "ReadError", cause: drainResult.failure };
   }
 
-  // Defense-in-depth: enforce the cap against the actually buffered length in
-  // case Content-Length is absent or understated.
-  const bytes = requestBodyResult.success;
-  if (bytes.length > maxBodyBytes) {
+  const total = yield* Ref.get(totalRef);
+  if (total > maxBodyBytes) {
+    // Drop the collected chunks so the oversized body is not retained.
+    yield* Ref.set(chunksRef, Chunk.empty<Uint8Array>());
     return { _tag: "Oversized", declaredBytes };
   }
 
-  return { _tag: "Body", bodyBytes: O.some(bytes) };
+  const chunks = yield* Ref.get(chunksRef);
+  return { _tag: "Body", bodyBytes: O.some(concatChunkedBody(chunks, total)) };
 });
+
+/**
+ * Tagged outcome of a bounded request-body read for testing assertions.
+ *
+ * @category testing
+ * @since 0.0.0
+ */
+export type RequestBodyOutcomeForTesting = RequestBodyOutcome;
+
+/**
+ * Read a request body under the configured cap using a bounded streaming read.
+ *
+ * Exposed for tests: a client that omits or understates `Content-Length`
+ * (chunked upload) is rejected as `Oversized` without buffering the entire body,
+ * so peak memory stays bounded to roughly `maxBodyBytes` plus one trailing
+ * chunk.
+ *
+ * @param request - Inbound proxied HTTP request.
+ * @param maxBodyBytes - Maximum allowed body size in bytes.
+ * @returns Effect producing the bounded request-body outcome.
+ * @example
+ * ```ts
+ * console.log("readRequestBodyBytesForTesting")
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const readRequestBodyBytesForTesting: (
+  request: HttpServerRequest.HttpServerRequest,
+  maxBodyBytes: number
+) => Effect.Effect<RequestBodyOutcome> = readRequestBodyBytes;
 
 const isFastMcpRequestEnvelope = (envelope: GraphitiMcpJsonRpcRequest): boolean =>
   isGraphitiProxyFastMcpMethod(envelope.method) ||

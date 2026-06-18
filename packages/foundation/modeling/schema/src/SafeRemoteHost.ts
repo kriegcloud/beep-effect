@@ -1,19 +1,34 @@
 /**
  * Shared SSRF guard for outbound HTTP(S) requests.
  *
- * Blocks requests whose target hostname resolves to the local host or to
- * private/internal network space before any `HttpClient` request is issued.
- * This bounds the SSRF surface of drivers that accept attacker-influenced URLs
- * (USPTO, Box, the NLP MCP dataset loaders, and friends): a prompt-injected or
- * malicious caller must not be able to reach loopback services, link-local
- * addresses, RFC1918/ULA private ranges, or the cloud metadata endpoint
- * (`169.254.169.254`).
+ * Classifies the *literal* hostname or IP of a target URL before any
+ * `HttpClient` request is issued and rejects loopback, link-local, RFC1918/ULA
+ * private, and cloud-metadata (`169.254.169.254`) targets. This bounds the SSRF
+ * surface of drivers that accept attacker-influenced URLs (USPTO, Box, the NLP
+ * MCP dataset loaders, and friends): a prompt-injected or malicious caller must
+ * not be able to reach those ranges via a literal address.
  *
  * The module exposes a pure boolean predicate ({@link isBlockedRemoteHost}) and
  * two fail-closed Effect assertions ({@link assertAllowedRemoteHost} and
  * {@link assertAllowedRemoteUrl}) that reject with a typed
  * {@link BlockedHostError}. An optional allowlist permits explicitly trusted
  * hosts (matched case-insensitively against the normalized hostname).
+ *
+ * @remarks
+ * By default the guard only inspects the literal hostname/IP and does **not**
+ * perform DNS resolution: a public DNS name that resolves to `127.0.0.1` or
+ * `169.254.169.254` is not caught unless a resolver is supplied. To close that
+ * gap, callers may pass `options.resolve` to {@link assertAllowedRemoteHost} /
+ * {@link assertAllowedRemoteUrl}; every resolved A/AAAA address is then run
+ * through the same internal-range classifier and the request is rejected if any
+ * resolved address is internal.
+ *
+ * Resolution is opt-in by injection so this foundation schema package stays free
+ * of direct `node:dns` I/O (driver packages provide the resolver). Even with a
+ * resolver, a DNS-rebinding attacker can return a public address to this guard
+ * and an internal address to the subsequent connection (a TOCTOU window):
+ * eliminating that residual risk requires pinning the resolved IP at the HTTP
+ * client connection layer, which is out of scope for this schema-level guard.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -33,8 +48,16 @@ const $I = $SchemaId.create("SafeRemoteHost");
 
 // Options accepted by the SSRF guard predicate and assertions: an optional
 // `allowlist` of hostnames permitted even when they resolve to internal space
-// (matched case-insensitively against the normalized hostname). Inlined at each
-// call site rather than exported as a pure-data interface, per schema-first.
+// (matched case-insensitively against the normalized hostname), plus an optional
+// `resolve` hook injected by callers to resolve a hostname to its A/AAAA
+// addresses for post-resolution classification. Inlined at each call site rather
+// than exported as a pure-data interface, per schema-first.
+
+// Opt-in DNS resolver: a hostname-to-addresses Effect supplied by driver
+// packages so this foundation schema stays free of direct `node:dns` I/O. The
+// resolver must surface a `BlockedHostError` (fail-closed) when resolution
+// fails, so the guard never proceeds on a name it could not evaluate.
+type RemoteHostResolver = (hostname: string) => Effect.Effect<ReadonlyArray<string>, BlockedHostError>;
 
 /**
  * Typed failure raised when a hostname or URL targets internal network space
@@ -143,6 +166,48 @@ const isPrivate172 = (host: string): boolean =>
   );
 
 /**
+ * Resolve a hostname through the injected resolver and reject if ANY resolved
+ * A/AAAA address classifies as internal network space.
+ *
+ * Skipped entirely when no resolver is supplied (back-compat: literal-host
+ * classification only) or when the literal host is allowlisted (an explicit
+ * operator trust decision overrides post-resolution blocking). Resolved
+ * addresses are normalized before classification so IPv6 forms match the same
+ * ranges as the literal-host path.
+ *
+ * @since 0.0.0
+ */
+const assertResolvedAddressesAllowed: (
+  hostname: string,
+  url: O.Option<string>,
+  options: {
+    readonly allowlist?: ReadonlyArray<string> | undefined;
+    readonly resolve?: RemoteHostResolver | undefined;
+  }
+) => Effect.Effect<void, BlockedHostError> = Effect.fnUntraced(function* (hostname, url, options) {
+  const host = normalizeHost(hostname);
+  // No resolver -> literal-host classification only (back-compat). Allowlisted
+  // literal hosts are explicitly trusted and skip resolution-based blocking.
+  if (options.resolve === undefined || isAllowlisted(host, options.allowlist)) {
+    return;
+  }
+  const addresses = yield* options.resolve(hostname);
+  const internal = pipe(
+    addresses,
+    A.map(normalizeHost),
+    A.findFirst((address) => isInternalHost(address))
+  );
+  if (O.isSome(internal)) {
+    return yield* BlockedHostError.make({
+      host: internal.value,
+      url,
+      message: `Refusing to reach ${host}: it resolves to a loopback, link-local, private, or metadata address: ${internal.value}`,
+      cause: O.none(),
+    });
+  }
+});
+
+/**
  * Report whether a hostname should be blocked as loopback, link-local,
  * private (RFC1918/ULA), or a cloud metadata endpoint.
  *
@@ -177,8 +242,15 @@ export const isBlockedRemoteHost = (
  * Fail-closed assertion that a hostname does not target internal network space.
  *
  * Succeeds with `void` when the host is allowed; fails with a typed
- * {@link BlockedHostError} when the host resolves to loopback, link-local,
- * private, or cloud-metadata space and is not allowlisted.
+ * {@link BlockedHostError} when the literal host classifies as loopback,
+ * link-local, private, or cloud-metadata space and is not allowlisted.
+ *
+ * When `options.resolve` is supplied, the hostname is additionally resolved to
+ * its A/AAAA addresses and the request is rejected if **any** resolved address
+ * classifies as internal — catching public DNS names that point at internal IPs.
+ * Resolution is skipped (literal-host classification only) when no resolver is
+ * supplied or when the literal host is allowlisted. See the module
+ * `@remarks` for the residual DNS-rebinding TOCTOU limitation.
  *
  * @example
  * ```ts
@@ -198,16 +270,23 @@ export const isBlockedRemoteHost = (
 export const assertAllowedRemoteHost: {
   (options?: {
     readonly allowlist?: ReadonlyArray<string> | undefined;
+    readonly resolve?: RemoteHostResolver | undefined;
   }): (hostname: string) => Effect.Effect<void, BlockedHostError>;
   (
     hostname: string,
-    options?: { readonly allowlist?: ReadonlyArray<string> | undefined }
+    options?: {
+      readonly allowlist?: ReadonlyArray<string> | undefined;
+      readonly resolve?: RemoteHostResolver | undefined;
+    }
   ): Effect.Effect<void, BlockedHostError>;
 } = dual(
   (args) => P.isString(args[0]),
   Effect.fn("SafeRemoteHost.assertAllowedRemoteHost")(function* (
     hostname: string,
-    options: { readonly allowlist?: ReadonlyArray<string> | undefined } = {}
+    options: {
+      readonly allowlist?: ReadonlyArray<string> | undefined;
+      readonly resolve?: RemoteHostResolver | undefined;
+    } = {}
   ) {
     const host = normalizeHost(hostname);
     if (isBlockedRemoteHost(hostname, options)) {
@@ -218,6 +297,7 @@ export const assertAllowedRemoteHost: {
         cause: O.none(),
       });
     }
+    yield* assertResolvedAddressesAllowed(hostname, O.none(), options);
   })
 );
 

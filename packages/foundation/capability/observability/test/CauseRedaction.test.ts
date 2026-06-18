@@ -36,6 +36,21 @@ describe("CauseRedaction", () => {
     expect(safe.fingerprint.length).toBeGreaterThan(0);
   });
 
+  it("sanitizes the message-derived fingerprint so secrets never leak through correlation ids", () => {
+    const safe = redactCause(Cause.fail(new Error("auth failed with token sk-EXAMPLEKEY00")));
+    expect(safe.message).not.toContain("sk-EXAMPLEKEY00");
+    expect(safe.fingerprint).not.toContain("sk-EXAMPLEKEY00");
+    expect(safe.fingerprint).toContain("[REDACTED]");
+  });
+
+  it("collapses structurally identical secrets to the same redacted fingerprint", () => {
+    const first = redactCause(Cause.fail(new Error("Authorization: Bearer aaaaaaaaaaaaaaaa")));
+    const second = redactCause(Cause.fail(new Error("Authorization: Bearer bbbbbbbbbbbbbbbb")));
+    expect(first.fingerprint).not.toContain("aaaaaaaaaaaaaaaa");
+    expect(second.fingerprint).not.toContain("bbbbbbbbbbbbbbbb");
+    expect(first.fingerprint).toBe(second.fingerprint);
+  });
+
   it("drops all internal detail on the client channel", () => {
     const safe = redactCauseForClient(Cause.die("internal invariant /home/ada broke"));
     expect(safe.tag).toBe("defect");

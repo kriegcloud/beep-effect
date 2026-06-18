@@ -267,8 +267,18 @@ export const isUrl = (location: string): boolean =>
  * network space. This bounds the SSRF surface of the URL-backed loaders: the
  * `location` is attacker-controllable through the MCP tool parameters, so a
  * prompt-injected agent must not be able to reach loopback services, link-local
- * addresses, or the cloud metadata endpoint (`169.254.169.254`).
+ * addresses, RFC1918/ULA private network space, or the cloud metadata endpoint
+ * (`169.254.169.254`).
  */
+const isPrivate172 = (host: string): boolean =>
+  pipe(
+    Str.match(/^172\.(\d{1,3})\./)(host),
+    O.flatMap(A.get(1)),
+    O.map((octet) => Number.parseInt(octet, 10)),
+    O.filter((n) => !Number.isNaN(n)),
+    O.exists((n) => n >= 16 && n <= 31)
+  );
+
 const isBlockedRemoteHost = (hostname: string): boolean => {
   const host = pipe(Str.toLowerCase(hostname), Str.replace(/^\[|\]$/g, ""));
   // SSRF guard duplicated with @beep/schema SafeRemoteHost.isInternalHost by
@@ -289,7 +299,10 @@ const isBlockedRemoteHost = (hostname: string): boolean => {
     Str.startsWith("::ffff:a9fe:")(host) ||
     Str.startsWith("fe80:")(host) ||
     Str.startsWith("fc")(host) ||
-    Str.startsWith("fd")(host)
+    Str.startsWith("fd")(host) ||
+    Str.startsWith("10.")(host) ||
+    Str.startsWith("192.168.")(host) ||
+    isPrivate172(host)
   );
 };
 

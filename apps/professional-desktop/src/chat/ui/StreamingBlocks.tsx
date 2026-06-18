@@ -15,18 +15,32 @@
 
 import { AssistantBlock, InlineNode } from "@beep/agents-domain/values/AssistantContent";
 import { MermaidView, YouTubeEmbed } from "@beep/editor";
-import { A, O } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { Hash, MutableHashMap } from "effect";
 import type { TableBlock } from "@beep/agents-domain/values/AssistantContent";
 import type { JSX, ReactNode } from "react";
 
 /**
- * Collapses a content-derived render string into a fixed-length, collision-
- * resistant token. Assistant content is attacker-influenceable and unbounded
- * (a single code/Mermaid block can be megabytes), so the raw serialized key is
- * never used directly as a React key — only this bounded hash is.
+ * Upper bound on how many leading characters of untrusted content are ever
+ * materialized or hashed for keying. Assistant content is attacker-influenceable
+ * and unbounded (a single code/Mermaid block can be megabytes); capping the
+ * sampled prefix keeps every key derivation O(KEY_SAMPLE_LIMIT) instead of
+ * O(content) on each streaming re-render.
  */
-const boundedKey = (raw: string): string => Hash.string(raw).toString(36);
+const KEY_SAMPLE_LIMIT = 4096;
+
+/**
+ * Collapses a content-derived render string into a fixed-length, collision-
+ * resistant token. The raw serialized key is never hashed whole: only a bounded
+ * leading sample feeds {@link Hash.string}, and the full length is appended so
+ * distinct content sharing the same prefix still yields distinct keys. This
+ * caps the per-render hashing work so untrusted content cannot force large
+ * string materialization.
+ */
+export const boundedKey = (raw: string): string => {
+  const sample = Str.length(raw) > KEY_SAMPLE_LIMIT ? Str.takeLeft(raw, KEY_SAMPLE_LIMIT) : raw;
+  return `${Hash.string(sample).toString(36)}-${Str.length(raw).toString(36)}`;
+};
 
 /**
  * Computes occurrence-disambiguated, length-bounded keys for an entire list in
@@ -34,7 +48,7 @@ const boundedKey = (raw: string): string => Hash.string(raw).toString(36);
  * `renderKey` for every earlier candidate (O(n^2) over untrusted content); a
  * running `MutableHashMap` count keeps this linear and the emitted keys bounded.
  */
-const stableOccurrenceKeys = <Item,>(
+export const stableOccurrenceKeys = <Item,>(
   items: ReadonlyArray<Item>,
   renderKey: (item: Item) => string
 ): ReadonlyArray<string> => {
@@ -62,7 +76,7 @@ const tableCellRenderKey = (cell: TableBlock["rows"][number]["cells"][number]): 
 const tableRowRenderKey = (row: TableBlock["rows"][number]): string =>
   `row:${A.join(A.map(row.cells, tableCellRenderKey), "|")}`;
 
-const blockRenderKey = (block: AssistantBlock): string =>
+export const blockRenderKey = (block: AssistantBlock): string =>
   AssistantBlock.match(block, {
     paragraph: (b) => `paragraph:${inlinesRenderKey(b.children)}`,
     heading: (b) => `heading:${b.level}:${inlinesRenderKey(b.children)}`,
@@ -72,7 +86,11 @@ const blockRenderKey = (block: AssistantBlock): string =>
         A.map(b.items, (item) => inlinesRenderKey(item.children)),
         "|"
       )}`,
-    code: (b) => `code:${b.language ?? ""}:${b.code}`,
+    // Code blocks are the megabyte offender: never materialize the full body
+    // into the key. Length + a bounded leading sample disambiguates stably
+    // without copying the whole (possibly attacker-sized) string.
+    code: (b) =>
+      `code:${b.language ?? ""}:${Str.length(b.code).toString(36)}:${Str.takeLeft(b.code, KEY_SAMPLE_LIMIT)}`,
     table: (b) => `table:${b.headerRow === true ? "header" : "body"}:${A.join(A.map(b.rows, tableRowRenderKey), "|")}`,
     youtube: (b) => `youtube:${b.videoId}`,
   });

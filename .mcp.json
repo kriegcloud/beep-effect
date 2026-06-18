@@ -35,7 +35,7 @@
       "url": "http://127.0.0.1:64542/stream",
       "type": "http",
       "headers": {
-        "IJ_MCP_SERVER_PROJECT_PATH": "<REPO_ROOT>"
+        "IJ_MCP_SERVER_PROJECT_PATH": "${PWD}"
       }
     }
   }

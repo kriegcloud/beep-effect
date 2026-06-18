@@ -22,7 +22,7 @@ Search public export declarations across all package sources:
 
 ```sh
 rg -n "export (const|function|class|type|interface) .*<symbol-or-intent>" \
-  packages --glob '**/src/**/*.ts' --glob '!**/*.test.ts'
+  packages --glob '**/src/**/*.{ts,tsx}' --glob '!**/*.test.ts' --glob '!**/*.test.tsx'
 ```
 
 Package barrels (`packages/*/*/*/src/index.ts`) list the public surface of each
@@ -36,7 +36,7 @@ For an intent-based search (you know what it does, not its name), search bodies
 and JSDoc:
 
 ```sh
-rg -in "<concept words>" packages --glob '**/src/**/*.ts' --glob '!**/*.test.ts'
+rg -in "<concept words>" packages --glob '**/src/**/*.{ts,tsx}' --glob '!**/*.test.ts' --glob '!**/*.test.tsx'
 ```
 
 ## Deciding Canonicality
@@ -52,7 +52,7 @@ into its `src/` internals.
 If a needed concept sounds generic or repo-wide, search first. For example:
 
 ```sh
-rg -in "unknown record|UnknownRecord" packages --glob '**/src/**/*.ts'
+rg -in "unknown record|UnknownRecord" packages --glob '**/src/**/*.{ts,tsx}'
 ```
 
 Prefer importing a discovered canonical export over redefining a local

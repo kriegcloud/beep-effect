@@ -323,7 +323,12 @@ export const redactCauseSummary = (
 
   return RedactedCause.make({
     tag: summary.classification,
-    fingerprint: summary.fingerprint.value,
+    // The fingerprint is message-derived (see CauseDiagnostics.fingerprintValue),
+    // so it can carry the same secrets/tokens/home paths as the raw message.
+    // Sanitize it with the unbounded message redactor: secret-shaped values
+    // collapse to the placeholder while the structural fingerprint stays stable
+    // for correlation (same structural error → same redacted fingerprint).
+    fingerprint: sanitizeSensitiveText(summary.fingerprint.value),
     message: redactString(summary.primaryMessage, options.messageLimit),
     detail,
     truncated: messageTruncated || detailTruncated,

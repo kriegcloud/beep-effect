@@ -87,8 +87,13 @@ jobs:
             uses_turbo: "false"
             install_typos: "false"
     env:
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
+      # The verify matrix runs PR-controlled code (turbo build/check/test/docgen),
+      # so the Turbo remote-cache credentials are scoped to push events only —
+      # never exposed to a fork/PR job (CSF-001). PR runs use the local cache,
+      # which also avoids the Vercel remote-cache 429 storms that were
+      # interrupting (SIGINT/exit 130) the Test Unit lane.
+      TURBO_TOKEN: ${{ github.event_name == 'push' && secrets.TURBO_TOKEN || '' }}
+      TURBO_TEAM: ${{ github.event_name == 'push' && (vars.TURBO_TEAM || secrets.TURBO_TEAM) || '' }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
       EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
