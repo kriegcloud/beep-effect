@@ -3,8 +3,8 @@
 ## Status
 
 Lifecycle: `active` — SPEC signed off (via the documented `/goal` launch); **P1
-in progress.** Package scaffolded and the schema-first core + first field set are
-green (typecheck/lint/test).
+complete (green); P2 next.** Package scaffolded; schema-first core + all 17
+fields bound/registered; 16 unit tests + 18 Storybook `play` tests passing.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -41,25 +41,33 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-**P1 Core + simple fields — in progress.** `@beep/form` is scaffolded at
-`packages/foundation/ui-system/form` (family-aware scaffolder; `$FormId`
-registered; root tsconfig + storybook wired; `@tanstack/react-form@1.33.0`
-cataloged). The schema-first core is built and green: `toFormSchema`
-(Standard-Schema validation), `getDefaultFormValues` (`schema.make({})`),
-`toFieldErrors` (issues → `FieldError`), the four `formOptions` builders, the
-`Path` helpers, the `useAppForm` factory, and `Form`/`SubmitButton`. First field
-set bound to `@beep/ui` primitives: Text, Number, Textarea, Checkbox, Switch
-(more landing). 16 `@effect/vitest`-style unit tests + a demo Storybook story
-with a `play` test pass. Remaining P1: the rest of the field inventory + their
-stories/tests, then P2 (dates) and P3 (heavy widgets).
+**P1 Core + fields — complete (green).** `@beep/form` is scaffolded at
+`packages/foundation/ui-system/form` and the schema-first core + full field set
+are built and verified. Core: `toFormSchema` (Standard-Schema validation),
+`getDefaultFormValues` (`schema.make({})`), `toFieldErrors` (issues →
+`FieldError`), the four `formOptions` builders (sync/async slot routing +
+decode-at-submit), `Path` helpers, `FieldOption`, the `useAppForm` factory, and
+`Form`/`SubmitButton`. **17 fields** bound to `@beep/ui` primitives and
+registered: Text, Textarea, Number, Select, NativeSelect, Combobox, Autocomplete,
+MultiSelect, Checkbox, MultiCheckbox, Switch, MultiSwitch, RadioGroup, Slider,
+Toggle, ToggleGroup, OTP. (Standalone `Radio` is intentionally subsumed by
+`RadioGroup` — a single boolean-radio is niche; surface as a follow-up if needed.)
+
+**Next: P2** (port `AdapterEffectDateTime` to effect v4 into `@beep/ui` as a new
+MUI-x date/time family; reconcile its `./schema` into `@beep/schema`; bind
+Date/DateTime/Time fields), then **P3** (heavy widgets), **P4** (full verify),
+**P5** (close).
 
 ## Latest Evidence
 
-- P1 (2026-06-18): `bun run beep:check`, `beep:lint`, `beep:test` green for
-  `@beep/form` (5 test files / 16 tests). Demo story `Form/Demo` with a `play`
-  test. Notable infra fixes: `Path.ts` made envelope-clean (dropped `@beep/types`
-  for `as unknown as`); test/stories tsconfigs given project references so they
-  consume `@beep/ui` `.d.ts` instead of re-typechecking its transitive deps.
+- P1 (2026-06-18) — green: `bun run beep:check`, `beep:lint`, `beep:test` pass
+  for `@beep/form` (5 unit-test files / 16 tests). **All 18 Storybook stories
+  (17 fields + `Form/Demo`) pass their `play` tests in headless chromium** via
+  `vitest --config vitest.storybook.config.ts`. Branch synced with `origin/main`
+  (0 behind). Notable infra fixes: `Path.ts` made envelope-clean (dropped
+  `@beep/types`); test/stories tsconfigs given project references so they consume
+  `@beep/ui` `.d.ts` instead of re-typechecking its transitive deps (the phosphor
+  resolution issue).
 - P0 research artifacts under [`research/`](./research/) (dated 2026-06-18):
   codebase grounding, widget-library selections, core best-practice notes, and
   the design-review note.
