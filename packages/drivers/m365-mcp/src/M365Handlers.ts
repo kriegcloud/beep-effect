@@ -10,6 +10,13 @@
  * @since 0.1.0
  */
 
+import { M365 } from "@beep/m365";
+import { AiToolError as AiToolErrorSchema } from "@beep/nlp/Tools";
+import { Effect, Match } from "effect";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
+import * as O from "effect/Option";
+import { M365Toolkit } from "./M365Tools.ts";
 import type {
   M365DeltaDriveItemsRequest,
   M365DownloadDriveItemContentRequest,
@@ -21,15 +28,8 @@ import type {
   M365ListMessagesRequest,
   M365ListSitesRequest,
 } from "@beep/m365";
-import { M365 } from "@beep/m365";
-import { AiToolError as AiToolErrorSchema } from "@beep/nlp/Tools";
-import { Effect, Match } from "effect";
-import * as A from "effect/Array";
-import { pipe } from "effect/Function";
 import type * as Layer from "effect/Layer";
-import * as O from "effect/Option";
 import type * as Tool from "effect/unstable/ai/Tool";
-import { M365Toolkit } from "./M365Tools.ts";
 
 type AiToolErrorValue = typeof AiToolErrorSchema.Type;
 

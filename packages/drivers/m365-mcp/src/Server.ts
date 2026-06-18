@@ -6,13 +6,13 @@
  */
 
 import { $M365McpId } from "@beep/identity/packages";
-import type { M365 } from "@beep/m365";
 import { Layer } from "effect";
 import * as S from "effect/Schema";
-import type { Stdio } from "effect/Stdio";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import { M365ToolkitHandlersLive } from "./M365Handlers.ts";
 import { M365Toolkit } from "./M365Tools.ts";
+import type { M365 } from "@beep/m365";
+import type { Stdio } from "effect/Stdio";
 
 const $I = $M365McpId.create("Server");
 
