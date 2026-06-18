@@ -24,7 +24,19 @@
  * @since 0.1.0
  */
 export * from "./M365Handlers.ts";
+/**
+ * Schema-first Microsoft 365 MCP tool declarations.
+ *
+ * @category re-exports
+ * @since 0.1.0
+ */
 export * from "./M365Tools.ts";
+/**
+ * Microsoft 365 MCP server configuration and layer constructors.
+ *
+ * @category re-exports
+ * @since 0.1.0
+ */
 export * from "./Server.ts";
 
 /**
