@@ -56,6 +56,7 @@ jobs:
   release-desktop:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    environment: professional-desktop-release
     timeout-minutes: 60
     env:
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
@@ -83,24 +84,25 @@ jobs:
             rust-target: x86_64-pc-windows-msvc
             args: ""
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.ref }}
-
       - name: Validate release tag
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [[ ! "$RELEASE_DESKTOP_TAG" =~ ^professional-desktop-v.+$ ]]; then
             echo "::error::Release tag must match professional-desktop-v*, got '$RELEASE_DESKTOP_TAG'"
             exit 1
           fi
-          if ! git rev-parse --verify --quiet "refs/tags/${RELEASE_DESKTOP_TAG}" >/dev/null; then
+          if ! gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_DESKTOP_TAG}" >/dev/null; then
             echo "::error::Release tag '${RELEASE_DESKTOP_TAG}' does not exist. Push the tag before running this workflow."
             exit 1
           fi
-          git checkout --detach "refs/tags/${RELEASE_DESKTOP_TAG}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.version) || github.ref }}
 
       - name: Validate updater signing secret
         shell: bash
@@ -208,7 +210,7 @@ jobs:
           RELEASE_DESKTOP_RESULT: ${{ needs.release-desktop.result }}
         run: |
           if [[ "${RELEASE_DESKTOP_RESULT}" != "success" ]]; then
-            echo "::error::At least one desktop release target failed; keep the draft unpublished."
+            echo "::error title=Desktop release draft incomplete::At least one desktop release target failed. Keep the draft unpublished or delete it before retrying."
             exit 1
           fi
           echo "::notice::All desktop release targets completed successfully. The draft release is ready for manual smoke testing and publication."
