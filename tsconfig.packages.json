@@ -229,9 +229,6 @@
       "path": "packages/tooling/library/ai-sync"
     },
     {
-      "path": "packages/tooling/library/repo-codegraph"
-    },
-    {
       "path": "packages/tooling/library/repo-utils"
     },
     {

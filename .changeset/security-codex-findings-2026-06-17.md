@@ -17,7 +17,6 @@
 "@beep/professional-desktop": patch
 "@beep/rdf": patch
 "@beep/repo-ai-metrics": patch
-"@beep/repo-codegraph": patch
 "@beep/schema": patch
 "@beep/test-utils": patch
 "@beep/ui": patch
@@ -32,7 +31,7 @@ through them:
 
 - `@beep/file-processing/PathSafety` — fail-closed path-traversal guard
   (resolve-within-root, symlink/`..` escape rejection) for local file reads and
-  writes across nlp-mcp, corpus, yeet, image, repo-codegraph, ai-metrics, ffmpeg.
+  writes across nlp-mcp, corpus, yeet, image, ai-metrics, ffmpeg.
 - `@beep/schema` `SafeRemoteHost` — SSRF allowlist (blocks loopback, link-local,
   RFC1918/ULA, and the cloud metadata endpoint) used by the USPTO and Box drivers.
 - `@beep/observability` `CauseRedaction` — bounded, secret-stripping redaction of

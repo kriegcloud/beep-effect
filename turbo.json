@@ -225,20 +225,6 @@
       ],
       "outputs": ["docs/**", "dtslint/**", ".beep/docgen/**"]
     },
-    "repo-exports:shard": {
-      "cache": true,
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!.beep/**",
-        "!docs/**",
-        "$TURBO_ROOT$/packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-        "$TURBO_ROOT$/packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "$TURBO_ROOT$/packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "$TURBO_ROOT$/packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts"
-      ],
-      "outputs": [".beep/repo-exports/**"],
-      "outputLogs": "new-only"
-    },
     "dev": {
       "persistent": true,
       "cache": false,

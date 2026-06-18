@@ -336,12 +336,6 @@
         ]
       },
       {
-        "name": "@beep/repo-codegraph",
-        "patterns": [
-          "packages/tooling/library/repo-codegraph/src/**"
-        ]
-      },
-      {
         "name": "@beep/repo-configs",
         "patterns": [
           "packages/tooling/policy-pack/repo-configs/src/**"
@@ -1433,7 +1427,6 @@
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
           "@beep/repo-cli",
-          "@beep/repo-codegraph",
           "@beep/repo-configs",
           "@beep/repo-docgen",
           "@beep/repo-utils",
@@ -1458,7 +1451,6 @@
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
           "@beep/repo-cli",
-          "@beep/repo-codegraph",
           "@beep/repo-configs",
           "@beep/repo-docgen",
           "@beep/repo-utils",
@@ -1467,23 +1459,6 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/repo-codegraph",
-        "allow": [
-          "@beep/file-processing",
-          "@beep/identity",
-          "@beep/repo-codegraph",
-          "@beep/schema",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/file-processing",
-          "@beep/identity",
-          "@beep/repo-codegraph",
-          "@beep/schema",
           "@beep/utils"
         ]
       },

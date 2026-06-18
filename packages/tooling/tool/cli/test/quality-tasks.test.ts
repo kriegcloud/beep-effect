@@ -1,11 +1,9 @@
 import { fallowCiUploadDiagnosticsForTesting } from "@beep/repo-cli/commands/Quality/FallowQuality.command";
 import {
-  affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
   detectQualityProfileForTesting,
   devQualityStepsForTesting,
   FallowReportFinding,
-  fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
   GithubChecksFallowFeatureMatrix,
   githubCheckLanesForModeForTesting,
@@ -168,12 +166,6 @@ const bunScriptStep = (label: string, source: string) =>
     cwd: process.cwd(),
   });
 
-const repoCliPackage = {
-  absolutePath: "/repo/packages/tooling/tool/cli",
-  name: "@beep/repo-cli",
-  packageJson: { name: "@beep/repo-cli" },
-  path: "packages/tooling/tool/cli",
-};
 type FallowFeatureMatrixRowTuple = readonly [
   featureFamily: "audit" | "dead-code" | "health",
   ciMode: "advisory-artifact" | "blocking-check",
@@ -343,7 +335,6 @@ describe("quality task adapter", () => {
               "build",
               "integration",
               "docgen",
-              "repo-exports",
               "repo-sanity",
               "audit",
               "nix",
@@ -358,39 +349,17 @@ describe("quality task adapter", () => {
     ).toBe(false);
   });
 
-  it("adds surface-only docgen and repo-export checks when requested", () => {
+  it("adds surface-only docgen check when requested", () => {
     const steps = devQualityStepsForTesting("/repo", {
       base: "main",
       head: "feature",
       surface: true,
     });
 
-    expect(A.map(steps, (step) => step.label)).toEqual([
-      "dev:lint",
-      "dev:check",
-      "dev:test",
-      "dev:docgen-local",
-      "dev:repo-exports-catalog",
-    ]);
+    expect(A.map(steps, (step) => step.label)).toEqual(["dev:lint", "dev:check", "dev:test", "dev:docgen-local"]);
     expect(steps[3]).toMatchObject({
       command: "bun",
       args: ["run", "docgen:local", "--", "--base", "main", "--head", "feature", "--parallel=3"],
-      cwd: "/repo",
-    });
-    expect(steps[4]).toMatchObject({
-      command: "bun",
-      args: [
-        "run",
-        "beep",
-        "quality",
-        "repo-exports-catalog",
-        "--affected",
-        "--check",
-        "--base",
-        "main",
-        "--head",
-        "feature",
-      ],
       cwd: "/repo",
     });
   });
@@ -403,14 +372,13 @@ describe("quality task adapter", () => {
       "quality:check",
       "quality:lint",
       "quality:docgen",
-      "quality:repo-exports-catalog-check",
       "quality:test",
     ]);
     expect(A.every(lanes, (lane) => lane.stage === "repo-quality")).toBe(true);
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
     expect(lanes[1]?.step.args).toEqual(["run", "check"]);
     expect(lanes[2]?.step.args).toEqual(["run", "lint"]);
-    expect(lanes[5]?.step.args).toEqual(["run", "test"]);
+    expect(lanes[4]?.step.args).toEqual(["run", "test"]);
   });
 
   it("maps repo-sanity github checks as collector lanes", () => {
@@ -587,40 +555,6 @@ describe("quality task adapter", () => {
         subCategory: "fallow:audit:dead-code",
       }).blocking
     ).toBe(true);
-  });
-
-  it("plans affected repo export checks conservatively", () => {
-    expect(
-      affectedRepoExportsCatalogPlanForTesting(
-        ["packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts"],
-        [repoCliPackage]
-      )
-    ).toMatchObject({
-      aggregateCheck: true,
-      fullCheck: false,
-      packageNames: ["@beep/repo-cli"],
-    });
-
-    expect(affectedRepoExportsCatalogPlanForTesting(["package.json"], [repoCliPackage])).toMatchObject({
-      fullCheck: true,
-    });
-
-    expect(affectedRepoExportsCatalogPlanForTesting(["README.md"], [repoCliPackage])).toMatchObject({
-      aggregateCheck: false,
-      fullCheck: false,
-      packageNames: [],
-    });
-  });
-
-  it("preserves write mode when affected repo export checks escalate", () => {
-    expect(fullRepoExportsCatalogEscalationCommandForTesting(false)).toEqual({
-      args: ["repo-exports:catalog"],
-      label: "quality:repo-exports-catalog",
-    });
-    expect(fullRepoExportsCatalogEscalationCommandForTesting(true)).toEqual({
-      args: ["repo-exports:catalog:check"],
-      label: "quality:repo-exports-catalog-check",
-    });
   });
 
   it("detects explicit quality hardware profiles", () => {

@@ -38,30 +38,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-      "kind": "new-map-set",
-      "reason": "The repo export catalog Quality command internal generator uses native Set and Map collections to mirror parser traversal state deterministically while scanning ts-morph workspace metadata.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-      "kind": "typeof-runtime",
-      "reason": "The repo export catalog Quality command internal generator decodes untyped JSONC and ts-morph metadata where simple runtime guards keep generated catalog output deterministic.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
-      "kind": "object-method",
-      "reason": "The repo export catalog Quality command internal generator renders aggregate maps from plain JSON-compatible records and uses Object entries only at the generated-report boundary.",
-      "owner": "@beep/repo-cli",
-      "issue": "REPO-CLI-EXPORT-CATALOG-QUALITY-INTERNAL"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/drivers/box/scripts/generate.ts",
       "kind": "new-map-set",
       "reason": "The Box OpenAPI generator script uses native Set and Map collections for deterministic one-shot code generation indexes before emitting package source.",
@@ -83,14 +59,6 @@ export const ALLOWLIST_SNAPSHOT = {
       "reason": "The React chart hook throws a native Error for a missing provider context, matching React hook invariant conventions rather than typed Effect error flow.",
       "owner": "@beep/ui-system",
       "issue": "UI-REACT-HOOK-INVARIANT-ERROR"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/tooling/library/repo-codegraph/src/RepoCodegraphLookup.ts",
-      "kind": "new-map-set",
-      "reason": "Repo codegraph lookup builds native Set indexes for in-memory graph traversal and deduplication over generated catalog data.",
-      "owner": "@beep/repo-codegraph",
-      "issue": "REPO-CODEGRAPH-LOOKUP-NATIVE-SET"
     },
     {
       "rule": "beep-laws/no-native-runtime",

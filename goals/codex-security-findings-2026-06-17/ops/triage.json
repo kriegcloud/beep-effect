@@ -30,376 +30,213 @@
     },
     "L02": {
       "size": 2,
-      "csfs": [
-        "CSF-001",
-        "CSF-022"
-      ],
-      "classes": [
-        "ci-secret-pr-exposure"
-      ]
+      "csfs": ["CSF-001", "CSF-022"],
+      "classes": ["ci-secret-pr-exposure"]
     },
     "L03": {
       "size": 2,
-      "csfs": [
-        "CSF-008",
-        "CSF-051"
-      ],
-      "classes": [
-        "path-traversal-read",
-        "path-traversal-write"
-      ]
+      "csfs": ["CSF-008", "CSF-051"],
+      "classes": ["path-traversal-read", "path-traversal-write"]
     },
     "L04": {
       "size": 2,
-      "csfs": [
-        "CSF-021",
-        "CSF-035"
-      ],
-      "classes": [
-        "leaked-local-path",
-        "unpinned-mcp-command"
-      ]
+      "csfs": ["CSF-021", "CSF-035"],
+      "classes": ["leaked-local-path", "unpinned-mcp-command"]
     },
     "L05": {
       "size": 2,
-      "csfs": [
-        "CSF-023",
-        "CSF-024"
-      ],
-      "classes": [
-        "graphiti-proxy-dos"
-      ]
+      "csfs": ["CSF-023", "CSF-024"],
+      "classes": ["graphiti-proxy-dos"]
     },
     "L06": {
       "size": 2,
-      "csfs": [
-        "CSF-030",
-        "CSF-031"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-030", "CSF-031"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L07": {
       "size": 2,
-      "csfs": [
-        "CSF-033",
-        "CSF-062"
-      ],
-      "classes": [
-        "cli-option-injection"
-      ]
+      "csfs": ["CSF-033", "CSF-062"],
+      "classes": ["cli-option-injection"]
     },
     "L08": {
       "size": 2,
-      "csfs": [
-        "CSF-046",
-        "CSF-047"
-      ],
-      "classes": [
-        "leaked-local-path"
-      ]
+      "csfs": ["CSF-046", "CSF-047"],
+      "classes": ["leaked-local-path"]
     },
     "L09": {
       "size": 1,
-      "csfs": [
-        "CSF-002"
-      ],
-      "classes": [
-        "path-traversal-read"
-      ]
+      "csfs": ["CSF-002"],
+      "classes": ["path-traversal-read"]
     },
     "L10": {
       "size": 1,
-      "csfs": [
-        "CSF-004"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-004"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L11": {
       "size": 1,
-      "csfs": [
-        "CSF-005"
-      ],
-      "classes": [
-        "unsanitized-error-log"
-      ]
+      "csfs": ["CSF-005"],
+      "classes": ["unsanitized-error-log"]
     },
     "L12": {
       "size": 1,
-      "csfs": [
-        "CSF-007"
-      ],
-      "classes": [
-        "ssrf-url-allowlist"
-      ]
+      "csfs": ["CSF-007"],
+      "classes": ["ssrf-url-allowlist"]
     },
     "L13": {
       "size": 1,
-      "csfs": [
-        "CSF-009"
-      ],
-      "classes": [
-        "leaked-local-path"
-      ]
+      "csfs": ["CSF-009"],
+      "classes": ["leaked-local-path"]
     },
     "L14": {
       "size": 1,
-      "csfs": [
-        "CSF-011"
-      ],
-      "classes": [
-        "path-traversal-write"
-      ]
+      "csfs": ["CSF-011"],
+      "classes": ["path-traversal-write"]
     },
     "L15": {
       "size": 1,
-      "csfs": [
-        "CSF-012"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-012"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L16": {
       "size": 1,
-      "csfs": [
-        "CSF-013"
-      ],
-      "classes": [
-        "cli-option-injection"
-      ]
+      "csfs": ["CSF-013"],
+      "classes": ["cli-option-injection"]
     },
     "L17": {
       "size": 1,
-      "csfs": [
-        "CSF-014"
-      ],
-      "classes": [
-        "ssrf-url-allowlist"
-      ]
+      "csfs": ["CSF-014"],
+      "classes": ["ssrf-url-allowlist"]
     },
     "L18": {
       "size": 1,
-      "csfs": [
-        "CSF-015"
-      ],
-      "classes": [
-        "unsanitized-error-log"
-      ]
+      "csfs": ["CSF-015"],
+      "classes": ["unsanitized-error-log"]
     },
     "L19": {
       "size": 1,
-      "csfs": [
-        "CSF-018"
-      ],
-      "classes": [
-        "path-traversal-read"
-      ]
+      "csfs": ["CSF-018"],
+      "classes": ["path-traversal-read"]
     },
     "L20": {
       "size": 1,
-      "csfs": [
-        "CSF-019"
-      ],
-      "classes": [
-        "unsanitized-error-log"
-      ]
+      "csfs": ["CSF-019"],
+      "classes": ["unsanitized-error-log"]
     },
     "L21": {
       "size": 1,
-      "csfs": [
-        "CSF-026"
-      ],
+      "csfs": ["CSF-026"],
       "classes": []
     },
     "L22": {
       "size": 1,
-      "csfs": [
-        "CSF-027"
-      ],
+      "csfs": ["CSF-027"],
       "classes": []
     },
     "L23": {
       "size": 1,
-      "csfs": [
-        "CSF-028"
-      ],
-      "classes": [
-        "leaked-local-path"
-      ]
+      "csfs": ["CSF-028"],
+      "classes": ["leaked-local-path"]
     },
     "L24": {
       "size": 1,
-      "csfs": [
-        "CSF-032"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-032"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L25": {
       "size": 1,
-      "csfs": [
-        "CSF-034"
-      ],
-      "classes": [
-        "path-traversal-read"
-      ]
+      "csfs": ["CSF-034"],
+      "classes": ["path-traversal-read"]
     },
     "L26": {
       "size": 1,
-      "csfs": [
-        "CSF-036"
-      ],
-      "classes": [
-        "unsafe-markup-injection"
-      ]
+      "csfs": ["CSF-036"],
+      "classes": ["unsafe-markup-injection"]
     },
     "L27": {
       "size": 1,
-      "csfs": [
-        "CSF-037"
-      ],
-      "classes": [
-        "insecure-default-csp"
-      ]
+      "csfs": ["CSF-037"],
+      "classes": ["insecure-default-csp"]
     },
     "L28": {
       "size": 1,
-      "csfs": [
-        "CSF-039"
-      ],
-      "classes": [
-        "leaked-local-path"
-      ]
+      "csfs": ["CSF-039"],
+      "classes": ["leaked-local-path"]
     },
     "L29": {
       "size": 1,
-      "csfs": [
-        "CSF-040"
-      ],
+      "csfs": ["CSF-040"],
       "classes": []
     },
     "L30": {
       "size": 1,
-      "csfs": [
-        "CSF-042"
-      ],
-      "classes": [
-        "unsafe-markup-injection"
-      ]
+      "csfs": ["CSF-042"],
+      "classes": ["unsafe-markup-injection"]
     },
     "L31": {
       "size": 1,
-      "csfs": [
-        "CSF-043"
-      ],
+      "csfs": ["CSF-043"],
       "classes": []
     },
     "L32": {
       "size": 1,
-      "csfs": [
-        "CSF-044"
-      ],
+      "csfs": ["CSF-044"],
       "classes": []
     },
     "L33": {
       "size": 1,
-      "csfs": [
-        "CSF-048"
-      ],
-      "classes": [
-        "undeclared-runtime-dep"
-      ]
+      "csfs": ["CSF-048"],
+      "classes": ["undeclared-runtime-dep"]
     },
     "L34": {
       "size": 1,
-      "csfs": [
-        "CSF-050"
-      ],
-      "classes": [
-        "unsafe-markup-injection"
-      ]
+      "csfs": ["CSF-050"],
+      "classes": ["unsafe-markup-injection"]
     },
     "L35": {
       "size": 1,
-      "csfs": [
-        "CSF-055"
-      ],
-      "classes": [
-        "react-key-collision"
-      ]
+      "csfs": ["CSF-055"],
+      "classes": ["react-key-collision"]
     },
     "L36": {
       "size": 1,
-      "csfs": [
-        "CSF-057"
-      ],
+      "csfs": ["CSF-057"],
       "classes": []
     },
     "L37": {
       "size": 1,
-      "csfs": [
-        "CSF-060"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-060"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L38": {
       "size": 1,
-      "csfs": [
-        "CSF-061"
-      ],
-      "classes": [
-        "path-traversal-write"
-      ]
+      "csfs": ["CSF-061"],
+      "classes": ["path-traversal-write"]
     },
     "L39": {
       "size": 1,
-      "csfs": [
-        "CSF-066"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-066"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L40": {
       "size": 1,
-      "csfs": [
-        "CSF-067"
-      ],
-      "classes": [
-        "react-key-collision"
-      ]
+      "csfs": ["CSF-067"],
+      "classes": ["react-key-collision"]
     },
     "L41": {
       "size": 1,
-      "csfs": [
-        "CSF-068"
-      ],
-      "classes": [
-        "unbounded-resource-dos"
-      ]
+      "csfs": ["CSF-068"],
+      "classes": ["unbounded-resource-dos"]
     },
     "L42": {
       "size": 1,
-      "csfs": [
-        "CSF-069"
-      ],
+      "csfs": ["CSF-069"],
       "classes": []
     },
     "L43": {
       "size": 1,
-      "csfs": [
-        "CSF-071"
-      ],
-      "classes": [
-        "path-traversal-write"
-      ]
+      "csfs": ["CSF-071"],
+      "classes": ["path-traversal-write"]
     }
   },
   "serializedChains": [],
@@ -417,9 +254,7 @@
       "lane": "L02",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        ".github/workflows/check.yml"
-      ]
+      "changedFiles": [".github/workflows/check.yml"]
     },
     "CSF-002": {
       "csf": "CSF-002",
@@ -642,9 +477,7 @@
       "lane": "L17",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        "packages/drivers/box/src/Box.streaming.ts"
-      ]
+      "changedFiles": ["packages/drivers/box/src/Box.streaming.ts"]
     },
     "CSF-015": {
       "csf": "CSF-015",
@@ -659,9 +492,7 @@
       "lane": "L18",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        ".claude/skills/yeet/SKILL.md"
-      ]
+      "changedFiles": [".claude/skills/yeet/SKILL.md"]
     },
     "CSF-016": {
       "csf": "CSF-016",
@@ -755,9 +586,7 @@
       "lane": "L04",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        ".mcp.json"
-      ]
+      "changedFiles": [".mcp.json"]
     },
     "CSF-022": {
       "csf": "CSF-022",
@@ -772,9 +601,7 @@
       "lane": "L02",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        ".github/workflows/check.yml"
-      ]
+      "changedFiles": [".github/workflows/check.yml"]
     },
     "CSF-023": {
       "csf": "CSF-023",
@@ -977,13 +804,13 @@
       "codexReason": "Already fixed",
       "verdict": "real",
       "sharedClass": "path-traversal-read",
-      "rationale": "Confirmed real (validated by triage + adversarial check); remediate in P5. Full analysis in private raw.",
+      "rationale": "Confirmed real (validated by triage + adversarial check). Originally patched in P5; subsequently obviated by removal — the entire repo-exports catalog subsystem (the file containing the unvalidated shard-path code) was deleted in the same PR, so the vulnerable code no longer exists.",
       "lane": "L25",
-      "remediationStatus": "fixed (P5)",
-      "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
+      "remediationStatus": "fixed-by-removal (catalog subsystem deleted)",
+      "verificationCommand": "test ! -e packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts (file deleted)",
       "changedFiles": [
-        "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts"
+        "packages/tooling/library/repo-codegraph/ (deleted)",
+        "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts (deleted)"
       ]
     },
     "CSF-035": {
@@ -999,10 +826,7 @@
       "lane": "L04",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        ".mcp.json",
-        ".codex/config.toml"
-      ]
+      "changedFiles": [".mcp.json", ".codex/config.toml"]
     },
     "CSF-036": {
       "csf": "CSF-036",
@@ -1017,9 +841,7 @@
       "lane": "L26",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        "packages/foundation/modeling/rdf/src/Rdf.ts"
-      ]
+      "changedFiles": ["packages/foundation/modeling/rdf/src/Rdf.ts"]
     },
     "CSF-037": {
       "csf": "CSF-037",
@@ -1136,9 +958,7 @@
       "lane": "L31",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        "apps/oip-web/src/content/OipSeo.ts"
-      ]
+      "changedFiles": ["apps/oip-web/src/content/OipSeo.ts"]
     },
     "CSF-044": {
       "csf": "CSF-044",
@@ -1153,9 +973,7 @@
       "lane": "L32",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        "packages/foundation/ui-system/form/src/core/Path.ts"
-      ]
+      "changedFiles": ["packages/foundation/ui-system/form/src/core/Path.ts"]
     },
     "CSF-045": {
       "csf": "CSF-045",
@@ -1420,9 +1238,7 @@
       "lane": "L37",
       "remediationStatus": "fixed (P5)",
       "verificationCommand": "bun run beep yeet verify (full doctrine proof)",
-      "changedFiles": [
-        "packages/tooling/tool/cli/src/bin-main.ts"
-      ]
+      "changedFiles": ["packages/tooling/tool/cli/src/bin-main.ts"]
     },
     "CSF-061": {
       "csf": "CSF-061",

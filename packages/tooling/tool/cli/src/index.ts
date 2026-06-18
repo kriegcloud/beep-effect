@@ -307,21 +307,6 @@ export {
   qualityCommand,
 } from "./commands/Quality/index.js";
 /**
- * Reuse-discovery command group.
- *
- * @category cli-commands
- * @since 0.0.0
- */
-export {
-  /**
-   * Reuse-discovery command group.
-   *
-   * @category cli-commands
-   * @since 0.0.0
-   */
-  reuseCommand,
-} from "./commands/Reuse/index.js";
-/**
  * Root CLI command that composes subcommands.
  *
  * @category cli-commands

@@ -212,12 +212,6 @@
       "@beep/repo-ai-metrics/*": [
         "../../../../packages/tooling/library/ai-metrics/src/*.ts"
       ],
-      "@beep/repo-codegraph": [
-        "../../../../packages/tooling/library/repo-codegraph/src/index.ts"
-      ],
-      "@beep/repo-codegraph/*": [
-        "../../../../packages/tooling/library/repo-codegraph/src/*.ts"
-      ],
       "@beep/repo-configs": [
         "../../../../packages/tooling/policy-pack/repo-configs/src/index.ts"
       ],

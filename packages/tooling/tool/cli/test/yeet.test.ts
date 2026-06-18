@@ -695,14 +695,12 @@ describe("yeet planner", () => {
     ).toEqual([
       "prepare:lint:fix",
       "prepare:docgen",
-      "prepare:repo-exports:catalog",
       "feedback:build",
       "feedback:check",
       "feedback:lint",
       "feedback:test",
     ]);
     expect(findStep(plan.steps, "prepare:docgen").args).toEqual(["run", "docgen"]);
-    expect(findStep(plan.steps, "prepare:repo-exports:catalog").args).toEqual(["run", "repo-exports:catalog"]);
   });
 
   it("uses the shared pre-push proof definition for Yeet parity", () => {
@@ -795,7 +793,7 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["prepare:lint:fix", "prepare:docgen", "prepare:repo-exports:catalog"]);
+    ).toEqual(["prepare:lint:fix", "prepare:docgen"]);
   });
 
   it("filters publish paths against the reviewed staged intent", () => {

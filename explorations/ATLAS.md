@@ -29,8 +29,9 @@ The durable "why" behind explorations. Seeded from
 
 The lego pieces already built. Authoritative inventories (link, never copy):
 
-- [`standards/repo-exports.catalog.md`](../standards/repo-exports.catalog.md) —
-  canonical export lookup (refresh: `bun run repo-exports:catalog`).
+- Existing exports: search with ripgrep over `packages/*/*/*/src/**` and the
+  package barrels (`packages/*/*/*/src/index.ts`), or use the
+  `repo-symbol-discovery` skill.
 - Package families: `packages/{foundation,shared,drivers,tooling}` (substrate),
   `packages/{workspace,agent-capability,epistemic,law-practice,architecture-lab}`
   (slices), `apps/*` (runtimes).

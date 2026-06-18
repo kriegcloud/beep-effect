@@ -233,16 +233,6 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
 const repairSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
   bunRunStep(context, "prepare:01-lint-fix", "prepare:lint:fix", "prepare", "lint:fix", [], "write", "repo"),
   bunRunStep(context, "prepare:02-docgen", "prepare:docgen", "prepare", "docgen", [], "write", "repo"),
-  bunRunStep(
-    context,
-    "prepare:03-repo-exports-catalog",
-    "prepare:repo-exports:catalog",
-    "prepare",
-    "repo-exports:catalog",
-    [],
-    "write",
-    "repo"
-  ),
 ];
 
 const packageNameForFeedbackTask =

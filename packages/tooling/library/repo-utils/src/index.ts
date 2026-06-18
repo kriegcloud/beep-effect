@@ -147,11 +147,6 @@ export {
  * @category utilities
  * @since 0.0.0
  */
-export * from "./Reuse/index.js";
-/**
- * @category utilities
- * @since 0.0.0
- */
 export {
   /**
    * @category utilities
