@@ -54,12 +54,8 @@ export default defineBeepNextConfig({
     headers: securityHeaders,
   },
   pwa: {
-    dest: "public",
-    register: true,
-    skipWaiting: false,
-    options: {
-      disableDevLogs: true,
-    },
+    swSrc: "src/app/sw.ts",
+    swDest: "public/sw.js",
   },
   env: process.env,
 });

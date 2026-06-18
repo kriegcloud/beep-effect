@@ -4,27 +4,25 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { createRequire } from "node:module";
 import { $RepoConfigsId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A } from "@beep/utils";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import createMDX from "@next/mdx";
+import withSerwistInit from "@serwist/next";
 import { pipe, Result } from "effect";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { isFunctionValue, schemaIssueToError } from "./internal.ts";
+import { schemaIssueToError } from "./internal.ts";
 import { AllowedDevOrigin } from "./models/AllowedDevOrigin.schema.ts";
 import { defineNextConfig, NextConfig as NextConfigModel } from "./NextConfig.model.ts";
 import { SecureHeadersConfig, withSecureHeaders } from "./security/index.ts";
 import type { NextConfig as NextConfigFromNext } from "next";
 
 const $I = $RepoConfigsId.create("next/SharedNextConfig.model");
-const require = createRequire(import.meta.url);
 const isFalse = (value: unknown): value is false => Eq.equals(false)(value);
 
 const StringList = S.String.pipe(
@@ -34,12 +32,6 @@ const StringList = S.String.pipe(
     description: "Mutable string list used by shared Next.js config option fields.",
   })
 );
-const UnknownRecord = S.Record(S.String, S.Unknown).pipe(
-  $I.annoteSchema("UnknownRecord", {
-    description: "A string-keyed unknown record used for external plugin passthrough options.",
-  })
-);
-
 const optional = <Schema extends S.Top>(schema: Schema, description: string) =>
   S.optionalKey(schema).annotateKey({ description });
 
@@ -192,13 +184,14 @@ export type BeepNextMdxConfig = typeof BeepNextMdxConfig.Type;
 class BeepNextPwaConfigOptions extends S.Class<BeepNextPwaConfigOptions>($I`BeepNextPwaConfigOptions`)(
   {
     enabled: optional(S.Boolean, "Overrides the decoded NEXT_DISABLE_PWA env toggle."),
-    dest: optional(S.String, "Directory where next-pwa writes generated service worker assets."),
-    register: optional(S.Boolean, "Whether next-pwa should auto-register the generated service worker."),
-    skipWaiting: optional(S.Boolean, "Whether the generated service worker should skip the waiting phase."),
-    options: optional(UnknownRecord, "Additional next-pwa passthrough options."),
+    swSrc: optional(S.String, "Service worker source file passed to serwist (swSrc)."),
+    swDest: optional(S.String, "Compiled service worker output path passed to serwist (swDest)."),
+    register: optional(S.Boolean, "Whether serwist auto-registers the generated service worker."),
+    cacheOnNavigation: optional(S.Boolean, "Cache additional routes on next/link navigation (serwist)."),
+    reloadOnOnline: optional(S.Boolean, "Reload the app when the browser comes back online (serwist)."),
   },
   $I.annote("BeepNextPwaConfigOptions", {
-    description: "PWA object configuration for the shared Next.js preset.",
+    description: "PWA (serwist) object configuration for the shared Next.js preset.",
   })
 ) {}
 
@@ -212,8 +205,8 @@ class BeepNextPwaConfigOptions extends S.Class<BeepNextPwaConfigOptions>($I`Beep
  * ```ts
  * import { BeepNextPwaConfig } from "@beep/repo-configs/next"
  * const config = BeepNextPwaConfig.make({
- *   dest: "public",
- *   register: true
+ *   swSrc: "src/app/sw.ts",
+ *   swDest: "public/sw.js"
  * })
  * console.log(config)
  * ```
@@ -320,28 +313,9 @@ export type BeepNextConfigOptionsInput = Omit<typeof BeepNextConfigOptions.Encod
  */
 export type NextConfigPlugin = (config: NextConfigFromNext) => NextConfigFromNext;
 
-type NextPwaOptions = Record<string, unknown> & {
-  readonly dest?: string;
-  readonly disable?: boolean;
-  readonly register?: boolean;
-  readonly skipWaiting?: boolean;
-};
-type NextPwaFactory = (options?: NextPwaOptions) => (config?: NextConfigFromNext) => NextConfigFromNext;
-
-const NextPwaFactory = S.declare<NextPwaFactory>(isFunctionValue, {
-  expected: "Function",
-  description: "next-pwa plugin factory.",
-}).pipe(
-  $I.annoteSchema("NextPwaFactory", {
-    description: "Callable next-pwa plugin factory.",
-  })
-);
-const loadNextPwaFactory = (): NextPwaFactory =>
-  Result.getOrThrowWith(S.decodeUnknownResult(NextPwaFactory)(require("next-pwa")), schemaIssueToError);
 const decodeBeepNextConfigEnvResult = S.decodeUnknownResult(BeepNextConfigEnv);
 const decodeBeepNextConfigOptionsResult = S.decodeUnknownResult(BeepNextConfigOptions);
 
-const emptyRecord = (): Record<string, unknown> => R.empty<string, unknown>();
 const withDefault = <A>(value: A | undefined, fallback: A): A =>
   pipe(
     O.fromNullishOr(value),
@@ -414,17 +388,16 @@ const makeMdxPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugi
 const makePwaPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugin> =>
   pipe(
     pwaConfig(options.pwa),
-    O.map((config) => {
-      const nextPwaFactory = loadNextPwaFactory();
-      const passthroughOptions = pipe(O.fromNullishOr(config.options), O.getOrElse(emptyRecord));
-      return nextPwaFactory({
-        ...passthroughOptions,
-        dest: withDefault(config.dest, "public"),
+    O.map((config) =>
+      withSerwistInit({
+        swSrc: withDefault(config.swSrc, "src/app/sw.ts"),
+        swDest: withDefault(config.swDest, "public/sw.js"),
         disable: !withDefault(config.enabled, pwaEnabledFromEnv(options.env)),
-        register: withDefault(config.register, true),
-        skipWaiting: withDefault(config.skipWaiting, true),
-      });
-    })
+        ...(P.isUndefined(config.register) ? {} : { register: config.register }),
+        ...(P.isUndefined(config.cacheOnNavigation) ? {} : { cacheOnNavigation: config.cacheOnNavigation }),
+        ...(P.isUndefined(config.reloadOnOnline) ? {} : { reloadOnOnline: config.reloadOnOnline }),
+      })
+    )
   );
 
 const makePlugins = (options: BeepNextConfigOptions): ReadonlyArray<NextConfigPlugin> =>
