@@ -1481,6 +1481,12 @@ const acceptedProofFiles: ReadonlyArray<AcceptedProofFile> = [
   AcceptedProofFile.make({
     role: "db-admin",
     stage: "persistence",
+    path: "packages/_internal/db-admin/src/migrate.ts",
+    writer: "template",
+  }),
+  AcceptedProofFile.make({
+    role: "db-admin",
+    stage: "persistence",
     path: "packages/_internal/db-admin/src/schema.ts",
     writer: "ts-morph",
   }),
@@ -1842,7 +1848,7 @@ Use \`beep architecture add concept\` or \`beep architecture add role\` to add c
 const packageShellDocgenContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string => `{
   "$schema": "../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/${target.boundedContext}/${role}/src/"
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/${target.boundedContext}/${role}/src/"
 }
 `;
 

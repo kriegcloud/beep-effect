@@ -71,6 +71,7 @@ const config = {
     "packages/drivers/box/package.json",
     "packages/drivers/firecrawl/package.json",
     "packages/drivers/uspto/package.json",
+    "packages/drivers/pglite/package.json",
   ],
   customTypes: {
     catalog: {

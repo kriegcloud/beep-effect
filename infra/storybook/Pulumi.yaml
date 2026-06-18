@@ -9,6 +9,6 @@ config:
   storybook:outputDirectory: storybook-static
   storybook:productionBranch: main
   storybook:projectName: beep-storybook
-  storybook:repository: kriegcloud/beep-effect
+  storybook:repository: beep-effect/beep-effect
   storybook:rootDirectory: apps/storybook
   storybook:vercelAuthenticationDeploymentType: none

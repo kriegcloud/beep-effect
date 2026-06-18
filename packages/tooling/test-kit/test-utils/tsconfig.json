@@ -9,6 +9,9 @@
   },
   "references": [
     {
+      "path": "../../../drivers/pglite/tsconfig.json"
+    },
+    {
       "path": "../../../foundation/modeling/identity/tsconfig.json"
     },
     {

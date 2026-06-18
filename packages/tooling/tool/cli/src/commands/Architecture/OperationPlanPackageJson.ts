@@ -69,10 +69,10 @@ export const renderPackageJsonOperation = Effect.fn(function* (operation: WriteP
     license: "MIT",
     private: true,
     type: "module",
-    homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${operation.repositoryDirectory}`,
+    homepage: `https://github.com/beep-effect/beep-effect/tree/main/${operation.repositoryDirectory}`,
     repository: {
       type: "git",
-      url: "git@github.com:kriegcloud/beep-effect.git",
+      url: "git@github.com:beep-effect/beep-effect.git",
       directory: operation.repositoryDirectory,
     },
     scripts: {

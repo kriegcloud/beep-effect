@@ -14,10 +14,10 @@ regexes = [
 ]
 
 [[allowlists]]
-description = "CauseRedaction is a secret-redaction helper; its JSDoc @example blocks and tests intentionally contain placeholder secret-shaped strings (sk-/token=/API_KEY=) to demonstrate redaction. These are not real secrets."
+description = "CauseRedaction is a secret-redaction helper; its JSDoc @example blocks and tests intentionally contain placeholder secret-shaped strings (sk-/token=/API_KEY=) to demonstrate redaction. These are not real secrets. Anchored at the repo root (with an optional /repo/ CI-mount prefix) so a nested attacker-controlled path like evil/packages/.../CauseRedaction.ts cannot inherit the allowlist."
 paths = [
-  '''(^|/)packages/foundation/capability/observability/src/CauseRedaction\.ts$''',
-  '''(^|/)packages/foundation/capability/observability/test/CauseRedaction\.test\.ts$''',
+  '''^(?:/repo/)?packages/foundation/capability/observability/src/CauseRedaction\.ts$''',
+  '''^(?:/repo/)?packages/foundation/capability/observability/test/CauseRedaction\.test\.ts$''',
 ]
 
 [[allowlists]]

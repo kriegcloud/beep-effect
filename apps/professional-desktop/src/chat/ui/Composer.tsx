@@ -2,7 +2,7 @@
  * Chat composer: an editable rich-text surface that sends or edit-regenerates
  * an assistant turn.
  *
- * Wraps `@beep/editor`'s {@link EditorComposer}. Because the composer only
+ * Wraps `@beep/editor/composer`'s {@link EditorComposer}. Because the composer only
  * surfaces its content via `onSerializedChange` (it exposes no imperative editor
  * handle), the latest serialized state is held in a ref and the persisted draft
  * is mirrored into {@link draftAtoms} on every change. Loading a draft or an
@@ -30,7 +30,7 @@ import {
   SendTurnRequest,
   streamingTurnAtom,
 } from "@beep/agents-client/Chat.atoms";
-import { EditorComposer } from "@beep/editor";
+import { EditorComposer } from "@beep/editor/composer";
 import { documentToEditorState, editorStateToDocument } from "@beep/lexical-schema";
 import { Button } from "@beep/ui/components/button";
 import { A, O } from "@beep/utils";

@@ -1263,6 +1263,12 @@
       ],
       "@beep/law-practice-server/layer": [
         "./packages/law-practice/server/src/Layer.ts"
+      ],
+      "@beep/pglite": [
+        "./packages/drivers/pglite/src/index.ts"
+      ],
+      "@beep/pglite/*": [
+        "./packages/drivers/pglite/src/*"
       ]
     }
   }

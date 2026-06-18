@@ -121,12 +121,50 @@ const isAllowlisted = (host: string, allowlist: ReadonlyArray<string> | undefine
   );
 
 /**
+ * Classify a bare IPv4 dotted-quad host as loopback, link-local, RFC1918
+ * private, or cloud-metadata space. Shared by the direct-IPv4 path and by the
+ * IPv4 embedded in an IPv4-mapped IPv6 address (see {@link extractMappedIpv4}),
+ * so a mapped address can never reach a range that its bare form would block.
+ */
+const isInternalIpv4 = (host: string): boolean =>
+  Str.startsWith("127.")(host) ||
+  Str.startsWith("169.254.")(host) ||
+  Str.startsWith("10.")(host) ||
+  Str.startsWith("192.168.")(host) ||
+  isPrivate172(host);
+
+/**
+ * Decode the IPv4 embedded in an IPv4-mapped IPv6 host into dotted-decimal form.
+ *
+ * `new URL(...).hostname` normalizes IPv4-mapped IPv6 to compressed *hex*
+ * (`::ffff:192.168.1.1` becomes `::ffff:c0a8:101`), so a dotted-prefix check
+ * never fires for URL-parsed input — that gap let `http://[::ffff:c0a8:101]/`
+ * reach `192.168.1.1`. Both the hex suffix (`::ffff:hhhh:hhhh`) and the dotted
+ * suffix (`::ffff:a.b.c.d`, reachable for raw-host callers) are decoded so mapped
+ * RFC1918/loopback/link-local space classifies identically to its bare IPv4
+ * form. Returns none for non-mapped hosts.
+ */
+const extractMappedIpv4 = (host: string): O.Option<string> =>
+  pipe(
+    Str.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/)(host),
+    O.flatMap((groups) => O.all([A.get(groups, 1), A.get(groups, 2)])),
+    O.map(([hi, lo]) => {
+      const high = Number.parseInt(hi, 16);
+      const low = Number.parseInt(lo, 16);
+      return `${(high >> 8) & 0xff}.${high & 0xff}.${(low >> 8) & 0xff}.${low & 0xff}`;
+    }),
+    O.orElse(() => pipe(Str.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/)(host), O.flatMap(A.get(1))))
+  );
+
+/**
  * Core blocked-host classifier mirroring the loopback, link-local,
  * RFC1918/ULA private, and cloud-metadata ranges blocked by the dataset loader.
  */
 // SSRF host classifier: the explicit loopback/link-local/RFC1918/ULA/metadata
 // range checks are intentionally exhaustive and flat for auditability; folding
-// them behind abstraction would obscure which ranges are blocked.
+// them behind abstraction would obscure which ranges are blocked. IPv4-mapped
+// IPv6 is decoded back to its IPv4 form (extractMappedIpv4) so mapped private
+// ranges classify through the same isInternalIpv4 checks.
 // fallow-ignore-next-line complexity
 const isInternalHost = (host: string): boolean =>
   // SSRF guard duplicated with @beep/nlp-mcp DatasetLoader.isBlockedRemoteHost by
@@ -138,18 +176,11 @@ const isInternalHost = (host: string): boolean =>
   host === "0.0.0.0" ||
   host === "::" ||
   host === "::1" ||
-  Str.startsWith("127.")(host) ||
-  Str.startsWith("::ffff:127.")(host) ||
-  Str.startsWith("::ffff:7f")(host) ||
-  Str.startsWith("169.254.")(host) ||
-  Str.startsWith("::ffff:169.254.")(host) ||
-  Str.startsWith("::ffff:a9fe:")(host) ||
   Str.startsWith("fe80:")(host) ||
   Str.startsWith("fc")(host) ||
   Str.startsWith("fd")(host) ||
-  Str.startsWith("10.")(host) ||
-  Str.startsWith("192.168.")(host) ||
-  isPrivate172(host);
+  isInternalIpv4(host) ||
+  O.exists(extractMappedIpv4(host), isInternalIpv4);
 
 /**
  * RFC1918 `172.16.0.0/12` covers `172.16.` through `172.31.`; check the second
@@ -309,6 +340,13 @@ export const assertAllowedRemoteHost: {
  * with a typed {@link BlockedHostError} carrying the parse defect, so callers
  * never proceed on a URL the guard could not evaluate.
  *
+ * When `options.resolve` is supplied, the parsed hostname is additionally
+ * resolved to its A/AAAA addresses and the request is rejected if **any**
+ * resolved address classifies as internal — catching public DNS names that point
+ * at internal IPs. Resolution is opt-in (drivers inject a resolver) and skipped
+ * when no resolver is supplied or the literal host is allowlisted; see the module
+ * `@remarks` for the residual DNS-rebinding TOCTOU limitation.
+ *
  * @example
  * ```ts
  * import { assertAllowedRemoteUrl } from "@beep/schema"
@@ -328,16 +366,23 @@ export const assertAllowedRemoteHost: {
 export const assertAllowedRemoteUrl: {
   (options?: {
     readonly allowlist?: ReadonlyArray<string> | undefined;
+    readonly resolve?: RemoteHostResolver | undefined;
   }): (url: string) => Effect.Effect<void, BlockedHostError>;
   (
     url: string,
-    options?: { readonly allowlist?: ReadonlyArray<string> | undefined }
+    options?: {
+      readonly allowlist?: ReadonlyArray<string> | undefined;
+      readonly resolve?: RemoteHostResolver | undefined;
+    }
   ): Effect.Effect<void, BlockedHostError>;
 } = dual(
   (args) => P.isString(args[0]),
   Effect.fn("SafeRemoteHost.assertAllowedRemoteUrl")(function* (
     url: string,
-    options: { readonly allowlist?: ReadonlyArray<string> | undefined } = {}
+    options: {
+      readonly allowlist?: ReadonlyArray<string> | undefined;
+      readonly resolve?: RemoteHostResolver | undefined;
+    } = {}
   ) {
     const parsed = Result.try({
       try: () => new URL(url).hostname,
@@ -367,5 +412,6 @@ export const assertAllowedRemoteUrl: {
         cause: O.none(),
       });
     }
+    yield* assertResolvedAddressesAllowed(hostname, O.some(url), options);
   })
 );

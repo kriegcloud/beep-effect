@@ -2,7 +2,7 @@
   "name": "@beep/test-utils",
   "version": "0.0.2",
   "description": "An library for re-usable vitest & @effect/vitest testing utilities",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/test-kit/test-utils",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/tooling/test-kit/test-utils",
   "license": "Apache-2.0",
   "files": [
     "src/**/*.ts",
@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/tooling/test-kit/test-utils"
   },
   "beep": {
@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/pglite": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-bun": "catalog:",

@@ -18,7 +18,7 @@ jobs:
   pr-size:
     name: PR Size Label
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 2
     steps:
       - name: Checkout repository
@@ -45,7 +45,7 @@ jobs:
             });
   verify:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: ${{ matrix.timeout_minutes }}
     strategy:
       fail-fast: false
@@ -236,7 +236,7 @@ jobs:
 
   fallow-advisory:
     name: Fallow Advisory Envelopes
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     permissions:
       contents: read
@@ -429,7 +429,7 @@ jobs:
   build:
     name: Build
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -463,7 +463,7 @@ jobs:
 
   secrets:
     name: Secret Scanning
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
       - name: Checkout repository
@@ -485,8 +485,28 @@ jobs:
           set -euo pipefail
 
           log_opts="-1"
+          config_path=".gitleaks.toml"
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
             log_opts="origin/${GITHUB_BASE_REF:-main}..HEAD"
+
+            # The secret-scanning gate must NOT trust a PR-controlled scanner
+            # config: a PR could broaden the allowlist (or add .gitleaksignore
+            # fingerprints) in the SAME change to hide a planted secret and still
+            # pass the required check. For pull_request runs, scan with the base
+            # branch's already-reviewed config + ignore file instead of the PR's.
+            base_ref="origin/${GITHUB_BASE_REF:-main}"
+            if git cat-file -e "${base_ref}:.gitleaks.toml" 2>/dev/null; then
+              git show "${base_ref}:.gitleaks.toml" > .gitleaks.base.toml
+              config_path=".gitleaks.base.toml"
+            fi
+            # Pin .gitleaksignore to the base too (gitleaks auto-reads it from the
+            # source root): use the base version, or none if the base has none, so
+            # a PR cannot add suppression fingerprints to its own scan.
+            if git cat-file -e "${base_ref}:.gitleaksignore" 2>/dev/null; then
+              git show "${base_ref}:.gitleaksignore" > .gitleaksignore
+            else
+              rm -f .gitleaksignore
+            fi
           elif [[ -n "${BEFORE_SHA:-}" && ! "$BEFORE_SHA" =~ ^0+$ ]]; then
             log_opts="${BEFORE_SHA}..HEAD"
           fi
@@ -495,11 +515,11 @@ jobs:
             -v "$PWD:/repo" \
             -w /repo \
             zricethezav/gitleaks@sha256:5d0147dc25c78f8cc2b9861ff8f5c9b4a41419ed60a9ce2217de5a215270b42b \
-            detect --source=/repo --config=/repo/.gitleaks.toml --log-opts="$log_opts" --redact --no-banner
+            detect --source=/repo --config="/repo/${config_path}" --log-opts="$log_opts" --redact --no-banner
 
   security:
     name: Security
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
       - name: Checkout repository
@@ -582,7 +602,7 @@ jobs:
 
   nix:
     name: Nix Shell
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
       - name: Checkout repository
@@ -629,7 +649,7 @@ jobs:
 
   sast:
     name: SAST
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 10
     permissions:
       contents: read

@@ -279,11 +279,36 @@ const isPrivate172 = (host: string): boolean =>
     O.exists((n) => n >= 16 && n <= 31)
   );
 
+const isInternalIpv4 = (host: string): boolean =>
+  Str.startsWith("127.")(host) ||
+  Str.startsWith("169.254.")(host) ||
+  Str.startsWith("10.")(host) ||
+  Str.startsWith("192.168.")(host) ||
+  isPrivate172(host);
+
+// Decode the IPv4 embedded in an IPv4-mapped IPv6 host. `new URL(...).hostname`
+// normalizes mapped addresses to compressed hex (::ffff:c0a8:101), so the dotted
+// prefixes never fire for URL input; decode hex and dotted suffixes back to IPv4
+// so mapped private ranges classify like their bare form. None for non-mapped.
+const extractMappedIpv4 = (host: string): O.Option<string> =>
+  pipe(
+    Str.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/)(host),
+    O.flatMap((groups) => O.all([A.get(groups, 1), A.get(groups, 2)])),
+    O.map(([hi, lo]) => {
+      const high = Number.parseInt(hi, 16);
+      const low = Number.parseInt(lo, 16);
+      return `${(high >> 8) & 0xff}.${high & 0xff}.${(low >> 8) & 0xff}.${low & 0xff}`;
+    }),
+    O.orElse(() => pipe(Str.match(/^::ffff:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/)(host), O.flatMap(A.get(1))))
+  );
+
 const isBlockedRemoteHost = (hostname: string): boolean => {
   const host = pipe(Str.toLowerCase(hostname), Str.replace(/^\[|\]$/g, ""));
   // SSRF guard duplicated with @beep/schema SafeRemoteHost.isInternalHost by
   // design: each slice owns a self-contained, independently auditable blocklist
   // rather than coupling this driver to a foundation schema's internals.
+  // IPv4-mapped IPv6 is decoded back to its IPv4 form so mapped private ranges
+  // classify through the same isInternalIpv4 checks.
   // fallow-ignore-next-line code-duplication
   return (
     host === "localhost" ||
@@ -291,18 +316,11 @@ const isBlockedRemoteHost = (hostname: string): boolean => {
     host === "0.0.0.0" ||
     host === "::" ||
     host === "::1" ||
-    Str.startsWith("127.")(host) ||
-    Str.startsWith("::ffff:127.")(host) ||
-    Str.startsWith("::ffff:7f")(host) ||
-    Str.startsWith("169.254.")(host) ||
-    Str.startsWith("::ffff:169.254.")(host) ||
-    Str.startsWith("::ffff:a9fe:")(host) ||
     Str.startsWith("fe80:")(host) ||
     Str.startsWith("fc")(host) ||
     Str.startsWith("fd")(host) ||
-    Str.startsWith("10.")(host) ||
-    Str.startsWith("192.168.")(host) ||
-    isPrivate172(host)
+    isInternalIpv4(host) ||
+    O.exists(extractMappedIpv4(host), isInternalIpv4)
   );
 };
 

@@ -5,10 +5,10 @@
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/konva",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/drivers/konva",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/drivers/konva"
   },
   "beep": {

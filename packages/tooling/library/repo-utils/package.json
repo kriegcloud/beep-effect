@@ -5,10 +5,10 @@
   "private": true,
   "license": "Apache-2.0",
   "description": "Effect-based monorepo utilities for repository analysis and workspace management",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/repo-utils",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/tooling/library/repo-utils",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/tooling/library/repo-utils"
   },
   "beep": {

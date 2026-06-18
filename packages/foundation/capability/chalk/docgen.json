@@ -1,7 +1,7 @@
 {
   "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts", "src/Chalk.browser.ts", "src/index.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/capability/chalk/src/",
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/capability/chalk/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
