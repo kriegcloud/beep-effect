@@ -15,6 +15,8 @@ import { migrate, PostgresDrizzle, PostgresError } from "@beep/postgres";
 import { Effect, FileSystem, Path } from "effect";
 import * as S from "effect/Schema";
 
+// cspell:words TIMESTAMPTZ
+
 const $I = $ProfessionalDesktopId.create("runtime/Migrations");
 
 interface MigrationFile {
@@ -37,23 +39,17 @@ interface MigrationFile {
  */
 const migrationsSchema = "drizzle" as const;
 
+// <generated:migration-bundle>
 const MigrationBundle: ReadonlyArray<MigrationFile> = [
   {
     name: "20260512000000_architecture_lab_work_item",
     sql: `CREATE TABLE architecture_lab_work_item (
-  created_at BIGINT NOT NULL,
-  created_by_principal JSONB NOT NULL,
-  org_id INTEGER NOT NULL,
-  row_version INTEGER NOT NULL,
-  schema_version TEXT NOT NULL,
-  source TEXT NOT NULL,
-  updated_at BIGINT NOT NULL,
-  updated_by_principal JSONB NOT NULL,
-  assignee TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   status TEXT NOT NULL,
-  entity_type TEXT NOT NULL,
-  id SERIAL PRIMARY KEY
+  assignee TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 `,
   },
@@ -73,7 +69,7 @@ const MigrationBundle: ReadonlyArray<MigrationFile> = [
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
 );
---> statement-breakpoint
+
 ALTER TABLE architecture_lab_work_item
   ADD COLUMN assignee_id INTEGER,
   ADD COLUMN priority TEXT,
@@ -96,7 +92,7 @@ ALTER TABLE architecture_lab_work_item
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
 );
---> statement-breakpoint
+
 CREATE TABLE workspace_turn (
   created_at BIGINT NOT NULL,
   created_by_principal JSONB NOT NULL,
@@ -113,7 +109,7 @@ CREATE TABLE workspace_turn (
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
 );
---> statement-breakpoint
+
 CREATE TABLE workspace_message (
   created_at BIGINT NOT NULL,
   created_by_principal JSONB NOT NULL,
@@ -145,15 +141,15 @@ CREATE TABLE workspace_message (
   updated_by_principal JSONB NOT NULL,
   activity_id INTEGER NOT NULL,
   actor JSONB NOT NULL,
-  cost_usd_approx_micros BIGINT,
-  credential_reference JSONB,
-  input_tokens BIGINT,
+  cost_usd_approx_micros INTEGER,
+  credential_reference TEXT,
+  input_tokens INTEGER,
   latency_millis INTEGER,
   metadata JSONB NOT NULL,
   model TEXT NOT NULL,
-  output_tokens BIGINT,
+  output_tokens INTEGER,
   provider TEXT NOT NULL,
-  total_tokens BIGINT,
+  total_tokens INTEGER,
   unit_count INTEGER,
   entity_type TEXT NOT NULL,
   id SERIAL PRIMARY KEY
@@ -161,6 +157,7 @@ CREATE TABLE workspace_message (
 `,
   },
 ];
+// </generated:migration-bundle>
 
 const mapMigrationBundleError = (cause: unknown): PostgresError =>
   PostgresError.fromUnknown("prepareMigrations", cause);
@@ -172,6 +169,9 @@ const makeMigrationBundleFolder = Effect.fn("ProfessionalDesktop.Migrations.make
     .makeTempDirectoryScoped({ prefix: "beep-professional-desktop-migrations-" })
     .pipe(Effect.mapError(mapMigrationBundleError));
 
+  // Current drizzle-orm readMigrationFiles consumes timestamped folders directly
+  // and rejects legacy meta/_journal.json, so the generated bundle mirrors that
+  // runtime contract: <migration-name>/migration.sql only.
   for (const migration of MigrationBundle) {
     const migrationFolder = path.join(folder, migration.name);
     yield* fs.makeDirectory(migrationFolder, { recursive: true }).pipe(Effect.mapError(mapMigrationBundleError));

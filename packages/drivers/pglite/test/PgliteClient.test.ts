@@ -1,7 +1,7 @@
-import { PgliteClient, PgliteError, PgliteTestLayer } from "@beep/pglite";
+import { makeLayer, PgliteClient, PgliteError, PgliteTestLayer } from "@beep/pglite";
 import * as Pg from "@effect/sql-pg/PgClient";
 import { describe, expect, it, layer } from "@effect/vitest";
-import { Effect } from "effect";
+import { Context, Effect, Exit, Layer, Scope } from "effect";
 import * as O from "effect/Option";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
@@ -14,6 +14,21 @@ describe("PgliteError", () => {
     expect(error.operation).toBe("connect");
     expect(O.getOrNull(error.message)).toBe("boom");
   });
+});
+
+describe("PgliteClient layer lifecycle", () => {
+  it.effect("closes the managed PGlite instance when the layer scope closes", () =>
+    Effect.gen(function* () {
+      const scope = yield* Scope.make();
+      const context = yield* Layer.buildWithScope(makeLayer(), scope);
+      const client = Context.get(context, PgliteClient);
+
+      yield* Scope.close(scope, Exit.void);
+
+      const queryAfterClose = yield* Effect.exit(Effect.tryPromise(() => client.pglite.query("SELECT 1")));
+      expect(queryAfterClose._tag).toBe("Failure");
+    })
+  );
 });
 
 layer(PgliteTestLayer)("PgliteClient (in-memory)", (it) => {

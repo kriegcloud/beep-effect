@@ -9,7 +9,9 @@
  * Required env:
  * - `BEEP_TEST_REAL_ANTHROPIC_CHAT=1`
  * - `AI_ANTHROPIC_API_KEY`
- * - `BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers` or `BEEP_TEST_DATABASE_URL`
+ *
+ * Database note: this suite uses the production in-process PGlite path against
+ * a temporary data directory.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -20,7 +22,7 @@ import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import { makeDrizzleLayer } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteSqlTestLayer } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
@@ -37,10 +39,10 @@ import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 import { migrateProfessionalDesktopDatabase } from "@/runtime/Migrations";
 
-const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
-
+const realAnthropicChatTimeoutMillis = 300_000;
 const shouldRunRealAnthropic = Bun.env.BEEP_TEST_REAL_ANTHROPIC_CHAT === "1";
 const anthropicApiKeyEnv = "AI_ANTHROPIC_API_KEY";
+const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
 
 const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
@@ -54,12 +56,7 @@ const prompt = [
 ].join("\n");
 
 const migrateAll = Effect.fnUntraced(function* () {
-  const info = yield* TestDatabaseInfo;
-  const migrationsSchema = pipe(
-    info.schema,
-    O.getOrElse(() => "drizzle")
-  );
-  yield* migrateProfessionalDesktopDatabase({ migrationsSchema });
+  yield* migrateProfessionalDesktopDatabase();
 });
 
 const hasStreamedMermaid = (blocks: ReadonlyArray<unknown>): boolean =>
@@ -110,13 +107,12 @@ const RealAnthropicChatLayer = Layer.mergeAll(
   AnthropicTurnKernel,
   BunFileSystem.layer,
   BunPath.layer
-).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makePgliteLayer()));
+).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makeInProcessPgliteLayer()));
 
 const hasAnthropicApiKey =
   P.isString(Bun.env[anthropicApiKeyEnv]) && Str.isNonEmpty(Str.trim(Bun.env[anthropicApiKeyEnv]));
 const enabledWithoutApiKey = shouldRunRealAnthropic && !hasAnthropicApiKey;
-const enabledWithoutDatabase = shouldRunRealAnthropic && !shouldRunPgliteIntegration;
-const shouldRun = shouldRunRealAnthropic && hasAnthropicApiKey && shouldRunPgliteIntegration;
+const shouldRun = shouldRunRealAnthropic && hasAnthropicApiKey;
 
 if (!shouldRunRealAnthropic) {
   describe.skip("Professional desktop real Anthropic chat parity E2E (set BEEP_TEST_REAL_ANTHROPIC_CHAT=1)", () => {});
@@ -124,12 +120,6 @@ if (!shouldRunRealAnthropic) {
   describe("Professional desktop real Anthropic chat parity E2E", () => {
     it("requires AI_ANTHROPIC_API_KEY when enabled", () => {
       expect.fail("Set AI_ANTHROPIC_API_KEY.");
-    });
-  });
-} else if (enabledWithoutDatabase) {
-  describe("Professional desktop real Anthropic chat parity E2E", () => {
-    it("requires a PgLite integration database when enabled", () => {
-      expect.fail("Set BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers or BEEP_TEST_DATABASE_URL.");
     });
   });
 } else if (shouldRun) {
@@ -166,7 +156,7 @@ if (!shouldRunRealAnthropic) {
           expect(hasPersistedTable(document)).toBe(true);
           expect(hasPersistedYouTube(document)).toBe(true);
         }),
-        pgliteIntegrationTimeoutMillis
+        realAnthropicChatTimeoutMillis
       );
     });
   });

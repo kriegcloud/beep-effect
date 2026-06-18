@@ -9,10 +9,9 @@
  * embedded database the integration tests prove. The sidecar's bundled Drizzle
  * migrations are applied on boot.
  *
- * Operational note: `CHAT_DB_PATH` should be treated as owned by this sidecar
- * build's bundled PGlite runtime. Back up or reset existing directories created
- * by an older socket-bridge PGlite runtime before first in-process boot if the
- * embedded client cannot open them.
+ * Operational note: `CHAT_DB_PATH` is owned by this sidecar build's bundled
+ * PGlite runtime. Existing unmarked directories are moved aside before first
+ * in-process boot so older socket-bridge stores do not block startup.
  *
  * The PGlite instance is owned by the layer {@link Scope}: it is acquired and
  * released (`pglite.close()`) by `@beep/pglite` when the runtime scope closes, so
@@ -28,7 +27,7 @@ import * as Pglite from "@beep/pglite";
 import { makeDrizzleLayer } from "@beep/postgres";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { Config, Effect, Layer } from "effect";
+import { Clock, Config, Effect, FileSystem, Layer, Path } from "effect";
 import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Context } from "effect";
@@ -47,6 +46,60 @@ const ChatDbDataDir = Config.string("CHAT_DB_PATH").pipe(
   Config.withDefault(fileURLToPath(new URL("../../../../.beep/professional-desktop/chat-db", import.meta.url)))
 );
 
+const ChatDbCompatibilityMarker = ".beep-pglite-inprocess-v1";
+
+const pathExists = (fs: FileSystem.FileSystem, target: string): Effect.Effect<boolean> =>
+  fs.exists(target).pipe(Effect.orElseSucceed(() => false));
+
+const writeCompatibilityMarker = Effect.fn("ProfessionalDesktop.Pglite.writeCompatibilityMarker")(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  dataDir: string
+) {
+  yield* fs.makeDirectory(dataDir, { recursive: true });
+  const createdAtMillis = yield* Clock.currentTimeMillis;
+  yield* fs.writeFileString(
+    path.join(dataDir, ChatDbCompatibilityMarker),
+    ["runtime=professional-desktop-pglite-inprocess", "version=1", `createdAtMillis=${createdAtMillis}`, ""].join("\n")
+  );
+});
+
+const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite.ensureCompatibleChatDbDataDir")(function* (
+  dataDir: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const markerPath = path.join(dataDir, ChatDbCompatibilityMarker);
+  const dataDirExists = yield* pathExists(fs, dataDir);
+  const markerExists = dataDirExists ? yield* pathExists(fs, markerPath) : false;
+
+  if (markerExists) {
+    return;
+  }
+
+  if (!dataDirExists) {
+    yield* writeCompatibilityMarker(fs, path, dataDir);
+    return;
+  }
+
+  const entries = yield* fs.readDirectory(dataDir).pipe(Effect.orElseSucceed(() => ["<unreadable-path>"]));
+  if (entries.length === 0) {
+    yield* writeCompatibilityMarker(fs, path, dataDir);
+    return;
+  }
+
+  const backupPath = `${dataDir}.pre-inprocess-${yield* Clock.currentTimeMillis}`;
+  yield* fs.rename(dataDir, backupPath);
+  yield* writeCompatibilityMarker(fs, path, dataDir);
+  yield* Effect.logWarning("chat db data dir moved for in-process PGlite compatibility").pipe(
+    Effect.annotateLogs({
+      backupPath,
+      component: "professional-desktop",
+      dataDir,
+    })
+  );
+});
+
 /**
  * Live in-process PGlite client layer (file-backed), exposed under the
  * `@effect/sql-pg` PgClient / generic SqlClient tags so the Drizzle composition
@@ -58,6 +111,7 @@ const ChatDbDataDir = Config.string("CHAT_DB_PATH").pipe(
 const PgliteClientLive = Layer.unwrap(
   Effect.gen(function* () {
     const dataDir = yield* ChatDbDataDir;
+    yield* ensureCompatibleChatDbDataDir(dataDir);
     return Pglite.makeLayer({ dataDir });
   })
 ).pipe(Layer.orDie);
