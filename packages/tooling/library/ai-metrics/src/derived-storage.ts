@@ -6,6 +6,7 @@
  */
 
 import { DuckDb, DuckDbParquetExport } from "@beep/duckdb";
+import { PathSafety } from "@beep/file-processing";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -753,18 +754,29 @@ const parquetExportDirFor = (pathApi: Path.Path, input: AiMetricsDerivedStorageW
 };
 
 const prepareParquetExportDir = Effect.fn("AiMetrics.derivedStorage.prepareParquetExportDir")(function* (
+  parquetRoot: string,
   exportDir: string
 ) {
   const fs = yield* FileSystem.FileSystem;
+  // Fail closed before any destructive removal: the export directory is built by
+  // joining the Parquet root with a possibly-untrusted ingestRunId, so confirm
+  // it canonicalizes to a path strictly contained by the Parquet root. This
+  // guards against `..` traversal escaping the root into an unrelated tree that
+  // the recursive remove below would otherwise destroy.
+  const safeExportDir = yield* PathSafety.resolvePathWithinRoot({ root: parquetRoot, candidate: exportDir }).pipe(
+    Effect.mapError((cause) =>
+      derivedFailure("Refused to prepare AI metrics Parquet export directory outside the Parquet root.", cause)
+    )
+  );
   yield* fs
-    .remove(exportDir, { force: true, recursive: true })
+    .remove(safeExportDir, { force: true, recursive: true })
     .pipe(
       Effect.mapError((cause) =>
         derivedFailure("Failed to remove existing AI metrics Parquet export directory.", cause)
       )
     );
   yield* fs
-    .makeDirectory(exportDir, { recursive: true })
+    .makeDirectory(safeExportDir, { recursive: true })
     .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet export directory.", cause)));
 });
 
@@ -1163,7 +1175,12 @@ export const writeAiMetricsDerivedStorage = Effect.fn("AiMetrics.writeAiMetricsD
       .makeDirectory(pathApi.dirname(input.storage.duckDbPath), { recursive: true })
       .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics DuckDB storage directory.", cause)));
     if (O.isSome(parquetExportDir)) {
-      yield* prepareParquetExportDir(parquetExportDir.value);
+      // Ensure the Parquet root exists so it can be canonicalized as the
+      // confinement boundary before the export directory is prepared.
+      yield* fs
+        .makeDirectory(input.storage.parquetDir, { recursive: true })
+        .pipe(Effect.mapError((cause) => derivedFailure("Failed to create AI metrics Parquet root directory.", cause)));
+      yield* prepareParquetExportDir(input.storage.parquetDir, parquetExportDir.value);
     }
     const completedAtEpochMillis = yield* Clock.currentTimeMillis;
     const turnCount = recordTurnCount(input.records);

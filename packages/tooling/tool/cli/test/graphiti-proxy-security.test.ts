@@ -4,6 +4,7 @@ import {
   isFastMcpRequestBody,
   makeGraphitiProxyForwarderService,
   ProxyServiceConfig,
+  readRequestBodyBytesForTesting,
   renderProxyServiceUnitForTesting,
   resolveGraphitiStackDirForTesting,
   shouldInstallProxyServiceForTesting,
@@ -234,6 +235,125 @@ layer(NodeServices.layer)("Graphiti proxy security", (it) => {
       expect(response.status).toBe(400);
       const responseText = yield* readResponseText(response);
       expect(responseText).toContain("absolute-form request targets");
+    })
+  );
+
+  it.effect(
+    "rejects a streamed body exceeding maxBodyBytes without buffering the whole body when Content-Length is absent",
+    Effect.fn(function* () {
+      const maxBodyBytes = 1_024;
+      const chunkBytes = 256;
+      // Enough chunks to far exceed the cap; if the read were unbounded it would
+      // pull every chunk (totalChunks * chunkBytes) before the size check.
+      const totalChunks = 64;
+      const chunk = utf8Encoder.encode("a".repeat(chunkBytes));
+
+      let pulledBytes = 0;
+      let enqueued = 0;
+      const body = new ReadableStream<Uint8Array>({
+        pull: (controller) => {
+          if (enqueued >= totalChunks) {
+            controller.close();
+            return;
+          }
+          enqueued = enqueued + 1;
+          pulledBytes = pulledBytes + chunk.length;
+          controller.enqueue(chunk);
+        },
+      });
+
+      // No content-length header: a chunked upload the cap must still bound.
+      const request = HttpServerRequest.fromWeb(
+        new Request("http://proxy.local/mcp", {
+          method: "POST",
+          body,
+          // @ts-expect-error duplex is required for streaming request bodies on undici/Node.
+          duplex: "half",
+        })
+      );
+
+      const outcome = yield* readRequestBodyBytesForTesting(request, maxBodyBytes);
+
+      expect(outcome._tag).toBe("Oversized");
+      // Peak buffering stays bounded: the read stops as soon as the running total
+      // crosses the cap, so it never pulls the full body into memory.
+      expect(pulledBytes).toBeLessThan(totalChunks * chunkBytes);
+      expect(pulledBytes).toBeLessThanOrEqual(maxBodyBytes + chunkBytes);
+    })
+  );
+
+  it.effect(
+    "rejects a streamed body that understates Content-Length without buffering past the cap",
+    Effect.fn(function* () {
+      const maxBodyBytes = 1_024;
+      const chunkBytes = 256;
+      const totalChunks = 64;
+      const chunk = utf8Encoder.encode("b".repeat(chunkBytes));
+
+      let pulledBytes = 0;
+      let enqueued = 0;
+      const body = new ReadableStream<Uint8Array>({
+        pull: (controller) => {
+          if (enqueued >= totalChunks) {
+            controller.close();
+            return;
+          }
+          enqueued = enqueued + 1;
+          pulledBytes = pulledBytes + chunk.length;
+          controller.enqueue(chunk);
+        },
+      });
+
+      const request = HttpServerRequest.fromWeb(
+        new Request("http://proxy.local/mcp", {
+          method: "POST",
+          // Understated Content-Length: the pre-check passes, so the bounded
+          // streaming read must still reject the oversized body.
+          headers: { "content-length": "10" },
+          body,
+          // @ts-expect-error duplex is required for streaming request bodies on undici/Node.
+          duplex: "half",
+        })
+      );
+
+      const outcome = yield* readRequestBodyBytesForTesting(request, maxBodyBytes);
+
+      expect(outcome._tag).toBe("Oversized");
+      expect(pulledBytes).toBeLessThan(totalChunks * chunkBytes);
+      expect(pulledBytes).toBeLessThanOrEqual(maxBodyBytes + chunkBytes);
+    })
+  );
+
+  it.effect(
+    "buffers a streamed body within maxBodyBytes and returns it intact",
+    Effect.fn(function* () {
+      const maxBodyBytes = 1_024;
+      const payload = utf8Encoder.encode("within-cap-payload");
+      const body = new ReadableStream<Uint8Array>({
+        start: (controller) => {
+          controller.enqueue(payload);
+          controller.close();
+        },
+      });
+
+      const request = HttpServerRequest.fromWeb(
+        new Request("http://proxy.local/mcp", {
+          method: "POST",
+          body,
+          // @ts-expect-error duplex is required for streaming request bodies on undici/Node.
+          duplex: "half",
+        })
+      );
+
+      const outcome = yield* readRequestBodyBytesForTesting(request, maxBodyBytes);
+
+      expect(outcome._tag).toBe("Body");
+      if (outcome._tag === "Body") {
+        expect(O.isSome(outcome.bodyBytes)).toBe(true);
+        if (O.isSome(outcome.bodyBytes)) {
+          expect(new TextDecoder("utf-8").decode(outcome.bodyBytes.value)).toBe("within-cap-payload");
+        }
+      }
     })
   );
 

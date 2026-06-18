@@ -6,6 +6,7 @@
  */
 
 import { ExtractFramesRequest, FFmpeg } from "@beep/ffmpeg";
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
 import { VideoFileExtension } from "@beep/schema";
 import { A, Str } from "@beep/utils";
@@ -97,26 +98,17 @@ const isVideoFileName: {
 );
 
 const resolveExtractFramesDirOutDir = Effect.fn("ImageCommandService.resolveExtractFramesDirOutDir")(function* (
-  path: Path.Path,
   directory: string,
   sourceName: string,
   stem: string
 ) {
-  const outDir = path.resolve(directory, stem);
-  const relativeOutDir = path.relative(directory, outDir);
-
-  if (
-    relativeOutDir === "" ||
-    relativeOutDir === ".." ||
-    path.isAbsolute(relativeOutDir) ||
-    Str.startsWith(`..${path.sep}`)(relativeOutDir)
-  ) {
-    return yield* ImageCommandError.make({
-      message: `image extract-frames-dir: refusing unsafe output directory for "${sourceName}".`,
-    });
-  }
-
-  return outDir;
+  // Fail closed when the filename-derived stem (e.g. ".." from "...mp4") or a
+  // same-stem symlink would place the output directory outside the selected
+  // directory. resolvePathWithinRoot canonicalizes via realPath and guards
+  // not-yet-existing write targets, so lexical checks cannot be bypassed.
+  return yield* resolvePathWithinRoot({ root: directory, candidate: stem }).pipe(
+    ImageCommandError.mapError(`image extract-frames-dir: refusing unsafe output directory for "${sourceName}".`)
+  );
 });
 
 const makeExtractFramesRequest = (options: ExtractFramesOptions): ExtractFramesRequest =>
@@ -184,7 +176,7 @@ const collectExtractFramesDirVideos = Effect.fn("ImageCommandService.collectExtr
 
     const extension = path.extname(entry);
     const stem = path.basename(entry, extension);
-    const outDir = yield* resolveExtractFramesDirOutDir(path, directory, entry, stem);
+    const outDir = yield* resolveExtractFramesDirOutDir(directory, entry, stem);
     videos = A.append(
       videos,
       ExtractFramesDirVideo.make({

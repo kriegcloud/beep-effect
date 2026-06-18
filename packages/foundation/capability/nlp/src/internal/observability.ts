@@ -5,9 +5,10 @@
  * @packageDocumentation
  */
 
-import { observeWorkflow, summarizeCause, trackDuration } from "@beep/observability";
+import { observeWorkflow, redactCauseSummary, summarizeCause, trackDuration } from "@beep/observability";
 import { Effect, Metric } from "effect";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import type { Cause } from "effect";
 
 const packageAttributes = {
@@ -31,13 +32,28 @@ const withPackageAttributes = (attributes: Record<string, string>): Record<strin
   ...attributes,
 });
 
-const causeAttributes = <E>(cause: Cause.Cause<E>): Record<string, string> => {
-  const summary = summarizeCause(cause);
-  return {
-    cause_classification: summary.classification,
-    cause_fingerprint: summary.fingerprint.value,
-    cause_message: summary.primaryMessage,
+// Only the stable, low-cardinality classification is safe for metric labels and
+// span attributes. The raw `primaryMessage` and message-derived `fingerprint`
+// are attacker-influenced and unbounded in cardinality, so they must never
+// become metric labels (cardinality DoS) or leak into spans/metrics (info leak).
+const causeMetricAttributes = <E>(cause: Cause.Cause<E>): Record<string, string> => ({
+  cause_classification: summarizeCause(cause).classification,
+});
+
+// Bounded, sanitized cause detail for the log channel only. `redactCauseSummary`
+// strips secrets/tokens/home paths, caps length, and keeps a stable fingerprint;
+// the redacted message/detail are emitted to logs but never to metric labels.
+const causeLogAttributes = <E>(cause: Cause.Cause<E>): Record<string, string> => {
+  const redacted = cause.pipe(summarizeCause, redactCauseSummary);
+  const base: Record<string, string> = {
+    cause_classification: redacted.tag,
+    cause_fingerprint: redacted.fingerprint,
+    cause_message: redacted.message,
   };
+  return O.match(redacted.detail, {
+    onNone: () => base,
+    onSome: (detail) => ({ ...base, cause_detail: detail }),
+  });
 };
 
 /**
@@ -194,15 +210,16 @@ export const recordNlpBackendFallback = <E>(
 ): Effect.Effect<void> => {
   const metricAttributes = withPackageAttributes({
     ...attributes,
-    ...causeAttributes(cause),
+    ...causeMetricAttributes(cause),
     fallback: "true",
   });
+  const logAttributes = { ...metricAttributes, ...causeLogAttributes(cause) };
   return Metric.update(Metric.withAttributes(fallbackTotal, metricAttributes), 1).pipe(
     Effect.andThen(Effect.annotateCurrentSpan(metricAttributes)),
     Effect.andThen(
       Effect.logWarning({
         message: "nlp backend fallback",
-        attributes: metricAttributes,
+        attributes: logAttributes,
       })
     )
   );
@@ -229,14 +246,15 @@ export const recordNlpBackendFallback = <E>(
 export const recordNlpFailure = <E>(cause: Cause.Cause<E>, attributes: Record<string, string>): Effect.Effect<void> => {
   const metricAttributes = withPackageAttributes({
     ...attributes,
-    ...causeAttributes(cause),
+    ...causeMetricAttributes(cause),
   });
+  const logAttributes = { ...metricAttributes, ...causeLogAttributes(cause) };
   return Metric.update(Metric.withAttributes(failureTotal, metricAttributes), 1).pipe(
     Effect.andThen(Effect.annotateCurrentSpan(metricAttributes)),
     Effect.andThen(
       Effect.logError({
         message: "nlp operation failed",
-        attributes: metricAttributes,
+        attributes: logAttributes,
       })
     )
   );

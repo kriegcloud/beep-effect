@@ -26,11 +26,11 @@
 
 import { $NlpId } from "@beep/identity";
 import { A, dual, P } from "@beep/utils";
-import { Clock, Context, Duration, Effect, Layer, Match, Result } from "effect";
+import { Clock, Context, Duration, Effect, Layer, Match, Number as N, Result } from "effect";
 import * as O from "effect/Option";
 import * as Obs from "../../internal/observability.ts";
 import { getChildren, toArray } from "../EffectGraph.ts";
-import { ExecutionError } from "./Errors.ts";
+import { ExecutionError, TimeoutError } from "./Errors.ts";
 import * as ResultStore from "./ResultStore.ts";
 import * as Types from "./Types.ts";
 import type { EffectGraph, GraphNode } from "../EffectGraph.ts";
@@ -128,14 +128,55 @@ export class GraphExecutor extends Context.Service<GraphExecutor, GraphExecutorS
 const getLeafNodes = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> =>
   A.filter(toArray(graph), (node) => A.length(getChildren(graph, node.id)) === 0);
 
+/**
+ * Validate and clamp a caller-supplied parallel concurrency value.
+ *
+ * Non-finite or non-positive requests (NaN, Infinity, zero, negatives) fail
+ * closed to a single worker; otherwise the value is floored to an integer and
+ * clamped into `[1, MAX_PARALLEL_CONCURRENCY]` so an untrusted or buggy caller
+ * cannot request unbounded parallelism.
+ */
+const clampConcurrency = (requested: number): number =>
+  Number.isFinite(requested) && requested >= 1
+    ? N.clamp(Math.floor(requested), { maximum: Types.MAX_PARALLEL_CONCURRENCY, minimum: 1 })
+    : 1;
+
 const concurrencyOf = (strategy: Types.ExecutionStrategy): number =>
   Match.value(strategy).pipe(
-    Match.tag("Parallel", (s) => s.concurrency),
+    Match.tag("Parallel", (s) => clampConcurrency(s.concurrency)),
     Match.orElse(() => 1)
   );
 
 const isEffectGraph = (value: unknown): value is EffectGraph<unknown> =>
   P.hasProperties(value, ["graph", "indexToNodeId", "nodeIdToIndex"]);
+
+/**
+ * Bound a single `operation.apply` call by an optional timeout.
+ *
+ * When a timeout is configured, expiry interrupts the operation and fails with a
+ * {@link TimeoutError} so the executor records it as that leaf's result error
+ * instead of letting a slow or non-terminating operation run unbounded.
+ */
+const applyWithTimeout = <A, B, R, E>(
+  operation: GraphOperation<A, B, R, E>,
+  leafNode: GraphNode<A>,
+  timeout: O.Option<Duration.Duration>
+): Effect.Effect<ReadonlyArray<GraphNode<B>>, E | TimeoutError, R> =>
+  O.match(timeout, {
+    onNone: () => operation.apply(leafNode),
+    onSome: (duration) =>
+      Effect.timeoutOrElse(operation.apply(leafNode), {
+        duration,
+        orElse: () =>
+          Effect.fail(
+            TimeoutError.make({
+              nodeId: `${leafNode.id}`,
+              operationName: operation.name,
+              timeoutMs: Duration.toMillis(duration),
+            })
+          ),
+      }),
+  });
 
 /** Apply the operation to one node, caching on success, yielding nodes + errors. */
 const applyOne: {
@@ -143,19 +184,22 @@ const applyOne: {
     store: ResultStore.ResultStoreShape,
     operation: GraphOperation<A, B, R, E>,
     cache: boolean,
+    timeout: O.Option<Duration.Duration>,
     leafNode: GraphNode<A>
   ): Effect.Effect<Application, ExecutionError, R>;
   <A, B, R, E>(
     operation: GraphOperation<A, B, R, E>,
     cache: boolean,
+    timeout: O.Option<Duration.Duration>,
     leafNode: GraphNode<A>
   ): (store: ResultStore.ResultStoreShape) => Effect.Effect<Application, ExecutionError, R>;
 } = dual(
-  4,
+  5,
   Effect.fn("applyOne")(function* <A, B, R, E>(
     store: ResultStore.ResultStoreShape,
     operation: GraphOperation<A, B, R, E>,
     cache: boolean,
+    timeout: O.Option<Duration.Duration>,
     leafNode: GraphNode<A>
   ): Effect.fn.Return<Application, ExecutionError, R> {
     const attributes = {
@@ -189,7 +233,7 @@ const applyOne: {
       };
     }
 
-    const result = yield* Effect.result(operation.apply(leafNode));
+    const result = yield* Effect.result(applyWithTimeout(operation, leafNode, timeout));
     return yield* Result.match(result, {
       onFailure: (failure): Effect.Effect<Application, ExecutionError> =>
         Obs.annotateNlpSpan({
@@ -278,34 +322,42 @@ const runStrategy: {
     leafNodes: ReadonlyArray<GraphNode<A>>,
     operation: GraphOperation<A, B, R, E>,
     cache: boolean,
-    concurrency: number
+    concurrency: number,
+    timeout: O.Option<Duration.Duration>
   ): Effect.Effect<ExecutionFold, ExecutionError, R>;
   <A, B, R, E>(
     leafNodes: ReadonlyArray<GraphNode<A>>,
     operation: GraphOperation<A, B, R, E>,
     cache: boolean,
-    concurrency: number
+    concurrency: number,
+    timeout: O.Option<Duration.Duration>
   ): (store: ResultStore.ResultStoreShape) => Effect.Effect<ExecutionFold, ExecutionError, R>;
 } = dual(
-  5,
+  6,
   Effect.fn("runStrategy")(function* <A, B, R, E>(
     store: ResultStore.ResultStoreShape,
     leafNodes: ReadonlyArray<GraphNode<A>>,
     operation: GraphOperation<A, B, R, E>,
     cache: boolean,
-    concurrency: number
+    concurrency: number,
+    timeout: O.Option<Duration.Duration>
   ): Effect.fn.Return<ExecutionFold, ExecutionError, R> {
     const attributes = {
       cache_enabled: `${cache}`,
       concurrency: `${concurrency}`,
       leaf_count: `${A.length(leafNodes)}`,
       operation: operation.name,
+      timeout_ms: O.match(timeout, { onNone: () => "none", onSome: (d) => `${Duration.toMillis(d)}` }),
     };
     return yield* Effect.gen(function* () {
       const startTime = yield* Clock.currentTimeMillis;
-      const applications = yield* Effect.forEach(leafNodes, (leafNode) => applyOne(store, operation, cache, leafNode), {
-        concurrency,
-      });
+      const applications = yield* Effect.forEach(
+        leafNodes,
+        (leafNode) => applyOne(store, operation, cache, timeout, leafNode),
+        {
+          concurrency,
+        }
+      );
       const endTime = yield* Clock.currentTimeMillis;
       const fold = foldApplications(applications, A.length(leafNodes), endTime - startTime);
       yield* Obs.annotateNlpSpan({
@@ -356,6 +408,7 @@ const execute: GraphExecutorShape["execute"] = dual(
       leaf_count: `${A.length(leafNodes)}`,
       operation: operation.name,
       strategy: opts.strategy._tag,
+      timeout_ms: O.match(opts.timeout, { onNone: () => "none", onSome: (d) => `${Duration.toMillis(d)}` }),
     };
 
     return yield* Effect.gen(function* () {
@@ -367,7 +420,7 @@ const execute: GraphExecutorShape["execute"] = dual(
               metrics: Types.ExecutionMetrics.empty(),
               newNodes: A.empty<GraphNode<unknown>>(),
             }
-          : yield* runStrategy(store, leafNodes, operation, opts.cache, concurrencyOf(opts.strategy));
+          : yield* runStrategy(store, leafNodes, operation, opts.cache, concurrencyOf(opts.strategy), opts.timeout);
 
       yield* Obs.annotateNlpSpan({
         ...attributes,

@@ -2,13 +2,19 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `reference` (superseded 2026-06-17)
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
+> **Superseded by [`goals/codex-security-findings-2026-06-17`](../codex-security-findings-2026-06-17/README.md)**
+> (scan `f4128216…`, 71 findings, branch `security/6-17-2026`). This packet
+> stalled at 12/52 captures and never reached triage; it is retained as
+> reference for its proven structure and policies. Its 12 partial captures are
+> preserved here as history.
+
 Supersedes the deleted `goals/codex-security-findings/` packet only in spirit —
 that packet covered a different scan (`3ccb…`, 64 findings, merged via PRs
-#164/#169). This packet is a new batch: scan `5138…`, 52 findings.
+#164/#169). This packet was a new batch: scan `5138…`, 52 findings.
 
 ## Mission
 

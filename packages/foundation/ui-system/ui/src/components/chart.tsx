@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@beep/ui/lib/utils";
-import { A, P, Str, Struct } from "@beep/utils";
+import { A, O, P, Str, Struct } from "@beep/utils";
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 import type { TooltipValueType } from "recharts";
@@ -101,6 +101,25 @@ function ChartContainer({
   );
 }
 
+// Conservative CSS identifier: only ASCII letters, digits, hyphen, underscore.
+// Used to validate chart ids and config keys so they cannot break out of the
+// surrounding selector/declaration when serialized into a raw <style> tag.
+const CSS_IDENTIFIER_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+// Characters that can terminate a CSS declaration, close a rule, open a comment,
+// or break out of the <style> element. Any color/theme value containing one of
+// these is rejected rather than serialized, preventing CSS rule breakout.
+const CSS_VALUE_BREAKOUT_PATTERN = /[;{}<>\\]|\/\*|\*\//;
+
+const isSafeCssIdentifier = (value: string): boolean => O.isSome(Str.match(CSS_IDENTIFIER_PATTERN)(value));
+
+const isSafeCssColorValue = (value: string): boolean => O.isNone(Str.match(CSS_VALUE_BREAKOUT_PATTERN)(value));
+
+// Strip everything that is not a safe CSS identifier character so the value can
+// be embedded inside the quoted `[data-chart="..."]` attribute selector without
+// allowing selector/rule breakout.
+const sanitizeChartSelectorId = (id: string): string => Str.replace(/[^A-Za-z0-9_-]/g, "")(id);
+
 /**
  * Injects per-theme CSS custom properties for a chart's configured series colors.
  *
@@ -115,28 +134,32 @@ function ChartContainer({
  * @since 0.0.0
  */
 const ChartStyle = ({ id, config }: { readonly id: string; readonly config: ChartConfig }) => {
+  // Only keep entries whose key is a safe CSS identifier and that declare a
+  // color/theme, so attacker-influenced config keys cannot break the rule body.
   const colorConfig = A.filter(
     Struct.entries(config),
-    ([, itemConfig]) => (itemConfig.theme ?? itemConfig.color) !== undefined
+    ([key, itemConfig]) => isSafeCssIdentifier(key) && (itemConfig.theme ?? itemConfig.color) !== undefined
   );
 
   if (colorConfig.length === 0) {
     return null;
   }
 
+  const safeSelectorId = sanitizeChartSelectorId(id);
+
   return (
     <style
-      // biome-ignore lint/security/noDangerouslySetInnerHtml: canonical shadcn ChartStyle pattern injecting theme CSS variables from developer-controlled chart config (no user input)
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: canonical shadcn ChartStyle pattern; id/keys/colors are sanitized (quoted+escaped selector, identifier-validated keys, breakout-rejected color values) before serialization
       dangerouslySetInnerHTML={{
         __html: A.join(
           A.map(
             Struct.entries(THEMES),
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart="${safeSelectorId}"] {
 ${A.join(
   A.map(colorConfig, ([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ?? itemConfig.color;
-    return color !== undefined ? `  --color-${key}: ${color};` : "";
+    return color !== undefined && isSafeCssColorValue(color) ? `  --color-${key}: ${color};` : "";
   }),
   "\n"
 )}

@@ -78,6 +78,7 @@ class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`Grap
     listenPort: S.optionalKey(S.String),
     concurrency: S.optionalKey(S.String),
     maxQueue: S.optionalKey(S.String),
+    maxBodyBytes: S.optionalKey(S.String),
     requestTimeoutMs: S.optionalKey(S.String),
     serverIdleTimeoutSeconds: S.optionalKey(S.String),
     shutdownDrainTimeoutMs: S.optionalKey(S.String),
@@ -124,6 +125,11 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
       "GraphitiProxyMaxQueue",
       500,
       "Maximum queue depth before requests are rejected."
+    ),
+    maxBodyBytes: makeDefaultedPositiveIntField(
+      "GraphitiProxyMaxBodyBytes",
+      10_485_760,
+      "Maximum proxied request body size in bytes before requests are rejected with 413."
     ),
     requestTimeoutMs: makeDefaultedPositiveIntField(
       "GraphitiProxyRequestTimeoutMs",
@@ -189,6 +195,7 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const listenPort = yield* Config.option(Config.string("GRAPHITI_PROXY_PORT"));
   const concurrency = yield* Config.option(Config.string("GRAPHITI_PROXY_CONCURRENCY"));
   const maxQueue = yield* Config.option(Config.string("GRAPHITI_PROXY_MAX_QUEUE"));
+  const maxBodyBytes = yield* Config.option(Config.string("GRAPHITI_PROXY_MAX_BODY_BYTES"));
   const requestTimeoutMs = yield* Config.option(Config.string("GRAPHITI_PROXY_REQUEST_TIMEOUT_MS"));
   const serverIdleTimeoutSeconds = yield* Config.option(Config.string("GRAPHITI_PROXY_SERVER_IDLE_TIMEOUT_SECONDS"));
   const shutdownDrainTimeoutMs = yield* Config.option(Config.string("GRAPHITI_PROXY_SHUTDOWN_DRAIN_TIMEOUT_MS"));
@@ -205,6 +212,7 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
       listenPort,
       concurrency,
       maxQueue,
+      maxBodyBytes,
       requestTimeoutMs,
       serverIdleTimeoutSeconds,
       shutdownDrainTimeoutMs,

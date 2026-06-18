@@ -226,6 +226,7 @@
         "@beep/agents-domain": "workspace:^",
         "@beep/agents-use-cases": "workspace:^",
         "@beep/md": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -258,6 +259,9 @@
         "@beep/agents-use-cases": "workspace:^",
         "@beep/anthropic": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/observability": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -516,6 +520,7 @@
       "name": "@beep/ffmpeg",
       "version": "0.0.2",
       "dependencies": {
+        "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
@@ -587,6 +592,7 @@
       "name": "@beep/nlp-mcp",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/nlp": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1270,6 +1276,7 @@
       "version": "0.0.3",
       "dependencies": {
         "@beep/duckdb": "workspace:^",
+        "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/phoenix": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -1295,21 +1302,6 @@
       "devDependencies": {
         "@beep/types": "workspace:^",
         "@effect/platform-node": "catalog:",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/tooling/library/repo-codegraph": {
-      "name": "@beep/repo-codegraph",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-        "jsonc-parser": "catalog:",
-      },
-      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1408,7 +1400,6 @@
         "@beep/observability": "workspace:^",
         "@beep/phoenix": "workspace:^",
         "@beep/repo-ai-metrics": "workspace:^",
-        "@beep/repo-codegraph": "workspace:^",
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-docgen": "workspace:^",
         "@beep/repo-utils": "workspace:^",
@@ -2113,8 +2104,6 @@
     "@beep/repo-ai-metrics": ["@beep/repo-ai-metrics@workspace:packages/tooling/library/ai-metrics"],
 
     "@beep/repo-cli": ["@beep/repo-cli@workspace:packages/tooling/tool/cli"],
-
-    "@beep/repo-codegraph": ["@beep/repo-codegraph@workspace:packages/tooling/library/repo-codegraph"],
 
     "@beep/repo-configs": ["@beep/repo-configs@workspace:packages/tooling/policy-pack/repo-configs"],
 

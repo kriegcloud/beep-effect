@@ -646,8 +646,13 @@ const botCommentCount = (comments: ReadonlyArray<GhComment>, token: string): num
     A.length
   );
 
+const hasGreptileEvidence = (summary: GreptileSummary, activeThreadCount: number): boolean =>
+  summary.issueCount !== undefined || summary.score !== undefined || summary.url !== undefined || activeThreadCount > 0;
+
 const inferGreptileIssueCount = (summary: GreptileSummary, activeThreadCount: number): GreptileSummary =>
-  summary.issueCount === undefined ? GreptileSummary.make({ ...summary, issueCount: activeThreadCount }) : summary;
+  summary.issueCount === undefined && hasGreptileEvidence(summary, activeThreadCount)
+    ? GreptileSummary.make({ ...summary, issueCount: activeThreadCount })
+    : summary;
 
 type GreptileSummaryCommentInput = {
   readonly authorLogin: string;
@@ -683,9 +688,15 @@ export const latestGreptileSummaryForTesting = (
 /**
  * Fill a missing Greptile issue count from active Greptile-authored thread count.
  *
+ * Inference is only applied when there is positive evidence that Greptile ran:
+ * a parsed summary score/url/issue count, or at least one active Greptile-authored
+ * review thread. When no Greptile evidence exists the issue count is left
+ * undefined so the closeout gate stays fail-closed instead of treating a missing
+ * Greptile result as zero issues.
+ *
  * @param summary - Parsed Greptile summary.
  * @param activeThreadCount - Unresolved, non-outdated Greptile-authored thread count.
- * @returns Summary with an inferred issue count when Greptile omitted one.
+ * @returns Summary with an inferred issue count only when Greptile evidence is present.
  * @category testing
  * @since 0.0.0
  */
@@ -1000,16 +1011,15 @@ const collectReviewThreadPages = Effect.fn("YeetCloseout.collectReviewThreadPage
       ),
       Effect.map((document) => document.data.repository.pullRequest.reviewThreads)
     );
-    const truncatedThread = pipe(
+    const truncatedThreadIds = pipe(
       page.nodes,
-      A.findFirst((thread) => thread.comments.pageInfo.hasNextPage)
+      A.filter((thread) => thread.comments.pageInfo.hasNextPage),
+      A.map((thread) => thread.id)
     );
-    if (O.isSome(truncatedThread)) {
-      return yield* YeetCommandError.make({
-        message: `Review thread ${truncatedThread.value.id} has more than 100 comments; Yeet closeout refuses to silently truncate nested thread comments.`,
-        command: "gh api graphql",
-        exitCode: 1,
-      });
+    if (A.isReadonlyArrayNonEmpty(truncatedThreadIds)) {
+      yield* Effect.logWarning(
+        `Review thread(s) ${A.join(truncatedThreadIds, ", ")} have more than 100 comments; Yeet closeout inspects only the first 100 nested comments per thread. Untrusted comment volume cannot block closeout.`
+      );
     }
 
     threads = [...threads, ...page.nodes];
@@ -1038,16 +1048,15 @@ const collectReviewPages = Effect.fn("YeetCloseout.collectReviewPages")(function
       ),
       Effect.map((document) => document.data.repository.pullRequest.reviews)
     );
-    const truncatedReview = pipe(
+    const truncatedReviewIds = pipe(
       page.nodes,
-      A.findFirst((review) => review.comments.pageInfo.hasNextPage)
+      A.filter((review) => review.comments.pageInfo.hasNextPage),
+      A.map((review) => review.id)
     );
-    if (O.isSome(truncatedReview)) {
-      return yield* YeetCommandError.make({
-        message: `Review ${truncatedReview.value.id} has more than 100 inline comments; Yeet closeout refuses to silently truncate nested review comments.`,
-        command: "gh api graphql",
-        exitCode: 1,
-      });
+    if (A.isReadonlyArrayNonEmpty(truncatedReviewIds)) {
+      yield* Effect.logWarning(
+        `Review(s) ${A.join(truncatedReviewIds, ", ")} have more than 100 inline comments; Yeet closeout inspects only the first 100 inline comments per review. Untrusted comment volume cannot block closeout.`
+      );
     }
 
     reviews = [...reviews, ...page.nodes];

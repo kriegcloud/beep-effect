@@ -21,7 +21,7 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, O as OptionUtils } from "@beep/utils";
-import { Clock, Effect, Graph, MutableHashMap } from "effect";
+import { Clock, Effect, Graph, MutableHashMap, MutableHashSet } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -751,6 +751,13 @@ export const toMermaid = (graph: TextGraph): string =>
 /**
  * Render the graph as an indented tree from roots downward.
  *
+ * @remarks
+ * `TextGraph` is a raw `effect/Graph.DirectedGraph` alias, so callers can supply
+ * graphs containing cycles that bypass {@link addChildren}'s acyclicity check.
+ * Each node index is rendered at most once (tracked via a visited set), which
+ * prevents unbounded recursion / stack overflow on root-reachable cycles and
+ * avoids repeated output for shared descendants.
+ *
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -764,7 +771,10 @@ export const toMermaid = (graph: TextGraph): string =>
  */
 export const show = (graph: TextGraph): string => {
   const lines = A.empty<string>();
+  const visited = MutableHashSet.empty<Graph.NodeIndex>();
   const visit = (nodeIndex: Graph.NodeIndex, indent: number): void => {
+    if (MutableHashSet.has(visited, nodeIndex)) return;
+    MutableHashSet.add(visited, nodeIndex);
     O.match(Graph.getNode(graph, nodeIndex), {
       onNone: () => {},
       onSome: (node) => {

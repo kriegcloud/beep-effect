@@ -16,6 +16,20 @@ import type { ExtractionCandidate, LangExtractOptions } from "@beep/langextract/
 
 const DEFAULT_FUZZY_THRESHOLD = 0.82;
 
+/**
+ * Defensive bounds for the fuzzy alignment path. Fuzzy matching slides a
+ * query-sized word window across the source and runs an `O(n*m)` Levenshtein
+ * comparison per window, so even schema-bounded inputs are kept within a
+ * predictable CPU budget. When the source or query exceeds these limits the
+ * fuzzy fallback is skipped and the candidate fails closed to `unaligned`
+ * rather than blocking the runtime. The default extraction cap prevents an
+ * unbounded candidate array from multiplying that per-candidate cost when the
+ * caller omits an explicit `maxExtractions`.
+ */
+const MAX_FUZZY_SOURCE_LENGTH = 100_000;
+const MAX_FUZZY_QUERY_LENGTH = 4_096;
+const DEFAULT_MAX_EXTRACTIONS = 256;
+
 const lower = Str.toLowerCase;
 
 const makeGrounded = (
@@ -156,6 +170,10 @@ const wordsWithOffsets = (sourceText: string): ReadonlyArray<readonly [number, n
 };
 
 const findFuzzy = (sourceText: string, query: string, threshold: number): undefined | readonly [number, string] => {
+  if (sourceText.length > MAX_FUZZY_SOURCE_LENGTH || query.length > MAX_FUZZY_QUERY_LENGTH) {
+    return undefined;
+  }
+
   const queryWordCount = query.trim().split(/\s+/u).filter(Boolean).length;
   if (queryWordCount === 0) {
     return undefined;
@@ -262,8 +280,7 @@ export const alignCandidates: {
     candidates: ReadonlyArray<ExtractionCandidate>,
     options?: LangExtractOptions
   ): ReadonlyArray<GroundedExtraction> {
-    return candidates
-      .slice(0, options?.maxExtractions ?? candidates.length)
-      .map((candidate) => alignCandidate(sourceText, candidate, options));
+    const limit = options?.maxExtractions ?? Math.min(candidates.length, DEFAULT_MAX_EXTRACTIONS);
+    return A.map(A.take(candidates, limit), (candidate) => alignCandidate(sourceText, candidate, options));
   }
 );

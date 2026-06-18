@@ -3,13 +3,14 @@
   "initiative": {
     "id": "codex-security-findings-2026-06",
     "title": "Codex Security Findings (2026-06)",
-    "status": "active",
+    "status": "reference",
     "created": "2026-06-08",
-    "updated": "2026-06-11",
-    "packetAnchorDocument": "SPEC.md"
+    "updated": "2026-06-17",
+    "packetAnchorDocument": "SPEC.md",
+    "supersededBy": "goals/codex-security-findings-2026-06-17"
   },
   "packetPath": "goals/codex-security-findings-2026-06",
-  "lifecycle": "active",
+  "lifecycle": "reference",
   "executionCapable": true,
   "branch": "@slop/june-8-2026",
   "currentSourceOfTruth": [

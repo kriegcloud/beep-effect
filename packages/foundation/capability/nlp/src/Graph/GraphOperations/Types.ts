@@ -35,12 +35,39 @@ const $I = $NlpId.create("Graph/GraphOperations/Types");
 // =============================================================================
 
 /**
+ * Conservative upper bound the executor enforces on parallel concurrency.
+ *
+ * @remarks
+ * `ExecutionStrategy.Parallel(concurrency)` accepts any finite number, but an
+ * untrusted or buggy caller could request excessive parallelism and exhaust
+ * CPU, memory, fibers, or downstream resources. The executor clamps the
+ * requested concurrency into `[1, MAX_PARALLEL_CONCURRENCY]` (flooring fractional
+ * values and falling back to `1` for non-finite or non-positive input) before
+ * scheduling work, so this constant is the documented source of truth for that
+ * cap. Trusted operators that genuinely need more parallelism should raise this
+ * bound deliberately rather than passing larger values from request input.
+ *
+ * @example
+ * ```ts
+ * import { MAX_PARALLEL_CONCURRENCY } from "@beep/nlp/Graph/GraphOperations/Types"
+ *
+ * console.log(MAX_PARALLEL_CONCURRENCY) // 64
+ * ```
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const MAX_PARALLEL_CONCURRENCY = 64;
+
+/**
  * Strategy describing how an operation is scheduled across the current leaf set.
  *
  * @remarks
  * The executor currently honors sequential execution and parallel execution with
- * bounded concurrency. Batch and streaming variants are part of the public model
- * so callers can persist intent, but execution falls back to the sequential
+ * bounded concurrency: the requested `Parallel(concurrency)` value is clamped to
+ * `[1, MAX_PARALLEL_CONCURRENCY]` before scheduling, so callers cannot request
+ * unbounded parallelism. Batch and streaming variants are part of the public
+ * model so callers can persist intent, but execution falls back to the sequential
  * behavior until dedicated schedulers are introduced.
  *
  * @example
@@ -553,8 +580,10 @@ export type OperationCategory = typeof OperationCategory.Type;
  *
  * @remarks
  * `cache` toggles result-store lookup and write-through. `strategy` controls
- * scheduling over the current leaf set. `timeout` and `trace` are retained in
- * the options model for orchestration layers that enforce time limits or emit
+ * scheduling over the current leaf set. When `timeout` is set, the executor
+ * bounds each per-leaf `operation.apply` invocation by that duration and records
+ * a `TimeoutError` as that leaf's result error on expiry instead of letting the
+ * operation run unbounded. `trace` is retained for orchestration layers that emit
  * diagnostics around execution.
  *
  * @example

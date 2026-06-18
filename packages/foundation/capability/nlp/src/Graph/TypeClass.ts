@@ -554,6 +554,49 @@ export interface Functor<F> {
 }
 
 /**
+ * Shared dual signature for the effectful per-node data mappers built on
+ * {@link makeEffectfulMapBody} (`flatMap`, `traverse`): both accept either the
+ * operation and effectful function together (data-first) or the function alone
+ * (data-last). Named once so the two instances stay signature-identical.
+ */
+interface EffectfulMapOperationSignature {
+  <A, B, C, R1, E1, R2, E2>(
+    operation: TextOperation<A, B, R1, E1>,
+    f: (b: B) => Effect.Effect<C, E2, R2>
+  ): TextOperation<A, C, R1 | R2, E1 | E2>;
+  <A, B, C, R1, E1, R2, E2>(
+    f: (b: B) => Effect.Effect<C, E2, R2>
+  ): (operation: TextOperation<A, B, R1, E1>) => TextOperation<A, C, R1 | R2, E1 | E2>;
+}
+
+/**
+ * Build the uncurried two-argument body for an effectful per-node data mapper:
+ * run `operation`, then replace each node's data with the result of the
+ * effectful `f`, naming the derived operation with the given `suffix`. Factored
+ * out so the `flatMap` and `traverse` instances share one implementation while
+ * each export still applies {@link dual} visibly at its own call site (the
+ * dual-arity law requires `dual(...)` on the exported binding).
+ */
+const makeEffectfulMapBody =
+  (suffix: string) =>
+  <A, B, C, R1, E1, R2, E2>(
+    operation: TextOperation<A, B, R1, E1>,
+    f: (b: B) => Effect.Effect<C, E2, R2>
+  ): TextOperation<A, C, R1 | R2, E1 | E2> =>
+    makeOperation(`${operation.name} |> ${suffix}`, (node) =>
+      Effect.flatMap(operation.apply(node), (nodes) =>
+        Effect.all(
+          A.map(nodes, (n) =>
+            Effect.map(f(n.data), (newData) => ({
+              ...n,
+              data: newData,
+            }))
+          )
+        )
+      )
+    );
+
+/**
  * Map over a {@link TextOperation}'s output data, preserving structure/effects.
  *
  * @example
@@ -602,33 +645,7 @@ export const map: {
  * @since 0.0.0
  * @category mapping
  */
-export const flatMap: {
-  <A, B, C, R1, E1, R2, E2>(
-    operation: TextOperation<A, B, R1, E1>,
-    f: (b: B) => Effect.Effect<C, E2, R2>
-  ): TextOperation<A, C, R1 | R2, E1 | E2>;
-  <A, B, C, R1, E1, R2, E2>(
-    f: (b: B) => Effect.Effect<C, E2, R2>
-  ): (operation: TextOperation<A, B, R1, E1>) => TextOperation<A, C, R1 | R2, E1 | E2>;
-} = dual(
-  2,
-  <A, B, C, R1, E1, R2, E2>(
-    operation: TextOperation<A, B, R1, E1>,
-    f: (b: B) => Effect.Effect<C, E2, R2>
-  ): TextOperation<A, C, R1 | R2, E1 | E2> =>
-    makeOperation(`${operation.name} |> flatMap`, (node) =>
-      Effect.flatMap(operation.apply(node), (nodes) =>
-        Effect.all(
-          A.map(nodes, (n) =>
-            Effect.map(f(n.data), (newData) => ({
-              ...n,
-              data: newData,
-            }))
-          )
-        )
-      )
-    )
-);
+export const flatMap: EffectfulMapOperationSignature = dual(2, makeEffectfulMapBody("flatMap"));
 
 // =============================================================================
 // Applicative Instance for TextOperation
@@ -670,9 +687,14 @@ export const ap: {
       Effect.fnUntraced(function* (node) {
         const fnNodes = yield* opFn.apply(node);
         const valNodes = yield* opVal.apply(node);
-        return A.flatMap(fnNodes, (fnNode) =>
-          A.map(valNodes, (valNode) => ({
+        // Each Cartesian-product pair must mint a fresh node id; spreading
+        // valNode would reuse valNode.id across function-node branches and
+        // corrupt the graph's id-to-index mapping on insertion.
+        const pairs = A.flatMap(fnNodes, (fnNode) => A.map(valNodes, (valNode) => [fnNode, valNode] as const));
+        return yield* Effect.forEach(pairs, ([fnNode, valNode]) =>
+          Effect.map(generateNodeId, (id) => ({
             ...valNode,
+            id,
             data: fnNode.data(valNode.data),
           }))
         );
@@ -866,33 +888,7 @@ export const empty = <A, B>(): TextOperation<A, B> =>
  * @since 0.0.0
  * @category combinators
  */
-export const traverse: {
-  <A, B, C, R1, E1, R2, E2>(
-    operation: TextOperation<A, B, R1, E1>,
-    f: (b: B) => Effect.Effect<C, E2, R2>
-  ): TextOperation<A, C, R1 | R2, E1 | E2>;
-  <A, B, C, R1, E1, R2, E2>(
-    f: (b: B) => Effect.Effect<C, E2, R2>
-  ): (operation: TextOperation<A, B, R1, E1>) => TextOperation<A, C, R1 | R2, E1 | E2>;
-} = dual(
-  2,
-  <A, B, C, R1, E1, R2, E2>(
-    operation: TextOperation<A, B, R1, E1>,
-    f: (b: B) => Effect.Effect<C, E2, R2>
-  ): TextOperation<A, C, R1 | R2, E1 | E2> =>
-    makeOperation(`${operation.name} |> traverse`, (node) =>
-      Effect.flatMap(operation.apply(node), (nodes) =>
-        Effect.all(
-          A.map(nodes, (n) =>
-            Effect.map(f(n.data), (newData) => ({
-              ...n,
-              data: newData,
-            }))
-          )
-        )
-      )
-    )
-);
+export const traverse: EffectfulMapOperationSignature = dual(2, makeEffectfulMapBody("traverse"));
 
 // =============================================================================
 // Utility Combinators

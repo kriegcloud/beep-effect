@@ -577,12 +577,6 @@
       "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
       "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
       "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
-      "@beep/repo-codegraph": [
-        "./packages/tooling/library/repo-codegraph/src/index.ts"
-      ],
-      "@beep/repo-codegraph/*": [
-        "./packages/tooling/library/repo-codegraph/src/*"
-      ],
       "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
       "@beep/konva/*": ["./packages/drivers/konva/src/*"],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
@@ -667,9 +661,6 @@
       ],
       "@beep/repo-cli/test/Quality": [
         "./packages/tooling/tool/cli/src/test/Quality.test-kit.ts"
-      ],
-      "@beep/repo-cli/test/Reuse": [
-        "./packages/tooling/tool/cli/src/test/Reuse.test-kit.ts"
       ],
       "@beep/repo-cli/test/SyncDataToTs": [
         "./packages/tooling/tool/cli/src/test/SyncDataToTs.test-kit.ts"
@@ -1178,6 +1169,9 @@
       ],
       "@beep/pandoc-ast/Pandoc.report": [
         "./packages/foundation/modeling/pandoc-ast/src/Pandoc.report.ts"
+      ],
+      "@beep/file-processing/PathSafety": [
+        "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
       ]
     }
   }

@@ -119,7 +119,6 @@ const generatedComposers = $I.compose(
   "hubspot",
   "phoenix",
   "konva",
-  "repo-codegraph",
   "ai-sync",
   "nlp-mcp",
   "wink",
@@ -1181,23 +1180,6 @@ export const $PhoenixId: Identity.IdentityComposer<"@beep/phoenix"> = composers.
  * @category configuration
  */
 export const $KonvaId: Identity.IdentityComposer<"@beep/konva"> = composers.$KonvaId;
-
-/**
- * Identity composer for `@beep/repo-codegraph`.
- *
- *
- * @example
- * ```typescript
- * import { $RepoCodegraphId } from "@beep/identity"
- *
- * const id = $RepoCodegraphId.make("RepoCodegraph")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $RepoCodegraphId: Identity.IdentityComposer<"@beep/repo-codegraph"> = composers.$RepoCodegraphId;
 
 /**
  * Identity composer for `@beep/ai-sync`.

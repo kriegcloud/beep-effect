@@ -52,7 +52,7 @@ In scope:
 - image file metadata without OCR
 - schema-encoded manifest tree output
 - generated synthetic fixtures for package and CLI tests
-- optional coverage profiling against `/data/home/elpresidank/Oppold_IP_Law/`
+- optional coverage profiling against `<operator-local-corpus>`
 
 Known non-core inputs from the local corpus include XLS, XLSX, and DOCM. V1
 must classify them deterministically as supported, skipped, or failed, but full
