@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Solo-Firm IP Docketing - Rundown</title>
+    <title>Solo-Firm IP Docketing - Research Rundown</title>
     <style>
       :root {
         color-scheme: light;
-        --ink: #1f2523;
-        --muted: #5e6964;
-        --line: #d8dfdb;
-        --paper: #fafbf9;
+        --ink: #202624;
+        --muted: #606a66;
+        --paper: #fbfcfa;
         --panel: #ffffff;
-        --green: #1f7a55;
-        --green-soft: #e7f3ec;
-        --blue: #2368a2;
+        --line: #d7dfda;
+        --green: #217755;
+        --green-soft: #e6f2eb;
+        --blue: #2467a0;
         --blue-soft: #e7f0f8;
-        --amber: #9a6a11;
-        --amber-soft: #f6eedb;
-        --red: #a83d36;
-        --red-soft: #f8e7e4;
-        --violet: #6a4fa3;
+        --amber: #9a6910;
+        --amber-soft: #f5edda;
+        --red: #a64139;
+        --red-soft: #f8e8e5;
+        --violet: #6750a3;
         --violet-soft: #eee9f7;
-        --shadow: 0 16px 40px rgba(31, 37, 35, 0.1);
+        --shadow: 0 14px 32px rgba(32, 38, 36, 0.08);
       }
 
       * {
@@ -31,18 +31,17 @@
 
       body {
         margin: 0;
+        background:
+          linear-gradient(180deg, #eef5ef 0, #fbfaf4 360px, #f8faf9 100%);
+        color: var(--ink);
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
           "Segoe UI", sans-serif;
-        color: var(--ink);
-        background:
-          linear-gradient(180deg, #f4f7f4 0, #fbfaf6 360px, #f8faf9 100%);
         letter-spacing: 0;
       }
 
       a {
         color: inherit;
-        text-decoration-color: rgba(31, 37, 35, 0.28);
         text-underline-offset: 3px;
       }
 
@@ -50,40 +49,44 @@
         font: inherit;
       }
 
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.92em;
+      }
+
       .page {
         width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 28px 0 42px;
+        padding: 28px 0 44px;
       }
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
-        gap: 20px;
+        grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
+        gap: 18px;
         align-items: stretch;
-        min-height: 320px;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
       }
 
       .hero-copy {
-        padding: 24px 0 24px;
+        padding: 22px 0;
       }
 
       .eyebrow {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        min-height: 28px;
-        padding: 4px 10px;
+        min-height: 30px;
+        padding: 5px 10px;
         border: 1px solid var(--line);
         border-radius: 999px;
+        background: rgba(255, 255, 255, 0.76);
         color: var(--muted);
-        background: rgba(255, 255, 255, 0.78);
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 800;
       }
 
-      .status-dot {
+      .dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
@@ -92,22 +95,21 @@
 
       h1 {
         margin: 18px 0 12px;
-        max-width: 820px;
-        font-size: clamp(38px, 8vw, 78px);
+        max-width: 900px;
+        font-size: clamp(40px, 8vw, 76px);
         line-height: 0.96;
         letter-spacing: 0;
       }
 
       .lede {
         margin: 0;
-        max-width: 760px;
+        max-width: 800px;
         color: var(--muted);
-        font-size: clamp(17px, 2.4vw, 22px);
+        font-size: clamp(17px, 2.2vw, 22px);
         line-height: 1.42;
       }
 
       .doctrine {
-        align-self: stretch;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
@@ -116,17 +118,17 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        min-height: 260px;
+        min-height: 290px;
       }
 
-      .doctrine h2,
-      .panel h2,
-      .section-title h2 {
+      .kicker,
+      .section-title h2,
+      .doctrine h2 {
         margin: 0;
-        font-size: 15px;
-        line-height: 1.2;
-        text-transform: uppercase;
         color: var(--muted);
+        font-size: 13px;
+        font-weight: 850;
+        text-transform: uppercase;
       }
 
       .doctrine strong {
@@ -137,9 +139,9 @@
       }
 
       .doctrine p {
+        margin: 14px 0 0;
         color: var(--muted);
         line-height: 1.48;
-        margin: 18px 0 0;
       }
 
       .quick-links {
@@ -149,148 +151,112 @@
         margin-top: 18px;
       }
 
-      .quick-links a {
+      .quick-links a,
+      .action-link {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         min-height: 34px;
         padding: 7px 10px;
-        border-radius: 8px;
         border: 1px solid var(--line);
-        background: #f7f8f6;
+        border-radius: 8px;
+        background: #f9faf8;
+        color: var(--ink);
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 850;
+        line-height: 1.2;
         text-decoration: none;
       }
 
-      .grid {
-        display: grid;
-        gap: 16px;
+      .action-link:hover,
+      .action-link:focus-visible,
+      .quick-links a:hover,
+      .quick-links a:focus-visible {
+        border-color: currentColor;
+        outline: none;
       }
 
-      .grid.two {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      }
-
-      .panel {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-        box-shadow: 0 10px 24px rgba(31, 37, 35, 0.06);
-        padding: 18px;
-        overflow: hidden;
-      }
-
-      .section-title {
-        display: flex;
-        align-items: end;
-        justify-content: space-between;
-        gap: 16px;
-        margin: 28px 0 12px;
-      }
-
-      .section-title p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.42;
-        max-width: 680px;
-      }
-
-      .layers {
+      .summary-strip {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 10px;
       }
 
-      .layer-button {
-        display: grid;
-        grid-template-rows: auto auto 1fr;
-        gap: 8px;
-        min-height: 178px;
-        padding: 14px;
+      .summary-card,
+      .panel,
+      .fact-card,
+      .question,
+      .flow-step {
         border: 1px solid var(--line);
         border-radius: 8px;
-        text-align: left;
-        background: #fff;
-        color: var(--ink);
-        cursor: pointer;
-        transition:
-          border-color 160ms ease,
-          box-shadow 160ms ease,
-          transform 160ms ease;
+        background: var(--panel);
       }
 
-      .layer-button:hover,
-      .layer-button:focus-visible,
-      .layer-button.is-active {
-        border-color: currentColor;
-        box-shadow: 0 8px 20px rgba(31, 37, 35, 0.12);
-        transform: translateY(-1px);
-        outline: none;
+      .summary-card {
+        min-height: 124px;
+        padding: 14px;
       }
 
-      .layer-button[data-tone="green"] {
-        color: var(--green);
+      .summary-card strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 28px;
+        line-height: 1;
       }
 
-      .layer-button[data-tone="amber"] {
-        color: var(--amber);
-      }
-
-      .layer-button[data-tone="blue"] {
-        color: var(--blue);
-      }
-
-      .layer-button[data-tone="violet"] {
-        color: var(--violet);
-      }
-
-      .layer-kicker {
-        font-size: 12px;
-        font-weight: 800;
-        text-transform: uppercase;
-      }
-
-      .layer-name {
-        color: var(--ink);
-        font-size: 20px;
-        font-weight: 850;
-        line-height: 1.08;
-      }
-
-      .layer-verdict {
+      .summary-card span {
         color: var(--muted);
-        font-size: 14px;
         line-height: 1.36;
       }
 
-      .detail {
-        min-height: 246px;
-        display: grid;
-        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      .section-title {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
         gap: 16px;
-        align-items: stretch;
+        margin: 30px 0 12px;
       }
 
-      .detail-main {
+      .section-title p {
+        margin: 0;
+        max-width: 700px;
+        color: var(--muted);
+        line-height: 1.42;
+      }
+
+      .panel {
         padding: 16px;
-        border-radius: 8px;
+        box-shadow: 0 10px 24px rgba(32, 38, 36, 0.06);
+        overflow: hidden;
+      }
+
+      .model {
+        display: grid;
+        grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+        gap: 12px;
+      }
+
+      .model-card {
+        min-height: 250px;
+        padding: 16px;
         border: 1px solid var(--line);
+        border-radius: 8px;
         background: #fbfcfa;
       }
 
-      .detail-main h3 {
-        margin: 0 0 10px;
-        font-size: clamp(24px, 4vw, 36px);
-        line-height: 1.04;
+      .model-card h3 {
+        margin: 10px 0;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.02;
       }
 
-      .detail-main p {
+      .model-card p {
+        margin: 0;
         color: var(--muted);
         line-height: 1.48;
-        margin: 0;
       }
 
-      .evidence-list {
+      .model-list {
         display: grid;
         gap: 8px;
         margin: 0;
@@ -298,12 +264,12 @@
         list-style: none;
       }
 
-      .evidence-list li {
+      .model-list li {
         display: grid;
-        grid-template-columns: 92px minmax(0, 1fr);
+        grid-template-columns: 118px minmax(0, 1fr);
         gap: 10px;
         align-items: start;
-        min-height: 50px;
+        min-height: 58px;
         padding: 10px;
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -312,13 +278,14 @@
 
       .tag {
         display: inline-flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         min-height: 26px;
         padding: 4px 8px;
         border-radius: 999px;
         font-size: 12px;
         font-weight: 850;
+        line-height: 1.2;
         white-space: nowrap;
       }
 
@@ -347,20 +314,112 @@
         background: var(--violet-soft);
       }
 
+      .vendors {
+        display: grid;
+        gap: 9px;
+      }
+
+      .vendor-row {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr) minmax(152px, 0.46fr);
+        gap: 12px;
+        align-items: center;
+        min-height: 76px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .vendor-name {
+        font-size: 22px;
+        font-weight: 900;
+        line-height: 1.04;
+      }
+
+      .vendor-type,
+      .vendor-note {
+        color: var(--muted);
+        line-height: 1.36;
+      }
+
+      .vendor-type {
+        margin-top: 5px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .vendor-note {
+        font-size: 14px;
+      }
+
+      .meter {
+        height: 10px;
+        border-radius: 999px;
+        background: #edf1ed;
+        overflow: hidden;
+        margin-top: 9px;
+      }
+
+      .meter span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+      }
+
+      .vendor-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .grid.two {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .facts,
+      .questions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .fact-card,
+      .question {
+        min-height: 130px;
+        padding: 14px;
+      }
+
+      .fact-card b,
+      .question b {
+        display: block;
+        margin: 8px 0;
+        line-height: 1.18;
+      }
+
+      .fact-card p,
+      .question p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.42;
+      }
+
       .flow {
         display: grid;
-        grid-template-columns: repeat(6, minmax(110px, 1fr));
+        grid-template-columns: repeat(6, minmax(118px, 1fr));
         gap: 8px;
-        align-items: stretch;
       }
 
       .flow-step {
         position: relative;
-        min-height: 118px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
+        min-height: 122px;
         padding: 12px;
-        background: var(--panel);
       }
 
       .flow-step::after {
@@ -390,150 +449,49 @@
         line-height: 1.34;
       }
 
-      .vendors {
-        display: grid;
-        gap: 9px;
-      }
-
-      .vendor-row {
-        display: grid;
-        grid-template-columns: 148px minmax(0, 1fr) minmax(150px, 0.48fr);
-        gap: 10px;
-        align-items: center;
-        min-height: 64px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 10px;
-        background: #fff;
-      }
-
-      .vendor-name {
-        font-weight: 850;
-        line-height: 1.12;
-      }
-
-      .vendor-note {
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.34;
-      }
-
-      .meter {
-        height: 10px;
-        border-radius: 999px;
-        background: #eef1ee;
-        overflow: hidden;
-        margin-top: 8px;
-      }
-
-      .meter span {
-        display: block;
-        height: 100%;
-        border-radius: inherit;
-      }
-
-      .vendor-actions {
+      .toggle-row {
         display: flex;
-        flex-direction: column;
-        align-items: flex-end;
+        flex-wrap: wrap;
         gap: 8px;
+        margin-bottom: 12px;
       }
 
-      .vendor-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 32px;
-        max-width: 100%;
-        padding: 6px 10px;
+      .toggle {
+        min-height: 34px;
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #f9faf8;
-        color: var(--ink);
-        font-size: 12px;
+        border-radius: 999px;
+        background: #fff;
+        color: var(--muted);
+        padding: 6px 12px;
+        cursor: pointer;
         font-weight: 850;
-        line-height: 1.2;
-        text-align: center;
-        text-decoration: none;
       }
 
-      .vendor-link:hover,
-      .vendor-link:focus-visible {
+      .toggle.is-active,
+      .toggle:focus-visible,
+      .toggle:hover {
         border-color: currentColor;
+        color: var(--ink);
         outline: none;
       }
 
-      .risks,
-      .questions {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .risk,
-      .question {
-        min-height: 116px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 14px;
-        background: #fff;
-      }
-
-      .risk b,
-      .question b {
-        display: block;
-        margin-bottom: 8px;
-      }
-
-      .risk p,
-      .question p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.42;
-      }
-
-      .summary-strip {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .summary-item {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 14px;
-        background: #fff;
-        min-height: 116px;
-      }
-
-      .summary-item strong {
-        display: block;
-        font-size: 26px;
-        line-height: 1;
-        margin-bottom: 8px;
-      }
-
-      .summary-item span {
-        color: var(--muted);
-        line-height: 1.34;
-      }
-
-      .footer {
-        margin-top: 28px;
+      .source-note {
+        margin-top: 24px;
         color: var(--muted);
         font-size: 13px;
-        line-height: 1.5;
+        line-height: 1.48;
       }
 
-      @media (max-width: 920px) {
+      @media (max-width: 960px) {
         .hero,
-        .grid.two,
-        .detail {
+        .model,
+        .grid.two {
           grid-template-columns: 1fr;
         }
 
-        .layers,
-        .summary-strip {
+        .summary-strip,
+        .facts,
+        .questions {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
@@ -546,22 +504,21 @@
         }
       }
 
-      @media (max-width: 620px) {
+      @media (max-width: 640px) {
         .page {
           width: min(100% - 20px, 1180px);
           padding-top: 16px;
         }
 
-        .layers,
         .summary-strip,
-        .flow,
-        .risks,
-        .questions {
+        .facts,
+        .questions,
+        .flow {
           grid-template-columns: 1fr;
         }
 
         .vendor-row,
-        .evidence-list li {
+        .model-list li {
           grid-template-columns: 1fr;
         }
 
@@ -575,268 +532,329 @@
     <main class="page">
       <section class="hero" aria-labelledby="page-title">
         <div class="hero-copy">
-          <div class="eyebrow"><span class="status-dot"></span> Align review gate</div>
-          <h1 id="page-title">Solo-firm docketing, without becoming the docket.</h1>
+          <div class="eyebrow"><span class="dot"></span> Align review gate</div>
+          <h1 id="page-title">Docketing as defense in depth.</h1>
           <p class="lede">
-            The product should watch official events, propose evidence-backed
-            candidate deadlines, ask the attorney to approve, then redundantly
-            remind. The attorney or a vendor remains the system of record.
+            Claude's supplemental research sharpens the practical operating model:
+            keep a vendor or attorney as the docket of record, build a local-first
+            agent layer for cross-checking and reminders, and never let automation
+            silently become legal authority.
           </p>
         </div>
 
         <aside class="doctrine" aria-label="Locked doctrine">
           <div>
             <h2>Locked doctrine</h2>
-            <strong>Vigilance overlay, not system of record.</strong>
+            <strong>Vigilance overlay, not the docket of record.</strong>
             <p>
-              "Never miss" means every observed trigger and attorney-approved
-              deadline gets durable local state, reminders, escalation, and a
-              heartbeat. It does not mean autonomous docket authority.
+              The product observes triggers, proposes candidate deadlines with
+              evidence, requires attorney approval, then redundantly reminds.
+              The new research adds a practical point: a vendor such as AppColl
+              may still be the defensible docket-of-record anchor.
             </p>
           </div>
           <nav class="quick-links" aria-label="Packet links">
-            <a href="./RESEARCH.md">Research</a>
+            <a href="./IP_LAW_FIRM_DOCKETING_RESEARCH.md">Claude research</a>
+            <a href="./RESEARCH.md">Packet research</a>
             <a href="./DECISIONS.md">Decisions</a>
             <a href="./research/01-ip-prosecution-docketing.md">Track 1</a>
-            <a href="./research/02-court-litigation-outlook.md">Track 2</a>
             <a href="./research/03-official-data-handroll.md">Track 3</a>
           </nav>
         </aside>
       </section>
 
       <section class="summary-strip" aria-label="Headline findings">
-        <div class="summary-item">
-          <strong>4</strong>
-          <span>independent layers: source, rules, orchestration, reminders.</span>
+        <div class="summary-card">
+          <strong>Hybrid</strong>
+          <span>Vendor or attorney keeps authority; Beep supplies monitoring and agent workflow.</span>
         </div>
-        <div class="summary-item">
-          <strong>1st</strong>
-          <span>slice: US patent office-action event to approved Outlook reminder.</span>
+        <div class="summary-card">
+          <strong>24.6%</strong>
+          <span>ABA-cycle malpractice claim share cited for missed deadlines in the supplemental research.</span>
         </div>
-        <div class="summary-item">
+        <div class="summary-card">
           <strong>0</strong>
-          <span>external purchases needed to prove the spine.</span>
+          <span>public MCP servers from IP docketing vendors; CourtListener is the notable litigation exception.</span>
         </div>
-        <div class="summary-item">
-          <strong>4</strong>
-          <span>review-gate decisions still open before shape.</span>
+        <div class="summary-card">
+          <strong>1</strong>
+          <span>safe first spine: official event to candidate deadline to approved Outlook reminder.</span>
         </div>
       </section>
 
-      <section aria-labelledby="layers-title">
+      <section aria-labelledby="model-title">
         <div class="section-title">
-          <h2 id="layers-title">Four-layer verdict</h2>
-          <p>Build, buy, and integrate decisions by layer.</p>
+          <h2 id="model-title">Folded-in verdict</h2>
+          <p>The supplemental file does not overturn the overlay doctrine; it makes the docket-of-record backstop explicit.</p>
+        </div>
+        <div class="panel model">
+          <div class="model-card">
+            <span class="tag amber">Recommended operating model</span>
+            <h3>Commercial docket plus local checker.</h3>
+            <p>
+              Use a purpose-built docketing system or attorney-reviewed docket as
+              the authoritative record. Build Beep as a local, evidence-backed
+              cross-check, reminder, and agent-approval layer over official feeds.
+            </p>
+          </div>
+          <ul class="model-list" aria-label="Verdict details">
+            <li>
+              <span class="tag green">L1</span>
+              <span>Official feeds are the programmable foundation: ODP, TSDR, EPO OPS, WIPO tables, and CourtListener.</span>
+            </li>
+            <li>
+              <span class="tag amber">L2</span>
+              <span>Handroll only deterministic US candidate math; buy or human-review broad foreign and litigation rules.</span>
+            </li>
+            <li>
+              <span class="tag blue">L3</span>
+              <span>Agents can read, propose, draft, and flag discrepancies; attorney approval gates operative changes.</span>
+            </li>
+            <li>
+              <span class="tag violet">L4</span>
+              <span>Outlook reminders need durable local state, escalation, and a heartbeat that alerts when checks stop.</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="vendor-title">
+        <div class="section-title">
+          <h2 id="vendor-title">Vendor landscape</h2>
+          <p>Scores balance solo fit, agent/API access, and docket-of-record usefulness.</p>
         </div>
         <div class="panel">
-          <div class="layers" id="layer-buttons"></div>
-          <div class="detail" id="layer-detail" aria-live="polite"></div>
+          <div class="vendors" id="vendors"></div>
         </div>
       </section>
 
-      <section aria-labelledby="spine-title">
-        <div class="section-title">
-          <h2 id="spine-title">First vertical slice</h2>
-          <p>The smallest end-to-end proof keeps all authority explicit.</p>
+      <section aria-labelledby="splice-title" class="grid two">
+        <div>
+          <div class="section-title">
+            <h2 id="splice-title">What changed</h2>
+            <p>The new file adds practical risk and operations detail to the existing packet.</p>
+          </div>
+          <div class="panel facts">
+            <div class="fact-card">
+              <span class="tag amber">AppColl</span>
+              <b>Strong system-of-record candidate, weak agent surface.</b>
+              <p>Good solo patent-prosecution fit and USPTO automation, but no API. Treat it as docket anchor, not agent API.</p>
+            </div>
+            <div class="fact-card">
+              <span class="tag green">ODP</span>
+              <b>Registration and rate limits matter operationally.</b>
+              <p>ID.me, MFA, x-api-key, sequential calls, 429 handling, and bulk-download constraints shape the poller.</p>
+            </div>
+            <div class="fact-card">
+              <span class="tag red">Maintenance fees</span>
+              <b>37 CFR 1.7 has a subtle asymmetry.</b>
+              <p>Payment can roll to the next business day, but patent expiration remains tied to the statutory anniversary.</p>
+            </div>
+            <div class="fact-card">
+              <span class="tag blue">Graph</span>
+              <b>Calendar writes need mailbox scoping.</b>
+              <p>Application Calendars.ReadWrite should be constrained to the firm mailbox with an application access policy.</p>
+            </div>
+          </div>
         </div>
-        <div class="flow" aria-label="First slice flow">
+
+        <div>
+          <div class="section-title">
+            <h2>Reliability posture</h2>
+            <p>Years-out deadlines fail when systems quietly stop, not just when math is wrong.</p>
+          </div>
+          <div class="panel facts">
+            <div class="fact-card">
+              <span class="tag red">Malpractice</span>
+              <b>Missed deadlines dominate risk.</b>
+              <p>The supplemental research cites missed deadlines as the largest malpractice claim category.</p>
+            </div>
+            <div class="fact-card">
+              <span class="tag violet">Heartbeat</span>
+              <b>Dead-man's switch is not optional.</b>
+              <p>Every scheduled check needs independent monitoring and an alert path that gets tested.</p>
+            </div>
+            <div class="fact-card">
+              <span class="tag green">Redundancy</span>
+              <b>Two independent views are safer.</b>
+              <p>Vendor docket plus Beep cross-check makes discrepancies visible before a date is missed.</p>
+            </div>
+            <div class="fact-card">
+              <span class="tag amber">Human gate</span>
+              <b>Approval remains the liability firewall.</b>
+              <p>Agents propose and draft; the attorney approves legally operative docket changes.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="flow-title">
+        <div class="section-title">
+          <h2 id="flow-title">First spine</h2>
+          <p>The smallest useful proof after folding in the supplemental research.</p>
+        </div>
+        <div class="flow" aria-label="First spine">
           <div class="flow-step">
-            <b>Trigger observed</b>
-            <span>ODP office-action event or ingested e-OA email.</span>
+            <b>Official trigger</b>
+            <span>ODP office action, e-OA email, TSDR event, or vendor export.</span>
           </div>
           <div class="flow-step">
             <b>Evidence packet</b>
-            <span>Source span, provenance, mail date, and matter link.</span>
+            <span>Source span, provenance, matter, date, and API/export source.</span>
           </div>
           <div class="flow-step">
-            <b>CandidateTask</b>
-            <span>Agent proposes; attorney sees why and from where.</span>
+            <b>Candidate deadline</b>
+            <span>Narrow US deterministic math only, cross-checked where possible.</span>
           </div>
           <div class="flow-step">
-            <b>Approval gate</b>
-            <span>Attorney approves the trigger and computed candidate.</span>
+            <b>Attorney approval</b>
+            <span>The candidate becomes durable only after human review.</span>
           </div>
           <div class="flow-step">
-            <b>Durable record</b>
-            <span>PGlite stores deadline, audit trail, reminders, heartbeat.</span>
+            <b>Redundant reminders</b>
+            <span>PGlite record, Outlook push, email/dashboard escalation.</span>
           </div>
           <div class="flow-step">
-            <b>Outlook push</b>
-            <span><code>@beep/m365</code> writes calendar events and reminders.</span>
+            <b>Heartbeat</b>
+            <span>Independent monitor alerts if the checker stops running.</span>
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="vendor-title" class="grid two">
-        <div>
-          <div class="section-title">
-            <h2 id="vendor-title">Buy options</h2>
-            <p>Ranked by agent-integratable deadline data, not product polish.</p>
-          </div>
-          <div class="panel vendors" id="vendor-list"></div>
+      <section aria-labelledby="rules-title">
+        <div class="section-title">
+          <h2 id="rules-title">Handroll boundary</h2>
+          <p>Use the toggles to separate deterministic checker math from vendor/human territory.</p>
         </div>
-
-        <div>
-          <div class="section-title">
-            <h2>Operating constraints</h2>
-            <p>These facts shape the architecture more than the UI does.</p>
-          </div>
-          <div class="panel">
-            <div class="risks">
-              <div class="risk">
-                <span class="tag amber">ODP</span>
-                <b>Sequential poller</b>
-                <p>USPTO ODP blocks concurrent same-key calls. Poll one-at-a-time per API key.</p>
-              </div>
-              <div class="risk">
-                <span class="tag green">CourtListener</span>
-                <b>Webhooks over polling</b>
-                <p>Free REST limits are too tight for polling; Docket Alert webhooks are the path.</p>
-              </div>
-              <div class="risk">
-                <span class="tag red">Danger line</span>
-                <b>No broad handroll</b>
-                <p>Foreign annuities, multi-jurisdiction chains, and litigation rules need a vendor or attorney engine.</p>
-              </div>
-              <div class="risk">
-                <span class="tag blue">Reliability</span>
-                <b>Heartbeat required</b>
-                <p>A reminder job that silently stops is a docketing failure. The system must prove it ran.</p>
-              </div>
-            </div>
-          </div>
+        <div class="panel">
+          <div class="toggle-row" id="rule-toggles"></div>
+          <div class="model" id="rule-detail" aria-live="polite"></div>
         </div>
       </section>
 
       <section aria-labelledby="questions-title">
         <div class="section-title">
           <h2 id="questions-title">Review gate</h2>
-          <p>These stay open. The packet should not shape, decompose, or graduate until they are ratified.</p>
+          <p>The packet still stops here. These decisions need the user before shape or decompose.</p>
         </div>
         <div class="panel questions" id="questions"></div>
       </section>
 
-      <p class="footer">
-        Generated from the `solo-firm-docketing` exploration packet on
-        2026-06-18. This visualization is a navigation aid; the packet Markdown
-        files remain the cited source of truth.
+      <p class="source-note">
+        This visualization folds in
+        <a href="./IP_LAW_FIRM_DOCKETING_RESEARCH.md">IP_LAW_FIRM_DOCKETING_RESEARCH.md</a>
+        plus the existing packet research. It is a navigation aid, not doctrine;
+        cited source text remains in the Markdown packet files.
       </p>
     </main>
 
     <script>
-      const layers = [
-        {
-          id: "l1",
-          kicker: "L1",
-          name: "Event source",
-          verdict: "Integrate official sources. Mostly have patent ODP.",
-          tone: "green",
-          title: "Observe triggers from official or vendor feeds.",
-          body:
-            "Patents start with USPTO ODP through @beep/uspto. Trademarks add TSDR, foreign status adds EPO OPS, and litigation uses CourtListener Docket Alert webhooks plus hosted MCP. No purchase is needed for the event-source layer.",
-          evidence: [
-            ["ODP", "API key, burst=1, no concurrent same-key calls."],
-            ["TSDR", "Useful for TM, but outage and access churn are real."],
-            ["CourtListener", "Webhook push source; REST polling is too tight on free tier."],
-          ],
-        },
-        {
-          id: "l2",
-          kicker: "L2",
-          name: "Rules engine",
-          verdict: "Narrow US handroll first, buy as redundancy.",
-          tone: "amber",
-          title: "Compute candidate dates, never silent authority.",
-          body:
-            "The first slice handrolls deterministic US rules only: maintenance fees, office-action response periods, PCT national phase, and TM post-registration. CPI, LawToolBox, and Alt Legal stay behind the same candidate interface as additive second opinions.",
-          evidence: [
-            ["Handroll", "ODP, TSDR, and ptmnfee2 cross-check candidate dates."],
-            ["CPI", "Best IP buy: REST due-date resource plus unattended OAuth2."],
-            ["Danger", "Foreign annuities and court rules cross the line."],
-          ],
-        },
-        {
-          id: "l3",
-          kicker: "L3",
-          name: "Approval orchestration",
-          verdict: "Build. This is the product's moat.",
-          tone: "blue",
-          title: "Agents propose; the attorney approves.",
-          body:
-            "Reuse CandidateTask, ApprovalGate, ContextPacket, and EmailArtifact. Add OfficeAction, FilingEvent, Deadline, and TriggeringEvent entities in law-practice/domain when this graduates.",
-          evidence: [
-            ["Have", "CandidateTask, ApprovalGate, ContextPacket, EmailArtifact."],
-            ["Need", "OfficeAction, FilingEvent, Deadline, TriggeringEvent."],
-            ["Audit", "Every durable assertion needs evidence and provenance."],
-          ],
-        },
-        {
-          id: "l4",
-          kicker: "L4",
-          name: "Reminders and Outlook",
-          verdict: "Build orchestration; reuse m365-driver.",
-          tone: "violet",
-          title: "Durable reminders with an active failure signal.",
-          body:
-            "Use one-way Graph calendar push through @beep/m365 from goals/m365-driver. The docketing packet is the concrete driver for the future Calendars.ReadWrite scope, plus escalation ladder and dead-man's-switch heartbeat.",
-          evidence: [
-            ["M365", "Outlook transport belongs to goals/m365-driver."],
-            ["Scope", "Calendars.ReadWrite is driven by approved deadline push."],
-            ["Heartbeat", "The system must surface its own failure to check."],
-          ],
-        },
-      ];
-
       const vendors = [
         {
-          name: "CPI",
-          score: 92,
+          name: "AppColl",
+          type: "Docket-of-record anchor",
+          score: 86,
           tone: "green",
-          verdict: "#1 IP buy",
-          note: "Public REST, due-date endpoint, read/write resources, unattended OAuth2 password grant. Verify commercial access.",
+          note:
+            "Best practical solo patent-prosecution anchor: rules, e-OA ingestion, TSDR updates, around $100/user/month. No API, so it is not the agent surface.",
+          action: "View pricing",
+          url: "https://www.appcoll.com/law-firm-product-pricing/",
+        },
+        {
+          name: "CPI",
+          type: "Best IP API buy",
+          score: 82,
+          tone: "blue",
+          note:
+            "Strong API evidence in packet reruns: public REST docs, due-date resource, read/write resources, unattended OAuth2. Commercial access still needs verification.",
+          action: "Contact CPI",
           url: "https://www.computerpackages.com/contact/",
-          action: "Book demo",
         },
         {
           name: "LawToolBox",
+          type: "Court-rules buy",
           score: 78,
-          tone: "blue",
-          verdict: "Best court buy",
-          note: "Court-rules recalculation plus pull API. Partner-gated, no webhooks, Outlook add-ins are separate.",
-          url: "https://lawtoolbox.com/book-a-demo/",
+          tone: "violet",
+          note:
+            "Real partner API for court deadlines and recalculation. Useful if litigation enters scope; partner-gated and not an IP prosecution engine.",
           action: "Book demo",
+          url: "https://lawtoolbox.com/book-a-demo/",
         },
         {
           name: "Alt Legal",
-          score: 66,
+          type: "Trademark-first add-on",
+          score: 68,
           tone: "amber",
-          verdict: "TM-first",
-          note: "Real API and published solo pricing, but docs/auth are sales-gated and TSDR is a single point of failure.",
-          url: "https://www.altlegal.com/demo-trial/",
+          note:
+            "Transparent solo-ish pricing and API access by request, but trademark-first and TSDR-dependent.",
           action: "Request trial",
+          url: "https://www.altlegal.com/demo-trial/",
         },
         {
-          name: "AppColl",
-          score: 18,
+          name: "CourtListener",
+          type: "Litigation event feed",
+          score: 74,
+          tone: "green",
+          note:
+            "REST, Docket Alert webhooks, and hosted MCP. Use webhooks because 2026 free-tier REST limits are too tight for broad polling.",
+          action: "Open API docs",
+          url: "https://www.courtlistener.com/help/api/rest/",
+        },
+      ];
+
+      const rules = [
+        {
+          id: "safe",
+          label: "Safe checker math",
+          tone: "green",
+          title: "Deterministic US candidates",
+          body:
+            "Maintenance fee windows, statutory office-action response periods, PCT 30/31-month national phase, and trademark post-registration windows can be encoded as candidate math and cross-checked.",
+          items: [
+            ["Maintenance", "3.5/7.5/11.5 years, grace periods, ptmnfee2 cross-check."],
+            ["Office action", "Typical 3-month shortened statutory period, extendable to 6-month cap."],
+            ["PCT/TM", "Use WIPO tables and USPTO/TSDR dates, then attorney approval."],
+          ],
+        },
+        {
+          id: "edge",
+          label: "Edge cases",
+          tone: "amber",
+          title: "Encode only with tests and review",
+          body:
+            "Even safe rules contain traps. The new research highlights the maintenance-fee roll-forward asymmetry, extension chains, entity-status changes, revival, and intervening-rights risks.",
+          items: [
+            ["37 CFR 1.7", "Payment may roll forward; expiration can still tie to the anniversary."],
+            ["Extensions", "Auto vs petition extensions need explicit rule lines."],
+            ["Entity status", "Small/micro mistakes can affect payment validity."],
+          ],
+        },
+        {
+          id: "danger",
+          label: "Do not handroll",
           tone: "red",
-          verdict: "Disqualified",
-          note: "Strong small-firm product, real USPTO automation, but no API and no plans for one.",
-          url: "https://www.appcoll.com/law-firm-product-pricing/",
-          action: "View pricing",
+          title: "Vendor or human engine",
+          body:
+            "Foreign annuities, cascading court deadlines, discretionary dates, service-method-dependent dates, and judge-specific orders are outside the safe handroll boundary.",
+          items: [
+            ["Foreign", "Use annuity services such as CPI, Dennemeyer, or Clarivate/CPA."],
+            ["Court rules", "Use LawToolBox, CalendarRules, Clio, CompuLaw, or equivalent."],
+            ["Discretion", "Keep attorney judgment explicit and logged."],
+          ],
         },
       ];
 
       const questions = [
-        ["L2 posture", "Ratify narrow US-deterministic handroll first vs buy-first."],
-        ["Scope order", "Ratify US patents first, then trademarks, court orders, and foreign."],
-        ["Reliability", "Green-light dead-man's-switch and heartbeat as first-class requirements."],
-        ["Vendor access", "Evaluate CPI/LawToolBox partner API access now, or after the spine ships."],
+        ["L2 posture", "Ratify narrow US-deterministic handroll as checker first, versus buy-first."],
+        ["Record anchor", "Choose whether AppColl or another vendor should be evaluated now as docket-of-record backstop."],
+        ["Scope order", "Ratify US patents first, then trademarks, court orders, then foreign."],
+        ["Reliability", "Green-light heartbeat/dead-man's-switch monitoring as first-class infrastructure."],
       ];
 
-      const layerButtons = document.querySelector("#layer-buttons");
-      const layerDetail = document.querySelector("#layer-detail");
-      const vendorList = document.querySelector("#vendor-list");
-      const questionList = document.querySelector("#questions");
+      const vendorRoot = document.querySelector("#vendors");
+      const toggleRoot = document.querySelector("#rule-toggles");
+      const detailRoot = document.querySelector("#rule-detail");
+      const questionRoot = document.querySelector("#questions");
 
       function tagClass(tone) {
         return ["green", "blue", "amber", "red", "violet"].includes(tone)
@@ -844,59 +862,14 @@
           : "blue";
       }
 
-      function renderLayerButtons(activeId) {
-        layerButtons.innerHTML = layers
-          .map(
-            (layer) => `
-              <button class="layer-button ${layer.id === activeId ? "is-active" : ""}"
-                data-layer="${layer.id}"
-                data-tone="${layer.tone}"
-                aria-pressed="${layer.id === activeId}">
-                <span class="layer-kicker">${layer.kicker}</span>
-                <span class="layer-name">${layer.name}</span>
-                <span class="layer-verdict">${layer.verdict}</span>
-              </button>
-            `,
-          )
-          .join("");
-      }
-
-      function renderLayerDetail(layer) {
-        layerDetail.innerHTML = `
-          <div class="detail-main">
-            <span class="tag ${tagClass(layer.tone)}">${layer.kicker} verdict</span>
-            <h3>${layer.title}</h3>
-            <p>${layer.body}</p>
-          </div>
-          <ul class="evidence-list">
-            ${layer.evidence
-              .map(
-                ([label, text]) => `
-                  <li>
-                    <span class="tag ${tagClass(layer.tone)}">${label}</span>
-                    <span>${text}</span>
-                  </li>
-                `,
-              )
-              .join("")}
-          </ul>
-        `;
-      }
-
-      function selectLayer(id) {
-        const layer = layers.find((item) => item.id === id) || layers[0];
-        renderLayerButtons(layer.id);
-        renderLayerDetail(layer);
-      }
-
       function renderVendors() {
-        vendorList.innerHTML = vendors
+        vendorRoot.innerHTML = vendors
           .map(
             (vendor) => `
               <div class="vendor-row">
                 <div>
                   <div class="vendor-name">${vendor.name}</div>
-                  <div class="vendor-note">${vendor.verdict}</div>
+                  <div class="vendor-type">${vendor.type}</div>
                 </div>
                 <div>
                   <div class="vendor-note">${vendor.note}</div>
@@ -906,7 +879,7 @@
                 </div>
                 <div class="vendor-actions">
                   <span class="tag ${tagClass(vendor.tone)}">${vendor.score}/100</span>
-                  <a class="vendor-link"
+                  <a class="action-link"
                     href="${vendor.url}"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -920,8 +893,50 @@
           .join("");
       }
 
+      function renderRuleToggles(activeId) {
+        toggleRoot.innerHTML = rules
+          .map(
+            (rule) => `
+              <button class="toggle ${rule.id === activeId ? "is-active" : ""}"
+                data-rule="${rule.id}"
+                aria-pressed="${rule.id === activeId}">
+                ${rule.label}
+              </button>
+            `,
+          )
+          .join("");
+      }
+
+      function renderRuleDetail(rule) {
+        detailRoot.innerHTML = `
+          <div class="model-card">
+            <span class="tag ${tagClass(rule.tone)}">${rule.label}</span>
+            <h3>${rule.title}</h3>
+            <p>${rule.body}</p>
+          </div>
+          <ul class="model-list">
+            ${rule.items
+              .map(
+                ([label, text]) => `
+                  <li>
+                    <span class="tag ${tagClass(rule.tone)}">${label}</span>
+                    <span>${text}</span>
+                  </li>
+                `,
+              )
+              .join("")}
+          </ul>
+        `;
+      }
+
+      function selectRule(id) {
+        const rule = rules.find((item) => item.id === id) || rules[0];
+        renderRuleToggles(rule.id);
+        renderRuleDetail(rule);
+      }
+
       function renderQuestions() {
-        questionList.innerHTML = questions
+        questionRoot.innerHTML = questions
           .map(
             ([label, text], index) => `
               <div class="question">
@@ -934,14 +949,14 @@
           .join("");
       }
 
-      layerButtons.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-layer]");
+      toggleRoot.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-rule]");
         if (!button) return;
-        selectLayer(button.dataset.layer);
+        selectRule(button.dataset.rule);
       });
 
-      selectLayer("l2");
       renderVendors();
+      selectRule("safe");
       renderQuestions();
     </script>
   </body>

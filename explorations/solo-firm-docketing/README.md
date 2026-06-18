@@ -33,11 +33,12 @@ evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.
 2. [`CAPTURE.md`](./CAPTURE.md) - raw dump (stage 0).
 3. [`RESEARCH.md`](./RESEARCH.md) - cited prior art + capability inventory (stage 1).
-4. [`research/`](./research/) - the three full deep-research reports cited by RESEARCH.md.
-5. [`rundown.html`](./rundown.html) - pure HTML/CSS/JS high-level visualization of the verdict.
-6. [`DECISIONS.md`](./DECISIONS.md) - grilling log + recommendation (stage 2).
-7. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, not started — held at review gate).
-8. [`MAP.md`](./MAP.md) - decomposition (stage 4, not started — held at review gate).
+4. [`IP_LAW_FIRM_DOCKETING_RESEARCH.md`](./IP_LAW_FIRM_DOCKETING_RESEARCH.md) - supplemental Claude Web research to reconcile with the packet verdict.
+5. [`rundown.html`](./rundown.html) - pure HTML/CSS/JS high-level visualization folding in the supplemental findings.
+6. [`research/`](./research/) - the three full deep-research reports cited by RESEARCH.md.
+7. [`DECISIONS.md`](./DECISIONS.md) - grilling log + recommendation (stage 2).
+8. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, not started — held at review gate).
+9. [`MAP.md`](./MAP.md) - decomposition (stage 4, not started — held at review gate).
 
 ## Related Packets
 
@@ -55,6 +56,12 @@ evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-18: recovered/recreated [`rundown.html`](./rundown.html) after another
+  agent's checkout no longer had it, and folded in
+  [`IP_LAW_FIRM_DOCKETING_RESEARCH.md`](./IP_LAW_FIRM_DOCKETING_RESEARCH.md):
+  AppColl as docket-of-record anchor, malpractice/reliability framing, ODP/Graph
+  operational constraints, maintenance-fee edge cases, and vendor action links.
+  Still stopped at `align`.
 - 2026-06-18: served [`rundown.html`](./rundown.html) on the tailnet at
   `https://dankstation.tailc7c348.ts.net:8443/solo-firm-docketing-rundown` for
   review/sharing. Still stopped at `align`.
