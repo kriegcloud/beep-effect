@@ -1,6 +1,6 @@
 # GOAL: wire the rung-0 office-action review loop in the law-practice slice
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
+Repo: `/home/elpresidank/YeeBois/projects/beep-effect3`.
 
 Outcome: graduate `law-practice` from domain-only to minimum-viable (domain +
 use-cases + server) — add the IP-law vertical and turn the office-action loop
@@ -71,7 +71,8 @@ Verification:
 test "$(wc -m < goals/law-practice-office-action-spike/GOAL.md)" -le 4000
 jq . goals/law-practice-office-action-spike/ops/manifest.json
 git diff --check -- goals/law-practice-office-action-spike
-bun run check --filter @beep/law-practice-domain
+bun run check
+bun run beep lint reflection-artifacts
 ```
 
 Stop and report before changing public API, schema, migrations, auth, infra,

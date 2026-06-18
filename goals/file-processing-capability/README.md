@@ -2,9 +2,12 @@
 
 ## Status
 
-Active — implementing P1 (minimum vertical proof). Packet hardening complete; the
-`@beep/file-processing` capability and the `@beep/tika` / `@beep/libpff` drivers exist
-on disk.
+Active — P1 minimum vertical proof complete; P2/P3/P4 driver and corpus
+completion phases remain pending.
+
+Packet hardening completed on 2026-06-02. The P1 implementation landed through
+the law-practice office-action branch and merged to `main` in PR #262 on
+2026-06-18.
 
 ## Mission
 
@@ -42,6 +45,24 @@ For topology, package placement, boundary, and error doctrine,
 typed failures, strategy selection, and service contracts. It does not own
 format-specific engines. Drivers implement declared operation capabilities.
 
+## Latest Evidence
+
+- `@beep/file-processing` exists at
+  `packages/foundation/capability/file-processing` with runtime-neutral
+  artifact, operation, extraction, strategy, service, path-safety, fixture, and
+  manifest contracts.
+- Current real consumers import it from `@beep/tika`, `@beep/libpff`,
+  `@beep/repo-cli`, and the law-practice office-action loop.
+- `@beep/tika` proves the P1 text extraction path and typed
+  engine-unavailable behavior.
+- `@beep/libpff` proves typed engine-unavailable behavior and a synthetic PST
+  child-artifact export proof.
+- `beep files process` writes the schema-encoded manifest tree for generated
+  fixtures.
+- The P1 proof is a minimum vertical slice. Broad Tika coverage across every
+  non-PST V1 family, real/public PST export coverage, and optional corpus
+  profiling remain later phases.
+
 ## V1 Cutline
 
 In scope:
@@ -73,10 +94,9 @@ Out of scope:
 
 ## Completion Standard
 
-This goal is implementation-ready when future agents can scaffold the packages,
-drivers, CLI command, fixtures, and tests without reopening package-placement,
-engine-runner, manifest-shape, error-boundary, or operation-model decisions.
+P1 is complete when the foundation capability has at least two real consumers,
+driver-backed proof paths, and CLI manifest output. That proof is now present.
 
-The next implementation target is a minimum vertical proof, not a contract-only
-package. `@beep/file-processing` is promotion-ready only when at least two real
-consumers import it and its README records those consumers.
+The remaining completion standard is P2/P3/P4/P5: finish broad non-PST Tika
+coverage, deepen libpff PST export, calibrate CLI output against generated and
+operator-local corpus inputs, and record final handoff evidence.
