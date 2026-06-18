@@ -34,11 +34,12 @@ evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships
 2. [`CAPTURE.md`](./CAPTURE.md) - raw dump (stage 0).
 3. [`RESEARCH.md`](./RESEARCH.md) - cited prior art + capability inventory (stage 1).
 4. [`IP_LAW_FIRM_DOCKETING_RESEARCH.md`](./IP_LAW_FIRM_DOCKETING_RESEARCH.md) - supplemental Claude Web research to reconcile with the packet verdict.
-5. [`rundown.html`](./rundown.html) - pure HTML/CSS/JS high-level visualization folding in the supplemental findings.
-6. [`research/`](./research/) - the three full deep-research reports cited by RESEARCH.md.
-7. [`DECISIONS.md`](./DECISIONS.md) - grilling log + recommendation (stage 2).
-8. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, not started — held at review gate).
-9. [`MAP.md`](./MAP.md) - decomposition (stage 4, not started — held at review gate).
+5. [`../ip-practice-rundown.html`](../ip-practice-rundown.html) - shared standalone two-tab lawyer-facing handout for docketing + time tracking.
+6. [`rundown.html`](./rundown.html) - pure HTML/CSS/JS high-level visualization folding in the supplemental findings.
+7. [`research/`](./research/) - the three full deep-research reports cited by RESEARCH.md.
+8. [`DECISIONS.md`](./DECISIONS.md) - grilling log + recommendation (stage 2).
+9. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, not started — held at review gate).
+10. [`MAP.md`](./MAP.md) - decomposition (stage 4, not started — held at review gate).
 
 ## Related Packets
 
@@ -56,6 +57,9 @@ evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-18: added this packet to the shared standalone
+  [`ip-practice-rundown.html`](../ip-practice-rundown.html) handout for
+  nontechnical lawyer review. Still stopped at `align`.
 - 2026-06-18: added a pricing column to [`rundown.html`](./rundown.html),
   distinguishing published prices, free official data sources, quote-required
   vendors, and pass-through costs. Still stopped at `align`.

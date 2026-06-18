@@ -62,7 +62,11 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   L1 uses CourtListener webhooks + hosted MCP, and Outlook push depends on
   [`m365-driver`](../goals/m365-driver/README.md) (the concrete driver for its
   future `Calendars.ReadWrite` scope).
-
+- [`ip-attorney-time-tracking`](./ip-attorney-time-tracking/README.md) - active
+  align-stage exploration for a local-first IP attorney time-capture/prebill
+  assistant: agents may observe activity and propose candidate billable or
+  nonbillable entries, while the attorney approval gate controls what becomes
+  billable or exportable.
 ### Proposed
 
 - (none — `atlas-synthesis` is now an Active packet above; its capability-inventory
