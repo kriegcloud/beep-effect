@@ -4,7 +4,11 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
-import { ChatDbCompatibilityMarker, ensureCompatibleChatDbDataDir } from "@/runtime/Pglite";
+import {
+  ChatDbCompatibilityMarker,
+  ensureCompatibleChatDbDataDir,
+  markCompatibleChatDbDataDir,
+} from "@/runtime/Pglite";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 
@@ -68,15 +72,18 @@ const backupNames = Effect.fn("ProfessionalDesktop.PgliteCompatibilityTest.backu
 layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
   describe("ensureCompatibleChatDbDataDir", () => {
     it.effect(
-      "creates a fresh marked data dir",
+      "prepares a fresh data dir and defers the marker until successful open",
       Effect.fn(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
         const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-fresh-" });
         const dataDir = path.join(rootDir, "chat-db");
 
-        yield* ensureCompatibleChatDbDataDir(dataDir);
+        const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
 
+        expect(shouldMarkDataDir).toBe(true);
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(false);
+        yield* markCompatibleChatDbDataDir(dataDir);
         expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
         expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
       })
@@ -95,8 +102,9 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         yield* fs.writeFileString(markerPath(path, dataDir), "runtime=professional-desktop-pglite-inprocess\n");
         yield* fs.writeFileString(retainedPath, "still here");
 
-        yield* ensureCompatibleChatDbDataDir(dataDir);
+        const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
 
+        expect(shouldMarkDataDir).toBe(false);
         expect(yield* fs.readFileString(retainedPath)).toBe("still here");
         expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
       })
@@ -111,8 +119,11 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         const dataDir = path.join(rootDir, "chat-db");
 
         yield* createPgliteFixture(dataDir);
-        yield* ensureCompatibleChatDbDataDir(dataDir);
+        const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
 
+        expect(shouldMarkDataDir).toBe(true);
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(false);
+        yield* markCompatibleChatDbDataDir(dataDir);
         expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
         expect(yield* readPgliteFixture(dataDir)).toEqual(["keep me"]);
         expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
@@ -120,7 +131,7 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
     );
 
     it.effect(
-      "moves a populated non-PGlite data dir aside and creates a fresh marker",
+      "moves a populated non-PGlite data dir aside without a premature marker",
       Effect.fn(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
@@ -130,12 +141,15 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         yield* fs.makeDirectory(dataDir, { recursive: true });
         yield* fs.writeFileString(path.join(dataDir, "legacy.txt"), "legacy contents");
 
-        yield* ensureCompatibleChatDbDataDir(dataDir);
+        const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
 
         const backups = yield* backupNames(rootDir, "chat-db");
+        expect(shouldMarkDataDir).toBe(true);
         expect(backups).toHaveLength(1);
-        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(false);
         expect(yield* fs.readFileString(path.join(rootDir, backups[0]!, "legacy.txt"))).toBe("legacy contents");
+        yield* markCompatibleChatDbDataDir(dataDir);
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
       })
     );
 

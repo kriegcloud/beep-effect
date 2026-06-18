@@ -10,8 +10,9 @@
  * migrations are applied on boot.
  *
  * Operational note: `CHAT_DB_PATH` is owned by this sidecar build's bundled
- * PGlite runtime. Existing unmarked directories are moved aside before first
- * in-process boot so older socket-bridge stores do not block startup.
+ * PGlite runtime. Existing unmarked directories that cannot be opened by the
+ * in-process runtime are moved aside before first boot so older socket-bridge
+ * stores do not block startup.
  *
  * The PGlite instance is owned by the layer {@link Scope}: it is acquired and
  * released (`pglite.close()`) by `@beep/pglite` when the runtime scope closes, so
@@ -48,8 +49,12 @@ const ChatDbDataDir = Config.string("CHAT_DB_PATH").pipe(
 );
 
 /**
- * Marker written into data directories already validated for the in-process
+ * Marker written into data directories already opened by the in-process
  * desktop PGlite runtime.
+ *
+ * The `v1` suffix is part of the on-disk compatibility contract for the
+ * embedded `@effect/sql-pglite` / `@electric-sql/pglite` line. Bump the marker
+ * whenever that storage compatibility contract changes.
  *
  * @category configuration
  * @since 0.0.0
@@ -76,6 +81,20 @@ const writeCompatibilityMarker = Effect.fn("ProfessionalDesktop.Pglite.writeComp
     ["runtime=professional-desktop-pglite-inprocess", "version=1", `createdAtMillis=${createdAtMillis}`, ""].join("\n")
   );
 });
+
+/**
+ * Mark a data directory after the in-process PGlite runtime has opened it.
+ *
+ * @category runtime
+ * @since 0.0.0
+ */
+export const markCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite.markCompatibleChatDbDataDir")(
+  function* (dataDir: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    yield* writeCompatibilityMarker(fs, path, dataDir);
+  }
+);
 
 const canOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.canOpenInProcessPgliteDataDir")(function* (
   dataDir: string
@@ -110,9 +129,11 @@ const canOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.canO
  *
  * Fresh and already-marked directories are preserved. Unmarked PGlite-looking
  * directories are first opened through the new driver; compatible stores are
- * marked in-place so user history is retained, while incompatible populated
- * stores are moved aside with a timestamped backup before a fresh marked store
- * is created. Unreadable directories fail boot instead of being quarantined.
+ * retained, while incompatible populated stores are moved aside with a
+ * timestamped backup before a fresh data dir is created. The returned boolean
+ * tells the caller whether to write {@link ChatDbCompatibilityMarker} after the
+ * real in-process PGlite layer opens successfully. Unreadable directories fail
+ * boot instead of being quarantined.
  *
  * @category runtime
  * @since 0.0.0
@@ -126,34 +147,32 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
     const markerExists = dataDirExists ? yield* pathExists(fs, markerPath) : false;
 
     if (markerExists) {
-      return;
+      return false;
     }
 
     if (!dataDirExists) {
-      yield* writeCompatibilityMarker(fs, path, dataDir);
-      return;
+      yield* fs.makeDirectory(dataDir, { recursive: true });
+      return true;
     }
 
     const entries = yield* fs.readDirectory(dataDir);
     if (entries.length === 0) {
-      yield* writeCompatibilityMarker(fs, path, dataDir);
-      return;
+      return true;
     }
 
     if (hasPgliteDataDirShape(entries) && (yield* canOpenInProcessPgliteDataDir(dataDir))) {
-      yield* writeCompatibilityMarker(fs, path, dataDir);
       yield* Effect.logInfo("existing chat db data dir preserved for in-process PGlite compatibility").pipe(
         Effect.annotateLogs({
           component: "professional-desktop",
           dataDir,
         })
       );
-      return;
+      return true;
     }
 
     const backupPath = `${dataDir}.pre-inprocess-${yield* Clock.currentTimeMillis}`;
     yield* fs.rename(dataDir, backupPath);
-    yield* writeCompatibilityMarker(fs, path, dataDir);
+    yield* fs.makeDirectory(dataDir, { recursive: true });
     yield* Effect.logWarning("chat db data dir moved for in-process PGlite compatibility").pipe(
       Effect.annotateLogs({
         backupPath,
@@ -161,6 +180,7 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
         dataDir,
       })
     );
+    return true;
   }
 );
 
@@ -175,8 +195,10 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
 const PgliteClientLive = Layer.unwrap(
   Effect.gen(function* () {
     const dataDir = yield* ChatDbDataDir;
-    yield* ensureCompatibleChatDbDataDir(dataDir);
-    return Pglite.makeLayer({ dataDir });
+    const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
+    return Pglite.makeLayer({ dataDir }).pipe(
+      Layer.tap(() => (shouldMarkDataDir ? markCompatibleChatDbDataDir(dataDir) : Effect.void))
+    );
   })
 ).pipe(Layer.orDie);
 
