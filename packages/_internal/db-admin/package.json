@@ -29,11 +29,11 @@
   "dependencies": {
     "@beep/architecture-lab-tables": "workspace:^",
     "@beep/epistemic-tables": "workspace:^",
+    "@beep/postgres": "workspace:^",
     "@beep/workspace-tables": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@beep/postgres": "workspace:^",
     "@beep/test-utils": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/vitest": "catalog:",

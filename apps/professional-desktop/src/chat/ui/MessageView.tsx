@@ -3,7 +3,7 @@
  *
  * Projects an `@beep/md` {@link Md.Document} into a `@beep/lexical-schema`
  * serialized editor state via {@link documentToEditorState} (run synchronously —
- * the codec is pure) and renders it through `@beep/editor`'s
+ * the codec is pure) and renders it through `@beep/editor/viewer`'s
  * {@link EditorViewer}. The decode is wrapped in `Effect.runSyncExit` so a codec
  * failure degrades to a plain-text fallback instead of throwing.
  *
@@ -13,7 +13,7 @@
  */
 "use client";
 
-import { EditorViewer } from "@beep/editor";
+import { EditorViewer } from "@beep/editor/viewer";
 import { documentToEditorState } from "@beep/lexical-schema";
 import { Effect, Exit } from "effect";
 import { useMemo } from "react";

@@ -1175,7 +1175,10 @@
       ],
       "@beep/form": [
         "./packages/foundation/ui-system/form/src/index.ts"
-      ]
+      ],
+      "@beep/form/*": ["./packages/foundation/ui-system/form/src/*"],
+      "@beep/pglite": ["./packages/drivers/pglite/src/index.ts"],
+      "@beep/pglite/*": ["./packages/drivers/pglite/src/*"]
     }
   }
 }

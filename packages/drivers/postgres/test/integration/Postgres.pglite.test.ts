@@ -76,7 +76,7 @@ if (!shouldRunPgliteIntegration) {
             O.getOrElse(() => 0)
           );
 
-          expect(["pg-external", "pglite-testcontainers"]).toContain(info.driver);
+          expect(["pg-external", "pglite-testcontainers", "pglite-inprocess"]).toContain(info.driver);
           expect(beepClient).toBe(nativeClient);
           expect(value).toBe(42);
         }),

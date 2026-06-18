@@ -131,7 +131,9 @@ const generatedComposers = $I.compose(
   "lexical-schema",
   "editor",
   "html",
-  "pandoc-ast", "form"
+  "pandoc-ast",
+  "form",
+  "pglite"
 );
 
 const composers = {
@@ -1420,3 +1422,19 @@ export const $PandocAstId: Identity.IdentityComposer<"@beep/pandoc-ast"> = compo
  * @category configuration
  */
 export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormId;
+
+/**
+ * Identity composer for `@beep/pglite`.
+ *
+ * @example
+ * ```typescript
+ * import { $PgliteId } from "@beep/identity"
+ *
+ * const id = $PgliteId.make("Pglite")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $PgliteId: Identity.IdentityComposer<"@beep/pglite"> = composers.$PgliteId;

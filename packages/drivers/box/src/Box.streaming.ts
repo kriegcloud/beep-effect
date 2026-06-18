@@ -6,17 +6,19 @@
  */
 
 import { Buffer } from "node:buffer";
+import * as dns from "node:dns";
 import { Readable } from "node:stream";
 import { $BoxId } from "@beep/identity";
-import { assertAllowedRemoteUrl } from "@beep/schema";
+import { assertAllowedRemoteUrl, BlockedHostError } from "@beep/schema";
 import { Cause, Effect, Exit, Queue, Result, Stream } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as M from "./_generated/Box.models.gen.ts";
 import { BoxError } from "./Box.errors.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import { decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
-import type { BlockedHostError } from "@beep/schema";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
 
 const $I = $BoxId.create("Box.streaming");
@@ -631,18 +633,41 @@ const mergeCancellation = <A>(
 };
 
 /**
+ * Fail-closed DNS resolver injected into the SSRF guard so a by-URL target whose
+ * hostname resolves to internal space is rejected before the SDK connects. Uses
+ * the OS resolver (`getaddrinfo` via `dns.lookup`) to match what the SDK's own
+ * connection will resolve. A resolution failure surfaces a `BlockedHostError` so
+ * the guard never proceeds on a name it could not evaluate.
+ */
+const resolveRemoteHost = (hostname: string): Effect.Effect<ReadonlyArray<string>, BlockedHostError> =>
+  Effect.tryPromise({
+    try: () => dns.promises.lookup(hostname, { all: true }),
+    catch: (cause) =>
+      BlockedHostError.make({
+        host: hostname,
+        url: O.none(),
+        message: `Refusing to reach ${hostname}: DNS resolution failed`,
+        cause: O.some(cause),
+      }),
+  }).pipe(Effect.map((records) => A.map(records, (record) => record.address)));
+
+/**
  * Fail-closed SSRF guard for caller-supplied Box by-URL parameters.
  *
  * The `chunkedUploads.uploadFilePartByUrl` and `zipDownloads.getZipDownloadContent`
  * operations forward a full URL string straight to the Box SDK, turning the
  * driver into an SSRF/readable-SSRF primitive if attacker-influenced. This guard
  * parses the URL and rejects loopback, link-local, RFC1918/ULA private, and
- * cloud-metadata destinations before any outbound request is issued, translating
- * the typed `BlockedHostError` into a redacted `BoxError` so the failure stays on
- * the driver's `BoxError` channel.
+ * cloud-metadata destinations (including IPv4-mapped IPv6 forms) before any
+ * outbound request is issued. It additionally resolves the hostname through
+ * {@link resolveRemoteHost} and rejects any name that resolves to internal space,
+ * translating the typed `BlockedHostError` into a redacted `BoxError` so the
+ * failure stays on the driver's `BoxError` channel. The residual DNS-rebinding
+ * TOCTOU window (resolve public, connect internal) is documented on the
+ * `@beep/schema` `SafeRemoteHost` guard.
  */
 const assertBoxUrlAllowed = (method: BoxMethodName, url: string): Effect.Effect<void, BoxError> =>
-  assertAllowedRemoteUrl(url).pipe(
+  assertAllowedRemoteUrl(url, { resolve: resolveRemoteHost }).pipe(
     Effect.mapError((error: BlockedHostError) =>
       BoxError.fromReason("transport", {
         cause: error.message,

@@ -294,6 +294,12 @@
         ]
       },
       {
+        "name": "@beep/pglite",
+        "patterns": [
+          "packages/drivers/pglite/src/**"
+        ]
+      },
+      {
         "name": "@beep/phoenix",
         "patterns": [
           "packages/drivers/phoenix/src/**"
@@ -1286,6 +1292,21 @@
         ]
       },
       {
+        "from": "@beep/pglite",
+        "allow": [
+          "@beep/identity",
+          "@beep/pglite",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/pglite",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/phoenix",
         "allow": [
           "@beep/identity",
@@ -1327,8 +1348,10 @@
           "@beep/editor",
           "@beep/epistemic-domain",
           "@beep/epistemic-tables",
+          "@beep/identity",
           "@beep/lexical-schema",
           "@beep/md",
+          "@beep/pglite",
           "@beep/postgres",
           "@beep/professional-desktop",
           "@beep/shared-domain",
@@ -1347,8 +1370,10 @@
           "@beep/editor",
           "@beep/epistemic-domain",
           "@beep/epistemic-tables",
+          "@beep/identity",
           "@beep/lexical-schema",
           "@beep/md",
+          "@beep/pglite",
           "@beep/postgres",
           "@beep/professional-desktop",
           "@beep/shared-domain",
@@ -1660,12 +1685,14 @@
         "from": "@beep/test-utils",
         "allow": [
           "@beep/identity",
+          "@beep/pglite",
           "@beep/schema",
           "@beep/test-utils",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/identity",
+          "@beep/pglite",
           "@beep/schema",
           "@beep/test-utils",
           "@beep/utils"

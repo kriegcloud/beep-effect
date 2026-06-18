@@ -3,6 +3,7 @@ import {
   makePgliteTestcontainerResource,
   makeSqlTestLayer,
   PgExternalTestDriver,
+  PgliteInProcessTestDriver,
   PgliteTestcontainersTestDriver,
   SqlTestHarnessError,
   TestDatabaseInfo,
@@ -133,6 +134,47 @@ const isContainerInspectable = Effect.fn("SqlTestIntegration.isContainerInspecta
     inspected,
     O.flatten,
     O.getOrElse(() => false)
+  );
+});
+
+// The docker-free in-process driver is the default the gate selects; it needs no
+// env or container, so this block always runs and proves the default path.
+describe("PGLite in-process SQL test driver", () => {
+  it.effect(
+    "runs select 1 and CRUD through the in-process driver",
+    Effect.fnUntraced(function* () {
+      const result = yield* Effect.gen(function* () {
+        const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+        const info = yield* TestDatabaseInfo;
+        yield* sql`
+            CREATE TABLE notes (
+              id SERIAL PRIMARY KEY,
+              body TEXT NOT NULL
+            )
+          `;
+        yield* sql`
+            INSERT INTO notes (body)
+            VALUES ('alpha'), ('beta')
+          `;
+        const rows = yield* sql<{ readonly body: string }>`
+            SELECT body
+            FROM notes
+            ORDER BY id ASC
+          `;
+
+        return {
+          bodies: pipe(
+            rows,
+            A.map((row) => row.body)
+          ),
+          driver: info.driver,
+        };
+      }).pipe(provideScopedLayer(makeSqlTestLayer({ config: undefined, driver: PgliteInProcessTestDriver })));
+
+      expect(result.driver).toBe("pglite-inprocess");
+      expect(result.bodies).toEqual(["alpha", "beta"]);
+    }),
+    SharedPgliteIntegrationTimeoutMs
   );
 });
 

@@ -106,6 +106,9 @@
       "path": "packages/drivers/openai-compat"
     },
     {
+      "path": "packages/drivers/pglite"
+    },
+    {
       "path": "packages/drivers/phoenix"
     },
     {

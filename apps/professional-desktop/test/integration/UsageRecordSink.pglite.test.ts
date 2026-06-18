@@ -1,16 +1,18 @@
-import { fileURLToPath } from "node:url";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import * as UsageRecordTable from "@beep/epistemic-tables/entities/UsageRecord";
-import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
-import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
+import { makeDrizzle, makeDrizzleLayer } from "@beep/postgres";
+import { makePgliteIntegrationGate, makePgliteSqlTestLayer } from "@beep/test-utils";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, Layer, pipe } from "effect";
+import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
+import { migrateOnBoot } from "@/runtime/Migrations";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
-const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
+const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
+const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
 
 const decodeUsageAppend = S.decodeUnknownSync(TurnFinalizationUsageAppend);
 
@@ -40,19 +42,14 @@ const usageAppendInput = {
 };
 
 const migrateEpistemicUsage = Effect.fnUntraced(function* () {
-  const info = yield* TestDatabaseInfo;
-  const db = yield* makeDrizzle();
-  const migrationsSchema = pipe(
-    info.schema,
-    O.getOrElse(() => "drizzle")
-  );
-
-  yield* migrate(db, { migrationsFolder, migrationsSchema });
+  yield* migrateOnBoot;
 });
 
 const UsageRecordSinkLayer = UsageRecordSinkDrizzle.pipe(
   Layer.provideMerge(makeDrizzleLayer()),
-  Layer.provideMerge(makePgliteLayer())
+  Layer.provideMerge(makeInProcessPgliteLayer()),
+  Layer.provideMerge(BunFileSystem.layer),
+  Layer.provideMerge(BunPath.layer)
 );
 
 if (!shouldRunPgliteIntegration) {
