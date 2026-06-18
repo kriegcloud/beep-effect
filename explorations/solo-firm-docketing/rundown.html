@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Solo-Firm IP Docketing - Rundown</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1f2523;
+        --muted: #5e6964;
+        --line: #d8dfdb;
+        --paper: #fafbf9;
+        --panel: #ffffff;
+        --green: #1f7a55;
+        --green-soft: #e7f3ec;
+        --blue: #2368a2;
+        --blue-soft: #e7f0f8;
+        --amber: #9a6a11;
+        --amber-soft: #f6eedb;
+        --red: #a83d36;
+        --red-soft: #f8e7e4;
+        --violet: #6a4fa3;
+        --violet-soft: #eee9f7;
+        --shadow: 0 16px 40px rgba(31, 37, 35, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, #f4f7f4 0, #fbfaf6 360px, #f8faf9 100%);
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-color: rgba(31, 37, 35, 0.28);
+        text-underline-offset: 3px;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 42px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+        gap: 20px;
+        align-items: stretch;
+        min-height: 320px;
+        margin-bottom: 20px;
+      }
+
+      .hero-copy {
+        padding: 24px 0 24px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 28px;
+        padding: 4px 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.78);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--amber);
+      }
+
+      h1 {
+        margin: 18px 0 12px;
+        max-width: 820px;
+        font-size: clamp(38px, 8vw, 78px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        margin: 0;
+        max-width: 760px;
+        color: var(--muted);
+        font-size: clamp(17px, 2.4vw, 22px);
+        line-height: 1.42;
+      }
+
+      .doctrine {
+        align-self: stretch;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 260px;
+      }
+
+      .doctrine h2,
+      .panel h2,
+      .section-title h2 {
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.2;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .doctrine strong {
+        display: block;
+        margin-top: 10px;
+        font-size: clamp(28px, 4vw, 42px);
+        line-height: 1.02;
+      }
+
+      .doctrine p {
+        color: var(--muted);
+        line-height: 1.48;
+        margin: 18px 0 0;
+      }
+
+      .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .quick-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #f7f8f6;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.two {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 10px 24px rgba(31, 37, 35, 0.06);
+        padding: 18px;
+        overflow: hidden;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 28px 0 12px;
+      }
+
+      .section-title p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.42;
+        max-width: 680px;
+      }
+
+      .layers {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .layer-button {
+        display: grid;
+        grid-template-rows: auto auto 1fr;
+        gap: 8px;
+        min-height: 178px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        text-align: left;
+        background: #fff;
+        color: var(--ink);
+        cursor: pointer;
+        transition:
+          border-color 160ms ease,
+          box-shadow 160ms ease,
+          transform 160ms ease;
+      }
+
+      .layer-button:hover,
+      .layer-button:focus-visible,
+      .layer-button.is-active {
+        border-color: currentColor;
+        box-shadow: 0 8px 20px rgba(31, 37, 35, 0.12);
+        transform: translateY(-1px);
+        outline: none;
+      }
+
+      .layer-button[data-tone="green"] {
+        color: var(--green);
+      }
+
+      .layer-button[data-tone="amber"] {
+        color: var(--amber);
+      }
+
+      .layer-button[data-tone="blue"] {
+        color: var(--blue);
+      }
+
+      .layer-button[data-tone="violet"] {
+        color: var(--violet);
+      }
+
+      .layer-kicker {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .layer-name {
+        color: var(--ink);
+        font-size: 20px;
+        font-weight: 850;
+        line-height: 1.08;
+      }
+
+      .layer-verdict {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.36;
+      }
+
+      .detail {
+        min-height: 246px;
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      .detail-main {
+        padding: 16px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fbfcfa;
+      }
+
+      .detail-main h3 {
+        margin: 0 0 10px;
+        font-size: clamp(24px, 4vw, 36px);
+        line-height: 1.04;
+      }
+
+      .detail-main p {
+        color: var(--muted);
+        line-height: 1.48;
+        margin: 0;
+      }
+
+      .evidence-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .evidence-list li {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        min-height: 50px;
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .tag {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 26px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .tag.green {
+        color: var(--green);
+        background: var(--green-soft);
+      }
+
+      .tag.blue {
+        color: var(--blue);
+        background: var(--blue-soft);
+      }
+
+      .tag.amber {
+        color: var(--amber);
+        background: var(--amber-soft);
+      }
+
+      .tag.red {
+        color: var(--red);
+        background: var(--red-soft);
+      }
+
+      .tag.violet {
+        color: var(--violet);
+        background: var(--violet-soft);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(110px, 1fr));
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .flow-step {
+        position: relative;
+        min-height: 118px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--panel);
+      }
+
+      .flow-step::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -8px;
+        width: 8px;
+        height: 2px;
+        background: var(--line);
+      }
+
+      .flow-step:last-child::after {
+        display: none;
+      }
+
+      .flow-step b {
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1.14;
+      }
+
+      .flow-step span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.34;
+      }
+
+      .vendors {
+        display: grid;
+        gap: 9px;
+      }
+
+      .vendor-row {
+        display: grid;
+        grid-template-columns: 148px minmax(0, 1fr) minmax(150px, 0.48fr);
+        gap: 10px;
+        align-items: center;
+        min-height: 64px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        background: #fff;
+      }
+
+      .vendor-name {
+        font-weight: 850;
+        line-height: 1.12;
+      }
+
+      .vendor-note {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.34;
+      }
+
+      .meter {
+        height: 10px;
+        border-radius: 999px;
+        background: #eef1ee;
+        overflow: hidden;
+        margin-top: 8px;
+      }
+
+      .meter span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+      }
+
+      .vendor-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+
+      .vendor-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        max-width: 100%;
+        padding: 6px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #f9faf8;
+        color: var(--ink);
+        font-size: 12px;
+        font-weight: 850;
+        line-height: 1.2;
+        text-align: center;
+        text-decoration: none;
+      }
+
+      .vendor-link:hover,
+      .vendor-link:focus-visible {
+        border-color: currentColor;
+        outline: none;
+      }
+
+      .risks,
+      .questions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .risk,
+      .question {
+        min-height: 116px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fff;
+      }
+
+      .risk b,
+      .question b {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .risk p,
+      .question p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.42;
+      }
+
+      .summary-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .summary-item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: #fff;
+        min-height: 116px;
+      }
+
+      .summary-item strong {
+        display: block;
+        font-size: 26px;
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+
+      .summary-item span {
+        color: var(--muted);
+        line-height: 1.34;
+      }
+
+      .footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 920px) {
+        .hero,
+        .grid.two,
+        .detail {
+          grid-template-columns: 1fr;
+        }
+
+        .layers,
+        .summary-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .flow {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .flow-step::after {
+          display: none;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .page {
+          width: min(100% - 20px, 1180px);
+          padding-top: 16px;
+        }
+
+        .layers,
+        .summary-strip,
+        .flow,
+        .risks,
+        .questions {
+          grid-template-columns: 1fr;
+        }
+
+        .vendor-row,
+        .evidence-list li {
+          grid-template-columns: 1fr;
+        }
+
+        .vendor-actions {
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot"></span> Align review gate</div>
+          <h1 id="page-title">Solo-firm docketing, without becoming the docket.</h1>
+          <p class="lede">
+            The product should watch official events, propose evidence-backed
+            candidate deadlines, ask the attorney to approve, then redundantly
+            remind. The attorney or a vendor remains the system of record.
+          </p>
+        </div>
+
+        <aside class="doctrine" aria-label="Locked doctrine">
+          <div>
+            <h2>Locked doctrine</h2>
+            <strong>Vigilance overlay, not system of record.</strong>
+            <p>
+              "Never miss" means every observed trigger and attorney-approved
+              deadline gets durable local state, reminders, escalation, and a
+              heartbeat. It does not mean autonomous docket authority.
+            </p>
+          </div>
+          <nav class="quick-links" aria-label="Packet links">
+            <a href="./RESEARCH.md">Research</a>
+            <a href="./DECISIONS.md">Decisions</a>
+            <a href="./research/01-ip-prosecution-docketing.md">Track 1</a>
+            <a href="./research/02-court-litigation-outlook.md">Track 2</a>
+            <a href="./research/03-official-data-handroll.md">Track 3</a>
+          </nav>
+        </aside>
+      </section>
+
+      <section class="summary-strip" aria-label="Headline findings">
+        <div class="summary-item">
+          <strong>4</strong>
+          <span>independent layers: source, rules, orchestration, reminders.</span>
+        </div>
+        <div class="summary-item">
+          <strong>1st</strong>
+          <span>slice: US patent office-action event to approved Outlook reminder.</span>
+        </div>
+        <div class="summary-item">
+          <strong>0</strong>
+          <span>external purchases needed to prove the spine.</span>
+        </div>
+        <div class="summary-item">
+          <strong>4</strong>
+          <span>review-gate decisions still open before shape.</span>
+        </div>
+      </section>
+
+      <section aria-labelledby="layers-title">
+        <div class="section-title">
+          <h2 id="layers-title">Four-layer verdict</h2>
+          <p>Build, buy, and integrate decisions by layer.</p>
+        </div>
+        <div class="panel">
+          <div class="layers" id="layer-buttons"></div>
+          <div class="detail" id="layer-detail" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="spine-title">
+        <div class="section-title">
+          <h2 id="spine-title">First vertical slice</h2>
+          <p>The smallest end-to-end proof keeps all authority explicit.</p>
+        </div>
+        <div class="flow" aria-label="First slice flow">
+          <div class="flow-step">
+            <b>Trigger observed</b>
+            <span>ODP office-action event or ingested e-OA email.</span>
+          </div>
+          <div class="flow-step">
+            <b>Evidence packet</b>
+            <span>Source span, provenance, mail date, and matter link.</span>
+          </div>
+          <div class="flow-step">
+            <b>CandidateTask</b>
+            <span>Agent proposes; attorney sees why and from where.</span>
+          </div>
+          <div class="flow-step">
+            <b>Approval gate</b>
+            <span>Attorney approves the trigger and computed candidate.</span>
+          </div>
+          <div class="flow-step">
+            <b>Durable record</b>
+            <span>PGlite stores deadline, audit trail, reminders, heartbeat.</span>
+          </div>
+          <div class="flow-step">
+            <b>Outlook push</b>
+            <span><code>@beep/m365</code> writes calendar events and reminders.</span>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="vendor-title" class="grid two">
+        <div>
+          <div class="section-title">
+            <h2 id="vendor-title">Buy options</h2>
+            <p>Ranked by agent-integratable deadline data, not product polish.</p>
+          </div>
+          <div class="panel vendors" id="vendor-list"></div>
+        </div>
+
+        <div>
+          <div class="section-title">
+            <h2>Operating constraints</h2>
+            <p>These facts shape the architecture more than the UI does.</p>
+          </div>
+          <div class="panel">
+            <div class="risks">
+              <div class="risk">
+                <span class="tag amber">ODP</span>
+                <b>Sequential poller</b>
+                <p>USPTO ODP blocks concurrent same-key calls. Poll one-at-a-time per API key.</p>
+              </div>
+              <div class="risk">
+                <span class="tag green">CourtListener</span>
+                <b>Webhooks over polling</b>
+                <p>Free REST limits are too tight for polling; Docket Alert webhooks are the path.</p>
+              </div>
+              <div class="risk">
+                <span class="tag red">Danger line</span>
+                <b>No broad handroll</b>
+                <p>Foreign annuities, multi-jurisdiction chains, and litigation rules need a vendor or attorney engine.</p>
+              </div>
+              <div class="risk">
+                <span class="tag blue">Reliability</span>
+                <b>Heartbeat required</b>
+                <p>A reminder job that silently stops is a docketing failure. The system must prove it ran.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="questions-title">
+        <div class="section-title">
+          <h2 id="questions-title">Review gate</h2>
+          <p>These stay open. The packet should not shape, decompose, or graduate until they are ratified.</p>
+        </div>
+        <div class="panel questions" id="questions"></div>
+      </section>
+
+      <p class="footer">
+        Generated from the `solo-firm-docketing` exploration packet on
+        2026-06-18. This visualization is a navigation aid; the packet Markdown
+        files remain the cited source of truth.
+      </p>
+    </main>
+
+    <script>
+      const layers = [
+        {
+          id: "l1",
+          kicker: "L1",
+          name: "Event source",
+          verdict: "Integrate official sources. Mostly have patent ODP.",
+          tone: "green",
+          title: "Observe triggers from official or vendor feeds.",
+          body:
+            "Patents start with USPTO ODP through @beep/uspto. Trademarks add TSDR, foreign status adds EPO OPS, and litigation uses CourtListener Docket Alert webhooks plus hosted MCP. No purchase is needed for the event-source layer.",
+          evidence: [
+            ["ODP", "API key, burst=1, no concurrent same-key calls."],
+            ["TSDR", "Useful for TM, but outage and access churn are real."],
+            ["CourtListener", "Webhook push source; REST polling is too tight on free tier."],
+          ],
+        },
+        {
+          id: "l2",
+          kicker: "L2",
+          name: "Rules engine",
+          verdict: "Narrow US handroll first, buy as redundancy.",
+          tone: "amber",
+          title: "Compute candidate dates, never silent authority.",
+          body:
+            "The first slice handrolls deterministic US rules only: maintenance fees, office-action response periods, PCT national phase, and TM post-registration. CPI, LawToolBox, and Alt Legal stay behind the same candidate interface as additive second opinions.",
+          evidence: [
+            ["Handroll", "ODP, TSDR, and ptmnfee2 cross-check candidate dates."],
+            ["CPI", "Best IP buy: REST due-date resource plus unattended OAuth2."],
+            ["Danger", "Foreign annuities and court rules cross the line."],
+          ],
+        },
+        {
+          id: "l3",
+          kicker: "L3",
+          name: "Approval orchestration",
+          verdict: "Build. This is the product's moat.",
+          tone: "blue",
+          title: "Agents propose; the attorney approves.",
+          body:
+            "Reuse CandidateTask, ApprovalGate, ContextPacket, and EmailArtifact. Add OfficeAction, FilingEvent, Deadline, and TriggeringEvent entities in law-practice/domain when this graduates.",
+          evidence: [
+            ["Have", "CandidateTask, ApprovalGate, ContextPacket, EmailArtifact."],
+            ["Need", "OfficeAction, FilingEvent, Deadline, TriggeringEvent."],
+            ["Audit", "Every durable assertion needs evidence and provenance."],
+          ],
+        },
+        {
+          id: "l4",
+          kicker: "L4",
+          name: "Reminders and Outlook",
+          verdict: "Build orchestration; reuse m365-driver.",
+          tone: "violet",
+          title: "Durable reminders with an active failure signal.",
+          body:
+            "Use one-way Graph calendar push through @beep/m365 from goals/m365-driver. The docketing packet is the concrete driver for the future Calendars.ReadWrite scope, plus escalation ladder and dead-man's-switch heartbeat.",
+          evidence: [
+            ["M365", "Outlook transport belongs to goals/m365-driver."],
+            ["Scope", "Calendars.ReadWrite is driven by approved deadline push."],
+            ["Heartbeat", "The system must surface its own failure to check."],
+          ],
+        },
+      ];
+
+      const vendors = [
+        {
+          name: "CPI",
+          score: 92,
+          tone: "green",
+          verdict: "#1 IP buy",
+          note: "Public REST, due-date endpoint, read/write resources, unattended OAuth2 password grant. Verify commercial access.",
+          url: "https://www.computerpackages.com/contact/",
+          action: "Book demo",
+        },
+        {
+          name: "LawToolBox",
+          score: 78,
+          tone: "blue",
+          verdict: "Best court buy",
+          note: "Court-rules recalculation plus pull API. Partner-gated, no webhooks, Outlook add-ins are separate.",
+          url: "https://lawtoolbox.com/book-a-demo/",
+          action: "Book demo",
+        },
+        {
+          name: "Alt Legal",
+          score: 66,
+          tone: "amber",
+          verdict: "TM-first",
+          note: "Real API and published solo pricing, but docs/auth are sales-gated and TSDR is a single point of failure.",
+          url: "https://www.altlegal.com/demo-trial/",
+          action: "Request trial",
+        },
+        {
+          name: "AppColl",
+          score: 18,
+          tone: "red",
+          verdict: "Disqualified",
+          note: "Strong small-firm product, real USPTO automation, but no API and no plans for one.",
+          url: "https://www.appcoll.com/law-firm-product-pricing/",
+          action: "View pricing",
+        },
+      ];
+
+      const questions = [
+        ["L2 posture", "Ratify narrow US-deterministic handroll first vs buy-first."],
+        ["Scope order", "Ratify US patents first, then trademarks, court orders, and foreign."],
+        ["Reliability", "Green-light dead-man's-switch and heartbeat as first-class requirements."],
+        ["Vendor access", "Evaluate CPI/LawToolBox partner API access now, or after the spine ships."],
+      ];
+
+      const layerButtons = document.querySelector("#layer-buttons");
+      const layerDetail = document.querySelector("#layer-detail");
+      const vendorList = document.querySelector("#vendor-list");
+      const questionList = document.querySelector("#questions");
+
+      function tagClass(tone) {
+        return ["green", "blue", "amber", "red", "violet"].includes(tone)
+          ? tone
+          : "blue";
+      }
+
+      function renderLayerButtons(activeId) {
+        layerButtons.innerHTML = layers
+          .map(
+            (layer) => `
+              <button class="layer-button ${layer.id === activeId ? "is-active" : ""}"
+                data-layer="${layer.id}"
+                data-tone="${layer.tone}"
+                aria-pressed="${layer.id === activeId}">
+                <span class="layer-kicker">${layer.kicker}</span>
+                <span class="layer-name">${layer.name}</span>
+                <span class="layer-verdict">${layer.verdict}</span>
+              </button>
+            `,
+          )
+          .join("");
+      }
+
+      function renderLayerDetail(layer) {
+        layerDetail.innerHTML = `
+          <div class="detail-main">
+            <span class="tag ${tagClass(layer.tone)}">${layer.kicker} verdict</span>
+            <h3>${layer.title}</h3>
+            <p>${layer.body}</p>
+          </div>
+          <ul class="evidence-list">
+            ${layer.evidence
+              .map(
+                ([label, text]) => `
+                  <li>
+                    <span class="tag ${tagClass(layer.tone)}">${label}</span>
+                    <span>${text}</span>
+                  </li>
+                `,
+              )
+              .join("")}
+          </ul>
+        `;
+      }
+
+      function selectLayer(id) {
+        const layer = layers.find((item) => item.id === id) || layers[0];
+        renderLayerButtons(layer.id);
+        renderLayerDetail(layer);
+      }
+
+      function renderVendors() {
+        vendorList.innerHTML = vendors
+          .map(
+            (vendor) => `
+              <div class="vendor-row">
+                <div>
+                  <div class="vendor-name">${vendor.name}</div>
+                  <div class="vendor-note">${vendor.verdict}</div>
+                </div>
+                <div>
+                  <div class="vendor-note">${vendor.note}</div>
+                  <div class="meter" aria-hidden="true">
+                    <span style="width: ${vendor.score}%; background: var(--${vendor.tone});"></span>
+                  </div>
+                </div>
+                <div class="vendor-actions">
+                  <span class="tag ${tagClass(vendor.tone)}">${vendor.score}/100</span>
+                  <a class="vendor-link"
+                    href="${vendor.url}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="${vendor.action} on the official ${vendor.name} website">
+                    ${vendor.action}
+                  </a>
+                </div>
+              </div>
+            `,
+          )
+          .join("");
+      }
+
+      function renderQuestions() {
+        questionList.innerHTML = questions
+          .map(
+            ([label, text], index) => `
+              <div class="question">
+                <span class="tag ${index === 0 ? "amber" : index === 1 ? "green" : index === 2 ? "blue" : "violet"}">${label}</span>
+                <b>Open question ${index + 1}</b>
+                <p>${text}</p>
+              </div>
+            `,
+          )
+          .join("");
+      }
+
+      layerButtons.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-layer]");
+        if (!button) return;
+        selectLayer(button.dataset.layer);
+      });
+
+      selectLayer("l2");
+      renderVendors();
+      renderQuestions();
+    </script>
+  </body>
+</html>

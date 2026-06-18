@@ -89,33 +89,40 @@ buy a vendor engine?
 approval gate, cross-checked against ODP/TSDR — specifically maintenance fees
 (37 CFR 1.362), §133/§136(a) office-action response periods, PCT national-phase
 (Art. 22/39), and TM post-registration (§8/§9/§15). Keep a **vendor connector
-(CPI / Alt Legal / LawToolBox) as an additive, redundant second opinion** behind
+(CPI / LawToolBox / Alt Legal) as an additive, redundant second opinion** behind
 the same candidate interface — adopted only if a solo can actually obtain
 developer/API access.
 
 **Rationale:** The deterministic US rules are few and statutory, the data exists
 (ODP has office actions + the maintenance-fee dataset; `@beep/uspto` already wraps
-ODP), and no open-source rules library exists to buy time — so a *bounded* build
-is both cheapest and lowest-liability when candidate-gated. The strongest
-small-firm vendor (AppColl) is **disqualified by a no-API policy**; the real-API
-options are enterprise/partner-gated (CPI, LawToolBox) or trademark-first
-(Alt Legal). *Rejected:* broad handroll (foreign annuities + litigation rules =
-malpractice-grade); buy-first (no self-serve solo + open-API + patent-auto-sync
-option exists, so we'd block on sales/NDA before proving the spine).
+ODP), and no repo-local deadline engine exists — so a *bounded* build is both
+cheapest and lowest-liability when candidate-gated. The maintenance-fee
+`ptmnfee2` dataset gives ground truth for the 3.5/7.5/11.5-year windows, and ODP
+can anchor office-action dates if polled sequentially per API key. The strongest
+small-firm vendor (AppColl) is **disqualified by a no-API policy**; the verified
+real-API options are CPI (best IP buy: due-date resource + OAuth2 password grant
+for unattended calls), LawToolBox (court, partner-gated), and Alt Legal
+(trademark-first, docs/auth sales-gated). The broader "no production-grade
+open-source deadline rules engine" finding remains inferential and should be
+refreshed before implementation. *Rejected:* broad handroll (foreign annuities +
+litigation rules = malpractice-grade); buy-first (commercial/API access could
+block the spine before we prove the overlay).
 
 ## 2026-06-18 — outlook-depth (RECOMMENDED)
 
 **Question:** Outlook integration depth for v1 — one-way push or two-way sync?
 
 **Answer (recommend):** **One-way push via Microsoft Graph** (approved deadlines →
-Outlook calendar events + reminders) through the sibling **`@beep/m365`** driver.
+Outlook calendar events + reminders) through the graduated
+[`m365-driver`](../../goals/m365-driver/README.md) goal's **`@beep/m365`** driver.
 Two-way sync is an explicit v1 rabbit hole.
 
-**Rationale:** Reuses the [`microsoft-365-integration`](../microsoft-365-integration/README.md)
-transport and is the concrete driver for its reserved `Calendars.ReadWrite`
-write-scope (its open question #1). Two-way sync adds conflict resolution and a
-second writer to a system of record — out of scope. *Cross-link:* docketing's need
-for calendar *write* should inform the M365 packet's scope decision.
+**Rationale:** The Microsoft 365 exploration has graduated into
+[`m365-driver`](../../goals/m365-driver/README.md) and
+[`m365-mcp`](../../goals/m365-mcp/README.md). Docketing depends on the driver for
+L4 Outlook push and is the concrete reason to add `Calendars.ReadWrite` after the
+read-only first driver lands. Two-way sync adds conflict resolution and a second
+writer to a system of record — out of scope.
 
 ## 2026-06-18 — jurisdiction-scope-v1 (RECOMMENDED)
 
@@ -167,35 +174,40 @@ follow-on, not lost.
 
 - **L1 Event source → INTEGRATE (mostly HAVE, open).** Patents via USPTO ODP
   (`@beep/uspto`, already built); TM via TSDR; foreign via EPO OPS; litigation via
-  **CourtListener** (the only source with API + webhooks + MCP). Poll-based; budget
-  for it. **No vendor purchase required for L1.**
+  **CourtListener webhooks + hosted MCP** (the only push-capable L1 source).
+  Poll official sources sequentially where required: ODP is burst=1/no-concurrent
+  same-key calls, so no fan-out. **No vendor purchase required for L1.**
 - **L2 Rules engine → NARROW HANDROLL first, BUY as additive redundancy.** Build a
   small, fixture-pinned, test-covered US-deterministic module (maintenance fees,
   §133/§136 response periods, PCT national-phase, TM post-reg), every output a
-  *candidate* cross-checked against ODP/TSDR. Add a vendor connector only if a solo
-  can obtain real API access — ranked: **CPI** (best REST + due-date endpoints) and
-  **LawToolBox** (court recalc + pull API), with **Alt Legal** the self-serve TM
-  option. **Do not** broad-handroll foreign/litigation rules.
+  *candidate* cross-checked against ODP/TSDR/`ptmnfee2` where possible. Add a
+  vendor connector only if a solo can obtain real API access — ranked: **CPI**
+  (best IP REST API; due-date resource; OAuth2 password grant explicitly for
+  unattended calls), **LawToolBox** (court recalc + pull API, partner-gated), then
+  **Alt Legal** (TM-first, sales-gated API, TSDR single point of failure).
+  **Do not** broad-handroll foreign/litigation rules.
 - **L3 Orchestration → BUILD (half-built).** Reuse `CandidateTask`/`ApprovalGate`/
   `ContextPacket`/`EmailArtifact`; add `OfficeAction`/`FilingEvent`/`Deadline`
   entities to `law-practice/domain`.
-- **L4 Reminders/Outlook → BUILD orchestration, REUSE `@beep/m365`.** One-way Graph
-  push; escalation ladder; **dead-man's-switch heartbeat**; durable PGlite record.
+- **L4 Reminders/Outlook → BUILD orchestration, REUSE `@beep/m365` from
+  `m365-driver`.** One-way Graph push; escalation ladder;
+  **dead-man's-switch heartbeat**; durable PGlite record. This packet is the
+  concrete driver for the driver's future `Calendars.ReadWrite` scope.
 
 **First vertical slice (smallest end-to-end proof):** an office-action event for a
 US patent (from `@beep/uspto`/ODP, or an ingested e-OA email) → evidence-backed
 **`CandidateTask`** carrying the trigger + mail date + source span + provenance →
 attorney approves → the **narrow US rules module** computes the response/maintenance
-deadline as a *candidate* cross-checked against ODP → on approval, durable PGlite
-record → one-way push to Outlook via `@beep/m365`. Ships **no foreign, no
-litigation, no two-way sync**.
+deadline as a *candidate* cross-checked against ODP/`ptmnfee2` → on approval,
+durable PGlite record → one-way push to Outlook via `@beep/m365` from
+`m365-driver`. Ships **no foreign, no litigation, no two-way sync**.
 
 **Why this is the right shape:** it requires **zero external purchase** to prove
 the full L1→L4 spine, reuses nearly everything already built, honors the
 overlay-not-record doctrine, and leaves *adding* computed-deadline vendors (CPI/
 LawToolBox/Alt Legal) as a strictly-additive connector behind the same approval
-gate — so the buy decision can wait for evidence (and for a solo-accessible API)
-without blocking the build.
+gate. CPI is now a real headless-agent buy option, but the buy decision can wait
+for commercial access/SLA evidence without blocking the zero-purchase spine.
 
 **Open at the review gate** (confirm before `shape`): (1) ratify L2 narrow-handroll
 -first vs buy-first; (2) ratify US-patents-first scope; (3) green-light the

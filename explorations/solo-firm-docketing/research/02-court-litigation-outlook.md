@@ -48,7 +48,8 @@ dependent deadlines** when a trigger date changes — and which ride Microsoft 3
 - **Verdict: best court-deadline BUY** for the rules engine + pull API + recalc,
   *if* a solo can obtain partner credentials. The clean architecture: **pull
   deadlines from LawToolBox's API, push to Outlook via our own `@beep/m365`
-  driver** — bypassing their add-in entirely.
+  driver** from [`goals/m365-driver`](../../../goals/m365-driver/README.md) —
+  bypassing their add-in entirely.
 
 ### Clio Manage — the open-API second path
 - **Open self-serve V4 API** (OAuth2 developer onboarding) exposing court-rules
@@ -95,10 +96,9 @@ dependent deadlines** when a trigger date changes — and which ride Microsoft 3
   detection is **polling** for the court track too (mirrors USPTO ODP in Track 3).
 - **Architecture validated:** the clean shape is **buy the court-rules data/engine
   via API, own the Outlook push via `@beep/m365`** — which is exactly what the
-  sibling [`microsoft-365-integration`](../../microsoft-365-integration/README.md)
-  packet already enables. LawToolBox's M365 depth being in *add-ins, not the API*
-  is a feature for us, not a bug: we don't want their calendar writer, we want
-  their deadline data.
+  graduated [`m365-driver`](../../../goals/m365-driver/README.md) goal enables.
+  LawToolBox's M365 depth being in *add-ins, not the API* is a feature for us,
+  not a bug: we don't want their calendar writer, we want their deadline data.
 - **Court orders are a genuinely separate market** from IP prosecution docketing
   (different engines, different event source = PACER/CourtListener, see Track 3)
   — confirming the decision to sequence litigation as its own track.

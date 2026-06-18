@@ -55,11 +55,13 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   deadlines years out) without missing one. At `align`, held at a review gate:
   three deep-research tracks done (IP-prosecution vendors; court/litigation
   engines; official-data/handroll), doctrine locked as **vigilance overlay, not
-  system of record**. Recommendation = narrow US-deterministic handroll first
-  (cross-checked vs USPTO ODP, approval-gated), vendor connectors (CPI/LawToolBox/
-  Alt Legal) as additive redundancy, Outlook push reused from
-  `microsoft-365-integration`'s `@beep/m365` (drives its `Calendars.ReadWrite`
-  scope). Sibling of, and depends on, the M365 packet.
+  system of record**. Verified reruns sharpened the recommendation: narrow
+  US-deterministic handroll first (ODP/`ptmnfee2` checked, approval-gated), CPI /
+  LawToolBox / Alt Legal as additive redundancy (CPI is headless-ready via
+  documented OAuth2 password grant), ODP polling is sequential per key, litigation
+  L1 uses CourtListener webhooks + hosted MCP, and Outlook push depends on
+  [`m365-driver`](../goals/m365-driver/README.md) (the concrete driver for its
+  future `Calendars.ReadWrite` scope).
 
 ### Proposed
 

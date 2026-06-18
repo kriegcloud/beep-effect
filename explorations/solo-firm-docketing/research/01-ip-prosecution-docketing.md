@@ -1,116 +1,146 @@
 # Research Track 1 — IP-Prosecution Docketing Vendors (agent-integration lens)
 
-Researched 2026-06-18 via the `deep-research` harness (6 search angles, 20
-sources, 91 extracted claims). **Methodology caveat:** a transient server-side
-rate limit ("temporarily limiting requests · not your usage limit") crippled the
-harness's adversarial-verify and synthesis phases mid-run, so only 2 claims
-reached a full 3-vote verdict; the rest are **single-/primary-source claims that
-were extracted but not adversarially cross-voted**. They are labelled by
-confidence below. Load-bearing facts were re-checked by hand where it mattered.
+Researched 2026-06-18 via the `deep-research` harness, then re-run
+sequentially. This file reflects the **verified rerun** (`w9640wo1m`): 20
+confirmed claims, with the load-bearing vendor/API findings adversarially
+checked.
 
 The gate: a vendor is **agent-integratable** only if it exposes a real
-REST/GraphQL API, SDK, or MCP server. "Fails Public API AND Webhooks" ⇒
+REST/GraphQL API, SDK, or MCP server. "Fails Public API AND Webhooks" means
 **DISQUALIFIED** for the agent use case regardless of how good its rules engine
-is. The Outlook/M365 transport is already owned in-repo (see
-[`../../microsoft-365-integration`](../../microsoft-365-integration/README.md)),
-so the decisive vendor question is: **does it expose deadline DATA via API for
-our own agents to pull?**
+is. The Outlook/M365 transport is owned by the graduated
+[`m365-driver`](../../../goals/m365-driver/README.md) goal, so the decisive
+vendor question is: **does it expose deadline data via API for our own agents to
+pull or write, while `@beep/m365` owns Outlook push?**
 
 ## Scorecard
 
-| Vendor | Public API/SDK | Rules engine (offices) | USPTO auto-sync | Solo pricing | Agent verdict |
+| Vendor | Public API/SDK | Rules engine | USPTO auto-sync | Solo pricing | Agent verdict |
 |---|---|---|---|---|---|
-| **Computer Packages Inc (CPI)** | **Yes — public REST** w/ due-date endpoints | Patent/TM/Annuity (long-standing engine) | (legacy patent docketing) | enterprise-sales | **SURVIVES** (best API+rules combo) |
-| **Alt Legal** | **Yes — first-party API** | TM-strong rules engine; patent = manual | **TM yes**, **patent NO** (manual entry) | **$60/mo / 50 matters** (self-serve) | **SURVIVES** (TM-first) |
-| **AppColl** | **No** (explicitly, "no plans", security) | Patent/TM/PCT engine + e-OA auto-docket | **Patent yes** (Patent Center/PAIR) | **$100–130/user/mo** (self-serve) | **DISQUALIFIED** (no API) |
-| **FoundationIP** (Clarivate/CPA) | Yes — REST API | Patent/TM/foreign (mature) | yes | enterprise-sales | survives-but-enterprise |
-| **Inteum** (Minuet API) | Yes — REST + Python/C# SDKs | tech-transfer / IP-mgmt | partial | enterprise; wrong segment | survives-but-off-segment |
-| **PATTSY WAVE** (Anaqua) | **No public API** | Patent/TM + TSDR/PAIR linkage | in-product only | mid-market | **DISQUALIFIED** (no public API) |
-| **Anaqua** (Essential/IPDAS) | partner-gated only | mature, full | yes | enterprise | enterprise-only (unverified API) |
-| **Dennemeyer DIAMS / iQ** | partner-gated (unverified) | strong annuity/foreign | yes | enterprise | needs-verification |
-| **IPfolio** (Clarivate) | API exists (corp IP) | corporate IP mgmt | yes | enterprise/corporate | off-segment |
-| **Patrix Patricia** | unverified | full | yes | enterprise | needs-verification |
+| **Computer Packages Inc (CPI)** | **Yes — public REST**, Postman-backed docs, OAuth2 bearer, unattended password grant | Patent / TM / annuity due-date engine | product-level IP docketing | enterprise-sales / hosted-on-prem variable | **#1 BUY** — strongest headless-agent fit |
+| **Alt Legal** | **Yes — public API announced**, but developer docs/auth are sales-gated | TM-strong rules engine | **TM yes via TSDR**, patent manual | **$60/mo / 50 matters**, published tiers | **#2 BUY** — TM-first, TSDR SPOF |
+| **AppColl** | **No** — staff say no API and no plans for security reasons | Patent/TM/PCT engine + e-OA auto-docket | **Patent/TM yes** | **$100–130/user/mo** | **DISQUALIFIED** despite strong solo fit |
+| **Clarivate FoundationIP / IPfolio** | Public API is bibliographic IP Data API only, not docketing | mature enterprise IPMS | enterprise | enterprise-sales | **DISQUALIFIED** for deadline data |
+| **Anaqua / PATTSY WAVE** | Marketing-only "APIs"; no public developer docs | mature docketing; DMS sync | product-level PAIR/TSDR/etc. | enterprise-sales | **DISQUALIFIED** |
+| **Dennemeyer DIAMS iQ** | Demo-gated partner API only | **220 jurisdictions / 5,500+ due-date guidelines** | enterprise | enterprise-sales | disqualified for solo agents; useful danger-line evidence |
+| **Patrix Patricia / Inteum / Anaqua Essential/IPDAS** | no primary public developer-API evidence found | mature/off-segment | varies | enterprise/off-segment | no usable public API found |
 
 ## Per-vendor notes (with sources)
 
-### Computer Packages Inc (CPI) — strongest API + rules combination
-- **Real public REST API.** `developer.computerpackages.com` documents
-  resource-oriented JSON endpoints covering **Patent, Trademark, Annuity
-  Management, and General Matter**, including **due-date endpoints** (e.g.
-  `GET/POST /api/patent/actions/{actId}/duedates`). [primary, harness-extracted;
-  live re-fetch was JS-blocked — confirm endpoint set + auth with a credentialed
-  read] — https://developer.computerpackages.com/
-- CPI is one of the oldest US docketing engines (the rules-engine half is its
-  core product). The combination of *a real REST API that returns computed due
-  dates* + *a mature rules engine* makes it the **single most promising L2 BUY
-  candidate on the API gate** — pending verification of auth model, solo
-  availability, and pricing (all enterprise-sales-shaped, not self-serve).
+### Computer Packages Inc (CPI) — strongest headless-agent BUY
 
-### Alt Legal — the trademark-first survivor with self-serve pricing
-- **First-party API exists** for docketing data (matters, dockets, deadlines).
-  https://www.altlegal.com/blog/alt-legal-api/ [primary; the announcement gives
-  no auth/webhook/SLA mechanics — those need the developer docs].
-- **Trademark USPTO auto-sync + rules engine**: adds USPTO TM filings, updates
-  statuses, dockets/removes deadlines automatically.
-  https://www.altlegal.com/features/automated-ip-docketing/ [primary, 1 vote].
-- **Patents are MANUAL entry** — *confirmed 2-0*: you click "Add Matter →
-  Patent" and populate filing info by hand; the deadline calc then derives from
-  what you entered (no patent office auto-sync).
+- **Real public REST API.** `developer.computerpackages.com` is reachable without
+  auth to read docs and is backed by a Postman collection. The portal describes
+  RESTful JSON endpoints using standard HTTP verbs/codes and bearer
+  authentication. The verified collection contains patent, trademark, annuity,
+  and general-matter resources, with bidirectional read/write patterns
+  (GET/POST/PATCH/DELETE) across resource families.
+  https://developer.computerpackages.com/
+- **Due-date endpoint exists.** The load-bearing patent due-date endpoint appears
+  verbatim as `/api/patent/actions/{actId}/duedates`, including a concrete
+  example action id (`2891`). The broader claim that every due-date verb and
+  parallel trademark due-date endpoint is documented was **refuted** in the
+  rerun; treat the due-date resource as confirmed, but verify the exact full
+  endpoint inventory during partner evaluation. https://developer.computerpackages.com/
+- **Auth is headless-ready.** CPI documents OAuth2 bearer auth via
+  `POST /connect/token`, with supported grants including `password` and
+  `refresh_token`. The docs explicitly say the **password grant can be used for
+  unattended API calls**, which upgrades CPI from "possible API" to the strongest
+  agent-integratable buy option for this packet. The base host is a configurable
+  `{{url}}`, consistent with hosted/on-prem deployments.
+  https://developer.computerpackages.com/
+- **Annuity API posture matches the overlay shape.** CPI markets annuity APIs as
+  usable even when the client uses another patent docketing platform or vendor,
+  reinforcing the "vendor as rules/data engine, Beep as approval/reminder
+  overlay" architecture. https://www.computerpackages.com/patent-annuity-management/
+
+**Verdict:** CPI is the best IP-prosecution **L2 BUY** candidate: real public
+REST docs, due-date resources, patent/TM/annuity coverage, write verbs, and a
+documented unattended OAuth2 path. Open due diligence: commercial access for a
+solo, exact deployed base URL, credential issuance, SLA/export terms, and the
+complete due-date endpoint set.
+
+### Alt Legal — #2, trademark-first, API real but sales-gated
+
+- **Public API announcement is real.** Alt Legal says its API gives
+  "programmatic access" to Alt Legal data and names docketing-oriented use
+  cases, including syncing important dates with internal calendaring or
+  notification systems and feeding docket data into other tools to automate
+  actions. https://www.altlegal.com/blog/alt-legal-api/
+- **Not truly self-serve for developers.** No public developer portal, endpoint
+  reference, auth model, or `api.altlegal.com` docs were found. Access appears
+  to route through demo/login/sales/support, and it is unconfirmed whether API
+  access is included in the solo tier or sold as an add-on.
+  https://www.altlegal.com/blog/alt-legal-api/
+- **Published solo pricing exists.** Tiers are transparent up to 400 matters:
+  50 matters **$60/mo**, 100 **$100/mo**, 200 **$195/mo**, 400 **$295/mo**, with
+  trademark add-ons in the **$30–95/mo** range; 1,000+ matters is "Get in
+  touch." The CTAs still route through request-a-demo/login rather than a clean
+  pay-and-create developer flow. https://www.altlegal.com/pricing/
+- **TSDR is a single point of failure.** Alt Legal publicly stated TSDR API was
+  the only source for its trademark autotracking data when a USPTO shutdown
+  temporarily disabled the feature; USPTO also showed a fresh TSDR outage on
+  2026-04-29. This is a structural risk for any TM auto-sync path, not just Alt
+  Legal. https://www.altlegal.com/blog/tsdr-api-shutdown-alt-legal/
+- **Patent story is weaker.** Patent matters are manual-entry workflows; this is
+  not a patent auto-sync engine comparable to AppColl's internal USPTO sync.
   https://support.altlegal.com/en/articles/2358912
-- **Solo pricing is real and self-serve**: entry tier **"Up to 50 matters —
-  $60/month"**, +$30/mo for TM-protection/watch features.
-  https://www.altlegal.com/pricing/ [primary; API tier/pricing not stated on the
-  page — verify whether API is included or an add-on].
-- Note: Alt Legal publicly discussed the **USPTO TSDR API shutdown** affecting
-  their sync pipeline — relevant to the official-data fragility in Track 3.
-  https://www.altlegal.com/blog/tsdr-api-shutdown-alt-legal/
-- **Verdict:** the best *trademark* docketing buy for a solo (self-serve, real
-  API, TM auto-sync). Weak for patents (manual entry, no patent auto-sync).
 
-### AppColl — great rules engine, solo pricing… but no API (disqualified)
-- **Solo pricing confirmed 2-0**: PM Pro **$100/user/mo**, PM Plus **$130/user/mo
-  (incl. 200 matters)**. https://www.appcoll.com/law-firm-product-pricing/
-- Rules engine covers **US Patent, US Trademark, PCT (to national phase)**;
-  **auto-syncs US patents** from Patent Center/Private PAIR and **auto-dockets
-  from USPTO e-Office-Action emails**. [primary, single-source]
-  https://www.appcoll.com/law-firms/prosecution-manager/tasks-module/
-- **BUT: "AppColl has no API and explicitly has no plans to introduce one,
-  citing security."** Only programmatic data-out = scheduled report dumps via
-  **SFTP / S3 / email**; no queryable REST/GraphQL/webhooks/MCP.
+**Verdict:** Alt Legal is the best solo-accessible **TM** buy and the #2 overall
+agent-integratable vendor. It is not the first patent spine because the API docs
+are sales-gated and its strongest automation depends on fragile TSDR access.
+
+### AppColl — great small-firm product, no usable API
+
+- **No API, explicitly.** AppColl staff state: "we do not have plans to
+  introduce an API for security reasons." The only automation surface found is
+  inbound integrations AppColl itself consumes plus scheduled export/reporting
+  patterns, not a queryable REST/GraphQL/webhook/MCP surface for our agents.
   https://forum.appcoll.com/topic/285/api
-- **Verdict: DISQUALIFIED for agent integration** despite being otherwise the
-  best-fit small-firm product (rules engine + USPTO auto-sync + solo price). Its
-  report-dump export could feed a one-way ingest, but agents cannot read/write it
-  live. A strong *cautionary data point*: the best small-firm UX here is the one
-  that deliberately walls off programmatic access.
+- **Solo pricing and USPTO automation are real.** PM Pro is published at
+  **$100/user/mo** and PM Plus at **$130/user/mo**; AppColl can auto-create tasks
+  from USPTO e-Office-Action emails and retrieve Patent Center documents.
+  https://www.appcoll.com/law-firm-product-pricing/ ·
+  https://support.appcoll.com/eoffice-actions
 
-### Others
-- **FoundationIP** (Clarivate/CPA Global): implemented a **REST API** for
-  near-real-time data sharing. Real engine, but enterprise-sold.
-  https://clarivate.com/intellectual-property/blog/innovating-ip-management-making-foundationip-even-better/
-- **Inteum**: **"Minuet" API** with official **Python and C# SDKs** — genuinely
-  developer-forward, but Inteum targets university **tech-transfer / corporate
-  IP**, not solo prosecution docketing. https://www.linkedin.com/posts/inteum-company-llc_the-minuet-api-now-has-new-endpoints-activity-7315391739731632128-WDQ3
-- **PATTSY WAVE** (now under Anaqua): advertises **TSDR + Private PAIR** linkage
-  but **exposes no public/partner API** on its surface → disqualified on the gate.
-  https://www.anaqua.com/pattsy-wave/
-- **Anaqua / Dennemeyer DIAMS / IPfolio / Patrix Patricia**: enterprise IP
-  platforms with strong rules engines (esp. Dennemeyer for **foreign
-  annuities**); APIs are partner-gated and pricing is enterprise-sales. Marked
-  **needs-verification**; none is self-serve solo-accessible.
+**Verdict:** DISQUALIFIED for this architecture despite being otherwise the
+closest small-firm product fit. It may be a docket system of record the attorney
+uses separately, but it cannot be the agent-readable L2 engine.
+
+### Enterprise and off-segment products
+
+- **Clarivate FoundationIP / IPfolio:** the public developer portal exposes an
+  **IP Data API** for bibliographic/search/analytics use cases, not
+  FoundationIP/IPfolio docketing or deadline data. Access is contract/use-case
+  gated. https://developer.clarivate.com/apis/ipdata-api ·
+  https://developer.clarivate.com/content/developer-portal-faq
+- **Anaqua / PATTSY WAVE:** Anaqua mentions "APIs for seamless data sharing" in
+  marketing copy, but no public developer portal, endpoint reference, SDK, auth
+  model, webhook docs, or MCP server surfaced. The concrete connector found is
+  PATTSY WAVE Sync for DMS point-to-point integration, not an open agent API.
+  https://www.anaqua.com/resource/pattsy-wave-an-integrated-docketing-platform-for-ip-operations-leaders/ ·
+  https://www.anaqua.com/pattsy-wave/achieve-docketing-excellence/
+- **Dennemeyer DIAMS iQ:** demo-gated partner API posture only, but the rules
+  engine itself is serious: 220 jurisdictions and 5,500+ due-date calculation
+  guidelines. This is a strong warning about where **not** to handroll: foreign
+  annuities and multi-jurisdiction chains. https://www.dennemeyer.com/ip-software/diams/ ·
+  https://www.dennemeyer.com/services/digital-ip/dennemeyer-api
+- **Patrix Patricia, Inteum, Anaqua Essential/IPDAS:** no primary developer-doc
+  evidence for a usable public deadline/docketing API survived this rerun. Treat
+  as "no public API found" pending direct vendor contact.
 
 ## Track-1 takeaways for the four-layer frame
 
-- **L2 (rules engine) BUY candidates that pass the API gate:** **CPI** (best API
-  + due-date endpoints + patent/TM/annuity engine), **Alt Legal** (TM-first,
-  self-serve, real API), **FoundationIP/Inteum** (enterprise/off-segment).
-- **The cruel irony:** the product with the best *small-firm fit* (AppColl —
-  rules engine + USPTO auto-sync + $100/mo) is **disqualified by a deliberate
-  no-API policy.** This is the central tension of the buy path: small-firm-priced
-  ⇏ developer-accessible.
-- **No vendor offers an MCP server.** None offers *both* self-serve solo pricing
-  *and* an open public API *and* a patent auto-sync rules engine — the three
-  rarely co-occur.
-- For **patents specifically**, vendor auto-sync is thin (Alt Legal = manual;
-  AppColl = yes-but-no-API), which pushes the patent event source (**L1**) back
-  toward the official USPTO ODP route covered in Track 3.
+- **Ranked L2 BUY shortlist:** **CPI** first (public REST, due-date resources,
+  OAuth2 password grant for unattended calls, read/write), **Alt Legal** second
+  (real API + solo pricing, but docs/auth sales-gated and TSDR is fragile).
+- **Disqualified:** AppColl, Clarivate FoundationIP/IPfolio, Anaqua/PATTSY WAVE,
+  Dennemeyer DIAMS iQ, Patrix Patricia, Inteum, and Anaqua Essential/IPDAS for
+  lacking a usable public/partner developer API for deadline data in this packet.
+- **No vendor offers MCP or documented public webhooks.** Any bought engine is
+  REST-over-our-own-driver, then optionally surfaced through Beep's own MCP
+  server pattern.
+- **Patent event source still belongs to ODP.** The best small-firm USPTO
+  auto-sync product (AppColl) has no API; Alt Legal is TM-first; CPI is buyable
+  only after partner/commercial access checks. The first patent slice should
+  keep L1 on official USPTO ODP and treat vendors as additive L2 redundancy.

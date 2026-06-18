@@ -20,11 +20,13 @@ good API/MCP/SDK, or hybrid — reliable, agent-integratable, and developer-sane
 
 **Held at the review gate by request.** Research (three deep-research tracks +
 in-repo inventory) and align are complete; the recommendation lives at the bottom
-of [`DECISIONS.md`](./DECISIONS.md). Before `shape`, the user confirms four things
-(see `ops/manifest.json` `openQuestions`): (1) L2 = narrow-handroll-first vs
-buy-first; (2) US-patents-first scope; (3) the dead-man's-switch reliability model
-as a first-class requirement; (4) whether to evaluate CPI/LawToolBox partner-API
-access now or after the handroll spine ships.
+of [`DECISIONS.md`](./DECISIONS.md). The verified reruns are integrated: CPI is
+headless-agent-ready in principle, ODP polling must be sequential per API key,
+and CourtListener is the webhook/MCP litigation event source. Before `shape`, the
+user confirms four things (see `ops/manifest.json` `openQuestions`): (1) L2 =
+narrow-handroll-first vs buy-first; (2) US-patents-first scope; (3) the
+dead-man's-switch reliability model as a first-class requirement; (4) whether to
+evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships.
 
 ## Read This First
 
@@ -32,16 +34,18 @@ access now or after the handroll spine ships.
 2. [`CAPTURE.md`](./CAPTURE.md) - raw dump (stage 0).
 3. [`RESEARCH.md`](./RESEARCH.md) - cited prior art + capability inventory (stage 1).
 4. [`research/`](./research/) - the three full deep-research reports cited by RESEARCH.md.
-5. [`DECISIONS.md`](./DECISIONS.md) - grilling log + recommendation (stage 2).
-6. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, not started — held at review gate).
-7. [`MAP.md`](./MAP.md) - decomposition (stage 4, not started — held at review gate).
+5. [`rundown.html`](./rundown.html) - pure HTML/CSS/JS high-level visualization of the verdict.
+6. [`DECISIONS.md`](./DECISIONS.md) - grilling log + recommendation (stage 2).
+7. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, not started — held at review gate).
+8. [`MAP.md`](./MAP.md) - decomposition (stage 4, not started — held at review gate).
 
 ## Related Packets
 
-- [`microsoft-365-integration`](../microsoft-365-integration/README.md) — owns the
-  Outlook/Graph **transport** (native `@beep/m365` Effect driver + own MCP server,
-  delegated auth, `Calendars.ReadWrite` reserved). Docketing **reuses** it as the
-  Outlook push channel and **drives** its calendar-write scope reservation.
+- [`microsoft-365-integration`](../microsoft-365-integration/README.md) —
+  graduated into [`goals/m365-driver`](../../goals/m365-driver/README.md) and
+  [`goals/m365-mcp`](../../goals/m365-mcp/README.md). Docketing's L4 Outlook push
+  depends on `m365-driver` and is the concrete driver for its future
+  `Calendars.ReadWrite` write scope.
 - [`EXAMPLE.md`](../EXAMPLE.md) — the *fictional* `matter-deadline-radar` prior:
   it killed escalating reminders ("different product, wouldn't be trusted") and
   did zero deadline math. This packet consciously revisits that kill with a
@@ -51,6 +55,20 @@ access now or after the handroll spine ships.
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-18: served [`rundown.html`](./rundown.html) on the tailnet at
+  `https://dankstation.tailc7c348.ts.net:8443/solo-firm-docketing-rundown` for
+  review/sharing. Still stopped at `align`.
+- 2026-06-18: added official vendor action links to the buy-option cards in
+  [`rundown.html`](./rundown.html): CPI demo/contact, LawToolBox demo, Alt Legal
+  demo/trial, and AppColl pricing. Still stopped at `align`.
+- 2026-06-18: added [`rundown.html`](./rundown.html), a standalone pure
+  HTML/CSS/JS visualization of the four-layer verdict, first slice, buy options,
+  operating constraints, and review-gate questions. Still stopped at `align`.
+- 2026-06-18: integrated the verified sequential deep-research reruns into
+  `research/01`, `research/03`, `RESEARCH.md`, and `DECISIONS.md`; left
+  `research/02` on the original successful court synthesis because the rerun
+  output was empty; updated M365 cross-links to `goals/m365-driver` /
+  `goals/m365-mcp`. Still stopped at `align` review gate.
 - 2026-06-18: packet opened straight at `research` (capture = the user's written
   brief + four locked planning-grill decisions). Ran three deep-research tracks
   (IP-prosecution docketing; court/litigation deadline engines; official-data /
