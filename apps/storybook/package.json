@@ -28,8 +28,8 @@
     "beep:build": "bun run storybook:build",
     "beep:check": "tsgo -b tsconfig.json && tsc -p tsconfig.stories.json --noEmit",
     "beep:test": "bunx --bun vitest run --passWithNoTests",
-    "beep:lint": "biome check package.json tsconfig.json tsconfig.stories.json vitest.config.ts vitest.storybook.config.ts vitest.storybook.setup.ts .storybook/ ../../packages/foundation/ui-system/*/stories/",
-    "beep:lint:fix": "biome check package.json tsconfig.json tsconfig.stories.json vitest.config.ts vitest.storybook.config.ts vitest.storybook.setup.ts .storybook/ ../../packages/foundation/ui-system/*/stories/ --write"
+    "beep:lint": "biome check package.json postcss.config.mjs tsconfig.json tsconfig.stories.json vitest.config.ts vitest.storybook.config.ts vitest.storybook.setup.ts .storybook/ ../../packages/foundation/ui-system/*/stories/",
+    "beep:lint:fix": "biome check package.json postcss.config.mjs tsconfig.json tsconfig.stories.json vitest.config.ts vitest.storybook.config.ts vitest.storybook.setup.ts .storybook/ ../../packages/foundation/ui-system/*/stories/ --write"
   },
   "dependencies": {
     "@beep/form": "workspace:^",
@@ -40,6 +40,7 @@
     "@storybook/addon-vitest": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@tailwindcss/postcss": "catalog:",
+    "emojibase-data": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "shadcn": "catalog:",

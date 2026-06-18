@@ -1027,14 +1027,12 @@
         "allow": [
           "@beep/form",
           "@beep/schema",
-          "@beep/ui",
-          "@beep/utils"
+          "@beep/ui"
         ],
         "allowTypeOnly": [
           "@beep/form",
           "@beep/schema",
-          "@beep/ui",
-          "@beep/utils"
+          "@beep/ui"
         ]
       },
       {
@@ -1752,10 +1750,12 @@
       {
         "from": "@beep/ui",
         "allow": [
+          "@beep/schema",
           "@beep/ui",
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/schema",
           "@beep/ui",
           "@beep/utils"
         ]

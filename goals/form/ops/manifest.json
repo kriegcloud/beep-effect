@@ -47,17 +47,17 @@
     {
       "id": "P2",
       "name": "Dates (adapter port)",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Heavy third-party fields",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Verify",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P5",

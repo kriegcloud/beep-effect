@@ -1436,8 +1436,48 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/foundation/ui-system/form/src/fields/ColorField.tsx",
+      "symbol": "ColorFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/ui-system/form/src/fields/ComboboxField.tsx",
       "symbol": "ComboboxFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/CountryField.tsx",
+      "symbol": "CountryFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/DateField.tsx",
+      "symbol": "DateFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/DateTimeField.tsx",
+      "symbol": "DateTimeFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/EmojiField.tsx",
+      "symbol": "EmojiFieldProps",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/form",
@@ -1492,8 +1532,24 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/foundation/ui-system/form/src/fields/PhoneField.tsx",
+      "symbol": "PhoneFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/ui-system/form/src/fields/RadioGroupField.tsx",
       "symbol": "RadioGroupFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/RatingField.tsx",
+      "symbol": "RatingFieldProps",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/form",
@@ -1540,6 +1596,14 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/foundation/ui-system/form/src/fields/TimeField.tsx",
+      "symbol": "TimeFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/ui-system/form/src/fields/ToggleField.tsx",
       "symbol": "ToggleFieldProps",
       "kind": "exported-interface",
@@ -1556,12 +1620,68 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/foundation/ui-system/form/src/fields/UploadAvatarField.tsx",
+      "symbol": "UploadAvatarFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/UploadBoxField.tsx",
+      "symbol": "UploadBoxFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/form/src/fields/UploadField.tsx",
+      "symbol": "UploadFieldProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/form",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/ui-system/form/src/internal/FieldShell.tsx",
       "symbol": "FieldShellProps",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/form",
       "reason": "Internal React shell props carry ReactNode slots and UI presentation state; not a domain data model."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/color-picker.tsx",
+      "symbol": "ColorPickerProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/country-select.tsx",
+      "symbol": "CountryOptionContentProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/country-select.tsx",
+      "symbol": "CountrySelectProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/emoji-picker.tsx",
+      "symbol": "EmojiPickerProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
       "file": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
@@ -1596,6 +1716,22 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/foundation/ui-system/ui/src/components/phone-input.tsx",
+      "symbol": "PhoneInputProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/rating.tsx",
+      "symbol": "RatingProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",
       "symbol": "Step",
       "kind": "exported-interface",
@@ -1610,6 +1746,38 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "React tour configuration is coupled to Step render contracts containing ReactNode values, so it stays tracked as a UI boundary exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/upload.tsx",
+      "symbol": "UploadAvatarProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/upload.tsx",
+      "symbol": "UploadBoxProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/upload.tsx",
+      "symbol": "UploadBoxRenderProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/ui-system/ui/src/components/upload.tsx",
+      "symbol": "UploadProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
       "file": "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",

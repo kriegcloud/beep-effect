@@ -37,10 +37,11 @@ export interface ToggleFieldProps
  * @category components
  * @since 0.0.0
  */
-export const ToggleField: React.FC<ToggleFieldProps> = ({ label, children, ...props }) => {
+export const ToggleField: React.FC<ToggleFieldProps> = ({ label, children, variant = "outline", ...props }) => {
   const field = useFieldContext<boolean>();
   const errors = toFieldErrors(field.state.meta.errors);
   const hasErrors = A.isReadonlyArrayNonEmpty(errors);
+  const content = children ?? label;
   return (
     <Field orientation="horizontal" data-invalid={hasErrors || undefined}>
       <Toggle
@@ -51,10 +52,11 @@ export const ToggleField: React.FC<ToggleFieldProps> = ({ label, children, ...pr
         onPressedChange={(pressed) => field.handleChange(pressed)}
         onBlur={field.handleBlur}
         aria-invalid={hasErrors || undefined}
+        variant={variant}
       >
-        {children}
+        {content}
       </Toggle>
-      {label !== undefined ? <FieldLabel htmlFor={field.name}>{label}</FieldLabel> : null}
+      {children !== undefined && label !== undefined ? <FieldLabel htmlFor={field.name}>{label}</FieldLabel> : null}
       <FieldError errors={[...errors]} />
     </Field>
   );

@@ -12,10 +12,10 @@
       "path": "../../modeling/schema/tsconfig.json"
     },
     {
-      "path": "../../modeling/utils/tsconfig.json"
+      "path": "../ui/tsconfig.json"
     },
     {
-      "path": "../ui/tsconfig.json"
+      "path": "../../modeling/utils/tsconfig.json"
     }
   ]
 }

@@ -2,13 +2,13 @@
 
 ## Status
 
-Status: `P2 complete (package + Storybook green); P3 next` — SPEC signed off via the documented
+Status: `P4 complete (full Yeet verify green); P5 next` — SPEC signed off via the documented
 `/goal` launch.
 
 This plan describes the **full** implementation lifecycle (P0→Close). P0
 (research + packet authorship) and P1 (core + all 17 fields + units + stories
-with passing `play` tests) are complete; P2 (dates adapter) is complete; P3
-(heavy third-party fields) is next.
+with passing `play` tests) are complete; P2 (dates adapter), P3 (heavy
+third-party fields), and P4 (full Yeet verify) are complete. P5 closeout is next.
 
 ## Phases
 
@@ -17,8 +17,8 @@ with passing `play` tests) are complete; P2 (dates adapter) is complete; P3
 | P0 Research | complete | Verify codebase facts; select 2026 widget libraries; record the form-core / validation / atom-boundary / date-adapter design. | `research/` holds the codebase-grounding note, widget-library selections (each pinned + adversarially verified), tanstack/base-ui/effect-schema notes, and the design-review note. Scaffolder confirmed by `--dry-run`. No locked-decision contradictions (or any are surfaced). |
 | P1 Core + simple fields | complete | Scaffold `@beep/form`; build the form-core API + the validation adapter + the defaults extractor; bind the P1 fields to existing `@beep/ui` primitives. | DONE + green: scaffold, core (toFormSchema/getDefaultFormValues/toFieldErrors/4 formOptions builders/Path/Options/contexts), useAppForm factory + Form/SubmitButton, **17 fields** bound + registered, 16 core unit tests, **18 Storybook stories with `play` tests passing in chromium**. `check`/`lint`/`test` green; branch synced with main. |
 | P2 Dates (adapter port) | complete | Port `AdapterEffectDateTime` to effect v4 into `@beep/ui` as a new MUI-x date/time primitive family; reconcile its `./schema` into `@beep/schema`; bind Date/DateTime/Time fields. | DONE + green: schema role helpers/tests, new `@beep/ui` MUI-X Effect DateTime primitive family + adapter unit tests, legal `@beep/ui` → `@beep/schema` dep/reference, Date/DateTime/Time fields registered, 21 form Storybook `play` tests passing in chromium. Full Yeet verify remains P4. |
-| P3 Heavy third-party fields | pending | Add the P3 base-ui/Tailwind primitives to `@beep/ui` (using the P0-selected libraries); bind Phone/Country/Color/Rating/Emoji/Upload fields. | See P3 exit criteria below. |
-| P4 Verify | pending | Run the full quality lane and capture evidence. | `bun run beep yeet verify` green (lint/typecheck/test/docgen); all stories + `play` tests pass in Storybook; demo form works; no new cross-boundary violations. Evidence in `history/`. |
+| P3 Heavy third-party fields | complete | Add the P3 base-ui/Tailwind primitives to `@beep/ui` (using the P0-selected libraries); bind Phone/Country/Color/Rating/Emoji/Upload fields. | DONE + green: exact-pinned P3 libraries cataloged, `@beep/ui` primitives added (Phone/Country/Color/Rating/Emoji/Upload family), `@beep/form` fields registered, helper unit tests added, 29 form Storybook `play` tests passing in chromium. Full Yeet verify remains P4. |
+| P4 Verify | complete | Run the full quality lane and capture evidence. | DONE + green: `bun run beep yeet verify` passed on 2026-06-18 after the repo-sanity writers refreshed tsconfig/docgen and fallow boundaries; all 29 form Storybook `play` tests pass in chromium; docgen, lint, typecheck, tests, secrets, security, SAST, and Nix gates pass. |
 | P5 Close | pending | PR, review response, closeout reflection, readiness. | Packet status + evidence updated; closeout reflection exists and `bun run beep lint reflection-artifacts` passes. |
 
 ### P1 exit criteria (Core + simple fields)
@@ -135,8 +135,8 @@ Before marking the packet closed (and `status` → `completed-retained` /
 
 ## Current Blockers
 
-- None. SPEC sign-off was given via the documented `/goal` launch (see
-  `README.md` Launch). P1 is underway.
+- None for implementation. SPEC sign-off was given via the documented `/goal`
+  launch (see `README.md` Launch). P5 closeout reflection is next.
 
 ## Execution Notes
 

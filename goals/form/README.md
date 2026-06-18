@@ -2,9 +2,10 @@
 
 ## Status
 
-Lifecycle: `active` — SPEC signed off (via the documented `/goal` launch); **P1
-complete (green); P2 next.** Package scaffolded; schema-first core + all 17
-fields bound/registered; 16 unit tests + 18 Storybook `play` tests passing.
+Lifecycle: `active` — SPEC signed off (via the documented `/goal` launch); **P4
+complete (full Yeet verify green); P5 closeout next.** Package scaffolded;
+schema-first core + 28 fields bound/registered; focused unit tests + 29 form
+Storybook `play` tests passing.
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -41,22 +42,21 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-**P1 Core + fields — complete (green).** `@beep/form` is scaffolded at
+**P4 Verify — complete.** `@beep/form` is scaffolded at
 `packages/foundation/ui-system/form` and the schema-first core + full field set
 are built and verified. Core: `toFormSchema` (Standard-Schema validation),
 `getDefaultFormValues` (`schema.make({})`), `toFieldErrors` (issues →
 `FieldError`), the four `formOptions` builders (sync/async slot routing +
 decode-at-submit), `Path` helpers, `FieldOption`, the `useAppForm` factory, and
-`Form`/`SubmitButton`. **17 fields** bound to `@beep/ui` primitives and
+`Form`/`SubmitButton`. **28 fields** bound to `@beep/ui` primitives and
 registered: Text, Textarea, Number, Select, NativeSelect, Combobox, Autocomplete,
 MultiSelect, Checkbox, MultiCheckbox, Switch, MultiSwitch, RadioGroup, Slider,
-Toggle, ToggleGroup, OTP. (Standalone `Radio` is intentionally subsumed by
-`RadioGroup` — a single boolean-radio is niche; surface as a follow-up if needed.)
+Toggle, ToggleGroup, OTP, Date, DateTime, Time, Phone, Country, Color, Rating,
+Emoji, Upload, UploadAvatar, UploadBox. (Standalone `Radio` is intentionally
+subsumed by `RadioGroup` — a single boolean-radio is niche; surface as a
+follow-up if needed.)
 
-**Next: P2** (port `AdapterEffectDateTime` to effect v4 into `@beep/ui` as a new
-MUI-x date/time family; reconcile its `./schema` into `@beep/schema`; bind
-Date/DateTime/Time fields), then **P3** (heavy widgets), **P4** (full verify),
-**P5** (close).
+**Next: P5** closeout reflection.
 
 ## Latest Evidence
 
@@ -68,6 +68,18 @@ Date/DateTime/Time fields), then **P3** (heavy widgets), **P4** (full verify),
   `@beep/types`); test/stories tsconfigs given project references so they consume
   `@beep/ui` `.d.ts` instead of re-typechecking its transitive deps (the phosphor
   resolution issue).
+- P2/P3 (2026-06-18) — focused green: `@beep/ui` `beep:check`, `beep:lint`,
+  `beep:test` pass (6 unit-test files / 25 tests); `@beep/form` `beep:check`,
+  `beep:lint`, `beep:test` pass; `@beep/storybook` `beep:check` + `beep:lint`
+  pass. **All 29 form Storybook story `play` tests pass in headless chromium**
+  via `CI=true bunx vitest run --config vitest.storybook.config.ts
+  ../../packages/foundation/ui-system/form/stories`. Storybook now imports the
+  shared Tailwind v4 PostCSS config and self-hosts `emojibase-data` for the Emoji
+  field. `bun run docgen:local --full` passes (81 docgen tasks + aggregate).
+- P4 (2026-06-18) — full green: `bun run beep yeet verify` passes after
+  generated tsconfig/docgen sync and fallow boundary snapshots were refreshed.
+  This covers repo-wide build, check, lint/law gates, docgen, unit tests,
+  type-tests, integration tests, secrets, security, SAST, and Nix proof.
 - P0 research artifacts under [`research/`](./research/) (dated 2026-06-18):
   codebase grounding, widget-library selections, core best-practice notes, and
   the design-review note.

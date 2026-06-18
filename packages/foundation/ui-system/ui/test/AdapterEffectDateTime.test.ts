@@ -1,7 +1,8 @@
+import { createInvalidDateTime } from "@beep/schema/DateTimeUtcFromValid";
 import { AdapterEffectDateTime } from "@beep/ui/components/effect-date-time-picker";
 import { describe, expect, it } from "@effect/vitest";
-import * as DateTime from "effect/DateTime";
 import * as A from "effect/Array";
+import * as DateTime from "effect/DateTime";
 
 const adapter = new AdapterEffectDateTime({ locale: "en-US" });
 
@@ -33,7 +34,7 @@ describe("AdapterEffectDateTime", () => {
   });
 
   it("creates invalid DateTime-shaped values for MUI validation", () => {
-    const invalid = adapter.getInvalidDate();
+    const invalid = createInvalidDateTime();
 
     expect(adapter.isValid(invalid)).toBe(false);
     expect(Number.isNaN(invalid.epochMilliseconds)).toBe(true);

@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import * as DateTime from "effect/DateTime";
+import { DateTime } from "effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";

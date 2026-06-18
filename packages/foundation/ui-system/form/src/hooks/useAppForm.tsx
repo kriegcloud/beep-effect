@@ -16,16 +16,21 @@ import { SubmitButton } from "../components/SubmitButton.tsx";
 import { fieldContext, formContext } from "../core/contexts.ts";
 import { AutocompleteField } from "../fields/AutocompleteField.tsx";
 import { CheckboxField } from "../fields/CheckboxField.tsx";
+import { ColorField } from "../fields/ColorField.tsx";
 import { ComboboxField } from "../fields/ComboboxField.tsx";
+import { CountryField } from "../fields/CountryField.tsx";
 import { DateField } from "../fields/DateField.tsx";
 import { DateTimeField } from "../fields/DateTimeField.tsx";
+import { EmojiField } from "../fields/EmojiField.tsx";
 import { MultiCheckboxField } from "../fields/MultiCheckboxField.tsx";
 import { MultiSelectField } from "../fields/MultiSelectField.tsx";
 import { MultiSwitchField } from "../fields/MultiSwitchField.tsx";
 import { NativeSelectField } from "../fields/NativeSelectField.tsx";
 import { NumberField } from "../fields/NumberField.tsx";
 import { OTPField } from "../fields/OTPField.tsx";
+import { PhoneField } from "../fields/PhoneField.tsx";
 import { RadioGroupField } from "../fields/RadioGroupField.tsx";
+import { RatingField } from "../fields/RatingField.tsx";
 import { SelectField } from "../fields/SelectField.tsx";
 import { SliderField } from "../fields/SliderField.tsx";
 import { SwitchField } from "../fields/SwitchField.tsx";
@@ -34,6 +39,9 @@ import { TextField } from "../fields/TextField.tsx";
 import { TimeField } from "../fields/TimeField.tsx";
 import { ToggleField } from "../fields/ToggleField.tsx";
 import { ToggleGroupField } from "../fields/ToggleGroupField.tsx";
+import { UploadAvatarField } from "../fields/UploadAvatarField.tsx";
+import { UploadBoxField } from "../fields/UploadBoxField.tsx";
+import { UploadField } from "../fields/UploadField.tsx";
 
 const formHook = createFormHook({
   fieldContext,
@@ -44,6 +52,14 @@ const formHook = createFormHook({
     Date: DateField,
     DateTime: DateTimeField,
     Time: TimeField,
+    Phone: PhoneField,
+    Country: CountryField,
+    Color: ColorField,
+    Rating: RatingField,
+    Emoji: EmojiField,
+    Upload: UploadField,
+    UploadAvatar: UploadAvatarField,
+    UploadBox: UploadBoxField,
     Textarea: TextareaField,
     Checkbox: CheckboxField,
     Switch: SwitchField,

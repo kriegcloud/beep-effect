@@ -8,6 +8,7 @@
 
 import { EffectDatePicker } from "@beep/ui/components/effect-date-time-picker";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { useFieldContext } from "../core/contexts.ts";
 import { toFieldErrors } from "../core/Errors.ts";
 import { FieldShell } from "../internal/FieldShell.tsx";
@@ -47,8 +48,8 @@ export const DateField: React.FC<DateFieldProps> = ({ label, description, slotPr
   const field = useFieldContext<DateTime.DateTime | null>();
   const errors = toFieldErrors(field.state.meta.errors);
   const hasErrors = A.isReadonlyArrayNonEmpty(errors);
-  const textFieldProps =
-    typeof slotProps?.textField === "object" && slotProps.textField !== null ? slotProps.textField : {};
+  const textFieldSlotProps = slotProps?.textField;
+  const textFieldProps = P.isObject(textFieldSlotProps) ? textFieldSlotProps : {};
 
   return (
     <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
