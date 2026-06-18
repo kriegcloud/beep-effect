@@ -100,6 +100,9 @@
       "path": "packages/drivers/m365"
     },
     {
+      "path": "packages/drivers/m365-mcp"
+    },
+    {
       "path": "packages/drivers/nlp-mcp"
     },
     {

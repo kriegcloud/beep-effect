@@ -3,13 +3,13 @@
   "initiative": {
     "id": "m365-mcp",
     "title": "M365 MCP Server",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-18",
     "updated": "2026-06-18",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/m365-mcp",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -40,12 +40,13 @@
     }
   ],
   "phases": [
-    { "id": "P0", "name": "Research", "status": "pending" },
-    { "id": "P1", "name": "Implement", "status": "pending" },
-    { "id": "P2", "name": "Verify", "status": "pending" },
-    { "id": "P3", "name": "Close", "status": "pending" }
+    { "id": "P0", "name": "Research", "status": "completed" },
+    { "id": "P1", "name": "Implement", "status": "completed" },
+    { "id": "P2", "name": "Verify", "status": "completed" },
+    { "id": "P3", "name": "Close", "status": "completed" }
   ],
   "verificationCommands": [
+    "TURBO_FORCE=1 bunx turbo run build check lint test --filter=@beep/m365-mcp",
     "test \"$(wc -m < goals/m365-mcp/GOAL.md)\" -le 4000",
     "jq . goals/m365-mcp/ops/manifest.json",
     "rg -n \"m365-mcp|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/m365-mcp",

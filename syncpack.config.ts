@@ -73,6 +73,7 @@ const config = {
     "packages/drivers/uspto/package.json",
     "packages/drivers/pglite/package.json",
     "packages/drivers/m365/package.json",
+    "packages/drivers/m365-mcp/package.json",
   ],
   customTypes: {
     catalog: {

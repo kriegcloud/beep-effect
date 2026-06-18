@@ -2,16 +2,16 @@
 
 ## Status
 
-Status: `pending`
+Status: `completed`
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Confirm the `@beep/nlp-mcp` `Server.ts`/`bin.ts`/toolkit pattern and the `@beep/m365` verb surface to expose; scaffold `@beep/m365-mcp`. | Pattern confirmed; driver verbs to wrap listed; package scaffolded. |
-| P1 Implement | pending | Build the M365 read toolkit (`Tool.make` + `Tool.HandlersFor` delegating to `@beep/m365`), `makeServerLayer` over `McpServer.layerStdio`, and a `bin`. | Acceptance criteria are met. |
-| P2 Verify | pending | Run the toolkit smoke (enumerate + one call vs a mock driver layer); capture evidence. | Verification green or blockers documented. |
-| P3 Close | pending | Prepare PR, review response, write the closeout reflection, final readiness if requested. | Packet status/evidence updated; a closeout reflection exists. |
+| P0 Research | completed | Confirm the `@beep/nlp-mcp` `Server.ts`/`bin.ts`/toolkit pattern and the `@beep/m365` verb surface to expose; scaffold `@beep/m365-mcp`. | Pattern confirmed; driver verbs to wrap listed; package scaffolded. |
+| P1 Implement | completed | Build the M365 read toolkit (`Tool.make` + `Tool.HandlersFor` delegating to `@beep/m365`), `makeServerLayer` over `McpServer.layerStdio`, and a `bin`. | Acceptance criteria are met. |
+| P2 Verify | completed | Run the toolkit smoke (enumerate + one call vs a mock driver layer); capture evidence. | Verification green or blockers documented. |
+| P3 Close | completed | Prepare PR, review response, write the closeout reflection, final readiness if requested. | Packet status/evidence updated; a closeout reflection exists. |
 
 ## P3 Closeout Checklist
 
@@ -38,8 +38,10 @@ Before marking the packet closed (and `status` → `completed-retained` / `compl
 ## Verification Commands
 
 ```sh
+TURBO_FORCE=1 bunx turbo run build check lint test --filter=@beep/m365-mcp
 test "$(wc -m < goals/m365-mcp/GOAL.md)" -le 4000
 jq . goals/m365-mcp/ops/manifest.json
 rg -n "m365-mcp|GOAL.md|agentLaunchers|packetAnchorDocument" goals/m365-mcp
 git diff --check -- goals/m365-mcp
+bun run beep lint reflection-artifacts
 ```

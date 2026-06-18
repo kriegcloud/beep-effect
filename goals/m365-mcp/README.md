@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -38,13 +38,21 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started. Blocked on `m365-driver` landing. Confirm the
-`@beep/nlp-mcp` `Server.ts`/`bin.ts` assembly pattern, then scaffold
-`@beep/m365-mcp`.
+P3 Close - completed. `@beep/m365-mcp` now exposes the `@beep/m365` read
+surface as schema-first MCP tools over stdio, with mock-backed toolkit and
+stdio smoke coverage.
 
 ## Latest Evidence
 
-Not started.
+- 2026-06-18: `TURBO_FORCE=1 bunx turbo run build check lint test --filter=@beep/m365-mcp`
+  passed with 34/34 Turbo tasks successful and `test/Server.test.ts` 3/3 tests
+  passing, including staged stdio JSON-RPC initialize, tools/list, and
+  `m365_list_drives` call coverage.
+- 2026-06-18: `bun install` refreshed `bun.lock` so the new workspace package is
+  present in the tracked lockfile.
+- 2026-06-18: Added
+  [`history/reflections/2026-06-18-codex.md`](./history/reflections/2026-06-18-codex.md)
+  for P3 closeout.
 
 ## Notes
 

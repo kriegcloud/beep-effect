@@ -48,10 +48,9 @@ them. Advance to research only when the user signals the dump is done.
 
 **research** — Ground the idea two ways, then write `RESEARCH.md` with dated
 sections: (a) external landscape via web search/fetch, every claim cited;
-(b) in-repo capability inventory via `standards/repo-exports.catalog.md`,
-targeted code search, and local package/docs inspection, citing package + path,
-marking gaps NOT FOUND. Surface constraints discovered. Fan out subagents for
-breadth when the topic is wide.
+(b) in-repo capability inventory via targeted source/barrel searches and local
+package/docs inspection, citing package + path, marking gaps NOT FOUND. Surface
+constraints discovered. Fan out subagents for breadth when the topic is wide.
 
 **align** — Grilling posture (as in the `grill-me` skill): walk the decision
 tree one branch-closing question at a time via AskUserQuestion, recommended
