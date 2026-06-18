@@ -98,11 +98,17 @@ Higher sources outrank lower sources when they conflict.
 | --- | --- | --- |
 | Packet launcher size | `test "$(wc -m < goals/law-practice-office-action-extraction-rung/GOAL.md)" -le 4000` | Passes |
 | Manifest JSON | `jq . goals/law-practice-office-action-extraction-rung/ops/manifest.json` | Passes |
-| Packet references | `rg -n "law-practice-office-action-extraction-rung|GOAL.md|agentLaunchers|packetAnchorDocument" goals/law-practice-office-action-extraction-rung` | Finds expected references |
+| Packet references | See packet reference search below. | Finds expected references |
 | Whitespace | `git diff --check -- goals/law-practice-office-action-extraction-rung` | Passes |
 | Focused tests | `bun test packages/law-practice/server/test/LawPracticeServer.test.ts` | Happy and non-happy paths covered |
 | Authoritative typecheck | `bun run check` | Green or unrelated failures classified |
 | Final quality | `bun run beep yeet verify` | Green or no new failures classified |
+
+Packet reference search:
+
+```bash
+rg -n "law-practice-office-action-extraction-rung|GOAL.md|agentLaunchers|packetAnchorDocument" goals/law-practice-office-action-extraction-rung
+```
 
 ## Stop Conditions
 

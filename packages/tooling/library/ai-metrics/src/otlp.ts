@@ -461,6 +461,37 @@ const emitSpanProjection = Effect.fn("AiMetrics.otlp.emitSpanProjection")((proje
   )
 );
 
+const withOtlpExportSpan =
+  (input: AiMetricsOtlpExportInput) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+    effect.pipe(
+      Effect.withSpan("repo_ai_metrics.otlp.export", {
+        attributes: {
+          "ai_metrics.otlp.signal_scope": input.endpoint.signalScope,
+          "ai_metrics.otlp.trace_url": input.endpoint.traceUrl,
+          "ai_metrics.target": input.target,
+        },
+      })
+    );
+
+const runAiMetricsOtlpProjectionBatchExportUntraced: (
+  input: AiMetricsOtlpExportInput,
+  batch: AiMetricsOtlpSpanProjectionBatch
+) => Effect.Effect<AiMetricsOtlpExportResult> = Effect.fn("AiMetrics.runAiMetricsOtlpProjectionBatchExport.untraced")(
+  function* (input, batch) {
+    yield* Effect.forEach(batch.projections, emitSpanProjection, { discard: true, concurrency: 8 });
+
+    return AiMetricsOtlpExportResult.make({
+      endpointTraceUrl: input.endpoint.traceUrl,
+      ingestRunId: batch.ingestRunId,
+      sessionSpanCount: batch.sessionSpanCount,
+      spanCount: A.length(batch.projections),
+      target: input.target,
+      turnSpanCount: batch.turnSpanCount,
+    });
+  }
+);
+
 /**
  * Emit a pre-resolved redacted AI metrics OTLP span projection batch.
  *
@@ -477,32 +508,8 @@ export const runAiMetricsOtlpProjectionBatchExport: {
   (
     batch: AiMetricsOtlpSpanProjectionBatch
   ): (input: AiMetricsOtlpExportInput) => Effect.Effect<AiMetricsOtlpExportResult>;
-} = dual(
-  2,
-  Effect.fn("AiMetrics.runAiMetricsOtlpProjectionBatchExport")(
-    function* (input: AiMetricsOtlpExportInput, batch: AiMetricsOtlpSpanProjectionBatch) {
-      yield* Effect.forEach(batch.projections, emitSpanProjection, { discard: true, concurrency: 8 });
-
-      return AiMetricsOtlpExportResult.make({
-        endpointTraceUrl: input.endpoint.traceUrl,
-        ingestRunId: batch.ingestRunId,
-        sessionSpanCount: batch.sessionSpanCount,
-        spanCount: A.length(batch.projections),
-        target: input.target,
-        turnSpanCount: batch.turnSpanCount,
-      });
-    },
-    (effect, input) =>
-      effect.pipe(
-        Effect.withSpan("repo_ai_metrics.otlp.export", {
-          attributes: {
-            "ai_metrics.otlp.signal_scope": input.endpoint.signalScope,
-            "ai_metrics.otlp.trace_url": input.endpoint.traceUrl,
-            "ai_metrics.target": input.target,
-          },
-        })
-      )
-  )
+} = dual(2, (input: AiMetricsOtlpExportInput, batch: AiMetricsOtlpSpanProjectionBatch) =>
+  runAiMetricsOtlpProjectionBatchExportUntraced(input, batch).pipe(withOtlpExportSpan(input))
 );
 
 /**
@@ -520,11 +527,14 @@ export const runAiMetricsOtlpExport: (
   input: AiMetricsOtlpExportInput
 ) => Effect.Effect<AiMetricsOtlpExportResult, AiMetricsOtlpExportError, DuckDb> = Effect.fn(
   "AiMetrics.runAiMetricsOtlpExport"
-)(function* (input) {
-  const batch = yield* readAiMetricsOtlpSpanProjections(input);
+)(
+  function* (input) {
+    const batch = yield* readAiMetricsOtlpSpanProjections(input);
 
-  return yield* runAiMetricsOtlpProjectionBatchExport(input, batch);
-});
+    return yield* runAiMetricsOtlpProjectionBatchExportUntraced(input, batch);
+  },
+  (effect, input) => effect.pipe(withOtlpExportSpan(input))
+);
 
 /**
  * Render an OTLP export result as JSON.
