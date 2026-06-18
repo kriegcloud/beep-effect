@@ -264,6 +264,11 @@ export * from "./Record/index.ts";
 export * from "./RegExp.ts";
 /**
  * @since 0.0.0
+ * @category validation
+ */
+export * from "./SafeRemoteHost.ts";
+/**
+ * @since 0.0.0
  * @category utilities
  */
 export * as SchemaUtils from "./SchemaUtils/index.ts";

@@ -100,38 +100,23 @@ export class SecureHeaderEntry extends S.Class<SecureHeaderEntry>($I`SecureHeade
   })
 ) {}
 
-class SecureHeaderOptionsArgument extends S.Class<SecureHeaderOptionsArgument>($I`SecureHeaderOptionsArgument`)(
-  {
-    options: SecureHeaderOptions.pipe(S.withConstructorDefault(Effect.succeed({}))),
-  },
-  $I.annote("SecureHeaderOptionsArgument", {
-    description: "Internal schema-owned argument wrapper for omitted secure-header options.",
-  })
-) {}
-
-const normalizeSecureHeaderOptions = (options: SecureHeaderOptions | undefined): SecureHeaderOptions =>
-  options === undefined
-    ? SecureHeaderOptionsArgument.make({}).options
-    : SecureHeaderOptionsArgument.make({ options }).options;
-
 const resolveHeaders = Effect.fnUntraced(function* (
-  options?: SecureHeaderOptions
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<ReadonlyArray<ResolvedHeader>, SecureHeaderError> {
-  const normalizedOptions = normalizeSecureHeaderOptions(options);
   const headerEffects = A.make(
-    ContentSecurityPolicyHeader.create(normalizedOptions.contentSecurityPolicy),
-    CrossOriginEmbedderPolicyHeader.create(normalizedOptions.crossOriginEmbedderPolicy),
-    CrossOriginOpenerPolicyHeader.create(normalizedOptions.crossOriginOpenerPolicy),
-    CrossOriginResourcePolicyHeader.create(normalizedOptions.crossOriginResourcePolicy),
-    ExpectCTHeader.create(normalizedOptions.expectCT),
-    ForceHttpsRedirectHeader.create(normalizedOptions.forceHttpsRedirect),
-    FrameGuardHeader.create(normalizedOptions.frameGuard),
-    NoOpenHeader.create(normalizedOptions.noopen),
-    NoSniffHeader.create(normalizedOptions.nosniff),
-    PermissionsPolicyHeader.create(normalizedOptions.permissionsPolicy),
-    PermittedCrossDomainPoliciesHeader.create(normalizedOptions.permittedCrossDomainPolicies),
-    ReferrerPolicyHeader.create(normalizedOptions.referrerPolicy),
-    XSSProtectionHeader.create(normalizedOptions.xssProtection)
+    ContentSecurityPolicyHeader.create(options.contentSecurityPolicy),
+    CrossOriginEmbedderPolicyHeader.create(options.crossOriginEmbedderPolicy),
+    CrossOriginOpenerPolicyHeader.create(options.crossOriginOpenerPolicy),
+    CrossOriginResourcePolicyHeader.create(options.crossOriginResourcePolicy),
+    ExpectCTHeader.create(options.expectCT),
+    ForceHttpsRedirectHeader.create(options.forceHttpsRedirect),
+    FrameGuardHeader.create(options.frameGuard),
+    NoOpenHeader.create(options.noopen),
+    NoSniffHeader.create(options.nosniff),
+    PermissionsPolicyHeader.create(options.permissionsPolicy),
+    PermittedCrossDomainPoliciesHeader.create(options.permittedCrossDomainPolicies),
+    ReferrerPolicyHeader.create(options.referrerPolicy),
+    XSSProtectionHeader.create(options.xssProtection)
   );
 
   const headers = yield* Effect.all(headerEffects, {
@@ -176,7 +161,7 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * @category constructors
  */
 export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersObject")(function* (
-  options?: SecureHeaderOptions
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<Record<string, string>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 
@@ -205,7 +190,7 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * @category constructors
  */
 export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHeaders")(function* (
-  options?: SecureHeaderOptions
+  options: SecureHeaderOptions = {}
 ): Effect.fn.Return<ReadonlyArray<SecureHeaderEntry>, SecureHeaderError> {
   const headers = yield* resolveHeaders(options);
 

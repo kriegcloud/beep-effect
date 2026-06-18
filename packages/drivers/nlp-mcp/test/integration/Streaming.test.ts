@@ -1,4 +1,5 @@
 import { StreamingToolkit, StreamingToolkitHandlersLive } from "@beep/nlp-mcp";
+import { StreamingAllowedRoots } from "@beep/nlp-mcp/Streaming/TextStream";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { assert, describe, layer } from "@effect/vitest";
@@ -30,7 +31,10 @@ const withTempFixture = <A, E, R>(
         Effect.gen(function* () {
           const file = path.join(dir, name);
           yield* fs.writeFileString(file, content);
-          return yield* use(file);
+          // Configure the fixture's temp directory as the streaming tools' only
+          // allowed read root, so the path-safety guard is exercised against a
+          // legitimate in-root read rather than blocking the test's temp file.
+          return yield* use(file).pipe(Effect.provideService(StreamingAllowedRoots, [dir]));
         }),
       (dir) => Effect.orDie(fs.remove(dir, { force: true, recursive: true }))
     );

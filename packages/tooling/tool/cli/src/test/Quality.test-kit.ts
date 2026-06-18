@@ -12,5 +12,4 @@ export * from "@beep/repo-cli/commands/Quality/Tasks";
 export * from "../commands/Quality/internal/FallowEnvelope.schema.js";
 export * from "../commands/Quality/internal/JSDocDocumentationInventory.js";
 export * from "../commands/Quality/internal/PackageVerify.js";
-export * from "../commands/Quality/internal/RepoExportsCatalog.js";
 export * from "../commands/Quality/internal/TurboConfigProof.js";

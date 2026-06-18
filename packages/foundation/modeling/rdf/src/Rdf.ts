@@ -8,7 +8,7 @@
 import { $RdfId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
 import * as O from "@beep/utils/Option";
-import { Order, pipe, Result } from "effect";
+import { Match, Order, pipe, Result } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -952,6 +952,40 @@ export const makeQuad: {
  */
 export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: A.fromIterable(quads) });
 
+// Escape an RDF literal lexical form for the N-Triples/N-Quads `STRING_LITERAL_QUOTE`
+// production so attacker-controlled quotes, backslashes, or control characters cannot
+// close the quoted string and inject additional statements. A single pass keeps the
+// mapping order-independent (the backslash branch never re-matches its own output).
+const escapeLiteralLexical: (value: string) => string = Str.replaceAllWith(/[\\"\n\r\t\b\f]/g, (ch) =>
+  Match.value(ch).pipe(
+    Match.when("\\", () => "\\\\"),
+    Match.when('"', () => '\\"'),
+    Match.when("\n", () => "\\n"),
+    Match.when("\r", () => "\\r"),
+    Match.when("\t", () => "\\t"),
+    Match.when("\b", () => "\\b"),
+    Match.when("\f", () => "\\f"),
+    Match.orElse(() => ch)
+  )
+);
+
+// Encode a single out-of-grammar character into a `_uXXXX` escape. The output only ever
+// contains `[A-Za-z0-9_]`, all of which are valid in an N-Triples `BLANK_NODE_LABEL`.
+const toBlankNodeEscape = (ch: string): string =>
+  pipe(
+    O.fromNullishOr(ch.codePointAt(0)),
+    O.match({
+      onNone: () => ch,
+      onSome: (code) => `_u${pipe(code.toString(16), Str.toUpperCase, Str.padStart(4, "0"))}`,
+    })
+  );
+
+// Encode an RDF blank-node label into a deterministic, grammar-safe form. Blank-node
+// labels have no in-grammar escape mechanism, so any character outside `[A-Za-z0-9]`
+// (including statement delimiters and whitespace) is percent-style encoded, preventing
+// raw-label injection while preserving ordinary alphanumeric labels unchanged.
+const encodeBlankNodeLabel: (value: string) => string = Str.replaceAllWith(/[^A-Za-z0-9]/g, toBlankNodeEscape);
+
 /**
  * Serialize an RDF term to a deterministic lexical form.
  *
@@ -971,11 +1005,11 @@ export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make
 export const serializeTerm = (term: Term): string =>
   Term.match(term, {
     NamedNode: (value) => `<${value.value}>`,
-    BlankNode: (value) => `_:${value.value}`,
+    BlankNode: (value) => `_:${encodeBlankNodeLabel(value.value)}`,
     Literal: (value) =>
       O.isSome(value.language)
-        ? `"${value.value}"@${Str.toLowerCase(value.language.value)}`
-        : `"${value.value}"^^<${value.datatype.value}>`,
+        ? `"${escapeLiteralLexical(value.value)}"@${Str.toLowerCase(value.language.value)}`
+        : `"${escapeLiteralLexical(value.value)}"^^<${value.datatype.value}>`,
     DefaultGraph: () => "default",
   });
 

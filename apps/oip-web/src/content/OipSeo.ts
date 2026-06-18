@@ -11,11 +11,13 @@ import * as O from "effect/Option";
 import type { OipSiteContent } from "./OipContent.model.ts";
 
 // Discord links are server invites rather than identity profiles, so they are
-// excluded from `sameAs` while still rendering as a footer link.
+// excluded from `sameAs` while still rendering as a footer link. Inactive
+// socials are hidden from the visible footer, so they must also be withheld
+// from public SEO output to keep the visibility policy consistent.
 const profileUrls = (content: OipSiteContent): ReadonlyArray<string> =>
   pipe(
     content.socials,
-    A.filter((social) => social.platform !== "discord"),
+    A.filter((social) => social.active && social.platform !== "discord"),
     A.map((social) => social.href)
   );
 
@@ -91,7 +93,7 @@ export const makeJsonLdGraph = (content: OipSiteContent) => ({
  */
 export const oipTwitterHandle = (content: OipSiteContent): string | undefined =>
   pipe(
-    A.findFirst(content.socials, (social) => social.platform === "x"),
+    A.findFirst(content.socials, (social) => social.active && social.platform === "x"),
     O.map((social) => Str.replaceAll("/", "")(new URL(social.href).pathname)),
     O.filter(Str.isNonEmpty),
     O.map((handle) => `@${handle}`),

@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $FfmpegId } from "@beep/identity/packages";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref, Stream } from "effect";
@@ -886,12 +887,30 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     const outDir = path.resolve(request.outDir);
     yield* ensureFile(fs, videoPath, "video input");
     yield* ensureDirectory(fs, outDir, "frame output directory");
-    const manifestPath = pipe(
+    // Defense-in-depth containment: fail closed if the manifest target (default
+    // or caller-supplied) would resolve outside the frame output directory via a
+    // `..` traversal or a symlink. resolvePathWithinRoot canonicalizes both root
+    // and candidate with realPath and guards the not-yet-created manifest leaf.
+    const manifestCandidate = pipe(
       request.manifestPath,
       O.match({
         onNone: () => path.join(outDir, "extract-frames-manifest.json"),
         onSome: path.resolve,
       })
+    );
+    const manifestPath = yield* resolvePathWithinRoot({ root: outDir, candidate: manifestCandidate }).pipe(
+      // Discharge the guard's FileSystem | Path requirement with the platform
+      // services already captured at service-construction scope so the method's
+      // R stays `never` (matches FFmpegShape and the rest of this service).
+      Effect.provideService(FileSystem.FileSystem, fs),
+      Effect.provideService(Path.Path, path),
+      Effect.mapError((cause) =>
+        FFmpegError.fromUnknown(
+          "extractFrames",
+          `Refusing manifest path outside the frame output directory: "${manifestCandidate}"`,
+          { cause }
+        )
+      )
     );
     yield* ensureDirectory(fs, path.dirname(manifestPath), "manifest directory");
     yield* preflightWritable(fs, manifestPath, request.overwrite, "manifest");
@@ -899,7 +918,9 @@ const makeService = Effect.fn("FFmpeg.make")(function* (configInput?: FFmpegConf
     const probe = yield* probeVideo(ProbeVideoRequest.make({ videoPath }));
     const context = yield* makeExtractContext(
       path,
-      ExtractFramesRequest.make({ ...request, outDir, videoPath }),
+      // Reuse the containment-validated manifest path so the rendered manifest
+      // cannot be redirected outside the output directory by makeExtractContext.
+      ExtractFramesRequest.make({ ...request, manifestPath: O.some(manifestPath), outDir, videoPath }),
       probe
     );
 

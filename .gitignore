@@ -104,20 +104,12 @@ sst-env.d.ts
 .lsmcp/cache
 .beep/*
 **/.beep/*
-!.beep/
-!.beep/repo-exports/
-!.beep/repo-exports/catalog.shard.jsonc
-!apps/**/.beep/
-!apps/**/.beep/repo-exports/
-!apps/**/.beep/repo-exports/catalog.shard.jsonc
-!infra/.beep/
-!infra/.beep/repo-exports/
-!infra/.beep/repo-exports/catalog.shard.jsonc
-!packages/**/.beep/
-!packages/**/.beep/repo-exports/
-!packages/**/.beep/repo-exports/catalog.shard.jsonc
 
 # subtrees
 .repos/*
 
 .claude/settings.local.json
+
+# secrets / credential exports (never commit; public repo)
+*cookies*.txt
+openai.com_cookies.txt

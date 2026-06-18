@@ -336,12 +336,6 @@
         ]
       },
       {
-        "name": "@beep/repo-codegraph",
-        "patterns": [
-          "packages/tooling/library/repo-codegraph/src/**"
-        ]
-      },
-      {
         "name": "@beep/repo-configs",
         "patterns": [
           "packages/tooling/policy-pack/repo-configs/src/**"
@@ -532,13 +526,15 @@
           "@beep/agents-client",
           "@beep/agents-domain",
           "@beep/agents-use-cases",
-          "@beep/md"
+          "@beep/md",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/agents-client",
           "@beep/agents-domain",
           "@beep/agents-use-cases",
-          "@beep/md"
+          "@beep/md",
+          "@beep/utils"
         ]
       },
       {
@@ -568,7 +564,10 @@
           "@beep/agents-use-cases",
           "@beep/anthropic",
           "@beep/identity",
-          "@beep/test-utils"
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/agents-domain",
@@ -576,7 +575,10 @@
           "@beep/agents-use-cases",
           "@beep/anthropic",
           "@beep/identity",
-          "@beep/test-utils"
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ]
       },
       {
@@ -971,12 +973,14 @@
         "from": "@beep/ffmpeg",
         "allow": [
           "@beep/ffmpeg",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/ffmpeg",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
@@ -1191,6 +1195,7 @@
       {
         "from": "@beep/nlp-mcp",
         "allow": [
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/nlp",
           "@beep/nlp-mcp",
@@ -1198,6 +1203,7 @@
           "@beep/wink"
         ],
         "allowTypeOnly": [
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/nlp",
           "@beep/nlp-mcp",
@@ -1388,6 +1394,7 @@
         "from": "@beep/repo-ai-metrics",
         "allow": [
           "@beep/duckdb",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -1396,6 +1403,7 @@
         ],
         "allowTypeOnly": [
           "@beep/duckdb",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -1419,7 +1427,6 @@
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
           "@beep/repo-cli",
-          "@beep/repo-codegraph",
           "@beep/repo-configs",
           "@beep/repo-docgen",
           "@beep/repo-utils",
@@ -1444,7 +1451,6 @@
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
           "@beep/repo-cli",
-          "@beep/repo-codegraph",
           "@beep/repo-configs",
           "@beep/repo-docgen",
           "@beep/repo-utils",
@@ -1453,21 +1459,6 @@
           "@beep/test-utils",
           "@beep/tika",
           "@beep/uspto",
-          "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/repo-codegraph",
-        "allow": [
-          "@beep/identity",
-          "@beep/repo-codegraph",
-          "@beep/schema",
-          "@beep/utils"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/repo-codegraph",
-          "@beep/schema",
           "@beep/utils"
         ]
       },

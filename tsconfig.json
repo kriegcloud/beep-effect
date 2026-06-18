@@ -577,12 +577,6 @@
       "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
       "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
       "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
-      "@beep/repo-codegraph": [
-        "./packages/tooling/library/repo-codegraph/src/index.ts"
-      ],
-      "@beep/repo-codegraph/*": [
-        "./packages/tooling/library/repo-codegraph/src/*"
-      ],
       "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
       "@beep/konva/*": ["./packages/drivers/konva/src/*"],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
@@ -667,9 +661,6 @@
       ],
       "@beep/repo-cli/test/Quality": [
         "./packages/tooling/tool/cli/src/test/Quality.test-kit.ts"
-      ],
-      "@beep/repo-cli/test/Reuse": [
-        "./packages/tooling/tool/cli/src/test/Reuse.test-kit.ts"
       ],
       "@beep/repo-cli/test/SyncDataToTs": [
         "./packages/tooling/tool/cli/src/test/SyncDataToTs.test-kit.ts"
@@ -1189,6 +1180,24 @@
       "@beep/pandoc-ast/Pandoc.report": [
         "./packages/foundation/modeling/pandoc-ast/src/Pandoc.report.ts"
       ],
+      "@beep/file-processing/PathSafety": [
+        "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimGate": [
+        "./packages/epistemic/domain/src/values/ClaimGate/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimProjection": [
+        "./packages/epistemic/domain/src/values/ClaimProjection/index.ts"
+      ],
+      "@beep/epistemic-domain/values/EvidenceSpan": [
+        "./packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
+      ],
+      "@beep/epistemic-server": [
+        "./packages/epistemic/server/src/index.ts"
+      ],
+      "@beep/epistemic-server/layer": [
+        "./packages/epistemic/server/src/Layer.ts"
+      ],
       "@beep/epistemic-use-cases": [
         "./packages/epistemic/use-cases/src/index.ts"
       ],
@@ -1206,33 +1215,6 @@
       ],
       "@beep/epistemic-use-cases/server": [
         "./packages/epistemic/use-cases/src/server.ts"
-      ],
-      "@beep/epistemic-server": [
-        "./packages/epistemic/server/src/index.ts"
-      ],
-      "@beep/epistemic-server/layer": [
-        "./packages/epistemic/server/src/Layer.ts"
-      ],
-      "@beep/epistemic-domain/values/ClaimGate": [
-        "./packages/epistemic/domain/src/values/ClaimGate/index.ts"
-      ],
-      "@beep/epistemic-domain/values/ClaimProjection": [
-        "./packages/epistemic/domain/src/values/ClaimProjection/index.ts"
-      ],
-      "@beep/epistemic-domain/values/EvidenceSpan": [
-        "./packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
-      ],
-      "@beep/schema/UnitInterval": [
-        "./packages/foundation/modeling/schema/src/UnitInterval.ts"
-      ],
-      "@beep/provenance": [
-        "./packages/foundation/modeling/provenance/src/index.ts"
-      ],
-      "@beep/provenance/*": [
-        "./packages/foundation/modeling/provenance/src/*"
-      ],
-      "@beep/shared-domain/values/ClaimLifecycle": [
-        "./packages/shared/domain/src/values/ClaimLifecycle/index.ts"
       ],
       "@beep/law-practice-domain/entities/Claim": [
         "./packages/law-practice/domain/src/entities/Claim/index.ts"
@@ -1263,6 +1245,18 @@
       ],
       "@beep/law-practice-use-cases/server": [
         "./packages/law-practice/use-cases/src/server.ts"
+      ],
+      "@beep/provenance": [
+        "./packages/foundation/modeling/provenance/src/index.ts"
+      ],
+      "@beep/provenance/*": [
+        "./packages/foundation/modeling/provenance/src/*"
+      ],
+      "@beep/schema/UnitInterval": [
+        "./packages/foundation/modeling/schema/src/UnitInterval.ts"
+      ],
+      "@beep/shared-domain/values/ClaimLifecycle": [
+        "./packages/shared/domain/src/values/ClaimLifecycle/index.ts"
       ]
     }
   }

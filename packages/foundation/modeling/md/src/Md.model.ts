@@ -12,6 +12,31 @@ import type * as O from "effect/Option";
 
 const $I = $MdId.create("Md.model");
 
+const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
+
+/**
+ * Bare 11-character YouTube video id used by {@link YouTube} embeds.
+ *
+ * Constraining the id to the safe character class rejects malformed UTF-16
+ * (e.g. lone surrogates) at the schema boundary, so downstream consumers that
+ * percent-encode the id cannot be crashed by a `URIError`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const YouTubeVideoId = S.String.check(
+  S.isPattern(youtubeVideoIdPattern, {
+    identifier: $I`YouTubeVideoIdPatternCheck`,
+    title: "YouTube Video ID",
+    description: "Checks that a YouTube embed references only the bare 11-character video id.",
+    message: "YouTube video id must be the bare 11-character id, not a URL or arbitrary string.",
+  })
+).pipe(
+  $I.annoteSchema("YouTubeVideoId", {
+    description: "Bare 11-character YouTube video id accepted by Md YouTube embeds.",
+  })
+);
+
 /**
  * Recursive inline child list used by inline containers and text-bearing block
  * nodes.
@@ -1630,7 +1655,7 @@ export declare namespace Table {
 export class YouTube extends S.TaggedClass<YouTube>($I`YouTube`)(
   "youtube",
   {
-    videoId: S.String.annotateKey({
+    videoId: YouTubeVideoId.annotateKey({
       description: "Bare YouTube video id rendered as an embedded video.",
     }),
   },

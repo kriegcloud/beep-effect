@@ -137,7 +137,6 @@ const repoCliSourceOnlyTestKitAliases = [
   ["@beep/repo-cli/test/Graphiti", "src/test/Graphiti.test-kit.ts"],
   ["@beep/repo-cli/test/Laws", "src/test/Laws.test-kit.ts"],
   ["@beep/repo-cli/test/Quality", "src/test/Quality.test-kit.ts"],
-  ["@beep/repo-cli/test/Reuse", "src/test/Reuse.test-kit.ts"],
   ["@beep/repo-cli/test/SyncDataToTs", "src/test/SyncDataToTs.test-kit.ts"],
   ["@beep/repo-cli/test/VersionSync", "src/test/VersionSync.test-kit.ts"],
   ["@beep/repo-cli/test/Yeet", "src/test/Yeet.test-kit.ts"],

@@ -28,9 +28,18 @@ const hashString = (value: string): string => {
   return (hash >>> 0).toString(36);
 };
 
+// Upper bound on the length of any sanitized DOM id segment. `renderKey` is
+// caller-supplied and can be derived from unbounded, attacker-influenced
+// assistant content; collapsing oversized segments to a fixed-length hash keeps
+// the generated `renderId` bounded instead of duplicating megabytes of source.
+const maxIdPartLength = 64;
+
 const sanitizeIdPart = (value: string): string => {
   const sanitized = value.replace(/[^a-zA-Z0-9_-]/gu, "-");
-  return sanitized.length === 0 ? "diagram" : sanitized;
+  if (sanitized.length === 0) {
+    return "diagram";
+  }
+  return sanitized.length > maxIdPartLength ? hashString(sanitized) : sanitized;
 };
 
 const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : fallbackErrorMessage);

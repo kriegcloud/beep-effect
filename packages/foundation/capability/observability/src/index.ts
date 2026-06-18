@@ -46,6 +46,13 @@ export const VERSION = "0.0.0" as const;
  */
 export * from "./CauseDiagnostics.ts";
 /**
+ * Safe, bounded redaction of errors and causes for logs, telemetry, and clients.
+ *
+ * @since 0.0.0
+ * @category diagnostics
+ */
+export * from "./CauseRedaction.ts";
+/**
  * Browser-safe shared observability configuration.
  *
  * @since 0.0.0

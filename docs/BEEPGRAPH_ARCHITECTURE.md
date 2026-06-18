@@ -205,7 +205,7 @@ projection's audit trail rather than defining the core.
 |-------|----------------|-----------------|-------------------|
 | **L1 — Durable** | Outside | Curated docs + `@beep/epistemic-domain` accepted claims/evidence (authority) | EO (typed claims) + files |
 | **L2 — Session** | Inside (managed) | Bi-temporal session cache, consolidation/pruning | Graphiti-style; TG GraphRAG cache |
-| **L3 — Procedural** | Outside | Deterministic AST/JSDoc capability graph — **dev tooling / learning-vehicle residue, not a product moat** | beep `EffectCapabilityKG.ts` (tooling) |
+| **L3 — Procedural** | Outside | Deterministic AST/JSDoc capability graph — **dev tooling / learning-vehicle residue, not a product moat** | _prior `EffectCapabilityKG.ts` prototype removed; rebuild if pursued_ |
 | **L4 — Relational** | Inside (managed) | **BeepGraph**: EO extraction spine → FalkorDB projection + GraphRAG | EO spine + TG shell |
 
 The verdict only governs **L4** (and the authority that feeds it). L1/L3 are already settled and
@@ -257,7 +257,7 @@ graph authority.
 | RDF value models (IRI/Quad/Dataset, OWL/PROV vocab) | **Live** | `packages/foundation/modeling/rdf/src/Rdf.ts`, `Vocab/Owl.ts` |
 | PROV-O provenance + bounded SHACL | **Live** | `packages/foundation/capability/semantic-web/src/prov.ts`, `adapters/shacl-engine.ts` |
 | Epistemic authority (claims/evidence/lifecycle) | **Live (domain only)** | `packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle` |
-| Deterministic L3 capability graph (dev tooling) | **Live (complete)** | `packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts` |
+| Deterministic L3 capability graph (dev tooling) | **Removed** | prior `EffectCapabilityKG.ts` prototype deleted; rebuild if pursued |
 | Ontology authoring over Effect Schema → JSON-LD/Turtle | **Specced, blocked** | `goals/ontology-modeling-foundation/SPEC.md` (`@beep/ontology`, retired) |
 | EventLog → graph projection | **Specced** | `goals/knowledge-workspace/00-event-sourced-graph.md` |
 | Curated-doc library + processing queue + grounded retrieval | **Specced** | `goals/trustgraph-port/{SPEC,PLAN}.md` → `packages/repo-memory` |
@@ -320,7 +320,7 @@ multi-store projection, retrieval, and packaging that effect-ontology lacks.
 `TG-Py` = `~/YeeBois/dev/trustgraph/` · `TG-TS` = `~/YeeBois/dev/trustgraph/ts/`
 
 - **Authority / criteria:** `beep standards/memory-architecture/{00-no-escape-theorem,01-memory-layer-taxonomy,04-decision-log,05-context-graph-capability-assessment}.md`; `beep goals/agentic-professional-runtime/SPEC.md`; `beep goals/ontology-modeling-foundation/SPEC.md:10-11`.
-- **beep live:** `beep packages/foundation/modeling/rdf/src/{Rdf.ts,Vocab/Owl.ts}`; `beep packages/foundation/capability/semantic-web/src/{prov.ts,adapters/shacl-engine.ts}`; `beep packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle`; `beep packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts`; `beep docker-compose.yml` (`pgvector/pgvector:pg17`).
+- **beep live:** `beep packages/foundation/modeling/rdf/src/{Rdf.ts,Vocab/Owl.ts}`; `beep packages/foundation/capability/semantic-web/src/{prov.ts,adapters/shacl-engine.ts}`; `beep packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle`; `beep docker-compose.yml` (`pgvector/pgvector:pg17`).
 - **beep specced:** `beep goals/{trustgraph-port,knowledge-workspace,ip-law-knowledge-graph,ontology-modeling-foundation}/`.
 - **EO spine:** `EO Workflow/{StreamingExtraction.ts,Merge.ts:161}`; `EO Service/{Shacl,Sparql,GraphRAG,EntityResolution}.ts`; `EO Domain/Model/{Ontology,Entity,EntityResolution}.ts`; `EO Repository/Embedding.ts`.
 - **TG shell:** `TG-Py trustgraph-flow/trustgraph/storage/triples/{cassandra,neo4j,memgraph,falkordb}`, `trustgraph-base/trustgraph/schema/knowledge/knowledge.py`, `trustgraph-base/trustgraph/base/graph_rag_client.py`; `TG-TS ts/packages/flow/src/{storage/triples/falkordb.ts,retrieval/graph-rag.ts,cores/service.ts,librarian/service.ts}`.

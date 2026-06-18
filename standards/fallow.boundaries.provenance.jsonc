@@ -15,7 +15,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -29,7 +29,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -43,7 +43,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -57,7 +57,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -71,7 +71,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -85,7 +85,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -99,7 +99,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -113,7 +113,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -127,7 +127,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -141,7 +141,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -155,7 +155,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -169,7 +169,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -183,7 +183,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -197,7 +197,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -211,7 +211,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -225,7 +225,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -239,7 +239,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -253,7 +253,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -267,7 +267,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -281,7 +281,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -295,7 +295,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -309,7 +309,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -323,7 +323,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -337,7 +337,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -351,7 +351,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -365,7 +365,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -379,7 +379,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -393,7 +393,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -407,7 +407,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -421,7 +421,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -435,7 +435,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -449,7 +449,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -463,7 +463,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -477,7 +477,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -491,7 +491,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -505,7 +505,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -519,7 +519,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -533,7 +533,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -547,7 +547,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -561,7 +561,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -575,7 +575,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -589,7 +589,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -603,7 +603,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -617,7 +617,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -631,7 +631,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -645,7 +645,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -659,7 +659,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -673,21 +673,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/repo-codegraph",
-      "generatedRuleFrom": "@beep/repo-codegraph",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/tooling/library/repo-codegraph/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -701,7 +687,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -715,7 +701,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -729,7 +715,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -743,7 +729,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -757,7 +743,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -771,7 +757,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -785,7 +771,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -799,7 +785,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -813,7 +799,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -827,7 +813,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -841,7 +827,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -855,7 +841,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -869,7 +855,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -883,7 +869,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -897,7 +883,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -911,7 +897,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -925,7 +911,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -939,7 +925,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -953,7 +939,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -967,7 +953,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -981,7 +967,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -995,7 +981,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -1009,7 +995,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -1023,7 +1009,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     },
@@ -1037,7 +1023,7 @@
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": ["standards/repo-exports.catalog.jsonc"],
+      "catalogRefs": [],
       "promotionEligible": true,
       "enforcementScope": "declared-dependency-consistency"
     }

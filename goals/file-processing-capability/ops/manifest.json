@@ -211,7 +211,7 @@
   },
   "fixtures": {
     "policy": "generated-synthetic-fixtures",
-    "coverageProfilePath": "/data/home/elpresidank/Oppold_IP_Law/",
+    "coverageProfilePath": "$LOCAL_CORPUS_ROOT",
     "v1Families": [
       "doc",
       "docx",

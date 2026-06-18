@@ -8,7 +8,8 @@
 // cspell:ignore gsub
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { findRepoRoot } from "@beep/repo-utils";
+import { findRepoRoot, guardLiteralArg } from "@beep/repo-utils";
+import { URLStr } from "@beep/schema";
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Clock, Config, Console, DateTime, Duration, Effect, FileSystem, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
@@ -28,6 +29,39 @@ import type { ChildProcessSpawner } from "effect/unstable/process";
 export { GraphitiProxyOpsError } from "../Graphiti.errors.js";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyOps");
+
+/**
+ * Matches any ASCII/C1 control character (CR, LF, NUL, tab, and other C0/C1
+ * controls) that, when interpolated into a line-oriented systemd unit, could
+ * terminate a directive and inject additional `[Service]` directives.
+ */
+const CONTROL_CHARACTER_PATTERN = /[\u0000-\u001F\u007F-\u009F]/;
+
+const hasControlCharacters = (value: string): boolean => O.isSome(Str.match(CONTROL_CHARACTER_PATTERN)(value));
+
+const isSafeUpstreamMcpUrl = (value: string): boolean => !hasControlCharacters(value) && URLStr.is(value);
+
+/**
+ * Validated upstream MCP endpoint URL safe to render into a systemd unit.
+ *
+ * Rejects control characters (CR, LF, NUL, and other C0/C1 controls) that could
+ * inject systemd directives, and requires a well-formed URL. This fails closed
+ * at the model boundary before any value reaches the generated unit file.
+ */
+const UpstreamMcpUrl = S.String.check(
+  S.makeFilter(isSafeUpstreamMcpUrl, {
+    identifier: $I`UpstreamMcpUrlSafeCheck`,
+    title: "Upstream MCP URL Safe",
+    description:
+      "An upstream MCP endpoint URL containing no control characters and parseable as a URL, safe to render into a systemd unit Environment directive.",
+    message: "Upstream MCP URL must be a valid URL free of control characters",
+  })
+).pipe(
+  $I.annoteSchema("UpstreamMcpUrl", {
+    description:
+      "An upstream MCP endpoint URL validated to be free of control characters and parseable as a URL before it is rendered into a systemd unit.",
+  })
+);
 
 type GraphitiProxyOpsEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
 type GraphitiRestoreOptions = {
@@ -99,7 +133,7 @@ export class GraphitiRestoreConfig extends S.Class<GraphitiRestoreConfig>($I`Gra
     proxyHealthUrl: S.String,
     proxyMcpUrl: S.String,
     stackDir: S.String,
-    upstreamMcpUrl: S.String,
+    upstreamMcpUrl: UpstreamMcpUrl,
     waitSeconds: S.Finite,
   },
   $I.annote("GraphitiRestoreConfig", {
@@ -125,7 +159,7 @@ export class ProxyServiceConfig extends S.Class<ProxyServiceConfig>($I`ProxyServ
     serviceName: S.String,
     stateDir: S.String,
     systemdUserDir: S.String,
-    upstreamMcpUrl: S.String,
+    upstreamMcpUrl: UpstreamMcpUrl,
   },
   $I.annote("ProxyServiceConfig", {
     description: "Configuration for managing the Graphiti proxy service.",
@@ -1344,6 +1378,18 @@ export const installGraphitiProxyService = Effect.fn("GraphitiProxyOps.installGr
   const path = yield* Path.Path;
   const repoRoot = yield* findRepoRoot().pipe(GraphitiProxyOpsError.mapError("Failed to locate repository root."));
   const config = proxyServiceConfig(path, options);
+  yield* S.decodeUnknownEffect(UpstreamMcpUrl)(config.upstreamMcpUrl).pipe(
+    GraphitiProxyOpsError.mapError(
+      "Refusing to install the Graphiti proxy service with an invalid or control-character-bearing upstream MCP URL.",
+      { exitCode: 1 }
+    )
+  );
+  yield* guardLiteralArg(config.serviceName).pipe(
+    GraphitiProxyOpsError.mapError(
+      "Refusing to forward an option-like Graphiti proxy service name into a systemctl argument vector.",
+      { exitCode: 1 }
+    )
+  );
   const bunBin = yield* collectSuccessfulOutput(
     QualityTaskStep.make({
       label: "which:bun",

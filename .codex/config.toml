@@ -94,4 +94,4 @@
     url = "http://127.0.0.1:64542/stream"
 
     [mcp_servers.webstorm.headers]
-      IJ_MCP_SERVER_PROJECT_PATH = "/home/elpresidank/YeeBois/projects/beep-effect"
+      IJ_MCP_SERVER_PROJECT_PATH = "<REPO_ROOT>"
