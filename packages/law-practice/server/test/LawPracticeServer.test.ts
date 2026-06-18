@@ -39,23 +39,22 @@ const makeLanguageModelLayer = (text: string): Layer.Layer<LanguageModel.Languag
 const makeLawPracticeServerTestLayer = (modelOutput: string) =>
   Layer.mergeAll(LawPracticeServerLive, LangExtractLayer).pipe(Layer.provide(makeLanguageModelLayer(modelOutput)));
 
-const expectReviewExtractionError = (
+const expectReviewExtractionError = Effect.fn("law_practice.server.test.expect_review_extraction_error")(function* (
   reason: IrToLawExtractionError["reason"],
   assert?: (error: IrToLawExtractionError) => void
-) =>
-  Effect.gen(function* () {
-    const review = yield* OfficeActionReview;
-    const input = yield* makeOfficeActionReviewInput();
+) {
+  const review = yield* OfficeActionReview;
+  const input = yield* makeOfficeActionReviewInput();
 
-    const error = yield* review.review(input).pipe(Effect.flip);
+  const error = yield* review.review(input).pipe(Effect.flip);
 
-    expect(S.is(IrToLawExtractionError)(error)).toBe(true);
-    if (S.is(IrToLawExtractionError)(error)) {
-      expect(error.reason).toBe(reason);
-      expect(error.label).toBe("distinction");
-      assert?.(error);
-    }
-  });
+  expect(S.is(IrToLawExtractionError)(error)).toBe(true);
+  if (S.is(IrToLawExtractionError)(error)) {
+    expect(error.reason).toBe(reason);
+    expect(error.label).toBe("distinction");
+    assert?.(error);
+  }
+});
 
 describe("@beep/law-practice-server", () => {
   it.layer(makeLawPracticeServerTestLayer(OFFICE_ACTION_MODEL_OUTPUT))(
