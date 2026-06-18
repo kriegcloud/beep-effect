@@ -20,16 +20,15 @@ Build and maintain features with effect first development.
   docgen through Turbo, and aggregates only selected packages. Use
   `bun run docgen` when the full repo docgen proof is required.
 - Before recreating a shared helper, schema, utility, model, or known symbol,
-  search the repo export catalog first:
-  `rg -i "<symbol-or-intent>" standards/repo-exports.catalog.{md,jsonc}`.
-- Refresh the repo export catalog with `bun run repo-exports:catalog`; verify it
-  is current with `bun run repo-exports:catalog:check`.
-- Repo export catalog generation is shard-backed: package-local
-  `.beep/repo-exports/catalog.shard.jsonc` files are tracked generated
-  artifacts, and the root `standards/repo-exports.catalog.{jsonc,md}` remains
-  the compatibility index for agent lookup. Use
-  `bun run repo-exports:catalog:full` only when a non-sharded fallback proof is
-  explicitly required.
+  search live package source and public barrels first. Prefer targeted source
+  searches such as:
+  `rg -n "export (const|function|class|type|interface) .*<symbol-or-intent>" packages --glob '**/src/**/*.{ts,tsx}' --glob '!**/*.test.ts' --glob '!**/*.test.tsx'`
+  and barrel searches such as:
+  `rg -n "<symbol-or-intent>" packages --glob '**/src/index.ts'`.
+  Use the `repo-symbol-discovery` skill when a broader symbol lookup is useful.
+- The old generated repo export catalog at `standards/repo-exports.catalog.*` is
+  retired; do not look for it, refresh it, or use repo-export catalog commands as
+  a default discovery or proof step.
 - Yeet is the canonical repo-quality operator path. Use the `yeet` skill and
   `bun run beep yeet repair`, `bun run beep yeet verify`,
   `bun run beep yeet publish --message "..."`, and

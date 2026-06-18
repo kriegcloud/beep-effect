@@ -59,6 +59,8 @@
     "packages/drivers/firecrawl/dtslint/**/*.tst.*",
     "packages/drivers/uspto/dtslint/**/*.tst.*",
     "packages/drivers/pglite/dtslint/**/*.tst.*",
+    "packages/drivers/m365/dtslint/**/*.tst.*",
+    "packages/drivers/m365-mcp/dtslint/**/*.tst.*",
     "packages/foundation/modeling/html/dtslint/**/*.tst.*",
     "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
     "packages/foundation/modeling/lexical/dtslint/**/*.tst.*",

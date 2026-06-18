@@ -433,7 +433,6 @@ bun run beep quality tsgo-smoke
 bun run beep quality tsgo-rules
 bun run beep quality jsdoc-module-tags
 bun run beep quality jsdoc-inventory
-bun run beep quality repo-exports-catalog --check
 bun run beep quality changeset-graph
 ```
 
@@ -451,9 +450,9 @@ bun run beep yeet monitor
 ```
 
 `repair` runs deterministic write steps: changed-file lint fixes, local docgen,
-`repo-exports:catalog`, and affected feedback. Affected test feedback is scoped
-to unit and type-test lanes; integration stays in the full proof. `verify` runs
-the canonical full local `quality github-checks pre-push` proof without
+and affected feedback. Affected test feedback is scoped to unit and type-test
+lanes; integration stays in the full proof. `verify` runs the canonical full
+local `quality github-checks pre-push` proof without
 duplicate affected feedback first. `publish` requires reviewed staged changes,
 commits them, runs the same `pre-push` proof against the new local commit, and
 pushes only after that proof passes. `monitor` watches hosted PR checks for the

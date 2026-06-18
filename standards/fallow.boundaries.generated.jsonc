@@ -276,6 +276,18 @@
         ]
       },
       {
+        "name": "@beep/m365",
+        "patterns": [
+          "packages/drivers/m365/src/**"
+        ]
+      },
+      {
+        "name": "@beep/m365-mcp",
+        "patterns": [
+          "packages/drivers/m365-mcp/src/**"
+        ]
+      },
+      {
         "name": "@beep/md",
         "patterns": [
           "packages/foundation/modeling/md/src/**"
@@ -1276,6 +1288,34 @@
           "@beep/libpff",
           "@beep/schema",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/m365",
+        "allow": [
+          "@beep/identity",
+          "@beep/m365",
+          "@beep/schema",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/m365",
+          "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/m365-mcp",
+        "allow": [
+          "@beep/identity",
+          "@beep/m365",
+          "@beep/m365-mcp"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/m365",
+          "@beep/m365-mcp"
         ]
       },
       {

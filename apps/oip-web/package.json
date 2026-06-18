@@ -29,8 +29,7 @@
     "coverage": "bunx --bun vitest run --coverage",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
-    "test": "bun run beep:test",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard"
+    "test": "bun run beep:test"
   },
   "dependencies": {
     "@beep/hubspot": "workspace:^",
