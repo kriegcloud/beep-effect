@@ -42,5 +42,7 @@ test "$(wc -m < goals/law-practice-office-action-extraction-rung/GOAL.md)" -le 4
 jq . goals/law-practice-office-action-extraction-rung/ops/manifest.json
 rg -n "law-practice-office-action-extraction-rung|GOAL.md|agentLaunchers|packetAnchorDocument" goals/law-practice-office-action-extraction-rung
 git diff --check -- goals/law-practice-office-action-extraction-rung
+bun run check
 bun run beep lint reflection-artifacts
+bun run beep yeet verify
 ```

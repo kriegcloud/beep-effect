@@ -1,6 +1,6 @@
 # GOAL: replace fixed office-action candidates with LangExtract service extraction
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Repo: repository root (`./`).
 
 Outcome: graduate the law-practice office-action loop from fixed spike
 candidates to provider-neutral `@beep/langextract` service extraction, while
@@ -56,6 +56,7 @@ jq . goals/law-practice-office-action-extraction-rung/ops/manifest.json
 git diff --check -- goals/law-practice-office-action-extraction-rung
 bun run check
 bun run beep lint reflection-artifacts
+bun run beep yeet verify
 ```
 
 Done when acceptance passes and verification is complete, or a blocker is

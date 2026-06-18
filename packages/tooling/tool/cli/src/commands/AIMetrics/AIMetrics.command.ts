@@ -91,6 +91,7 @@ import {
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  runAiMetricsOtlpProjectionBatchExport,
   runAiMetricsRetentionCompact,
   runAiMetricsRetentionDelete,
   runAiMetricsRetentionRestoreDrill,
@@ -1674,7 +1675,11 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
   const result = yield* Effect.scoped(
     Layer.build(
       Layer.mergeAll(duckDbLayer, layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint)))
-    ).pipe(Effect.flatMap((context) => runAiMetricsOtlpExport(resolvedInput).pipe(Effect.provide(context))))
+    ).pipe(
+      Effect.flatMap((context) =>
+        runAiMetricsOtlpProjectionBatchExport(resolvedInput, batch).pipe(Effect.provide(context))
+      )
+    )
   );
 
   if (json) {

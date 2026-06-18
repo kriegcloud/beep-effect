@@ -1,6 +1,6 @@
 # GOAL: wire the rung-0 office-action review loop in the law-practice slice
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect3`.
+Repo: repository root (`./`).
 
 Outcome: graduate `law-practice` from domain-only to minimum-viable (domain +
 use-cases + server) — add the IP-law vertical and turn the office-action loop
