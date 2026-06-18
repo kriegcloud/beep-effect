@@ -56,6 +56,10 @@ evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-18: flattened [`rundown.html`](./rundown.html) into a standalone
+  one-page table with only external links, so the tailnet-served handout no
+  longer depends on local Markdown links or tabbed JavaScript. Still stopped at
+  `align`.
 - 2026-06-18: recovered/recreated [`rundown.html`](./rundown.html) after another
   agent's checkout no longer had it, and folded in
   [`IP_LAW_FIRM_DOCKETING_RESEARCH.md`](./IP_LAW_FIRM_DOCKETING_RESEARCH.md):

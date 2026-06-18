@@ -3,26 +3,25 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Solo-Firm IP Docketing - Research Rundown</title>
+    <title>Solo-Firm IP Docketing - One-Page Rundown</title>
     <style>
       :root {
         color-scheme: light;
         --ink: #202624;
-        --muted: #606a66;
+        --muted: #5f6b66;
+        --line: #d5ddd8;
         --paper: #fbfcfa;
         --panel: #ffffff;
-        --line: #d7dfda;
-        --green: #217755;
+        --green: #207756;
         --green-soft: #e6f2eb;
-        --blue: #2467a0;
+        --blue: #2368a2;
         --blue-soft: #e7f0f8;
-        --amber: #9a6910;
+        --amber: #986810;
         --amber-soft: #f5edda;
         --red: #a64139;
         --red-soft: #f8e8e5;
-        --violet: #6750a3;
+        --violet: #6651a3;
         --violet-soft: #eee9f7;
-        --shadow: 0 14px 32px rgba(32, 38, 36, 0.08);
       }
 
       * {
@@ -31,8 +30,7 @@
 
       body {
         margin: 0;
-        background:
-          linear-gradient(180deg, #eef5ef 0, #fbfaf4 360px, #f8faf9 100%);
+        background: linear-gradient(180deg, #eef5ef 0, #fbfaf5 330px, #f8faf9 100%);
         color: var(--ink);
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
@@ -41,35 +39,29 @@
       }
 
       a {
-        color: inherit;
+        color: #185b8f;
+        font-weight: 760;
+        text-decoration-thickness: 1px;
         text-underline-offset: 3px;
-      }
-
-      button {
-        font: inherit;
       }
 
       code {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.92em;
+        font-size: 0.94em;
       }
 
       .page {
-        width: min(1180px, calc(100% - 32px));
+        width: min(1280px, calc(100% - 32px));
         margin: 0 auto;
-        padding: 28px 0 44px;
+        padding: 30px 0 42px;
       }
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.34fr);
         gap: 18px;
-        align-items: stretch;
-        margin-bottom: 16px;
-      }
-
-      .hero-copy {
-        padding: 22px 0;
+        align-items: end;
+        margin-bottom: 18px;
       }
 
       .eyebrow {
@@ -80,10 +72,10 @@
         padding: 5px 10px;
         border: 1px solid var(--line);
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.76);
+        background: rgba(255, 255, 255, 0.78);
         color: var(--muted);
         font-size: 13px;
-        font-weight: 800;
+        font-weight: 850;
       }
 
       .dot {
@@ -94,192 +86,124 @@
       }
 
       h1 {
-        margin: 18px 0 12px;
-        max-width: 900px;
-        font-size: clamp(40px, 8vw, 76px);
-        line-height: 0.96;
+        margin: 16px 0 10px;
+        max-width: 980px;
+        font-size: clamp(38px, 7vw, 72px);
+        line-height: 0.98;
         letter-spacing: 0;
       }
 
       .lede {
         margin: 0;
-        max-width: 800px;
+        max-width: 900px;
         color: var(--muted);
-        font-size: clamp(17px, 2.2vw, 22px);
+        font-size: clamp(17px, 2vw, 22px);
         line-height: 1.42;
       }
 
-      .doctrine {
+      .share {
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
-        box-shadow: var(--shadow);
-        padding: 18px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        min-height: 290px;
-      }
-
-      .kicker,
-      .section-title h2,
-      .doctrine h2 {
-        margin: 0;
-        color: var(--muted);
-        font-size: 13px;
-        font-weight: 850;
-        text-transform: uppercase;
-      }
-
-      .doctrine strong {
-        display: block;
-        margin-top: 10px;
-        font-size: clamp(28px, 4vw, 42px);
-        line-height: 1.02;
-      }
-
-      .doctrine p {
-        margin: 14px 0 0;
-        color: var(--muted);
-        line-height: 1.48;
-      }
-
-      .quick-links {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 18px;
-      }
-
-      .quick-links a,
-      .action-link {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 34px;
-        padding: 7px 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #f9faf8;
-        color: var(--ink);
-        font-size: 13px;
-        font-weight: 850;
-        line-height: 1.2;
-        text-decoration: none;
-      }
-
-      .action-link:hover,
-      .action-link:focus-visible,
-      .quick-links a:hover,
-      .quick-links a:focus-visible {
-        border-color: currentColor;
-        outline: none;
-      }
-
-      .summary-strip {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .summary-card,
-      .panel,
-      .fact-card,
-      .question,
-      .flow-step {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: var(--panel);
-      }
-
-      .summary-card {
-        min-height: 124px;
         padding: 14px;
       }
 
-      .summary-card strong {
+      .share b {
         display: block;
-        margin-bottom: 8px;
-        font-size: 28px;
-        line-height: 1;
+        margin-bottom: 7px;
       }
 
-      .summary-card span {
+      .share span {
         color: var(--muted);
         line-height: 1.36;
       }
 
-      .section-title {
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-between;
-        gap: 16px;
-        margin: 30px 0 12px;
-      }
-
-      .section-title p {
-        margin: 0;
-        max-width: 700px;
-        color: var(--muted);
-        line-height: 1.42;
-      }
-
-      .panel {
-        padding: 16px;
-        box-shadow: 0 10px 24px rgba(32, 38, 36, 0.06);
-        overflow: hidden;
-      }
-
-      .model {
-        display: grid;
-        grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
-        gap: 12px;
-      }
-
-      .model-card {
-        min-height: 250px;
-        padding: 16px;
+      .table-wrap {
+        overflow-x: auto;
         border: 1px solid var(--line);
         border-radius: 8px;
-        background: #fbfcfa;
+        background: var(--panel);
+        box-shadow: 0 14px 32px rgba(32, 38, 36, 0.08);
       }
 
-      .model-card h3 {
-        margin: 10px 0;
-        font-size: clamp(28px, 4vw, 44px);
-        line-height: 1.02;
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 1120px;
       }
 
-      .model-card p {
-        margin: 0;
+      caption {
+        padding: 16px;
+        text-align: left;
         color: var(--muted);
-        line-height: 1.48;
+        line-height: 1.45;
+        border-bottom: 1px solid var(--line);
       }
 
-      .model-list {
+      thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background: #f3f7f3;
+        color: var(--ink);
+        text-align: left;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0;
+      }
+
+      th,
+      td {
+        vertical-align: top;
+        border-bottom: 1px solid var(--line);
+        padding: 14px;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: 0;
+      }
+
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 180px;
+      }
+
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 270px;
+      }
+
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 270px;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 250px;
+      }
+
+      th:nth-child(5),
+      td:nth-child(5) {
+        width: 240px;
+      }
+
+      .topic {
         display: grid;
         gap: 8px;
-        margin: 0;
-        padding: 0;
-        list-style: none;
       }
 
-      .model-list li {
-        display: grid;
-        grid-template-columns: 118px minmax(0, 1fr);
-        gap: 10px;
-        align-items: start;
-        min-height: 58px;
-        padding: 10px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
+      .topic strong {
+        display: block;
+        font-size: 18px;
+        line-height: 1.12;
       }
 
       .tag {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        width: fit-content;
         min-height: 26px;
         padding: 4px 8px;
         border-radius: 999px;
@@ -289,241 +213,76 @@
         white-space: nowrap;
       }
 
-      .tag.green {
+      .green {
         color: var(--green);
         background: var(--green-soft);
       }
 
-      .tag.blue {
+      .blue {
         color: var(--blue);
         background: var(--blue-soft);
       }
 
-      .tag.amber {
+      .amber {
         color: var(--amber);
         background: var(--amber-soft);
       }
 
-      .tag.red {
+      .red {
         color: var(--red);
         background: var(--red-soft);
       }
 
-      .tag.violet {
+      .violet {
         color: var(--violet);
         background: var(--violet-soft);
       }
 
-      .vendors {
-        display: grid;
-        gap: 9px;
-      }
-
-      .vendor-row {
-        display: grid;
-        grid-template-columns: 150px minmax(0, 1fr) minmax(152px, 0.46fr);
-        gap: 12px;
-        align-items: center;
-        min-height: 76px;
-        padding: 12px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background: #fff;
-      }
-
-      .vendor-name {
-        font-size: 22px;
-        font-weight: 900;
-        line-height: 1.04;
-      }
-
-      .vendor-type,
-      .vendor-note {
-        color: var(--muted);
-        line-height: 1.36;
-      }
-
-      .vendor-type {
-        margin-top: 5px;
-        font-size: 13px;
-        font-weight: 800;
-      }
-
-      .vendor-note {
-        font-size: 14px;
-      }
-
-      .meter {
-        height: 10px;
-        border-radius: 999px;
-        background: #edf1ed;
-        overflow: hidden;
-        margin-top: 9px;
-      }
-
-      .meter span {
-        display: block;
-        height: 100%;
-        border-radius: inherit;
-      }
-
-      .vendor-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 8px;
-      }
-
-      .grid {
-        display: grid;
-        gap: 14px;
-      }
-
-      .grid.two {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      }
-
-      .facts,
-      .questions {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
-      }
-
-      .fact-card,
-      .question {
-        min-height: 130px;
-        padding: 14px;
-      }
-
-      .fact-card b,
-      .question b {
-        display: block;
-        margin: 8px 0;
-        line-height: 1.18;
-      }
-
-      .fact-card p,
-      .question p {
+      p {
         margin: 0;
         color: var(--muted);
-        line-height: 1.42;
+        line-height: 1.44;
       }
 
-      .flow {
+      ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        line-height: 1.44;
+      }
+
+      li + li {
+        margin-top: 6px;
+      }
+
+      .links {
         display: grid;
-        grid-template-columns: repeat(6, minmax(118px, 1fr));
         gap: 8px;
       }
 
-      .flow-step {
-        position: relative;
-        min-height: 122px;
-        padding: 12px;
+      .links a {
+        display: inline-block;
       }
 
-      .flow-step::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        right: -8px;
-        width: 8px;
-        height: 2px;
-        background: var(--line);
-      }
-
-      .flow-step:last-child::after {
-        display: none;
-      }
-
-      .flow-step b {
-        display: block;
-        margin-bottom: 8px;
-        line-height: 1.14;
-      }
-
-      .flow-step span {
-        display: block;
+      .note {
+        margin-top: 14px;
         color: var(--muted);
         font-size: 13px;
-        line-height: 1.34;
+        line-height: 1.45;
       }
 
-      .toggle-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 12px;
-      }
-
-      .toggle {
-        min-height: 34px;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        background: #fff;
-        color: var(--muted);
-        padding: 6px 12px;
-        cursor: pointer;
-        font-weight: 850;
-      }
-
-      .toggle.is-active,
-      .toggle:focus-visible,
-      .toggle:hover {
-        border-color: currentColor;
-        color: var(--ink);
-        outline: none;
-      }
-
-      .source-note {
-        margin-top: 24px;
-        color: var(--muted);
-        font-size: 13px;
-        line-height: 1.48;
-      }
-
-      @media (max-width: 960px) {
-        .hero,
-        .model,
-        .grid.two {
-          grid-template-columns: 1fr;
-        }
-
-        .summary-strip,
-        .facts,
-        .questions {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .flow {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .flow-step::after {
-          display: none;
-        }
-      }
-
-      @media (max-width: 640px) {
+      @media (max-width: 760px) {
         .page {
-          width: min(100% - 20px, 1180px);
-          padding-top: 16px;
+          width: min(100% - 20px, 1280px);
+          padding-top: 18px;
         }
 
-        .summary-strip,
-        .facts,
-        .questions,
-        .flow {
+        .hero {
           grid-template-columns: 1fr;
         }
 
-        .vendor-row,
-        .model-list li {
-          grid-template-columns: 1fr;
-        }
-
-        .vendor-actions {
-          align-items: flex-start;
+        .share {
+          order: -1;
         }
       }
     </style>
@@ -531,433 +290,409 @@
   <body>
     <main class="page">
       <section class="hero" aria-labelledby="page-title">
-        <div class="hero-copy">
-          <div class="eyebrow"><span class="dot"></span> Align review gate</div>
-          <h1 id="page-title">Docketing as defense in depth.</h1>
+        <div>
+          <div class="eyebrow"><span class="dot"></span> One-page table · no local markdown links</div>
+          <h1 id="page-title">Solo-firm IP docketing: one-page rundown.</h1>
           <p class="lede">
-            Claude's supplemental research sharpens the practical operating model:
-            keep a vendor or attorney as the docket of record, build a local-first
-            agent layer for cross-checking and reminders, and never let automation
-            silently become legal authority.
+            The practical answer is defense in depth: keep the attorney or a
+            vendor as the docket of record, let Beep observe official sources and
+            propose candidate deadlines, then require approval before reminders
+            become durable.
           </p>
         </div>
-
-        <aside class="doctrine" aria-label="Locked doctrine">
-          <div>
-            <h2>Locked doctrine</h2>
-            <strong>Vigilance overlay, not the docket of record.</strong>
-            <p>
-              The product observes triggers, proposes candidate deadlines with
-              evidence, requires attorney approval, then redundantly reminds.
-              The new research adds a practical point: a vendor such as AppColl
-              may still be the defensible docket-of-record anchor.
-            </p>
-          </div>
-          <nav class="quick-links" aria-label="Packet links">
-            <a href="./IP_LAW_FIRM_DOCKETING_RESEARCH.md">Claude research</a>
-            <a href="./RESEARCH.md">Packet research</a>
-            <a href="./DECISIONS.md">Decisions</a>
-            <a href="./research/01-ip-prosecution-docketing.md">Track 1</a>
-            <a href="./research/03-official-data-handroll.md">Track 3</a>
-          </nav>
+        <aside class="share">
+          <b>Doctrine</b>
+          <span>Vigilance overlay, not the docket system of record. Agents propose; the attorney approves.</span>
         </aside>
       </section>
 
-      <section class="summary-strip" aria-label="Headline findings">
-        <div class="summary-card">
-          <strong>Hybrid</strong>
-          <span>Vendor or attorney keeps authority; Beep supplies monitoring and agent workflow.</span>
-        </div>
-        <div class="summary-card">
-          <strong>24.6%</strong>
-          <span>ABA-cycle malpractice claim share cited for missed deadlines in the supplemental research.</span>
-        </div>
-        <div class="summary-card">
-          <strong>0</strong>
-          <span>public MCP servers from IP docketing vendors; CourtListener is the notable litigation exception.</span>
-        </div>
-        <div class="summary-card">
-          <strong>1</strong>
-          <span>safe first spine: official event to candidate deadline to approved Outlook reminder.</span>
-        </div>
-      </section>
+      <div class="table-wrap">
+        <table>
+          <caption>
+            Everything is in this single table. The links below are external
+            official/vendor/source links so they work when the page is served as
+            a standalone tailnet file.
+          </caption>
+          <thead>
+            <tr>
+              <th>Topic</th>
+              <th>Finding</th>
+              <th>Developer / Agent Story</th>
+              <th>Decision or Risk</th>
+              <th>Real Links</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag amber">Doctrine</span>
+                  <strong>Hybrid operating model</strong>
+                </div>
+              </td>
+              <td>
+                <p>Use a purpose-built docket, or the attorney's existing docket, as the authoritative record. Beep is a local-first checker, evidence layer, approval workflow, and reminder system.</p>
+              </td>
+              <td>
+                <p>Agents read official/vendor data, propose candidate deadlines, draft explanations, and flag discrepancies. Legally operative changes require attorney approval.</p>
+              </td>
+              <td>
+                <p>Do not let automation silently become the docket of record. The liability firewall is candidate status plus explicit approval.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.americanbar.org/groups/professional_responsibility/publications/model_rules_of_professional_conduct/" target="_blank" rel="noopener noreferrer">ABA Model Rules</a>
+                  <a href="https://www.americanbar.org/groups/law_practice/resources/tech-report/" target="_blank" rel="noopener noreferrer">ABA Legal Technology resources</a>
+                </div>
+              </td>
+            </tr>
 
-      <section aria-labelledby="model-title">
-        <div class="section-title">
-          <h2 id="model-title">Folded-in verdict</h2>
-          <p>The supplemental file does not overturn the overlay doctrine; it makes the docket-of-record backstop explicit.</p>
-        </div>
-        <div class="panel model">
-          <div class="model-card">
-            <span class="tag amber">Recommended operating model</span>
-            <h3>Commercial docket plus local checker.</h3>
-            <p>
-              Use a purpose-built docketing system or attorney-reviewed docket as
-              the authoritative record. Build Beep as a local, evidence-backed
-              cross-check, reminder, and agent-approval layer over official feeds.
-            </p>
-          </div>
-          <ul class="model-list" aria-label="Verdict details">
-            <li>
-              <span class="tag green">L1</span>
-              <span>Official feeds are the programmable foundation: ODP, TSDR, EPO OPS, WIPO tables, and CourtListener.</span>
-            </li>
-            <li>
-              <span class="tag amber">L2</span>
-              <span>Handroll only deterministic US candidate math; buy or human-review broad foreign and litigation rules.</span>
-            </li>
-            <li>
-              <span class="tag blue">L3</span>
-              <span>Agents can read, propose, draft, and flag discrepancies; attorney approval gates operative changes.</span>
-            </li>
-            <li>
-              <span class="tag violet">L4</span>
-              <span>Outlook reminders need durable local state, escalation, and a heartbeat that alerts when checks stop.</span>
-            </li>
-          </ul>
-        </div>
-      </section>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag green">Record anchor</span>
+                  <strong>AppColl</strong>
+                </div>
+              </td>
+              <td>
+                <p>Best practical solo/small-firm patent-prosecution anchor from the supplemental research: rules, USPTO e-Office Action ingestion, Patent Center document retrieval, and TSDR updates.</p>
+              </td>
+              <td>
+                <p>Weak agent surface. Treat AppColl as a docket-of-record backstop, not the API layer. Beep would cross-check AppColl via exports/manual review and official USPTO feeds.</p>
+              </td>
+              <td>
+                <p>Strong for defensibility and insurance posture; poor for direct automation because AppColl has no usable API for our agents.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.appcoll.com/law-firm-product-pricing/" target="_blank" rel="noopener noreferrer">AppColl law-firm pricing</a>
+                  <a href="https://support.appcoll.com/eoffice-actions" target="_blank" rel="noopener noreferrer">AppColl e-Office Action support</a>
+                  <a href="https://forum.appcoll.com/topic/285/api" target="_blank" rel="noopener noreferrer">AppColl API forum thread</a>
+                </div>
+              </td>
+            </tr>
 
-      <section aria-labelledby="vendor-title">
-        <div class="section-title">
-          <h2 id="vendor-title">Vendor landscape</h2>
-          <p>Scores balance solo fit, agent/API access, and docket-of-record usefulness.</p>
-        </div>
-        <div class="panel">
-          <div class="vendors" id="vendors"></div>
-        </div>
-      </section>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag blue">API buy</span>
+                  <strong>CPI</strong>
+                </div>
+              </td>
+              <td>
+                <p>Best IP vendor if the buy path is judged by agent/API access: public REST docs, due-date resource, read/write resources, and unattended OAuth2 password grant evidence.</p>
+              </td>
+              <td>
+                <p>Could become an API-based second opinion or vendor rules engine behind the same candidate-deadline interface.</p>
+              </td>
+              <td>
+                <p>Commercial access, exact endpoint inventory, SLA, export rights, and solo viability still need direct verification.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://developer.computerpackages.com/" target="_blank" rel="noopener noreferrer">CPI developer portal</a>
+                  <a href="https://www.computerpackages.com/contact/" target="_blank" rel="noopener noreferrer">Contact CPI</a>
+                  <a href="https://www.computerpackages.com/patent-annuity-management/" target="_blank" rel="noopener noreferrer">CPI annuity APIs</a>
+                </div>
+              </td>
+            </tr>
 
-      <section aria-labelledby="splice-title" class="grid two">
-        <div>
-          <div class="section-title">
-            <h2 id="splice-title">What changed</h2>
-            <p>The new file adds practical risk and operations detail to the existing packet.</p>
-          </div>
-          <div class="panel facts">
-            <div class="fact-card">
-              <span class="tag amber">AppColl</span>
-              <b>Strong system-of-record candidate, weak agent surface.</b>
-              <p>Good solo patent-prosecution fit and USPTO automation, but no API. Treat it as docket anchor, not agent API.</p>
-            </div>
-            <div class="fact-card">
-              <span class="tag green">ODP</span>
-              <b>Registration and rate limits matter operationally.</b>
-              <p>ID.me, MFA, x-api-key, sequential calls, 429 handling, and bulk-download constraints shape the poller.</p>
-            </div>
-            <div class="fact-card">
-              <span class="tag red">Maintenance fees</span>
-              <b>37 CFR 1.7 has a subtle asymmetry.</b>
-              <p>Payment can roll to the next business day, but patent expiration remains tied to the statutory anniversary.</p>
-            </div>
-            <div class="fact-card">
-              <span class="tag blue">Graph</span>
-              <b>Calendar writes need mailbox scoping.</b>
-              <p>Application Calendars.ReadWrite should be constrained to the firm mailbox with an application access policy.</p>
-            </div>
-          </div>
-        </div>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag amber">TM add-on</span>
+                  <strong>Alt Legal</strong>
+                </div>
+              </td>
+              <td>
+                <p>Trademark-first product with published small-firm pricing and a real API announcement. Its strongest automation depends on TSDR.</p>
+              </td>
+              <td>
+                <p>Potential TM connector or secondary TM source. API access is sales-gated and docs/auth/webhooks are not public.</p>
+              </td>
+              <td>
+                <p>Good if trademark volume grows; not the first patent spine. TSDR outages remain a structural single point of failure.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.altlegal.com/pricing/" target="_blank" rel="noopener noreferrer">Alt Legal pricing</a>
+                  <a href="https://www.altlegal.com/demo-trial/" target="_blank" rel="noopener noreferrer">Alt Legal demo/trial</a>
+                  <a href="https://www.altlegal.com/blog/alt-legal-api/" target="_blank" rel="noopener noreferrer">Alt Legal API announcement</a>
+                  <a href="https://www.altlegal.com/blog/tsdr-api-shutdown-alt-legal/" target="_blank" rel="noopener noreferrer">Alt Legal TSDR shutdown note</a>
+                </div>
+              </td>
+            </tr>
 
-        <div>
-          <div class="section-title">
-            <h2>Reliability posture</h2>
-            <p>Years-out deadlines fail when systems quietly stop, not just when math is wrong.</p>
-          </div>
-          <div class="panel facts">
-            <div class="fact-card">
-              <span class="tag red">Malpractice</span>
-              <b>Missed deadlines dominate risk.</b>
-              <p>The supplemental research cites missed deadlines as the largest malpractice claim category.</p>
-            </div>
-            <div class="fact-card">
-              <span class="tag violet">Heartbeat</span>
-              <b>Dead-man's switch is not optional.</b>
-              <p>Every scheduled check needs independent monitoring and an alert path that gets tested.</p>
-            </div>
-            <div class="fact-card">
-              <span class="tag green">Redundancy</span>
-              <b>Two independent views are safer.</b>
-              <p>Vendor docket plus Beep cross-check makes discrepancies visible before a date is missed.</p>
-            </div>
-            <div class="fact-card">
-              <span class="tag amber">Human gate</span>
-              <b>Approval remains the liability firewall.</b>
-              <p>Agents propose and draft; the attorney approves legally operative docket changes.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag violet">Court rules</span>
+                  <strong>LawToolBox</strong>
+                </div>
+              </td>
+              <td>
+                <p>Best court-deadline buy candidate: real partner Deadline API, rule-change recalculation, modified-deadline polling, and Microsoft 365 ecosystem strength.</p>
+              </td>
+              <td>
+                <p>Use only if court/PTAB/litigation work enters scope. Pull deadline data from LawToolBox; push Outlook reminders through Beep's own M365 driver.</p>
+              </td>
+              <td>
+                <p>Partner-gated. Not a general IP prosecution docketing engine. No public MCP.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://api.lawtoolbox.com/api" target="_blank" rel="noopener noreferrer">LawToolBox API docs</a>
+                  <a href="https://lawtoolbox.com/book-a-demo/" target="_blank" rel="noopener noreferrer">LawToolBox demo</a>
+                  <a href="https://lawtoolbox.com/partners-surface-lawtoolbox-deadlines" target="_blank" rel="noopener noreferrer">LawToolBox partner deadlines</a>
+                  <a href="https://learn.microsoft.com/en-us/microsoft-365-app-certification/teams/lawtoolboxcominc-lawtoolbox" target="_blank" rel="noopener noreferrer">Microsoft certification page</a>
+                </div>
+              </td>
+            </tr>
 
-      <section aria-labelledby="flow-title">
-        <div class="section-title">
-          <h2 id="flow-title">First spine</h2>
-          <p>The smallest useful proof after folding in the supplemental research.</p>
-        </div>
-        <div class="flow" aria-label="First spine">
-          <div class="flow-step">
-            <b>Official trigger</b>
-            <span>ODP office action, e-OA email, TSDR event, or vendor export.</span>
-          </div>
-          <div class="flow-step">
-            <b>Evidence packet</b>
-            <span>Source span, provenance, matter, date, and API/export source.</span>
-          </div>
-          <div class="flow-step">
-            <b>Candidate deadline</b>
-            <span>Narrow US deterministic math only, cross-checked where possible.</span>
-          </div>
-          <div class="flow-step">
-            <b>Attorney approval</b>
-            <span>The candidate becomes durable only after human review.</span>
-          </div>
-          <div class="flow-step">
-            <b>Redundant reminders</b>
-            <span>PGlite record, Outlook push, email/dashboard escalation.</span>
-          </div>
-          <div class="flow-step">
-            <b>Heartbeat</b>
-            <span>Independent monitor alerts if the checker stops running.</span>
-          </div>
-        </div>
-      </section>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag green">Patent L1</span>
+                  <strong>USPTO ODP</strong>
+                </div>
+              </td>
+              <td>
+                <p>Official patent event source. ODP provides Patent File Wrapper data, documents, office actions, and datasets.</p>
+              </td>
+              <td>
+                <p>Beep's patent poller should use <code>@beep/uspto</code> and official ODP endpoints. Poll sequentially per key; same-key concurrency is blocked.</p>
+              </td>
+              <td>
+                <p>Operational constraints matter: ID.me/account requirements, x-api-key, weekly quotas, 429 handling, and no fan-out polling.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://data.uspto.gov/apis/getting-started" target="_blank" rel="noopener noreferrer">USPTO ODP getting started</a>
+                  <a href="https://data.uspto.gov/apis/api-rate-limits" target="_blank" rel="noopener noreferrer">USPTO ODP rate limits</a>
+                  <a href="https://data.uspto.gov/apis/patent-file-wrapper/documents" target="_blank" rel="noopener noreferrer">Patent File Wrapper documents</a>
+                  <a href="https://www.uspto.gov/about-us/news-updates/uspto-launches-new-open-data-portal-easy-quick-access-data" target="_blank" rel="noopener noreferrer">USPTO ODP launch</a>
+                </div>
+              </td>
+            </tr>
 
-      <section aria-labelledby="rules-title">
-        <div class="section-title">
-          <h2 id="rules-title">Handroll boundary</h2>
-          <p>Use the toggles to separate deterministic checker math from vendor/human territory.</p>
-        </div>
-        <div class="panel">
-          <div class="toggle-row" id="rule-toggles"></div>
-          <div class="model" id="rule-detail" aria-live="polite"></div>
-        </div>
-      </section>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag green">Ground truth</span>
+                  <strong>Maintenance fees</strong>
+                </div>
+              </td>
+              <td>
+                <p><code>ptmnfee2</code> is the cleanest official source for patent maintenance-fee event ground truth.</p>
+              </td>
+              <td>
+                <p>Use it to cross-check 3.5/7.5/11.5-year maintenance windows and detect differences from the attorney/vendor docket.</p>
+              </td>
+              <td>
+                <p>Good first deterministic checker, but still candidate-only and attorney-approved.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://data.uspto.gov/bulkdata/datasets/ptmnfee2" target="_blank" rel="noopener noreferrer">USPTO ptmnfee2 dataset</a>
+                  <a href="https://data.uspto.gov/bulkdata/datasets?search_api_fulltext=MaintFeeEvents" target="_blank" rel="noopener noreferrer">ODP maintenance-fee search</a>
+                  <a href="https://github.com/iamlemec/fastpat" target="_blank" rel="noopener noreferrer">fastpat parser</a>
+                </div>
+              </td>
+            </tr>
 
-      <section aria-labelledby="questions-title">
-        <div class="section-title">
-          <h2 id="questions-title">Review gate</h2>
-          <p>The packet still stops here. These decisions need the user before shape or decompose.</p>
-        </div>
-        <div class="panel questions" id="questions"></div>
-      </section>
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag red">Rule trap</span>
+                  <strong>37 CFR 1.7</strong>
+                </div>
+              </td>
+              <td>
+                <p>Weekend/holiday roll-forward can be subtle for maintenance fees: payment timeliness may roll, while expiration remains tied to the statutory anniversary.</p>
+              </td>
+              <td>
+                <p>If encoded, this needs explicit tests and attorney-visible explanation. It is not a background date helper.</p>
+              </td>
+              <td>
+                <p>A small-looking date rule can misstate patent status. Treat edge cases as review-triggering, not silent automation.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.ecfr.gov/current/title-37/chapter-I/subchapter-A/part-1/subpart-A/subject-group-ECFR5cdb43ad1467198/section-1.7" target="_blank" rel="noopener noreferrer">37 CFR 1.7</a>
+                  <a href="https://www.uspto.gov/web/offices/pac/mpep/s2506.html" target="_blank" rel="noopener noreferrer">MPEP 2506</a>
+                  <a href="https://www.ecfr.gov/current/title-37/chapter-I/subchapter-A/part-1/subpart-B/subject-group-ECFR335b8caa4be3dd2/section-1.362" target="_blank" rel="noopener noreferrer">37 CFR 1.362</a>
+                </div>
+              </td>
+            </tr>
 
-      <p class="source-note">
-        This visualization folds in
-        <a href="./IP_LAW_FIRM_DOCKETING_RESEARCH.md">IP_LAW_FIRM_DOCKETING_RESEARCH.md</a>
-        plus the existing packet research. It is a navigation aid, not doctrine;
-        cited source text remains in the Markdown packet files.
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag green">Litigation L1</span>
+                  <strong>CourtListener</strong>
+                </div>
+              </td>
+              <td>
+                <p>Best open litigation event source. CourtListener/RECAP has REST, Docket Alert webhooks, RECAP Fetch, and hosted MCP.</p>
+              </td>
+              <td>
+                <p>Use webhooks instead of broad polling. Free REST limits are too tight for a poll-heavy architecture.</p>
+              </td>
+              <td>
+                <p>This solves litigation event capture, not court-rules math. Court-rules computation still belongs to LawToolBox/CalendarRules/attorney review.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.courtlistener.com/help/api/rest/" target="_blank" rel="noopener noreferrer">CourtListener REST API</a>
+                  <a href="https://www.courtlistener.com/help/api/webhooks/" target="_blank" rel="noopener noreferrer">CourtListener webhooks</a>
+                  <a href="https://www.courtlistener.com/help/api/rest/alerts/" target="_blank" rel="noopener noreferrer">Docket Alerts API</a>
+                  <a href="https://free.law/2026/05/12/courtlistener-is-now-available-inside-claude/" target="_blank" rel="noopener noreferrer">CourtListener hosted MCP announcement</a>
+                  <a href="https://free.law/2026/05/07/api-included-in-memberships/" target="_blank" rel="noopener noreferrer">2026 API limits update</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag blue">Reminders</span>
+                  <strong>Microsoft Graph</strong>
+                </div>
+              </td>
+              <td>
+                <p>Approved deadlines should push one-way into Outlook calendar/reminders through Beep's M365 driver.</p>
+              </td>
+              <td>
+                <p>Use Graph calendar write capabilities only after approval. For application permissions, scope access to the firm mailbox rather than tenant-wide calendar power.</p>
+              </td>
+              <td>
+                <p>Two-way sync is out of scope. Calendar write is a reminder surface, not docket authority.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://learn.microsoft.com/en-us/graph/api/calendar-post-events" target="_blank" rel="noopener noreferrer">Create calendar event</a>
+                  <a href="https://learn.microsoft.com/en-us/graph/auth-v2-service" target="_blank" rel="noopener noreferrer">Client credentials flow</a>
+                  <a href="https://learn.microsoft.com/en-us/graph/auth-limit-mailbox-access" target="_blank" rel="noopener noreferrer">Limit mailbox access</a>
+                  <a href="https://learn.microsoft.com/en-us/graph/permissions-reference#calendarsreadwrite" target="_blank" rel="noopener noreferrer">Calendars.ReadWrite</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag violet">Reliability</span>
+                  <strong>Heartbeat</strong>
+                </div>
+              </td>
+              <td>
+                <p>The dangerous failure mode is not just wrong math; it is a reminder/checker job silently stopping while deadlines are years away.</p>
+              </td>
+              <td>
+                <p>Every scheduled poll/check/reminder job needs an independent heartbeat/dead-man's-switch and a tested alert path.</p>
+              </td>
+              <td>
+                <p>Dead-man's-switch monitoring is a first-class requirement, not polish. No heartbeat means no "never miss" claim.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://healthchecks.io/docs/" target="_blank" rel="noopener noreferrer">Healthchecks.io docs</a>
+                  <a href="https://cronitor.io/docs" target="_blank" rel="noopener noreferrer">Cronitor docs</a>
+                  <a href="https://www.americanbar.org/groups/law_practice/resources/tech-report/" target="_blank" rel="noopener noreferrer">ABA Legal Technology resources</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag amber">Safe handroll</span>
+                  <strong>US deterministic rules</strong>
+                </div>
+              </td>
+              <td>
+                <p>Defensible first checker set: maintenance fees, office-action response periods, PCT national-phase, and trademark post-registration windows.</p>
+              </td>
+              <td>
+                <p>Compute candidate dates and cite the trigger/source. Cross-check ODP/TSDR/<code>ptmnfee2</code>. Send disagreements to review.</p>
+              </td>
+              <td>
+                <p>Do not handroll foreign annuities, multi-jurisdiction extension chains, cascading court rules, or discretionary dates.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.uspto.gov/web/offices/pac/mpep/s710.html" target="_blank" rel="noopener noreferrer">MPEP 710 response periods</a>
+                  <a href="https://www.wipo.int/en/web/pct-system/texts/time_limits" target="_blank" rel="noopener noreferrer">WIPO PCT time limits</a>
+                  <a href="https://www.uspto.gov/trademarks/trademark-timelines/post-registration-timeline-all-registrations-except-madrid-protocol" target="_blank" rel="noopener noreferrer">USPTO trademark post-registration timeline</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag red">Do not own</span>
+                  <strong>Foreign annuities</strong>
+                </div>
+              </td>
+              <td>
+                <p>Foreign renewals/annuities are the classic danger zone: changing local law, currencies, grace periods, restoration rules, and local-agent requirements.</p>
+              </td>
+              <td>
+                <p>Beep can ingest evidence and reminders, but the rule engine should be a specialist vendor or attorney/vendor-reviewed data.</p>
+              </td>
+              <td>
+                <p>License or outsource. Do not broad-handroll.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.dennemeyer.com/ip-software/diams/" target="_blank" rel="noopener noreferrer">Dennemeyer DIAMS</a>
+                  <a href="https://www.dennemeyer.com/services/digital-ip/dennemeyer-api" target="_blank" rel="noopener noreferrer">Dennemeyer API overview</a>
+                  <a href="https://www.epo.org/en/searching-for-patents/data/web-services/ops" target="_blank" rel="noopener noreferrer">EPO OPS</a>
+                  <a href="https://www.wipo.int/en/web/patentscope/data/index" target="_blank" rel="noopener noreferrer">WIPO PATENTSCOPE data</a>
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="topic">
+                  <span class="tag blue">Review gate</span>
+                  <strong>Open decisions</strong>
+                </div>
+              </td>
+              <td>
+                <ul>
+                  <li>Handroll-first checker vs buy-first.</li>
+                  <li>US patents first, then trademarks, court orders, foreign.</li>
+                  <li>Dead-man's-switch as first-class requirement.</li>
+                  <li>CPI/LawToolBox/AppColl access evaluation now or later.</li>
+                </ul>
+              </td>
+              <td>
+                <p>All paths preserve the same agent contract: propose candidates, attach evidence, require approval, and log the outcome.</p>
+              </td>
+              <td>
+                <p>Packet remains at align. Do not shape/decompose/graduate until these are ratified.</p>
+              </td>
+              <td>
+                <div class="links">
+                  <a href="https://www.appcoll.com/law-firm-product-pricing/" target="_blank" rel="noopener noreferrer">AppColl pricing</a>
+                  <a href="https://www.computerpackages.com/contact/" target="_blank" rel="noopener noreferrer">CPI contact</a>
+                  <a href="https://lawtoolbox.com/book-a-demo/" target="_blank" rel="noopener noreferrer">LawToolBox demo</a>
+                  <a href="https://www.altlegal.com/demo-trial/" target="_blank" rel="noopener noreferrer">Alt Legal trial</a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">
+        Updated 2026-06-18. This is a standalone visual handout; the cited
+        research files remain in the exploration packet, but this page avoids
+        local Markdown links so it works from the tailnet URL.
       </p>
     </main>
-
-    <script>
-      const vendors = [
-        {
-          name: "AppColl",
-          type: "Docket-of-record anchor",
-          score: 86,
-          tone: "green",
-          note:
-            "Best practical solo patent-prosecution anchor: rules, e-OA ingestion, TSDR updates, around $100/user/month. No API, so it is not the agent surface.",
-          action: "View pricing",
-          url: "https://www.appcoll.com/law-firm-product-pricing/",
-        },
-        {
-          name: "CPI",
-          type: "Best IP API buy",
-          score: 82,
-          tone: "blue",
-          note:
-            "Strong API evidence in packet reruns: public REST docs, due-date resource, read/write resources, unattended OAuth2. Commercial access still needs verification.",
-          action: "Contact CPI",
-          url: "https://www.computerpackages.com/contact/",
-        },
-        {
-          name: "LawToolBox",
-          type: "Court-rules buy",
-          score: 78,
-          tone: "violet",
-          note:
-            "Real partner API for court deadlines and recalculation. Useful if litigation enters scope; partner-gated and not an IP prosecution engine.",
-          action: "Book demo",
-          url: "https://lawtoolbox.com/book-a-demo/",
-        },
-        {
-          name: "Alt Legal",
-          type: "Trademark-first add-on",
-          score: 68,
-          tone: "amber",
-          note:
-            "Transparent solo-ish pricing and API access by request, but trademark-first and TSDR-dependent.",
-          action: "Request trial",
-          url: "https://www.altlegal.com/demo-trial/",
-        },
-        {
-          name: "CourtListener",
-          type: "Litigation event feed",
-          score: 74,
-          tone: "green",
-          note:
-            "REST, Docket Alert webhooks, and hosted MCP. Use webhooks because 2026 free-tier REST limits are too tight for broad polling.",
-          action: "Open API docs",
-          url: "https://www.courtlistener.com/help/api/rest/",
-        },
-      ];
-
-      const rules = [
-        {
-          id: "safe",
-          label: "Safe checker math",
-          tone: "green",
-          title: "Deterministic US candidates",
-          body:
-            "Maintenance fee windows, statutory office-action response periods, PCT 30/31-month national phase, and trademark post-registration windows can be encoded as candidate math and cross-checked.",
-          items: [
-            ["Maintenance", "3.5/7.5/11.5 years, grace periods, ptmnfee2 cross-check."],
-            ["Office action", "Typical 3-month shortened statutory period, extendable to 6-month cap."],
-            ["PCT/TM", "Use WIPO tables and USPTO/TSDR dates, then attorney approval."],
-          ],
-        },
-        {
-          id: "edge",
-          label: "Edge cases",
-          tone: "amber",
-          title: "Encode only with tests and review",
-          body:
-            "Even safe rules contain traps. The new research highlights the maintenance-fee roll-forward asymmetry, extension chains, entity-status changes, revival, and intervening-rights risks.",
-          items: [
-            ["37 CFR 1.7", "Payment may roll forward; expiration can still tie to the anniversary."],
-            ["Extensions", "Auto vs petition extensions need explicit rule lines."],
-            ["Entity status", "Small/micro mistakes can affect payment validity."],
-          ],
-        },
-        {
-          id: "danger",
-          label: "Do not handroll",
-          tone: "red",
-          title: "Vendor or human engine",
-          body:
-            "Foreign annuities, cascading court deadlines, discretionary dates, service-method-dependent dates, and judge-specific orders are outside the safe handroll boundary.",
-          items: [
-            ["Foreign", "Use annuity services such as CPI, Dennemeyer, or Clarivate/CPA."],
-            ["Court rules", "Use LawToolBox, CalendarRules, Clio, CompuLaw, or equivalent."],
-            ["Discretion", "Keep attorney judgment explicit and logged."],
-          ],
-        },
-      ];
-
-      const questions = [
-        ["L2 posture", "Ratify narrow US-deterministic handroll as checker first, versus buy-first."],
-        ["Record anchor", "Choose whether AppColl or another vendor should be evaluated now as docket-of-record backstop."],
-        ["Scope order", "Ratify US patents first, then trademarks, court orders, then foreign."],
-        ["Reliability", "Green-light heartbeat/dead-man's-switch monitoring as first-class infrastructure."],
-      ];
-
-      const vendorRoot = document.querySelector("#vendors");
-      const toggleRoot = document.querySelector("#rule-toggles");
-      const detailRoot = document.querySelector("#rule-detail");
-      const questionRoot = document.querySelector("#questions");
-
-      function tagClass(tone) {
-        return ["green", "blue", "amber", "red", "violet"].includes(tone)
-          ? tone
-          : "blue";
-      }
-
-      function renderVendors() {
-        vendorRoot.innerHTML = vendors
-          .map(
-            (vendor) => `
-              <div class="vendor-row">
-                <div>
-                  <div class="vendor-name">${vendor.name}</div>
-                  <div class="vendor-type">${vendor.type}</div>
-                </div>
-                <div>
-                  <div class="vendor-note">${vendor.note}</div>
-                  <div class="meter" aria-hidden="true">
-                    <span style="width: ${vendor.score}%; background: var(--${vendor.tone});"></span>
-                  </div>
-                </div>
-                <div class="vendor-actions">
-                  <span class="tag ${tagClass(vendor.tone)}">${vendor.score}/100</span>
-                  <a class="action-link"
-                    href="${vendor.url}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="${vendor.action} on the official ${vendor.name} website">
-                    ${vendor.action}
-                  </a>
-                </div>
-              </div>
-            `,
-          )
-          .join("");
-      }
-
-      function renderRuleToggles(activeId) {
-        toggleRoot.innerHTML = rules
-          .map(
-            (rule) => `
-              <button class="toggle ${rule.id === activeId ? "is-active" : ""}"
-                data-rule="${rule.id}"
-                aria-pressed="${rule.id === activeId}">
-                ${rule.label}
-              </button>
-            `,
-          )
-          .join("");
-      }
-
-      function renderRuleDetail(rule) {
-        detailRoot.innerHTML = `
-          <div class="model-card">
-            <span class="tag ${tagClass(rule.tone)}">${rule.label}</span>
-            <h3>${rule.title}</h3>
-            <p>${rule.body}</p>
-          </div>
-          <ul class="model-list">
-            ${rule.items
-              .map(
-                ([label, text]) => `
-                  <li>
-                    <span class="tag ${tagClass(rule.tone)}">${label}</span>
-                    <span>${text}</span>
-                  </li>
-                `,
-              )
-              .join("")}
-          </ul>
-        `;
-      }
-
-      function selectRule(id) {
-        const rule = rules.find((item) => item.id === id) || rules[0];
-        renderRuleToggles(rule.id);
-        renderRuleDetail(rule);
-      }
-
-      function renderQuestions() {
-        questionRoot.innerHTML = questions
-          .map(
-            ([label, text], index) => `
-              <div class="question">
-                <span class="tag ${index === 0 ? "amber" : index === 1 ? "green" : index === 2 ? "blue" : "violet"}">${label}</span>
-                <b>Open question ${index + 1}</b>
-                <p>${text}</p>
-              </div>
-            `,
-          )
-          .join("");
-      }
-
-      toggleRoot.addEventListener("click", (event) => {
-        const button = event.target.closest("[data-rule]");
-        if (!button) return;
-        selectRule(button.dataset.rule);
-      });
-
-      renderVendors();
-      selectRule("safe");
-      renderQuestions();
-    </script>
   </body>
 </html>
