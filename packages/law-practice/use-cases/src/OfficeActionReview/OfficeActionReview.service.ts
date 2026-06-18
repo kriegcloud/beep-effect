@@ -33,7 +33,20 @@ import type { OfficeActionReviewInput, OfficeActionReviewShape } from "./OfficeA
 const decodeCandidateClaim = S.decodeUnknownSync(CandidateClaim);
 const decodeEvidence = S.decodeUnknownSync(Evidence);
 
-const officeActionExtractionTargets: LangExtractRequest["targets"] = [
+/**
+ * Structured extraction targets required by the office-action review workflow.
+ *
+ * @example
+ * ```ts
+ * import { officeActionExtractionTargets } from "@beep/law-practice-use-cases/OfficeActionReview"
+ *
+ * console.log(officeActionExtractionTargets.map((target) => target.name))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const officeActionExtractionTargets: LangExtractRequest["targets"] = [
   ExtractionTarget.make({
     description: "The office-action document identifier or heading.",
     kind: "entity",

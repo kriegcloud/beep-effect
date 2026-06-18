@@ -1,10 +1,9 @@
 import { LangExtractRequest } from "@beep/langextract/Extraction";
 import { layer as LangExtractLayer, LangExtractService } from "@beep/langextract/Service";
-import { ExtractionTarget } from "@beep/langextract/Target";
 import { Distinction } from "@beep/law-practice-domain";
 import { LawPracticeServerLive } from "@beep/law-practice-server/layer";
 import { IrToLaw, IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw";
-import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
+import { OfficeActionReview, officeActionExtractionTargets } from "@beep/law-practice-use-cases/OfficeActionReview";
 import { DocumentId } from "@beep/nlp/Core";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Stream } from "effect";
@@ -23,33 +22,10 @@ const UNALIGNED_DISTINCTION_MODEL_OUTPUT = `{"extractions":[{"label":"office_act
 
 const MISSING_DISTINCTION_MODEL_OUTPUT = `{"extractions":[{"label":"office_action","text":"Office Action"},{"label":"claim","text":"A widget comprising a lid and a base."},{"label":"rejection_reference","text":"Smith"}]}`;
 
-const extractionTargets: LangExtractRequest["targets"] = [
-  ExtractionTarget.make({
-    description: "The office-action document identifier or heading.",
-    kind: "entity",
-    name: "office_action",
-  }),
-  ExtractionTarget.make({
-    description: "The rejected claim text.",
-    kind: "entity",
-    name: "claim",
-  }),
-  ExtractionTarget.make({
-    description: "The prior-art reference cited by the rejection.",
-    kind: "entity",
-    name: "rejection_reference",
-  }),
-  ExtractionTarget.make({
-    description: "Applicant distinction text copied from the office-action response material.",
-    kind: "custom",
-    name: "distinction",
-  }),
-];
-
 const makeExtractionRequest = (): LangExtractRequest =>
   LangExtractRequest.make({
     documentId: DocumentId.make("office-action-review-test"),
-    targets: extractionTargets,
+    targets: officeActionExtractionTargets,
     text: OFFICE_ACTION_FIXTURE,
   });
 
@@ -62,6 +38,24 @@ const makeLanguageModelLayer = (text: string): Layer.Layer<LanguageModel.Languag
 
 const makeLawPracticeServerTestLayer = (modelOutput: string) =>
   Layer.mergeAll(LawPracticeServerLive, LangExtractLayer).pipe(Layer.provide(makeLanguageModelLayer(modelOutput)));
+
+const expectReviewExtractionError = (
+  reason: IrToLawExtractionError["reason"],
+  assert?: (error: IrToLawExtractionError) => void
+) =>
+  Effect.gen(function* () {
+    const review = yield* OfficeActionReview;
+    const input = yield* makeOfficeActionReviewInput();
+
+    const error = yield* review.review(input).pipe(Effect.flip);
+
+    expect(S.is(IrToLawExtractionError)(error)).toBe(true);
+    if (S.is(IrToLawExtractionError)(error)) {
+      expect(error.reason).toBe(reason);
+      expect(error.label).toBe("distinction");
+      assert?.(error);
+    }
+  });
 
 describe("@beep/law-practice-server", () => {
   it.layer(makeLawPracticeServerTestLayer(OFFICE_ACTION_MODEL_OUTPUT))(
@@ -125,18 +119,7 @@ describe("@beep/law-practice-server", () => {
     "office-action review loop with missing extraction output",
     (it) => {
       it.effect("review rejects a missing required distinction label before admission", () =>
-        Effect.gen(function* () {
-          const review = yield* OfficeActionReview;
-          const input = yield* makeOfficeActionReviewInput();
-
-          const error = yield* review.review(input).pipe(Effect.flip);
-
-          expect(S.is(IrToLawExtractionError)(error)).toBe(true);
-          if (S.is(IrToLawExtractionError)(error)) {
-            expect(error.reason).toBe("required-extraction-missing");
-            expect(error.label).toBe("distinction");
-          }
-        })
+        expectReviewExtractionError("required-extraction-missing")
       );
     }
   );
@@ -145,18 +128,8 @@ describe("@beep/law-practice-server", () => {
     "office-action review loop with unaligned extraction output",
     (it) => {
       it.effect("review rejects unaligned distinction text before admission", () =>
-        Effect.gen(function* () {
-          const review = yield* OfficeActionReview;
-          const input = yield* makeOfficeActionReviewInput();
-
-          const error = yield* review.review(input).pipe(Effect.flip);
-
-          expect(S.is(IrToLawExtractionError)(error)).toBe(true);
-          if (S.is(IrToLawExtractionError)(error)) {
-            expect(error.reason).toBe("required-extraction-unaligned");
-            expect(error.label).toBe("distinction");
-            expect(error.alignmentStatus).toBe("unaligned");
-          }
+        expectReviewExtractionError("required-extraction-unaligned", (error) => {
+          expect(error.alignmentStatus).toBe("unaligned");
         })
       );
     }
