@@ -8,7 +8,7 @@ describe("@beep/infra Storybook", () => {
     const args = makeStorybookStackArgsFromConfigValues();
 
     expect(args.vercel.projectName).toBe("beep-storybook");
-    expect(args.vercel.repository).toBe("kriegcloud/beep-effect");
+    expect(args.vercel.repository).toBe("beep-effect/beep-effect");
     expect(args.vercel.rootDirectory).toBe("apps/storybook");
     expect(args.vercel.outputDirectory).toBe("storybook-static");
     expect(args.vercel.installCommand).toBe("cd ../.. && bun install");
@@ -24,14 +24,14 @@ describe("@beep/infra Storybook", () => {
       outputDirectory: "storybook-static-preview",
       productionBranch: "staging",
       projectName: "beep-storybook-preview",
-      repository: "kriegcloud/beep-effect-preview",
+      repository: "beep-effect/beep-effect-preview",
       rootDirectory: "apps/storybook-preview",
       vercelAuthenticationDeploymentType: "onlyPreviewDeployments",
       vercelTeamId: "team_123",
     });
 
     expect(args.vercel.projectName).toBe("beep-storybook-preview");
-    expect(args.vercel.repository).toBe("kriegcloud/beep-effect-preview");
+    expect(args.vercel.repository).toBe("beep-effect/beep-effect-preview");
     expect(args.vercel.rootDirectory).toBe("apps/storybook-preview");
     expect(args.vercel.outputDirectory).toBe("storybook-static-preview");
     expect(args.vercel.installCommand).toBe("cd ../.. && bun install --frozen-lockfile");

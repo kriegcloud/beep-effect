@@ -18,7 +18,7 @@ jobs:
   pr-size:
     name: PR Size Label
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 2
     steps:
       - name: Checkout repository
@@ -45,7 +45,7 @@ jobs:
             });
   verify:
     name: ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: ${{ matrix.timeout_minutes }}
     strategy:
       fail-fast: false
@@ -236,7 +236,7 @@ jobs:
 
   fallow-advisory:
     name: Fallow Advisory Envelopes
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
     permissions:
       contents: read
@@ -429,7 +429,7 @@ jobs:
   build:
     name: Build
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -463,7 +463,7 @@ jobs:
 
   secrets:
     name: Secret Scanning
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 5
     steps:
       - name: Checkout repository
@@ -519,7 +519,7 @@ jobs:
 
   security:
     name: Security
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
       - name: Checkout repository
@@ -602,7 +602,7 @@ jobs:
 
   nix:
     name: Nix Shell
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 10
     steps:
       - name: Checkout repository
@@ -649,7 +649,7 @@ jobs:
 
   sast:
     name: SAST
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 10
     permissions:
       contents: read

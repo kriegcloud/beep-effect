@@ -1,7 +1,7 @@
 {
   "$schema": "../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/postgres/src/",
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/drivers/postgres/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,

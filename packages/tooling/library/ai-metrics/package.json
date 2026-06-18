@@ -5,10 +5,10 @@
   "private": true,
   "license": "Apache-2.0",
   "description": "Schema-first metrics, ingest, scoring, and install models for repo AI-agent analytics",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/ai-metrics",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/tooling/library/ai-metrics",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/tooling/library/ai-metrics"
   },
   "beep": {

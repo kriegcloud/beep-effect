@@ -236,7 +236,7 @@ describe("Docgen operations", () => {
             path.join(packageDir, "package.json"),
             encodeJson({
               name: "@beep/schema",
-              homepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
+              homepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
             })
           );
           yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
@@ -277,11 +277,11 @@ export const ProofFixture = 1;
             exclude: [],
             outDir: "docs",
             parseCompilerOptions: defaultCompilerOptions,
-            projectHomepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
+            projectHomepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
             projectName: "@beep/schema",
             runExamples: false,
             srcDir: "src",
-            srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+            srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
             theme: DEFAULT_THEME,
             tscExecutable: "tsc",
           });
@@ -554,7 +554,7 @@ export const ProofFixture = 1;
           expect(config.$schema).toBe("../../../../packages/tooling/tool/docgen/schema.json");
           expect(config.exclude).toEqual(["src/internal/**/*.ts"]);
           expect(config.srcLink).toBe(
-            "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/"
+            "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/identity/src/"
           );
           expect(paths).toEqual({
             noEmit: true,
@@ -3388,11 +3388,11 @@ export const ProofFixture = 1;
             exclude: [],
             outDir: "docs",
             parseCompilerOptions: defaultCompilerOptions,
-            projectHomepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema",
+            projectHomepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema",
             projectName: "@beep/schema",
             runExamples: false,
             srcDir: "src",
-            srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+            srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
             theme: DEFAULT_THEME,
             tscExecutable: "tsc",
           });

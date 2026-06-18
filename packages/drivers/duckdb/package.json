@@ -5,10 +5,10 @@
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect#readme",
+  "homepage": "https://github.com/beep-effect/beep-effect#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kriegcloud/beep-effect.git",
+    "url": "https://github.com/beep-effect/beep-effect.git",
     "directory": "packages/drivers/duckdb"
   },
   "beep": {

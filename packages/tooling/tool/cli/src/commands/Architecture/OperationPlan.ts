@@ -1848,7 +1848,7 @@ Use \`beep architecture add concept\` or \`beep architecture add role\` to add c
 const packageShellDocgenContent = (target: ArchitecturePlanTarget, role: ArchitecturePackageRole): string => `{
   "$schema": "../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/${target.boundedContext}/${role}/src/"
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/${target.boundedContext}/${role}/src/"
 }
 `;
 

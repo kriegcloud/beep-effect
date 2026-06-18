@@ -244,7 +244,7 @@ describe("PackageJson schema", () => {
         packageManager: "bun@1.3.10",
         repository: {
           type: "git",
-          url: "git@github.com:kriegcloud/beep-effect.git",
+          url: "git@github.com:beep-effect/beep-effect.git",
           directory: ".",
         },
         workspaces: ["packages/foundation/*/*", "packages/tooling/library/repo-utils"],
@@ -564,10 +564,10 @@ describe("PackageJson schema", () => {
         private: true,
         license: "MIT",
         description: "Effect-based monorepo utilities",
-        homepage: "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/repo-utils",
+        homepage: "https://github.com/beep-effect/beep-effect/tree/main/packages/tooling/library/repo-utils",
         repository: {
           type: "git",
-          url: "git@github.com:kriegcloud/beep-effect.git",
+          url: "git@github.com:beep-effect/beep-effect.git",
           directory: "packages/tooling/library/repo-utils",
         },
         sideEffects: [],
@@ -606,7 +606,7 @@ describe("PackageJson schema", () => {
       expect(result.repository).toEqual(
         O.some({
           type: "git",
-          url: "git@github.com:kriegcloud/beep-effect.git",
+          url: "git@github.com:beep-effect/beep-effect.git",
           directory: "packages/tooling/library/repo-utils",
         })
       );
@@ -720,7 +720,7 @@ describe("PackageJson schema", () => {
           name: "@beep/schema",
           repository: {
             type: "git",
-            url: "git@github.com:kriegcloud/beep-effect.git",
+            url: "git@github.com:beep-effect/beep-effect.git",
             directory: "packages/foundation/modeling/schema",
           },
           beep: {
@@ -733,7 +733,7 @@ describe("PackageJson schema", () => {
   "name": "@beep/schema",
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/foundation/modeling/schema"
   },
   "beep": {

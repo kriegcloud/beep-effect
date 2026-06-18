@@ -3,7 +3,7 @@
 ## 🎯 OVERVIEW
 
 Comprehensive JSDoc/TSDoc documentation patterns used throughout the
-[beep-effect](https://github.com/kriegcloud/beep-effect) repository, ensuring
+[beep-effect](https://github.com/beep-effect/beep-effect) repository, ensuring
 consistent, practical, and compilable examples for all APIs.
 
 This document is the source of truth for JSDoc conventions in the workspace.

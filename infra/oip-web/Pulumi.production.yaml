@@ -12,7 +12,7 @@ config:
   oipWeb:productionBranch: main
   oipWeb:productionDomain: oip.law
   oipWeb:pulumiStateBucketName: oip-law-pulumi-state
-  oipWeb:repository: kriegcloud/beep-effect
+  oipWeb:repository: beep-effect/beep-effect
   oipWeb:rootDirectory: apps/oip-web
   oipWeb:stagingBranch: staging
   oipWeb:stagingDomain: staging.oip.law
