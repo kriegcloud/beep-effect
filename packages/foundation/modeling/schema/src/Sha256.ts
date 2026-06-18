@@ -7,7 +7,7 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { Effect, Encoding, Option, SchemaGetter, SchemaIssue } from "effect";
-import * as P from "effect/Predicate";
+import * as Crypto from "effect/Crypto";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Sha256");
@@ -27,15 +27,20 @@ const Sha256HexChecks = S.makeFilterGroup([
   }),
 ]);
 
-const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.Issue> =>
-  Effect.tryPromise({
-    // Web Crypto expects a BufferSource backed by ArrayBuffer, not a generic ArrayBufferLike view.
-    try: () => globalThis.crypto.subtle.digest("SHA-256", Uint8Array.from(input)),
-    catch: (cause) =>
-      new SchemaIssue.InvalidValue(Option.some(input), {
-        message: P.isError(cause) ? cause.message : "Failed to compute SHA-256 digest",
-      }),
-  }).pipe(Effect.map((buffer) => Encoding.encodeHex(new Uint8Array(buffer))));
+const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.Issue, Crypto.Crypto> =>
+  Effect.gen(function* () {
+    const crypto = yield* Crypto.Crypto;
+    const digest = yield* crypto.digest("SHA-256", Uint8Array.from(input)).pipe(
+      Effect.mapError(
+        (cause) =>
+          new SchemaIssue.InvalidValue(Option.some(input), {
+            message: cause.message,
+          })
+      )
+    );
+
+    return Encoding.encodeHex(digest);
+  });
 
 /**
  * Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters).
@@ -86,11 +91,12 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
  *
- * const program = S.decodeUnknownEffect(Sha256HexFromBytes)(new Uint8Array())
+ * const program = S.decodeUnknownEffect(Sha256HexFromBytes)(new Uint8Array()).pipe(Effect.provide(BunCrypto.layer))
  * const result = Effect.runPromise(program)
  * console.log(result)
  * ```
@@ -129,11 +135,12 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
  *
- * const program = S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f")
+ * const program = S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f").pipe(Effect.provide(BunCrypto.layer))
  * const result = Effect.runPromise(program)
  * console.log(result)
  * ```

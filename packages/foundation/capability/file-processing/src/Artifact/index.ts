@@ -14,6 +14,7 @@ import { PosixPath } from "@beep/schema/PosixPath";
 import { A } from "@beep/utils";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+import type * as Crypto from "effect/Crypto";
 
 const $I = $FileProcessingId.create("Artifact");
 const artifactExtensionPattern = /^[^./\\\u0000][^/\\\u0000]*$/u;
@@ -167,6 +168,7 @@ const artifactIdTextEncoder = new TextEncoder();
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { deriveArtifactId } from "@beep/file-processing/Artifact"
  * import { Effect } from "effect"
  *
@@ -175,13 +177,15 @@ const artifactIdTextEncoder = new TextEncoder();
  *   return id.startsWith("artifact:")
  * })
  *
- * Effect.runPromise(program).then((valid) => console.log(valid)) // true
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((valid) => console.log(valid)) // true
  * ```
  *
  * @category constructors
  * @since 0.0.0
  */
-export const deriveArtifactId = Effect.fn("Artifact.deriveArtifactId")(function* (parts: ReadonlyArray<string>) {
+export const deriveArtifactId = Effect.fn("Artifact.deriveArtifactId")(function* (
+  parts: ReadonlyArray<string>
+): Effect.fn.Return<ArtifactId, S.SchemaError, Crypto.Crypto> {
   const digest = yield* deriveArtifactIdDigest(artifactIdTextEncoder.encode(A.join("\x1f")(parts)));
   return yield* decodeDerivedArtifactId(`artifact:${digest}`);
 });

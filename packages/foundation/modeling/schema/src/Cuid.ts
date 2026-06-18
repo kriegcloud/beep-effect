@@ -5,28 +5,31 @@
  * @packageDocumentation
  */
 
-// import { sha512 } from "./_sha.js";
-import { RandomValues, Str } from "@beep/utils";
+import { Str } from "@beep/utils";
 import { DateTimes } from "@beep/utils/DateTime";
-import { Context, Effect, Layer, Schema } from "effect";
+import { Context, Effect, Layer } from "effect";
+import * as Crypto from "effect/Crypto";
+import * as S from "effect/Schema";
+import type * as PlatformError from "effect/PlatformError";
 
 /**
- * Produces a SHA-512 digest for the provided buffer source.
+ * Produces a SHA-512 digest for the provided byte array.
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import { sha512 } from "@beep/schema/Cuid"
  *
- * const digest = Effect.runPromise(sha512(new TextEncoder().encode("beep")))
+ * const digest = Effect.runPromise(sha512(new TextEncoder().encode("beep")).pipe(Effect.provide(BunCrypto.layer)))
  * console.log(digest)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-export const sha512 = (data: BufferSource) =>
-  Effect.promise(() => crypto.subtle.digest("SHA-512", data).then((buffer) => new Uint8Array(buffer)));
+export const sha512 = (data: Uint8Array): Effect.Effect<Uint8Array, PlatformError.PlatformError, Crypto.Crypto> =>
+  Effect.flatMap(Crypto.Crypto, (crypto) => crypto.digest("SHA-512", data));
 
 // Constants
 const DEFAULT_LENGTH = 24;
@@ -39,20 +42,17 @@ const INITIAL_COUNT_MAX = 476782367;
  *
  * @example
  * ```ts
- * import * as Schema from "effect/Schema"
+ * import * as S from "effect/Schema"
  * import { Cuid } from "@beep/schema/Cuid"
  *
- * const id = Schema.decodeUnknownSync(Cuid)("a123")
+ * const id = S.decodeUnknownSync(Cuid)("a123")
  * console.log(id)
  * ```
  *
  * @category constructors
  * @since 0.0.0
  */
-export const Cuid = Schema.String.pipe(
-  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/)),
-  Schema.brand("@typed/id/CUID")
-);
+export const Cuid = S.String.pipe(S.check(S.isPattern(/^[a-z][0-9a-z]+$/)), S.brand("@typed/id/CUID"));
 
 /**
  * Type for {@link Cuid}.
@@ -68,7 +68,7 @@ export const Cuid = Schema.String.pipe(
  * @category models
  * @since 0.0.0
  */
-export type Cuid = Schema.Schema.Type<typeof Cuid>;
+export type Cuid = typeof Cuid.Type;
 
 /**
  * Type guard for {@link Cuid}.
@@ -83,7 +83,7 @@ export type Cuid = Schema.Schema.Type<typeof Cuid>;
  * @category predicates
  * @since 0.0.0
  */
-export const isCuid: (value: string) => value is Cuid = Schema.is(Cuid);
+export const isCuid: (value: string) => value is Cuid = S.is(Cuid);
 
 // Types
 /**
@@ -123,8 +123,8 @@ export type CuidSeed = {
 export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/CuidState", {
   make: Effect.fn("CuidState.make")(function* (envData: string) {
     const { now } = yield* DateTimes;
-    const getRandomValues = yield* RandomValues;
-    const initialBytes = yield* getRandomValues(4);
+    const crypto = yield* Crypto.Crypto;
+    const initialBytes = yield* crypto.randomBytes(4);
     const initialValue =
       Math.abs((initialBytes[0] << 24) | (initialBytes[1] << 16) | (initialBytes[2] << 8) | initialBytes[3]) %
       INITIAL_COUNT_MAX;
@@ -137,7 +137,7 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
 
     const nextSeed = Effect.gen(function* () {
       const timestamp = yield* now;
-      const random = yield* getRandomValues(32);
+      const random = yield* crypto.randomBytes(32);
       return {
         timestamp,
         counter: counter++,
@@ -151,9 +151,7 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
 }) {
   static readonly next = Effect.suspend(() => CuidState.use((nextSeed) => nextSeed));
 
-  static readonly Default = Layer.effect(CuidState, CuidState.make("node")).pipe(
-    Layer.provideMerge([DateTimes.Default, RandomValues.Default])
-  );
+  static readonly Default = Layer.effect(CuidState, CuidState.make("node")).pipe(Layer.provideMerge(DateTimes.Default));
 }
 
 /**
@@ -161,20 +159,24 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import { cuid, CuidState } from "@beep/schema/Cuid"
  *
- * const id = Effect.runPromise(cuid.pipe(Effect.provide(CuidState.Default)))
+ * const id = Effect.runPromise(cuid.pipe(Effect.provide(CuidState.Default), Effect.provide(BunCrypto.layer)))
  * console.log(id)
  * ```
  *
- * @effects Requires {@link CuidState}; `CuidState.Default` provides the clock
- * and random-value services used to generate the seed.
+ * @effects Requires {@link CuidState} and `effect/Crypto`; `CuidState.Default`
+ * provides the clock-backed seed state while callers provide platform crypto.
  *
  * @category constructors
  * @since 0.0.0
  */
-export const cuid: Effect.Effect<Cuid, never, CuidState> = Effect.flatMap(CuidState.next, cuidFromSeed);
+export const cuid: Effect.Effect<Cuid, PlatformError.PlatformError, CuidState | Crypto.Crypto> = Effect.flatMap(
+  CuidState.next,
+  cuidFromSeed
+);
 
 // Utilities
 const ALPHABET_LENGTH = 26;
@@ -194,7 +196,7 @@ function createEntropy(length: number, random: Uint8Array): string {
   return entropy;
 }
 
-function hash(input: string): Effect.Effect<string> {
+function hash(input: string): Effect.Effect<string, PlatformError.PlatformError, Crypto.Crypto> {
   return Effect.map(sha512(encoder.encode(input)), (buffer) => {
     const view = new Uint8Array(buffer);
     let value = 0n;
@@ -206,7 +208,7 @@ function hash(input: string): Effect.Effect<string> {
   });
 }
 
-function cuidFromSeed(seed: CuidSeed): Effect.Effect<Cuid> {
+function cuidFromSeed(seed: CuidSeed): Effect.Effect<Cuid, PlatformError.PlatformError, Crypto.Crypto> {
   return makeCuidFromSeed(seed);
 }
 

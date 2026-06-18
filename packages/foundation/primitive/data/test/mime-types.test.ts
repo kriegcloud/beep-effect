@@ -1,4 +1,16 @@
-import { getExtensions, getTypes, lookup, mimeTypes } from "@beep/data/MimeTypes";
+import {
+  getExtensions,
+  getTypes,
+  lookup,
+  mimeTypes,
+  OfficialMimeTypeDataByTopLevel,
+  OfficialMimeTypeDataByType,
+  OfficialMimeTypeDataMetadata,
+  OfficialMimeTypeDataSourceSha256,
+  OfficialMimeTypeDataSourceUrl,
+  OfficialMimeTypeDataTypeValues,
+  OfficialMimeTypeDataUpdated,
+} from "@beep/data/MimeTypes";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Struct } from "effect";
@@ -15,6 +27,21 @@ describe("mimeTypes", () => {
     const json = mimeTypes["application/json"];
     expect(json.source).toBe("iana");
     expect(json.extensions).toContain("json");
+  });
+});
+
+describe("official IANA media types", () => {
+  it("exports generated registry maps and metadata", () => {
+    expect(OfficialMimeTypeDataByType["application/json"].topLevel).toBe("application");
+    expect(OfficialMimeTypeDataByType["text/html"].topLevel).toBe("text");
+    expect(OfficialMimeTypeDataByTopLevel.application["application/json"].name).toBe("json");
+    expect(OfficialMimeTypeDataByTopLevel.text["text/html"].name).toBe("html");
+    expect(OfficialMimeTypeDataTypeValues).toContain("application/json");
+    expect(OfficialMimeTypeDataTypeValues).toContain("text/html");
+    expect(OfficialMimeTypeDataUpdated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(OfficialMimeTypeDataSourceUrl).toBe("https://www.iana.org/assignments/media-types/media-types.xml");
+    expect(OfficialMimeTypeDataSourceSha256).toHaveLength(64);
+    expect(OfficialMimeTypeDataMetadata.sha256).toBe(OfficialMimeTypeDataSourceSha256);
   });
 });
 

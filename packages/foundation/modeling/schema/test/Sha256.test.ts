@@ -1,5 +1,6 @@
 import { Sha256Hex, Sha256HexFromBytes, Sha256HexFromHexBytes } from "@beep/schema/Sha256";
 import { Str } from "@beep/utils";
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
@@ -53,11 +54,15 @@ describe("Sha256HexFromBytes", () => {
       const input = new TextEncoder().encode("beep");
 
       expect(yield* decode(input)).toBe(knownDigest);
-    }));
+    }).pipe(Effect.provide(BunCrypto.layer)));
 
   it("hashes empty bytes to the canonical empty SHA-256 digest", () =>
     Effect.promise(() =>
-      Promise.resolve(expect(Effect.runPromise(decode(new Uint8Array()))).resolves.toBe(emptyDigest))
+      Promise.resolve(
+        expect(Effect.runPromise(decode(new Uint8Array()).pipe(Effect.provide(BunCrypto.layer)))).resolves.toBe(
+          emptyDigest
+        )
+      )
     ));
 
   it("forbids encoding the digest back to source bytes", () =>
@@ -73,12 +78,18 @@ describe("Sha256HexFromHexBytes", () => {
   const encode = S.encodeEffect(Sha256HexFromHexBytes);
 
   it("decodes hex-encoded bytes into a canonical lowercase SHA-256 hex digest", () =>
-    Effect.promise(() => Promise.resolve(expect(Effect.runPromise(decode("62656570"))).resolves.toBe(knownDigest))));
+    Effect.promise(() =>
+      Promise.resolve(
+        expect(Effect.runPromise(decode("62656570").pipe(Effect.provide(BunCrypto.layer)))).resolves.toBe(knownDigest)
+      )
+    ));
 
   it("preserves hex transport validation errors", () =>
     Effect.promise(() =>
       Promise.resolve(
-        expect(Effect.runPromise(decode("0"))).rejects.toThrow("Length must be a multiple of 2, but is 1")
+        expect(Effect.runPromise(decode("0").pipe(Effect.provide(BunCrypto.layer)))).rejects.toThrow(
+          "Length must be a multiple of 2, but is 1"
+        )
       )
     ));
 

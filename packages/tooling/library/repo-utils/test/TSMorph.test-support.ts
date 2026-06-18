@@ -1,9 +1,9 @@
 import { TSMorphServiceLive } from "@beep/repo-utils";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import { NodeServices } from "@effect/platform-node";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Context, Effect, Layer, Path } from "effect";
 
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const PlatformLayer = Layer.mergeAll(NodeServices.layer);
 
 export const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer));
 

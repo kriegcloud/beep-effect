@@ -1,9 +1,18 @@
 import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs";
-import { ISO4217_SOURCE_URL, SyncDataTargetProjection, syncDataTargets } from "@beep/repo-cli/test/SyncDataToTs";
+import {
+  fetchSource,
+  formatJson,
+  ISO4217_SOURCE_URL,
+  outputFile,
+  parseCsvSource,
+  SyncDataTargetProjection,
+  sourceMetadata,
+  syncDataTargets,
+} from "@beep/repo-cli/test/SyncDataToTs";
 import { A, O } from "@beep/utils";
+import { BunCrypto } from "@effect/platform-bun";
 import { NodeServices } from "@effect/platform-node";
 import { Cause, Effect, Exit, FileSystem, Layer, Path, Runtime } from "effect";
-import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable/http";
@@ -16,11 +25,11 @@ const provideScopedLayer =
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const runSyncDataToTsCommand = Command.runWith(syncDataToTsCommand, { version: "0.0.0" });
-const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
+const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer, BunCrypto.layer);
 const generatedOutputPath = "packages/foundation/primitive/data/src/generated/iso4217.ts" as const;
 const csvGeneratedOutputPath = "packages/foundation/primitive/data/src/generated/test-csv.ts" as const;
+const csvCanonicalOutputPath = "packages/foundation/primitive/data/src/generated/test-csv.data.json" as const;
 const csvFixtureSourceUrl = "https://example.com/test.csv" as const;
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 const expectReportedExit = (exit: Exit.Exit<unknown, unknown>, exitCode = 1) => {
   expect(Exit.isFailure(exit)).toBe(true);
@@ -195,23 +204,27 @@ const writeGeneratedFile = (content: string) => writeOutputFile(generatedOutputP
 const csvTarget: SyncDataTarget = {
   id: "test-csv",
   description: "Fixture CSV target used to verify sync-data-to-ts CSV parsing.",
-  sourceUrl: csvFixtureSourceUrl,
-  outputPath: csvGeneratedOutputPath,
-  format: "csv",
-  project: Effect.fn("SyncDataToTsTest.projectCsv")(function* (document) {
-    const rows = document as Array<Record<string, string>> & {
-      readonly columns?: ReadonlyArray<string>;
+  sourceUrls: [csvFixtureSourceUrl],
+  acquire: Effect.fn("SyncDataToTsTest.acquireCsv")(function* () {
+    const source = yield* fetchSource("test-csv", "fixture-csv", csvFixtureSourceUrl);
+    const rows = yield* parseCsvSource("test-csv", source);
+    const canonical = {
+      columns: rows.columns ?? [],
+      rows,
     };
 
     return SyncDataTargetProjection.make({
-      content: encodeJson({
-        columns: rows.columns ?? [],
-        rows,
-      }),
+      files: [
+        outputFile(csvGeneratedOutputPath, formatJson(canonical)),
+        outputFile(csvCanonicalOutputPath, formatJson(canonical)),
+      ],
+      canonicalPath: csvCanonicalOutputPath,
+      canonical,
       recordCount: rows.length,
       summary: `${rows.length} csv rows`,
+      sources: [sourceMetadata(source)],
     });
-  }),
+  })(),
 };
 
 describe("sync-data-to-ts", () => {
@@ -290,11 +303,13 @@ describe("sync-data-to-ts", () => {
         yield* runSyncDataToTsCommand(["--target", "test-csv"]);
 
         const content = yield* readOutputFile(csvGeneratedOutputPath);
+        const sidecar = yield* readOutputFile(csvCanonicalOutputPath);
 
-        expect(content).toContain(`"columns":["code","name","notes"]`);
-        expect(content).toContain(`"code":"USD"`);
-        expect(content).toContain(`"notes":"Used in, multiple countries"`);
-        expect(content).toContain(`"notes":"Line 1\\nLine 2"`);
+        expect(content).toContain(`"columns": [`);
+        expect(content).toContain(`"code": "USD"`);
+        expect(content).toContain(`"notes": "Used in, multiple countries"`);
+        expect(content).toContain(`"notes": "Line 1\\nLine 2"`);
+        expect(sidecar).toBe(content);
         expect(process.exitCode ?? 0).toBe(0);
       }).pipe(provideCsvFixtureClient, withTempRepoCommand, (effect) => withRegisteredTarget(csvTarget, effect))
     ));

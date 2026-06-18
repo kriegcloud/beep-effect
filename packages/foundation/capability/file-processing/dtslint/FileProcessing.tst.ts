@@ -12,6 +12,7 @@ import type { FileFormatFamily } from "@beep/file-processing/Strategy";
 import type { NonNegativeInt } from "@beep/schema";
 import type { PosixPath } from "@beep/schema/PosixPath";
 import type { Effect, Layer } from "effect";
+import type * as Crypto from "effect/Crypto";
 
 declare const artifactId: ArtifactId;
 declare const digest: ContentDigest;
@@ -49,7 +50,9 @@ describe("@beep/file-processing", () => {
     expect<"markdown">().type.toBeAssignableTo<FileFormatFamily>();
     expect(SelectedStrategy).type.toBeAssignableTo<object>();
     expect(TestFileProcessingEngine).type.toBe<FileProcessingEngineShape>();
-    expect(makeFileProcessingServiceLayer([TestFileProcessingEngine])).type.toBe<Layer.Layer<FileProcessingService>>();
+    expect(makeFileProcessingServiceLayer([TestFileProcessingEngine])).type.toBe<
+      Layer.Layer<FileProcessingService, never, Crypto.Crypto>
+    >();
     expect(extractFile(extract)).type.toBe<
       Effect.Effect<ExtractionResult, FileProcessingOperationError, FileProcessingService>
     >();

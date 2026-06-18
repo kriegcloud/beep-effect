@@ -8,6 +8,7 @@ import type {
 } from "@beep/schema/Sha256";
 import type { Effect } from "effect";
 import type * as Brand from "effect/Brand";
+import type * as Crypto from "effect/Crypto";
 
 const knownDigest = "d01b7ce9154ef0264ce71e457ea81903b87a58d6cf2cd6be474886fdbc6f61d9";
 
@@ -39,9 +40,9 @@ describe("Sha256", () => {
     const bytes = new Uint8Array([0, 1, 2]);
 
     expect(digest).type.toBe<Sha256HexType>();
-    expect(decode(bytes)).type.toBe<Effect.Effect<Sha256HexType, S.SchemaError, never>>();
+    expect(decode(bytes)).type.toBe<Effect.Effect<Sha256HexType, S.SchemaError, Crypto.Crypto>>();
     expect(encode(digest)).type.toBe<Effect.Effect<Uint8Array<ArrayBufferLike>, S.SchemaError, never>>();
-    expect(decodeHex("62656570")).type.toBe<Effect.Effect<Sha256HexType, S.SchemaError, never>>();
+    expect(decodeHex("62656570")).type.toBe<Effect.Effect<Sha256HexType, S.SchemaError, Crypto.Crypto>>();
     expect(encodeHex(digest)).type.toBe<Effect.Effect<string, S.SchemaError, never>>();
   });
 });

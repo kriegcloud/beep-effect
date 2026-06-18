@@ -19,6 +19,7 @@ import { Effect, Match, Result, SchemaGetter, Tuple } from "effect";
 import * as S from "effect/Schema";
 import { Project, SourceFile, Node as TsMorphNode } from "ts-morph";
 import { TSSyntaxKind } from "../TypeScript/index.ts";
+import type * as Crypto from "effect/Crypto";
 
 const $I = $RepoUtilsId.create("TSMorph/TSMorph.model");
 
@@ -1006,7 +1007,7 @@ const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes)
  */
 export const ContentHashFromBytes = S.Uint8Array.pipe(
   S.decodeTo(ContentHash, {
-    decode: SchemaGetter.transformOrFail((value) =>
+    decode: SchemaGetter.transformOrFail<ContentHash, Uint8Array, Crypto.Crypto>((value) =>
       decodeSha256HexFromBytesEffect(value).pipe(
         Effect.flatMap(decodeContentHashEffect),
         Effect.mapError((error) => error.issue)
@@ -1037,7 +1038,7 @@ const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBy
  */
 export const ContentHashFromSourceText = SourceText.pipe(
   S.decodeTo(ContentHash, {
-    decode: SchemaGetter.transformOrFail((value) =>
+    decode: SchemaGetter.transformOrFail<ContentHash, SourceText, Crypto.Crypto>((value) =>
       decodeContentHashFromBytesEffect(textEncoder.encode(value)).pipe(Effect.mapError((error) => error.issue))
     ),
     encode: SchemaGetter.forbidden(

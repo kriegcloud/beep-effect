@@ -21,6 +21,7 @@ import { makeLibpffError } from "./Libpff.errors.js";
 import { LibpffFileProcessingEngine, LibpffFileProcessingEngineDescriptor } from "./Libpff.service.js";
 import type { ExportArchiveOperation, ExtractFileOperation } from "@beep/file-processing/Operation";
 import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
+import type * as Crypto from "effect/Crypto";
 import type { LibpffError } from "./Libpff.errors.js";
 
 const $I = $LibpffId.create("Libpff.pffexport");
@@ -156,10 +157,9 @@ const byRelativePath = Order.mapInput(Str.Order, (file: WalkedFile) => file.rela
  * Create the real pffexport-backed file-processing engine.
  *
  * Captures the file system, path, and process-spawner services at
- * construction so the returned engine satisfies the requirement-free
- * {@link FileProcessingEngineShape} contract. `exportArchive` runs
- * `pffexport` against the source PST and reports every exported
- * per-message file and attachment as a child artifact reference.
+ * construction. The returned engine's `exportArchive` method still requires
+ * `effect/Crypto` so child artifact ids can be derived through the shared
+ * SHA-backed artifact id schema.
  *
  * @example
  * ```ts
@@ -176,7 +176,7 @@ const byRelativePath = Order.mapInput(Str.Order, (file: WalkedFile) => file.rela
  * console.log(program)
  * ```
  *
- * @effects Requires {@link FileSystem.FileSystem}, {@link Path.Path}, and {@link ChildProcessSpawner.ChildProcessSpawner}; the returned engine fails through the operation error channel only.
+ * @effects Requires {@link FileSystem.FileSystem}, {@link Path.Path}, and {@link ChildProcessSpawner.ChildProcessSpawner}; returned archive export effects additionally require `effect/Crypto` for child artifact id derivation.
  * @category constructors
  * @since 0.0.0
  */
@@ -256,7 +256,7 @@ export const makePffexportFileProcessingEngine = Effect.fn("Libpff.makePffexport
 
   const exportArchiveImpl = Effect.fn("LibpffPffexportEngine.exportArchiveImpl")(function* (
     operation: ExportArchiveOperation
-  ): Effect.fn.Return<ArchiveExportResult, LibpffError> {
+  ): Effect.fn.Return<ArchiveExportResult, LibpffError, Crypto.Crypto> {
     const sourcePath = operation.source.locator.value;
     const targetBase = path.join(config.exportRoot, operation.source.id);
     const exportedRoot = `${targetBase}.export`;
