@@ -109,7 +109,7 @@ const sourceTextFrom = Effect.fn("law_practice.office_action.source_text_from")(
 
 const extractionRequestFrom = (input: OfficeActionReviewInput, sourceText: string): LangExtractRequest =>
   LangExtractRequest.make({
-    documentId: DocumentId.make(input.officeActionFixtureKey),
+    documentId: DocumentId.make(input.operationId),
     targets: officeActionExtractionTargets,
     text: sourceText,
   });

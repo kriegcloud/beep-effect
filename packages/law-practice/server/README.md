@@ -8,6 +8,10 @@ slice's use-case ports to real implementations.
   `OfficeActionReview` loop over the epistemic server (`ClaimGate` +
   `ClaimTransition`, themselves over the bounded SHACL engine).
 
+`LawPracticeServerLive` requires the host application to provide a
+`LanguageModel.LanguageModel` layer for `@beep/langextract`; model selection and
+credentials stay at the application merge boundary.
+
 The review loop depends on the epistemic admission services, so this tier
 provides `EpistemicServerLive` at the merge boundary. The cross-slice
 `@beep/epistemic-*` dependency is the slice's documented bounded exception (per

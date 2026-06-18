@@ -22,6 +22,7 @@ import { IrToLaw, makeIrToLaw } from "@beep/law-practice-use-cases/IrToLaw";
 import { makeOfficeActionReview, OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
 import { TikaFileProcessingEngine } from "@beep/tika";
 import { Effect, Layer } from "effect";
+import type * as LanguageModel from "effect/unstable/ai/LanguageModel";
 
 const IrToLawLayer = Layer.succeed(IrToLaw, IrToLaw.of(makeIrToLaw()));
 const FileProcessingLayer = makeFileProcessingServiceLayer([TikaFileProcessingEngine]);
@@ -43,6 +44,10 @@ const OfficeActionReviewLayer = Layer.effect(
  * office-action review loop over provider-neutral extraction and the epistemic
  * admission services.
  *
+ * Hosts must merge in a `LanguageModel.LanguageModel` provider; this layer keeps
+ * model selection outside law-practice while `LangExtractLayer` consumes that
+ * provider to perform structured extraction.
+ *
  * @example
  * ```ts
  * import { LawPracticeServerLive } from "@beep/law-practice-server/layer"
@@ -53,14 +58,15 @@ const OfficeActionReviewLayer = Layer.effect(
  * @category layers
  * @since 0.0.0
  */
-export const LawPracticeServerLive = OfficeActionReviewLayer.pipe(
-  // `provideMerge` satisfies the loop's `IrToLaw` dependency while keeping
-  // `IrToLaw` in the output surface (a sibling `mergeAll` would race the
-  // provider against the consumer); the file-processing capability supplies
-  // extracted source text, LangExtract supplies grounded source spans, and the
-  // epistemic server supplies the gate + transition the loop also requires.
-  Layer.provideMerge(IrToLawLayer),
-  Layer.provide(FileProcessingLayer),
-  Layer.provide(LangExtractLayer),
-  Layer.provide(EpistemicServerLive)
-);
+export const LawPracticeServerLive: Layer.Layer<OfficeActionReview | IrToLaw, never, LanguageModel.LanguageModel> =
+  OfficeActionReviewLayer.pipe(
+    // `provideMerge` satisfies the loop's `IrToLaw` dependency while keeping
+    // `IrToLaw` in the output surface (a sibling `mergeAll` would race the
+    // provider against the consumer); the file-processing capability supplies
+    // extracted source text, LangExtract supplies grounded source spans, and the
+    // epistemic server supplies the gate + transition the loop also requires.
+    Layer.provideMerge(IrToLawLayer),
+    Layer.provide(FileProcessingLayer),
+    Layer.provide(LangExtractLayer),
+    Layer.provide(EpistemicServerLive)
+  );

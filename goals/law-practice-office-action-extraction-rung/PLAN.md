@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: `in-progress`
+Status: `complete` (2026-06-18) - P0-P3 implemented; PR #265 published; hosted
+checks reached green; closeout review findings addressed in the follow-up patch.
 
 ## Phases
 
@@ -11,7 +12,7 @@ Status: `in-progress`
 | P0 Scope and contracts | complete | Confirm the current `OfficeActionReview` seam, `LangExtractService` contract, law labels, and deterministic test strategy. | Required source facts and any blockers are recorded; no implementation ambiguity remains. |
 | P1 Service-backed extraction | complete | Replace production fixed candidates with `LangExtractService.extract` and feed `LangExtractResult.extractions` into `IrToLaw`. | Happy-path loop test passes with deterministic fake model/service output. |
 | P2 Non-happy paths and breadth gate | complete | Add required-label/alignment failure handling and decide whether this packet also implements first doctrine breadth. | At least one non-happy-path test passes; 103/101/112 scope is implemented or explicitly deferred. |
-| P3 Verify and close | in-progress | Run required checks, update packet evidence, write reflection, publish the feature branch with Yeet, and close out hosted PR feedback. | Verification is green or unrelated failures are classified; PR is open and mergeable; packet status and evidence are current. |
+| P3 Verify and close | complete | Run required checks, update packet evidence, write reflection, publish the feature branch with Yeet, and close out hosted PR feedback. | Verification is green or unrelated failures are classified; PR is open and mergeable; packet status and evidence are current. |
 
 ## Execution Notes
 

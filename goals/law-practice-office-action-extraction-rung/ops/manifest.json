@@ -3,13 +3,13 @@
   "initiative": {
     "id": "law-practice-office-action-extraction-rung",
     "title": "Law-Practice Office-Action Extraction Rung",
-    "status": "active",
+    "status": "complete",
     "created": "2026-06-18",
     "updated": "2026-06-18",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/law-practice-office-action-extraction-rung",
-  "lifecycle": "active",
+  "lifecycle": "complete",
   "executionCapable": true,
   "reflectionRequired": true,
   "relatedPackets": {
@@ -65,7 +65,7 @@
     {
       "id": "P3",
       "name": "Verify and close",
-      "status": "in-progress"
+      "status": "complete"
     }
   ],
   "targetPackages": [

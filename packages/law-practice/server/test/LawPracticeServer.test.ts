@@ -1,9 +1,11 @@
-import { alignCandidates } from "@beep/langextract/Alignment";
+import { LangExtractRequest } from "@beep/langextract/Extraction";
+import { layer as LangExtractLayer, LangExtractService } from "@beep/langextract/Service";
+import { ExtractionTarget } from "@beep/langextract/Target";
 import { Distinction } from "@beep/law-practice-domain";
 import { LawPracticeServerLive } from "@beep/law-practice-server/layer";
 import { IrToLaw, IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw";
 import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
-import { OfficeActionReviewSpikeCandidates } from "@beep/law-practice-use-cases/test";
+import { DocumentId } from "@beep/nlp/Core";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Stream } from "effect";
 import * as S from "effect/Schema";
@@ -19,6 +21,38 @@ const OFFICE_ACTION_MODEL_OUTPUT = `{"extractions":[{"label":"office_action","te
 
 const UNALIGNED_DISTINCTION_MODEL_OUTPUT = `{"extractions":[{"label":"office_action","text":"Office Action"},{"label":"claim","text":"A widget comprising a lid and a base."},{"label":"rejection_reference","text":"Smith"},{"label":"distinction","text":"an impossible limitation"}]}`;
 
+const MISSING_DISTINCTION_MODEL_OUTPUT = `{"extractions":[{"label":"office_action","text":"Office Action"},{"label":"claim","text":"A widget comprising a lid and a base."},{"label":"rejection_reference","text":"Smith"}]}`;
+
+const extractionTargets: LangExtractRequest["targets"] = [
+  ExtractionTarget.make({
+    description: "The office-action document identifier or heading.",
+    kind: "entity",
+    name: "office_action",
+  }),
+  ExtractionTarget.make({
+    description: "The rejected claim text.",
+    kind: "entity",
+    name: "claim",
+  }),
+  ExtractionTarget.make({
+    description: "The prior-art reference cited by the rejection.",
+    kind: "entity",
+    name: "rejection_reference",
+  }),
+  ExtractionTarget.make({
+    description: "Applicant distinction text copied from the office-action response material.",
+    kind: "custom",
+    name: "distinction",
+  }),
+];
+
+const makeExtractionRequest = (): LangExtractRequest =>
+  LangExtractRequest.make({
+    documentId: DocumentId.make("office-action-review-test"),
+    targets: extractionTargets,
+    text: OFFICE_ACTION_FIXTURE,
+  });
+
 const makeLanguageModelLayer = (text: string): Layer.Layer<LanguageModel.LanguageModel> =>
   Layer.succeed(LanguageModel.LanguageModel, {
     generateObject: () => Effect.die("generateObject is not used by law-practice tests") as never,
@@ -27,7 +61,7 @@ const makeLanguageModelLayer = (text: string): Layer.Layer<LanguageModel.Languag
   } as LanguageModel.Service);
 
 const makeLawPracticeServerTestLayer = (modelOutput: string) =>
-  LawPracticeServerLive.pipe(Layer.provide(makeLanguageModelLayer(modelOutput)));
+  Layer.mergeAll(LawPracticeServerLive, LangExtractLayer).pipe(Layer.provide(makeLanguageModelLayer(modelOutput)));
 
 describe("@beep/law-practice-server", () => {
   it.layer(makeLawPracticeServerTestLayer(OFFICE_ACTION_MODEL_OUTPUT))(
@@ -35,8 +69,10 @@ describe("@beep/law-practice-server", () => {
     (it) => {
       it.effect("IrToLaw grounds exactly one distinction to its source anchor", () =>
         Effect.gen(function* () {
+          const langExtract = yield* LangExtractService;
           const irToLaw = yield* IrToLaw;
-          const extractions = alignCandidates(OFFICE_ACTION_FIXTURE, OfficeActionReviewSpikeCandidates);
+          const extractionResult = yield* langExtract.extract(makeExtractionRequest());
+          const extractions = extractionResult.extractions;
 
           // The distinction candidate is lower case vs the Title-Case source, so
           // alignment MUST take the case-insensitive `match_lesser` path (not a
@@ -80,6 +116,26 @@ describe("@beep/law-practice-server", () => {
           expect(view.counts.candidate).toBe(0);
           expect(view.counts.admitted).toBe(0);
           expect([...view.admittedKeys]).toEqual([]);
+        })
+      );
+    }
+  );
+
+  it.layer(makeLawPracticeServerTestLayer(MISSING_DISTINCTION_MODEL_OUTPUT))(
+    "office-action review loop with missing extraction output",
+    (it) => {
+      it.effect("review rejects a missing required distinction label before admission", () =>
+        Effect.gen(function* () {
+          const review = yield* OfficeActionReview;
+          const input = yield* makeOfficeActionReviewInput();
+
+          const error = yield* review.review(input).pipe(Effect.flip);
+
+          expect(S.is(IrToLawExtractionError)(error)).toBe(true);
+          if (S.is(IrToLawExtractionError)(error)) {
+            expect(error.reason).toBe("required-extraction-missing");
+            expect(error.label).toBe("distinction");
+          }
         })
       );
     }

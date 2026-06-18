@@ -10,8 +10,8 @@
  *
  * Entities are decoded through their schemas with a spike audit envelope (see
  * {@link spikeEntityInput}) — a spike affordance, not the production id/audit
- * path. The mapping is pure and total over the fixed label vocabulary, so it is
- * built synchronously and lifted with `Effect.succeed`.
+ * path. The mapping is effectful and fails typed when required extraction labels
+ * are missing, empty, or unaligned before any law entity is decoded.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -44,6 +44,12 @@ const missingExtraction = (label: string): IrToLawExtractionError =>
     message: `Office-action extraction output is missing required label "${label}".`,
   });
 
+const emptyExtraction = (extraction: GroundedExtraction): IrToLawExtractionError =>
+  IrToLawExtractionError.fromReason("required-extraction-missing", {
+    label: extraction.label,
+    message: `Office-action extraction label "${extraction.label}" is empty.`,
+  });
+
 const unalignedExtraction = (extraction: GroundedExtraction): IrToLawExtractionError =>
   IrToLawExtractionError.fromReason("required-extraction-unaligned", {
     alignmentStatus: extraction.alignmentStatus,
@@ -55,13 +61,22 @@ const requiredExtraction = Effect.fn("law_practice.ir_to_law.required_extraction
   extractions: ReadonlyArray<GroundedExtraction>,
   label: string
 ): Effect.fn.Return<GroundedExtraction, IrToLawExtractionError> {
-  return yield* pipe(
+  const extraction = yield* pipe(
     A.findFirst(extractions, (extraction) => extraction.label === label),
     O.match({
       onNone: () => Effect.fail(missingExtraction(label)),
       onSome: Effect.succeed,
     })
   );
+
+  if (extraction.text.trim().length === 0) {
+    return yield* emptyExtraction(extraction);
+  }
+  if (extraction.alignmentStatus === "unaligned") {
+    return yield* unalignedExtraction(extraction);
+  }
+
+  return extraction;
 });
 
 const textOf = Effect.fn("law_practice.ir_to_law.text_of")(function* (

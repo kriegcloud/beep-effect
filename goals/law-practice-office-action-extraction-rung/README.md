@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `complete` (2026-06-18)
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -35,11 +35,10 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Verify and close is in progress. P0-P2 are locally complete: production
-`OfficeActionReview` invokes `LangExtractService.extract`, feeds
-`LangExtractResult.extractions` to `IrToLaw`, and rejects unaligned distinction
-output before claim admission. Remaining closeout work is Yeet verify, PR
-publish/monitor, and hosted review closeout.
+`P3 Verify and close` is complete. Production `OfficeActionReview` invokes
+`LangExtractService.extract`, feeds `LangExtractResult.extractions` to
+`IrToLaw`, rejects missing/empty/unaligned required extraction output before
+claim admission, and PR #265 carries the Yeet-published branch.
 
 ## Latest Evidence
 
@@ -52,16 +51,23 @@ publish/monitor, and hosted review closeout.
   (`office_action`, `claim`, `rejection_reference`, `distinction`), calls
   `LangExtractService.extract`, and passes `LangExtractResult.extractions` into
   `IrToLaw`.
-- P2 - `IrToLaw` now returns typed `IrToLawExtractionError` failures for missing
-  required labels or unaligned distinction evidence instead of fabricating
-  fallback spans.
-- P2 - deterministic server test has 3 passing cases: direct `IrToLaw`
-  grounding, happy-path review through fake model output, and unaligned
-  distinction rejection before admission.
+- P2 - `IrToLaw` now returns typed `IrToLawExtractionError` failures for
+  missing, empty, or unaligned required labels instead of fabricating fallback
+  spans.
+- P2 - deterministic server test has 4 passing cases: LangExtract-backed
+  grounding, happy-path review through fake model output, missing distinction
+  rejection, and unaligned distinction rejection before admission.
 - P2 - doctrine breadth is explicitly deferred to the next rung: multi-reference
   103 plus 101/112 handling stays out of this extraction-service graduation.
-- P3 - local focused tests, package checks/lints, and root `bun run check` are
-  green as of 2026-06-18; Yeet verify/publish/hosted closeout remain pending.
+- P3 - local focused tests, package checks/lints, root `bun run check`, and
+  `bun run beep yeet verify` with optional live-provider tokens blanked are
+  green as of 2026-06-18.
+- P3 - `bun run beep yeet publish --pr --monitor --message
+  "feat(law-practice): service-backed office action extraction"` opened PR #265;
+  hosted monitor reported 20 checks, 0 failing, 0 pending. Initial strict
+  closeout surfaced 5 actionable review threads and a Greptile 3/5 issue; the
+  follow-up closeout patch addresses those review findings before final
+  monitor/closeout.
 
 ## Notes
 
