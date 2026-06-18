@@ -205,7 +205,7 @@ projection's audit trail rather than defining the core.
 |-------|----------------|-----------------|-------------------|
 | **L1 — Durable** | Outside | Curated docs + `@beep/epistemic-domain` accepted claims/evidence (authority) | EO (typed claims) + files |
 | **L2 — Session** | Inside (managed) | Bi-temporal session cache, consolidation/pruning | Graphiti-style; TG GraphRAG cache |
-| **L3 — Procedural** | Outside | Deterministic AST/JSDoc capability graph — the competitive edge | beep `EffectCapabilityKG.ts` (done) |
+| **L3 — Procedural** | Outside | Deterministic AST/JSDoc capability graph — **dev tooling / learning-vehicle residue, not a product moat** | beep `EffectCapabilityKG.ts` (tooling) |
 | **L4 — Relational** | Inside (managed) | **BeepGraph**: EO extraction spine → FalkorDB projection + GraphRAG | EO spine + TG shell |
 
 The verdict only governs **L4** (and the authority that feeds it). L1/L3 are already settled and
@@ -257,7 +257,7 @@ graph authority.
 | RDF value models (IRI/Quad/Dataset, OWL/PROV vocab) | **Live** | `packages/foundation/modeling/rdf/src/Rdf.ts`, `Vocab/Owl.ts` |
 | PROV-O provenance + bounded SHACL | **Live** | `packages/foundation/capability/semantic-web/src/prov.ts`, `adapters/shacl-engine.ts` |
 | Epistemic authority (claims/evidence/lifecycle) | **Live (domain only)** | `packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle` |
-| Deterministic L3 capability graph | **Live (complete)** | `packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts` |
+| Deterministic L3 capability graph (dev tooling) | **Live (complete)** | `packages/tooling/library/repo-utils/src/EffectCapabilityKG.ts` |
 | Ontology authoring over Effect Schema → JSON-LD/Turtle | **Specced, blocked** | `goals/ontology-modeling-foundation/SPEC.md` (`@beep/ontology`, retired) |
 | EventLog → graph projection | **Specced** | `goals/knowledge-workspace/00-event-sourced-graph.md` |
 | Curated-doc library + processing queue + grounded retrieval | **Specced** | `goals/trustgraph-port/{SPEC,PLAN}.md` → `packages/repo-memory` |

@@ -15,6 +15,12 @@ Definitions:
 
 ## 1. repo-memory v0
 
+> **Superseded (2026-06-17).** This thread's GO / Priority-1 verdict and "ship it"
+> next-action are historical. repo-memory v0 was a learning vehicle and is archived;
+> the active priority is the IP-law flywheel. The deterministic-first *principle* below
+> remains valid (see `README.md` status amendment); the verdict is retained as dated
+> context.
+
 **Location:** archived pre-automation repo-memory packet and packages on
 `archive/pre-repo-architecture-automation-2026-04-27`
 
@@ -29,10 +35,11 @@ ownership, query-preparation acceptance surface.
 **Rationale:** Deterministic code intelligence operates outside the No-Escape
 Theorem. It does not degrade at scale. It cannot. AST extraction, type
 resolution, and dependency graphs produce facts at certainty=1.0 -- no
-semantic proximity, no interference, no forgetting curve. This is the single
-strongest asset in the entire memory portfolio and the project's core
-competitive advantage. Every week spent elsewhere instead of finishing this is
-opportunity cost against an asset no competitor can replicate with embeddings.
+semantic proximity, no interference, no forgetting curve. As a *principle* this
+is the durable lesson of the memory work. _(2026-06-17: framing deterministic
+code intelligence as "the project's core competitive advantage" is superseded --
+that instantiation was a learning vehicle, now archived; the product moat is the
+IP-law flywheel. The principle now anchors the product's exact authority records.)_
 
 **Next action:** Close the remaining P0 gaps. Ship it.
 

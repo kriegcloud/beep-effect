@@ -2,7 +2,9 @@
 
 ## Status
 
-Pending implementation; packet hardening complete.
+Active — implementing P1 (minimum vertical proof). Packet hardening complete; the
+`@beep/file-processing` capability and the `@beep/tika` / `@beep/libpff` drivers exist
+on disk.
 
 ## Mission
 

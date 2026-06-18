@@ -217,3 +217,22 @@ seed goal has the right blast radius: deterministic seed extraction,
 schema-first graph/report facts, a tiny ontology kernel, and fixture advisory
 findings. Later router, CLI, hook, and ratchet goals remain uncreated until the
 seed proof exists.
+
+## 2026-06-17 — park
+
+**Question:** Should this exploration stay `active`, or be parked?
+
+**Answer:** **Parked** (2026-06-17). Status → `parked`; moved to `ATLAS.md` →
+Parked. The seed goal `goals/effect-capability-kg-seed` stays `completed-retained`
+(it does not depend on this exploration continuing).
+
+**Rationale:** This is a software-domain, code-intelligence **dev-tooling** track —
+legitimate and deterministic, but **not the current product focus**. The product is
+the solo IP-law firm flywheel; the broader code-intelligence learning vehicle it
+descends from has been retired (see the 2026-06-17 entry in
+`standards/memory-architecture/04-decision-log.md` and `explorations/atlas-synthesis/`).
+Parking (not killing) is correct: the seed proof shipped and the later
+router/CLI/hook/ratchet candidates remain valuable if the tooling track is resumed.
+Resume trigger: an explicit decision to invest in agent-facing capability guidance
+again. Rejected: keep `active` (falsely signals current priority); kill (discards a
+useful, reversible tooling track).

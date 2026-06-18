@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "atlas-synthesis",
+    "title": "Atlas Synthesis — Current State <-> Goals/Vision Grounding",
+    "status": "active",
+    "stage": "research",
+    "openQuestions": [
+      "What is the user's next instruction / direction this baseline grounds — i.e., the outcome-decomposition half of atlas-synthesis (sequencing the vision into explorations/goals)?",
+      "First IP-law workflow wedge (office-action review recommended, synthesis/32 §5.2) + graduate law-practice from domain-only to a minimum-viable slice (synthesis/30 §A-NW-2).",
+      "Migrate/port the proven v3 knowledge engine (cross the v3->v4 boundary, strip the email domain) vs rebuild clean in v4 (synthesis/43) — port only the thin slice the first workflow needs."
+    ],
+    "links": {
+      "goals": [],
+      "docs": [
+        "docs/PROSE_TO_PROOF_VISION.md",
+        "docs/product/prose-to-proof.md",
+        "docs/BEEPGRAPH_ARCHITECTURE.md",
+        "docs/PROSE_TO_PROOF_ARCHITECTURE_MAP.md",
+        "standards/ARCHITECTURE.md",
+        "standards/memory-architecture/00-no-escape-theorem.md"
+      ],
+      "supersededBy": null
+    },
+    "created": "2026-06-17",
+    "updated": "2026-06-17"
+  }
+}
