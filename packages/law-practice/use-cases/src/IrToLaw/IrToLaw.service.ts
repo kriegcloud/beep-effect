@@ -10,19 +10,20 @@
  *
  * Entities are decoded through their schemas with a spike audit envelope (see
  * {@link spikeEntityInput}) — a spike affordance, not the production id/audit
- * path. The mapping is pure and total over the fixed label vocabulary, so it is
- * built synchronously and lifted with `Effect.succeed`.
+ * path. The mapping is effectful and fails typed when required extraction labels
+ * are missing, empty, or unaligned before any law entity is decoded.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 import { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
-import { Effect } from "effect";
+import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { spikeEntityInput } from "../internal/spikeEntity.js";
+import { IrToLawExtractionError } from "./IrToLaw.errors.js";
 import type { GroundedExtraction } from "@beep/langextract/Extraction";
 import type { IrToLawShape, LawEntities } from "./IrToLaw.ports.js";
 
@@ -37,26 +38,82 @@ const decodePriorArtReference = S.decodeUnknownSync(PriorArtReference);
 const decodeRejection = S.decodeUnknownSync(Rejection);
 const decodeDistinction = S.decodeUnknownSync(Distinction);
 
-const textOf = (extractions: ReadonlyArray<GroundedExtraction>, label: string, fallback: string): string =>
-  O.match(
+const missingExtraction = (label: string): IrToLawExtractionError =>
+  IrToLawExtractionError.fromReason("required-extraction-missing", {
+    label,
+    message: `Office-action extraction output is missing required label "${label}".`,
+  });
+
+const emptyExtraction = (extraction: GroundedExtraction): IrToLawExtractionError =>
+  IrToLawExtractionError.fromReason("required-extraction-missing", {
+    label: extraction.label,
+    message: `Office-action extraction label "${extraction.label}" is empty.`,
+  });
+
+const unalignedExtraction = (extraction: GroundedExtraction): IrToLawExtractionError =>
+  IrToLawExtractionError.fromReason("required-extraction-unaligned", {
+    alignmentStatus: extraction.alignmentStatus,
+    label: extraction.label,
+    message: `Office-action extraction label "${extraction.label}" is not source-grounded.`,
+  });
+
+const requiredExtraction = Effect.fn("law_practice.ir_to_law.required_extraction")(function* (
+  extractions: ReadonlyArray<GroundedExtraction>,
+  label: string
+): Effect.fn.Return<GroundedExtraction, IrToLawExtractionError> {
+  const extraction = yield* pipe(
     A.findFirst(extractions, (extraction) => extraction.label === label),
-    {
-      onNone: () => fallback,
-      onSome: (found) => found.text,
-    }
+    O.match({
+      onNone: () => Effect.fail(missingExtraction(label)),
+      onSome: Effect.succeed,
+    })
   );
 
-const anchorOf = (extractions: ReadonlyArray<GroundedExtraction>, label: string, fallback: string) =>
-  O.match(
-    A.findFirst(extractions, (extraction) => extraction.label === label),
-    {
-      onNone: () => ({ endChar: fallback.length, quote: fallback, startChar: 0 }),
-      onSome: (found) =>
-        found.span === undefined
-          ? { endChar: (found.matchedText ?? found.text).length, quote: found.matchedText ?? found.text, startChar: 0 }
-          : { endChar: found.span.end, quote: found.matchedText ?? found.text, startChar: found.span.start },
-    }
+  if (extraction.text.trim().length === 0) {
+    return yield* emptyExtraction(extraction);
+  }
+  if (extraction.alignmentStatus === "unaligned") {
+    return yield* unalignedExtraction(extraction);
+  }
+
+  return extraction;
+});
+
+const textOf = Effect.fn("law_practice.ir_to_law.text_of")(function* (
+  extractions: ReadonlyArray<GroundedExtraction>,
+  label: string
+): Effect.fn.Return<string, IrToLawExtractionError> {
+  const extraction = yield* requiredExtraction(extractions, label);
+  return extraction.text;
+});
+
+const anchorOf = Effect.fn("law_practice.ir_to_law.anchor_of")(function* (
+  extractions: ReadonlyArray<GroundedExtraction>,
+  label: string
+): Effect.fn.Return<
+  { readonly endChar: number; readonly quote: string; readonly startChar: number },
+  IrToLawExtractionError
+> {
+  const extraction = yield* requiredExtraction(extractions, label);
+
+  if (extraction.alignmentStatus === "unaligned") {
+    return yield* unalignedExtraction(extraction);
+  }
+
+  const span = yield* pipe(
+    O.fromUndefinedOr(extraction.span),
+    O.match({
+      onNone: () => Effect.fail(unalignedExtraction(extraction)),
+      onSome: Effect.succeed,
+    })
   );
+  const quote = pipe(
+    O.fromUndefinedOr(extraction.matchedText),
+    O.getOrElse(() => extraction.text)
+  );
+
+  return { endChar: span.end, quote, startChar: span.start };
+});
 
 const officeActionFixtureKey = "office-action.spike";
 const patentAssetFixtureKey = "patent-asset.spike";
@@ -65,8 +122,14 @@ const referenceFixtureKey = "prior-art.spike";
 const rejectionFixtureKey = "rejection.spike";
 const distinctionFixtureKey = "distinction.spike";
 
-const buildLawEntities = (extractions: ReadonlyArray<GroundedExtraction>): LawEntities => {
-  const distinctionText = textOf(extractions, "distinction", "the distinguishing limitation");
+const buildLawEntities = Effect.fn("law_practice.ir_to_law.build_entities")(function* (
+  extractions: ReadonlyArray<GroundedExtraction>
+): Effect.fn.Return<LawEntities, IrToLawExtractionError> {
+  const officeActionText = yield* textOf(extractions, "office_action");
+  const claimText = yield* textOf(extractions, "claim");
+  const referenceText = yield* textOf(extractions, "rejection_reference");
+  const distinctionText = yield* textOf(extractions, "distinction");
+  const distinctionAnchor = yield* anchorOf(extractions, "distinction");
 
   return {
     claim: decodeClaim({
@@ -75,11 +138,11 @@ const buildLawEntities = (extractions: ReadonlyArray<GroundedExtraction>): LawEn
       fixtureKey: claimFixtureKey,
       independent: true,
       patentAssetFixtureKey,
-      text: textOf(extractions, "claim", "A claim."),
+      text: claimText,
     }),
     distinction: decodeDistinction({
       ...spikeEntityInput("LawPracticeDistinction", 5),
-      anchor: anchorOf(extractions, "distinction", distinctionText),
+      anchor: distinctionAnchor,
       claimFixtureKey,
       detail: { kind: "missing_limitation", limitation: distinctionText },
       fixtureKey: distinctionFixtureKey,
@@ -88,7 +151,7 @@ const buildLawEntities = (extractions: ReadonlyArray<GroundedExtraction>): LawEn
     }),
     officeAction: decodeOfficeAction({
       ...spikeEntityInput("LawPracticeOfficeAction", 1),
-      applicationNumber: textOf(extractions, "office_action", "16/000,000"),
+      applicationNumber: officeActionText,
       fixtureKey: officeActionFixtureKey,
       matterFixtureKey: "matter.spike",
       patentAssetFixtureKey,
@@ -98,7 +161,7 @@ const buildLawEntities = (extractions: ReadonlyArray<GroundedExtraction>): LawEn
       documentNumber: "US 0,000,000 B2",
       fixtureKey: referenceFixtureKey,
       officeActionFixtureKey,
-      title: textOf(extractions, "rejection_reference", "Prior Art Reference"),
+      title: referenceText,
     }),
     rejection: decodeRejection({
       ...spikeEntityInput("LawPracticeRejection", 4),
@@ -108,7 +171,7 @@ const buildLawEntities = (extractions: ReadonlyArray<GroundedExtraction>): LawEn
       officeActionFixtureKey,
     }),
   };
-};
+});
 
 /**
  * Build the pure IR-to-law mapping shape.
@@ -124,6 +187,6 @@ const buildLawEntities = (extractions: ReadonlyArray<GroundedExtraction>): LawEn
  * @since 0.0.0
  */
 export const makeIrToLaw = (): IrToLawShape => ({
-  toLaw: (extractions: ReadonlyArray<GroundedExtraction>): Effect.Effect<LawEntities> =>
-    Effect.succeed(buildLawEntities(extractions)),
+  toLaw: (extractions: ReadonlyArray<GroundedExtraction>): Effect.Effect<LawEntities, IrToLawExtractionError> =>
+    buildLawEntities(extractions),
 });

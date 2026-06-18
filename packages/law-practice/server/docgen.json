@@ -88,6 +88,27 @@
       "@beep/file-processing/test": [
         "../../../packages/foundation/capability/file-processing/src/test.ts"
       ],
+      "@beep/langextract": [
+        "../../../packages/foundation/capability/langextract/src/index.ts"
+      ],
+      "@beep/langextract/*": [
+        "../../../packages/foundation/capability/langextract/src/*.ts"
+      ],
+      "@beep/langextract/Alignment": [
+        "../../../packages/foundation/capability/langextract/src/Alignment/index.ts"
+      ],
+      "@beep/langextract/Extraction": [
+        "../../../packages/foundation/capability/langextract/src/Extraction/index.ts"
+      ],
+      "@beep/langextract/Handoff": [
+        "../../../packages/foundation/capability/langextract/src/Handoff/index.ts"
+      ],
+      "@beep/langextract/Service": [
+        "../../../packages/foundation/capability/langextract/src/Service/index.ts"
+      ],
+      "@beep/langextract/Target": [
+        "../../../packages/foundation/capability/langextract/src/Target/index.ts"
+      ],
       "@beep/law-practice-domain": [
         "../../../packages/law-practice/domain/src/index.ts"
       ],

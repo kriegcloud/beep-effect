@@ -1,5 +1,5 @@
 /**
- * Fixed office-action extraction candidates used by the spike review loop.
+ * Fixed office-action extraction candidates used by tests for the spike mapping.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -8,11 +8,11 @@
 import { ExtractionCandidate } from "@beep/langextract/Extraction";
 
 /**
- * Fixed candidate set for the office-action review spike.
+ * Fixed candidate set for the office-action review spike mapping tests.
  *
- * This is the stand-in for the deferred LLM extraction step. It is exported
- * through the package test surface so integration tests can assert grounding
- * against the exact candidates the loop consumes.
+ * This is retained through the package test surface so integration tests can
+ * assert grounding for the same synthetic office-action phrases without
+ * coupling the production loop back to fixed candidates.
  *
  * @example
  * ```ts
