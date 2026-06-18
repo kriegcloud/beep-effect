@@ -553,10 +553,17 @@ jobs:
               ;;
             *)
               # api ok but status absent/unavailable: benign token-permission or
-              # feature-config condition. Warn and PROCEED so the dependency-review
-              # action (the real gate) still runs; do not fail closed here.
-              echo "enabled=true" >> "$GITHUB_OUTPUT"
-              echo "::warning::Dependency graph status could not be determined (got '${status:-unavailable}') but the gh api call succeeded; proceeding to the dependency-review gate, which is the real check."
+              # feature-config condition (the CI token cannot read
+              # security_and_analysis, or the feature config is not exposed). The
+              # actions/dependency-review-action HARD-FAILS when dependency graph
+              # is not actually enabled for the repo, so running it here would fail
+              # on a non-finding condition rather than perform a real review.
+              # SKIP it instead (fail open on undetectable availability); a genuine
+              # gh api COMMAND failure still fails closed above, and OSV scanning
+              # continues to cover dependency vulnerabilities. Enable Dependency
+              # graph in repo Settings -> Security & analysis to activate this gate.
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              echo "::warning::Dependency graph status could not be determined (got '${status:-unavailable}'); skipping the dependency-review gate (OSV still covers dependency vulns). Enable Dependency graph in repo settings to activate it."
               ;;
           esac
 
