@@ -1312,6 +1312,7 @@
         "@beep/epistemic-server": "workspace:^",
         "@beep/epistemic-use-cases": "workspace:^",
         "@beep/file-processing": "workspace:^",
+        "@beep/langextract": "workspace:^",
         "@beep/law-practice-domain": "workspace:^",
         "@beep/law-practice-use-cases": "workspace:^",
         "@beep/tika": "workspace:^",
@@ -1333,6 +1334,8 @@
         "@beep/identity": "workspace:^",
         "@beep/langextract": "workspace:^",
         "@beep/law-practice-domain": "workspace:^",
+        "@beep/nlp": "workspace:^",
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
