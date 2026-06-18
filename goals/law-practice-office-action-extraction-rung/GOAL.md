@@ -13,6 +13,19 @@ and `ops/manifest.json`, then `AGENTS.md`, `CLAUDE.md`,
 completed `goals/law-practice-office-action-spike/` packet. Higher repo
 standards outrank packet prose.
 
+Branch/PR contract:
+
+- If launched on `main` or another protected/default branch, first fetch
+  `origin/main`, confirm it is fresh, then create a feature branch from the
+  intended base before editing.
+- See the packet through to a mergeable PR with Yeet: use
+  `bun run beep yeet verify`, then
+  `bun run beep yeet publish --pr --monitor --message "feat(law-practice): service-backed office action extraction"`.
+- Run `bun run beep yeet monitor --summary` and
+  `bun run beep yeet closeout --summary --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0`;
+  fix failed checks or actionable review comments with follow-up Yeet publishes
+  until the PR is mergeable. Do not auto-merge without explicit user approval.
+
 Scope:
 
 - In: `packages/law-practice/use-cases/src/OfficeActionReview/**`,
@@ -46,6 +59,9 @@ Acceptance:
 - [ ] Happy-path and non-happy-path tests pass deterministically.
 - [ ] Multi-reference 103 plus 101/112 breadth is implemented after extraction
       is green or explicitly deferred as the next phase.
+- [ ] Work lands on a feature branch and a Yeet-published PR is mergeable:
+      hosted checks green, closeout clean, and no unresolved actionable review
+      comments.
 - [ ] No unrelated refactors or formatting churn.
 
 Verify:
@@ -60,4 +76,5 @@ bun run beep yeet verify
 ```
 
 Done when acceptance passes and verification is complete, or a blocker is
-reported with evidence.
+reported with evidence. For successful implementation, "done" includes the
+mergeable PR state above, not just a local green worktree.

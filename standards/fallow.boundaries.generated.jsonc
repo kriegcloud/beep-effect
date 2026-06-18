@@ -1216,6 +1216,7 @@
           "@beep/epistemic-server",
           "@beep/epistemic-use-cases",
           "@beep/file-processing",
+          "@beep/langextract",
           "@beep/law-practice-domain",
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
@@ -1226,6 +1227,7 @@
           "@beep/epistemic-server",
           "@beep/epistemic-use-cases",
           "@beep/file-processing",
+          "@beep/langextract",
           "@beep/law-practice-domain",
           "@beep/law-practice-server",
           "@beep/law-practice-use-cases",
@@ -1243,6 +1245,8 @@
           "@beep/langextract",
           "@beep/law-practice-domain",
           "@beep/law-practice-use-cases",
+          "@beep/nlp",
+          "@beep/schema",
           "@beep/test-utils"
         ],
         "allowTypeOnly": [
@@ -1253,6 +1257,8 @@
           "@beep/langextract",
           "@beep/law-practice-domain",
           "@beep/law-practice-use-cases",
+          "@beep/nlp",
+          "@beep/schema",
           "@beep/test-utils"
         ]
       },

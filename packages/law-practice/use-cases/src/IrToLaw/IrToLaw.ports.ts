@@ -20,6 +20,7 @@ import { Context } from "effect";
 import type { GroundedExtraction } from "@beep/langextract/Extraction";
 import type { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
 import type { Effect } from "effect";
+import type { IrToLawExtractionError } from "./IrToLaw.errors.js";
 
 const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.ports");
 
@@ -65,7 +66,9 @@ export interface LawEntities {
  * @since 0.0.0
  */
 export interface IrToLawShape {
-  readonly toLaw: (extractions: ReadonlyArray<GroundedExtraction>) => Effect.Effect<LawEntities>;
+  readonly toLaw: (
+    extractions: ReadonlyArray<GroundedExtraction>
+  ) => Effect.Effect<LawEntities, IrToLawExtractionError>;
 }
 
 /**

@@ -50,22 +50,22 @@
     {
       "id": "P0",
       "name": "Scope and contracts",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Service-backed extraction",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Non-happy paths and breadth gate",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Verify and close",
-      "status": "pending"
+      "status": "in-progress"
     }
   ],
   "targetPackages": [
@@ -82,9 +82,17 @@
     "@beep/epistemic-server/layer"
   ],
   "knownGaps": [
-    "OfficeActionReview currently uses OfficeActionReviewSpikeCandidates as the stand-in for LLM extraction.",
-    "Non-happy-path extraction/alignment behavior is not yet covered.",
-    "Multi-reference 103 plus 101/112 doctrine breadth remains deferred until service-backed extraction is green."
+    "Multi-reference 103 plus 101/112 doctrine breadth remains deferred to the next rung after service-backed extraction."
+  ],
+  "closeoutGates": [
+    "Execution starts from a feature branch when launched from main or another protected/default branch.",
+    "Full local proof runs through bun run beep yeet verify.",
+    "Implementation is published with bun run beep yeet publish --pr --monitor.",
+    "Hosted checks are green before closeout.",
+    "PR has no unresolved actionable review comments.",
+    "Greptile score is 5/5 and issue count is 0 when required.",
+    "GitHub reports the branch as mergeable/not conflicted.",
+    "Do not auto-merge without explicit user approval."
   ],
   "verificationCommands": [
     "test \"$(wc -m < goals/law-practice-office-action-extraction-rung/GOAL.md)\" -le 4000",
@@ -93,7 +101,10 @@
     "git diff --check -- goals/law-practice-office-action-extraction-rung",
     "bun run check",
     "bun run beep lint reflection-artifacts",
-    "bun run beep yeet verify"
+    "bun run beep yeet verify",
+    "bun run beep yeet publish --pr --monitor --message \"feat(law-practice): service-backed office action extraction\"",
+    "bun run beep yeet monitor --summary",
+    "bun run beep yeet closeout --summary --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",

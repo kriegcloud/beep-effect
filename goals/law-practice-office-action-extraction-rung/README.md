@@ -35,21 +35,43 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Scope confirmation is pending. Start by inspecting the current
-`OfficeActionReview` loop, the `@beep/langextract/Service` contract, and the
-law-practice server layer composition.
+P3 Verify and close is in progress. P0-P2 are locally complete: production
+`OfficeActionReview` invokes `LangExtractService.extract`, feeds
+`LangExtractResult.extractions` to `IrToLaw`, and rejects unaligned distinction
+output before claim admission. Remaining closeout work is Yeet verify, PR
+publish/monitor, and hosted review closeout.
 
 ## Latest Evidence
 
-Not started. This packet was opened after PR #262 merged the file-processing
-and rung-0 office-action loop to `main` on 2026-06-18.
+- P0/P1 - current seams confirmed: fixed spike candidates were only in
+  `OfficeActionReview.service.ts`, `LangExtractService.extract` takes a
+  schema-backed `LangExtractRequest`, and server Layer composition can require a
+  generic `LanguageModel.LanguageModel` without provider-specific law-practice
+  dependencies.
+- P1/P2 - production `OfficeActionReview` now constructs law extraction targets
+  (`office_action`, `claim`, `rejection_reference`, `distinction`), calls
+  `LangExtractService.extract`, and passes `LangExtractResult.extractions` into
+  `IrToLaw`.
+- P2 - `IrToLaw` now returns typed `IrToLawExtractionError` failures for missing
+  required labels or unaligned distinction evidence instead of fabricating
+  fallback spans.
+- P2 - deterministic server test has 3 passing cases: direct `IrToLaw`
+  grounding, happy-path review through fake model output, and unaligned
+  distinction rejection before admission.
+- P2 - doctrine breadth is explicitly deferred to the next rung: multi-reference
+  103 plus 101/112 handling stays out of this extraction-service graduation.
+- P3 - local focused tests, package checks/lints, and root `bun run check` are
+  green as of 2026-06-18; Yeet verify/publish/hosted closeout remain pending.
 
 ## Notes
 
-- The fixed `OfficeActionReviewSpikeCandidates` list is the implementation seam
-  to replace.
+- The fixed `OfficeActionReviewSpikeCandidates` list is retained only through
+  the package test surface for deterministic mapping assertions.
 - Keep tests deterministic with fake language-model output; live provider
   credentials are not required for packet completion.
+- Use Yeet for branch proof, PR creation, hosted monitor, and closeout:
+  `yeet verify` -> `yeet publish --pr --monitor` -> `yeet monitor --summary`
+  -> `yeet closeout --summary ...`.
 - The nlp `AnnotatedDocument` envelope is still span-lossy for law anchoring.
   Feed `LangExtractResult.extractions` / `GroundedExtraction[]` into `IrToLaw`.
 - Fixtures must remain synthetic/public only.
