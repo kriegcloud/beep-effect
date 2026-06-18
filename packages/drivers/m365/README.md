@@ -14,6 +14,15 @@ bun add @beep/m365
 import { VERSION } from "@beep/m365"
 ```
 
+## Token Cache Persistence
+
+The live auth layer uses the in-memory MSAL token cache by default. Supplying
+`tokenCachePath` opts into encrypted persistence through
+`@azure/msal-node-extensions`, which is an optional dependency because it pulls
+native keychain support (`keytar` / libsecret on Linux). Headless CI and
+non-desktop hosts should omit `tokenCachePath` or inject an externally minted
+token with `M365Auth.layerStatic`.
+
 ## Development
 
 ```bash
