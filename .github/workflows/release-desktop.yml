@@ -195,3 +195,20 @@ jobs:
           # Per-arch native target (empty on Linux/Windows where the host target
           # already matches the runner).
           args: ${{ matrix.args }}
+
+  release-desktop-ready:
+    name: Desktop release draft ready
+    runs-on: ubuntu-22.04
+    needs: release-desktop
+    if: ${{ always() }}
+    steps:
+      - name: Verify every desktop target completed
+        shell: bash
+        env:
+          RELEASE_DESKTOP_RESULT: ${{ needs.release-desktop.result }}
+        run: |
+          if [[ "${RELEASE_DESKTOP_RESULT}" != "success" ]]; then
+            echo "::error::At least one desktop release target failed; keep the draft unpublished."
+            exit 1
+          fi
+          echo "::notice::All desktop release targets completed successfully. The draft release is ready for manual smoke testing and publication."
