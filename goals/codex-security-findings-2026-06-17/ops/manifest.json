@@ -3,13 +3,13 @@
   "initiative": {
     "id": "codex-security-findings-2026-06-17",
     "title": "Codex Security Findings (2026-06-17)",
-    "status": "active",
+    "status": "complete",
     "created": "2026-06-17",
-    "updated": "2026-06-17",
+    "updated": "2026-06-18",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/codex-security-findings-2026-06-17",
-  "lifecycle": "active",
+  "lifecycle": "complete",
   "executionCapable": true,
   "reflectionRequired": true,
   "branch": "security/6-17-2026",
@@ -43,12 +43,12 @@
       "Informational": 24
     },
     "verdictCounts": {
-      "fixed": 0,
+      "fixed": 55,
       "dismissed": 14,
       "wont-fix": 2,
       "untriaged": 0,
       "notCaptured": 0,
-      "openRemediate": 55
+      "openRemediate": 0
     },
     "dispositionCounts": {
       "remediate": 55,
@@ -59,7 +59,7 @@
       "untriaged": 0,
       "notCaptured": 0
     },
-    "note": "P3 complete 2026-06-17T23:55:39Z: 16 closed in Codex (14 false_positive, 2 wontfix); 55 remediate open."
+    "note": "P3 complete 2026-06-17T23:55:39Z: 16 closed in Codex (14 false_positive, 2 wontfix); 55 remediate open. | P7 complete 2026-06-18: PR #254 merged to main (dc2e44fb70); all 56 live open Codex findings closed as fixed via aardvark API (55 remediate + 1 new turbo.json passThroughEnv finding fixed in PR). STILL_OPEN=0."
   },
   "closeoutPolicy": {
     "fixed": "Already fixed",
@@ -154,26 +154,26 @@
     {
       "id": "P6",
       "name": "yeet-to-mergeable",
-      "status": "in-progress",
+      "status": "complete",
       "exit": "bun run beep yeet green incl. security lanes; PR open and mergeable; review bot pass; 0 unresolved threads."
     },
     {
       "id": "GATE2",
       "name": "merge-gate",
-      "status": "pending",
+      "status": "complete",
       "type": "stop",
       "exit": "Human approves before merge; PR merged."
     },
     {
       "id": "P7",
       "name": "close-remediated",
-      "status": "pending",
+      "status": "complete",
       "exit": "Chrome pass 2: all remediated findings marked 'Already fixed' with PR evidence; all 71 closed."
     },
     {
       "id": "P8",
       "name": "closeout",
-      "status": "pending",
+      "status": "complete",
       "exit": "INDEX/manifest/triage reconciled; closeout reflection written; packet status updated."
     }
   ],
@@ -276,6 +276,10 @@
     ]
   },
   "meta": {
-    "gate1ApprovedAt": "2026-06-17T23:47:51Z"
+    "gate1ApprovedAt": "2026-06-17T23:47:51Z",
+    "gate2ApprovedAt": "2026-06-18T09:03:34Z",
+    "mergeCommit": "dc2e44fb70773cb3b4498fa767d85e467ad733d5",
+    "mergedAt": "2026-06-18T09:03:34Z",
+    "findingsClosedAt": "2026-06-18"
   }
 }
