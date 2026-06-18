@@ -21,9 +21,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { Effect, Layer } from "effect";
 import { Socket } from "effect/unstable/socket";
-import type { UnlistenFn } from "@tauri-apps/api/event";
 
 const decoder = new TextDecoder();
+type StopListening = Awaited<ReturnType<typeof listen>>;
 
 // Inbound stdout frames ride the `sidecar://rx` event onto a web ReadableStream;
 // outbound frames are written to the sidecar's stdin via `sidecar_send`. The
@@ -31,7 +31,7 @@ const decoder = new TextDecoder();
 // strings for the command boundary, and `fromTransformStream`'s ndjson decoder
 // reassembles inbound chunks into lines.
 const makeStream = (): Socket.InputTransformStream => {
-  let unlisten: UnlistenFn | undefined;
+  let stopListening: StopListening | undefined;
   const readable = new ReadableStream<string>({
     start(controller) {
       // `listen` is async, but this rpc is strictly client-initiated: the server
@@ -40,11 +40,11 @@ const makeStream = (): Socket.InputTransformStream => {
       // listener is still registering. (A server-side boot banner or push would
       // need Rust-side buffering until the first listener attaches.)
       return listen<string>("sidecar://rx", (event) => controller.enqueue(event.payload)).then((fn) => {
-        unlisten = fn;
+        stopListening = fn;
       });
     },
     cancel() {
-      unlisten?.();
+      stopListening?.();
     },
   });
   const writable = new WritableStream<Uint8Array>({

@@ -6,7 +6,7 @@
  * of default values (via {@link getDefaultFormValues}). TanStack owns all form
  * state; these helpers only assemble its options.
  *
- * Validation slot routing honours the effect <-> Standard Schema seam: a schema
+ * Validation slot routing honours the effect-to-Standard Schema boundary: a schema
  * that decodes **synchronously** uses the sync slot (`onChange`/`onBlur`/
  * `onSubmit`), while an **async-capable** schema must use the async slot
  * (`*Async`) because effect's `validate` returns a `Promise` that the sync slot
@@ -158,7 +158,7 @@ export const formOptionsWithSubmit = <A, I>(
 /**
  * Builder whose `onSubmit` receives the decode **`Effect`**: the caller runs it
  * in their own runtime (e.g. bridging to an effect atom mutation — the
- * sanctioned TanStack <-> atom seam). Named for what `onSubmit` receives (an
+ * sanctioned TanStack-to-atom boundary). Named for what `onSubmit` receives (an
  * `Effect`) — contrast {@link formOptionsWithSubmit}.
  *
  * @example

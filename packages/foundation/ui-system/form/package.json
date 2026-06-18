@@ -51,11 +51,8 @@
   ],
   "sideEffects": [],
   "dependencies": {
-    "@base-ui/react": "catalog:",
     "@beep/schema": "workspace:^",
     "@beep/ui": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@effect/atom-react": "catalog:",
     "@tanstack/react-form": "catalog:",
     "effect": "catalog:"
   },

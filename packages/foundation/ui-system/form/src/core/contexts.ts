@@ -4,7 +4,7 @@
  * These are created once and shared between the field components (which read
  * {@link useFieldContext}) and the {@link useAppForm} factory (which receives
  * {@link fieldContext} / {@link formContext}). Keeping them in their own module
- * breaks the field <-> factory import cycle.
+ * breaks the field/factory import cycle.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -25,7 +25,7 @@ const contexts = createFormHookContexts();
  * console.log(fieldContext)
  * ```
  *
- * @category contexts
+ * @category utilities
  * @since 0.0.0
  */
 export const fieldContext = contexts.fieldContext;
@@ -40,7 +40,7 @@ export const fieldContext = contexts.fieldContext;
  * console.log(useFieldContext)
  * ```
  *
- * @category contexts
+ * @category hooks
  * @since 0.0.0
  */
 export const useFieldContext = contexts.useFieldContext;
@@ -55,7 +55,7 @@ export const useFieldContext = contexts.useFieldContext;
  * console.log(formContext)
  * ```
  *
- * @category contexts
+ * @category utilities
  * @since 0.0.0
  */
 export const formContext = contexts.formContext;
@@ -70,7 +70,7 @@ export const formContext = contexts.formContext;
  * console.log(useFormContext)
  * ```
  *
- * @category contexts
+ * @category hooks
  * @since 0.0.0
  */
 export const useFormContext = contexts.useFormContext;

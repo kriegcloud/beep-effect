@@ -17,6 +17,8 @@ import { fieldContext, formContext } from "../core/contexts.ts";
 import { AutocompleteField } from "../fields/AutocompleteField.tsx";
 import { CheckboxField } from "../fields/CheckboxField.tsx";
 import { ComboboxField } from "../fields/ComboboxField.tsx";
+import { DateField } from "../fields/DateField.tsx";
+import { DateTimeField } from "../fields/DateTimeField.tsx";
 import { MultiCheckboxField } from "../fields/MultiCheckboxField.tsx";
 import { MultiSelectField } from "../fields/MultiSelectField.tsx";
 import { MultiSwitchField } from "../fields/MultiSwitchField.tsx";
@@ -29,6 +31,7 @@ import { SliderField } from "../fields/SliderField.tsx";
 import { SwitchField } from "../fields/SwitchField.tsx";
 import { TextareaField } from "../fields/TextareaField.tsx";
 import { TextField } from "../fields/TextField.tsx";
+import { TimeField } from "../fields/TimeField.tsx";
 import { ToggleField } from "../fields/ToggleField.tsx";
 import { ToggleGroupField } from "../fields/ToggleGroupField.tsx";
 
@@ -38,6 +41,9 @@ const formHook = createFormHook({
   fieldComponents: {
     Text: TextField,
     Number: NumberField,
+    Date: DateField,
+    DateTime: DateTimeField,
+    Time: TimeField,
     Textarea: TextareaField,
     Checkbox: CheckboxField,
     Switch: SwitchField,

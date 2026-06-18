@@ -59,7 +59,7 @@ export * from "./components/SubmitButton.tsx";
  * ```
  *
  * @since 0.0.0
- * @category contexts
+ * @category utilities
  */
 export * from "./core/contexts.ts";
 /**

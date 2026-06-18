@@ -6,6 +6,11 @@
  */
 
 /**
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./DateTimeUtcFromValid.adapter.ts";
+/**
  * @category schemas
  * @since 0.0.0
  */

@@ -128,6 +128,7 @@
         "@beep/workspace-use-cases": "workspace:^",
         "@effect/atom-react": "catalog:",
         "@effect/platform-bun": "catalog:",
+        "@tauri-apps/api": "catalog:",
         "effect": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
@@ -1133,11 +1134,8 @@
       "name": "@beep/form",
       "version": "0.0.0",
       "dependencies": {
-        "@base-ui/react": "catalog:",
         "@beep/schema": "workspace:^",
         "@beep/ui": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@effect/atom-react": "catalog:",
         "@tanstack/react-form": "catalog:",
         "effect": "catalog:",
       },
@@ -1159,6 +1157,7 @@
       "version": "0.1.2",
       "dependencies": {
         "@base-ui/react": "catalog:",
+        "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "@effect/atom-react": "catalog:",
         "@elevenlabs/client": "catalog:",
@@ -1198,6 +1197,7 @@
         "vaul": "catalog:",
       },
       "devDependencies": {
+        "@effect/vitest": "catalog:",
         "@storybook/react-vite": "catalog:",
         "@tailwindcss/postcss": "catalog:",
         "@types/d3": "catalog:",
@@ -3345,6 +3345,8 @@
     "@tanstack/react-store": ["@tanstack/react-store@0.11.0", "", { "dependencies": { "@tanstack/store": "0.11.0", "use-sync-external-store": "^1.6.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-tX4YXh3PDkmpvGQWkWqKpzs/MSqbtuwY9dWdWhtV9Q50PmO+jOkUKIWIX4G85dwt7lxdHLXsiaEKPdKmC8F41w=="],
 
     "@tanstack/store": ["@tanstack/store@0.11.0", "", {}, "sha512-WlzzCt3xi0G6pCAJu1U+2jiECwabETDpQDi3hfkFZvJii9AuZqEKbOiVarX1/bWhTNjU486yQtJCCasi/0q+Cw=="],
+
+    "@tauri-apps/api": ["@tauri-apps/api@2.11.1", "", {}, "sha512-M2FPuYND2m+wh5hfW9ZpSdxMPdEJovPBWwoHJmwUpysTYNHaOkVFN419m/K0LIgjb/7KU2vBgsUepJWugQCvAA=="],
 
     "@tauri-apps/cli": ["@tauri-apps/cli@2.11.2", "", { "optionalDependencies": { "@tauri-apps/cli-darwin-arm64": "2.11.2", "@tauri-apps/cli-darwin-x64": "2.11.2", "@tauri-apps/cli-linux-arm-gnueabihf": "2.11.2", "@tauri-apps/cli-linux-arm64-gnu": "2.11.2", "@tauri-apps/cli-linux-arm64-musl": "2.11.2", "@tauri-apps/cli-linux-riscv64-gnu": "2.11.2", "@tauri-apps/cli-linux-x64-gnu": "2.11.2", "@tauri-apps/cli-linux-x64-musl": "2.11.2", "@tauri-apps/cli-win32-arm64-msvc": "2.11.2", "@tauri-apps/cli-win32-ia32-msvc": "2.11.2", "@tauri-apps/cli-win32-x64-msvc": "2.11.2" }, "bin": { "tauri": "tauri.js" } }, "sha512-bk3HemqvGRoy+5D/dVMUQHKMYLglD0jVnMm/0iGMH6ufZ+p8r14m6BpIixwij3PBvZdvORUp1YifTD8QxVZ1Nw=="],
 

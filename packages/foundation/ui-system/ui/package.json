@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
+    "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/atom-react": "catalog:",
     "@elevenlabs/client": "catalog:",
@@ -64,6 +65,7 @@
     "vaul": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "catalog:",
     "@storybook/react-vite": "catalog:",
     "@tailwindcss/postcss": "catalog:",
     "@types/d3": "catalog:",

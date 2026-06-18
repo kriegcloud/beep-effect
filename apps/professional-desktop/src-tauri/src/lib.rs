@@ -58,7 +58,7 @@ fn ipc_transport() -> bool {
 /// Pump the bundled sidecar's stdout to the webview over the `sidecar://rx`
 /// event channel. Each stdout chunk is the next slice of the ndjson rpc stream;
 /// the webview's ndjson decoder reassembles frames, so chunks are forwarded
-/// verbatim (decoded lossily as UTF-8, which ndjson is). The sidecar keeps its
+/// verbatim (decoded with UTF-8 replacement, which ndjson accepts). The sidecar keeps its
 /// logs on stderr in ipc mode, so they never pollute this frame stream.
 fn bridge_sidecar_stdio(app: &AppHandle, mut events: tauri::async_runtime::Receiver<CommandEvent>) {
     let handle = app.clone();

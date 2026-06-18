@@ -16,7 +16,7 @@
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { Cause, Effect, Fiber, Stream } from "effect";
+import { Cause, Effect, Fiber, Layer, Stream } from "effect";
 import * as S from "effect/Schema";
 import { RpcClient } from "effect/unstable/rpc";
 import { useCallback, useRef, useState } from "react";
@@ -31,29 +31,32 @@ const userDocument = (text: string): Md.Document.Type =>
 // One self-contained run: open the IPC socket, create a thread, and stream a
 // turn. Scope discharges the socket on completion/interrupt; typed errors are
 // surfaced to the log (interrupts bypass catchAll and simply stop the stream).
-const sendOverIpc = (log: (line: string) => void): Effect.Effect<void> =>
-  Effect.gen(function* () {
-    const client = yield* RpcClient.make(ChatRpcs);
-    const workspaceId = decodeWorkspaceId(1);
-    const thread = yield* client.CreateThread({ workspaceId, title: "ipc spike" });
-    log(`thread created over ipc: ${thread.id}`);
-    let blocks = 0;
-    yield* client.SendMessage({ threadId: thread.id, content: userDocument("hello over tauri ipc") }).pipe(
-      Stream.runForEach(() =>
-        Effect.sync(() => {
-          blocks += 1;
-          log(`streamed block ${blocks}`);
-        })
-      )
-    );
-    log(`stream complete (${blocks} block(s)) — no /rpc, no :3939`);
-  }).pipe(
-    Effect.scoped,
-    // The panel is the entry point for this spike program (run via runFork below).
-    // @effect-diagnostics-next-line strictEffectProvide:off
-    Effect.provide(IpcChatProtocolLive),
-    Effect.catchCause((cause) => Effect.sync(() => log(`stopped: ${Cause.pretty(cause)}`)))
+const sendOverIpcProgram = Effect.fn("ProfessionalDesktop.IpcSpikePanel.sendOverIpcProgram")(function* (
+  log: (line: string) => void
+) {
+  const client = yield* RpcClient.make(ChatRpcs);
+  const workspaceId = decodeWorkspaceId(1);
+  const thread = yield* client.CreateThread({ workspaceId, title: "ipc spike" });
+  log(`thread created over ipc: ${thread.id}`);
+  let blocks = 0;
+  yield* client.SendMessage({ threadId: thread.id, content: userDocument("hello over tauri ipc") }).pipe(
+    Stream.runForEach(() =>
+      Effect.sync(() => {
+        blocks += 1;
+        log(`streamed block ${blocks}`);
+      })
+    )
   );
+  log(`stream complete (${blocks} block(s)) — no /rpc, no :3939`);
+});
+
+const sendOverIpc = (log: (line: string) => void): Effect.Effect<void> =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const context = yield* Layer.build(IpcChatProtocolLive);
+      yield* sendOverIpcProgram(log).pipe(Effect.provide(context));
+    })
+  ).pipe(Effect.catchCause((cause) => Effect.sync(() => log(`stopped: ${Cause.pretty(cause)}`))));
 
 /**
  * Floating dev panel that drives the IPC transport spike. Mounted by `App` only

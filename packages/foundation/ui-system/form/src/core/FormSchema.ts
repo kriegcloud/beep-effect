@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 
 /**
  * Options forwarded to `Schema.toStandardSchemaV1` — `leafHook` / `checkHook`
- * for end-user copy and `parseOptions` for decode behaviour. Derived from the
+ * for end-user copy and `parseOptions` for decode behavior. Derived from the
  * underlying effect API so it stays in sync across upgrades.
  *
  * @category models

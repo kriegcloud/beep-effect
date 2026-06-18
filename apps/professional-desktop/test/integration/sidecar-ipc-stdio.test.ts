@@ -15,17 +15,12 @@
  * integration suites.
  */
 
-// Node builtins are used for test fixture setup (a throwaway PGlite dir).
-// @effect-diagnostics-next-line nodeBuiltinImport:off
-import { mkdtempSync } from "node:fs";
-import { tmpdir } from "node:os";
-// @effect-diagnostics-next-line nodeBuiltinImport:off
-import { join } from "node:path";
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { describe, expect, it } from "@effect/vitest";
-import { Chunk, Effect, Layer } from "effect";
+import { Chunk, Effect, FileSystem, Layer } from "effect";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
@@ -37,8 +32,9 @@ const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
 const userDocument = (text: string): Md.Document.Type =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
-const ipcStdio = Effect.gen(function* () {
-  const dbDir = mkdtempSync(join(tmpdir(), "ipc-stdio-"));
+const ipcStdioProgram = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const dbDir = yield* fs.makeTempDirectoryScoped({ prefix: "ipc-stdio-" });
 
   // Boot the real sidecar; kill it when the scope closes.
   const proc = yield* Effect.acquireRelease(
@@ -65,6 +61,7 @@ const ipcStdio = Effect.gen(function* () {
   const socketStream: Socket.InputTransformStream = { readable: proc.stdout, writable };
   const SocketLive = Layer.effect(Socket.Socket, Socket.fromTransformStream(Effect.sync(() => socketStream)));
   const ProtocolLive = RpcClient.layerProtocolSocket().pipe(Layer.provide([RpcSerialization.layerNdjson, SocketLive]));
+  const context = yield* Layer.build(ProtocolLive);
 
   const program = Effect.gen(function* () {
     const client = yield* RpcClient.make(ChatRpcs);
@@ -77,12 +74,18 @@ const ipcStdio = Effect.gen(function* () {
       .SendMessage({ threadId: thread.id, content: userDocument("hello over stdio") })
       .pipe(Stream.runCollect, Effect.map(Chunk.fromIterable));
     expect(Chunk.size(blocks)).toBeGreaterThan(0);
-    // @effect-diagnostics-next-line strictEffectProvide:off
-  }).pipe(Effect.scoped, Effect.provide(ProtocolLive));
+  });
 
   // PGlite migrations run on boot, so give the first round-trip headroom.
-  yield* program.pipe(Effect.timeout("30 seconds"));
-}).pipe(Effect.scoped);
+  yield* program.pipe(Effect.provide(context), Effect.timeout("30 seconds"));
+});
+
+const ipcStdio = Effect.scoped(
+  Effect.gen(function* () {
+    const context = yield* Layer.build(BunFileSystem.layer);
+    yield* ipcStdioProgram.pipe(Effect.provide(context));
+  })
+);
 
 if (!shouldRun) {
   describe.skip("Professional desktop sidecar ipc stdio (set BEEP_TEST_SIDECAR_IPC=1)", () => {});
