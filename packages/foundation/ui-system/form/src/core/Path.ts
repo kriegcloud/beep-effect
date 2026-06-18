@@ -5,13 +5,12 @@
  * @since 0.0.0
  */
 
-import { HashSet, Match, Number as N } from "effect";
+import { HashSet, Match, Number as N, Struct } from "effect";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import * as Struct from "effect/Struct";
 import type { TUnsafe } from "@beep/types";
 
 const BRACKET_NOTATION_REGEX = /\[(\d+)]/g;

@@ -693,12 +693,23 @@ describe("yeet planner", () => {
         A.map((step) => step.label)
       )
     ).toEqual([
+      "prepare:laws:effect-imports",
+      "prepare:laws:dual-arity",
+      "prepare:fallow:boundaries",
+      "prepare:config-sync",
       "prepare:lint:fix",
       "prepare:docgen",
       "feedback:build",
       "feedback:check",
       "feedback:lint",
       "feedback:test",
+    ]);
+    expect(findStep(plan.steps, "prepare:laws:effect-imports").args).toEqual([
+      "run",
+      "beep",
+      "laws",
+      "effect-imports",
+      "--write",
     ]);
     expect(findStep(plan.steps, "prepare:docgen").args).toEqual(["run", "docgen"]);
   });
@@ -793,7 +804,14 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["prepare:lint:fix", "prepare:docgen"]);
+    ).toEqual([
+      "prepare:laws:effect-imports",
+      "prepare:laws:dual-arity",
+      "prepare:fallow:boundaries",
+      "prepare:config-sync",
+      "prepare:lint:fix",
+      "prepare:docgen",
+    ]);
   });
 
   it("filters publish paths against the reviewed staged intent", () => {
