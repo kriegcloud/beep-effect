@@ -1,0 +1,375 @@
+import {
+  GraphDrive,
+  GraphDriveItem,
+  GraphDriveItemVersion,
+  GraphEvent,
+  GraphListItem,
+  GraphMessage,
+  GraphSite,
+  M365,
+  M365Auth,
+  M365ConfigInput,
+  M365DeltaDriveItemsRequest,
+  M365DownloadDriveItemContentRequest,
+  M365DownloadedContent,
+  M365DriveItemDownload,
+  M365GetEventRequest,
+  M365GetListItemRequest,
+  M365GetMessageRequest,
+  M365GetSiteRequest,
+  M365ListDriveItemVersionsRequest,
+  M365ListDrivesRequest,
+  M365ListEventsRequest,
+  M365ListMessagesRequest,
+  M365ListSitesRequest,
+  M365SkippedEncryptedItem,
+} from "@beep/m365";
+import { describe, expect, layer } from "@effect/vitest";
+import { Cause, Context, Effect, Exit, Layer, Redacted, Ref } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as Str from "effect/String";
+import * as HttpClient from "effect/unstable/http/HttpClient";
+import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
+import type { M365Error } from "@beep/m365";
+import type * as HttpClientError from "effect/unstable/http/HttpClientError";
+
+type CapturedRequest = {
+  readonly headers: Readonly<Record<string, string>>;
+  readonly method: string;
+  readonly url: string;
+};
+
+type TestRespond = (
+  request: HttpClientRequest.HttpClientRequest
+) => Effect.Effect<Response, HttpClientError.HttpClientError>;
+
+type M365TestHttpShape = {
+  readonly captures: Effect.Effect<ReadonlyArray<CapturedRequest>>;
+  readonly handle: TestRespond;
+  readonly respondWith: (respond: TestRespond) => Effect.Effect<void>;
+};
+
+class M365TestHttp extends Context.Service<M365TestHttp, M365TestHttpShape>()(
+  "@beep/m365/test/M365.service.test/M365TestHttp"
+) {}
+
+const GRAPH_BASE_URL = "https://graph.microsoft.com/v1.0";
+const TOKEN = "m365-access-token";
+const SITE_ID = "contoso.sharepoint.com,site-guid,web-guid";
+const DRIVE_ID = "b!drive";
+const ITEM_ID = "01ABC";
+const DOWNLOAD_URL = "https://download.example.test/memo.docx";
+const METADATA_URL = `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/items/${ITEM_ID}?$select=id%2Cname%2Csize%2Cfile%2Cfolder%2C%40microsoft.graph.downloadUrl`;
+
+const requestUrl = (request: HttpClientRequest.HttpClientRequest): string =>
+  HttpClientRequest.toUrl(request).pipe(
+    O.map((value) => value.toString()),
+    O.getOrElse(() => request.url)
+  );
+
+const makeJsonResponse = (body: unknown, status = 200, headers: Readonly<Record<string, string>> = {}): Response =>
+  Response.json(body, {
+    headers: {
+      "content-type": "application/json",
+      ...headers,
+    },
+    status,
+  });
+
+const makeBytesResponse = (bytes: Uint8Array, status = 200): Response => {
+  const body = new ArrayBuffer(bytes.byteLength);
+  const view = new Uint8Array(body);
+  view.set(bytes);
+  return new Response(body, {
+    headers: {
+      "content-type": "application/octet-stream",
+    },
+    status,
+  });
+};
+
+const defaultRespond: TestRespond = () => Effect.succeed(makeJsonResponse({ value: [] }));
+
+const M365TestHttpLayer = Layer.effect(
+  M365TestHttp,
+  Effect.gen(function* () {
+    const capturesRef = yield* Ref.make<ReadonlyArray<CapturedRequest>>([]);
+    const respondRef = yield* Ref.make<TestRespond>(defaultRespond);
+
+    return M365TestHttp.of({
+      captures: Ref.get(capturesRef),
+      handle: Effect.fn("M365TestHttp.handle")(function* (request) {
+        yield* Ref.update(
+          capturesRef,
+          A.append({
+            headers: request.headers,
+            method: request.method,
+            url: requestUrl(request),
+          })
+        );
+
+        const respond = yield* Ref.get(respondRef);
+        return yield* respond(request);
+      }),
+      respondWith: Effect.fn("M365TestHttp.respondWith")(function* (respond) {
+        yield* Ref.set(respondRef, respond);
+      }),
+    });
+  })
+);
+
+const TestHttpClientLayer = Layer.effect(
+  HttpClient.HttpClient,
+  Effect.gen(function* () {
+    const testHttp = yield* M365TestHttp;
+
+    return HttpClient.make((request) =>
+      Effect.gen(function* () {
+        const response = yield* testHttp.handle(request);
+        return HttpClientResponse.fromWeb(request, response);
+      })
+    );
+  })
+);
+
+const testConfig = (maxRetries = 0): M365ConfigInput =>
+  M365ConfigInput.make({
+    clientId: "client-id",
+    maxRetries,
+    tenantId: "common",
+  });
+
+const makeTestLayer = (config = testConfig()): Layer.Layer<M365 | M365TestHttp, M365Error> =>
+  M365.makeLayer(config).pipe(
+    Layer.provide(M365Auth.layerStatic(Redacted.make(TOKEN))),
+    Layer.provide(TestHttpClientLayer),
+    Layer.provideMerge(M365TestHttpLayer)
+  );
+
+const routeFixture = (request: HttpClientRequest.HttpClientRequest): Effect.Effect<Response> => {
+  const url = requestUrl(request);
+
+  if (url === `${GRAPH_BASE_URL}/sites/${SITE_ID}/drives`) {
+    return Effect.succeed(makeJsonResponse({ value: [{ id: DRIVE_ID, name: "Documents" }] }));
+  }
+  if (url === `${GRAPH_BASE_URL}/sites?search=legal%20docs`) {
+    return Effect.succeed(makeJsonResponse({ value: [{ displayName: "Legal Docs", id: SITE_ID }] }));
+  }
+  if (url === `${GRAPH_BASE_URL}/sites/${SITE_ID}`) {
+    return Effect.succeed(makeJsonResponse({ displayName: "Legal Docs", id: SITE_ID }));
+  }
+  if (url === `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta`) {
+    return Effect.succeed(
+      makeJsonResponse({
+        "@odata.deltaLink": `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta?token=abc`,
+        value: [
+          {
+            file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+            id: ITEM_ID,
+            name: "memo.docx",
+          },
+        ],
+      })
+    );
+  }
+  if (url === `${GRAPH_BASE_URL}/sites/${SITE_ID}/lists/list-id/items/7?$expand=fields`) {
+    return Effect.succeed(
+      makeJsonResponse({
+        fields: { Client: "Example Co", Matter: "M-100" },
+        id: "7",
+      })
+    );
+  }
+  if (url === `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/items/${ITEM_ID}/versions`) {
+    return Effect.succeed(makeJsonResponse({ value: [{ id: "1.0", size: 128 }] }));
+  }
+  if (url === `${GRAPH_BASE_URL}/me/messages?$filter=receivedDateTime%20ge%202026-01-01&$top=2`) {
+    return Effect.succeed(makeJsonResponse({ value: [{ id: "message-id", subject: "Status" }] }));
+  }
+  if (url === `${GRAPH_BASE_URL}/me/messages/message-id`) {
+    return Effect.succeed(makeJsonResponse({ id: "message-id", subject: "Status" }));
+  }
+  if (url === `${GRAPH_BASE_URL}/users/user-id/events?$top=3`) {
+    return Effect.succeed(makeJsonResponse({ value: [{ id: "event-id", subject: "Hearing" }] }));
+  }
+  if (url === `${GRAPH_BASE_URL}/users/user-id/events/event-id`) {
+    return Effect.succeed(makeJsonResponse({ id: "event-id", subject: "Hearing" }));
+  }
+
+  return Effect.succeed(makeJsonResponse({ error: "missing fixture", url }, 404));
+};
+
+describe("@beep/m365 service", () => {
+  layer(makeTestLayer())((it) => {
+    it.effect(
+      "decodes Graph fixtures for each read verb and sends bearer auth to Graph",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith(routeFixture);
+        const m365 = yield* M365;
+
+        const drives = yield* m365.listDrives(M365ListDrivesRequest.make({ siteId: SITE_ID }));
+        const sites = yield* m365.listSites(M365ListSitesRequest.make({ search: "legal docs" }));
+        const site = yield* m365.getSite(M365GetSiteRequest.make({ siteId: SITE_ID }));
+        const delta = yield* m365.deltaDriveItems(M365DeltaDriveItemsRequest.make({ driveId: DRIVE_ID }));
+        const listItem = yield* m365.getListItem(
+          M365GetListItemRequest.make({ itemId: "7", listId: "list-id", siteId: SITE_ID })
+        );
+        const versions = yield* m365.listDriveItemVersions(
+          M365ListDriveItemVersionsRequest.make({ driveId: DRIVE_ID, itemId: ITEM_ID })
+        );
+        const messages = yield* m365.listMessages(
+          M365ListMessagesRequest.make({ filter: "receivedDateTime ge 2026-01-01", top: 2 })
+        );
+        const message = yield* m365.getMessage(M365GetMessageRequest.make({ messageId: "message-id" }));
+        const events = yield* m365.listEvents(M365ListEventsRequest.make({ top: 3, userId: "user-id" }));
+        const event = yield* m365.getEvent(M365GetEventRequest.make({ eventId: "event-id", userId: "user-id" }));
+
+        expect(drives.value[0]).toBeInstanceOf(GraphDrive);
+        expect(sites.value[0]).toBeInstanceOf(GraphSite);
+        expect(site).toBeInstanceOf(GraphSite);
+        expect(delta.value[0]).toBeInstanceOf(GraphDriveItem);
+        expect(listItem).toBeInstanceOf(GraphListItem);
+        expect(versions.value[0]).toBeInstanceOf(GraphDriveItemVersion);
+        expect(messages.value[0]).toBeInstanceOf(GraphMessage);
+        expect(message).toBeInstanceOf(GraphMessage);
+        expect(events.value[0]).toBeInstanceOf(GraphEvent);
+        expect(event).toBeInstanceOf(GraphEvent);
+
+        const captures = yield* testHttp.captures;
+        const graphCaptures = A.filter(captures, (capture) => Str.startsWith(GRAPH_BASE_URL)(capture.url));
+        expect(A.every(graphCaptures, (capture) => capture.headers.authorization === `Bearer ${TOKEN}`)).toBe(true);
+        expect(A.every(graphCaptures, (capture) => capture.headers.accept === "application/json")).toBe(true);
+        expect(A.map(captures, (capture) => capture.url)).toContain(`${GRAPH_BASE_URL}/sites/${SITE_ID}/drives`);
+      })
+    );
+  });
+
+  layer(makeTestLayer())((it) => {
+    it.effect(
+      "downloads file content from the preauthenticated URL without forwarding Authorization",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith((request) => {
+          const url = requestUrl(request);
+          if (url === METADATA_URL) {
+            return Effect.succeed(
+              makeJsonResponse({
+                "@microsoft.graph.downloadUrl": DOWNLOAD_URL,
+                file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+                id: ITEM_ID,
+                name: "memo.docx",
+                size: 3,
+              })
+            );
+          }
+          if (url === DOWNLOAD_URL) {
+            return Effect.succeed(makeBytesResponse(new Uint8Array([1, 2, 3])));
+          }
+          return Effect.succeed(makeJsonResponse({ error: "missing fixture", url }, 404));
+        });
+
+        const m365 = yield* M365;
+        const result = yield* m365.downloadDriveItemContent(
+          M365DownloadDriveItemContentRequest.make({ driveId: DRIVE_ID, itemId: ITEM_ID })
+        );
+        const captures = yield* testHttp.captures;
+
+        expect(result).toBeInstanceOf(M365DownloadedContent);
+        expect(result._tag).toBe("M365DownloadedContent");
+        if (M365DriveItemDownload.guards.M365DownloadedContent(result)) {
+          expect(A.fromIterable(result.bytes)).toStrictEqual([1, 2, 3]);
+        }
+        expect(captures[0]?.headers.authorization).toBe(`Bearer ${TOKEN}`);
+        expect(captures[1]?.url).toBe(DOWNLOAD_URL);
+        expect(captures[1]?.headers.authorization).toBeUndefined();
+      })
+    );
+  });
+
+  layer(makeTestLayer())((it) => {
+    it.effect(
+      "skips protected/encrypted items by extension without fetching content",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith((request) => {
+          const url = requestUrl(request);
+          if (url === METADATA_URL) {
+            return Effect.succeed(
+              makeJsonResponse({
+                "@microsoft.graph.downloadUrl": DOWNLOAD_URL,
+                file: { mimeType: "application/octet-stream" },
+                id: ITEM_ID,
+                name: "sealed.pfile",
+                size: 512,
+              })
+            );
+          }
+          return Effect.succeed(makeJsonResponse({ error: "unexpected content fetch", url }, 500));
+        });
+
+        const m365 = yield* M365;
+        const result = yield* m365.downloadDriveItemContent(
+          M365DownloadDriveItemContentRequest.make({ driveId: DRIVE_ID, itemId: ITEM_ID })
+        );
+        const captures = yield* testHttp.captures;
+
+        expect(result).toBeInstanceOf(M365SkippedEncryptedItem);
+        expect(result._tag).toBe("M365SkippedEncryptedItem");
+        expect(captures).toHaveLength(1);
+      })
+    );
+  });
+
+  layer(makeTestLayer())((it) => {
+    it.effect(
+      "maps Retry-After throttles to typed driver errors",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith(() =>
+          Effect.succeed(makeJsonResponse({ error: { code: "TooManyRequests" } }, 429, { "retry-after": "12" }))
+        );
+
+        const m365 = yield* M365;
+        const exit = yield* Effect.exit(m365.listDrives(M365ListDrivesRequest.make({})));
+
+        expect(Exit.isFailure(exit)).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const error = Cause.findErrorOption(exit.cause);
+          expect(O.isSome(error)).toBe(true);
+          if (O.isSome(error)) {
+            expect(error.value.reason).toBe("throttled");
+            expect(error.value.retryAfterSeconds).toStrictEqual(O.some(12));
+            expect(error.value.status).toStrictEqual(O.some(429));
+          }
+        }
+      })
+    );
+  });
+
+  layer(makeTestLayer(testConfig(1)))((it) => {
+    it.effect(
+      "retries throttled requests after Retry-After within the configured budget",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith(() =>
+          Effect.gen(function* () {
+            const captures = yield* testHttp.captures;
+            return A.length(captures) === 1
+              ? makeJsonResponse({ error: { code: "TooManyRequests" } }, 429, { "retry-after": "0" })
+              : makeJsonResponse({ value: [{ id: DRIVE_ID, name: "Documents" }] });
+          })
+        );
+
+        const m365 = yield* M365;
+        const drives = yield* m365.listDrives(M365ListDrivesRequest.make({}));
+        const captures = yield* testHttp.captures;
+
+        expect(drives.value[0]?.id).toBe(DRIVE_ID);
+        expect(captures).toHaveLength(2);
+      })
+    );
+  });
+});

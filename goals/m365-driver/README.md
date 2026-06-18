@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -37,13 +37,20 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research — not started. Confirm the `@beep/hubspot` raw-HTTP precedent and the
-Graph `v1.0` endpoints/scopes named in `SPEC.md`, then scaffold `@beep/m365` via
-`bun run create-package`.
+P3 Close - completed. The `@beep/m365` driver now has injected-authorizer MSAL
+auth, read-only Microsoft Graph `v1.0` service verbs, unit/live/dtslint coverage,
+and closeout reflection evidence.
 
 ## Latest Evidence
 
-Not started.
+- 2026-06-18: `TURBO_FORCE=1 bunx turbo run check lint test --filter=@beep/m365`
+  passed with 13/13 Turbo tasks successful and `test/M365.service.test.ts` 5/5
+  passing.
+- 2026-06-18: `bun run --filter @beep/m365 type-test` passed with
+  `dtslint/M365.tst.ts` 2/2 tests and 24/24 assertions passing.
+- 2026-06-18: Added
+  [`history/reflections/2026-06-18-codex.md`](./history/reflections/2026-06-18-codex.md)
+  for P3 closeout.
 
 ## Notes
 

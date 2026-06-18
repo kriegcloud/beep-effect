@@ -20,7 +20,9 @@ const $I = $M365Id.create("M365.schemas");
  * `Option.none`, defaults to `none` on construction, and carries a description.
  */
 const opt = <Sch extends S.Top>(schema: Sch, description: string) =>
-  S.OptionFromOptionalKey(schema).pipe(S.withConstructorDefault(Effect.succeed(O.none()))).annotateKey({ description });
+  S.OptionFromOptionalKey(schema)
+    .pipe(S.withConstructorDefault(Effect.succeed(O.none())))
+    .annotateKey({ description });
 
 /**
  * A Graph `identity` (user/application/device actor with optional id, name, email).

@@ -232,7 +232,7 @@ export class ResolvedM365Config extends S.Class<ResolvedM365Config>($I`ResolvedM
     tokenCachePath: S.Option(S.String).annotateKey({
       description: "Resolved encrypted token-cache path, if persistence is configured.",
     }),
-    clientSecret: S.Option(S.Redacted(S.String)).annotateKey({
+    clientSecret: S.String.pipe(S.Redacted, S.Option).annotateKey({
       description: "Resolved reserved confidential-client secret, if supplied.",
     }),
   },
