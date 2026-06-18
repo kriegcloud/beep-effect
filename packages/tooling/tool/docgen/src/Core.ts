@@ -11,7 +11,7 @@ import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import markdownToc from "@effect/markdown-toc";
-import { Effect, FileSystem, flow, HashSet, Path, pipe, Stream } from "effect";
+import { Effect, FileSystem, flow, HashSet, Order, Path, pipe, Stream } from "effect";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import * as Checker from "./Checker.js";
 import * as Configuration from "./Configuration.js";
@@ -19,6 +19,41 @@ import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
 import * as Printer from "./Printer.js";
 import { writeDocgenProofManifest } from "./ProofManifest.js";
+
+const SOURCE_FILE_EXTENSIONS = [".ts", ".tsx", ".mts", ".cts"] as const;
+const DECLARATION_FILE_EXTENSIONS = [".d.ts", ".d.mts", ".d.cts"] as const;
+
+type SourceFileExtension = (typeof SOURCE_FILE_EXTENSIONS)[number];
+
+type FencedCodeBlock = {
+  readonly code: string;
+  readonly extension: ".ts" | ".tsx";
+};
+
+const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
+
+const hasExtension = (extensions: ReadonlyArray<string>, filePath: string): boolean =>
+  A.some(extensions, (extension) => Str.endsWith(extension)(filePath));
+
+const isDocgenSourceFile = (filePath: string): boolean =>
+  hasExtension(SOURCE_FILE_EXTENSIONS, filePath) && !hasExtension(DECLARATION_FILE_EXTENSIONS, filePath);
+
+const sourceGlobForExtension = (srcDir: string, extension: SourceFileExtension, path: Path.Path): string =>
+  path.normalize(path.join(srcDir, "**", `*${extension}`));
+
+const includePatternToGlob = (srcDir: string, includePattern: string, path: Path.Path): string => {
+  const normalizedPattern = normalizeSlashes(path.normalize(includePattern));
+  const normalizedSrcDir = normalizeSlashes(path.normalize(srcDir));
+  const srcPrefix = `${normalizedSrcDir}/`;
+  return normalizedPattern === normalizedSrcDir || Str.startsWith(srcPrefix)(normalizedPattern)
+    ? normalizedPattern
+    : path.normalize(path.join(srcDir, includePattern));
+};
+
+const resolveSourceGlobs = (config: Configuration.ConfigurationShape, path: Path.Path): ReadonlyArray<string> =>
+  config.include.length === 0
+    ? A.map(SOURCE_FILE_EXTENSIONS, (extension) => sourceGlobForExtension(config.srcDir, extension, path))
+    : A.map(config.include, (includePattern) => includePatternToGlob(config.srcDir, includePattern, path));
 
 const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
   Effect.gen(function* () {
@@ -36,8 +71,10 @@ const readSourceFiles = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const pattern = path.normalize(path.join(config.srcDir, "**", "*.ts"));
-  const paths = yield* globFiles(pattern, config.exclude);
+  const patterns = resolveSourceGlobs(config, path);
+  const paths = yield* Effect.forEach(patterns, (pattern) => globFiles(pattern, config.exclude), {
+    concurrency: "inherit",
+  }).pipe(Effect.map(flow(A.flatten, A.filter(isDocgenSourceFile), A.dedupe, A.sort(Order.String))));
   yield* Effect.logInfo(chalk.bold(`${paths.length} module(s) found`));
 
   return yield* Effect.forEach(
@@ -176,6 +213,39 @@ export const SKIP_TYPE_CHECKING_FENCE_METADATA = "skip-type-checking";
  * @since 0.0.0
  */
 export const extractFencedCode = (content: string): [examples: Array<string>, warnings: Array<string>] => {
+  const [examples, warnings] = extractFencedCodeBlocks(content);
+  return [A.map(examples, (example) => example.code), warnings];
+};
+
+const fenceExtension = (metadata: string): ".ts" | ".tsx" => {
+  const normalized = pipe(metadata, Str.toLowerCase, Str.trim);
+  return Str.startsWith("tsx")(normalized) || Str.startsWith("typescript jsx")(normalized) ? ".tsx" : ".ts";
+};
+
+const isTypeScriptFence = (metadata: string): boolean =>
+  pipe(
+    ["ts", "tsx", "typescript"],
+    A.some((prefix) => Str.startsWith(prefix)(metadata))
+  );
+
+/**
+ * Extracts type-checkable fenced TypeScript code blocks with their generated file extension.
+ *
+ * @internal
+ * @param content - Markdown content that may contain fenced TypeScript examples.
+ * @returns Tuple of extracted code blocks and malformed-fence warnings.
+ * @example
+ * ```ts
+ * import { extractFencedCodeBlocks } from "@beep/repo-docgen/Core"
+ * const [examples] = extractFencedCodeBlocks("~~~tsx\nconst view = <div />\n~~~")
+ * console.log(examples[0]?.extension)
+ * ```
+ * @category parsing
+ * @since 0.0.0
+ */
+export const extractFencedCodeBlocks = (
+  content: string
+): [examples: Array<FencedCodeBlock>, warnings: Array<string>] => {
   const fenceRegex = /(?:```|~~~)(.*?)\n([\s\S]*?)(?:(```|~~~)|$)/g;
   const matches = pipe(content, Str.matchAll(fenceRegex), A.fromIterable);
   const warnings = pipe(
@@ -188,14 +258,13 @@ export const extractFencedCode = (content: string): [examples: Array<string>, wa
     matches,
     A.filter((match) => {
       const metadata = Str.toLowerCase(match[1] ?? "");
-      const isTypeScript = pipe(
-        ["ts", "typescript"],
-        A.some((prefix) => Str.startsWith(prefix)(metadata))
-      );
       const isSkipTypeChecking = Str.includes(SKIP_TYPE_CHECKING_FENCE_METADATA)(metadata);
-      return isTypeScript && !isSkipTypeChecking;
+      return isTypeScriptFence(metadata) && !isSkipTypeChecking;
     }),
-    A.map((match) => Str.trim(match[2] ?? ""))
+    A.map((match) => ({
+      code: Str.trim(match[2] ?? ""),
+      extension: fenceExtension(match[1] ?? ""),
+    }))
   );
 
   return [examples, warnings];
@@ -212,7 +281,7 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
     let suffix = 1;
 
     while (HashSet.has(usedExampleFileNames, Str.toLowerCase(candidate))) {
-      candidate = pipe(fileName, Str.replace(/\.ts$/, `-${suffix}.ts`));
+      candidate = pipe(fileName, Str.replace(/(\.tsx?|\.mts|\.cts)$/, `-${suffix}$1`));
       suffix += 1;
     }
 
@@ -226,16 +295,16 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
     const getFiles =
       (exampleId: string) =>
       (namedDoc: { readonly name: string; readonly doc: Domain.Doc }): ReadonlyArray<Domain.File> => {
-        let descriptionExamples: ReadonlyArray<string> = [];
+        let descriptionExamples: ReadonlyArray<FencedCodeBlock> = [];
         if (namedDoc.doc.description !== undefined) {
-          const [examples, nextWarnings] = extractFencedCode(namedDoc.doc.description);
+          const [examples, nextWarnings] = extractFencedCodeBlocks(namedDoc.doc.description);
           warnings = A.appendAll(warnings, nextWarnings);
           descriptionExamples = examples;
         }
 
-        let exampleTagExamples: ReadonlyArray<string> = [];
+        let exampleTagExamples: ReadonlyArray<FencedCodeBlock> = [];
         for (const example of namedDoc.doc.examples) {
-          const [examples, nextWarnings] = extractFencedCode(example);
+          const [examples, nextWarnings] = extractFencedCodeBlocks(example);
           warnings = A.appendAll(warnings, nextWarnings);
           exampleTagExamples = A.appendAll(exampleTagExamples, examples);
         }
@@ -245,8 +314,10 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
           A.appendAll(exampleTagExamples),
           A.map((example, index) =>
             Domain.File.new(
-              uniqueExamplePath(`${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`),
-              example,
+              uniqueExamplePath(
+                `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}${example.extension}`
+              ),
+              example.code,
               { isOverwritable: true }
             )
           )
@@ -314,7 +385,7 @@ const getExamplesEntryPoint = Effect.fn("getExamplesEntryPoint")(function* (exam
   const path = yield* Path.Path;
   const content = pipe(
     examples,
-    A.map((example) => `import "./${path.basename(example.path, ".ts")}"`),
+    A.map((example) => `import "./${Str.replace(/\.(tsx?|mts|cts)$/, "")(path.basename(example.path))}"`),
     A.join("\n")
   );
   return Domain.File.new(path.normalize(path.join(config.outDir, "examples", "index.ts")), `${content}\n`, {
@@ -565,9 +636,13 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
   const config = yield* Configuration.Configuration;
   const path = yield* Path.Path;
   const fileSystem = yield* FileSystem.FileSystem;
-  const pattern = path.normalize(path.join(config.outDir, "**/*.ts.md"));
-  yield* Effect.logDebug(`Deleting ${chalk.black(pattern)}...`);
-  const paths = yield* globFiles(pattern);
+  const patterns = A.map(SOURCE_FILE_EXTENSIONS, (extension) =>
+    path.normalize(path.join(config.outDir, "**", `*${extension}.md`))
+  );
+  yield* Effect.logDebug(`Deleting ${chalk.black(A.join(patterns, ", "))}...`);
+  const paths = yield* Effect.forEach(patterns, (pattern) => globFiles(pattern), { concurrency: "inherit" }).pipe(
+    Effect.map(flow(A.flatten, A.dedupe))
+  );
   yield* Effect.forEach(
     paths,
     (filePath) =>
@@ -599,6 +674,7 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
  * @since 0.0.0
  */
 export const program = Effect.gen(function* () {
+  const config = yield* Configuration.Configuration;
   yield* Effect.logInfo("Reading modules...");
   const sourceFiles = yield* readSourceFiles;
   yield* Effect.logInfo("Parsing modules...");
@@ -625,6 +701,10 @@ export const program = Effect.gen(function* () {
     ],
     { concurrency: "unbounded", discard: true }
   );
-  yield* writeDocgenProofManifest();
+  if (config.include.length === 0) {
+    yield* writeDocgenProofManifest();
+  } else {
+    yield* Effect.logInfo(chalk.gray("Skipping proof manifest for focused include run"));
+  }
   yield* Effect.logInfo(chalk.bold.green("✓ Docs generation succeeded!"));
 });

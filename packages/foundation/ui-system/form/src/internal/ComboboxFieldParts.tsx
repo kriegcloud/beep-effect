@@ -56,15 +56,19 @@ type ComboboxOptionsContentProps = {
  * ```tsx
  * import { ComboboxOptionsContent } from "../../src/internal/ComboboxFieldParts.tsx"
  *
+ * const countryOptions = [
+ *   { value: "us", label: "United States" },
+ *   { value: "ca", label: "Canada" },
+ * ]
+ *
  * export const countryOptionsContent = (
  *   <ComboboxOptionsContent
  *     emptyLabel="No countries found."
- *     options={[
- *       { value: "us", label: "United States" },
- *       { value: "ca", label: "Canada" },
- *     ]}
+ *     options={countryOptions}
  *   />
  * )
+ *
+ * console.log(countryOptions.length) // 2
  * ```
  *
  * @category components
@@ -121,19 +125,23 @@ const comboboxValueBinding = (mode: StringComboboxMode, field: BoundFieldState<s
  * ```tsx
  * import { StringComboboxField } from "../../src/internal/ComboboxFieldParts.tsx"
  *
+ * const countryOptions = [
+ *   { value: "us", label: "United States" },
+ *   { value: "ca", label: "Canada" },
+ * ]
+ *
  * export const CountryComboboxBody = (
  *   <StringComboboxField
  *     comboboxProps={{}}
  *     emptyLabel="No countries found."
  *     label="Country"
  *     mode="selected"
- *     options={[
- *       { value: "us", label: "United States" },
- *       { value: "ca", label: "Canada" },
- *     ]}
+ *     options={countryOptions}
  *     placeholder="Choose a country"
  *   />
  * )
+ *
+ * console.log(countryOptions.map((option) => option.value).join(",")) // "us,ca"
  * ```
  *
  * @category components

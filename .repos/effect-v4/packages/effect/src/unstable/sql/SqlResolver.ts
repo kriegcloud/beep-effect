@@ -362,19 +362,33 @@ const partitionRequestsById = function*<In, A, E, R, InE>(
       inputs.push(value)
     }
   })
+  const validateDuplicate = Effect.matchCauseEager({
+    onFailure(cause: Cause.Cause<Schema.SchemaError>) {
+      entry.completeUnsafe(Exit.failCause(cause))
+      return false
+    },
+    onSuccess() {
+      return true
+    }
+  })
 
   for (let i = 0; i < len; i++) {
     entry = requests[i]
     const existing = MutableHashMap.get(byIdMap, entry.request.payload)
     if (Option.isSome(existing)) {
       const duplicate = entry
-      MutableHashMap.set(byIdMap, entry.request.payload, {
-        ...existing.value,
-        completeUnsafe(exit) {
-          existing.value.completeUnsafe(exit)
-          duplicate.completeUnsafe(exit)
-        }
-      })
+      const isValidDuplicate = yield (
+        Effect.provideContext(validateDuplicate(encode(entry.request.payload)), entry.context) as Effect.Effect<boolean>
+      )
+      if (isValidDuplicate) {
+        MutableHashMap.set(byIdMap, entry.request.payload, {
+          ...existing.value,
+          completeUnsafe(exit) {
+            existing.value.completeUnsafe(exit)
+            duplicate.completeUnsafe(exit)
+          }
+        })
+      }
     } else {
       yield (Effect.provideContext(handle(encode(entry.request.payload)), entry.context) as Effect.Effect<void>)
       MutableHashMap.set(byIdMap, entry.request.payload, entry)

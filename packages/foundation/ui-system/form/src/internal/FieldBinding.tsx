@@ -53,6 +53,8 @@ type BoundFieldProps<TValue> = FieldChromeProps & {
  *     />
  *   )
  * }
+ *
+ * console.log(UsernameInput)
  * ```
  *
  * @category hooks
@@ -78,6 +80,8 @@ export const useBoundField = <TValue,>() => {
  *   name: state.field.name,
  *   value: state.field.state.value,
  * })
+ *
+ * console.log(fieldSnapshot.length) // 1
  * ```
  *
  * @category type-level
@@ -111,6 +115,8 @@ export type BoundFieldState<TValue> = ReturnType<typeof useBoundField<TValue>>;
  *     )}
  *   </BoundField>
  * )
+ *
+ * console.log(SearchFieldBody)
  * ```
  *
  * @category components
@@ -190,6 +196,8 @@ type CreateBoundFieldOptions<TValue, TProps extends FieldChromeProps, TBoundProp
  * })
  *
  * export const searchElement = <SearchField label="Search" placeholder="Customer name" />
+ *
+ * console.log(searchElement)
  * ```
  *
  * @category factories
@@ -254,6 +262,8 @@ type NamedValueControlProps<TValue> = {
  *   Control: TokenInput,
  *   bindControl: bindNamedValueControl<string>,
  * })
+ *
+ * console.log(TokenField)
  * ```
  *
  * @category utilities
@@ -314,6 +324,8 @@ type NamedChangeControlProps<TValue> = {
  *   Control: NotesControl,
  *   bindControl: bindStringChangeControl,
  * })
+ *
+ * console.log(NotesField)
  * ```
  *
  * @category utilities
@@ -380,6 +392,8 @@ type UploadControlProps = {
  *   DocumentsFieldProps,
  *   ReturnType<typeof bindUploadControl>
  * >({ Control: UploadInput, bindControl: bindUploadControl })
+ *
+ * console.log(DocumentsField)
  * ```
  *
  * @category utilities
@@ -471,6 +485,8 @@ const pickerTextFieldProps = (
  * )
  *
  * export const ReminderField = createDateTimePickerField<ReminderFieldProps>(InlinePicker)
+ *
+ * console.log(ReminderField)
  * ```
  *
  * @category factories
@@ -514,6 +530,8 @@ type InlineBooleanFieldProps = FieldChromeProps & {
  *     <input id="accept" name="accept" type="checkbox" />
  *   </InlineBooleanField>
  * )
+ *
+ * console.log(AcceptTermsField)
  * ```
  *
  * @category components
@@ -546,6 +564,7 @@ type BooleanOptionControlProps = {
   readonly disabled?: boolean | undefined;
   readonly id: string;
   readonly name: string;
+  readonly onBlur: () => void;
   readonly onCheckedChange: (checked: boolean) => void;
 };
 
@@ -568,6 +587,7 @@ type MultiBooleanOptionFieldProps = FieldChromeProps & {
  *   readonly disabled?: boolean | undefined
  *   readonly id: string
  *   readonly name: string
+ *   readonly onBlur: () => void
  *   readonly onCheckedChange: (checked: boolean) => void
  * }
  *
@@ -578,6 +598,7 @@ type MultiBooleanOptionFieldProps = FieldChromeProps & {
  *     id={props.id}
  *     name={props.name}
  *     type="checkbox"
+ *     onBlur={props.onBlur}
  *     onChange={(event) => props.onCheckedChange(event.target.checked)}
  *     aria-invalid={props["aria-invalid"]}
  *   />
@@ -593,6 +614,8 @@ type MultiBooleanOptionFieldProps = FieldChromeProps & {
  *     ]}
  *   />
  * )
+ *
+ * console.log(NotificationChannelsField)
  * ```
  *
  * @category components
@@ -618,6 +641,7 @@ export const MultiBooleanOptionField: React.FC<MultiBooleanOptionFieldProps> = (
               checked={checked}
               disabled={option.disabled}
               onCheckedChange={() => field.handleChange(updateSelectedValues(field.state.value, option.value, checked))}
+              onBlur={field.handleBlur}
               aria-invalid={hasErrors || undefined}
             />
             <FieldLabel htmlFor={id}>{option.label}</FieldLabel>

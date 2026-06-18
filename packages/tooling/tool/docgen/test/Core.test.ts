@@ -27,6 +27,19 @@ describe("Core", () =>
     it("should handle metadata (tildes)", () =>
       expectFencedCode("a\n\n~~~ts a=1\nconst a = 1\n~~~~\n\nb", ["const a = 1"], []));
 
+    it("should extract tsx fenced code blocks", () =>
+      expectFencedCode("a\n\n```tsx\nconst view = <div />\n```\n\nb", ["const view = <div />"], []));
+
+    it("should preserve tsx fenced code block extensions", () => {
+      const [examples, warnings] = Core.extractFencedCodeBlocks("a\n\n```tsx\nconst view = <div />\n```\n\nb");
+
+      expect(examples).toEqual([{ code: "const view = <div />", extension: ".tsx" }]);
+      expect(warnings).toEqual([]);
+    });
+
+    it("should skip-type-checking for tsx fenced code blocks", () =>
+      expectFencedCode("a\n\n```tsx skip-type-checking\nconst view = <div />\n```\n\nb", [], []));
+
     it("should handle non closing fences (backticks)", () =>
       expectFencedCode(
         "a\n\n```ts\nconst a = 1",

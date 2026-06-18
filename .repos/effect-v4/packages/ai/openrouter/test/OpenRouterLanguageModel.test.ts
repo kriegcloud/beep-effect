@@ -74,6 +74,7 @@ describe("OpenRouterLanguageModel", () => {
               ["audio/L16", "pcm16"],
               ["audio/mp4", "m4a"],
               ["audio/mp3", "mp3"],
+              ["Audio/MPEG", "mp3"],
               ["audio/ogg", "ogg"],
               ["audio/x-wav", "wav"]
             ]
@@ -98,6 +99,34 @@ describe("OpenRouterLanguageModel", () => {
               userMessage.content.map((item: any) => item.input_audio.format),
               mediaTypes.map(([, format]) => format)
             )
+          }).pipe(Effect.provide(makeTestLayer())))
+
+        it.effect("falls back to generic file blocks when media type is absent", () =>
+          Effect.gen(function*() {
+            yield* LanguageModel.generateText({
+              prompt: Prompt.make([{
+                role: "user",
+                content: [
+                  Prompt.filePart({
+                    mediaType: undefined as any,
+                    fileName: "payload.bin",
+                    data: new Uint8Array([0x00])
+                  })
+                ]
+              }])
+            }).pipe(Effect.provide(OpenRouterLanguageModel.model("google/gemini-2.5-flash")))
+
+            const requests = yield* MockHttpClient.requests
+            const body = yield* getRequestBody(requests[0])
+
+            const userMessage = body.messages.find((message: any) => message.role === "user")
+            deepStrictEqual(userMessage.content, [{
+              type: "file",
+              file: {
+                filename: "payload.bin",
+                file_data: "data:application/octet-stream;base64,AA=="
+              }
+            }])
           }).pipe(Effect.provide(makeTestLayer())))
 
         it.effect("fails on unsupported audio media types", () =>

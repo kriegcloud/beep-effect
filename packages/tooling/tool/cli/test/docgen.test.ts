@@ -172,13 +172,17 @@ describe("Docgen operations", () => {
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
           const selected = selectDocgenLocalPackagesForTesting(packages, [
             "packages/foundation/modeling/schema/src/index.ts",
+            "packages/foundation/modeling/schema/src/fields/RatingField.tsx",
             "packages/foundation/modeling/schema/test/schema.test.ts",
             "packages/foundation/modeling/utils/README.md",
             "turbo.json",
           ]);
 
           expect(A.map(selected, (pkg) => pkg.name)).toEqual(["@beep/schema", "@beep/utils"]);
-          expect(selected[0]?.reasons).toEqual(["packages/foundation/modeling/schema/src/index.ts"]);
+          expect(selected[0]?.reasons).toEqual([
+            "packages/foundation/modeling/schema/src/fields/RatingField.tsx",
+            "packages/foundation/modeling/schema/src/index.ts",
+          ]);
           expect(selected[1]?.reasons).toEqual(["packages/foundation/modeling/utils/README.md"]);
         })
       )
@@ -275,6 +279,7 @@ export const ProofFixture = 1;
             enforceExamples: false,
             enforceVersion: true,
             examplesCompilerOptions: defaultCompilerOptions,
+            include: [],
             exclude: [],
             include: [],
             outDir: "docs",
@@ -3387,6 +3392,7 @@ export const ProofFixture = 1;
             enforceExamples: false,
             enforceVersion: true,
             examplesCompilerOptions: defaultCompilerOptions,
+            include: [],
             exclude: [],
             include: [],
             outDir: "docs",

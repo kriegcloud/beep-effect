@@ -49,9 +49,15 @@ export interface FieldShellProps {
  *
  * @example
  * ```tsx
- * import { FieldShell } from "@beep/form/internal/FieldShell"
+ * import { FieldShell } from "../../src/internal/FieldShell.tsx"
  *
- * console.log(FieldShell)
+ * export const NameFieldShell = (
+ *   <FieldShell htmlFor="name" label="Name" errors={[{ message: "Required" }]}>
+ *     <input id="name" name="name" />
+ *   </FieldShell>
+ * )
+ *
+ * console.log(NameFieldShell.props.errors.length) // 1
  * ```
  *
  * @category components

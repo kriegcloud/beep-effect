@@ -1264,6 +1264,12 @@
         "runExamples": {
           "type": "boolean"
         },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "exclude": {
           "type": "array",
           "items": {

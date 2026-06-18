@@ -6,6 +6,8 @@
  */
 "use client";
 
+// cspell:ignore ampm
+
 import { EffectDateTimePicker } from "@beep/ui/components/effect-date-time-picker";
 import { createDateTimePickerField } from "../internal/FieldBinding.tsx";
 import type React from "react";
