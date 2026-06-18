@@ -166,10 +166,40 @@ bun run beep yeet monitor --summary --plan --json
 bun run beep yeet closeout --plan --json
 ```
 
+## Authoritative Gates (green local must mean green CI)
+
+`bun run beep yeet verify` (full tier) is the authoritative local gate. Its
+pre-push proof runs the *same global commands CI runs* — `bun run check` (global
+tsgo with the effect language-service rules), full `bun run docgen` (which
+compiles every JSDoc `@example`), `bun run test`, and the secrets/security/SAST/
+Nix lanes. If `yeet verify` is green, CI should be green on the first push.
+
+The following cheaper commands are convenient inner-loop tools but are **NOT
+authoritative** — do not conclude "it's green" from them:
+
+- `bunx turbo run check --filter=<pkg>` (package-scoped) can pass while the
+  global `bun run check` fails an effect-LSP rule (e.g. `strictEffectProvide`
+  /TS377032). Only the global check matches CI.
+- `bun run docgen:local ... --reuse-proof-manifest` skips recompiling `@example`
+  blocks when a source hash is unchanged, so it can miss a broken example or an
+  unresolved import subpath that full `bun run docgen` (and CI) catches.
+
+When in doubt, prove with `yeet verify` before trusting "green", and always
+prove with it before `publish`.
+
+## CI / security fixes: validate against the CI token's permissions
+
+A change that alters CI or security-gate behavior (for example making a `gh api`
+call fail-closed, or tightening a workflow permission) must be validated against
+the **actual CI token's permissions**, not just locally. A gate that reads, say,
+`security_and_analysis` will block every PR if the CI token cannot read it.
+Confirm the token scope (or fail *open* on a genuine permission error, distinct
+from a real security failure) before shipping such a fix.
+
 ## Mergeable PR Workflow
 
 1. Run `bun run beep yeet repair` when local changes need deterministic fixers,
-   docgen, repo-export catalog repair, or affected feedback.
+   docgen, or affected feedback.
 2. Stage the reviewed files explicitly.
 3. Run `bun run beep yeet status` when you need a compact local readiness
    snapshot before publishing.
@@ -246,11 +276,9 @@ the authoritative gates.
   Yeet still requires exact reusable proof state and a clean worktree, and it
   pushes with `git push -u origin HEAD` so upstream branch naming cannot block
   agent-created feature branches.
-- Yeet publish marks its `git push` with an exact-proof reuse hint for the
-  pre-push hook. The hook reuses only matching full-proof state for the pushed
-  SHA and falls back to its normal repo-export catalog validation when state is
-  absent, stale, dirty, or ambiguous. Treat this as duplicate-proof reuse, not a
-  hook bypass.
+- There is no pre-push git hook; `yeet publish` runs the full local pre-push
+  proof itself before pushing, so the proof is the gate. (The former pre-push
+  catalog hook was removed with the repo-exports catalog.)
 - `--start-pr-early` is the only Yeet publish mode that intentionally skips
   commit and pre-push hooks. It requires `--monitor`, still runs full local
   proof after pushing, and should fail loudly rather than hiding follow-up work.
@@ -270,7 +298,7 @@ the authoritative gates.
   publish-intent refusals (untracked/unstaged/partially staged paths), and
   stale-base refusals. Intent refusals print a summarized path list on stderr;
   the full list lives in the packet. Known sub-lane hints cover cspell, typos,
-  terse-effect, dual-arity, repo-export catalog, docgen, changeset status,
+  terse-effect, dual-arity, docgen, changeset status,
   secrets, SAST, security, and Nix. Hint selection prefers output near the
   actual failure marker before falling back to broad log scanning. Prefer the
   suggested repair command in `yeet status`, the packet, or `verdict.json` over

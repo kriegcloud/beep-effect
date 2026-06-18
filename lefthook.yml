@@ -11,7 +11,7 @@ pre-commit:
       exclude: "packages/tooling/*/*/src/internal/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
       run: bunx eslint --no-warn-ignored --config eslint.config.mjs {staged_files}
     gitleaks:
-      run: gitleaks protect --staged --verbose
+      run: gitleaks protect --staged --verbose --config .gitleaks.toml
     typos:
       glob: "*.{ts,tsx,js,jsx,md,json}"
       exclude: ".beep/**|goals/**|outputs/**|scratchpad/**"

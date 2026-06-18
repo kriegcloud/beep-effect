@@ -490,7 +490,7 @@ jobs:
             -v "$PWD:/repo" \
             -w /repo \
             zricethezav/gitleaks@sha256:5d0147dc25c78f8cc2b9861ff8f5c9b4a41419ed60a9ce2217de5a215270b42b \
-            detect --source=/repo --log-opts="$log_opts" --redact --no-banner
+            detect --source=/repo --config=/repo/.gitleaks.toml --log-opts="$log_opts" --redact --no-banner
 
   security:
     name: Security
