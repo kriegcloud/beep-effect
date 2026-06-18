@@ -110,6 +110,9 @@
     "@lexical/link",
     "@lexical/list",
     "@lexical/rich-text",
+    // @beep/m365: upstream Graph conformance imports live in dtslint/**
+    // (ignored above); the driver intentionally has no runtime SDK dependency.
+    "@microsoft/microsoft-graph-types",
     // @beep/observability: OTel deps staged 2026-06-12 for in-flight tracing
     // work; remove from this list when the wiring lands.
     "@opentelemetry/resources",

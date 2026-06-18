@@ -17,7 +17,6 @@
     "dtslint": "bunx tstyche dtslint/NextConfig.tst.ts",
     "type-test": "bun run dtslint",
     "docgen": "bun run ../../../../packages/tooling/tool/docgen/src/bin.ts",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "beep:build": "bun run codegen && tsc -b tsconfig.json && bun run babel",
     "beep:check": "tsgo -b tsconfig.json",
     "beep:test": "bunx --bun vitest run",

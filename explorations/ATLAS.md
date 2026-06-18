@@ -50,12 +50,23 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   [`epistemic-claim-lifecycle-gate`](../goals/epistemic-claim-lifecycle-gate/README.md) (build
   first) and [`law-practice-office-action-spike`](../goals/law-practice-office-action-spike/README.md).
   More verticals (intake/drafting/contract review) follow once the loop turns once.
+- [`solo-firm-docketing`](./solo-firm-docketing/README.md) — how Tom's solo IP
+  practice deals with docketing (office actions, maintenance fees, court orders,
+  deadlines years out) without missing one. At `align`, held at a review gate:
+  three deep-research tracks done (IP-prosecution vendors; court/litigation
+  engines; official-data/handroll), doctrine locked as **vigilance overlay, not
+  system of record**. Verified reruns sharpened the recommendation: narrow
+  US-deterministic handroll first (ODP/`ptmnfee2` checked, approval-gated), CPI /
+  LawToolBox / Alt Legal as additive redundancy (CPI is headless-ready via
+  documented OAuth2 password grant), ODP polling is sequential per key, litigation
+  L1 uses CourtListener webhooks + hosted MCP, and Outlook push depends on
+  [`m365-driver`](../goals/m365-driver/README.md) (the concrete driver for its
+  future `Calendars.ReadWrite` scope).
 - [`ip-attorney-time-tracking`](./ip-attorney-time-tracking/README.md) - active
   align-stage exploration for a local-first IP attorney time-capture/prebill
   assistant: agents may observe activity and propose candidate billable or
   nonbillable entries, while the attorney approval gate controls what becomes
   billable or exportable.
-
 ### Proposed
 
 - (none — `atlas-synthesis` is now an Active packet above; its capability-inventory
@@ -74,6 +85,14 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Graduated
 
+- [`microsoft-365-integration`](./microsoft-365-integration/README.md) —
+  graduated 2026-06-18 into two goal packets:
+  [`m365-driver`](../goals/m365-driver/README.md) (the `@beep/m365` native
+  Microsoft Graph driver — delegated auth-code+PKCE, read verbs for
+  OneDrive/SharePoint + Outlook mail/calendar, write-ready shape) and
+  [`m365-mcp`](../goals/m365-mcp/README.md) (exposes the driver's read verbs as
+  the repo's own MCP server, the `@beep/nlp-mcp` pattern). Follow-on named in its
+  MAP: `m365-document-ingest` (gated on the document-portal MVP).
 - [`docx-roundtrip-interop`](./docx-roundtrip-interop/README.md) — graduated
   2026-06-15 into
   [`pandoc-ast-foundation`](../goals/pandoc-ast-foundation/README.md), the pure
