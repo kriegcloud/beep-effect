@@ -219,6 +219,6 @@ const causeLabelReaders: ReadonlyArray<(cause: unknown) => O.Option<string>> = [
 const causeFromUnknown = (cause: unknown): O.Option<string> =>
   pipe(
     causeLabelReaders,
-    A.filterMap((reader) => reader(cause)),
-    A.head
+    A.findFirst((reader) => O.isSome(reader(cause))),
+    O.flatMap((reader) => reader(cause))
   );

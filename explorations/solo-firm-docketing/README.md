@@ -56,6 +56,9 @@ evaluate CPI/LawToolBox partner-API access now or after the handroll spine ships
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-18: added a pricing column to [`rundown.html`](./rundown.html),
+  distinguishing published prices, free official data sources, quote-required
+  vendors, and pass-through costs. Still stopped at `align`.
 - 2026-06-18: flattened [`rundown.html`](./rundown.html) into a standalone
   one-page table with only external links, so the tailnet-served handout no
   longer depends on local Markdown links or tabbed JavaScript. Still stopped at

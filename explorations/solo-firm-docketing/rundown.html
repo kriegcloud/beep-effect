@@ -129,7 +129,7 @@
       table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1120px;
+        min-width: 1320px;
       }
 
       caption {
@@ -165,26 +165,31 @@
 
       th:nth-child(1),
       td:nth-child(1) {
-        width: 180px;
+        width: 165px;
       }
 
       th:nth-child(2),
       td:nth-child(2) {
-        width: 270px;
+        width: 245px;
       }
 
       th:nth-child(3),
       td:nth-child(3) {
-        width: 270px;
+        width: 245px;
       }
 
       th:nth-child(4),
       td:nth-child(4) {
-        width: 250px;
+        width: 225px;
       }
 
       th:nth-child(5),
       td:nth-child(5) {
+        width: 190px;
+      }
+
+      th:nth-child(6),
+      td:nth-child(6) {
         width: 240px;
       }
 
@@ -319,6 +324,7 @@
               <th>Finding</th>
               <th>Developer / Agent Story</th>
               <th>Decision or Risk</th>
+              <th>Pricing</th>
               <th>Real Links</th>
             </tr>
           </thead>
@@ -338,6 +344,9 @@
               </td>
               <td>
                 <p>Do not let automation silently become the docket of record. The liability firewall is candidate status plus explicit approval.</p>
+              </td>
+              <td>
+                <p>Overlay can start with internal build cost only. Docket-of-record vendor cost depends on the selected anchor.</p>
               </td>
               <td>
                 <div class="links">
@@ -362,6 +371,9 @@
               </td>
               <td>
                 <p>Strong for defensibility and insurance posture; poor for direct automation because AppColl has no usable API for our agents.</p>
+              </td>
+              <td>
+                <p>Published: PM Pro starts at <b>$100/user/mo</b>; PM Plus starts at <b>$130/user/mo</b>, billed monthly.</p>
               </td>
               <td>
                 <div class="links">
@@ -389,6 +401,9 @@
                 <p>Commercial access, exact endpoint inventory, SLA, export rights, and solo viability still need direct verification.</p>
               </td>
               <td>
+                <p>Quote required. No public self-serve software price found; annuity/API terms are commercial sales.</p>
+              </td>
+              <td>
                 <div class="links">
                   <a href="https://developer.computerpackages.com/" target="_blank" rel="noopener noreferrer">CPI developer portal</a>
                   <a href="https://www.computerpackages.com/contact/" target="_blank" rel="noopener noreferrer">Contact CPI</a>
@@ -412,6 +427,9 @@
               </td>
               <td>
                 <p>Good if trademark volume grows; not the first patent spine. TSDR outages remain a structural single point of failure.</p>
+              </td>
+              <td>
+                <p>Published: <b>$60/mo</b> for 50 matters, <b>$100</b> for 100, <b>$195</b> for 200, <b>$295</b> for 400; TM protection add-ons extra.</p>
               </td>
               <td>
                 <div class="links">
@@ -440,6 +458,9 @@
                 <p>Partner-gated. Not a general IP prosecution docketing engine. No public MCP.</p>
               </td>
               <td>
+                <p>Published: <b>$35/user/mo</b> annual or <b>$42/user/mo</b> monthly for 2-9 users; one-year commitment, every M365 mailbox licensed.</p>
+              </td>
+              <td>
                 <div class="links">
                   <a href="https://api.lawtoolbox.com/api" target="_blank" rel="noopener noreferrer">LawToolBox API docs</a>
                   <a href="https://lawtoolbox.com/book-a-demo/" target="_blank" rel="noopener noreferrer">LawToolBox demo</a>
@@ -464,6 +485,9 @@
               </td>
               <td>
                 <p>Operational constraints matter: ID.me/account requirements, x-api-key, weekly quotas, 429 handling, and no fan-out polling.</p>
+              </td>
+              <td>
+                <p>Free official API/data source; requires USPTO account/API key and quota-aware implementation.</p>
               </td>
               <td>
                 <div class="links">
@@ -492,6 +516,9 @@
                 <p>Good first deterministic checker, but still candidate-only and attorney-approved.</p>
               </td>
               <td>
+                <p>Free official bulk dataset. Government maintenance fees themselves are separate client/pass-through costs.</p>
+              </td>
+              <td>
                 <div class="links">
                   <a href="https://data.uspto.gov/bulkdata/datasets/ptmnfee2" target="_blank" rel="noopener noreferrer">USPTO ptmnfee2 dataset</a>
                   <a href="https://data.uspto.gov/bulkdata/datasets?search_api_fulltext=MaintFeeEvents" target="_blank" rel="noopener noreferrer">ODP maintenance-fee search</a>
@@ -517,6 +544,9 @@
                 <p>A small-looking date rule can misstate patent status. Treat edge cases as review-triggering, not silent automation.</p>
               </td>
               <td>
+                <p>No vendor cost; implementation cost is tests, attorney review, and audit trail clarity.</p>
+              </td>
+              <td>
                 <div class="links">
                   <a href="https://www.ecfr.gov/current/title-37/chapter-I/subchapter-A/part-1/subpart-A/subject-group-ECFR5cdb43ad1467198/section-1.7" target="_blank" rel="noopener noreferrer">37 CFR 1.7</a>
                   <a href="https://www.uspto.gov/web/offices/pac/mpep/s2506.html" target="_blank" rel="noopener noreferrer">MPEP 2506</a>
@@ -540,6 +570,9 @@
               </td>
               <td>
                 <p>This solves litigation event capture, not court-rules math. Court-rules computation still belongs to LawToolBox/CalendarRules/attorney review.</p>
+              </td>
+              <td>
+                <p>Free account/API tier exists; fuller API access is membership/commercial. RECAP Fetch can pass through PACER charges.</p>
               </td>
               <td>
                 <div class="links">
@@ -569,6 +602,9 @@
                 <p>Two-way sync is out of scope. Calendar write is a reminder surface, not docket authority.</p>
               </td>
               <td>
+                <p>No separate Graph API price for this use; requires the firm's Microsoft 365/Entra licensing and mailbox access.</p>
+              </td>
+              <td>
                 <div class="links">
                   <a href="https://learn.microsoft.com/en-us/graph/api/calendar-post-events" target="_blank" rel="noopener noreferrer">Create calendar event</a>
                   <a href="https://learn.microsoft.com/en-us/graph/auth-v2-service" target="_blank" rel="noopener noreferrer">Client credentials flow</a>
@@ -593,6 +629,9 @@
               </td>
               <td>
                 <p>Dead-man's-switch monitoring is a first-class requirement, not polish. No heartbeat means no "never miss" claim.</p>
+              </td>
+              <td>
+                <p>Low-cost/free tiers available from heartbeat vendors; production use should budget for paid alerting redundancy.</p>
               </td>
               <td>
                 <div class="links">
@@ -620,6 +659,9 @@
                 <p>Do not handroll foreign annuities, multi-jurisdiction extension chains, cascading court rules, or discretionary dates.</p>
               </td>
               <td>
+                <p>No license required for first slice; main cost is engineering plus attorney review. Add vendor cost when scope crosses the danger line.</p>
+              </td>
+              <td>
                 <div class="links">
                   <a href="https://www.uspto.gov/web/offices/pac/mpep/s710.html" target="_blank" rel="noopener noreferrer">MPEP 710 response periods</a>
                   <a href="https://www.wipo.int/en/web/pct-system/texts/time_limits" target="_blank" rel="noopener noreferrer">WIPO PCT time limits</a>
@@ -643,6 +685,9 @@
               </td>
               <td>
                 <p>License or outsource. Do not broad-handroll.</p>
+              </td>
+              <td>
+                <p>Specialist annuity/vendor pricing is quote-based; WIPO bulk data subscriptions can be paid, and foreign official fees vary by jurisdiction.</p>
               </td>
               <td>
                 <div class="links">
@@ -674,6 +719,9 @@
               </td>
               <td>
                 <p>Packet remains at align. Do not shape/decompose/graduate until these are ratified.</p>
+              </td>
+              <td>
+                <p>Solo baseline: AppColl PM Plus <b>$130/user/mo</b> plus Beep build. Add Alt Legal, LawToolBox, CPI, or annuity vendors only as scope demands.</p>
               </td>
               <td>
                 <div class="links">
