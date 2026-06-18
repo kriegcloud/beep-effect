@@ -40,14 +40,16 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Active
 
-- [`effect-capability-kg`](./effect-capability-kg/README.md) — tooling-first
-  decomposed exploration for a deterministic Effect v4 capability graph,
-  JSDoc-derived capability ontology, specialist agent profiles, judge routing,
-  and advisory hook backpressure over underused Effect modules; first proposed
-  goal packet
-  [`effect-capability-kg-seed`](../goals/effect-capability-kg-seed/README.md)
-  is scaffolded, and later candidate goals remain uncreated pending the seed
-  proof.
+- [`atlas-synthesis`](./atlas-synthesis/README.md) — grounding/context packet
+  (stage `research`): a maximal-fan-out synthesis of current repo state vs.
+  goals/vision, centered on a gap map
+  ([`synthesis/00-baseline-gap-map.md`](./atlas-synthesis/synthesis/00-baseline-gap-map.md)).
+  The **capability-inventory half of the grand-vision exercise** (renamed from
+  `baseline-synthesis`, 2026-06-17). First decomposition done (2026-06-17): graduated the
+  office-action wedge into two goal packets —
+  [`epistemic-claim-lifecycle-gate`](../goals/epistemic-claim-lifecycle-gate/README.md) (build
+  first) and [`law-practice-office-action-spike`](../goals/law-practice-office-action-spike/README.md).
+  More verticals (intake/drafting/contract review) follow once the loop turns once.
 - [`ip-attorney-time-tracking`](./ip-attorney-time-tracking/README.md) - active
   align-stage exploration for a local-first IP attorney time-capture/prebill
   assistant: agents may observe activity and propose candidate billable or
@@ -56,14 +58,19 @@ The lego pieces already built. Authoritative inventories (link, never copy):
 
 ### Proposed
 
-- `atlas-synthesis` — the grand-vision exercise: full capability inventory +
-  outcome decomposition to give this Atlas real substance and break the
-  vision into sequenced explorations/goals. `agent-chat-interface` has now
-  proven the pipeline end-to-end — this is unblocked.
+- (none — `atlas-synthesis` is now an Active packet above; its capability-inventory
+  half is done and the outcome-decomposition half is its next stage.)
 
 ### Parked
 
-(none)
+- [`effect-capability-kg`](./effect-capability-kg/README.md) (parked 2026-06-17) —
+  tooling-first deterministic Effect v4 capability graph (JSDoc-derived ontology,
+  specialist profiles, judge routing, advisory hook backpressure). Seed goal
+  [`effect-capability-kg-seed`](../goals/effect-capability-kg-seed/README.md) shipped
+  (`completed-retained`); later router/CLI/hook/ratchet candidates deferred. Parked as a
+  dev-tooling track that is not the current product focus — see its `DECISIONS.md` and
+  `standards/memory-architecture/04-decision-log.md` (2026-06-17). Resume on an explicit
+  decision to invest in agent capability guidance.
 
 ### Graduated
 

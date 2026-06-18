@@ -1,0 +1,56 @@
+{
+  "name": "@beep/epistemic-server",
+  "version": "0.0.2",
+  "description": "Epistemic server tier: live Layer surface composing the claim gate, lifecycle transition, and bounded SHACL engine.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/epistemic/server",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/epistemic/server"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "beep:build": "tsc -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage",
+    "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
+    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./layer": "./src/Layer.ts",
+    "./internal/*": null,
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "dependencies": {
+    "@beep/epistemic-domain": "workspace:^",
+    "@beep/epistemic-use-cases": "workspace:^",
+    "@beep/semantic-web": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/test-utils": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

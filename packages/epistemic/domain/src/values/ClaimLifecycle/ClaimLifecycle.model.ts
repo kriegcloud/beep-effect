@@ -1,45 +1,30 @@
 /**
  * Claim lifecycle value schemas.
  *
+ * The claim admission lifecycle vocabulary is shared-kernel product language
+ * owned by `@beep/shared-domain` (promoted 2026-06-18). The epistemic slice owns
+ * the *mechanism* — the SHACL claim gate, the transition service, and the
+ * projection — while the *vocabulary* (`ClaimLifecycle`, `ClaimLifecycleTransition`)
+ * lives in shared so other verticals can type against it without importing the
+ * epistemic slice's domain. This module re-exports the shared vocabulary to
+ * preserve the `@beep/epistemic-domain` public surface.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
-import { $EpistemicDomainId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
-
-const $I = $EpistemicDomainId.create("values/ClaimLifecycle/ClaimLifecycle.model");
 
 /**
- * Candidate lifecycle vocabulary for claim outputs.
+ * Shared claim lifecycle vocabulary and transition value object.
  *
  * @example
  * ```ts
- * import { ClaimLifecycle } from "@beep/epistemic-domain"
+ * import { ClaimLifecycle, ClaimLifecycleTransition } from "@beep/epistemic-domain"
  *
- * console.log(ClaimLifecycle.is.candidate("candidate"))
+ * console.log(ClaimLifecycle.Enum.admitted)
+ * console.log(ClaimLifecycleTransition)
  * ```
  *
  * @category schemas
  * @since 0.0.0
  */
-export const ClaimLifecycle = LiteralKit(["candidate"]).pipe(
-  $I.annoteSchema("ClaimLifecycle", {
-    description: "Lifecycle state for epistemic claims produced by the runtime proof.",
-  })
-);
-
-/**
- * Runtime type for {@link ClaimLifecycle}.
- *
- * @example
- * ```ts
- * import type { ClaimLifecycle } from "@beep/epistemic-domain"
- *
- * const value: ClaimLifecycle = "candidate"
- * console.log(value)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export type ClaimLifecycle = typeof ClaimLifecycle.Type;
+export * from "@beep/shared-domain/values/ClaimLifecycle";

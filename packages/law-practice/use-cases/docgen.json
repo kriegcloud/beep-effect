@@ -1,0 +1,201 @@
+{
+  "srcDir": "src",
+  "outDir": "docs",
+  "$schema": "../../../packages/tooling/tool/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/law-practice/use-cases/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/law-practice-use-cases": [
+        "../../../packages/law-practice/use-cases/src/index.ts"
+      ],
+      "@beep/law-practice-use-cases/public": [
+        "../../../packages/law-practice/use-cases/src/public.ts"
+      ],
+      "@beep/law-practice-use-cases/server": [
+        "../../../packages/law-practice/use-cases/src/server.ts"
+      ],
+      "@beep/law-practice-use-cases/IrToLaw": [
+        "../../../packages/law-practice/use-cases/src/IrToLaw/index.ts"
+      ],
+      "@beep/law-practice-use-cases/OfficeActionReview": [
+        "../../../packages/law-practice/use-cases/src/OfficeActionReview/index.ts"
+      ],
+      "@beep/law-practice-use-cases/test": [
+        "../../../packages/law-practice/use-cases/src/test.ts"
+      ],
+      "@beep/epistemic-domain": [
+        "../../../packages/epistemic/domain/src/index.ts"
+      ],
+      "@beep/epistemic-domain/entities": [
+        "../../../packages/epistemic/domain/src/entities/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/Activity": [
+        "../../../packages/epistemic/domain/src/entities/Activity/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/CandidateClaim": [
+        "../../../packages/epistemic/domain/src/entities/CandidateClaim/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/Evidence": [
+        "../../../packages/epistemic/domain/src/entities/Evidence/index.ts"
+      ],
+      "@beep/epistemic-domain/entities/UsageRecord": [
+        "../../../packages/epistemic/domain/src/entities/UsageRecord/index.ts"
+      ],
+      "@beep/epistemic-domain/values": [
+        "../../../packages/epistemic/domain/src/values/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimGate": [
+        "../../../packages/epistemic/domain/src/values/ClaimGate/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimLifecycle": [
+        "../../../packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimProjection": [
+        "../../../packages/epistemic/domain/src/values/ClaimProjection/index.ts"
+      ],
+      "@beep/epistemic-domain/values/EvidenceSpan": [
+        "../../../packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
+      ],
+      "@beep/epistemic-use-cases": [
+        "../../../packages/epistemic/use-cases/src/index.ts"
+      ],
+      "@beep/epistemic-use-cases/public": [
+        "../../../packages/epistemic/use-cases/src/public.ts"
+      ],
+      "@beep/epistemic-use-cases/server": [
+        "../../../packages/epistemic/use-cases/src/server.ts"
+      ],
+      "@beep/epistemic-use-cases/ClaimGate": [
+        "../../../packages/epistemic/use-cases/src/ClaimGate/index.ts"
+      ],
+      "@beep/epistemic-use-cases/ClaimLifecycle": [
+        "../../../packages/epistemic/use-cases/src/ClaimLifecycle/index.ts"
+      ],
+      "@beep/epistemic-use-cases/ClaimProjection": [
+        "../../../packages/epistemic/use-cases/src/ClaimProjection/index.ts"
+      ],
+      "@beep/file-processing": [
+        "../../../packages/foundation/capability/file-processing/src/index.ts"
+      ],
+      "@beep/file-processing/*": [
+        "../../../packages/foundation/capability/file-processing/src/*.ts"
+      ],
+      "@beep/file-processing/Artifact": [
+        "../../../packages/foundation/capability/file-processing/src/Artifact/index.ts"
+      ],
+      "@beep/file-processing/Extraction": [
+        "../../../packages/foundation/capability/file-processing/src/Extraction/index.ts"
+      ],
+      "@beep/file-processing/Operation": [
+        "../../../packages/foundation/capability/file-processing/src/Operation/index.ts"
+      ],
+      "@beep/file-processing/PathSafety": [
+        "../../../packages/foundation/capability/file-processing/src/PathSafety/index.ts"
+      ],
+      "@beep/file-processing/Service": [
+        "../../../packages/foundation/capability/file-processing/src/Service/index.ts"
+      ],
+      "@beep/file-processing/Strategy": [
+        "../../../packages/foundation/capability/file-processing/src/Strategy/index.ts"
+      ],
+      "@beep/file-processing/test": [
+        "../../../packages/foundation/capability/file-processing/src/test.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/langextract": [
+        "../../../packages/foundation/capability/langextract/src/index.ts"
+      ],
+      "@beep/langextract/*": [
+        "../../../packages/foundation/capability/langextract/src/*.ts"
+      ],
+      "@beep/langextract/Alignment": [
+        "../../../packages/foundation/capability/langextract/src/Alignment/index.ts"
+      ],
+      "@beep/langextract/Extraction": [
+        "../../../packages/foundation/capability/langextract/src/Extraction/index.ts"
+      ],
+      "@beep/langextract/Handoff": [
+        "../../../packages/foundation/capability/langextract/src/Handoff/index.ts"
+      ],
+      "@beep/langextract/Service": [
+        "../../../packages/foundation/capability/langextract/src/Service/index.ts"
+      ],
+      "@beep/langextract/Target": [
+        "../../../packages/foundation/capability/langextract/src/Target/index.ts"
+      ],
+      "@beep/law-practice-domain": [
+        "../../../packages/law-practice/domain/src/index.ts"
+      ],
+      "@beep/law-practice-domain/entities": [
+        "../../../packages/law-practice/domain/src/entities/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Claim": [
+        "../../../packages/law-practice/domain/src/entities/Claim/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Distinction": [
+        "../../../packages/law-practice/domain/src/entities/Distinction/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/LegalClient": [
+        "../../../packages/law-practice/domain/src/entities/LegalClient/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/LegalContact": [
+        "../../../packages/law-practice/domain/src/entities/LegalContact/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Matter": [
+        "../../../packages/law-practice/domain/src/entities/Matter/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/OfficeAction": [
+        "../../../packages/law-practice/domain/src/entities/OfficeAction/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/PatentAsset": [
+        "../../../packages/law-practice/domain/src/entities/PatentAsset/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/PriorArtReference": [
+        "../../../packages/law-practice/domain/src/entities/PriorArtReference/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Rejection": [
+        "../../../packages/law-practice/domain/src/entities/Rejection/index.ts"
+      ],
+      "@beep/test-utils": [
+        "../../../packages/tooling/test-kit/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../packages/tooling/test-kit/test-utils/src/*.ts"
+      ]
+    }
+  }
+}

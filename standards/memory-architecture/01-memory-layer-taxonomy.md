@@ -69,13 +69,13 @@ This document defines the four memory layers required by the project's agent mem
 
 **Theorem status:** OUTSIDE -- these are symbolic lookups against deterministic data. They do not degrade.
 
-**This is the project's competitive edge.** While every other agent memory system operates inside the theorem class and degrades at scale, procedural memory via deterministic code intelligence is mathematically immune. "How do I use this API?" is answerable from AST + JSDoc + type signatures without any semantic search.
+**This deterministic property is the durable lesson** -- the transferable principle: route every query to the highest-certainty, non-semantic layer. _(2026-06-17: the project's original code-intelligence instantiation was a learning vehicle, now archived; it is **not** the current product moat — that is the IP-law flywheel.)_ While every semantic memory system operates inside the theorem class and degrades at scale, procedural memory via deterministic code intelligence is mathematically immune. "How do I use this API?" is answerable from AST + JSDoc + type signatures without any semantic search -- and the same principle now anchors the IP-law product's exact authority records (source spans + accepted claims).
 
 **What gets it right:** Greptile's codebase graph approach (function relationships, dependencies, patterns). The repo-codegraph-jsdoc research's three-tier certainty model.
 
 **What gets it wrong:** Any approach that embeds code into vectors and searches semantically. The paper proves this will degrade. Code has deterministic structure -- use it.
 
-**Concrete implementation:** repo-memory v0. This is substantially built -- Tauri desktop app, Effect runtime, ts-morph indexing, deterministic retrieval with citations, 15 query classes, durable workflows. P0 gaps are "finish and harden."
+**Concrete implementation (historical):** repo-memory v0 (Tauri desktop app, Effect runtime, ts-morph indexing, deterministic retrieval with citations, 15 query classes, durable workflows) was the learning vehicle and is **archived** (`archive/pre-repo-architecture-automation-2026-04-27`; see `90-archaeology-pruned-repo-intel.md` in `explorations/atlas-synthesis/`). The live residue is **narrow dev tooling** (`@beep/repo-codegraph`, `EffectCapabilityKG.ts`), not a product moat.
 
 **Consolidation strategy:** Not needed -- deterministic data doesn't degrade. Re-index when code changes.
 
@@ -102,7 +102,7 @@ This document defines the four memory layers required by the project's agent mem
 
 **What gets it right:** TrustGraph's multi-store architecture (graph + vector + row + object stores) with provenance tracing. Graphiti's bi-temporal fact tracking with auto-invalidation. FalkorDB's raw performance for graph+vector hybrid queries.
 
-**Concrete implementation:** BeepGraph (Effect-native TrustGraph rewrite). Foundation is done (schema, messaging, service infrastructure, pipelines). Remaining work: port the provenance and verification layers -- NOT all 15 services. Port what enables verification and trust scoring.
+**Concrete implementation:** BeepGraph is **specced, not shipped** -- see [`../../docs/BEEPGRAPH_ARCHITECTURE.md`](../../docs/BEEPGRAPH_ARCHITECTURE.md) (the spine exemplar is *effect-ontology*, not a raw TrustGraph rewrite; TrustGraph contributes the projection **shell**). The **authority spine** is largely built (`@beep/epistemic-domain`, `@beep/semantic-web` PROV-O + bounded SHACL, `@beep/rdf`); the projection/retrieval shell and the extraction kernel are the net-new work. Port what enables verification and trust scoring.
 
 **Consolidation strategy:** Automated compression with provenance-based verification. Facts without traceable provenance should decay faster. Trust scores should weight consolidation decisions.
 
