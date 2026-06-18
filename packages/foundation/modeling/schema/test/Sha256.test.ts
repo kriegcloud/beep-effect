@@ -2,12 +2,19 @@ import { Sha256Hex, Sha256HexFromBytes, Sha256HexFromHexBytes } from "@beep/sche
 import { Str } from "@beep/utils";
 import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
 
 const knownDigest = "d01b7ce9154ef0264ce71e457ea81903b87a58d6cf2cd6be474886fdbc6f61d9";
 const emptyDigest = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
+const provideBunCrypto = provideScopedLayer(BunCrypto.layer);
 
 describe("Sha256Hex", () => {
   const decode = S.decodeUnknownSync(Sha256Hex);
@@ -54,14 +61,12 @@ describe("Sha256HexFromBytes", () => {
       const input = new TextEncoder().encode("beep");
 
       expect(yield* decode(input)).toBe(knownDigest);
-    }).pipe(Effect.provide(BunCrypto.layer)));
+    }).pipe(provideBunCrypto));
 
   it("hashes empty bytes to the canonical empty SHA-256 digest", () =>
     Effect.promise(() =>
       Promise.resolve(
-        expect(Effect.runPromise(decode(new Uint8Array()).pipe(Effect.provide(BunCrypto.layer)))).resolves.toBe(
-          emptyDigest
-        )
+        expect(Effect.runPromise(decode(new Uint8Array()).pipe(provideBunCrypto))).resolves.toBe(emptyDigest)
       )
     ));
 
@@ -79,15 +84,13 @@ describe("Sha256HexFromHexBytes", () => {
 
   it("decodes hex-encoded bytes into a canonical lowercase SHA-256 hex digest", () =>
     Effect.promise(() =>
-      Promise.resolve(
-        expect(Effect.runPromise(decode("62656570").pipe(Effect.provide(BunCrypto.layer)))).resolves.toBe(knownDigest)
-      )
+      Promise.resolve(expect(Effect.runPromise(decode("62656570").pipe(provideBunCrypto))).resolves.toBe(knownDigest))
     ));
 
   it("preserves hex transport validation errors", () =>
     Effect.promise(() =>
       Promise.resolve(
-        expect(Effect.runPromise(decode("0").pipe(Effect.provide(BunCrypto.layer)))).rejects.toThrow(
+        expect(Effect.runPromise(decode("0").pipe(provideBunCrypto))).rejects.toThrow(
           "Length must be a multiple of 2, but is 1"
         )
       )

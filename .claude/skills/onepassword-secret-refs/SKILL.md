@@ -1,6 +1,6 @@
 ---
 name: onepassword-secret-refs
-description: Safe 1Password workflows for Claude/Codex: Developer Environment MCP first, op:// secret-reference lookup, .env/.env.example rewrites, BEEP_SECRETS inventory, and auth diagnostics without exposing raw secret values.
+description: "Safe 1Password workflows for Claude/Codex: Developer Environment MCP first, op:// secret-reference lookup, .env/.env.example rewrites, BEEP_SECRETS inventory, and auth diagnostics without exposing raw secret values."
 metadata:
   short-description: 1Password MCP/op secret refs without raw values
 ---

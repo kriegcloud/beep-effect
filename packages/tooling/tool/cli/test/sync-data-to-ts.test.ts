@@ -205,7 +205,7 @@ const csvTarget: SyncDataTarget = {
   id: "test-csv",
   description: "Fixture CSV target used to verify sync-data-to-ts CSV parsing.",
   sourceUrls: [csvFixtureSourceUrl],
-  acquire: Effect.fn("SyncDataToTsTest.acquireCsv")(function* () {
+  acquire: Effect.gen(function* () {
     const source = yield* fetchSource("test-csv", "fixture-csv", csvFixtureSourceUrl);
     const rows = yield* parseCsvSource("test-csv", source);
     const canonical = {
@@ -224,7 +224,7 @@ const csvTarget: SyncDataTarget = {
       summary: `${rows.length} csv rows`,
       sources: [sourceMetadata(source)],
     });
-  })(),
+  }).pipe(Effect.withSpan("SyncDataToTsTest.acquireCsv")),
 };
 
 describe("sync-data-to-ts", () => {

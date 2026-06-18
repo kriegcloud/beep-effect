@@ -79,7 +79,7 @@ describe("@beep/file-processing", () => {
 
       expect(childId).not.toBe(ids.artifactId);
       expect(childId.startsWith("artifact:")).toBe(true);
-    }).pipe(Effect.provide(BunCrypto.layer))
+    }).pipe(provideScopedLayer(BunCrypto.layer))
   );
 
   it("round-trips schema-derived artifact and operation payloads", () =>

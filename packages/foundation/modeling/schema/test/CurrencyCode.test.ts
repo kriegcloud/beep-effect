@@ -18,6 +18,6 @@ describe("CurrencyCode", () => {
   it("rejects unknown currency codes", () => {
     expect(isCurrencyCode("USD")).toBe(true);
     expect(isCurrencyCode("usd")).toBe(false);
-    expect(() => S.decodeSync(CurrencyCode)("ZZZ")).toThrow();
+    expect(() => S.decodeUnknownSync(CurrencyCode)("ZZZ")).toThrow();
   });
 });

@@ -29,6 +29,7 @@ const defaultConfig: Configuration.ConfigurationShape = {
   runExamples: false,
   tscExecutable: "tsc",
   exclude: [],
+  include: [],
   parseCompilerOptions: {},
   examplesCompilerOptions: {},
 };

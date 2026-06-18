@@ -312,6 +312,7 @@ export type BeepNextConfigOptionsInput = Omit<typeof BeepNextConfigOptions.Encod
  * @since 0.0.0
  */
 export type NextConfigPlugin = (config: NextConfigFromNext) => NextConfigFromNext;
+type ForeignNextConfigPlugin = (config?: unknown) => unknown;
 
 const decodeBeepNextConfigEnvResult = S.decodeUnknownResult(BeepNextConfigEnv);
 const decodeBeepNextConfigOptionsResult = S.decodeUnknownResult(BeepNextConfigOptions);
@@ -362,6 +363,11 @@ const pwaConfig = (config: BeepNextPwaConfig | undefined): O.Option<PwaFeatureCo
   return O.some(config);
 };
 
+const adaptForeignNextPlugin =
+  (plugin: ForeignNextConfigPlugin): NextConfigPlugin =>
+  (config) =>
+    plugin(config) as NextConfigFromNext;
+
 const makeBundleAnalyzerPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugin> =>
   pipe(
     bundleAnalyzerConfig(options.bundleAnalyzer),
@@ -389,14 +395,16 @@ const makePwaPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugi
   pipe(
     pwaConfig(options.pwa),
     O.map((config) =>
-      withSerwistInit({
-        swSrc: withDefault(config.swSrc, "src/app/sw.ts"),
-        swDest: withDefault(config.swDest, "public/sw.js"),
-        disable: !withDefault(config.enabled, pwaEnabledFromEnv(options.env)),
-        ...(P.isUndefined(config.register) ? {} : { register: config.register }),
-        ...(P.isUndefined(config.cacheOnNavigation) ? {} : { cacheOnNavigation: config.cacheOnNavigation }),
-        ...(P.isUndefined(config.reloadOnOnline) ? {} : { reloadOnOnline: config.reloadOnOnline }),
-      })
+      adaptForeignNextPlugin(
+        withSerwistInit({
+          swSrc: withDefault(config.swSrc, "src/app/sw.ts"),
+          swDest: withDefault(config.swDest, "public/sw.js"),
+          disable: !withDefault(config.enabled, pwaEnabledFromEnv(options.env)),
+          ...(P.isUndefined(config.register) ? {} : { register: config.register }),
+          ...(P.isUndefined(config.cacheOnNavigation) ? {} : { cacheOnNavigation: config.cacheOnNavigation }),
+          ...(P.isUndefined(config.reloadOnOnline) ? {} : { reloadOnOnline: config.reloadOnOnline }),
+        }) as ForeignNextConfigPlugin
+      )
     )
   );
 

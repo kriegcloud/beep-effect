@@ -80,6 +80,10 @@ const decodeSymbolNameSegment = S.decodeUnknownSync(SymbolNameSegment);
 const decodeSearchLimit = S.decodeUnknownSync(TsMorphSearchLimit);
 const decodeContentHash = S.decodeUnknownSync(ContentHash);
 const platformLayer = Layer.mergeAll(NodeServices.layer);
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 const decodeSymbol = S.decodeUnknownSync(Symbol);
 const decodeTsMorphProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
 const decodeTsMorphProjectScope = S.decodeUnknownSync(TsMorphProjectScope);
@@ -220,7 +224,7 @@ describe("TSMorph model taxonomy", () => {
       Effect.gen(function* () {
         const hash = yield* S.decodeUnknownEffect(ContentHashFromSourceText)("export const a = 1;\n");
         expect(hash).toMatch(/^[0-9a-f]{64}$/);
-      }).pipe(Effect.provide(platformLayer)));
+      }).pipe(provideScopedLayer(platformLayer)));
   });
 
   describe("runtime instance schemas", () => {

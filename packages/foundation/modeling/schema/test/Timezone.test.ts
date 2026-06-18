@@ -10,6 +10,6 @@ describe("Timezone", () => {
   });
 
   it("rejects unknown timezone names", () => {
-    expect(() => S.decodeSync(Timezone)("Mars/Base")).toThrow();
+    expect(() => S.decodeUnknownSync(Timezone)("Mars/Base")).toThrow();
   });
 });

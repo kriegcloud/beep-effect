@@ -4,8 +4,9 @@ import { LawPracticeServerLive } from "@beep/law-practice-server/layer";
 import { IrToLaw } from "@beep/law-practice-use-cases/IrToLaw";
 import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
 import { OfficeActionReviewSpikeCandidates } from "@beep/law-practice-use-cases/test";
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import {
   EXPECTED_DISTINCTION_LIMITATION,
   EXPECTED_DISTINCTION_QUOTE,
@@ -13,8 +14,10 @@ import {
   OFFICE_ACTION_FIXTURE,
 } from "./fixture.ts";
 
+const LawPracticeServerTestLayer = LawPracticeServerLive.pipe(Layer.provide(BunCrypto.layer));
+
 describe("@beep/law-practice-server", () => {
-  it.layer(LawPracticeServerLive)("office-action review loop over the epistemic server", (it) => {
+  it.layer(LawPracticeServerTestLayer)("office-action review loop over the epistemic server", (it) => {
     it.effect("IrToLaw grounds exactly one distinction to its source anchor", () =>
       Effect.gen(function* () {
         const irToLaw = yield* IrToLaw;
