@@ -67,7 +67,8 @@
     "packages/drivers/libpff",
     "packages/drivers/box",
     "packages/drivers/firecrawl",
-    "packages/drivers/uspto"
+    "packages/drivers/uspto",
+    "packages/drivers/pglite"
   ],
   "repository": {
     "type": "git",
@@ -273,6 +274,7 @@
     "@openai/codex-sdk": "~0.140.0",
     "@pulumi/pulumi": "3.246.0",
     "@effect/sql-pg": "4.0.0-beta.83",
+    "@effect/sql-pglite": "4.0.0-beta.83",
     "@effect/sql-sqlite-bun": "4.0.0-beta.83",
     "@effect/sql-sqlite-node": "4.0.0-beta.83",
     "@effect/vitest": "4.0.0-beta.83",

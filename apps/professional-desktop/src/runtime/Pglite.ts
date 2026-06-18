@@ -1,172 +1,243 @@
 /**
- * File-backed PGlite database provisioning for the desktop chat sidecar.
+ * In-process PGlite database provisioning for the desktop chat sidecar.
  *
- * SPEC: "PGlite runs in the sidecar via pglite-socket." This module boots a
- * file-backed {@link PGlite} instance, exposes it over the PostgreSQL wire
- * protocol with a {@link PGLiteSocketServer} bound to loopback, and points the
- * repo's {@link PostgresClient}/{@link PostgresDrizzle} layers at that socket so
- * every slice repository (the Drizzle ThreadStore, the Drizzle usage-record
- * sink) runs against the same in-process database the integration tests already
- * prove. The db-admin Drizzle migrations are applied on boot.
+ * Boots a file-backed {@link https://pglite.dev | PGlite} instance in-process via
+ * the `@beep/pglite` driver (which wraps `@effect/sql-pglite` and aliases the
+ * client under the `@effect/sql-pg` PgClient tag), then layers the repo's
+ * {@link PostgresDrizzle} composition on top so every sidecar repository (the
+ * Drizzle ThreadStore, the Drizzle usage-record sink) runs against the same
+ * embedded database the integration tests prove. The sidecar's bundled Drizzle
+ * migrations are applied on boot before the data directory is marked compatible.
  *
- * The PGlite instance and its socket server are owned by a {@link Scope}: the
- * socket server is acquired with {@link Effect.acquireRelease} and torn down
- * (`server.stop()` + `db.close()`) when the runtime scope closes, so the
- * sidecar leaves no orphaned listener or open database handle.
+ * Operational note: `CHAT_DB_PATH` is owned by this sidecar build's bundled
+ * PGlite runtime. Existing unmarked PGlite-looking directories are opened with
+ * the in-process runtime before they are marked compatible. If that probe
+ * fails, startup fails closed and leaves the directory untouched so an older
+ * socket-bridge store is not silently reset.
+ *
+ * The PGlite instance is owned by the layer {@link Scope}: it is acquired and
+ * released (`pglite.close()`) by `@beep/pglite` when the runtime scope closes, so
+ * the sidecar leaves no open database handle behind. Provisioning failures are
+ * unrecoverable at boot, so they are promoted to defects (`Layer.orDie`).
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 import { fileURLToPath } from "node:url";
-import { makeDrizzle, makeDrizzleLayer, migrate, PostgresClient } from "@beep/postgres";
-import { PGlite } from "@electric-sql/pglite";
-import { PGLiteSocketServer } from "@electric-sql/pglite-socket";
-import { Config, Data, Effect, Layer, Redacted } from "effect";
+import * as Pglite from "@beep/pglite";
+import { makeDrizzleLayer } from "@beep/postgres";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
+import { Clock, Config, Data, Effect, FileSystem, Layer, Path } from "effect";
+import * as SqlClient from "effect/unstable/sql/SqlClient";
+import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
-import type * as Pg from "@effect/sql-pg/PgClient";
-import type * as SqlClient from "effect/unstable/sql/SqlClient";
+import type { Context } from "effect";
 
 /**
- * Tagged provisioning failure for the sidecar's PGlite socket database. The
- * underlying defect (PGlite create / socket-server start) is preserved in
- * `cause`. These failures are unrecoverable at boot, so callers promote them to
- * defects (`Layer.orDie`).
+ * Directory PGlite persists into, resolved from the environment.
  *
- * @category errors
- * @since 0.0.0
- */
-class PgliteSocketError extends Data.TaggedError("PgliteSocketError")<{
-  readonly message: string;
-  readonly cause: unknown;
-}> {}
-
-// pglite-socket exposes a trust-auth PostgreSQL endpoint whose fixed database
-// and role are both `postgres` (see its connection URL:
-// `postgresql://postgres:postgres@host:port/postgres`).
-const PGLITE_DATABASE = "postgres";
-const PGLITE_USERNAME = "postgres";
-const PGLITE_PASSWORD = "postgres";
-const PGLITE_HOST = "127.0.0.1";
-
-// The db-admin Drizzle migrations live under packages/_internal/db-admin and
-// are applied into the default `drizzle` schema, matching the integration
-// harness (TestDatabaseInfo.schema getOrElse "drizzle").
-const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
-const migrationsSchema = "drizzle";
-
-/**
- * Sidecar database configuration resolved from the environment.
- *
- * - `CHAT_DB_PATH` — directory PGlite persists into. Defaults to a repo-local
- *   `.beep/professional-desktop/chat-db` so dev runs are durable without extra
- *   setup; the packaged Tauri app points this at its data directory.
- * - `CHAT_DB_PORT` — loopback TCP port the pglite-socket server binds. Defaults
- *   to `54399` (off the standard 5432 to avoid colliding with a local
- *   PostgreSQL).
+ * `CHAT_DB_PATH` defaults to a repo-local `.beep/professional-desktop/chat-db`
+ * so dev runs are durable without extra setup; the packaged Tauri app points it
+ * at its data directory.
  *
  * @category configuration
  * @since 0.0.0
  */
-const ChatDbConfig = Config.all({
-  dataDir: Config.string("CHAT_DB_PATH").pipe(
-    Config.withDefault(fileURLToPath(new URL("../../../../.beep/professional-desktop/chat-db", import.meta.url)))
-  ),
-  port: Config.port("CHAT_DB_PORT").pipe(Config.withDefault(54_399)),
+const ChatDbDataDir = Config.string("CHAT_DB_PATH").pipe(
+  Config.withDefault(fileURLToPath(new URL("../../../../.beep/professional-desktop/chat-db", import.meta.url)))
+);
+
+/**
+ * Marker written into data directories already opened by the in-process
+ * desktop PGlite runtime.
+ *
+ * The `v1` suffix is part of the on-disk compatibility contract for the
+ * embedded `@effect/sql-pglite` / `@electric-sql/pglite` line. Bump the marker
+ * whenever that storage compatibility contract changes.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const ChatDbCompatibilityMarker = ".beep-pglite-inprocess-v1";
+
+const PgliteDataDirRequiredEntries = ["PG_VERSION", "base", "global"] as const;
+
+const ChatDbIncompatibleRecoveryMessage =
+  "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; restore or export it with the prior runtime, or choose a new empty CHAT_DB_PATH for this build.";
+
+class IncompatiblePgliteDataDir extends Data.TaggedError("IncompatiblePgliteDataDir")<{
+  readonly cause: unknown;
+  readonly dataDir: string;
+  readonly recovery: string;
+}> {}
+
+const pathExists = (fs: FileSystem.FileSystem, target: string): Effect.Effect<boolean> =>
+  fs.exists(target).pipe(Effect.orElseSucceed(() => false));
+
+const hasPgliteDataDirShape = (entries: ReadonlyArray<string>): boolean =>
+  PgliteDataDirRequiredEntries.every((entry) => entries.includes(entry));
+
+const writeCompatibilityMarker = Effect.fn("ProfessionalDesktop.Pglite.writeCompatibilityMarker")(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  dataDir: string
+) {
+  yield* fs.makeDirectory(dataDir, { recursive: true });
+  const createdAtMillis = yield* Clock.currentTimeMillis;
+  yield* fs.writeFileString(
+    path.join(dataDir, ChatDbCompatibilityMarker),
+    ["runtime=professional-desktop-pglite-inprocess", "version=1", `createdAtMillis=${createdAtMillis}`, ""].join("\n")
+  );
 });
 
 /**
- * Boot a file-backed {@link PGlite} instance and expose it over the PostgreSQL
- * wire protocol via {@link PGLiteSocketServer}, scoped to the calling lifetime.
- * The server starts on acquire and is stopped (with the database closed) on
- * release.
+ * Mark a data directory after the in-process PGlite runtime has opened it.
  *
- * @category constructors
+ * @category runtime
  * @since 0.0.0
  */
-const acquirePgliteSocket = (dataDir: string, port: number) =>
-  Effect.acquireRelease(
-    Effect.gen(function* () {
-      const db = yield* Effect.tryPromise({
-        try: () => PGlite.create(dataDir),
-        catch: (cause) =>
-          new PgliteSocketError({ message: `Failed to create file-backed PGlite at ${dataDir}`, cause }),
-      });
-      const server = new PGLiteSocketServer({ db, host: PGLITE_HOST, port });
-      yield* Effect.tryPromise({
-        try: () => server.start(),
-        catch: (cause) =>
-          new PgliteSocketError({ message: `Failed to start PGLiteSocketServer on ${PGLITE_HOST}:${port}`, cause }),
-      });
-      yield* Effect.logInfo("pglite socket server started").pipe(
-        Effect.annotateLogs({ component: "chat-sidecar", dataDir, host: PGLITE_HOST, port })
-      );
-      return { db, server } as const;
-    }),
-    ({ db, server }) =>
-      Effect.gen(function* () {
-        yield* Effect.promise(() => server.stop());
-        yield* Effect.promise(() => db.close());
-      }).pipe(
-        Effect.catchCause((cause) =>
-          Effect.logWarning("pglite socket server teardown failed").pipe(Effect.annotateLogs({ cause }))
+export const markCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite.markCompatibleChatDbDataDir")(
+  function* (dataDir: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    yield* writeCompatibilityMarker(fs, path, dataDir);
+  }
+);
+
+const assertCanOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.assertCanOpenInProcessPgliteDataDir")(
+  function* (dataDir: string) {
+    yield* Effect.scoped(
+      Layer.build(Pglite.makeLayer({ dataDir })).pipe(
+        Effect.flatMap((context) =>
+          Effect.gen(function* () {
+            const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+            yield* sql`SELECT 1`;
+          }).pipe(Effect.provide(context))
         )
       )
-  );
-
-/**
- * Live {@link PostgresClient} layer backed by a file-backed PGlite instance
- * exposed through pglite-socket. The socket server is started/stopped with the
- * layer scope; the native Effect PostgreSQL client connects to it over loopback
- * TCP. Connection/provisioning failures are unrecoverable here, so they are
- * promoted to defects (`Layer.orDie`).
- *
- * @category layers
- * @since 0.0.0
- */
-const PgliteClientLive: Layer.Layer<PostgresClient | Pg.PgClient | SqlClient.SqlClient> = Layer.unwrap(
-  Effect.gen(function* () {
-    const { dataDir, port } = yield* ChatDbConfig;
-    yield* acquirePgliteSocket(dataDir, port);
-    return PostgresClient.makeLayer({
-      database: PGLITE_DATABASE,
-      host: PGLITE_HOST,
-      maxConnections: 1,
-      password: Redacted.make(PGLITE_PASSWORD),
-      port,
-      ssl: false,
-      username: PGLITE_USERNAME,
-    });
-  })
-).pipe(Layer.orDie);
-
-/**
- * Apply the db-admin Drizzle migrations against the PGlite database on boot.
- * Idempotent: Drizzle's migration journal skips already-applied migrations on
- * subsequent runs.
- *
- * @category constructors
- * @since 0.0.0
- */
-const migrateOnBoot: Effect.Effect<void, never, Pg.PgClient> = Effect.gen(function* () {
-  const db = yield* makeDrizzle();
-  yield* migrate(db, { migrationsFolder, migrationsSchema });
-  yield* Effect.logInfo("chat sidecar migrations applied").pipe(
-    Effect.annotateLogs({ component: "chat-sidecar", migrationsSchema })
-  );
-}).pipe(Effect.orDie);
-
-/**
- * Live {@link PostgresDrizzle} layer over a file-backed PGlite instance, with
- * the db-admin migrations applied on boot. This is the shared database every
- * sidecar repository (the Drizzle ThreadStore, the Drizzle usage-record sink)
- * runs against.
- *
- * @category layers
- * @since 0.0.0
- */
-export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = makeDrizzleLayer().pipe(
-  Layer.tap(() => migrateOnBoot),
-  Layer.provide(PgliteClientLive),
-  Layer.orDie
+    ).pipe(
+      Effect.catchCause((cause) =>
+        Effect.logError("existing PGlite chat db data dir cannot be opened by the current in-process runtime").pipe(
+          Effect.annotateLogs({
+            cause,
+            component: "professional-desktop",
+            dataDir,
+            recovery: ChatDbIncompatibleRecoveryMessage,
+          }),
+          Effect.andThen(
+            Effect.fail(
+              new IncompatiblePgliteDataDir({
+                cause,
+                dataDir,
+                recovery: ChatDbIncompatibleRecoveryMessage,
+              })
+            )
+          )
+        )
+      )
+    );
+  }
 );
+
+/**
+ * Ensure a desktop chat database directory is safe for the current in-process
+ * PGlite runtime.
+ *
+ * Fresh directories are prepared. Already-marked and unmarked PGlite-looking
+ * directories are first opened through the new driver; compatible stores are
+ * retained, while stores that fail the probe are left untouched and fail boot
+ * with a recovery log. Populated directories that do not look like PGlite are
+ * moved aside with a timestamped backup before a fresh data dir is created. The
+ * returned boolean tells the caller whether to write
+ * {@link ChatDbCompatibilityMarker} after the real in-process PGlite layer opens
+ * and its migrations apply successfully. Unreadable directories fail boot
+ * instead of being quarantined.
+ *
+ * @category runtime
+ * @since 0.0.0
+ */
+export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite.ensureCompatibleChatDbDataDir")(
+  function* (dataDir: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const markerPath = path.join(dataDir, ChatDbCompatibilityMarker);
+    const dataDirExists = yield* pathExists(fs, dataDir);
+    const markerExists = dataDirExists ? yield* pathExists(fs, markerPath) : false;
+
+    if (markerExists) {
+      yield* assertCanOpenInProcessPgliteDataDir(dataDir);
+      return false;
+    }
+
+    if (!dataDirExists) {
+      yield* fs.makeDirectory(dataDir, { recursive: true });
+      return true;
+    }
+
+    const entries = yield* fs.readDirectory(dataDir);
+    if (entries.length === 0) {
+      return true;
+    }
+
+    if (hasPgliteDataDirShape(entries)) {
+      yield* assertCanOpenInProcessPgliteDataDir(dataDir);
+      yield* Effect.logInfo("existing chat db data dir preserved for in-process PGlite compatibility").pipe(
+        Effect.annotateLogs({
+          component: "professional-desktop",
+          dataDir,
+        })
+      );
+      return true;
+    }
+
+    const backupPath = `${dataDir}.pre-inprocess-${yield* Clock.currentTimeMillis}`;
+    yield* fs.rename(dataDir, backupPath);
+    yield* fs.makeDirectory(dataDir, { recursive: true });
+    yield* Effect.logWarning("chat db data dir moved for in-process PGlite compatibility").pipe(
+      Effect.annotateLogs({
+        backupPath,
+        component: "professional-desktop",
+        dataDir,
+      })
+    );
+    return true;
+  }
+);
+
+/**
+ * Live in-process PGlite client layer (file-backed), exposed under the
+ * `@effect/sql-pg` PgClient / generic SqlClient tags so the Drizzle composition
+ * binds to it. Provisioning failures are promoted to defects (`Layer.orDie`).
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+const makePgliteClientLive = (dataDir: string) => Pglite.makeLayer({ dataDir });
+
+const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+
+/**
+ * Live {@link PostgresDrizzle} layer over a file-backed in-process PGlite
+ * database, with the sidecar migrations applied on boot. This is the shared
+ * database every sidecar repository (the Drizzle ThreadStore, the Drizzle
+ * usage-record sink) runs against.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = Layer.unwrap(
+  Effect.gen(function* () {
+    const dataDir = yield* ChatDbDataDir;
+    const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
+    const markAfterMigration = shouldMarkDataDir ? markCompatibleChatDbDataDir(dataDir) : Effect.void;
+
+    return makeDrizzleLayer().pipe(
+      Layer.tap((context: Context.Context<PostgresDrizzle>) =>
+        Effect.provide(migrateOnBoot, context).pipe(Effect.andThen(markAfterMigration))
+      ),
+      Layer.provide(makePgliteClientLive(dataDir))
+    );
+  })
+).pipe(Layer.provide(MigrationPlatformLive), Layer.orDie);

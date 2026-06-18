@@ -59,6 +59,7 @@
     "packages/drivers/box/dtslint/**/*.tst.*",
     "packages/drivers/firecrawl/dtslint/**/*.tst.*",
     "packages/drivers/uspto/dtslint/**/*.tst.*",
+    "packages/drivers/pglite/dtslint/**/*.tst.*",
     "packages/tooling/library/ai-sync/dtslint/**/*.tst.*",
     "packages/tooling/library/repo-utils/dtslint/**/*.tst.*"
   ],

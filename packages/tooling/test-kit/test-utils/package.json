@@ -49,6 +49,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/pglite": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-bun": "catalog:",
