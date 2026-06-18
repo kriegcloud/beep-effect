@@ -1673,9 +1673,7 @@ const makeOtlpExportProgram = Effect.fn("AIMetrics.makeOtlpExportProgram")(funct
     target,
   });
   const result = yield* Effect.scoped(
-    Layer.build(
-      Layer.mergeAll(duckDbLayer, layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint)))
-    ).pipe(
+    Layer.build(layerNodeSdkServerTraces(serverObservabilityConfigFor(target, endpoint))).pipe(
       Effect.flatMap((context) =>
         runAiMetricsOtlpProjectionBatchExport(resolvedInput, batch).pipe(Effect.provide(context))
       )
