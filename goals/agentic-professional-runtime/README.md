@@ -19,6 +19,14 @@ data model, and agent integration story to become concrete.
 Status note (2026-06-11): law is the sole active vertical; wealth-management
 is demoted to a dormant proof fixture (see the SPEC status amendment).
 
+Status note (2026-06-18): the law-practice office-action rung-0 loop merged to
+`main` in PR #262. It now ingests a synthetic/public office action through
+`@beep/file-processing` + `@beep/tika`, maps span-bearing
+`GroundedExtraction[]` into law entities, and gates a candidate distinction
+through the epistemic public surface. The next law vertical rung is to replace
+the fixed candidate set with langextract-service/LLM extraction while
+preserving deterministic tests and the privilege wall.
+
 ## Read This First
 
 ### Root

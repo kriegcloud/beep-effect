@@ -56,7 +56,18 @@ bun run --cwd apps/professional-runtime-proof test
 
 ## Next Implementation Target
 
-P4 should design native first-run onboarding and the local runtime bootstrap:
+The active law-practice vertical should graduate office-action extraction beyond
+the rung-0 fixed candidate set:
+
+- invoke the langextract service/LLM extraction boundary instead of the fixed
+  `OfficeActionReviewSpikeCandidates` list
+- keep deterministic test mode and synthetic/public fixtures
+- preserve span-bearing `GroundedExtraction[]` into `IrToLaw`
+- add non-happy-path alignment candidates before broadening doctrine coverage
+- then add multi-reference §103 plus §101/§112 handling
+
+The broader runtime P4 remains native first-run onboarding and local runtime
+bootstrap design:
 
 - dependency checks for git, Node/Bun, and Python
 - Claude Desktop and OpenClaw setup guidance

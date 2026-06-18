@@ -60,9 +60,12 @@ retained as reference.
 - P1 — `@beep/law-practice-use-cases`: typed `IrToLaw` + `OfficeActionReview`
   `Context.Service` ports.
 - P2 — IR→law impl + office-action review loop wired in new
-  `@beep/law-practice-server` (`LawPracticeServerLive`); 2 integration tests
-  green (anchor re-slices source to original-case quote via `match_lesser`;
-  gate admits → lifecycle reaches `shape_valid`, `admittedKeys === []`).
+  `@beep/law-practice-server` (`LawPracticeServerLive`); source ingestion now
+  routes through `@beep/file-processing` + `@beep/tika` from a typed
+  `OfficeActionReviewInput` carrying `SourceArtifact`/`OperationId`; 2
+  integration tests green (anchor re-slices source to original-case quote via
+  `match_lesser`; gate admits → lifecycle reaches `shape_valid`,
+  `admittedKeys === []`).
 - P3 — global `bun run check` EXIT=0 (88 packages + dtslint/test-tsgo/smoke);
   `rg "@beep/epistemic" packages/law-practice/domain/src` empty;
   `bun run beep lint reflection-artifacts` blocking_findings=0.
@@ -71,16 +74,18 @@ retained as reference.
   fully clean. Applied non-blocking polish: synced the SPEC `IrToLaw` signature
   to `GroundedExtraction[]`, widened the Exception Ledger to the full epistemic
   surface, fixed the leakage-check `rg` blind spot, added a `match_lesser`
-  assertion + candidate-sync caveat to the loop test, and a decoder-rationale
-  comment. Deferred to graduation: candidate-list sharing, non-happy-path
-  candidates, `Option`-style absence handling.
+  assertion, shared the fixed candidate list between loop and tests, and added
+  a decoder-rationale comment. Deferred to graduation: LLM extraction through
+  the langextract service, non-happy-path candidates, `Option`-style absence
+  handling, multi-reference §103, and §101/§112 breadth.
 - Built on the post-#254 baseline (origin/main merged into `baseline-synthesis`;
   repo-exports catalog/shards removed in the merge).
+- Merged to `main` in PR #262 on 2026-06-18 (merge commit `daae48be5b`; head
+  `a872fac6ea`).
 - Reflection: [`history/reflections/2026-06-18-claude.md`](./history/reflections/2026-06-18-claude.md).
 - Key spike finding: the nlp `AnnotatedDocument` envelope is span-lossy at the
   entity level; `IrToLaw` consumes span-bearing `GroundedExtraction[]`
   (`@beep/langextract`) instead — see the reflection + SPEC.
-- Not committed/pushed: all spike code is in the working tree (local only).
 
 ## Notes
 
