@@ -7,7 +7,7 @@
  * {@link PostgresDrizzle} composition on top so every sidecar repository (the
  * Drizzle ThreadStore, the Drizzle usage-record sink) runs against the same
  * embedded database the integration tests prove. The sidecar's bundled Drizzle
- * migrations are applied on boot.
+ * migrations are applied on boot before the data directory is marked compatible.
  *
  * Operational note: `CHAT_DB_PATH` is owned by this sidecar build's bundled
  * PGlite runtime. Existing unmarked PGlite-looking directories are opened with
@@ -152,7 +152,8 @@ const assertCanOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglit
  * moved aside with a timestamped backup before a fresh data dir is created. The
  * returned boolean tells the caller whether to write
  * {@link ChatDbCompatibilityMarker} after the real in-process PGlite layer opens
- * successfully. Unreadable directories fail boot instead of being quarantined.
+ * and its migrations apply successfully. Unreadable directories fail boot
+ * instead of being quarantined.
  *
  * @category runtime
  * @since 0.0.0
@@ -212,15 +213,7 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
  * @category layers
  * @since 0.0.0
  */
-const PgliteClientLive = Layer.unwrap(
-  Effect.gen(function* () {
-    const dataDir = yield* ChatDbDataDir;
-    const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
-    return Pglite.makeLayer({ dataDir }).pipe(
-      Layer.tap(() => (shouldMarkDataDir ? markCompatibleChatDbDataDir(dataDir) : Effect.void))
-    );
-  })
-).pipe(Layer.orDie);
+const makePgliteClientLive = (dataDir: string) => Pglite.makeLayer({ dataDir });
 
 const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 
@@ -233,9 +226,17 @@ const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer)
  * @category layers
  * @since 0.0.0
  */
-export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = makeDrizzleLayer().pipe(
-  Layer.tap((context: Context.Context<PostgresDrizzle>) => Effect.provide(migrateOnBoot, context)),
-  Layer.provide(PgliteClientLive),
-  Layer.provide(MigrationPlatformLive),
-  Layer.orDie
-);
+export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = Layer.unwrap(
+  Effect.gen(function* () {
+    const dataDir = yield* ChatDbDataDir;
+    const shouldMarkDataDir = yield* ensureCompatibleChatDbDataDir(dataDir);
+    const markAfterMigration = shouldMarkDataDir ? markCompatibleChatDbDataDir(dataDir) : Effect.void;
+
+    return makeDrizzleLayer().pipe(
+      Layer.tap((context: Context.Context<PostgresDrizzle>) =>
+        Effect.provide(migrateOnBoot, context).pipe(Effect.andThen(markAfterMigration))
+      ),
+      Layer.provide(makePgliteClientLive(dataDir))
+    );
+  })
+).pipe(Layer.provide(MigrationPlatformLive), Layer.orDie);

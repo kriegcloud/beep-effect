@@ -3,12 +3,13 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
 import { PGlite as LegacyPglite053 } from "@electric-sql/pglite";
-import { Effect, Exit, FileSystem, Layer, Path } from "effect";
+import { ConfigProvider, Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import {
   ChatDbCompatibilityMarker,
   ensureCompatibleChatDbDataDir,
   markCompatibleChatDbDataDir,
+  PgliteDrizzleLive,
 } from "@/runtime/Pglite";
 
 const TestServices = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
@@ -20,6 +21,11 @@ const provideScopedLayer =
 
 const withPgliteSql = <A, E, R>(dataDir: string, effect: Effect.Effect<A, E, R>) =>
   effect.pipe(provideScopedLayer(Pglite.makeLayer({ dataDir, relaxedDurability: true })));
+
+const withChatDbPath =
+  (dataDir: string) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+    effect.pipe(provideScopedLayer(ConfigProvider.layer(ConfigProvider.fromUnknown({ CHAT_DB_PATH: dataDir }))));
 
 const markerPath = (path: Path.Path, dataDir: string): string => path.join(dataDir, ChatDbCompatibilityMarker);
 
@@ -218,6 +224,32 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         expect(yield* fs.exists(markerPath(path, dataDir))).toBe(false);
         expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
       })
+    );
+  });
+
+  describe("PgliteDrizzleLive", () => {
+    it.effect(
+      "writes the compatibility marker after the production boot layer migrates",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-production-layer-" });
+        const dataDir = path.join(rootDir, "chat-db");
+
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(false);
+
+        yield* Effect.scoped(Layer.build(PgliteDrizzleLive).pipe(Effect.asVoid, withChatDbPath(dataDir)));
+
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
+        yield* withPgliteSql(
+          dataDir,
+          Effect.gen(function* () {
+            const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+            yield* sql`SELECT id FROM workspace_thread LIMIT 0`;
+          })
+        );
+      }),
+      { timeout: 30_000 }
     );
   });
 });
