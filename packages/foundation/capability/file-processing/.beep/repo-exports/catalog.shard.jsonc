@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "dc13fb0b37c4e69e0474abab87d4e768ec57ca5974f2cc1ecb4f263dcdb5ec63",
+    "digest": "6938ac8960649a27798bc7051520b617249418edc1f66e9f6e69a778ea3927e4",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/capability/file-processing/package.json",
-        "sha256": "b29aa6297c9b1e8c047ad29c2c4fdf9760c8757d7092515f8510d952355b33fd",
-        "bytes": 3107
+        "sha256": "c6c87b494e26631823b2bf35b93a01e7bb201bcca243be3c2945cec0d6e9ecd7",
+        "bytes": 3208
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Artifact/index.ts",
@@ -37,13 +37,18 @@
       },
       {
         "path": "packages/foundation/capability/file-processing/src/index.ts",
-        "sha256": "1503bb663615db09c24ac2c0368d1a9dfdec607a027ca391f1ed7c6680e44f27",
-        "bytes": 834
+        "sha256": "63f5ca0929fcd968fbafb2a093c34607a5860848c7e3a2bb03cda7126d57a65f",
+        "bytes": 1000
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Operation/index.ts",
         "sha256": "d80bba57e6dc52a31c498668ae1521d977e8809071374a137a629493fd62ca6f",
         "bytes": 6468
+      },
+      {
+        "path": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sha256": "71d29abe06b4b6d073bdc7372634b76187726920f9b1be81164a2945c02a91bc",
+        "bytes": 12599
       },
       {
         "path": "packages/foundation/capability/file-processing/src/Service/index.ts",
@@ -67,8 +72,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -91,6 +96,8 @@
       "@beep/file-processing/index",
       "@beep/file-processing/Operation",
       "@beep/file-processing/Operation/index",
+      "@beep/file-processing/PathSafety",
+      "@beep/file-processing/PathSafety/index",
       "@beep/file-processing/Service",
       "@beep/file-processing/Service/index",
       "@beep/file-processing/Strategy",
@@ -98,9 +105,9 @@
       "@beep/file-processing/test"
     ],
     "counts": {
-      "publicExportEntries": 171,
-      "uniqueSymbols": 70,
-      "sourceFiles": 7
+      "publicExportEntries": 185,
+      "uniqueSymbols": 76,
+      "sourceFiles": 8
     },
     "exports": [
       {
@@ -153,6 +160,23 @@
         "since": [],
         "tags": [],
         "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . operation sourcefile packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "PathSafety",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 24,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing . pathsafety sourcefile packages/foundation/capability/file-processing/src/pathsafety/index.ts"
       },
       {
         "packageName": "@beep/file-processing",
@@ -2328,6 +2352,23 @@
         "importSpecifier": "@beep/file-processing/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
+        "symbolName": "PathSafety",
+        "exportKind": "SourceFile",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 24,
+        "summary": "",
+        "categories": [],
+        "since": [],
+        "tags": [],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/index ./index pathsafety sourcefile packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/index.ts",
         "symbolName": "Service",
         "exportKind": "SourceFile",
         "sourcePath": "packages/foundation/capability/file-processing/src/Service/index.ts",
@@ -2752,6 +2793,304 @@
           "@since"
         ],
         "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/operation/index ./operation/index processfileoperation class operation request for a full source processing pass. models packages/foundation/capability/file-processing/src/operation/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety",
+        "exportSubpath": "./PathSafety",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "isPathWithinRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 203,
+        "summary": "Pure containment check for two already-resolved absolute paths.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety ./pathsafety ispathwithinroot const pure containment check for two already-resolved absolute paths. predicates packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety",
+        "exportSubpath": "./PathSafety",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "PathSafetyError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 92,
+        "summary": "Typed, fail-closed path-safety violation.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety ./pathsafety pathsafetyerror class typed, fail-closed path-safety violation. errors packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety",
+        "exportSubpath": "./PathSafety",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "PathSafetyViolationReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 52,
+        "summary": "Machine-readable reasons a path was rejected by the safety guard.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety ./pathsafety pathsafetyviolationreason const machine-readable reasons a path was rejected by the safety guard. errors packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety",
+        "exportSubpath": "./PathSafety",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "PathSafetyViolationReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 69,
+        "summary": "Type for {@link PathSafetyViolationReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety ./pathsafety pathsafetyviolationreason type type for {@link pathsafetyviolationreason}. errors packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety",
+        "exportSubpath": "./PathSafety",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "resolvePathWithinRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 289,
+        "summary": "Resolve a candidate path against an allowed root and fail closed if it",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety ./pathsafety resolvepathwithinroot const resolve a candidate path against an allowed root and fail closed if it guards packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety",
+        "exportSubpath": "./PathSafety",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "validateResolvedPath",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 246,
+        "summary": "Pure, fail-closed validation for an already-resolved candidate path.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety ./pathsafety validateresolvedpath const pure, fail-closed validation for an already-resolved candidate path. validation packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety/index",
+        "exportSubpath": "./PathSafety/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "isPathWithinRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 203,
+        "summary": "Pure containment check for two already-resolved absolute paths.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety/index ./pathsafety/index ispathwithinroot const pure containment check for two already-resolved absolute paths. predicates packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety/index",
+        "exportSubpath": "./PathSafety/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "PathSafetyError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 92,
+        "summary": "Typed, fail-closed path-safety violation.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety/index ./pathsafety/index pathsafetyerror class typed, fail-closed path-safety violation. errors packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety/index",
+        "exportSubpath": "./PathSafety/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "PathSafetyViolationReason",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 52,
+        "summary": "Machine-readable reasons a path was rejected by the safety guard.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety/index ./pathsafety/index pathsafetyviolationreason const machine-readable reasons a path was rejected by the safety guard. errors packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety/index",
+        "exportSubpath": "./PathSafety/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "PathSafetyViolationReason",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 69,
+        "summary": "Type for {@link PathSafetyViolationReason}.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety/index ./pathsafety/index pathsafetyviolationreason type type for {@link pathsafetyviolationreason}. errors packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety/index",
+        "exportSubpath": "./PathSafety/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "resolvePathWithinRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 289,
+        "summary": "Resolve a candidate path against an allowed root and fail closed if it",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety/index ./pathsafety/index resolvepathwithinroot const resolve a candidate path against an allowed root and fail closed if it guards packages/foundation/capability/file-processing/src/pathsafety/index.ts"
+      },
+      {
+        "packageName": "@beep/file-processing",
+        "packagePath": "packages/foundation/capability/file-processing",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/file-processing/PathSafety/index",
+        "exportSubpath": "./PathSafety/index",
+        "exportedFromPath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "symbolName": "validateResolvedPath",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/file-processing/src/PathSafety/index.ts",
+        "sourceLine": 246,
+        "summary": "Pure, fail-closed validation for an already-resolved candidate path.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/file-processing packages/foundation/capability/file-processing @beep/file-processing/pathsafety/index ./pathsafety/index validateresolvedpath const pure, fail-closed validation for an already-resolved candidate path. validation packages/foundation/capability/file-processing/src/pathsafety/index.ts"
       },
       {
         "packageName": "@beep/file-processing",

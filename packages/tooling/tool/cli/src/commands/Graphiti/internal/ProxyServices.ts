@@ -22,6 +22,8 @@ import {
   Ref,
   Result,
   SchemaTransformation,
+  Semaphore,
+  Stream,
 } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -74,7 +76,13 @@ export const DependencyHealthState = LiteralKit(["unknown", "ok", "degraded"]).p
   })
 );
 
-const ProxyErrorKind = LiteralKit(["queue_full", "upstream_failure", "upstream_timeout", "shutting_down"]).pipe(
+const ProxyErrorKind = LiteralKit([
+  "queue_full",
+  "payload_too_large",
+  "upstream_failure",
+  "upstream_timeout",
+  "shutting_down",
+]).pipe(
   $I.annoteSchema("ProxyErrorKind", {
     description: "Structured graphiti proxy error identifiers.",
   })
@@ -353,11 +361,21 @@ type GraphitiDependencyHealthServiceShape = {
   readonly snapshot: Effect.Effect<DependencyHealthSnapshot>;
 };
 
+type RequestTargetRejection = {
+  readonly response: HttpServerResponse.HttpServerResponse;
+};
+
 type GraphitiProxyForwarderServiceShape = {
   readonly forward: (
     request: HttpServerRequest.HttpServerRequest,
     bodyBytes?: O.Option<Uint8Array>
   ) => Effect.Effect<HttpServerResponse.HttpServerResponse, never, HttpClient.HttpClient>;
+  /**
+   * Validate that a request targets the configured upstream subtree before its
+   * body is consumed. Returns the rejection response when the target is
+   * disallowed so callers can fail closed without buffering the body.
+   */
+  readonly rejectDisallowedTarget: (request: HttpServerRequest.HttpServerRequest) => O.Option<RequestTargetRejection>;
 };
 
 type GraphitiProxyQueueServiceShape = {
@@ -434,18 +452,52 @@ const parseContainerHealth = (value: string): S.Schema.Type<typeof ContainerHeal
     O.getOrElse(() => unknownContainerHealthState)
   );
 
-const readRequestBodyBytes = Effect.fnUntraced(function* (request: HttpServerRequest.HttpServerRequest) {
+type RequestBodyOutcome =
+  | { readonly _tag: "Body"; readonly bodyBytes: O.Option<Uint8Array> }
+  | { readonly _tag: "Oversized"; readonly declaredBytes: O.Option<number> }
+  | { readonly _tag: "ReadError"; readonly cause: unknown };
+
+const parseContentLength = (request: HttpServerRequest.HttpServerRequest): O.Option<number> =>
+  pipe(
+    Headers.get(request.headers, "content-length"),
+    O.flatMap((raw) => {
+      const parsed = globalThis.Number(pipe(raw, Str.trim));
+      return globalThis.Number.isInteger(parsed) && parsed >= 0 ? O.some(parsed) : O.none<number>();
+    })
+  );
+
+const readRequestBodyBytes: (
+  request: HttpServerRequest.HttpServerRequest,
+  maxBodyBytes: number
+) => Effect.Effect<RequestBodyOutcome> = Effect.fnUntraced(function* (request, maxBodyBytes) {
   const method = HttpMethod.isHttpMethod(request.method) ? request.method : "GET";
   if (!HttpMethod.hasBody(method)) {
-    return Result.succeed(O.none<Uint8Array>());
+    return { _tag: "Body", bodyBytes: O.none<Uint8Array>() };
+  }
+
+  // Fail closed on an advertised Content-Length before buffering any bytes.
+  const declaredBytes = parseContentLength(request);
+  if (O.exists(declaredBytes, (length) => length > maxBodyBytes)) {
+    return { _tag: "Oversized", declaredBytes };
   }
 
   const requestBodyResult = yield* request.arrayBuffer.pipe(
-    Effect.map((buffer) => O.some(new Uint8Array(buffer))),
+    Effect.map((buffer) => new Uint8Array(buffer)),
     Effect.result
   );
 
-  return requestBodyResult;
+  if (Result.isFailure(requestBodyResult)) {
+    return { _tag: "ReadError", cause: requestBodyResult.failure };
+  }
+
+  // Defense-in-depth: enforce the cap against the actually buffered length in
+  // case Content-Length is absent or understated.
+  const bytes = requestBodyResult.success;
+  if (bytes.length > maxBodyBytes) {
+    return { _tag: "Oversized", declaredBytes };
+  }
+
+  return { _tag: "Body", bodyBytes: O.some(bytes) };
 });
 
 const isFastMcpRequestEnvelope = (envelope: GraphitiMcpJsonRpcRequest): boolean =>
@@ -493,6 +545,37 @@ const addProxyHeaders = (
     HttpServerResponse.setHeader("x-graphiti-proxy-active", `${options.active}`),
     HttpServerResponse.setHeader("x-graphiti-proxy-lane", options.lane)
   );
+
+/**
+ * Settle a forwarded response against the concurrency accounting slot.
+ *
+ * Streaming MCP/SSE responses complete their headers while the body keeps
+ * flowing to the downstream client. To keep `GRAPHITI_PROXY_CONCURRENCY` and
+ * `active` accounting honest, the release effect is deferred to the body
+ * stream finalizer so the worker slot stays accounted until the stream closes,
+ * errors, or is interrupted. Non-streaming responses release the slot
+ * immediately.
+ *
+ * @param response - Forwarded upstream response.
+ * @param release - Effect that releases the accounting slot exactly once.
+ * @returns Effect producing the response with slot release wired to its body.
+ */
+const settleForwardedResponse: (
+  response: HttpServerResponse.HttpServerResponse,
+  release: Effect.Effect<void>
+) => Effect.Effect<HttpServerResponse.HttpServerResponse> = Effect.fnUntraced(function* (response, release) {
+  return yield* Match.value(response.body).pipe(
+    Match.tag("Stream", (body) =>
+      Effect.succeed(
+        HttpServerResponse.setBody(
+          response,
+          HttpBody.stream(Stream.ensuring(body.stream, release), body.contentType, body.contentLength)
+        )
+      )
+    ),
+    Match.orElse(() => Effect.as(release, response))
+  );
+});
 
 const readContainerHealth: (
   dependencyHealthEnabled: boolean,
@@ -595,24 +678,40 @@ export const makeGraphitiProxyForwarderService = (
   const upstreamBase = new URL(config.upstream);
   const allowedEndpointPath = normalizeEndpointPath(upstreamBase.pathname);
 
+  const rejectDisallowedTarget = (request: HttpServerRequest.HttpServerRequest): O.Option<RequestTargetRejection> => {
+    if (isAbsoluteRequestTarget(request.url)) {
+      return O.some({
+        response: proxyErrorResponse("upstream_failure", "Graphiti proxy rejects absolute-form request targets.", {
+          status: 400,
+        }),
+      });
+    }
+
+    const inboundUrl = new URL(request.url, "http://graphiti-proxy.local");
+    const inboundPath = normalizeEndpointPath(inboundUrl.pathname);
+    if (!isAllowedEndpointPath(allowedEndpointPath, inboundPath)) {
+      return O.some({
+        response: proxyErrorResponse("upstream_failure", `Graphiti proxy only forwards ${allowedEndpointPath}.`, {
+          status: 404,
+        }),
+      });
+    }
+
+    return O.none();
+  };
+
   const forward: (
     request: HttpServerRequest.HttpServerRequest,
     bodyBytes?: O.Option<Uint8Array>
   ) => Effect.Effect<HttpServerResponse.HttpServerResponse, never, HttpClient.HttpClient> = Effect.fnUntraced(
     function* (request, bodyBytes = O.none<Uint8Array>()) {
-      if (isAbsoluteRequestTarget(request.url)) {
-        return proxyErrorResponse("upstream_failure", "Graphiti proxy rejects absolute-form request targets.", {
-          status: 400,
-        });
+      const targetRejection = rejectDisallowedTarget(request);
+      if (O.isSome(targetRejection)) {
+        return targetRejection.value.response;
       }
 
       const inboundUrl = new URL(request.url, "http://graphiti-proxy.local");
       const inboundPath = normalizeEndpointPath(inboundUrl.pathname);
-      if (!isAllowedEndpointPath(allowedEndpointPath, inboundPath)) {
-        return proxyErrorResponse("upstream_failure", `Graphiti proxy only forwards ${allowedEndpointPath}.`, {
-          status: 404,
-        });
-      }
 
       const destination = new URL(upstreamBase.href);
       destination.pathname = inboundPath;
@@ -691,6 +790,7 @@ export const makeGraphitiProxyForwarderService = (
 
   return GraphitiProxyForwarderService.of({
     forward,
+    rejectDisallowedTarget,
   });
 };
 
@@ -736,6 +836,10 @@ export const makeGraphitiProxyQueueService: {
     const failedRef = yield* Ref.make(0);
     const rejectedRef = yield* Ref.make(0);
     const drainDeferred = yield* Deferred.make<void>();
+    // Bound every upstream forward (queued workers and the fast lane alike) to
+    // the configured concurrency so fast-lane requests cannot open unbounded
+    // concurrent upstream connections outside the serialized worker pool.
+    const forwardSemaphore = yield* Semaphore.make(config.concurrency);
 
     const forwardProxyRequest = (proxyRequest: BufferedProxyRequest) =>
       forwarderService.forward(proxyRequest.request, proxyRequest.bodyBytes).pipe(
@@ -762,12 +866,37 @@ export const makeGraphitiProxyQueueService: {
       }
     });
 
+    // Forward a request while holding both an active-count and a concurrency
+    // permit for the full lifetime of the proxied response. For streaming
+    // MCP/SSE bodies the slot is released only when the response body stream
+    // closes, errors, or is interrupted, so a flood of never-ending streams
+    // cannot bypass `GRAPHITI_PROXY_CONCURRENCY` while reporting zero `active`.
+    const forwardWithSlot: (
+      proxyRequest: BufferedProxyRequest
+    ) => Effect.Effect<HttpServerResponse.HttpServerResponse> = Effect.fnUntraced(function* (proxyRequest) {
+      yield* Ref.update(activeRef, (active) => active + 1);
+      yield* forwardSemaphore.take(1);
+
+      const releasedRef = yield* Ref.make(false);
+      const releaseSlot = Effect.gen(function* () {
+        const alreadyReleased = yield* Ref.getAndSet(releasedRef, true);
+        if (alreadyReleased) {
+          return;
+        }
+        yield* forwardSemaphore.release(1);
+        yield* Ref.update(activeRef, (active) => (active > 0 ? active - 1 : 0));
+        yield* checkDrain();
+      });
+
+      const response = yield* forwardProxyRequest(proxyRequest).pipe(Effect.onInterrupt(() => releaseSlot));
+      return yield* settleForwardedResponse(response, releaseSlot);
+    });
+
     const worker = Effect.forever(
       Effect.gen(function* () {
         const job = yield* Queue.take(queue);
-        yield* Ref.update(activeRef, (active) => active + 1);
 
-        const response = yield* forwardProxyRequest(job.proxyRequest);
+        const response = yield* forwardWithSlot(job.proxyRequest);
 
         const queued = yield* Queue.size(queue);
         const active = yield* Ref.get(activeRef);
@@ -776,11 +905,7 @@ export const makeGraphitiProxyQueueService: {
 
         yield* Deferred.succeed(job.responseDeferred, responseWithHeaders).pipe(Effect.ignore);
         yield* Ref.update(processedRef, (processed) => processed + 1);
-      }).pipe(
-        Effect.ensuring(
-          Ref.update(activeRef, (active) => (active > 0 ? active - 1 : 0)).pipe(Effect.andThen(checkDrain()))
-        )
-      )
+      })
     ).pipe(Effect.catchDefect(() => Effect.void));
 
     const workerSlots = A.range(1, config.concurrency);
@@ -801,19 +926,34 @@ export const makeGraphitiProxyQueueService: {
         });
       }
 
-      const bodyResult = yield* readRequestBodyBytes(request);
-      if (Result.isFailure(bodyResult)) {
-        return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(bodyResult.failure, 0), {
+      // Fail closed on disallowed targets (absolute-form / non-/mcp) before the
+      // request body is buffered, so rejected paths never allocate memory.
+      const targetRejection = forwarderService.rejectDisallowedTarget(request);
+      if (O.isSome(targetRejection)) {
+        return targetRejection.value.response;
+      }
+
+      const bodyOutcome = yield* readRequestBodyBytes(request, config.maxBodyBytes);
+      if (bodyOutcome._tag === "ReadError") {
+        return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(bodyOutcome.cause, 0), {
           status: 400,
         });
       }
+      if (bodyOutcome._tag === "Oversized") {
+        yield* Ref.update(rejectedRef, (rejected) => rejected + 1);
+        return proxyErrorResponse(
+          "payload_too_large",
+          `Graphiti proxy rejected request body exceeding ${config.maxBodyBytes} bytes.`,
+          { status: 413 }
+        );
+      }
       const proxyRequest: BufferedProxyRequest = {
-        bodyBytes: bodyResult.success,
+        bodyBytes: bodyOutcome.bodyBytes,
         request,
       };
 
       if (isFastMcpRequestBody(proxyRequest.bodyBytes)) {
-        const response = yield* forwardProxyRequest(proxyRequest);
+        const response = yield* forwardWithSlot(proxyRequest);
         yield* Ref.update(processedRef, (processed) => processed + 1);
         const queued = yield* Queue.size(queue);
         const active = yield* Ref.get(activeRef);

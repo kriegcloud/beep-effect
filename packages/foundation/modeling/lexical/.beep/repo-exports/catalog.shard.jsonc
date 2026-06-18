@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "fd6b6604726c684dca394f3fef3cccf88c4e83dde747d7dd6c76d2d4d5eba003",
+    "digest": "d3c8886c1f7cb4134ff82780e242e63b779a31b1fc1c9c9d1fdeb05c702778a5",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,13 +32,13 @@
       },
       {
         "path": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sha256": "45e5b71ccd52b2fcb2660cff0b07ac813d475f6ccfdf301100f25b9d1aae5dc9",
-        "bytes": 23226
+        "sha256": "12926eb6e1a87101edfadf8f809afe29139cc2c6296214e4d880a06f16b9f8b0",
+        "bytes": 23934
       },
       {
         "path": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sha256": "d91ec538a2cc0bf59797f4324cc4551534b0b145be9e0dc09c8b31f901482a8f",
-        "bytes": 43544
+        "sha256": "acd3c544acecc083da9fa55e099410bdef96f038ef7c96352c224dc29431def2",
+        "bytes": 48977
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -69,8 +69,8 @@
       "@beep/lexical-schema/Lexical.model"
     ],
     "counts": {
-      "publicExportEntries": 191,
-      "uniqueSymbols": 36,
+      "publicExportEntries": 197,
+      "uniqueSymbols": 38,
       "sourceFiles": 3
     },
     "exports": [
@@ -109,7 +109,7 @@
         "symbolName": "ArtifactRefNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1148,
+        "sourceLine": 1277,
         "summary": "Net-new decorator block node owned by this package: a reference to a",
         "categories": [
           "models"
@@ -134,7 +134,7 @@
         "symbolName": "ArtifactRefNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1173,
+        "sourceLine": 1302,
         "summary": "Companion namespace for {@link ArtifactRefNode}.",
         "categories": [
           "models"
@@ -158,7 +158,7 @@
         "symbolName": "BaseNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 252,
+        "sourceLine": 378,
         "summary": "Mirrors `SerializedLexicalNode`. The `type` discriminant is added by each",
         "categories": [
           "models"
@@ -183,7 +183,7 @@
         "symbolName": "BaseNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 276,
+        "sourceLine": 402,
         "summary": "Companion namespace for {@link BaseNode}.",
         "categories": [
           "models"
@@ -232,7 +232,7 @@
         "symbolName": "CodeNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1078,
+        "sourceLine": 1207,
         "summary": "Mirrors `SerializedCodeNode` from `@lexical/code` — `language` is",
         "categories": [
           "models"
@@ -257,7 +257,7 @@
         "symbolName": "CodeNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1103,
+        "sourceLine": 1232,
         "summary": "Companion namespace for {@link CodeNode}.",
         "categories": [
           "models"
@@ -356,7 +356,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1682,
+        "sourceLine": 1815,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -381,7 +381,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 694,
+        "sourceLine": 705,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -406,7 +406,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1742,
+        "sourceLine": 1875,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -481,7 +481,7 @@
         "symbolName": "ElementNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 330,
+        "sourceLine": 456,
         "summary": "Mirrors `SerializedElementNode`.",
         "categories": [
           "models"
@@ -506,7 +506,7 @@
         "symbolName": "ElementNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 364,
+        "sourceLine": 491,
         "summary": "Companion namespace for {@link ElementNode}.",
         "categories": [
           "models"
@@ -530,7 +530,7 @@
         "symbolName": "HeadingNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 764,
+        "sourceLine": 893,
         "summary": "Mirrors `SerializedHeadingNode` from `@lexical/rich-text`.",
         "categories": [
           "models"
@@ -555,7 +555,7 @@
         "symbolName": "HeadingNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 786,
+        "sourceLine": 915,
         "summary": "Companion namespace for {@link HeadingNode}.",
         "categories": [
           "models"
@@ -629,7 +629,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1517,
+        "sourceLine": 1650,
         "summary": "The tagged union of all v1 serialized Lexical nodes, discriminated by",
         "categories": [
           "models"
@@ -654,7 +654,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1560,
+        "sourceLine": 1693,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -678,7 +678,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1552,
+        "sourceLine": 1685,
         "summary": "{@inheritDoc LexicalNode}",
         "categories": [
           "models"
@@ -703,7 +703,7 @@
         "symbolName": "LineBreakNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 725,
         "summary": "Mirrors `SerializedLineBreakNode`.",
         "categories": [
           "models"
@@ -728,7 +728,7 @@
         "symbolName": "LineBreakNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 617,
+        "sourceLine": 746,
         "summary": "Companion namespace for {@link LineBreakNode}.",
         "categories": [
           "models"
@@ -752,7 +752,7 @@
         "symbolName": "LinkNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1009,
+        "sourceLine": 1138,
         "summary": "Mirrors `SerializedLinkNode` from `@lexical/link`.",
         "categories": [
           "models"
@@ -777,7 +777,7 @@
         "symbolName": "LinkNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1034,
+        "sourceLine": 1163,
         "summary": "Companion namespace for {@link LinkNode}.",
         "categories": [
           "models"
@@ -801,7 +801,7 @@
         "symbolName": "ListItemNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 945,
+        "sourceLine": 1074,
         "summary": "Mirrors `SerializedListItemNode` from `@lexical/list` — `checked` is",
         "categories": [
           "models"
@@ -826,7 +826,7 @@
         "symbolName": "ListItemNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 970,
+        "sourceLine": 1099,
         "summary": "Companion namespace for {@link ListItemNode}.",
         "categories": [
           "models"
@@ -850,7 +850,7 @@
         "symbolName": "ListNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 879,
+        "sourceLine": 1008,
         "summary": "Mirrors `SerializedListNode` from `@lexical/list`.",
         "categories": [
           "models"
@@ -875,7 +875,7 @@
         "symbolName": "ListNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 903,
+        "sourceLine": 1032,
         "summary": "Companion namespace for {@link ListNode}.",
         "categories": [
           "models"
@@ -999,7 +999,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 652,
+        "sourceLine": 663,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -1024,7 +1024,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1706,
+        "sourceLine": 1839,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -1049,7 +1049,7 @@
         "symbolName": "ParagraphNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 708,
+        "sourceLine": 837,
         "summary": "Mirrors `SerializedParagraphNode`.",
         "categories": [
           "models"
@@ -1074,7 +1074,7 @@
         "symbolName": "ParagraphNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 729,
+        "sourceLine": 858,
         "summary": "Companion namespace for {@link ParagraphNode}.",
         "categories": [
           "models"
@@ -1098,7 +1098,7 @@
         "symbolName": "QuoteNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 823,
+        "sourceLine": 952,
         "summary": "Mirrors `SerializedQuoteNode` from `@lexical/rich-text`.",
         "categories": [
           "models"
@@ -1123,7 +1123,7 @@
         "symbolName": "QuoteNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 844,
+        "sourceLine": 973,
         "summary": "Companion namespace for {@link QuoteNode}.",
         "categories": [
           "models"
@@ -1147,7 +1147,7 @@
         "symbolName": "RootNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 652,
+        "sourceLine": 781,
         "summary": "Mirrors `SerializedRootNode`.",
         "categories": [
           "models"
@@ -1172,7 +1172,7 @@
         "symbolName": "RootNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 673,
+        "sourceLine": 802,
         "summary": "Companion namespace for {@link RootNode}.",
         "categories": [
           "models"
@@ -1193,10 +1193,60 @@
         "importSpecifier": "@beep/lexical-schema",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "SafeInlineStyle",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 305,
+        "summary": "Serialized Lexical inline CSS, sanitized at the schema boundary on both",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . safeinlinestyle const serialized lexical inline css, sanitized at the schema boundary on both validation packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "SafeStyleValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 350,
+        "summary": "Serialized Lexical single CSS value (table cell `backgroundColor` /",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema . safestylevalue const serialized lexical single css value (table cell `backgroundcolor` / validation packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1629,
+        "sourceLine": 1762,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -1221,7 +1271,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1642,
+        "sourceLine": 1775,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -1245,7 +1295,7 @@
         "symbolName": "TableCellNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1281,
+        "sourceLine": 1410,
         "summary": "Serialized table cell node from `@lexical/table`.",
         "categories": [
           "models"
@@ -1270,7 +1320,7 @@
         "symbolName": "TableCellNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1458,
         "summary": "Companion namespace for {@link TableCellNode}.",
         "categories": [
           "models"
@@ -1294,7 +1344,7 @@
         "symbolName": "TableNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1434,
+        "sourceLine": 1567,
         "summary": "Serialized table node from `@lexical/table`.",
         "categories": [
           "models"
@@ -1319,7 +1369,7 @@
         "symbolName": "TableNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1604,
         "summary": "Companion namespace for {@link TableNode}.",
         "categories": [
           "models"
@@ -1343,7 +1393,7 @@
         "symbolName": "TableRowNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1372,
+        "sourceLine": 1505,
         "summary": "Serialized table row node from `@lexical/table`.",
         "categories": [
           "models"
@@ -1368,7 +1418,7 @@
         "symbolName": "TableRowNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1397,
+        "sourceLine": 1530,
         "summary": "Companion namespace for {@link TableRowNode}.",
         "categories": [
           "models"
@@ -1392,7 +1442,7 @@
         "symbolName": "TabNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 538,
+        "sourceLine": 667,
         "summary": "Mirrors `SerializedTabNode`.",
         "categories": [
           "models"
@@ -1417,7 +1467,7 @@
         "symbolName": "TabNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 559,
+        "sourceLine": 688,
         "summary": "Companion namespace for {@link TabNode}.",
         "categories": [
           "models"
@@ -1441,7 +1491,7 @@
         "symbolName": "TextBase",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 412,
+        "sourceLine": 539,
         "summary": "Mirrors `SerializedTextNode` minus the discriminant. Tags can only be",
         "categories": [
           "models"
@@ -1466,7 +1516,7 @@
         "symbolName": "TextBase",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 431,
+        "sourceLine": 560,
         "summary": "Companion namespace for {@link TextBase}.",
         "categories": [
           "models"
@@ -1540,7 +1590,7 @@
         "symbolName": "TextNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 478,
+        "sourceLine": 607,
         "summary": "Mirrors `SerializedTextNode`.",
         "categories": [
           "models"
@@ -1565,7 +1615,7 @@
         "symbolName": "TextNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 499,
+        "sourceLine": 628,
         "summary": "Companion namespace for {@link TextNode}.",
         "categories": [
           "models"
@@ -1614,7 +1664,7 @@
         "symbolName": "YouTubeNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1219,
+        "sourceLine": 1348,
         "summary": "Package-owned YouTube decorator block node.",
         "categories": [
           "models"
@@ -1639,7 +1689,7 @@
         "symbolName": "YouTubeNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1242,
+        "sourceLine": 1371,
         "summary": "Companion namespace for {@link YouTubeNode}.",
         "categories": [
           "models"
@@ -1688,7 +1738,7 @@
         "symbolName": "ArtifactRefNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1148,
+        "sourceLine": 1277,
         "summary": "Net-new decorator block node owned by this package: a reference to a",
         "categories": [
           "models"
@@ -1713,7 +1763,7 @@
         "symbolName": "ArtifactRefNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1173,
+        "sourceLine": 1302,
         "summary": "Companion namespace for {@link ArtifactRefNode}.",
         "categories": [
           "models"
@@ -1737,7 +1787,7 @@
         "symbolName": "BaseNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 252,
+        "sourceLine": 378,
         "summary": "Mirrors `SerializedLexicalNode`. The `type` discriminant is added by each",
         "categories": [
           "models"
@@ -1762,7 +1812,7 @@
         "symbolName": "BaseNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 276,
+        "sourceLine": 402,
         "summary": "Companion namespace for {@link BaseNode}.",
         "categories": [
           "models"
@@ -1811,7 +1861,7 @@
         "symbolName": "CodeNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1078,
+        "sourceLine": 1207,
         "summary": "Mirrors `SerializedCodeNode` from `@lexical/code` — `language` is",
         "categories": [
           "models"
@@ -1836,7 +1886,7 @@
         "symbolName": "CodeNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1103,
+        "sourceLine": 1232,
         "summary": "Companion namespace for {@link CodeNode}.",
         "categories": [
           "models"
@@ -1935,7 +1985,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1682,
+        "sourceLine": 1815,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -1960,7 +2010,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 694,
+        "sourceLine": 705,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -1985,7 +2035,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1742,
+        "sourceLine": 1875,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -2060,7 +2110,7 @@
         "symbolName": "ElementNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 330,
+        "sourceLine": 456,
         "summary": "Mirrors `SerializedElementNode`.",
         "categories": [
           "models"
@@ -2085,7 +2135,7 @@
         "symbolName": "ElementNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 364,
+        "sourceLine": 491,
         "summary": "Companion namespace for {@link ElementNode}.",
         "categories": [
           "models"
@@ -2109,7 +2159,7 @@
         "symbolName": "HeadingNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 764,
+        "sourceLine": 893,
         "summary": "Mirrors `SerializedHeadingNode` from `@lexical/rich-text`.",
         "categories": [
           "models"
@@ -2134,7 +2184,7 @@
         "symbolName": "HeadingNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 786,
+        "sourceLine": 915,
         "summary": "Companion namespace for {@link HeadingNode}.",
         "categories": [
           "models"
@@ -2208,7 +2258,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1517,
+        "sourceLine": 1650,
         "summary": "The tagged union of all v1 serialized Lexical nodes, discriminated by",
         "categories": [
           "models"
@@ -2233,7 +2283,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1560,
+        "sourceLine": 1693,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -2257,7 +2307,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1552,
+        "sourceLine": 1685,
         "summary": "{@inheritDoc LexicalNode}",
         "categories": [
           "models"
@@ -2282,7 +2332,7 @@
         "symbolName": "LineBreakNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 725,
         "summary": "Mirrors `SerializedLineBreakNode`.",
         "categories": [
           "models"
@@ -2307,7 +2357,7 @@
         "symbolName": "LineBreakNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 617,
+        "sourceLine": 746,
         "summary": "Companion namespace for {@link LineBreakNode}.",
         "categories": [
           "models"
@@ -2331,7 +2381,7 @@
         "symbolName": "LinkNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1009,
+        "sourceLine": 1138,
         "summary": "Mirrors `SerializedLinkNode` from `@lexical/link`.",
         "categories": [
           "models"
@@ -2356,7 +2406,7 @@
         "symbolName": "LinkNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1034,
+        "sourceLine": 1163,
         "summary": "Companion namespace for {@link LinkNode}.",
         "categories": [
           "models"
@@ -2380,7 +2430,7 @@
         "symbolName": "ListItemNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 945,
+        "sourceLine": 1074,
         "summary": "Mirrors `SerializedListItemNode` from `@lexical/list` — `checked` is",
         "categories": [
           "models"
@@ -2405,7 +2455,7 @@
         "symbolName": "ListItemNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 970,
+        "sourceLine": 1099,
         "summary": "Companion namespace for {@link ListItemNode}.",
         "categories": [
           "models"
@@ -2429,7 +2479,7 @@
         "symbolName": "ListNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 879,
+        "sourceLine": 1008,
         "summary": "Mirrors `SerializedListNode` from `@lexical/list`.",
         "categories": [
           "models"
@@ -2454,7 +2504,7 @@
         "symbolName": "ListNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 903,
+        "sourceLine": 1032,
         "summary": "Companion namespace for {@link ListNode}.",
         "categories": [
           "models"
@@ -2578,7 +2628,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 652,
+        "sourceLine": 663,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -2603,7 +2653,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1706,
+        "sourceLine": 1839,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -2628,7 +2678,7 @@
         "symbolName": "ParagraphNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 708,
+        "sourceLine": 837,
         "summary": "Mirrors `SerializedParagraphNode`.",
         "categories": [
           "models"
@@ -2653,7 +2703,7 @@
         "symbolName": "ParagraphNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 729,
+        "sourceLine": 858,
         "summary": "Companion namespace for {@link ParagraphNode}.",
         "categories": [
           "models"
@@ -2677,7 +2727,7 @@
         "symbolName": "QuoteNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 823,
+        "sourceLine": 952,
         "summary": "Mirrors `SerializedQuoteNode` from `@lexical/rich-text`.",
         "categories": [
           "models"
@@ -2702,7 +2752,7 @@
         "symbolName": "QuoteNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 844,
+        "sourceLine": 973,
         "summary": "Companion namespace for {@link QuoteNode}.",
         "categories": [
           "models"
@@ -2726,7 +2776,7 @@
         "symbolName": "RootNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 652,
+        "sourceLine": 781,
         "summary": "Mirrors `SerializedRootNode`.",
         "categories": [
           "models"
@@ -2751,7 +2801,7 @@
         "symbolName": "RootNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 673,
+        "sourceLine": 802,
         "summary": "Companion namespace for {@link RootNode}.",
         "categories": [
           "models"
@@ -2772,10 +2822,60 @@
         "importSpecifier": "@beep/lexical-schema/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "SafeInlineStyle",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 305,
+        "summary": "Serialized Lexical inline CSS, sanitized at the schema boundary on both",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index safeinlinestyle const serialized lexical inline css, sanitized at the schema boundary on both validation packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
+        "symbolName": "SafeStyleValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 350,
+        "summary": "Serialized Lexical single CSS value (table cell `backgroundColor` /",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/index ./index safestylevalue const serialized lexical single css value (table cell `backgroundcolor` / validation packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/index.ts",
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1629,
+        "sourceLine": 1762,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -2800,7 +2900,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1642,
+        "sourceLine": 1775,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -2824,7 +2924,7 @@
         "symbolName": "TableCellNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1281,
+        "sourceLine": 1410,
         "summary": "Serialized table cell node from `@lexical/table`.",
         "categories": [
           "models"
@@ -2849,7 +2949,7 @@
         "symbolName": "TableCellNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1458,
         "summary": "Companion namespace for {@link TableCellNode}.",
         "categories": [
           "models"
@@ -2873,7 +2973,7 @@
         "symbolName": "TableNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1434,
+        "sourceLine": 1567,
         "summary": "Serialized table node from `@lexical/table`.",
         "categories": [
           "models"
@@ -2898,7 +2998,7 @@
         "symbolName": "TableNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1604,
         "summary": "Companion namespace for {@link TableNode}.",
         "categories": [
           "models"
@@ -2922,7 +3022,7 @@
         "symbolName": "TableRowNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1372,
+        "sourceLine": 1505,
         "summary": "Serialized table row node from `@lexical/table`.",
         "categories": [
           "models"
@@ -2947,7 +3047,7 @@
         "symbolName": "TableRowNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1397,
+        "sourceLine": 1530,
         "summary": "Companion namespace for {@link TableRowNode}.",
         "categories": [
           "models"
@@ -2971,7 +3071,7 @@
         "symbolName": "TabNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 538,
+        "sourceLine": 667,
         "summary": "Mirrors `SerializedTabNode`.",
         "categories": [
           "models"
@@ -2996,7 +3096,7 @@
         "symbolName": "TabNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 559,
+        "sourceLine": 688,
         "summary": "Companion namespace for {@link TabNode}.",
         "categories": [
           "models"
@@ -3020,7 +3120,7 @@
         "symbolName": "TextBase",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 412,
+        "sourceLine": 539,
         "summary": "Mirrors `SerializedTextNode` minus the discriminant. Tags can only be",
         "categories": [
           "models"
@@ -3045,7 +3145,7 @@
         "symbolName": "TextBase",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 431,
+        "sourceLine": 560,
         "summary": "Companion namespace for {@link TextBase}.",
         "categories": [
           "models"
@@ -3119,7 +3219,7 @@
         "symbolName": "TextNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 478,
+        "sourceLine": 607,
         "summary": "Mirrors `SerializedTextNode`.",
         "categories": [
           "models"
@@ -3144,7 +3244,7 @@
         "symbolName": "TextNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 499,
+        "sourceLine": 628,
         "summary": "Companion namespace for {@link TextNode}.",
         "categories": [
           "models"
@@ -3193,7 +3293,7 @@
         "symbolName": "YouTubeNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1219,
+        "sourceLine": 1348,
         "summary": "Package-owned YouTube decorator block node.",
         "categories": [
           "models"
@@ -3218,7 +3318,7 @@
         "symbolName": "YouTubeNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1242,
+        "sourceLine": 1371,
         "summary": "Companion namespace for {@link YouTubeNode}.",
         "categories": [
           "models"
@@ -3317,7 +3417,7 @@
         "symbolName": "editorStateToDocument",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 694,
+        "sourceLine": 705,
         "summary": "Project a serialized Lexical editor state onto the canonical Md document",
         "categories": [
           "combinators"
@@ -3342,7 +3442,7 @@
         "symbolName": "nodeToBlocks",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.codec.ts",
-        "sourceLine": 652,
+        "sourceLine": 663,
         "summary": "Project one serialized Lexical node onto Md blocks.",
         "categories": [
           "combinators"
@@ -3367,7 +3467,7 @@
         "symbolName": "ArtifactRefNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1148,
+        "sourceLine": 1277,
         "summary": "Net-new decorator block node owned by this package: a reference to a",
         "categories": [
           "models"
@@ -3392,7 +3492,7 @@
         "symbolName": "ArtifactRefNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1173,
+        "sourceLine": 1302,
         "summary": "Companion namespace for {@link ArtifactRefNode}.",
         "categories": [
           "models"
@@ -3416,7 +3516,7 @@
         "symbolName": "BaseNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 252,
+        "sourceLine": 378,
         "summary": "Mirrors `SerializedLexicalNode`. The `type` discriminant is added by each",
         "categories": [
           "models"
@@ -3441,7 +3541,7 @@
         "symbolName": "BaseNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 276,
+        "sourceLine": 402,
         "summary": "Companion namespace for {@link BaseNode}.",
         "categories": [
           "models"
@@ -3465,7 +3565,7 @@
         "symbolName": "CodeNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1078,
+        "sourceLine": 1207,
         "summary": "Mirrors `SerializedCodeNode` from `@lexical/code` — `language` is",
         "categories": [
           "models"
@@ -3490,7 +3590,7 @@
         "symbolName": "CodeNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1103,
+        "sourceLine": 1232,
         "summary": "Companion namespace for {@link CodeNode}.",
         "categories": [
           "models"
@@ -3564,7 +3664,7 @@
         "symbolName": "EditorStateFromJson",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1682,
+        "sourceLine": 1815,
         "summary": "The same envelope, but encoding directly to/from a JSON string (for",
         "categories": [
           "models"
@@ -3589,7 +3689,7 @@
         "symbolName": "editorStateToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1742,
+        "sourceLine": 1875,
         "summary": "Plain-text projection of a full editor state.",
         "categories": [
           "getters"
@@ -3664,7 +3764,7 @@
         "symbolName": "ElementNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 330,
+        "sourceLine": 456,
         "summary": "Mirrors `SerializedElementNode`.",
         "categories": [
           "models"
@@ -3689,7 +3789,7 @@
         "symbolName": "ElementNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 364,
+        "sourceLine": 491,
         "summary": "Companion namespace for {@link ElementNode}.",
         "categories": [
           "models"
@@ -3713,7 +3813,7 @@
         "symbolName": "HeadingNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 764,
+        "sourceLine": 893,
         "summary": "Mirrors `SerializedHeadingNode` from `@lexical/rich-text`.",
         "categories": [
           "models"
@@ -3738,7 +3838,7 @@
         "symbolName": "HeadingNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 786,
+        "sourceLine": 915,
         "summary": "Companion namespace for {@link HeadingNode}.",
         "categories": [
           "models"
@@ -3812,7 +3912,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1517,
+        "sourceLine": 1650,
         "summary": "The tagged union of all v1 serialized Lexical nodes, discriminated by",
         "categories": [
           "models"
@@ -3837,7 +3937,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1560,
+        "sourceLine": 1693,
         "summary": "Companion namespace for {@link LexicalNode}.",
         "categories": [
           "models"
@@ -3861,7 +3961,7 @@
         "symbolName": "LexicalNode",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1552,
+        "sourceLine": 1685,
         "summary": "{@inheritDoc LexicalNode}",
         "categories": [
           "models"
@@ -3886,7 +3986,7 @@
         "symbolName": "LineBreakNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 725,
         "summary": "Mirrors `SerializedLineBreakNode`.",
         "categories": [
           "models"
@@ -3911,7 +4011,7 @@
         "symbolName": "LineBreakNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 617,
+        "sourceLine": 746,
         "summary": "Companion namespace for {@link LineBreakNode}.",
         "categories": [
           "models"
@@ -3935,7 +4035,7 @@
         "symbolName": "LinkNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1009,
+        "sourceLine": 1138,
         "summary": "Mirrors `SerializedLinkNode` from `@lexical/link`.",
         "categories": [
           "models"
@@ -3960,7 +4060,7 @@
         "symbolName": "LinkNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1034,
+        "sourceLine": 1163,
         "summary": "Companion namespace for {@link LinkNode}.",
         "categories": [
           "models"
@@ -3984,7 +4084,7 @@
         "symbolName": "ListItemNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 945,
+        "sourceLine": 1074,
         "summary": "Mirrors `SerializedListItemNode` from `@lexical/list` — `checked` is",
         "categories": [
           "models"
@@ -4009,7 +4109,7 @@
         "symbolName": "ListItemNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 970,
+        "sourceLine": 1099,
         "summary": "Companion namespace for {@link ListItemNode}.",
         "categories": [
           "models"
@@ -4033,7 +4133,7 @@
         "symbolName": "ListNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 879,
+        "sourceLine": 1008,
         "summary": "Mirrors `SerializedListNode` from `@lexical/list`.",
         "categories": [
           "models"
@@ -4058,7 +4158,7 @@
         "symbolName": "ListNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 903,
+        "sourceLine": 1032,
         "summary": "Companion namespace for {@link ListNode}.",
         "categories": [
           "models"
@@ -4182,7 +4282,7 @@
         "symbolName": "nodeToPlainText",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1706,
+        "sourceLine": 1839,
         "summary": "Plain-text projection over the full node union (prompt construction,",
         "categories": [
           "getters"
@@ -4207,7 +4307,7 @@
         "symbolName": "ParagraphNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 708,
+        "sourceLine": 837,
         "summary": "Mirrors `SerializedParagraphNode`.",
         "categories": [
           "models"
@@ -4232,7 +4332,7 @@
         "symbolName": "ParagraphNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 729,
+        "sourceLine": 858,
         "summary": "Companion namespace for {@link ParagraphNode}.",
         "categories": [
           "models"
@@ -4256,7 +4356,7 @@
         "symbolName": "QuoteNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 823,
+        "sourceLine": 952,
         "summary": "Mirrors `SerializedQuoteNode` from `@lexical/rich-text`.",
         "categories": [
           "models"
@@ -4281,7 +4381,7 @@
         "symbolName": "QuoteNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 844,
+        "sourceLine": 973,
         "summary": "Companion namespace for {@link QuoteNode}.",
         "categories": [
           "models"
@@ -4305,7 +4405,7 @@
         "symbolName": "RootNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 652,
+        "sourceLine": 781,
         "summary": "Mirrors `SerializedRootNode`.",
         "categories": [
           "models"
@@ -4330,7 +4430,7 @@
         "symbolName": "RootNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 673,
+        "sourceLine": 802,
         "summary": "Companion namespace for {@link RootNode}.",
         "categories": [
           "models"
@@ -4351,10 +4451,60 @@
         "importSpecifier": "@beep/lexical-schema/Lexical.model",
         "exportSubpath": "./Lexical.model",
         "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "SafeInlineStyle",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 305,
+        "summary": "Serialized Lexical inline CSS, sanitized at the schema boundary on both",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model safeinlinestyle const serialized lexical inline css, sanitized at the schema boundary on both validation packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "symbolName": "SafeStyleValue",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
+        "sourceLine": 350,
+        "summary": "Serialized Lexical single CSS value (table cell `backgroundColor` /",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/lexical-schema packages/foundation/modeling/lexical @beep/lexical-schema/lexical.model ./lexical.model safestylevalue const serialized lexical single css value (table cell `backgroundcolor` / validation packages/foundation/modeling/lexical/src/lexical.model.ts"
+      },
+      {
+        "packageName": "@beep/lexical-schema",
+        "packagePath": "packages/foundation/modeling/lexical",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/lexical-schema/Lexical.model",
+        "exportSubpath": "./Lexical.model",
+        "exportedFromPath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
         "symbolName": "SerializedEditorState",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1629,
+        "sourceLine": 1762,
         "summary": "Mirrors `SerializedEditorState`.",
         "categories": [
           "models"
@@ -4379,7 +4529,7 @@
         "symbolName": "SerializedEditorState",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1642,
+        "sourceLine": 1775,
         "summary": "Companion namespace for {@link SerializedEditorState}.",
         "categories": [
           "models"
@@ -4403,7 +4553,7 @@
         "symbolName": "TableCellNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1281,
+        "sourceLine": 1410,
         "summary": "Serialized table cell node from `@lexical/table`.",
         "categories": [
           "models"
@@ -4428,7 +4578,7 @@
         "symbolName": "TableCellNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1458,
         "summary": "Companion namespace for {@link TableCellNode}.",
         "categories": [
           "models"
@@ -4452,7 +4602,7 @@
         "symbolName": "TableNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1434,
+        "sourceLine": 1567,
         "summary": "Serialized table node from `@lexical/table`.",
         "categories": [
           "models"
@@ -4477,7 +4627,7 @@
         "symbolName": "TableNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1471,
+        "sourceLine": 1604,
         "summary": "Companion namespace for {@link TableNode}.",
         "categories": [
           "models"
@@ -4501,7 +4651,7 @@
         "symbolName": "TableRowNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1372,
+        "sourceLine": 1505,
         "summary": "Serialized table row node from `@lexical/table`.",
         "categories": [
           "models"
@@ -4526,7 +4676,7 @@
         "symbolName": "TableRowNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1397,
+        "sourceLine": 1530,
         "summary": "Companion namespace for {@link TableRowNode}.",
         "categories": [
           "models"
@@ -4550,7 +4700,7 @@
         "symbolName": "TabNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 538,
+        "sourceLine": 667,
         "summary": "Mirrors `SerializedTabNode`.",
         "categories": [
           "models"
@@ -4575,7 +4725,7 @@
         "symbolName": "TabNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 559,
+        "sourceLine": 688,
         "summary": "Companion namespace for {@link TabNode}.",
         "categories": [
           "models"
@@ -4599,7 +4749,7 @@
         "symbolName": "TextBase",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 412,
+        "sourceLine": 539,
         "summary": "Mirrors `SerializedTextNode` minus the discriminant. Tags can only be",
         "categories": [
           "models"
@@ -4624,7 +4774,7 @@
         "symbolName": "TextBase",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 431,
+        "sourceLine": 560,
         "summary": "Companion namespace for {@link TextBase}.",
         "categories": [
           "models"
@@ -4698,7 +4848,7 @@
         "symbolName": "TextNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 478,
+        "sourceLine": 607,
         "summary": "Mirrors `SerializedTextNode`.",
         "categories": [
           "models"
@@ -4723,7 +4873,7 @@
         "symbolName": "TextNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 499,
+        "sourceLine": 628,
         "summary": "Companion namespace for {@link TextNode}.",
         "categories": [
           "models"
@@ -4747,7 +4897,7 @@
         "symbolName": "YouTubeNode",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1219,
+        "sourceLine": 1348,
         "summary": "Package-owned YouTube decorator block node.",
         "categories": [
           "models"
@@ -4772,7 +4922,7 @@
         "symbolName": "YouTubeNode",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/lexical/src/Lexical.model.ts",
-        "sourceLine": 1242,
+        "sourceLine": 1371,
         "summary": "Companion namespace for {@link YouTubeNode}.",
         "categories": [
           "models"

@@ -25,6 +25,7 @@ import {
   SucceededSourceProcessingRecord,
 } from "@beep/file-processing/Extraction";
 import { ProcessFileOperation } from "@beep/file-processing/Operation";
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import {
   collectSourceOutcomeRecords,
   makeFileProcessingServiceLayer,
@@ -361,8 +362,9 @@ const decodeProvenanceLines = Effect.fn("CorpusCommandService.decodeProvenanceLi
 });
 
 const buildRestorationRecords = Effect.fn("CorpusCommandService.buildRestorationRecords")(function* (
+  rawRoot: string,
   records: ReadonlyArray<CorpusProvenanceRecord>
-): Effect.fn.Return<ReadonlyArray<CorpusRestorationRecord>, CorpusCommandError, FileSystem.FileSystem> {
+): Effect.fn.Return<ReadonlyArray<CorpusRestorationRecord>, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const destByLabelAndPath = new Map<string, string>();
   const groups = new Map<string, { sourceLabel: string; entries: Array<RecycleBinScanEntry> }>();
@@ -395,9 +397,16 @@ const buildRestorationRecords = Effect.fn("CorpusCommandService.buildRestoration
         message: `Recycle-bin metadata file "${relativePath}" is missing from the provenance manifest.`,
       });
     }
+    // Fail closed: the manifest is untrusted, so only read metadata files that
+    // canonicalize inside <corpusRoot>/raw, never an attacker-chosen path.
+    const safeDestPath = yield* resolveWithinRoot(
+      rawRoot,
+      destPath,
+      "Provenance metadata path escapes the corpus raw directory"
+    );
     const bytes = yield* fs
-      .readFile(destPath)
-      .pipe(CorpusCommandError.mapError(`Failed reading recycle-bin metadata file "${destPath}".`));
+      .readFile(safeDestPath)
+      .pipe(CorpusCommandError.mapError(`Failed reading recycle-bin metadata file "${safeDestPath}".`));
     return yield* parseRecycleBinMetadata(bytes).pipe(
       Effect.mapError((error) =>
         CorpusCommandError.make({ cause: error, message: `${error.message} (file "${relativePath}")` })
@@ -457,7 +466,8 @@ const catalogCorpusImpl = Effect.fn("CorpusCommandService.catalogCorpus")(functi
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
+  const rawRoot = path.join(options.corpusRoot, "raw");
+  const manifestPath = path.join(rawRoot, "provenance.jsonl");
   const catalogDir = path.join(options.corpusRoot, "catalog");
   const reportsDir = path.join(catalogDir, "reports");
   const databasePath = path.join(catalogDir, "corpus.duckdb");
@@ -484,7 +494,7 @@ const catalogCorpusImpl = Effect.fn("CorpusCommandService.catalogCorpus")(functi
   const provenance = yield* decodeProvenanceLines(manifestText);
   yield* Console.log(`corpus catalog: ${provenance.length} provenance records validated`);
 
-  const restorations = yield* buildRestorationRecords(provenance);
+  const restorations = yield* buildRestorationRecords(rawRoot, provenance);
   const matchedCount = A.length(A.filter(restorations, (record) => record.matchStatus === "matched"));
   const unmatchedMetadataCount = A.length(
     A.filter(restorations, (record) => record.matchStatus === "unmatched-metadata")
@@ -617,6 +627,24 @@ const extensionOf = (name: string): string | undefined => {
   const dot = name.lastIndexOf(".");
   return dot <= 0 || dot === name.length - 1 ? undefined : name.slice(dot + 1).toLowerCase();
 };
+
+// Fail-closed resolver for manifest-supplied paths: the provenance manifest is
+// untrusted input, so a `destPath` (or organize target) must canonicalize to a
+// real path inside the allowed root before it is read, hashed, copied, or
+// passed to an extraction engine. `resolvePathWithinRoot` follows symlinks and
+// rejects absolute escapes and `..` traversal, returning the in-root canonical
+// path callers should use for the actual filesystem operation.
+const resolveWithinRoot = Effect.fn("CorpusCommandService.resolveWithinRoot")(function* (
+  root: string,
+  candidate: string,
+  label: string
+): Effect.fn.Return<string, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
+  return yield* resolvePathWithinRoot({ candidate, root }).pipe(
+    Effect.mapError((error) =>
+      CorpusCommandError.make({ cause: error, message: `${label} "${candidate}": ${error.message}` })
+    )
+  );
+});
 
 const writeCorpusStringFile = Effect.fn("CorpusCommandService.writeCorpusStringFile")(function* (
   outputPath: string,
@@ -761,7 +789,8 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
+  const rawRoot = path.join(options.corpusRoot, "raw");
+  const manifestPath = path.join(rawRoot, "provenance.jsonl");
   const outDir = path.join(options.corpusRoot, "staging", "extract");
   const childrenRoot = path.join(outDir, "children");
   const concurrency = Math.max(1, Math.floor(options.concurrency ?? 4));
@@ -814,10 +843,19 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
     );
     const ids = { artifactId, digest, operationId, relativePath: fallbackRelative };
 
+    // Fail closed before extraction: the manifest is untrusted, so the source
+    // file must canonicalize to a real path inside <corpusRoot>/raw rather than
+    // an attacker-chosen absolute path or `..`/symlink escape.
+    const safeSourcePath = yield* resolveWithinRoot(
+      rawRoot,
+      record.destPath,
+      "Provenance source path escapes the corpus raw directory"
+    );
+
     const source = yield* decodeSourceArtifact({
       digest,
       id: artifactId,
-      locator: { kind: "file", value: record.destPath },
+      locator: { kind: "file", value: safeSourcePath },
       name: basenameOf(record.relativePath),
       relativePath: `${record.sourceLabel}/${record.relativePath}`,
       sizeBytes: record.sizeBytes,
@@ -1059,7 +1097,8 @@ const verifySalvageImpl = Effect.fn("CorpusCommandService.verifySalvage")(functi
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
+  const rawRoot = path.join(options.corpusRoot, "raw");
+  const manifestPath = path.join(rawRoot, "provenance.jsonl");
   const reportPath = path.join(options.corpusRoot, "catalog", "reports", "salvage-verify.json");
   const stride = Math.max(1, Math.floor(options.sampleStride ?? 1));
 
@@ -1084,14 +1123,22 @@ const verifySalvageImpl = Effect.fn("CorpusCommandService.verifySalvage")(functi
   const results = yield* Effect.forEach(
     sampled,
     Effect.fnUntraced(function* (record) {
+      // Fail closed before reading: never `exists`/`hashFile` a manifest path
+      // that escapes <corpusRoot>/raw, which would leak an existence/hash
+      // oracle for arbitrary victim-readable files.
+      const safeDestPath = yield* resolveWithinRoot(
+        rawRoot,
+        record.destPath,
+        "Provenance salvage path escapes the corpus raw directory"
+      );
       const exists = yield* fs
-        .exists(record.destPath)
-        .pipe(CorpusCommandError.mapError(`Failed checking salvaged file "${record.destPath}".`));
+        .exists(safeDestPath)
+        .pipe(CorpusCommandError.mapError(`Failed checking salvaged file "${safeDestPath}".`));
       if (!exists) {
         yield* Console.log(`corpus salvage: MISSING ${record.sourceLabel}/${record.relativePath}`);
         return { kind: "missing" as const, sizeBytes: 0 };
       }
-      const actual = yield* hashFile(record.destPath);
+      const actual = yield* hashFile(safeDestPath);
       if (actual !== record.sha256) {
         yield* Console.log(`corpus salvage: MISMATCH ${record.sourceLabel}/${record.relativePath}`);
         return { kind: "mismatched" as const, sizeBytes: record.sizeBytes };
@@ -1436,18 +1483,32 @@ const dedupeOrganizedTarget = (candidate: string, usedTargets: ReadonlySet<strin
 };
 
 const materializeOrganizedRow = Effect.fn("CorpusCommandService.materializeOrganizedRow")(function* (
+  rawRoot: string,
   organizedRoot: string,
   row: OrganizePlanRow,
   organizedRelative: string
 ): Effect.fn.Return<void, CorpusCommandError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const targetPath = path.join(organizedRoot, organizedRelative);
+  // Fail closed on both ends: the manifest source must canonicalize inside
+  // <corpusRoot>/raw, and the taxonomy-derived target must canonicalize inside
+  // organizedRoot, so neither a `..`/symlink escape in sourceLabel/relativePath
+  // nor an attacker `destPath` can read or overwrite files outside the corpus.
+  const safeSourcePath = yield* resolveWithinRoot(
+    rawRoot,
+    row.destPath,
+    "Provenance source path escapes the corpus raw directory"
+  );
+  const targetPath = yield* resolveWithinRoot(
+    organizedRoot,
+    path.join(organizedRoot, organizedRelative),
+    "Organized target path escapes the organized root"
+  );
   yield* fs
     .makeDirectory(path.dirname(targetPath), { recursive: true })
     .pipe(CorpusCommandError.mapError(`Failed creating organized directory for "${organizedRelative}".`));
   yield* (
-    row.category === "email-archive" ? fs.symlink(row.destPath, targetPath) : fs.copyFile(row.destPath, targetPath)
+    row.category === "email-archive" ? fs.symlink(safeSourcePath, targetPath) : fs.copyFile(safeSourcePath, targetPath)
   ).pipe(CorpusCommandError.mapError(`Failed materializing organized artifact "${organizedRelative}".`));
 });
 
@@ -1532,7 +1593,8 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  const manifestPath = path.join(options.corpusRoot, "raw", "provenance.jsonl");
+  const rawRoot = path.join(options.corpusRoot, "raw");
+  const manifestPath = path.join(rawRoot, "provenance.jsonl");
   const restorationPath = path.join(options.corpusRoot, "catalog", "restoration-manifest.jsonl");
   const organizedRoot = path.join(options.corpusRoot, "organized");
   const organizeManifestPath = path.join(options.corpusRoot, "catalog", "organize-manifest.jsonl");
@@ -1573,7 +1635,7 @@ const organizeCorpusImpl = Effect.fn("CorpusCommandService.organizeCorpus")(func
 
     if (organizedRelative !== undefined) {
       usedTargets.add(organizedRelative);
-      yield* materializeOrganizedRow(organizedRoot, row, organizedRelative);
+      yield* materializeOrganizedRow(rawRoot, organizedRoot, row, organizedRelative);
     }
 
     records.push(organizeRecordFor(row, organizedRelative, versionIndex, organizedRelative !== undefined));

@@ -345,18 +345,15 @@ const commitStep = (
       ? options.noEdit
         ? ["commit", "--amend", "--no-edit"]
         : ["commit", "--amend", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
-      : [
-          "commit",
-          ...(options.startPrEarly ? ["--no-verify"] : []),
-          "-m",
-          O.getOrElse(message, () => "<required-conventional-commit-message>"),
-        ]
+      : ["commit", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
   );
 
+// Keep local pre-push hooks (secret scanning, SAST, policy gates) active on the
+// early push: --no-verify would publish unverified content to the remote before
+// any hook could block secrets or policy violations.
 const earlyPushStep = (context: RepoRunContext): RepoPlanStep =>
   gitStep(context, "early-publish:01-git-push", "early-publish:git:push", "early-publish", [
     "push",
-    "--no-verify",
     "-u",
     "origin",
     "HEAD",

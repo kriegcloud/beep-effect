@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e3fe7c55eb84a73bb6fb26f410e11494bd1b9587cd628e2d2314892d2805e66f",
+    "digest": "ac6be65ccc2d07a7ae2462a1c2eebed6213a66e4fd23ac8a74c6d7e69d1c625e",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/bin-main.ts",
-        "sha256": "97b3ec7d3a440d89a2e618e80492496b40732dc114c558ef9c82fbe5364f43be",
-        "bytes": 6114
+        "sha256": "d81d98ec8484c5f4e09d44359af837e46106565cbf8f34d28c0bd38bf0bdb528",
+        "bytes": 6025
       },
       {
         "path": "packages/tooling/tool/cli/src/bin.ts",
@@ -152,8 +152,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sha256": "20056d486f35ea58dd10bb1d7f253ff2b255eaaeefc73589aaec881b3dc0afb3",
-        "bytes": 81825
+        "sha256": "320718b8e8e14724da65730c0193ddb673a3ca329ef6a23fa51ed8c6903bdc22",
+        "bytes": 84673
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Corpus/index.ts",
@@ -307,13 +307,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
-        "sha256": "d302d9e352288729cfe41c6f1dd273b1f4a5978cae6b3971dc8198d1fb616114",
-        "bytes": 8734
+        "sha256": "b3f6a16a13ba71bb64561d14293f909b6dd209ac92e7cdcf419fa0bf0f4d3a69",
+        "bytes": 9089
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sha256": "058636759071e4d54e86443604969e7e2771dc78e36333a48060f8beea81da72",
-        "bytes": 52614
+        "sha256": "1e4c35b468f426899b36172a1b9eda1dd62bf32a380e369b77edc83edcccefdd",
+        "bytes": 54649
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
@@ -322,8 +322,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sha256": "57e7de965d555dc8eaae38e28e61f261d43571ae43bcaff52b5cb7d9b02779a0",
-        "bytes": 27768
+        "sha256": "428efd56dddbe4fe334bc6b298d75918cd90cf650eb372e5de4a9764c25928a8",
+        "bytes": 33426
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Image/Image.command.ts",
@@ -352,8 +352,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sha256": "79d82d0b0b92c8f6f2cdee2fcb3c45b1672ef241dc6374de2c44818f67971d15",
-        "bytes": 11223
+        "sha256": "296653094d848a7e83c9b4736026b23e63404b7ea641d9b4577e56447a3c5562",
+        "bytes": 11337
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Image/index.ts",
@@ -427,8 +427,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts",
-        "sha256": "7ef82b87964c9886db2ed8a86b835ebbd3f8f4845537f846caa4b1491da94c39",
-        "bytes": 11280
+        "sha256": "3b6941a46ec84b05135f05585e95dc0edb88514c815061c3bbf16dc627330aaf",
+        "bytes": 11721
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Lint/ReflectionArtifact.ts",
@@ -462,8 +462,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sha256": "783bc95f3352e6eaf46df151b6df7fc4a97efee56b9901c478560ae429341fd8",
-        "bytes": 81174
+        "sha256": "86c540b20e54f23039fbe888a4c89aff472c55459205d2f4d29733668a62e44a",
+        "bytes": 81831
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/index.ts",
@@ -492,13 +492,13 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -517,8 +517,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sha256": "0e25fff79050f18d86d8bdbc82d29e62a20da7576ae3db140ef498e36d7afe6e",
-        "bytes": 108866
+        "sha256": "4cd4ae7ee0dcaaef28c09e4142a77bf9a0eb17fdae563869c0cdeb6678693e40",
+        "bytes": 113106
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Quality.errors.ts",
@@ -527,8 +527,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/Tasks.ts",
-        "sha256": "793eba761607e7658db01f908533b4d22533f8aca14706d769cf03a5cf8de9e6",
-        "bytes": 57322
+        "sha256": "1d17a61b597da2ddd1df2608aae14ab1c0fa56ea4f402f4259c01e5e9461d772",
+        "bytes": 57354
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Reuse/index.ts",
@@ -707,18 +707,18 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sha256": "1f07ad606d0c873f3a6ed4c7f35558ce9cce4b7db548bc0ccc23da0265a99748",
-        "bytes": 41648
+        "sha256": "fcdfcc5c44c07bd03351c433540d2f6a7a3a0c81483e6cf58bb1abb4a74876cc",
+        "bytes": 42375
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
-        "sha256": "cd36e5952139b5ad862aec5caa108ebc7689147f66d273a89cb34f028bfc8225",
-        "bytes": 20005
+        "sha256": "8ff6a2a03578b0a6137f9d13bf845c460cd1a5acc18f2e9a399eabcc52c995db",
+        "bytes": 23317
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sha256": "adb6d213798a23fb71fd8d85276a0de03db8a0bc5d5ed189447fe399cde12b1e",
-        "bytes": 97993
+        "sha256": "11f155c37eb0ac93529b8459e4c9f860310f3517f3fc5d45ce9d7cddc104f060",
+        "bytes": 102398
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/PacketRenderer.ts",
@@ -727,8 +727,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sha256": "60fd67554806c2b4bcb57ca9017f83dd03893e42921c63c338441d530fc4cf83",
-        "bytes": 19657
+        "sha256": "9d239a1ca25729c874be8ebcdcf91ef184898fd2abe4157ac8e845529dff87bc",
+        "bytes": 19753
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Yeet/internal/QualityIssueIndex.ts",
@@ -847,8 +847,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
-        "sha256": "4f3ac4973f233dccd2e61b8d9d4b3a04bd179942eaff853709c5212c0302b822",
-        "bytes": 654
+        "sha256": "0697960d639dc2c192993b26f5ddecd97b43b780a47cbcd7b0b1969c1d10ea72",
+        "bytes": 764
       }
     ]
   },
@@ -1019,8 +1019,8 @@
       "@beep/repo-cli/test/Yeet"
     ],
     "counts": {
-      "publicExportEntries": 2086,
-      "uniqueSymbols": 790,
+      "publicExportEntries": 2091,
+      "uniqueSymbols": 794,
       "sourceFiles": 162
     },
     "exports": [
@@ -1409,7 +1409,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 3061,
+        "sourceLine": 3168,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -5535,7 +5535,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1950,
+        "sourceLine": 2012,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -5689,7 +5689,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 162,
+        "sourceLine": 163,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -5714,7 +5714,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1934,
+        "sourceLine": 1996,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -5739,7 +5739,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 113,
+        "sourceLine": 114,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -6412,7 +6412,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1990,
+        "sourceLine": 2052,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -6439,7 +6439,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1970,
+        "sourceLine": 2032,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -6466,7 +6466,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1157,
+        "sourceLine": 1204,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -6518,7 +6518,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2010,
+        "sourceLine": 2072,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -6597,7 +6597,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2048,
+        "sourceLine": 2110,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -6870,7 +6870,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2030,
+        "sourceLine": 2092,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -7997,7 +7997,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1950,
+        "sourceLine": 2012,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -8024,7 +8024,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 162,
+        "sourceLine": 163,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -8049,7 +8049,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1934,
+        "sourceLine": 1996,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -8074,7 +8074,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 113,
+        "sourceLine": 114,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -8099,7 +8099,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1990,
+        "sourceLine": 2052,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -8126,7 +8126,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1970,
+        "sourceLine": 2032,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -8153,7 +8153,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1157,
+        "sourceLine": 1204,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -8180,7 +8180,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2010,
+        "sourceLine": 2072,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -8207,7 +8207,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2048,
+        "sourceLine": 2110,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -8232,7 +8232,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2030,
+        "sourceLine": 2092,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -8259,7 +8259,7 @@
         "symbolName": "catalogCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1950,
+        "sourceLine": 2012,
         "summary": "Build the corpus catalog, duplicate-set report, and restoration manifest.",
         "categories": [
           "use-cases"
@@ -8413,7 +8413,7 @@
         "symbolName": "CorpusCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 162,
+        "sourceLine": 163,
         "summary": "Service tag for corpus curation operations.",
         "categories": [
           "services"
@@ -8438,7 +8438,7 @@
         "symbolName": "CorpusCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1934,
+        "sourceLine": 1996,
         "summary": "Live service layer for corpus curation operations.",
         "categories": [
           "layers"
@@ -8463,7 +8463,7 @@
         "symbolName": "CorpusCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 113,
+        "sourceLine": 114,
         "summary": "Service contract for corpus curation operations.",
         "categories": [
           "services"
@@ -9136,7 +9136,7 @@
         "symbolName": "enrichCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1990,
+        "sourceLine": 2052,
         "summary": "Resolve corpus-derived patent and application numbers against USPTO.",
         "categories": [
           "use-cases"
@@ -9163,7 +9163,7 @@
         "symbolName": "extractCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1970,
+        "sourceLine": 2032,
         "summary": "Run libpff and Tika extraction over salvaged raw/ files into staging/.",
         "categories": [
           "use-cases"
@@ -9190,7 +9190,7 @@
         "symbolName": "extractCorpusDocket",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 1157,
+        "sourceLine": 1204,
         "summary": "Extract an attorney-docket token and its family prefix from free text.",
         "categories": [
           "parsers"
@@ -9242,7 +9242,7 @@
         "symbolName": "organizeCorpus",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2010,
+        "sourceLine": 2072,
         "summary": "Build the organized/ client, docket, and email-archive taxonomy.",
         "categories": [
           "use-cases"
@@ -9321,7 +9321,7 @@
         "symbolName": "printCorpusIndex",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2048,
+        "sourceLine": 2110,
         "summary": "Print the corpus command index.",
         "categories": [
           "use-cases"
@@ -9594,7 +9594,7 @@
         "symbolName": "verifySalvage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Corpus/Corpus.service.ts",
-        "sourceLine": 2030,
+        "sourceLine": 2092,
         "summary": "Re-hash salvaged raw/ files against the provenance manifest.",
         "categories": [
           "use-cases"
@@ -27483,7 +27483,7 @@
         "symbolName": "GraphitiProxyConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Runtime configuration schema for graphiti proxy.",
         "categories": [
           "models"
@@ -27508,7 +27508,7 @@
         "symbolName": "loadGraphitiProxyConfig",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
-        "sourceLine": 187,
+        "sourceLine": 193,
         "summary": "Load graphiti proxy config from Effect Config environment values.",
         "categories": [
           "models"
@@ -27533,7 +27533,7 @@
         "symbolName": "backupDirectoryNameFromEpochMillisForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 316,
+        "sourceLine": 350,
         "summary": "Build the backup directory name used by `graphiti restore --backup`.",
         "categories": [
           "testing"
@@ -27560,7 +27560,7 @@
         "symbolName": "ensureGraphitiProxy",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1093,
+        "sourceLine": 1127,
         "summary": "Ensure the local Graphiti proxy is healthy, starting it in the background when needed.",
         "categories": [
           "use-cases"
@@ -27611,7 +27611,7 @@
         "symbolName": "GraphitiRestoreConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 85,
+        "sourceLine": 119,
         "summary": "Configuration for restoring and verifying the local Graphiti stack.",
         "categories": [
           "models"
@@ -27636,7 +27636,7 @@
         "symbolName": "installGraphitiProxyService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1340,
+        "sourceLine": 1374,
         "summary": "Install and start the user-level systemd unit for the Graphiti proxy.",
         "categories": [
           "use-cases"
@@ -27663,7 +27663,7 @@
         "symbolName": "ProxyServiceConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 122,
+        "sourceLine": 156,
         "summary": "Configuration for installing and managing the Graphiti proxy user service.",
         "categories": [
           "models"
@@ -27688,7 +27688,7 @@
         "symbolName": "recoverGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1230,
+        "sourceLine": 1264,
         "summary": "Recover the local Graphiti backing stack by restarting unhealthy containers.",
         "categories": [
           "use-cases"
@@ -27715,7 +27715,7 @@
         "symbolName": "renderProxyServiceUnitForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1359,
         "summary": "Render the user-level systemd unit for the Graphiti proxy.",
         "categories": [
           "testing"
@@ -27742,7 +27742,7 @@
         "symbolName": "resolveGraphitiStackDirForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 259,
+        "sourceLine": 293,
         "summary": "Resolve the Graphiti stack directory from CLI and environment inputs.",
         "categories": [
           "testing"
@@ -27769,7 +27769,7 @@
         "symbolName": "restoreGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1181,
+        "sourceLine": 1215,
         "summary": "Restore the local Graphiti backing stack and repair the agent-facing proxy.",
         "categories": [
           "use-cases"
@@ -27796,7 +27796,7 @@
         "symbolName": "shouldInstallProxyServiceForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 353,
+        "sourceLine": 387,
         "summary": "Decide whether the live proxy systemd unit should be reinstalled.",
         "categories": [
           "testing"
@@ -27823,7 +27823,7 @@
         "symbolName": "shouldRecoverGraphitiStackForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1259,
+        "sourceLine": 1293,
         "summary": "Decide whether Graphiti recovery should restart the backing containers.",
         "categories": [
           "testing"
@@ -27851,7 +27851,7 @@
         "symbolName": "verifyGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1154,
+        "sourceLine": 1188,
         "summary": "Verify the local Graphiti stack, persisted `beep_dev` graph, and proxy MCP endpoint.",
         "categories": [
           "use-cases"
@@ -27903,7 +27903,7 @@
         "symbolName": "ContainerHealthState",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 55,
+        "sourceLine": 57,
         "summary": "Container health literal union.",
         "categories": [
           "models"
@@ -27928,7 +27928,7 @@
         "symbolName": "DependencyHealthSnapshot",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 137,
+        "sourceLine": 145,
         "summary": "Cached dependency health snapshot payload.",
         "categories": [
           "models"
@@ -27953,7 +27953,7 @@
         "symbolName": "DependencyHealthState",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 71,
+        "sourceLine": 73,
         "summary": "Dependency health literal union.",
         "categories": [
           "models"
@@ -27978,7 +27978,7 @@
         "symbolName": "GraphitiDependencyHealthService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 382,
+        "sourceLine": 400,
         "summary": "Service tag for dependency health snapshots.",
         "categories": [
           "models"
@@ -28003,7 +28003,7 @@
         "symbolName": "GraphitiProxyForwarderService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 397,
+        "sourceLine": 415,
         "summary": "Service tag for forwarding requests to upstream graphiti.",
         "categories": [
           "models"
@@ -28028,7 +28028,7 @@
         "symbolName": "GraphitiProxyQueueService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 412,
+        "sourceLine": 430,
         "summary": "Service tag for queueing and draining proxy traffic.",
         "categories": [
           "models"
@@ -28053,7 +28053,7 @@
         "symbolName": "isFastMcpRequestBody",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 474,
+        "sourceLine": 526,
         "summary": "Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue.",
         "categories": [
           "utilities"
@@ -28080,7 +28080,7 @@
         "symbolName": "makeGraphitiDependencyHealthService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 535,
+        "sourceLine": 618,
         "summary": "Construct dependency health service implementation.",
         "categories": [
           "models"
@@ -28107,7 +28107,7 @@
         "symbolName": "makeGraphitiProxyForwarderService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 592,
+        "sourceLine": 675,
         "summary": "Construct upstream forwarder service implementation.",
         "categories": [
           "models"
@@ -28134,7 +28134,7 @@
         "symbolName": "makeGraphitiProxyQueueService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 710,
+        "sourceLine": 810,
         "summary": "Construct proxy queue service implementation.",
         "categories": [
           "models"
@@ -28161,7 +28161,7 @@
         "symbolName": "proxyErrorResponse",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 301,
+        "sourceLine": 309,
         "summary": "Build a structured proxy error HTTP response.",
         "categories": [
           "models"
@@ -28188,7 +28188,7 @@
         "symbolName": "ProxyHealthPayload",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 184,
+        "sourceLine": 192,
         "summary": "Structured JSON payload for health endpoints.",
         "categories": [
           "models"
@@ -28213,7 +28213,7 @@
         "symbolName": "proxyHealthResponse",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 343,
+        "sourceLine": 351,
         "summary": "Build a structured proxy health HTTP response.",
         "categories": [
           "models"
@@ -28240,7 +28240,7 @@
         "symbolName": "ProxyQueueStats",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 157,
+        "sourceLine": 165,
         "summary": "Queue and processing counters for proxy introspection.",
         "categories": [
           "models"
@@ -28315,7 +28315,7 @@
         "symbolName": "extractFrames",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 317,
+        "sourceLine": 309,
         "summary": "Extract PNG frames from a single video.",
         "categories": [
           "use-cases"
@@ -28342,7 +28342,7 @@
         "symbolName": "extractFramesDir",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 337,
+        "sourceLine": 329,
         "summary": "Extract PNG frames from every direct video in a directory.",
         "categories": [
           "use-cases"
@@ -28618,7 +28618,7 @@
         "symbolName": "ImageCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 85,
+        "sourceLine": 86,
         "summary": "Service tag for image and video curation operations.",
         "categories": [
           "services"
@@ -28643,7 +28643,7 @@
         "symbolName": "ImageCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 301,
+        "sourceLine": 293,
         "summary": "Live service layer for image and video curation operations.",
         "categories": [
           "layers"
@@ -28668,7 +28668,7 @@
         "symbolName": "ImageCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Service contract for image and video curation commands.",
         "categories": [
           "services"
@@ -29316,7 +29316,7 @@
         "symbolName": "extractFrames",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 317,
+        "sourceLine": 309,
         "summary": "Extract PNG frames from a single video.",
         "categories": [
           "use-cases"
@@ -29343,7 +29343,7 @@
         "symbolName": "extractFramesDir",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 337,
+        "sourceLine": 329,
         "summary": "Extract PNG frames from every direct video in a directory.",
         "categories": [
           "use-cases"
@@ -29370,7 +29370,7 @@
         "symbolName": "ImageCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 85,
+        "sourceLine": 86,
         "summary": "Service tag for image and video curation operations.",
         "categories": [
           "services"
@@ -29395,7 +29395,7 @@
         "symbolName": "ImageCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 301,
+        "sourceLine": 293,
         "summary": "Live service layer for image and video curation operations.",
         "categories": [
           "layers"
@@ -29420,7 +29420,7 @@
         "symbolName": "ImageCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Service contract for image and video curation commands.",
         "categories": [
           "services"
@@ -29495,7 +29495,7 @@
         "symbolName": "extractFrames",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 317,
+        "sourceLine": 309,
         "summary": "Extract PNG frames from a single video.",
         "categories": [
           "use-cases"
@@ -29522,7 +29522,7 @@
         "symbolName": "extractFramesDir",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 337,
+        "sourceLine": 329,
         "summary": "Extract PNG frames from every direct video in a directory.",
         "categories": [
           "use-cases"
@@ -29798,7 +29798,7 @@
         "symbolName": "ImageCommandService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 85,
+        "sourceLine": 86,
         "summary": "Service tag for image and video curation operations.",
         "categories": [
           "services"
@@ -29823,7 +29823,7 @@
         "symbolName": "ImageCommandServiceLive",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 301,
+        "sourceLine": 293,
         "summary": "Live service layer for image and video curation operations.",
         "categories": [
           "layers"
@@ -29848,7 +29848,7 @@
         "symbolName": "ImageCommandServiceShape",
         "exportKind": "interface",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Image/Image.service.ts",
-        "sourceLine": 54,
+        "sourceLine": 55,
         "summary": "Service contract for image and video curation commands.",
         "categories": [
           "services"
@@ -31515,7 +31515,7 @@
         "symbolName": "lintPackageTestImportsCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Lint/PackageTestImports.ts",
-        "sourceLine": 319,
+        "sourceLine": 325,
         "summary": "Lint command for enforcing package aliases from package test and dtslint files.",
         "categories": [
           "utilities"
@@ -32073,7 +32073,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 3061,
+        "sourceLine": 3168,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -32098,7 +32098,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2285,
+        "sourceLine": 2294,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -32875,7 +32875,7 @@
         "symbolName": "fallowCiUploadDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2063,
+        "sourceLine": 2072,
         "summary": "Return Fallow CI upload diagnostics for contract tests.",
         "categories": [
           "testing"
@@ -32900,7 +32900,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2285,
+        "sourceLine": 2294,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -32950,7 +32950,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 3061,
+        "sourceLine": 3168,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -32975,7 +32975,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2285,
+        "sourceLine": 2294,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -33572,10 +33572,37 @@
         "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
         "exportSubpath": "./commands/Quality/Quality.command",
         "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "symbolName": "activeOsvIgnoreIdsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 852,
+        "summary": "Select the OSV advisory ids that may still be suppressed at `now`.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/commands/quality/quality.command ./commands/quality/quality.command activeosvignoreidsfortesting const select the osv advisory ids that may still be suppressed at `now`. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/commands/Quality/Quality.command",
+        "exportSubpath": "./commands/Quality/Quality.command",
+        "exportedFromPath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2688,
+        "sourceLine": 2795,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -33601,7 +33628,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1746,
+        "sourceLine": 1853,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -33655,7 +33682,7 @@
         "symbolName": "devQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1132,
+        "sourceLine": 1239,
         "summary": "Build the balanced local development quality steps for a repository.",
         "categories": [
           "testing"
@@ -33682,7 +33709,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2620,
+        "sourceLine": 2727,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -33708,7 +33735,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 941,
+        "sourceLine": 1048,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -33860,7 +33887,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1057,
+        "sourceLine": 1164,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -33887,7 +33914,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 992,
+        "sourceLine": 1099,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -33914,7 +33941,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1027,
+        "sourceLine": 1134,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -33941,7 +33968,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1042,
+        "sourceLine": 1149,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -33993,7 +34020,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 915,
+        "sourceLine": 1022,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -34020,7 +34047,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 3061,
+        "sourceLine": 3168,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -34197,7 +34224,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1215,
+        "sourceLine": 1322,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -34224,7 +34251,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 785,
+        "sourceLine": 880,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -34251,7 +34278,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2083,
+        "sourceLine": 2190,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -34278,7 +34305,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1438,
+        "sourceLine": 1545,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -34305,7 +34332,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2403,
+        "sourceLine": 2510,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -34331,7 +34358,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2326,
+        "sourceLine": 2433,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -34357,7 +34384,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2520,
+        "sourceLine": 2627,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -34382,7 +34409,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2438,
+        "sourceLine": 2545,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -34409,7 +34436,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2129,
+        "sourceLine": 2236,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -34436,7 +34463,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1892,
+        "sourceLine": 1999,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -34462,7 +34489,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2225,
+        "sourceLine": 2332,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -40294,7 +40321,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 222,
+        "sourceLine": 223,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -40319,7 +40346,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 330,
+        "sourceLine": 331,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -41013,7 +41040,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 222,
+        "sourceLine": 223,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -41038,7 +41065,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 330,
+        "sourceLine": 331,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"
@@ -44169,7 +44196,7 @@
         "symbolName": "backupDirectoryNameFromEpochMillisForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 316,
+        "sourceLine": 350,
         "summary": "Build the backup directory name used by `graphiti restore --backup`.",
         "categories": [
           "testing"
@@ -44196,7 +44223,7 @@
         "symbolName": "ContainerHealthState",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 55,
+        "sourceLine": 57,
         "summary": "Container health literal union.",
         "categories": [
           "models"
@@ -44221,7 +44248,7 @@
         "symbolName": "DependencyHealthSnapshot",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 137,
+        "sourceLine": 145,
         "summary": "Cached dependency health snapshot payload.",
         "categories": [
           "models"
@@ -44246,7 +44273,7 @@
         "symbolName": "DependencyHealthState",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 71,
+        "sourceLine": 73,
         "summary": "Dependency health literal union.",
         "categories": [
           "models"
@@ -44271,7 +44298,7 @@
         "symbolName": "ensureGraphitiProxy",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1093,
+        "sourceLine": 1127,
         "summary": "Ensure the local Graphiti proxy is healthy, starting it in the background when needed.",
         "categories": [
           "use-cases"
@@ -44322,7 +44349,7 @@
         "symbolName": "GraphitiDependencyHealthService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 382,
+        "sourceLine": 400,
         "summary": "Service tag for dependency health snapshots.",
         "categories": [
           "models"
@@ -44347,7 +44374,7 @@
         "symbolName": "GraphitiProxyConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
-        "sourceLine": 106,
+        "sourceLine": 107,
         "summary": "Runtime configuration schema for graphiti proxy.",
         "categories": [
           "models"
@@ -44397,7 +44424,7 @@
         "symbolName": "GraphitiProxyForwarderService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 397,
+        "sourceLine": 415,
         "summary": "Service tag for forwarding requests to upstream graphiti.",
         "categories": [
           "models"
@@ -44447,7 +44474,7 @@
         "symbolName": "GraphitiProxyQueueService",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 412,
+        "sourceLine": 430,
         "summary": "Service tag for queueing and draining proxy traffic.",
         "categories": [
           "models"
@@ -44472,7 +44499,7 @@
         "symbolName": "GraphitiRestoreConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 85,
+        "sourceLine": 119,
         "summary": "Configuration for restoring and verifying the local Graphiti stack.",
         "categories": [
           "models"
@@ -44497,7 +44524,7 @@
         "symbolName": "installGraphitiProxyService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1340,
+        "sourceLine": 1374,
         "summary": "Install and start the user-level systemd unit for the Graphiti proxy.",
         "categories": [
           "use-cases"
@@ -44524,7 +44551,7 @@
         "symbolName": "isFastMcpRequestBody",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 474,
+        "sourceLine": 526,
         "summary": "Determine whether an MCP request body is cheap enough to bypass the serialized memory-work queue.",
         "categories": [
           "utilities"
@@ -44551,7 +44578,7 @@
         "symbolName": "loadGraphitiProxyConfig",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
-        "sourceLine": 187,
+        "sourceLine": 193,
         "summary": "Load graphiti proxy config from Effect Config environment values.",
         "categories": [
           "models"
@@ -44576,7 +44603,7 @@
         "symbolName": "makeGraphitiDependencyHealthService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 535,
+        "sourceLine": 618,
         "summary": "Construct dependency health service implementation.",
         "categories": [
           "models"
@@ -44603,7 +44630,7 @@
         "symbolName": "makeGraphitiProxyForwarderService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 592,
+        "sourceLine": 675,
         "summary": "Construct upstream forwarder service implementation.",
         "categories": [
           "models"
@@ -44630,7 +44657,7 @@
         "symbolName": "makeGraphitiProxyQueueService",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 710,
+        "sourceLine": 810,
         "summary": "Construct proxy queue service implementation.",
         "categories": [
           "models"
@@ -44657,7 +44684,7 @@
         "symbolName": "proxyErrorResponse",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 301,
+        "sourceLine": 309,
         "summary": "Build a structured proxy error HTTP response.",
         "categories": [
           "models"
@@ -44684,7 +44711,7 @@
         "symbolName": "ProxyHealthPayload",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 184,
+        "sourceLine": 192,
         "summary": "Structured JSON payload for health endpoints.",
         "categories": [
           "models"
@@ -44709,7 +44736,7 @@
         "symbolName": "proxyHealthResponse",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 343,
+        "sourceLine": 351,
         "summary": "Build a structured proxy health HTTP response.",
         "categories": [
           "models"
@@ -44736,7 +44763,7 @@
         "symbolName": "ProxyQueueStats",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-        "sourceLine": 157,
+        "sourceLine": 165,
         "summary": "Queue and processing counters for proxy introspection.",
         "categories": [
           "models"
@@ -44761,7 +44788,7 @@
         "symbolName": "ProxyServiceConfig",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 122,
+        "sourceLine": 156,
         "summary": "Configuration for installing and managing the Graphiti proxy user service.",
         "categories": [
           "models"
@@ -44786,7 +44813,7 @@
         "symbolName": "recoverGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1230,
+        "sourceLine": 1264,
         "summary": "Recover the local Graphiti backing stack by restarting unhealthy containers.",
         "categories": [
           "use-cases"
@@ -44813,7 +44840,7 @@
         "symbolName": "renderProxyServiceUnitForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1359,
         "summary": "Render the user-level systemd unit for the Graphiti proxy.",
         "categories": [
           "testing"
@@ -44840,7 +44867,7 @@
         "symbolName": "resolveGraphitiStackDirForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 259,
+        "sourceLine": 293,
         "summary": "Resolve the Graphiti stack directory from CLI and environment inputs.",
         "categories": [
           "testing"
@@ -44867,7 +44894,7 @@
         "symbolName": "restoreGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1181,
+        "sourceLine": 1215,
         "summary": "Restore the local Graphiti backing stack and repair the agent-facing proxy.",
         "categories": [
           "use-cases"
@@ -44894,7 +44921,7 @@
         "symbolName": "shouldInstallProxyServiceForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 353,
+        "sourceLine": 387,
         "summary": "Decide whether the live proxy systemd unit should be reinstalled.",
         "categories": [
           "testing"
@@ -44921,7 +44948,7 @@
         "symbolName": "shouldRecoverGraphitiStackForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1259,
+        "sourceLine": 1293,
         "summary": "Decide whether Graphiti recovery should restart the backing containers.",
         "categories": [
           "testing"
@@ -44949,7 +44976,7 @@
         "symbolName": "verifyGraphitiStack",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyOps.ts",
-        "sourceLine": 1154,
+        "sourceLine": 1188,
         "summary": "Verify the local Graphiti stack, persisted `beep_dev` graph, and proxy MCP endpoint.",
         "categories": [
           "use-cases"
@@ -45805,10 +45832,37 @@
         "importSpecifier": "@beep/repo-cli/test/Quality",
         "exportSubpath": "./test/Quality",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
+        "symbolName": "activeOsvIgnoreIdsForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
+        "sourceLine": 852,
+        "summary": "Select the OSV advisory ids that may still be suppressed at `now`.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/quality ./test/quality activeosvignoreidsfortesting const select the osv advisory ids that may still be suppressed at `now`. testing packages/tooling/tool/cli/src/commands/quality/quality.command.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Quality",
+        "exportSubpath": "./test/Quality",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Quality.test-kit.ts",
         "symbolName": "affectedRepoExportsCatalogPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2688,
+        "sourceLine": 2795,
         "summary": "Build the conservative affected repo export catalog plan for a set of changed paths.",
         "categories": [
           "testing"
@@ -45982,7 +46036,7 @@
         "symbolName": "collectEffectTsgoDiagnosticLines",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1746,
+        "sourceLine": 1853,
         "summary": "Collect Effect tsgo diagnostics from command output regardless of process exit code.",
         "categories": [
           "utilities"
@@ -46114,7 +46168,7 @@
         "symbolName": "devQualityStepsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1132,
+        "sourceLine": 1239,
         "summary": "Build the balanced local development quality steps for a repository.",
         "categories": [
           "testing"
@@ -46644,7 +46698,7 @@
         "symbolName": "fullRepoExportsCatalogEscalationCommandForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2620,
+        "sourceLine": 2727,
         "summary": "Resolve the full repo export catalog command used by affected escalation.",
         "categories": [
           "testing"
@@ -46670,7 +46724,7 @@
         "symbolName": "githubCheckLanesForModeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 941,
+        "sourceLine": 1048,
         "summary": "Return the static GitHub check collector lanes for a mode.",
         "categories": [
           "testing"
@@ -46822,7 +46876,7 @@
         "symbolName": "githubCheckPrePushExternalLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1057,
+        "sourceLine": 1164,
         "summary": "Build the external pre-push diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -46849,7 +46903,7 @@
         "symbolName": "githubCheckPromotedFallowLaneDiagnosticsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 992,
+        "sourceLine": 1099,
         "summary": "Compare promoted Fallow matrix rows against static GitHub check lanes.",
         "categories": [
           "testing"
@@ -46876,7 +46930,7 @@
         "symbolName": "githubCheckQualityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1027,
+        "sourceLine": 1134,
         "summary": "Build the repo-quality diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -46903,7 +46957,7 @@
         "symbolName": "githubCheckRepoSanityLanesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1042,
+        "sourceLine": 1149,
         "summary": "Build the repo-sanity diagnostic lanes used by GitHub check collectors.",
         "categories": [
           "testing"
@@ -47306,7 +47360,7 @@
         "symbolName": "promotedFallowGithubCheckLaneIdsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 915,
+        "sourceLine": 1022,
         "summary": "Derive the GitHub check lane ids required by currently promoted Fallow matrix rows.",
         "categories": [
           "testing"
@@ -47333,7 +47387,7 @@
         "symbolName": "qualityCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 3061,
+        "sourceLine": 3168,
         "summary": "Quality command group for repo operational checks.",
         "categories": [
           "cli-commands"
@@ -47358,7 +47412,7 @@
         "symbolName": "qualityFallowCommand",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
-        "sourceLine": 2285,
+        "sourceLine": 2294,
         "summary": "Fallow command group under the canonical repo quality surface.",
         "categories": [
           "cli-commands"
@@ -47837,7 +47891,7 @@
         "symbolName": "reviewFixDocgenLocalArgsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1215,
+        "sourceLine": 1322,
         "summary": "Build the docgen command arguments for the review-fix proof lane.",
         "categories": [
           "testing"
@@ -47918,7 +47972,7 @@
         "symbolName": "runBunAudit",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 785,
+        "sourceLine": 880,
         "summary": "Run Bun's high-severity package audit with OSV ignores mirrored from config.",
         "categories": [
           "use-cases"
@@ -47970,7 +48024,7 @@
         "symbolName": "runDtslintTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2083,
+        "sourceLine": 2190,
         "summary": "Run repo-wide tsgo diagnostics for dtslint files.",
         "categories": [
           "use-cases"
@@ -47997,7 +48051,7 @@
         "symbolName": "runGithubChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1438,
+        "sourceLine": 1545,
         "summary": "Run a GitHub checks mode from the repository root.",
         "categories": [
           "use-cases"
@@ -48024,7 +48078,7 @@
         "symbolName": "runJSDocInventory",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2403,
+        "sourceLine": 2510,
         "summary": "Run the JSDoc inventory generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -48050,7 +48104,7 @@
         "symbolName": "runJSDocModuleTagsCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2326,
+        "sourceLine": 2433,
         "summary": "Verify tracked fileoverview comments do not use the legacy `@module` tag.",
         "categories": [
           "use-cases"
@@ -48076,7 +48130,7 @@
         "symbolName": "runJSDocQuality",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2520,
+        "sourceLine": 2627,
         "summary": "Run the repo-wide JSDoc quality gate.",
         "categories": [
           "use-cases"
@@ -48308,7 +48362,7 @@
         "symbolName": "runRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2438,
+        "sourceLine": 2545,
         "summary": "Run the repo export catalog generator now owned by repo-cli.",
         "categories": [
           "use-cases"
@@ -48385,7 +48439,7 @@
         "symbolName": "runTestTsgoChecks",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2129,
+        "sourceLine": 2236,
         "summary": "Run repo-wide Effect diagnostics for test files.",
         "categories": [
           "use-cases"
@@ -48412,7 +48466,7 @@
         "symbolName": "runTsgoRulesCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 1892,
+        "sourceLine": 1999,
         "summary": "Check that the root tsgo Effect diagnostics configuration enables every installed rule as an error.",
         "categories": [
           "use-cases"
@@ -48438,7 +48492,7 @@
         "symbolName": "runTsgoSmokeCheck",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts",
-        "sourceLine": 2225,
+        "sourceLine": 2332,
         "summary": "Verify that tsgo reports the Effect diagnostic expected by this repo.",
         "categories": [
           "use-cases"
@@ -50673,7 +50727,7 @@
         "symbolName": "assessBaseFreshnessForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1067,
+        "sourceLine": 1112,
         "summary": "Assess how far the publish branch has diverged from its refreshed base ref.",
         "categories": [
           "testing"
@@ -50724,7 +50778,7 @@
         "symbolName": "buildYeetRunPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 644,
+        "sourceLine": 641,
         "summary": "Build the publish-mode yeet run plan.",
         "categories": [
           "workflows"
@@ -50751,7 +50805,7 @@
         "symbolName": "buildYeetRunPlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2740,
+        "sourceLine": 2825,
         "summary": "Build a plan for tests without reading repository state.",
         "categories": [
           "testing"
@@ -50777,7 +50831,7 @@
         "symbolName": "buildYeetRunPlanWithMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 603,
+        "sourceLine": 600,
         "summary": "Build a yeet run plan for a specific mode.",
         "categories": [
           "workflows"
@@ -50879,7 +50933,7 @@
         "symbolName": "closeoutGateStatesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 878,
+        "sourceLine": 889,
         "summary": "Build durable PR closeout gate states from simplified test inputs.",
         "categories": [
           "testing"
@@ -50906,7 +50960,7 @@
         "symbolName": "closeoutWritePlanForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 1169,
+        "sourceLine": 1178,
         "summary": "Plan explicit closeout write actions from CLI flag values.",
         "categories": [
           "testing"
@@ -50930,7 +50984,7 @@
         "symbolName": "collectDiffFingerprintForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1665,
+        "sourceLine": 1725,
         "summary": "Collect the reusable-proof fingerprint for the current Git worktree.",
         "categories": [
           "testing"
@@ -51006,7 +51060,7 @@
         "symbolName": "decodeTurboPlanTasksFromQueryJsonForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1507,
+        "sourceLine": 1559,
         "summary": "Decode Turbo query JSON into Yeet Turbo plan task metadata for focused tests.",
         "categories": [
           "testing"
@@ -51054,7 +51108,7 @@
         "symbolName": "defaultYeetRunOptions",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2781,
+        "sourceLine": 2866,
         "summary": "Construct baseline yeet options for focused tests.",
         "categories": [
           "testing"
@@ -51184,6 +51238,31 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "FallowFeedbackAllowedRoot",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+        "sourceLine": 113,
+        "summary": "Configurable allowed root the Fallow advisory feedback reader/writer is",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet fallowfeedbackallowedroot const configurable allowed root the fallow advisory feedback reader/writer is guards packages/tooling/tool/cli/src/commands/yeet/internal/fallowfeedback.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "GITHUB_CHECK_MODE_VALUES",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/internal/repo-run/RepoRun.proofs.ts",
@@ -51260,7 +51339,7 @@
         "symbolName": "gitPathListFromNulOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 503,
+        "sourceLine": 504,
         "summary": "Parse NUL-delimited Git path output for Yeet publish-safety tests.",
         "categories": [
           "testing"
@@ -51284,7 +51363,7 @@
         "symbolName": "greptileIssueLimitExceededForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 746,
+        "sourceLine": 757,
         "summary": "Determine whether the Greptile issue-count gate should block closeout.",
         "categories": [
           "testing"
@@ -51358,7 +51437,7 @@
         "symbolName": "hydrateYeetRunContext",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1548,
+        "sourceLine": 1600,
         "summary": "Hydrate a shared yeet run context from repository state.",
         "categories": [
           "utilities"
@@ -51385,7 +51464,7 @@
         "symbolName": "inferGreptileIssueCountForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 692,
+        "sourceLine": 703,
         "summary": "Fill a missing Greptile issue count from active Greptile-authored thread count.",
         "categories": [
           "testing"
@@ -51438,7 +51517,7 @@
         "symbolName": "jsonObjectTextFromMixedOutputForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1364,
+        "sourceLine": 1416,
         "summary": "Extract the last decodable JSON object from mixed command output for tests.",
         "categories": [
           "testing"
@@ -51489,7 +51568,7 @@
         "symbolName": "latestGreptileSummaryForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 666,
+        "sourceLine": 671,
         "summary": "Parse the latest Greptile summary from simplified comment inputs.",
         "categories": [
           "testing"
@@ -51512,10 +51591,35 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "layerFallowFeedbackAllowedRootForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
+        "sourceLine": 140,
+        "summary": "Build a layer that overrides the {@link FallowFeedbackAllowedRoot} allowed",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet layerfallowfeedbackallowedrootfortesting const build a layer that overrides the {@link fallowfeedbackallowedroot} allowed guards packages/tooling/tool/cli/src/commands/yeet/internal/fallowfeedback.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "loadVerifiedStateForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1884,
+        "sourceLine": 1966,
         "summary": "Expose proof-state loading for upgrade compatibility tests.",
         "categories": [
           "testing"
@@ -51539,7 +51643,7 @@
         "symbolName": "overlappingBasePathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 571,
+        "sourceLine": 572,
         "summary": "Return branch-changed paths that were also changed on the base ref since the",
         "categories": [
           "testing"
@@ -51588,7 +51692,7 @@
         "symbolName": "partiallyStagedPathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 562,
+        "sourceLine": 563,
         "summary": "Return staged paths that also carry unstaged worktree modifications.",
         "categories": [
           "testing"
@@ -51710,7 +51814,7 @@
         "symbolName": "prePushLocalShasFromStdinForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 511,
+        "sourceLine": 512,
         "summary": "Parse Git pre-push stdin and return non-delete local commit SHAs.",
         "categories": [
           "testing"
@@ -51734,7 +51838,7 @@
         "symbolName": "prePushShaMismatchesForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 519,
+        "sourceLine": 520,
         "summary": "Return pushed SHAs that do not match the reusable Yeet proof commit.",
         "categories": [
           "testing"
@@ -51758,7 +51862,7 @@
         "symbolName": "proofLockDispositionForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1721,
+        "sourceLine": 1781,
         "summary": "Decide whether an existing proof lock is stale, active, or unreadable.",
         "categories": [
           "testing"
@@ -51782,7 +51886,7 @@
         "symbolName": "publishPathsOutsideIntentForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 527,
+        "sourceLine": 528,
         "summary": "Return observed paths that are not part of the reviewed Yeet publish intent.",
         "categories": [
           "testing"
@@ -51806,7 +51910,7 @@
         "symbolName": "publishRestagePathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 536,
+        "sourceLine": 537,
         "summary": "Return reviewed paths that can be passed to `git add` without failing on",
         "categories": [
           "testing"
@@ -51830,7 +51934,7 @@
         "symbolName": "publishUpstreamMismatchWarningForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 545,
+        "sourceLine": 546,
         "summary": "Return the warning Yeet prints when publish push target differs from branch",
         "categories": [
           "testing"
@@ -52706,7 +52810,7 @@
         "symbolName": "restoreStashedWorktreeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1023,
+        "sourceLine": 1068,
         "summary": "Restore staged-only residue from its recorded stash, preserving the stash on",
         "categories": [
           "testing"
@@ -52730,7 +52834,7 @@
         "symbolName": "runPrCloseout",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Closeout.ts",
-        "sourceLine": 1210,
+        "sourceLine": 1219,
         "summary": "Inspect current PR review and bot closeout state.",
         "categories": [
           "use-cases"
@@ -52808,7 +52912,7 @@
         "symbolName": "runYeet",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2688,
+        "sourceLine": 2773,
         "summary": "Run yeet with the provided options.",
         "categories": [
           "use-cases"
@@ -52835,7 +52939,7 @@
         "symbolName": "runYeetFallowFeedbackForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/FallowFeedback.ts",
-        "sourceLine": 311,
+        "sourceLine": 387,
         "summary": "Convert Fallow advisory envelopes from a directory into a Yeet issue index.",
         "categories": [
           "commands"
@@ -52856,10 +52960,36 @@
         "importSpecifier": "@beep/repo-cli/test/Yeet",
         "exportSubpath": "./test/Yeet",
         "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
+        "symbolName": "safeOriginBranchFromBaseForTesting",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
+        "sourceLine": 930,
+        "summary": "Extract and validate the `origin/<branch>` ref from a `--base` value.",
+        "categories": [
+          "testing"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-cli packages/tooling/tool/cli @beep/repo-cli/test/yeet ./test/yeet safeoriginbranchfrombasefortesting const extract and validate the `origin/<branch>` ref from a `--base` value. testing packages/tooling/tool/cli/src/commands/yeet/internal/handler.ts"
+      },
+      {
+        "packageName": "@beep/repo-cli",
+        "packagePath": "packages/tooling/tool/cli",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-cli/test/Yeet",
+        "exportSubpath": "./test/Yeet",
+        "exportedFromPath": "packages/tooling/tool/cli/src/test/Yeet.test-kit.ts",
         "symbolName": "shouldSkipCommitForReusablePublishForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 2205,
+        "sourceLine": 2287,
         "summary": "Decide whether a reusable publish should skip the commit phase.",
         "categories": [
           "testing"
@@ -52883,7 +53013,7 @@
         "symbolName": "stashUnstagedWorktreeForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1014,
+        "sourceLine": 1059,
         "summary": "Park unstaged and untracked residue in a marked stash for staged-only",
         "categories": [
           "testing"
@@ -52907,7 +53037,7 @@
         "symbolName": "summarizePublishPathsForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 554,
+        "sourceLine": 555,
         "summary": "Summarize refused publish paths as count, top-level entries, and capped",
         "categories": [
           "testing"
@@ -53230,7 +53360,7 @@
         "symbolName": "yeetPlanPhases",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Planner.ts",
-        "sourceLine": 674,
+        "sourceLine": 671,
         "summary": "Return plan phases in execution order.",
         "categories": [
           "utilities"
@@ -53256,7 +53386,7 @@
         "symbolName": "YeetProofLockStateForTesting",
         "exportKind": "const",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 1695,
+        "sourceLine": 1755,
         "summary": "Proof-lock state schema exposed for lock-disposition tests.",
         "categories": [
           "testing"
@@ -53378,7 +53508,7 @@
         "symbolName": "YeetRunOptions",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 222,
+        "sourceLine": 223,
         "summary": "Runtime options accepted by the yeet handler.",
         "categories": [
           "models"
@@ -53428,7 +53558,7 @@
         "symbolName": "YeetRunResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts",
-        "sourceLine": 330,
+        "sourceLine": 331,
         "summary": "Result returned by a yeet execution attempt.",
         "categories": [
           "models"

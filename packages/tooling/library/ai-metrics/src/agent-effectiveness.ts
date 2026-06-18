@@ -1382,6 +1382,23 @@ const firstOrNull: <A>(values: ReadonlyArray<A>) => A | null = flow(A.head, O.ge
 const dataRootDuckDbPath = (dataRoot: string): string => `${dataRoot}/derived/ai-metrics.duckdb`;
 const normalizePathSeparators = Str.replace(/\\/gu, "/");
 const isWorkerEvalManifestPath = flow(normalizePathSeparators, Str.endsWith("/ops/manifest.json"));
+
+// Strip terminal control sequences (ANSI CSI/OSC/other ESC sequences, BEL) and
+// remaining C0/C1 control characters from untrusted report strings before they
+// are interpolated into human-readable doctor messages. Without this, attacker
+// controlled policy-violation codes from a worker-eval artifact could inject
+// escape sequences (output spoofing, screen clearing, hyperlink/clipboard
+// manipulation) into the developer terminal that renders the message.
+const stripTerminalControlSequences: (value: string) => string = flow(
+  // OSC sequences: ESC ] ... terminated by BEL (\u0007) or ST (ESC \\).
+  Str.replace(/\u001B\][\s\S]*?(?:\u0007|\u001B\\)/gu, ""),
+  // CSI sequences: ESC [ params intermediates final-byte.
+  Str.replace(/\u001B\[[0-?]*[ -/]*[@-~]/gu, ""),
+  // Any other two-byte ESC sequence (ESC + a single final byte).
+  Str.replace(/\u001B[@-Z\\-_]/gu, ""),
+  // Remaining C0 controls (incl. BEL, CR, LF, lone ESC) and DEL/C1 controls.
+  Str.replace(/[\u0000-\u001F\u007F-\u009F]/gu, "")
+);
 const normalizeAnnotationIdSuffix = flow(Str.replace(/[^A-Za-z0-9._-]+/gu, "-"), Str.replace(/^-+|-+$/gu, ""));
 
 const annotationIdSuffixPart = (value: string): string => {
@@ -1762,6 +1779,9 @@ const buildJsdocWorkerSection = Effect.fn("AiMetrics.agentEffectiveness.buildJsd
         A.flatMap((packet) => packet.policyViolationCodes)
       ),
     ],
+    // Untrusted report strings: strip terminal control sequences before they are
+    // joined into the human-readable message or echoed to any terminal/JSON sink.
+    A.map(stripTerminalControlSequences),
     A.dedupe
   );
   const hasFailures = summary.failed > 0 || summary.timedOut > 0;
@@ -2802,7 +2822,17 @@ export const syncAgentEffectivenessPhoenix: (
 });
 
 const forbiddenPatterns = [
+  // Private home/user paths across platforms. Each leaks the local username (and
+  // often project/customer directory names) and must be blocked before a dataset
+  // is written to a remote Phoenix endpoint. Covers POSIX `/home/<user>`, macOS
+  // `/Users/<user>`, Windows `<Drive>:\Users\<user>` (and forward-slash form),
+  // tilde home (`~/` or `~user/`), and the `%USERPROFILE%`/`%HOMEPATH%` env refs.
   { code: "private-home-path", pattern: /\/home\/[A-Za-z0-9_.-]+/u },
+  { code: "private-home-path", pattern: /\/Users\/[A-Za-z0-9_.-]+/u },
+  { code: "private-home-path", pattern: /[A-Za-z]:[\\/]Users[\\/][A-Za-z0-9_.-]+/u },
+  { code: "private-home-path", pattern: /(?:^|[\s"'`(=:])~[\\/]/u },
+  { code: "private-home-path", pattern: /(?:^|[\s"'`(=:])~[A-Za-z0-9_.-]+[\\/]/u },
+  { code: "private-home-path", pattern: /%(?:USERPROFILE|HOMEPATH|HOMEDRIVE)%/iu },
   { code: "onepassword-ref", pattern: /op:\/\//u },
   // Deliberately require assignment-shaped labels or key-like values here. Standalone words like TOKEN can appear
   // in benign policy/status labels, and broader matching produced false positives on metrics such as provider_model_token_cost.

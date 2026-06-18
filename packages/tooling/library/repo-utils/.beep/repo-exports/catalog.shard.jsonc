@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "b35818c5ae272acabf964a9a80de626b95288e5fb0cf82c5c6967d888351e102",
+    "digest": "641a2763238742706e734ab64b4ca52fc29b358e93621ded06d1890a90c5009f",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -57,13 +57,18 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/errors/index.ts",
-        "sha256": "74fef7002f09a1ed40f8e0ac4592d0b3994ba2428bb4b9950d00bf5a1ed2cbd8",
-        "bytes": 585
+        "sha256": "a4599d689f83b7b91030e2e978fcef099350a67b084639bfd6be39c2afa29428",
+        "bytes": 756
       },
       {
         "path": "packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts",
         "sha256": "a569974aba23d16a575cad023cabd98669db8309cdd26333db514689250eb992",
         "bytes": 1218
+      },
+      {
+        "path": "packages/tooling/library/repo-utils/src/errors/OptionInjectionError.ts",
+        "sha256": "331b3fd5cc16f7e9c571b8a6581e9deb6078d3b2989e237cb555a50679c6a19a",
+        "bytes": 1830
       },
       {
         "path": "packages/tooling/library/repo-utils/src/FsUtils.ts",
@@ -77,8 +82,8 @@
       },
       {
         "path": "packages/tooling/library/repo-utils/src/index.ts",
-        "sha256": "9181553d2a6159b3be1e4719336c551596a1473d30e2cf66d607397b1c108231",
-        "bytes": 7077
+        "sha256": "45f7403d152365ef0387f580c63edc52bfd581594a5940d93e6756a798cd5398",
+        "bytes": 7668
       },
       {
         "path": "packages/tooling/library/repo-utils/src/JSDoc/index.ts",
@@ -236,6 +241,11 @@
         "bytes": 2971
       },
       {
+        "path": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sha256": "3fda5388682e04c06258ce2558c240b8bb3f49397f1fe34aa47b78fe32fc7ab1",
+        "bytes": 9781
+      },
+      {
         "path": "packages/tooling/library/repo-utils/src/Reuse/index.ts",
         "sha256": "fe2ed6b575b3147570b93d8a65a400ad57c7c1ffe9a346a1abf7ecc865ee1e14",
         "bytes": 264
@@ -357,8 +367,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -381,6 +391,7 @@
       "@beep/repo-utils/errors/DomainError",
       "@beep/repo-utils/errors/index",
       "@beep/repo-utils/errors/NoSuchFileError",
+      "@beep/repo-utils/errors/OptionInjectionError",
       "@beep/repo-utils/FsUtils",
       "@beep/repo-utils/Graph",
       "@beep/repo-utils/index",
@@ -416,6 +427,7 @@
       "@beep/repo-utils/JSDoc/models/TagValue.model",
       "@beep/repo-utils/JSDoc/models/TSCategory.model",
       "@beep/repo-utils/JsonUtils",
+      "@beep/repo-utils/ProcessArgs",
       "@beep/repo-utils/Reuse/index",
       "@beep/repo-utils/Reuse/Reuse.model",
       "@beep/repo-utils/Reuse/Reuse.service",
@@ -442,9 +454,9 @@
       "@beep/repo-utils/Workspaces"
     ],
     "counts": {
-      "publicExportEntries": 1735,
-      "uniqueSymbols": 515,
-      "sourceFiles": 65
+      "publicExportEntries": 1759,
+      "uniqueSymbols": 523,
+      "sourceFiles": 67
     },
     "exports": [
       {
@@ -1418,6 +1430,31 @@
         "importSpecifier": "@beep/repo-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "END_OF_OPTIONS",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 63,
+        "summary": "The POSIX end-of-options separator.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . end_of_options const the posix end-of-options separator. constants packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "extractWorkspaceDependencies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Dependencies.ts",
@@ -1726,6 +1763,87 @@
         "importSpecifier": "@beep/repo-utils",
         "exportSubpath": ".",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "guardLiteralArg",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 178,
+        "summary": "Validate a single data-derived argument value, failing closed when it is",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . guardliteralarg const validate a single data-derived argument value, failing closed when it is guards packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "guardLiteralArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 210,
+        "summary": "Validate a list of data-derived argument values, failing closed on the first",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . guardliteralargs const validate a list of data-derived argument values, failing closed on the first guards packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "insertEndOfOptions",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 118,
+        "summary": "Insert the end-of-options separator (`--`) between option-position arguments",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . insertendofoptions const insert the end-of-options separator (`--`) between option-position arguments combinators packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "InternalTsMorphNode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
@@ -1793,6 +1911,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . internaltsmorphsourcefile const internal runtime schema for a live ts-morph sourcefile instance. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "isOptionLike",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 86,
+        "summary": "Predicate that reports whether a value is shaped like a command-line option.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . isoptionlike const predicate that reports whether a value is shaped like a command-line option. predicates packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -1918,6 +2063,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . linenumber type branded positive 1-based line number. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "LiteralArg",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 238,
+        "summary": "Schema for a child-process argument value that is guaranteed not to be shaped",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . literalarg const schema for a child-process argument value that is guaranteed not to be shaped schemas packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -3603,6 +3773,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . symbolqualifiedname type branded qualified symbol name. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "toLiteralArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 154,
+        "summary": "Prefix a list of data-derived positional arguments with the end-of-options",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils . toliteralargs const prefix a list of data-derived positional arguments with the end-of-options combinators packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -5817,6 +6014,31 @@
         "packageName": "@beep/repo-utils",
         "packagePath": "packages/tooling/library/repo-utils",
         "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/errors/index",
+        "exportSubpath": "./errors/index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/errors/index.ts",
+        "symbolName": "OptionInjectionError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-utils/src/errors/OptionInjectionError.ts",
+        "sourceLine": 37,
+        "summary": "Raised when a guarded child-process argument value is option-like (for",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/errors/index ./errors/index optioninjectionerror class raised when a guarded child-process argument value is option-like (for error-handling packages/tooling/library/repo-utils/src/errors/optioninjectionerror.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
         "importSpecifier": "@beep/repo-utils/errors/NoSuchFileError",
         "exportSubpath": "./errors/NoSuchFileError",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/errors/NoSuchFileError.ts",
@@ -5837,6 +6059,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/errors/nosuchfileerror ./errors/nosuchfileerror nosuchfileerror class raised when a required file or directory cannot be located. error-handling packages/tooling/library/repo-utils/src/errors/nosuchfileerror.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/errors/OptionInjectionError",
+        "exportSubpath": "./errors/OptionInjectionError",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/errors/OptionInjectionError.ts",
+        "symbolName": "OptionInjectionError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-utils/src/errors/OptionInjectionError.ts",
+        "sourceLine": 37,
+        "summary": "Raised when a guarded child-process argument value is option-like (for",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/errors/optioninjectionerror ./errors/optioninjectionerror optioninjectionerror class raised when a guarded child-process argument value is option-like (for error-handling packages/tooling/library/repo-utils/src/errors/optioninjectionerror.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -6988,6 +7235,31 @@
         "importSpecifier": "@beep/repo-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "END_OF_OPTIONS",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 63,
+        "summary": "The POSIX end-of-options separator.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index end_of_options const the posix end-of-options separator. constants packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "extractWorkspaceDependencies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/Dependencies.ts",
@@ -7296,6 +7568,87 @@
         "importSpecifier": "@beep/repo-utils/index",
         "exportSubpath": "./index",
         "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "guardLiteralArg",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 178,
+        "summary": "Validate a single data-derived argument value, failing closed when it is",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index guardliteralarg const validate a single data-derived argument value, failing closed when it is guards packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "guardLiteralArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 210,
+        "summary": "Validate a list of data-derived argument values, failing closed on the first",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index guardliteralargs const validate a list of data-derived argument values, failing closed on the first guards packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "insertEndOfOptions",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 118,
+        "summary": "Insert the end-of-options separator (`--`) between option-position arguments",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index insertendofoptions const insert the end-of-options separator (`--`) between option-position arguments combinators packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
         "symbolName": "InternalTsMorphNode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
@@ -7363,6 +7716,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index internaltsmorphsourcefile const internal runtime schema for a live ts-morph sourcefile instance. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "isOptionLike",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 86,
+        "summary": "Predicate that reports whether a value is shaped like a command-line option.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index isoptionlike const predicate that reports whether a value is shaped like a command-line option. predicates packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -7488,6 +7868,31 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index linenumber type branded positive 1-based line number. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "LiteralArg",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 238,
+        "summary": "Schema for a child-process argument value that is guaranteed not to be shaped",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index literalarg const schema for a child-process argument value that is guaranteed not to be shaped schemas packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -9173,6 +9578,33 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index symbolqualifiedname type branded qualified symbol name. models packages/tooling/library/repo-utils/src/tsmorph/tsmorph.model.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/index",
+        "exportSubpath": "./index",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/index.ts",
+        "symbolName": "toLiteralArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 154,
+        "summary": "Prefix a list of data-derived positional arguments with the end-of-options",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/index ./index toliteralargs const prefix a list of data-derived positional arguments with the end-of-options combinators packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",
@@ -31486,6 +31918,216 @@
           "@since"
         ],
         "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/jsonutils ./jsonutils jsonstringifypretty const serialize a value to a pretty-printed json string (2-space indent) utilities packages/tooling/library/repo-utils/src/jsonutils.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "END_OF_OPTIONS",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 63,
+        "summary": "The POSIX end-of-options separator.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs end_of_options const the posix end-of-options separator. constants packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "guardLiteralArg",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 178,
+        "summary": "Validate a single data-derived argument value, failing closed when it is",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs guardliteralarg const validate a single data-derived argument value, failing closed when it is guards packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "guardLiteralArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 210,
+        "summary": "Validate a list of data-derived argument values, failing closed on the first",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs guardliteralargs const validate a list of data-derived argument values, failing closed on the first guards packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "insertEndOfOptions",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 118,
+        "summary": "Insert the end-of-options separator (`--`) between option-position arguments",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs insertendofoptions const insert the end-of-options separator (`--`) between option-position arguments combinators packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "isOptionLike",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 86,
+        "summary": "Predicate that reports whether a value is shaped like a command-line option.",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs isoptionlike const predicate that reports whether a value is shaped like a command-line option. predicates packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "LiteralArg",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 238,
+        "summary": "Schema for a child-process argument value that is guaranteed not to be shaped",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs literalarg const schema for a child-process argument value that is guaranteed not to be shaped schemas packages/tooling/library/repo-utils/src/processargs.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "OptionInjectionError",
+        "exportKind": "class",
+        "sourcePath": "packages/tooling/library/repo-utils/src/errors/OptionInjectionError.ts",
+        "sourceLine": 37,
+        "summary": "Raised when a guarded child-process argument value is option-like (for",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs optioninjectionerror class raised when a guarded child-process argument value is option-like (for error-handling packages/tooling/library/repo-utils/src/errors/optioninjectionerror.ts"
+      },
+      {
+        "packageName": "@beep/repo-utils",
+        "packagePath": "packages/tooling/library/repo-utils",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/repo-utils/ProcessArgs",
+        "exportSubpath": "./ProcessArgs",
+        "exportedFromPath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "symbolName": "toLiteralArgs",
+        "exportKind": "const",
+        "sourcePath": "packages/tooling/library/repo-utils/src/ProcessArgs.ts",
+        "sourceLine": 154,
+        "summary": "Prefix a list of data-derived positional arguments with the end-of-options",
+        "categories": [
+          "combinators"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@param",
+          "@returns",
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/repo-utils packages/tooling/library/repo-utils @beep/repo-utils/processargs ./processargs toliteralargs const prefix a list of data-derived positional arguments with the end-of-options combinators packages/tooling/library/repo-utils/src/processargs.ts"
       },
       {
         "packageName": "@beep/repo-utils",

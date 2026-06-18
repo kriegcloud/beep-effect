@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { findRepoRoot } from "@beep/repo-utils";
+import { findRepoRoot, insertEndOfOptions } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { makePgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
@@ -659,7 +659,7 @@ const lintFixChangedStep = (repoRoot: string, files: ReadonlyArray<string>) =>
   QualityTaskStep.make({
     label: "lint:fix:changed",
     command: LOCAL_BIOME_BIN,
-    args: [...BIOME_FIX_CHANGED_ARGS, ...files],
+    args: insertEndOfOptions(BIOME_FIX_CHANGED_ARGS, files),
     cwd: repoRoot,
   });
 

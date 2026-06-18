@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "2473c258af8f3dcc38848e1eccf36bddd0c768e59001c4485341356808b59dca",
+    "digest": "0b18802ac2bafce164988c733defce8781c6a3e1c63b9c6c7e9c1b2bc20020f5",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -132,8 +132,8 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts",
-        "sha256": "b2071a1b60af20c5d6d5b4d9786b013de2adf79a75b1225dae6feed3de18a49d",
-        "bytes": 16377
+        "sha256": "44259f0c549bba1078e3e0fa99e231d850b65f07e48fb1eeb1c9f4974590f97d",
+        "bytes": 18482
       },
       {
         "path": "packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts",
@@ -152,8 +152,8 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sha256": "0cdcc7e92a258b2049d6d1a7ba02d8de9e532cb9ac33f6ea63fc4d4a24f73bc4",
-        "bytes": 21743
+        "sha256": "43a2cde8bd97906ebe9c548667b4019bb5f2fd55aa210239ead93293cbec3fe9",
+        "bytes": 23050
       },
       {
         "path": "packages/foundation/capability/nlp/src/Graph/GraphOps.ts",
@@ -172,13 +172,13 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/Graph/TextGraph.ts",
-        "sha256": "f0d13047cdff758bfe7bfb5fad5898f7d70d470c88a75291bd44138e7b37f3f9",
-        "bytes": 25092
+        "sha256": "d285018b1a5dedb1031f2b324834cef2da7aa010be4670b8769486788f30eed4",
+        "bytes": 25651
       },
       {
         "path": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sha256": "35eb0bf353285954f5b4f86b50109af59980af3613b02befb79209b856b850d2",
-        "bytes": 30883
+        "sha256": "4829ae7a981e1d661e02244b997b58971786ded1712997f3288090e92f7bfeca",
+        "bytes": 31450
       },
       {
         "path": "packages/foundation/capability/nlp/src/Handoff/Contract.ts",
@@ -207,8 +207,8 @@
       },
       {
         "path": "packages/foundation/capability/nlp/src/internal/observability.ts",
-        "sha256": "9fed1c310dd4dad4b7c2f3ae242345cbe7dfda6ffaba89211d1406dad0c64379",
-        "bytes": 6933
+        "sha256": "40ef130a49770971403fc53e4941f815ade9f83b03157b61542d14ba734fd055",
+        "bytes": 8033
       },
       {
         "path": "packages/foundation/capability/nlp/src/NLPService.ts",
@@ -407,8 +407,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -507,8 +507,8 @@
       "@beep/nlp/VariantText"
     ],
     "counts": {
-      "publicExportEntries": 897,
-      "uniqueSymbols": 459,
+      "publicExportEntries": 898,
+      "uniqueSymbols": 460,
       "sourceFiles": 75
     },
     "exports": [
@@ -12839,7 +12839,7 @@
         "symbolName": "GraphExecutorLive",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts",
-        "sourceLine": 433,
+        "sourceLine": 486,
         "summary": "Live {@link GraphExecutor} layer.",
         "categories": [
           "layers"
@@ -12891,7 +12891,7 @@
         "symbolName": "GraphExecutorTest",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts",
-        "sourceLine": 453,
+        "sourceLine": 506,
         "summary": "Test layer providing both the executor and its in-memory result store.",
         "categories": [
           "layers"
@@ -13480,7 +13480,7 @@
         "symbolName": "Complexity",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 177,
+        "sourceLine": 204,
         "summary": "Asymptotic complexity vocabulary used when scaling operation cost estimates.",
         "categories": [
           "models"
@@ -13505,7 +13505,7 @@
         "symbolName": "Complexity",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 197,
+        "sourceLine": 224,
         "summary": "Runtime type represented by {@link Complexity}.",
         "categories": [
           "models"
@@ -13530,7 +13530,7 @@
         "symbolName": "ConstantOperationCost",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 220,
+        "sourceLine": 247,
         "summary": "Cost estimate for an operation whose time does not grow with leaf count.",
         "categories": [
           "models"
@@ -13555,7 +13555,7 @@
         "symbolName": "ExecutionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 617,
+        "sourceLine": 646,
         "summary": "Branded identifier for one graph-operation execution.",
         "categories": [
           "models"
@@ -13580,7 +13580,7 @@
         "symbolName": "ExecutionId",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 637,
+        "sourceLine": 666,
         "summary": "Runtime type represented by {@link ExecutionId}.",
         "categories": [
           "models"
@@ -13605,7 +13605,7 @@
         "symbolName": "ExecutionMetrics",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 123,
+        "sourceLine": 150,
         "summary": "Metrics accumulated while applying an operation to graph leaves.",
         "categories": [
           "models"
@@ -13631,7 +13631,7 @@
         "symbolName": "ExecutionOptions",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 571,
+        "sourceLine": 600,
         "summary": "Options controlling one executor run.",
         "categories": [
           "models"
@@ -13657,7 +13657,7 @@
         "symbolName": "ExecutionStrategy",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 57,
+        "sourceLine": 84,
         "summary": "Strategy describing how an operation is scheduled across the current leaf set.",
         "categories": [
           "models"
@@ -13683,7 +13683,7 @@
         "symbolName": "ExecutionStrategy",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 94,
+        "sourceLine": 121,
         "summary": "Runtime type represented by {@link ExecutionStrategy}.",
         "categories": [
           "models"
@@ -13708,7 +13708,7 @@
         "symbolName": "generateExecutionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 670,
+        "sourceLine": 699,
         "summary": "Generate a fresh execution id from the Effect clock and random service.",
         "categories": [
           "constructors"
@@ -13734,7 +13734,7 @@
         "symbolName": "LinearithmicOperationCost",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 298,
+        "sourceLine": 325,
         "summary": "Cost estimate for work that grows at `n log n`.",
         "categories": [
           "models"
@@ -13759,7 +13759,7 @@
         "symbolName": "LinearOperationCost",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 259,
+        "sourceLine": 286,
         "summary": "Cost estimate for work that grows linearly with leaf count.",
         "categories": [
           "models"
@@ -13784,7 +13784,7 @@
         "symbolName": "makeExecutionId",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 652,
+        "sourceLine": 681,
         "summary": "Constructor for {@link ExecutionId}.",
         "categories": [
           "constructors"
@@ -13809,7 +13809,7 @@
         "symbolName": "makeOperationResult",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 732,
+        "sourceLine": 761,
         "summary": "Build an operation result and stamp it with the current Effect clock time.",
         "categories": [
           "constructors"
@@ -13831,10 +13831,36 @@
         "importSpecifier": "@beep/nlp/Graph/GraphOperations/Types",
         "exportSubpath": "./Graph/GraphOperations/Types",
         "exportedFromPath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+        "symbolName": "MAX_PARALLEL_CONCURRENCY",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+        "sourceLine": 60,
+        "summary": "Conservative upper bound the executor enforces on parallel concurrency.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@remarks",
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp packages/foundation/capability/nlp @beep/nlp/graph/graphoperations/types ./graph/graphoperations/types max_parallel_concurrency const conservative upper bound the executor enforces on parallel concurrency. constants packages/foundation/capability/nlp/src/graph/graphoperations/types.ts"
+      },
+      {
+        "packageName": "@beep/nlp",
+        "packagePath": "packages/foundation/capability/nlp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp/Graph/GraphOperations/Types",
+        "exportSubpath": "./Graph/GraphOperations/Types",
+        "exportedFromPath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
         "symbolName": "OperationCategory",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 522,
+        "sourceLine": 549,
         "summary": "Operation category vocabulary describing a graph morphism's shape.",
         "categories": [
           "models"
@@ -13859,7 +13885,7 @@
         "symbolName": "OperationCategory",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 545,
+        "sourceLine": 572,
         "summary": "Runtime type represented by {@link OperationCategory}.",
         "categories": [
           "models"
@@ -13884,7 +13910,7 @@
         "symbolName": "OperationCost",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 380,
+        "sourceLine": 407,
         "summary": "Tagged union of operation cost estimates with scaling helpers.",
         "categories": [
           "models"
@@ -13910,7 +13936,7 @@
         "symbolName": "OperationCost",
         "exportKind": "type",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 444,
+        "sourceLine": 471,
         "summary": "Companion type for {@link OperationCost}.",
         "categories": [
           "models"
@@ -13935,7 +13961,7 @@
         "symbolName": "OperationResult",
         "exportKind": "interface",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 700,
+        "sourceLine": 729,
         "summary": "Result of applying one operation to the sampled graph leaves.",
         "categories": [
           "models"
@@ -13961,7 +13987,7 @@
         "symbolName": "QuadraticOperationCost",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 337,
+        "sourceLine": 364,
         "summary": "Cost estimate for pairwise or otherwise quadratic graph work.",
         "categories": [
           "models"
@@ -13986,7 +14012,7 @@
         "symbolName": "ValidationResult",
         "exportKind": "class",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
-        "sourceLine": 472,
+        "sourceLine": 499,
         "summary": "Result of checking whether an operation may run against graph leaves.",
         "categories": [
           "models"
@@ -15670,7 +15696,7 @@
         "symbolName": "isAcyclic",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TextGraph.ts",
-        "sourceLine": 794,
+        "sourceLine": 804,
         "summary": "Check whether the text graph is acyclic.",
         "categories": [
           "utilities"
@@ -15770,7 +15796,7 @@
         "symbolName": "show",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TextGraph.ts",
-        "sourceLine": 765,
+        "sourceLine": 772,
         "summary": "Render the graph as an indented tree from roots downward.",
         "categories": [
           "formatting"
@@ -15779,6 +15805,7 @@
           "0.0.0"
         ],
         "tags": [
+          "@remarks",
           "@example",
           "@since",
           "@category"
@@ -15821,7 +15848,7 @@
         "symbolName": "stronglyConnectedComponents",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TextGraph.ts",
-        "sourceLine": 809,
+        "sourceLine": 819,
         "summary": "Compute strongly connected components as node-index groups.",
         "categories": [
           "utilities"
@@ -15998,7 +16025,7 @@
         "symbolName": "alt",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 805,
+        "sourceLine": 827,
         "summary": "Combine two operations, collecting results from both (parallel branching).",
         "categories": [
           "combinators"
@@ -16023,7 +16050,7 @@
         "symbolName": "ap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 654,
+        "sourceLine": 671,
         "summary": "Apply an operation of functions to an operation of values (Cartesian product).",
         "categories": [
           "combinators"
@@ -16048,7 +16075,7 @@
         "symbolName": "chain",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 722,
+        "sourceLine": 744,
         "summary": "Sequence dependent operations: the first's outputs choose the next operation.",
         "categories": [
           "combinators"
@@ -16173,7 +16200,7 @@
         "symbolName": "empty",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 843,
+        "sourceLine": 865,
         "summary": "The empty operation (identity for {@link alt}): produces no nodes.",
         "categories": [
           "combinators"
@@ -16273,7 +16300,7 @@
         "symbolName": "flatMap",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 605,
+        "sourceLine": 648,
         "summary": "FlatMap over a {@link TextOperation}'s output data with an effectful function.",
         "categories": [
           "mapping"
@@ -16323,7 +16350,7 @@
         "symbolName": "flatten",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 767,
+        "sourceLine": 789,
         "summary": "Flatten nested operations (alias of {@link chain}).",
         "categories": [
           "combinators"
@@ -16548,7 +16575,7 @@
         "symbolName": "map",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 570,
+        "sourceLine": 613,
         "summary": "Map over a {@link TextOperation}'s output data, preserving structure/effects.",
         "categories": [
           "mapping"
@@ -16598,7 +16625,7 @@
         "symbolName": "pure",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 697,
+        "sourceLine": 719,
         "summary": "Lift a value into an operation that always produces it.",
         "categories": [
           "combinators"
@@ -16648,7 +16675,7 @@
         "symbolName": "replicate",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 915,
+        "sourceLine": 911,
         "summary": "Apply an operation `n` times and collect all results.",
         "categories": [
           "combinators"
@@ -16698,7 +16725,7 @@
         "symbolName": "traverse",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 869,
+        "sourceLine": 891,
         "summary": "Traverse an operation's outputs with an effectful function.",
         "categories": [
           "combinators"
@@ -16723,7 +16750,7 @@
         "symbolName": "unless",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 981,
+        "sourceLine": 977,
         "summary": "Apply an operation unless the node data satisfies the predicate.",
         "categories": [
           "combinators"
@@ -16748,7 +16775,7 @@
         "symbolName": "when",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
-        "sourceLine": 952,
+        "sourceLine": 948,
         "summary": "Apply an operation only when the node data satisfies the predicate.",
         "categories": [
           "combinators"

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "f79ae516dbe2166d88103092b71cecfb0af3d04ed4086493362feda056c112aa",
+    "digest": "5a48a430be91272601c1e406ed0d9ee0b583ba6fcfa5e41aa10caf8ab7f2f2a8",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -29,6 +29,11 @@
         "path": "packages/foundation/capability/observability/src/CauseDiagnostics.ts",
         "sha256": "2fbc0c7d38f1c42f8b5ca3babdd9f68a19f73657e6c9eda3dfc544a4d005d15c",
         "bytes": 16332
+      },
+      {
+        "path": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sha256": "fcd43a8dfde3c330e3de942a2b446c28d09880d6f569d1ba5fd372420eb2a85c",
+        "bytes": 15650
       },
       {
         "path": "packages/foundation/capability/observability/src/CoreConfig.ts",
@@ -57,8 +62,8 @@
       },
       {
         "path": "packages/foundation/capability/observability/src/index.ts",
-        "sha256": "4fd377932e17256c080a29e1334a40b2d5a5b6cf534a7f7735370e60372668d6",
-        "bytes": 1860
+        "sha256": "961db2dc678ec8450db7520e6f464e6147f0b71cb6916490da6849a226e49ff3",
+        "bytes": 2031
       },
       {
         "path": "packages/foundation/capability/observability/src/Logging.ts",
@@ -147,8 +152,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -169,9 +174,9 @@
       "@beep/observability/web"
     ],
     "counts": {
-      "publicExportEntries": 115,
-      "uniqueSymbols": 98,
-      "sourceFiles": 23
+      "publicExportEntries": 129,
+      "uniqueSymbols": 111,
+      "sourceFiles": 24
     },
     "exports": [
       {
@@ -448,6 +453,56 @@
           "@category"
         ],
         "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . conflicterror class 409 tagged error. models packages/foundation/capability/observability/src/httperror.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "DEFAULT_DETAIL_LIMIT",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 92,
+        "summary": "Default maximum length for a sanitized diagnostic detail before truncation.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . default_detail_limit const default maximum length for a sanitized diagnostic detail before truncation. constants packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "DEFAULT_MESSAGE_LIMIT",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 77,
+        "summary": "Default maximum length for a sanitized message before truncation.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . default_message_limit const default maximum length for a sanitized message before truncation. constants packages/foundation/capability/observability/src/causeredaction.ts"
       },
       {
         "packageName": "@beep/observability",
@@ -1710,6 +1765,281 @@
         "importSpecifier": "@beep/observability",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "redactCause",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 361,
+        "summary": "Redact an unknown error or {@link Cause} into a transport-safe",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactcause const redact an unknown error or {@link cause} into a transport-safe utilities packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "redactCauseEffect",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 436,
+        "summary": "Effect-friendly, traced redaction of an unknown error or {@link Cause}.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactcauseeffect const effect-friendly, traced redaction of an unknown error or {@link cause}. utilities packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "redactCauseForClient",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 382,
+        "summary": "Redact an unknown error or {@link Cause} for a client-facing channel,",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactcauseforclient const redact an unknown error or {@link cause} for a client-facing channel, utilities packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "RedactCauseOptions",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 262,
+        "summary": "Options controlling how a cause is redacted.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactcauseoptions class options controlling how a cause is redacted. models packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "redactCauseSummary",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 313,
+        "summary": "Redact a normalized {@link CauseSummary} into a transport-safe",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactcausesummary const redact a normalized {@link causesummary} into a transport-safe utilities packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "RedactedCause",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 225,
+        "summary": "Transport-safe redaction of a cause: a stable tag and fingerprint plus a",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactedcause class transport-safe redaction of a cause: a stable tag and fingerprint plus a models packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "RedactedCauseError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 403,
+        "summary": "Failure raised when a redacted cause is rendered for a boundary.",
+        "categories": [
+          "error-handling"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactedcauseerror class failure raised when a redacted cause is rendered for a boundary. error-handling packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "REDACTION_PLACEHOLDER",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 62,
+        "summary": "Placeholder substituted for any redacted secret-shaped token or home path.",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redaction_placeholder const placeholder substituted for any redacted secret-shaped token or home path. constants packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "RedactionChannel",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 110,
+        "summary": "Target channel for a redaction. `\"client\"` strips all internal detail and",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactionchannel const target channel for a redaction. `\"client\"` strips all internal detail and models packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "RedactionChannel",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 130,
+        "summary": "Runtime type for {@link RedactionChannel}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactionchannel type runtime type for {@link redactionchannel}. models packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "redactString",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 201,
+        "summary": "Sanitize a string and cap it to `maxLength` characters with an ellipsis.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . redactstring const sanitize a string and cap it to `maxlength` characters with an ellipsis. utilities packages/foundation/capability/observability/src/causeredaction.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
         "symbolName": "renderLogBanner",
         "exportKind": "const",
         "sourcePath": "packages/foundation/capability/observability/src/Logging.ts",
@@ -1752,6 +2082,31 @@
           "@category"
         ],
         "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . renderobservedcause const render a compact human-readable representation of a cause. diagnostics packages/foundation/capability/observability/src/causediagnostics.ts"
+      },
+      {
+        "packageName": "@beep/observability",
+        "packagePath": "packages/foundation/capability/observability",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/observability",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/capability/observability/src/index.ts",
+        "symbolName": "sanitizeSensitiveText",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/capability/observability/src/CauseRedaction.ts",
+        "sourceLine": 179,
+        "summary": "Strip secret-shaped tokens and home-directory paths from a single string.",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/observability packages/foundation/capability/observability @beep/observability . sanitizesensitivetext const strip secret-shaped tokens and home-directory paths from a single string. utilities packages/foundation/capability/observability/src/causeredaction.ts"
       },
       {
         "packageName": "@beep/observability",

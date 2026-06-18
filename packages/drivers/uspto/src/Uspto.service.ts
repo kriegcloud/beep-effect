@@ -6,8 +6,8 @@
  */
 
 import { $UsptoId } from "@beep/identity";
-import { NonNegativeInt } from "@beep/schema";
-import { A } from "@beep/utils";
+import { assertAllowedRemoteUrl, NonNegativeInt } from "@beep/schema";
+import { A, Str } from "@beep/utils";
 import { Config, Context, Effect, Layer, Match, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -16,11 +16,11 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
+import type { HttpClientResponse } from "effect/unstable/http/HttpClientResponse";
+import type { UsptoConfigInput } from "./Uspto.config.ts";
 import { USPTO_API_URL } from "./Uspto.config.ts";
 import { UsptoError } from "./Uspto.errors.ts";
 import { UsptoApplicationMetadata, UsptoContinuity, UsptoDocumentReference } from "./Uspto.models.ts";
-import type { HttpClientResponse } from "effect/unstable/http/HttpClientResponse";
-import type { UsptoConfigInput } from "./Uspto.config.ts";
 
 const $I = $UsptoId.create("Uspto.service");
 
@@ -202,6 +202,28 @@ interface ResolvedUsptoConfig {
 
 const normalizeBaseUrl = (url: string): string => (url.endsWith("/") ? url.slice(0, -1) : url);
 
+/**
+ * Extract the lowercased hostname of an absolute URL, failing closed to `none`
+ * for any value that does not parse into a host.
+ */
+const hostOf: (url: string) => O.Option<string> = O.liftThrowable((url: string) =>
+  Str.toLowerCase(new URL(url).hostname)
+);
+
+/**
+ * Report whether a target URL resolves to the same host as the configured USPTO
+ * API origin. Used to scope the `X-API-KEY` credential and to reject
+ * cross-origin document downloads before any request is issued.
+ */
+const isSameUsptoHost = (url: string, usptoHost: O.Option<string>): boolean =>
+  O.match(
+    O.zipWith(hostOf(url), usptoHost, (target, expected) => target === expected),
+    {
+      onNone: () => false,
+      onSome: (matches) => matches,
+    }
+  );
+
 const resolveConfig = (input: UsptoConfigInput): ResolvedUsptoConfig => ({
   apiKey: O.fromUndefinedOr(input.apiKey),
   apiUrl: normalizeBaseUrl(input.apiUrl ?? USPTO_API_URL),
@@ -215,11 +237,21 @@ const statusError = (status: number): UsptoError =>
   );
 
 const makeService = (client: HttpClient.HttpClient, config: ResolvedUsptoConfig): UsptoShape => {
+  // Host of the configured USPTO API origin. The `X-API-KEY` credential is only
+  // ever attached to requests targeting this host, and the configured host is
+  // the single trusted destination for document downloads.
+  const usptoHost = hostOf(config.apiUrl);
+
   const requestFor = (url: string): HttpClientRequest.HttpClientRequest =>
     HttpClientRequest.get(url).pipe(HttpClientRequest.accept("application/json"), (request) =>
+      // Scope the credential: never forward `X-API-KEY` cross-origin, so an
+      // attacker-influenced URL cannot capture the configured secret.
       O.match(config.apiKey, {
         onNone: () => request,
-        onSome: (key) => HttpClientRequest.setHeader(request, "X-API-KEY", Redacted.value(key)),
+        onSome: (key) =>
+          isSameUsptoHost(url, usptoHost)
+            ? HttpClientRequest.setHeader(request, "X-API-KEY", Redacted.value(key))
+            : request,
       })
     );
 
@@ -247,6 +279,18 @@ const makeService = (client: HttpClient.HttpClient, config: ResolvedUsptoConfig)
 
   return {
     downloadDocument: Effect.fn("Uspto.downloadDocument")(function* (downloadUrl: string) {
+      // Fail closed before any request: reject loopback, link-local, private,
+      // and cloud-metadata destinations, allowlisting only the configured USPTO
+      // origin so a legitimate API host is never blocked.
+      yield* assertAllowedRemoteUrl(downloadUrl, {
+        allowlist: O.match(usptoHost, { onNone: A.empty<string>, onSome: A.of }),
+      }).pipe(Effect.mapError(() => UsptoError.fromReason("transport")));
+      // Enforce same-origin: a document download may only target the configured
+      // USPTO host, so the credential can never leak and the process cannot be
+      // turned into a readback SSRF client for arbitrary hosts.
+      if (!isSameUsptoHost(downloadUrl, usptoHost)) {
+        return yield* UsptoError.fromReason("transport");
+      }
       const response = yield* executeForResponse(downloadUrl);
       const buffer = yield* response.arrayBuffer.pipe(
         Effect.mapError(() => UsptoError.fromReason("response-decoding"))

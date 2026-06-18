@@ -31,23 +31,16 @@ const CHANGED_PATH_DIFF_FILTER = ["A", "C", "M", "R", "T", "U", "X", "B"].join("
 
 const rawArgv = Bun.argv.slice(2);
 
+const { A } = await import("@beep/utils");
+const { flow } = await import("effect");
+
 const nonEmptyLines = (text: string): ReadonlyArray<string> =>
   text
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
 
-const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const result: Array<string> = [];
-
-  for (const value of values) {
-    if (!result.includes(value)) {
-      result.push(value);
-    }
-  }
-
-  return result;
-};
+const unique: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(A.fromIterable, A.dedupe);
 
 const spawnTextOption = (args: ReadonlyArray<string>): string | undefined => {
   const result = Bun.spawnSync({
@@ -101,7 +94,6 @@ const hasRootCliGlobalFlag = (argv: ReadonlyArray<string>): boolean => argv.some
 const canUseQualityTaskFastPath = (argv: ReadonlyArray<string>): boolean =>
   isQualityTaskName(argv[0]) && !hasRootCliGlobalFlag(argv) && !(argv[0] === "lint" && isLintPolicySubcommand(argv[1]));
 
-const { A } = await import("@beep/utils");
 const { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } = await import("@effect/platform-bun");
 const { Cause, Effect, Exit, Layer, Runtime } = await import("effect");
 const O = await import("effect/Option");

@@ -199,7 +199,7 @@ Implementation Steps:
 4. Write a schema-encoded manifest tree with per-source records, extracted
    text references, child artifact manifests, failure JSONL, and aggregate
    coverage summary.
-5. Add optional coverage profiling for `/data/home/elpresidank/Oppold_IP_Law/`.
+5. Add optional coverage profiling for `<operator-local-corpus>`.
 6. Keep reusable file-processing substrate in `@beep/file-processing`; command
    internals remain private to the `Files` command group.
 

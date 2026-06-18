@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "481370d8c5b0f51e2f5ffde175f75b5063c0ae5281271ba2765a19e978912e02",
+    "digest": "e10ce61e3f37a9405394a01d0b415c962c98f7c9a8f2357a67c1708384acdc40",
     "inputs": [
       {
         "path": "apps/oip-web/package.json",
@@ -147,8 +147,8 @@
       },
       {
         "path": "apps/oip-web/src/content/OipSeo.ts",
-        "sha256": "2c6c691331816cb180d11034fb5e326a77e0519158b291d2c20caa4189362d88",
-        "bytes": 4866
+        "sha256": "e600547f0efa9a2477920c60c7881b7cbc3e83f44240b897ce50ad9b6bc789de",
+        "bytes": 5054
       },
       {
         "path": "apps/oip-web/src/mdx-components.tsx",
@@ -182,8 +182,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",

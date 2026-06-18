@@ -10,6 +10,7 @@ import { IndexedBlock } from "@beep/agents-use-cases/public";
 import { BlockRepairFailed } from "@beep/agents-use-cases/server";
 import { generateAnthropicToolJson } from "@beep/anthropic";
 import { make } from "@beep/identity";
+import { redactString } from "@beep/observability";
 import { Effect, JsonPatch, Metric } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -160,6 +161,24 @@ const defaultRepairCall: BlockRepairCall = (pending, attempt) =>
 
 const toBlockRepairFailed = (message: string): BlockRepairFailed => BlockRepairFailed.make({ message });
 
+const PATCH_PATH_LIMIT = 128;
+
+interface PatchOpSummary {
+  readonly op: JsonPatch.JsonPatchOperation["op"];
+  readonly path: string;
+}
+
+// Summarize a JSON patch into non-sensitive structural metadata: the operation
+// count and, per operation, the op kind plus a redacted/truncated JSON Pointer.
+// The `value` field of add/replace operations carries repaired assistant content
+// and is intentionally never logged.
+const summarizePatch = (
+  patch: JsonPatch.JsonPatch
+): { readonly operations: number; readonly ops: ReadonlyArray<PatchOpSummary> } => ({
+  operations: A.length(patch),
+  ops: A.map(patch, (operation) => ({ op: operation.op, path: redactString(operation.path, PATCH_PATH_LIMIT) })),
+});
+
 const trackRepairOutcome = (outcome: "call_failed" | "dropped" | "repaired", count: number): Effect.Effect<void> =>
   count === 0 ? Effect.void : Metric.update(Metric.withAttributes(blocksRepaired, { outcome }), count);
 
@@ -243,7 +262,7 @@ const repairItemToIndexed = Effect.fn("repairItemToIndexed")(function* (
         const patch = JsonPatch.get(originalJson, encodedJson.value);
         return A.isReadonlyArrayEmpty(patch)
           ? Effect.logInfo("assistant-turn block repaired without structural patch", { index: item.index })
-          : Effect.logInfo("assistant-turn block repaired", { index: item.index, patch });
+          : Effect.logInfo("assistant-turn block repaired", { index: item.index, ...summarizePatch(patch) });
       },
     })
   );

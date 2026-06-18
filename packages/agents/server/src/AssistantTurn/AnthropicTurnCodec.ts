@@ -15,14 +15,14 @@
  */
 
 import {
-  AssistantContent,
-  CodeBlock,
-  HeadingBlock,
-  ListBlock,
-  ParagraphBlock,
-  QuoteBlock,
-  TableBlock,
-  YouTubeBlock,
+    AssistantContent,
+    CodeBlock,
+    HeadingBlock,
+    ListBlock,
+    ParagraphBlock,
+    QuoteBlock,
+    TableBlock,
+    YouTubeBlock,
 } from "@beep/agents-domain/values/AssistantContent";
 import { make } from "@beep/identity";
 import { thunkFalse } from "@beep/utils";

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7978ef285a93facca7ab6ab67f2a06d6890a222e348392c86c3bf569ce2a1a63",
+    "digest": "09ee8e6e37acfceaa63842e3baf0b635947084ffc2fdb9ae2e6175ed850da7c7",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,13 +22,13 @@
       },
       {
         "path": "packages/agents/server/package.json",
-        "sha256": "fae6780c719b32a241ecbb4e4ca892de79031a812bb5176781860c70ac80f82b",
-        "bytes": 2873
+        "sha256": "5d12387692c70085745175f2637073a8d66248fa0c79a3256ee0db51c4c1d42e",
+        "bytes": 2984
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnCodec.ts",
-        "sha256": "e1033ff2df5d0ceb14d9441502b237843395bcd6cc24cf89d272a51a1acdfad1",
-        "bytes": 4679
+        "sha256": "3145c24db8b5e5fabcda0b52d74554a2c55d864a143fa8af371e83521942aaca",
+        "bytes": 4695
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sha256": "85e5ecb0a9fdc6a8af6344473dbe07cfa2aa90c116a7668cb1947c428cc07ac6",
-        "bytes": 11711
+        "sha256": "6026a6a4315e34427d03f08f67f35fbd0f518a4864e5a7f0bb5a3309d4cd079c",
+        "bytes": 12490
       },
       {
         "path": "packages/agents/server/src/AssistantTurn/index.ts",
@@ -67,8 +67,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -272,7 +272,7 @@
         "symbolName": "BlockRepairCall",
         "exportKind": "type",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 109,
+        "sourceLine": 110,
         "summary": "Repair-call function used by {@link makeRepairInvalidBlocks}.",
         "categories": [
           "combinators"
@@ -321,7 +321,7 @@
         "symbolName": "IssueReport",
         "exportKind": "class",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 59,
+        "sourceLine": 60,
         "summary": "Validation issue report for one streamed assistant-block slice.",
         "categories": [
           "models"
@@ -346,7 +346,7 @@
         "symbolName": "makeRepairInvalidBlocks",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 310,
+        "sourceLine": 329,
         "summary": "Build a repair function from a repair-call implementation.",
         "categories": [
           "combinators"
@@ -371,7 +371,7 @@
         "symbolName": "repairInvalidBlocks",
         "exportKind": "const",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 342,
+        "sourceLine": 361,
         "summary": "Default Anthropic-backed invalid-block repair function.",
         "categories": [
           "combinators"
@@ -396,7 +396,7 @@
         "symbolName": "RepairInvalidBlocks",
         "exportKind": "type",
         "sourcePath": "packages/agents/server/src/AssistantTurn/BlockRepair.ts",
-        "sourceLine": 120,
+        "sourceLine": 121,
         "summary": "Repair function shape used by the Anthropic turn kernel.",
         "categories": [
           "combinators"

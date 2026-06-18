@@ -160,6 +160,47 @@ export {
   findRepoRoot,
 } from "./Root.js";
 /**
+ * @category utilities
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @category constants
+   * @since 0.0.0
+   */
+  END_OF_OPTIONS,
+  /**
+   * @category guards
+   * @since 0.0.0
+   */
+  guardLiteralArg,
+  /**
+   * @category guards
+   * @since 0.0.0
+   */
+  guardLiteralArgs,
+  /**
+   * @category combinators
+   * @since 0.0.0
+   */
+  insertEndOfOptions,
+  /**
+   * @category predicates
+   * @since 0.0.0
+   */
+  isOptionLike,
+  /**
+   * @category schemas
+   * @since 0.0.0
+   */
+  LiteralArg,
+  /**
+   * @category combinators
+   * @since 0.0.0
+   */
+  toLiteralArgs,
+} from "./ProcessArgs.js";
+/**
  * @category schemas
  * @since 0.0.0
  */

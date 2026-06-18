@@ -4,6 +4,8 @@ import { documentToPandoc, pandocToDocument } from "@beep/pandoc-ast/Pandoc.mapp
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as Effect from "effect/Effect";
+import * as Exit from "effect/Exit";
+import * as S from "effect/Schema";
 import type * as Pandoc from "@beep/pandoc-ast/Pandoc.model";
 
 const fixture = (name: string): Effect.Effect<string> =>
@@ -219,11 +221,14 @@ describe("Pandoc.mapping", () => {
       })
     ));
 
-  it("encodes reserved characters in YouTube watch URLs and placeholders empty tables", () =>
+  it("emits a safe YouTube watch URL and placeholders empty tables", () =>
     Effect.runPromise(
       Effect.gen(function* () {
+        // `videoId` is constrained to the bare 11-character YouTube id at the
+        // `@beep/md` model boundary (CSF-026), so a mapped id can never contain
+        // reserved characters and the emitted watch URL is always well-formed.
         const document = Md.Document.make({
-          children: [Md.Table.make({ headerRow: false, children: [] }), Md.YouTube.make({ videoId: "a b&c" })],
+          children: [Md.Table.make({ headerRow: false, children: [] }), Md.YouTube.make({ videoId: "ab-CD_12xyz" })],
         });
 
         const result = yield* documentToPandoc(document);
@@ -233,8 +238,28 @@ describe("Pandoc.mapping", () => {
         );
         expect(expectStr(expectPara(result.pandoc.blocks[0]).children[0]).text).toBe("[table]");
         expect(expectLink(expectPara(result.pandoc.blocks[1]).children[0]).target.url).toBe(
-          "https://www.youtube.com/watch?v=a%20b%26c"
+          "https://www.youtube.com/watch?v=ab-CD_12xyz"
         );
+      })
+    ));
+
+  it("rejects malformed YouTube video ids at the model boundary so the mapping cannot crash", () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        // CSF-026 guard: a hostile lone-surrogate id (which would make
+        // `encodeURIComponent` throw a `URIError`) and reserved characters are
+        // refused at the `@beep/md` schema boundary through the typed
+        // `SchemaError` channel, so they can never reach `documentToPandoc`.
+        const decodeYouTube = S.decodeUnknownEffect(Md.YouTube);
+
+        for (const hostileVideoId of ["\ud800", "a b&c", "../../etc/passwd", "tooShort"]) {
+          const exit = yield* Effect.exit(decodeYouTube({ _tag: "youtube", videoId: hostileVideoId }));
+          expect(Exit.isFailure(exit)).toBe(true);
+        }
+
+        // The bare 11-character form still decodes successfully.
+        const safe = yield* decodeYouTube({ _tag: "youtube", videoId: "dQw4w9WgXcQ" });
+        expect(safe.videoId).toBe("dQw4w9WgXcQ");
       })
     ));
 

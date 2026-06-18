@@ -68,6 +68,14 @@ const failureEnvelopeKeys = [...commonEnvelopeKeys, "stderrExcerpt"];
 const defaultOutDir = ".beep/fallow";
 const defaultBaseRef = "origin/main";
 const fallbackSourceRef = "standards/fallow.pilot.inventory.jsonc";
+// Hard upper bound on how many synthetic findings any single count field may
+// expand into. Raw Fallow counts are accepted as `S.Finite` with no upper
+// bound, and each count is materialized into one finding object via `A.unfold`.
+// Without this cap an attacker-influenced report (or Fallow output) with a huge
+// count could force unbounded array allocation and exhaust memory/CPU in the
+// invoking CLI or CI runner. The cap fails closed by truncating to a documented
+// maximum while still surfacing that the lane has saturated findings.
+const maxFindingsPerCount = 10_000;
 
 const decodeJsonText = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const encodeFallowEnvelopeJson = S.encodeUnknownEffect(S.fromJsonString(FallowReportEnvelope));
@@ -589,7 +597,8 @@ const normalizeSummaryFindings = (feature: FallowFeature, document: unknown): Re
   );
 };
 
-const rawCountValue = (count: number): number => (Number.isFinite(count) ? Math.max(0, Math.trunc(count)) : 0);
+const rawCountValue = (count: number): number =>
+  Number.isFinite(count) ? Math.min(maxFindingsPerCount, Math.max(0, Math.trunc(count))) : 0;
 
 const notApplicableFinding = (feature: FallowFeature, rule: string, index?: number): FallowFinding =>
   FallowReportFinding.make({
@@ -678,7 +687,7 @@ const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
     audit: () => A.length(normalizeAuditFindings(document)),
     boundaries: () => rawSummaryIssueCount(document),
     "dead-code": () => rawSummaryIssueCount(document),
-    "fix-preview": () => rawArrayCount(document, "fixes"),
+    "fix-preview": () => rawCountValue(rawArrayCount(document, "fixes")),
     flags: () =>
       rawCountValue(
         pipe(
@@ -686,8 +695,8 @@ const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
           O.getOrElse(() => rawArrayCount(document, "feature_flags"))
         )
       ),
-    health: () => rawArrayCount(document, "findings"),
-    security: () => rawArrayCount(document, "security_findings"),
+    health: () => rawCountValue(rawArrayCount(document, "findings")),
+    security: () => rawCountValue(rawArrayCount(document, "security_findings")),
   });
 
 const extractJsonDocumentText = (output: string): O.Option<string> =>

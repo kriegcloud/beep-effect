@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "64a8e019ed08eef901898a503f3d1b3ef34925afe4c8c454d4230f66bc5c30a4",
+    "digest": "9e1894e89937a5450cb56bac17152beff708c409120d1184cbe0722274f396bc",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,13 +22,13 @@
       },
       {
         "path": "packages/tooling/library/ai-metrics/package.json",
-        "sha256": "d12dbfb2e051f322831559ccee7fbf796aa4a7ded9146ed26db34a7f7a23c201",
-        "bytes": 2361
+        "sha256": "b4ae3a73a329ee357ae60c8c812ee617eea647a512849e73cd22167b6af0bb0c",
+        "bytes": 2405
       },
       {
         "path": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sha256": "420ef521b094264e9d456c3de0980f257bcc809c7faf40118307c78efbb9942e",
-        "bytes": 101899
+        "sha256": "370946202ff525eb3f04e30ebba2785d1c465f9bc968bef00099835897eb8829",
+        "bytes": 103925
       },
       {
         "path": "packages/tooling/library/ai-metrics/src/archive.ts",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sha256": "a7d5e9170c77fb69a80516aeef05372892841537952b93203bc0194caafb3c23",
-        "bytes": 40521
+        "sha256": "e1abe5e61bcb70a4b062efcec27acf564d5024e68364613a9569d5edfabff6ae",
+        "bytes": 41628
       },
       {
         "path": "packages/tooling/library/ai-metrics/src/forwarder.ts",
@@ -132,8 +132,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -333,7 +333,7 @@
         "symbolName": "agentEffectivenessAnnotationCheckReportToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3069,
+        "sourceLine": 3099,
         "summary": "Encode an annotation-check report as JSON.",
         "categories": [
           "encoding"
@@ -408,7 +408,7 @@
         "symbolName": "agentEffectivenessAnnotationPlanToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3044,
+        "sourceLine": 3074,
         "summary": "Encode an annotation plan as JSON.",
         "categories": [
           "encoding"
@@ -507,7 +507,7 @@
         "symbolName": "agentEffectivenessDatasetBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3095,
+        "sourceLine": 3125,
         "summary": "Encode a dataset bundle as JSON.",
         "categories": [
           "encoding"
@@ -681,7 +681,7 @@
         "symbolName": "agentEffectivenessDoctorReportToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3019,
+        "sourceLine": 3049,
         "summary": "Encode a doctor report as JSON.",
         "categories": [
           "encoding"
@@ -781,7 +781,7 @@
         "symbolName": "agentEffectivenessExperimentBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3145,
+        "sourceLine": 3175,
         "summary": "Encode an experiment bundle as JSON.",
         "categories": [
           "encoding"
@@ -981,7 +981,7 @@
         "symbolName": "agentEffectivenessPhoenixSyncResultToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3170,
+        "sourceLine": 3200,
         "summary": "Encode a Phoenix sync result as JSON.",
         "categories": [
           "encoding"
@@ -1056,7 +1056,7 @@
         "symbolName": "agentEffectivenessPromptBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3120,
+        "sourceLine": 3150,
         "summary": "Encode a prompt bundle as JSON.",
         "categories": [
           "encoding"
@@ -1754,7 +1754,7 @@
         "symbolName": "AiMetricsDerivedStorageError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 506,
+        "sourceLine": 507,
         "summary": "Error raised by the DuckDB derived storage projection.",
         "categories": [
           "errors"
@@ -1779,7 +1779,7 @@
         "symbolName": "AiMetricsDerivedStorageWriteInput",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 553,
+        "sourceLine": 554,
         "summary": "Input for a derived DuckDB storage write.",
         "categories": [
           "models"
@@ -1804,7 +1804,7 @@
         "symbolName": "AiMetricsDerivedStorageWriteResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 585,
+        "sourceLine": 586,
         "summary": "Result of a derived DuckDB storage write.",
         "categories": [
           "models"
@@ -1829,7 +1829,7 @@
         "symbolName": "AiMetricsDerivedTranscriptRecord",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 530,
+        "sourceLine": 531,
         "summary": "One sanitized transcript ready for derived storage projection.",
         "categories": [
           "models"
@@ -3329,7 +3329,7 @@
         "symbolName": "AiMetricsParquetExportMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 49,
+        "sourceLine": 50,
         "summary": "Parquet export behavior for one derived AI metrics write.",
         "categories": [
           "schemas"
@@ -3354,7 +3354,7 @@
         "symbolName": "AiMetricsParquetExportMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 67,
+        "sourceLine": 68,
         "summary": "Runtime type for {@link AiMetricsParquetExportMode}.",
         "categories": [
           "models"
@@ -4831,7 +4831,7 @@
         "symbolName": "ensureAiMetricsDerivedStorage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 728,
+        "sourceLine": 729,
         "summary": "Ensure the AI metrics derived DuckDB schema exists and has P4 columns.",
         "categories": [
           "services"
@@ -5056,7 +5056,7 @@
         "symbolName": "makeAgentEffectivenessAnnotationCheckReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2989,
+        "sourceLine": 3019,
         "summary": "Check a local annotation plan for Phase 1 privacy and schema safety.",
         "categories": [
           "services"
@@ -5083,7 +5083,7 @@
         "symbolName": "makeAgentEffectivenessAnnotationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2150,
+        "sourceLine": 2170,
         "summary": "Build a sanitized local-only annotation plan.",
         "categories": [
           "services"
@@ -5108,7 +5108,7 @@
         "symbolName": "makeAgentEffectivenessDatasetBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2360,
+        "sourceLine": 2380,
         "summary": "Build the Phoenix dataset bundle from a doctor report.",
         "categories": [
           "services"
@@ -5135,7 +5135,7 @@
         "symbolName": "makeAgentEffectivenessDoctorReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 1814,
+        "sourceLine": 1834,
         "summary": "Build the report-only Phase 1 agent-effectiveness doctor report.",
         "categories": [
           "services"
@@ -5160,7 +5160,7 @@
         "symbolName": "makeAgentEffectivenessExperimentBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2443,
+        "sourceLine": 2463,
         "summary": "Build deterministic experiment specs from a dataset bundle.",
         "categories": [
           "services"
@@ -5187,7 +5187,7 @@
         "symbolName": "makeAgentEffectivenessPromptBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2389,
+        "sourceLine": 2409,
         "summary": "Build the repo-owned Phoenix prompt bundle.",
         "categories": [
           "services"
@@ -6032,7 +6032,7 @@
         "symbolName": "syncAgentEffectivenessPhoenix",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2640,
+        "sourceLine": 2660,
         "summary": "Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix.",
         "categories": [
           "services"
@@ -6158,7 +6158,7 @@
         "symbolName": "writeAiMetricsDerivedStorage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 1156,
+        "sourceLine": 1168,
         "summary": "Project sanitized AI metrics records into DuckDB and export Parquet snapshots.",
         "categories": [
           "services"
@@ -6334,7 +6334,7 @@
         "symbolName": "agentEffectivenessAnnotationCheckReportToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3069,
+        "sourceLine": 3099,
         "summary": "Encode an annotation-check report as JSON.",
         "categories": [
           "encoding"
@@ -6409,7 +6409,7 @@
         "symbolName": "agentEffectivenessAnnotationPlanToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3044,
+        "sourceLine": 3074,
         "summary": "Encode an annotation plan as JSON.",
         "categories": [
           "encoding"
@@ -6508,7 +6508,7 @@
         "symbolName": "agentEffectivenessDatasetBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3095,
+        "sourceLine": 3125,
         "summary": "Encode a dataset bundle as JSON.",
         "categories": [
           "encoding"
@@ -6682,7 +6682,7 @@
         "symbolName": "agentEffectivenessDoctorReportToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3019,
+        "sourceLine": 3049,
         "summary": "Encode a doctor report as JSON.",
         "categories": [
           "encoding"
@@ -6782,7 +6782,7 @@
         "symbolName": "agentEffectivenessExperimentBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3145,
+        "sourceLine": 3175,
         "summary": "Encode an experiment bundle as JSON.",
         "categories": [
           "encoding"
@@ -6982,7 +6982,7 @@
         "symbolName": "agentEffectivenessPhoenixSyncResultToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3170,
+        "sourceLine": 3200,
         "summary": "Encode a Phoenix sync result as JSON.",
         "categories": [
           "encoding"
@@ -7057,7 +7057,7 @@
         "symbolName": "agentEffectivenessPromptBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3120,
+        "sourceLine": 3150,
         "summary": "Encode a prompt bundle as JSON.",
         "categories": [
           "encoding"
@@ -7305,7 +7305,7 @@
         "symbolName": "makeAgentEffectivenessAnnotationCheckReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2989,
+        "sourceLine": 3019,
         "summary": "Check a local annotation plan for Phase 1 privacy and schema safety.",
         "categories": [
           "services"
@@ -7332,7 +7332,7 @@
         "symbolName": "makeAgentEffectivenessAnnotationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2150,
+        "sourceLine": 2170,
         "summary": "Build a sanitized local-only annotation plan.",
         "categories": [
           "services"
@@ -7357,7 +7357,7 @@
         "symbolName": "makeAgentEffectivenessDatasetBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2360,
+        "sourceLine": 2380,
         "summary": "Build the Phoenix dataset bundle from a doctor report.",
         "categories": [
           "services"
@@ -7384,7 +7384,7 @@
         "symbolName": "makeAgentEffectivenessDoctorReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 1814,
+        "sourceLine": 1834,
         "summary": "Build the report-only Phase 1 agent-effectiveness doctor report.",
         "categories": [
           "services"
@@ -7409,7 +7409,7 @@
         "symbolName": "makeAgentEffectivenessExperimentBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2443,
+        "sourceLine": 2463,
         "summary": "Build deterministic experiment specs from a dataset bundle.",
         "categories": [
           "services"
@@ -7436,7 +7436,7 @@
         "symbolName": "makeAgentEffectivenessPromptBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2389,
+        "sourceLine": 2409,
         "summary": "Build the repo-owned Phoenix prompt bundle.",
         "categories": [
           "services"
@@ -7463,7 +7463,7 @@
         "symbolName": "syncAgentEffectivenessPhoenix",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2640,
+        "sourceLine": 2660,
         "summary": "Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix.",
         "categories": [
           "services"
@@ -7916,7 +7916,7 @@
         "symbolName": "AiMetricsDerivedStorageError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 506,
+        "sourceLine": 507,
         "summary": "Error raised by the DuckDB derived storage projection.",
         "categories": [
           "errors"
@@ -7941,7 +7941,7 @@
         "symbolName": "AiMetricsDerivedStorageWriteInput",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 553,
+        "sourceLine": 554,
         "summary": "Input for a derived DuckDB storage write.",
         "categories": [
           "models"
@@ -7966,7 +7966,7 @@
         "symbolName": "AiMetricsDerivedStorageWriteResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 585,
+        "sourceLine": 586,
         "summary": "Result of a derived DuckDB storage write.",
         "categories": [
           "models"
@@ -7991,7 +7991,7 @@
         "symbolName": "AiMetricsDerivedTranscriptRecord",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 530,
+        "sourceLine": 531,
         "summary": "One sanitized transcript ready for derived storage projection.",
         "categories": [
           "models"
@@ -8016,7 +8016,7 @@
         "symbolName": "AiMetricsParquetExportMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 49,
+        "sourceLine": 50,
         "summary": "Parquet export behavior for one derived AI metrics write.",
         "categories": [
           "schemas"
@@ -8041,7 +8041,7 @@
         "symbolName": "AiMetricsParquetExportMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 67,
+        "sourceLine": 68,
         "summary": "Runtime type for {@link AiMetricsParquetExportMode}.",
         "categories": [
           "models"
@@ -8066,7 +8066,7 @@
         "symbolName": "ensureAiMetricsDerivedStorage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 728,
+        "sourceLine": 729,
         "summary": "Ensure the AI metrics derived DuckDB schema exists and has P4 columns.",
         "categories": [
           "services"
@@ -8091,7 +8091,7 @@
         "symbolName": "writeAiMetricsDerivedStorage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 1156,
+        "sourceLine": 1168,
         "summary": "Project sanitized AI metrics records into DuckDB and export Parquet snapshots.",
         "categories": [
           "services"
@@ -8618,7 +8618,7 @@
         "symbolName": "agentEffectivenessAnnotationCheckReportToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3069,
+        "sourceLine": 3099,
         "summary": "Encode an annotation-check report as JSON.",
         "categories": [
           "encoding"
@@ -8693,7 +8693,7 @@
         "symbolName": "agentEffectivenessAnnotationPlanToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3044,
+        "sourceLine": 3074,
         "summary": "Encode an annotation plan as JSON.",
         "categories": [
           "encoding"
@@ -8792,7 +8792,7 @@
         "symbolName": "agentEffectivenessDatasetBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3095,
+        "sourceLine": 3125,
         "summary": "Encode a dataset bundle as JSON.",
         "categories": [
           "encoding"
@@ -8966,7 +8966,7 @@
         "symbolName": "agentEffectivenessDoctorReportToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3019,
+        "sourceLine": 3049,
         "summary": "Encode a doctor report as JSON.",
         "categories": [
           "encoding"
@@ -9066,7 +9066,7 @@
         "symbolName": "agentEffectivenessExperimentBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3145,
+        "sourceLine": 3175,
         "summary": "Encode an experiment bundle as JSON.",
         "categories": [
           "encoding"
@@ -9266,7 +9266,7 @@
         "symbolName": "agentEffectivenessPhoenixSyncResultToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3170,
+        "sourceLine": 3200,
         "summary": "Encode a Phoenix sync result as JSON.",
         "categories": [
           "encoding"
@@ -9341,7 +9341,7 @@
         "symbolName": "agentEffectivenessPromptBundleToJson",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 3120,
+        "sourceLine": 3150,
         "summary": "Encode a prompt bundle as JSON.",
         "categories": [
           "encoding"
@@ -10039,7 +10039,7 @@
         "symbolName": "AiMetricsDerivedStorageError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 506,
+        "sourceLine": 507,
         "summary": "Error raised by the DuckDB derived storage projection.",
         "categories": [
           "errors"
@@ -10064,7 +10064,7 @@
         "symbolName": "AiMetricsDerivedStorageWriteInput",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 553,
+        "sourceLine": 554,
         "summary": "Input for a derived DuckDB storage write.",
         "categories": [
           "models"
@@ -10089,7 +10089,7 @@
         "symbolName": "AiMetricsDerivedStorageWriteResult",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 585,
+        "sourceLine": 586,
         "summary": "Result of a derived DuckDB storage write.",
         "categories": [
           "models"
@@ -10114,7 +10114,7 @@
         "symbolName": "AiMetricsDerivedTranscriptRecord",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 530,
+        "sourceLine": 531,
         "summary": "One sanitized transcript ready for derived storage projection.",
         "categories": [
           "models"
@@ -11614,7 +11614,7 @@
         "symbolName": "AiMetricsParquetExportMode",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 49,
+        "sourceLine": 50,
         "summary": "Parquet export behavior for one derived AI metrics write.",
         "categories": [
           "schemas"
@@ -11639,7 +11639,7 @@
         "symbolName": "AiMetricsParquetExportMode",
         "exportKind": "type",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 67,
+        "sourceLine": 68,
         "summary": "Runtime type for {@link AiMetricsParquetExportMode}.",
         "categories": [
           "models"
@@ -13116,7 +13116,7 @@
         "symbolName": "ensureAiMetricsDerivedStorage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 728,
+        "sourceLine": 729,
         "summary": "Ensure the AI metrics derived DuckDB schema exists and has P4 columns.",
         "categories": [
           "services"
@@ -13341,7 +13341,7 @@
         "symbolName": "makeAgentEffectivenessAnnotationCheckReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2989,
+        "sourceLine": 3019,
         "summary": "Check a local annotation plan for Phase 1 privacy and schema safety.",
         "categories": [
           "services"
@@ -13368,7 +13368,7 @@
         "symbolName": "makeAgentEffectivenessAnnotationPlan",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2150,
+        "sourceLine": 2170,
         "summary": "Build a sanitized local-only annotation plan.",
         "categories": [
           "services"
@@ -13393,7 +13393,7 @@
         "symbolName": "makeAgentEffectivenessDatasetBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2360,
+        "sourceLine": 2380,
         "summary": "Build the Phoenix dataset bundle from a doctor report.",
         "categories": [
           "services"
@@ -13420,7 +13420,7 @@
         "symbolName": "makeAgentEffectivenessDoctorReport",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 1814,
+        "sourceLine": 1834,
         "summary": "Build the report-only Phase 1 agent-effectiveness doctor report.",
         "categories": [
           "services"
@@ -13445,7 +13445,7 @@
         "symbolName": "makeAgentEffectivenessExperimentBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2443,
+        "sourceLine": 2463,
         "summary": "Build deterministic experiment specs from a dataset bundle.",
         "categories": [
           "services"
@@ -13472,7 +13472,7 @@
         "symbolName": "makeAgentEffectivenessPromptBundle",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2389,
+        "sourceLine": 2409,
         "summary": "Build the repo-owned Phoenix prompt bundle.",
         "categories": [
           "services"
@@ -14317,7 +14317,7 @@
         "symbolName": "syncAgentEffectivenessPhoenix",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
-        "sourceLine": 2640,
+        "sourceLine": 2660,
         "summary": "Sync agent-effectiveness datasets, prompts, experiments, and resolved annotations to Phoenix.",
         "categories": [
           "services"
@@ -14443,7 +14443,7 @@
         "symbolName": "writeAiMetricsDerivedStorage",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/ai-metrics/src/derived-storage.ts",
-        "sourceLine": 1156,
+        "sourceLine": 1168,
         "summary": "Project sanitized AI metrics records into DuckDB and export Parquet snapshots.",
         "categories": [
           "services"

@@ -6,8 +6,9 @@
  */
 
 import { createHash } from "node:crypto";
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
-import { findRepoRoot } from "@beep/repo-utils";
+import { findRepoRoot, guardLiteralArg, isOptionLike } from "@beep/repo-utils";
 import { Console, DateTime, Effect, FileSystem, flow, Order, Path, pipe, Ref, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -894,6 +895,22 @@ const validateMonitorGuards = Effect.fn("Yeet.validateMonitorGuards")(function* 
 
 const originRefPrefix = "origin/" as const;
 
+// Reject any character that git refname rules forbid or that lets a branch be
+// reparsed as a fetch option/refspec: control/whitespace, `:` (refspec
+// separator), and the `~^?*[\` revision/glob metacharacters. Combined with the
+// option-like guard, this keeps a `--base origin/<branch>` value from becoming
+// a `git fetch --upload-pack=...`-style argument injection.
+const unsafeRefnameChar = /[\s:~^?*[\]\\]/u;
+
+const isSafeOriginBranch = (branch: string): boolean =>
+  Str.isNonEmpty(branch) &&
+  !isOptionLike(branch) &&
+  O.isNone(Str.match(unsafeRefnameChar)(branch)) &&
+  !Str.includes("..")(branch) &&
+  !Str.startsWith("/")(branch) &&
+  !Str.endsWith("/")(branch) &&
+  !Str.endsWith(".lock")(branch);
+
 const originBranchFromBase = (base: string): O.Option<string> =>
   pipe(
     O.some(base),
@@ -902,23 +919,48 @@ const originBranchFromBase = (base: string): O.Option<string> =>
     O.filter(Str.isNonEmpty)
   );
 
+/**
+ * Extract and validate the `origin/<branch>` ref from a `--base` value.
+ *
+ * @param base - The raw `--base` value (e.g. `main` or `origin/main`).
+ * @returns `Option.some(branch)` for a safe `origin/<branch>` ref, otherwise `Option.none()`.
+ * @category testing
+ * @since 0.0.0
+ */
+export const safeOriginBranchFromBaseForTesting = (base: string): O.Option<string> =>
+  pipe(originBranchFromBase(base), O.filter(isSafeOriginBranch));
+
 const refreshBaseRef = Effect.fn("Yeet.refreshBaseRef")(function* (
   repoRoot: string,
   base: string
 ): Effect.fn.Return<void, YeetCommandError, ChildProcessSpawner.ChildProcessSpawner> {
   const originBranch = originBranchFromBase(base);
   if (O.isSome(originBranch)) {
+    if (!isSafeOriginBranch(originBranch.value)) {
+      return yield* YeetCommandError.make({
+        message: `yeet refuses an unsafe base ref "${base}". Use a plain branch under origin/ such as origin/main.`,
+        command: "git fetch origin",
+        exitCode: 1,
+      });
+    }
+    // Fail closed against argument injection and pin a fully-qualified refspec so
+    // git never reparses the branch as an option (e.g. --upload-pack=...).
+    const safeBranch = yield* guardLiteralArg(originBranch.value).pipe(
+      Effect.mapError(
+        YeetCommandError.new(`yeet refuses an option-like base ref "${base}". Use a plain branch under origin/.`)
+      )
+    );
     yield* runGitOutput(repoRoot, [
       "fetch",
       "--quiet",
       "--no-tags",
       "origin",
-      `${originBranch.value}:refs/remotes/origin/${originBranch.value}`,
+      `refs/heads/${safeBranch}:refs/remotes/origin/${safeBranch}`,
     ]);
     return;
   }
 
-  yield* runGitOutput(repoRoot, ["rev-parse", "--verify", base]);
+  yield* runGitOutput(repoRoot, ["rev-parse", "--verify", "--end-of-options", base]);
 });
 
 const runGitPathList = Effect.fn("Yeet.runGitPathList")(function* (
@@ -958,7 +1000,10 @@ const stashUnstagedWorktree = Effect.fn("Yeet.stashUnstagedWorktree")(function* 
 
   const createdAt = yield* DateTime.now.pipe(Effect.map(DateTime.formatIso));
   const marker = `yeet-staged-only/${runIdForContext(context)}/${createdAt}`;
-  yield* runGitOutput(context.repoRoot, ["stash", "push", "--include-untracked", "-m", marker]);
+  // --keep-index preserves the reviewed staged index so the parking happens
+  // before `git commit`: residue is removed from the worktree first, so a
+  // commit hook (e.g. `git add .`) can only ever stage the reviewed files.
+  yield* runGitOutput(context.repoRoot, ["stash", "push", "--keep-index", "--include-untracked", "-m", marker]);
   const stashSha = yield* runGitOutput(context.repoRoot, ["rev-parse", "stash@{0}"]).pipe(Effect.map(Str.trim));
   yield* Console.log(
     `[yeet] staged-only: parked ${unstagedPaths.length + untrackedPaths.length} residue path(s) in stash "${marker}"`
@@ -1312,11 +1357,22 @@ const isEscapedQuote = (output: string, index: number): boolean => {
   return backslashCount % 2 === 1;
 };
 
-const balancedObjectTextEndingAt = (output: string, end: number): O.Option<string> => {
+// Single forward pass that records every balanced top-level `{...}` span.
+// Tracking brace depth and string state once is O(n); the previous
+// per-closing-brace backward rescan was O(n^2) on output with many unmatched
+// `}` characters and let a large untruncated subprocess buffer hang the CLI.
+// The brace-depth/string-state machine is intentionally inlined as one linear
+// scan; splitting it would break the single-pass O(n) guarantee that bounds the
+// CLI hang fix.
+// fallow-ignore-next-line complexity
+const balancedTopLevelObjectSpans = (output: string): ReadonlyArray<readonly [number, number]> => {
+  let spans = A.empty<readonly [number, number]>();
   let depth = 0;
+  let openIndex = -1;
   let inString = false;
+  const length = Str.length(output);
 
-  for (let cursor = end; cursor >= 0; cursor -= 1) {
+  for (let cursor = 0; cursor < length; cursor += 1) {
     const char = output[cursor];
     if (char === '"' && !isEscapedQuote(output, cursor)) {
       inString = !inString;
@@ -1325,35 +1381,31 @@ const balancedObjectTextEndingAt = (output: string, end: number): O.Option<strin
     if (inString) {
       continue;
     }
-    if (char === "}") {
+    if (char === "{") {
+      if (depth === 0) {
+        openIndex = cursor;
+      }
       depth += 1;
       continue;
     }
-    if (char === "{" && depth > 0) {
+    if (char === "}" && depth > 0) {
       depth -= 1;
       if (depth === 0) {
-        return O.some(Str.slice(cursor, end + 1)(output));
+        spans = A.append(spans, [openIndex, cursor + 1] as const);
       }
     }
   }
 
-  return O.none();
+  return spans;
 };
 
-const jsonObjectTextFromMixedOutput = (output: string): O.Option<string> => {
-  for (let cursor = Str.length(output) - 1; cursor >= 0; cursor -= 1) {
-    if (output[cursor] !== "}") {
-      continue;
-    }
-
-    const candidate = balancedObjectTextEndingAt(output, cursor);
-    if (O.isSome(candidate) && O.isSome(decodeJsonTextOption(candidate.value))) {
-      return candidate;
-    }
-  }
-
-  return O.none();
-};
+const jsonObjectTextFromMixedOutput = (output: string): O.Option<string> =>
+  pipe(
+    balancedTopLevelObjectSpans(output),
+    A.reverse,
+    A.map(([start, end]) => Str.slice(start, end)(output)),
+    A.findFirst((candidate) => O.isSome(decodeJsonTextOption(candidate)))
+  );
 
 /**
  * Extract the last decodable JSON object from mixed command output for tests.
@@ -1626,10 +1678,18 @@ const collectGitDiffBytes = Effect.fn("Yeet.collectGitDiffBytes")(function* (
 > {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const diffPath = yield* runOutputPathForContext(context, `fingerprint-${process.pid}-${fileName}.patch`);
+  const artifactDir = yield* artifactDirForContext(context);
+  const requestedPath = yield* runOutputPathForContext(context, `fingerprint-${process.pid}-${fileName}.patch`);
   yield* fs
-    .makeDirectory(path.dirname(diffPath), { recursive: true })
-    .pipe(Effect.mapError(YeetCommandError.new(`Failed to create Yeet fingerprint directory for ${diffPath}.`)));
+    .makeDirectory(path.dirname(requestedPath), { recursive: true })
+    .pipe(Effect.mapError(YeetCommandError.new(`Failed to create Yeet fingerprint directory for ${requestedPath}.`)));
+
+  // Fail closed if the fingerprint target (or a symlink at that path) resolves
+  // outside the Yeet artifact tree, so `git diff --output` cannot be redirected
+  // through a symlink to clobber a file outside the run directory.
+  const diffPath = yield* resolvePathWithinRoot({ root: artifactDir, candidate: requestedPath }).pipe(
+    Effect.mapError(YeetCommandError.new(`Refused unsafe Yeet fingerprint artifact path ${requestedPath}.`))
+  );
 
   return yield* Effect.gen(function* () {
     yield* runGitOutput(context.repoRoot, ["diff", "--binary", `--output=${diffPath}`, ...args]);
@@ -1720,6 +1780,24 @@ const proofLockDisposition = (
  */
 export const proofLockDispositionForTesting = proofLockDisposition;
 
+// Atomic exclusive create: succeeds only when this process is the one that
+// created the lock. `flag: "wx"` maps to O_CREAT | O_EXCL so two concurrent
+// proofs cannot both observe the lock as absent and enter the critical section.
+const tryClaimProofLockExclusive = Effect.fn("Yeet.tryClaimProofLockExclusive")(function* (
+  lockPath: string,
+  lockText: string
+): Effect.fn.Return<boolean, YeetCommandError, FileSystem.FileSystem> {
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs.writeFileString(lockPath, lockText, { flag: "wx" }).pipe(
+    Effect.as(true),
+    Effect.catchTag("PlatformError", (error) =>
+      error.reason._tag === "AlreadyExists"
+        ? Effect.succeed(false)
+        : Effect.fail(YeetCommandError.new(`Failed to atomically create Yeet proof lock at ${lockPath}.`)(error))
+    )
+  );
+});
+
 const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
   context: RepoRunContext,
   proofSteps: ReadonlyArray<RepoPlanStep>
@@ -1739,44 +1817,48 @@ const acquireFullProofLock = Effect.fn("Yeet.acquireFullProofLock")(function* (
     startedAt: yield* DateTime.now.pipe(Effect.map(DateTime.formatIso)),
   });
   const lockText = `${yield* renderJson(lockState)}\n`;
-  const existing = yield* fs.exists(lockPath).pipe(Effect.orElseSucceed(() => false));
-  if (existing) {
-    const existingText = yield* fs.readFileString(lockPath).pipe(Effect.orElseSucceed(() => ""));
-    const existingState = yield* decodeProofLockState(existingText).pipe(
-      Effect.map(O.some),
-      Effect.orElseSucceed(O.none<YeetProofLockState>)
-    );
-    const ownerAlive = yield* pipe(
-      existingState,
-      O.match({
-        onNone: () => Effect.succeed(false),
-        onSome: (state) => isPidAlive(state.pid),
-      })
-    );
 
-    if (proofLockDisposition(existingState, ownerAlive) === "replace-stale" && O.isSome(existingState)) {
-      yield* Console.error(
-        `[yeet] removing stale full-proof lock (pid ${existingState.value.pid} is not running, started ${existingState.value.startedAt})`
-      );
-      yield* fs.remove(lockPath).pipe(Effect.ignore);
-    } else {
-      const ownerDetail = pipe(
-        existingState,
-        O.match({
-          onNone: () => "",
-          onSome: (state) => ` Owner pid ${state.pid} started ${state.startedAt}.`,
-        })
-      );
-      return yield* YeetCommandError.make({
-        message: `Another Yeet full proof appears active at ${lockPath}.${ownerDetail}\n${existingText}\nRun review-fix lanes or remove the stale lock after confirming no full proof is running.`,
-        command: "bun run beep yeet verify",
-        exitCode: 1,
-      });
+  if (yield* tryClaimProofLockExclusive(lockPath, lockText)) {
+    return lockPath;
+  }
+
+  const existingText = yield* fs.readFileString(lockPath).pipe(Effect.orElseSucceed(() => ""));
+  const existingState = yield* decodeProofLockState(existingText).pipe(
+    Effect.map(O.some),
+    Effect.orElseSucceed(O.none<YeetProofLockState>)
+  );
+  const ownerAlive = yield* pipe(
+    existingState,
+    O.match({
+      onNone: () => Effect.succeed(false),
+      onSome: (state) => isPidAlive(state.pid),
+    })
+  );
+
+  if (proofLockDisposition(existingState, ownerAlive) === "replace-stale" && O.isSome(existingState)) {
+    yield* Console.error(
+      `[yeet] removing stale full-proof lock (pid ${existingState.value.pid} is not running, started ${existingState.value.startedAt})`
+    );
+    yield* fs.remove(lockPath).pipe(Effect.ignore);
+    // Re-claim atomically; if another contender won the race after we removed
+    // the stale lock, fail closed rather than overwrite an active lock.
+    if (yield* tryClaimProofLockExclusive(lockPath, lockText)) {
+      return lockPath;
     }
   }
 
-  yield* writeTextFile(lockPath, lockText);
-  return lockPath;
+  const ownerDetail = pipe(
+    existingState,
+    O.match({
+      onNone: () => "",
+      onSome: (state) => ` Owner pid ${state.pid} started ${state.startedAt}.`,
+    })
+  );
+  return yield* YeetCommandError.make({
+    message: `Another Yeet full proof appears active at ${lockPath}.${ownerDetail}\n${existingText}\nRun review-fix lanes or remove the stale lock after confirming no full proof is running.`,
+    command: "bun run beep yeet verify",
+    exitCode: 1,
+  });
 });
 
 const releaseProofLock = Effect.fn("releaseProofLock")(function* (lockPath: string) {
@@ -2238,14 +2320,17 @@ const runPublishMode = Effect.fn("Yeet.runPublishMode")(function* (
     }
     yield* stageReviewedPublishIntent(plan.context, publishIntent, options.stagedOnly);
 
-    const commitResults = yield* runPhase(plan.context, commitSteps, recorder);
-    if (A.some(commitResults, (result) => result.exitCode !== 0)) {
-      return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
-    }
-
+    // Park unstaged/untracked residue (keeping the reviewed index) BEFORE the
+    // commit, so a commit hook that broadly stages files cannot capture residue
+    // outside the reviewed intent into the published commit.
     if (options.stagedOnly) {
       stash = yield* stashUnstagedWorktree(plan.context);
       yield* Ref.update(extras, (state) => ({ ...state, stash }));
+    }
+
+    const commitResults = yield* runPhase(plan.context, commitSteps, recorder);
+    if (A.some(commitResults, (result) => result.exitCode !== 0)) {
+      return yield* failWithIssueArtifacts(plan.context, commitSteps, commitResults, "yeet commit phase failed.");
     }
   }
 

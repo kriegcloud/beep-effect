@@ -532,13 +532,15 @@
           "@beep/agents-client",
           "@beep/agents-domain",
           "@beep/agents-use-cases",
-          "@beep/md"
+          "@beep/md",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/agents-client",
           "@beep/agents-domain",
           "@beep/agents-use-cases",
-          "@beep/md"
+          "@beep/md",
+          "@beep/utils"
         ]
       },
       {
@@ -568,7 +570,10 @@
           "@beep/agents-use-cases",
           "@beep/anthropic",
           "@beep/identity",
-          "@beep/test-utils"
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/agents-domain",
@@ -576,7 +581,10 @@
           "@beep/agents-use-cases",
           "@beep/anthropic",
           "@beep/identity",
-          "@beep/test-utils"
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ]
       },
       {
@@ -971,12 +979,14 @@
         "from": "@beep/ffmpeg",
         "allow": [
           "@beep/ffmpeg",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/ffmpeg",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
@@ -1191,6 +1201,7 @@
       {
         "from": "@beep/nlp-mcp",
         "allow": [
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/nlp",
           "@beep/nlp-mcp",
@@ -1198,6 +1209,7 @@
           "@beep/wink"
         ],
         "allowTypeOnly": [
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/nlp",
           "@beep/nlp-mcp",
@@ -1388,6 +1400,7 @@
         "from": "@beep/repo-ai-metrics",
         "allow": [
           "@beep/duckdb",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -1396,6 +1409,7 @@
         ],
         "allowTypeOnly": [
           "@beep/duckdb",
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/phoenix",
           "@beep/repo-ai-metrics",
@@ -1459,12 +1473,14 @@
       {
         "from": "@beep/repo-codegraph",
         "allow": [
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/repo-codegraph",
           "@beep/schema",
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/file-processing",
           "@beep/identity",
           "@beep/repo-codegraph",
           "@beep/schema",

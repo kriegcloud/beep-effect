@@ -17,6 +17,19 @@ import * as S from "effect/Schema";
 const $I = $LangExtractId.create("Extraction");
 
 /**
+ * Defensive upper bounds that fail closed at decode time to keep deterministic
+ * alignment within a predictable CPU budget. Fuzzy alignment is
+ * `O(sourceWords * candidateChars * candidateCount)`, so each axis is bounded before any
+ * untrusted document or model output reaches {@link parseModelOutput} or the
+ * synchronous alignment path.
+ */
+const MAX_REQUEST_TEXT_LENGTH = 1_000_000;
+const MAX_CANDIDATE_TEXT_LENGTH = 4_096;
+const MAX_CANDIDATE_ATTRIBUTES = 64;
+const MAX_MODEL_OUTPUT_CANDIDATES = 1_024;
+const MAX_REQUEST_EXAMPLES = 64;
+
+/**
  * Machine-readable LangExtract failure reasons.
  *
  * @example
@@ -155,10 +168,24 @@ export class LangExtractOptions extends S.Class<LangExtractOptions>($I`LangExtra
  */
 export class ExtractionCandidate extends S.Class<ExtractionCandidate>($I`ExtractionCandidate`)(
   {
-    attributes: S.optionalKey(S.Record(S.String, S.String)),
+    attributes: S.optionalKey(
+      S.Record(S.String, S.String).check(
+        S.isMaxProperties(MAX_CANDIDATE_ATTRIBUTES, {
+          message: `Extraction candidate attributes must have at most ${MAX_CANDIDATE_ATTRIBUTES} entries.`,
+        })
+      )
+    ),
     confidence: S.optionalKey(UnitInterval),
-    label: S.NonEmptyString,
-    text: S.NonEmptyString,
+    label: S.NonEmptyString.check(
+      S.isMaxLength(MAX_CANDIDATE_TEXT_LENGTH, {
+        message: `Extraction candidate label must be ${MAX_CANDIDATE_TEXT_LENGTH} characters or fewer.`,
+      })
+    ),
+    text: S.NonEmptyString.check(
+      S.isMaxLength(MAX_CANDIDATE_TEXT_LENGTH, {
+        message: `Extraction candidate text must be ${MAX_CANDIDATE_TEXT_LENGTH} characters or fewer.`,
+      })
+    ),
   },
   $I.annote("ExtractionCandidate", {
     description: "Model-emitted extraction candidate before deterministic source alignment.",
@@ -218,10 +245,22 @@ export class GroundedExtraction extends S.Class<GroundedExtraction>($I`GroundedE
 export class LangExtractRequest extends S.Class<LangExtractRequest>($I`LangExtractRequest`)(
   {
     documentId: DocumentId,
-    examples: ExtractionExample.pipe(S.Array, S.optionalKey),
+    examples: ExtractionExample.pipe(
+      S.Array,
+      S.check(
+        S.isMaxLength(MAX_REQUEST_EXAMPLES, {
+          message: `LangExtract request must include at most ${MAX_REQUEST_EXAMPLES} examples.`,
+        })
+      ),
+      S.optionalKey
+    ),
     options: S.optionalKey(LangExtractOptions),
     targets: S.NonEmptyArray(ExtractionTarget),
-    text: S.String,
+    text: S.String.check(
+      S.isMaxLength(MAX_REQUEST_TEXT_LENGTH, {
+        message: `LangExtract request text must be ${MAX_REQUEST_TEXT_LENGTH} characters or fewer.`,
+      })
+    ),
   },
   $I.annote("LangExtractRequest", {
     description: "Provider-neutral request for LangExtract-style structured extraction.",
@@ -307,16 +346,22 @@ export class LangExtractResult extends S.Class<LangExtractResult>($I`LangExtract
   })
 ) {}
 
+const ModelOutputCandidates = S.Array(ExtractionCandidate).check(
+  S.isMaxLength(MAX_MODEL_OUTPUT_CANDIDATES, {
+    message: `Language model output must contain at most ${MAX_MODEL_OUTPUT_CANDIDATES} extraction candidates.`,
+  })
+);
+
 class ModelOutputObject extends S.Class<ModelOutputObject>($I`ModelOutputObject`)(
   {
-    extractions: S.Array(ExtractionCandidate),
+    extractions: ModelOutputCandidates,
   },
   $I.annote("ModelOutputObject", {
     description: "Internal JSON object shape returned by a language model.",
   })
 ) {}
 
-const ModelOutput = S.Union([ModelOutputObject, S.Array(ExtractionCandidate)]);
+const ModelOutput = S.Union([ModelOutputObject, ModelOutputCandidates]);
 const decodeModelOutputJson = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const decodeModelOutputPayload = S.decodeUnknownEffect(ModelOutput);
 type ParsedModelOutput = ReadonlyArray<ExtractionCandidate> | ModelOutputObject;

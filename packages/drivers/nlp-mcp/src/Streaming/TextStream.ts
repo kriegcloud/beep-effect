@@ -11,15 +11,117 @@
  * @packageDocumentation
  */
 
+import { PathSafety } from "@beep/file-processing";
 import { $NlpMcpId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { Effect, FileSystem, Number as Num, Order, Path, pipe, Random, Stream } from "effect";
+import {
+  Context,
+  Effect,
+  FileSystem,
+  Layer,
+  Number as Num,
+  Order,
+  PlatformError as PlatformErrorNs,
+  pipe,
+  Random,
+  Stream,
+} from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import type { Path } from "effect";
 import type { PlatformError } from "effect/PlatformError";
 
 const $I = $NlpMcpId.create("Streaming/TextStream");
+
+/**
+ * Configurable allow-list of directories the streaming file tools may read.
+ *
+ * Local reads issued by the streaming MCP tools are constrained to these roots:
+ * a caller-supplied path is accepted only when it canonically resolves inside at
+ * least one configured root (see {@link resolveLocalPath}). The reference
+ * defaults to the process working directory, so an entrypoint that provides no
+ * override keeps the original fail-closed behavior while still allowing
+ * operators (or tests) to widen the allow-list to an explicit dataset directory.
+ *
+ * Because this is a {@link Context.Reference}, the default is used automatically
+ * when no override layer is supplied; provide {@link layerAllowedRoots} to widen
+ * the allow-list for a particular runtime.
+ *
+ * @example
+ * ```ts
+ * import { StreamingAllowedRoots } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * console.log(StreamingAllowedRoots.key)
+ * ```
+ *
+ * @since 0.0.0
+ * @category guards
+ */
+export const StreamingAllowedRoots: Context.Reference<ReadonlyArray<string>> = Context.Reference<ReadonlyArray<string>>(
+  $I`StreamingAllowedRoots`,
+  {
+    defaultValue: (): ReadonlyArray<string> => [process.cwd()],
+  }
+);
+
+/**
+ * Build a layer that overrides the {@link StreamingAllowedRoots} allow-list.
+ *
+ * Pass one or more directories that the streaming file tools are permitted to
+ * read from. Paths are resolved within these roots and any candidate that
+ * escapes every root (absolute path outside the roots, `..` traversal, or a
+ * symlink pointing outside) is rejected before any bytes are read.
+ *
+ * @example
+ * ```ts
+ * import { layerAllowedRoots } from "@beep/nlp-mcp/Streaming/TextStream"
+ *
+ * const DatasetRoots = layerAllowedRoots(["/srv/datasets"])
+ * console.log(DatasetRoots)
+ * ```
+ *
+ * @since 0.0.0
+ * @category guards
+ */
+export const layerAllowedRoots = (roots: ReadonlyArray<string>): Layer.Layer<never> =>
+  Layer.succeed(StreamingAllowedRoots)(roots);
+
+/**
+ * Resolve a caller-supplied path against the configured allowed roots, failing
+ * closed before any filesystem access.
+ *
+ * The streaming MCP tools accept attacker-controllable path strings, so each
+ * candidate is resolved against every {@link StreamingAllowedRoots} entry via
+ * {@link PathSafety.resolvePathWithinRoot}: the first root that canonically
+ * contains the candidate wins, and a candidate that escapes every root through
+ * an absolute path, a `..` traversal, or a symlink is rejected. The fail-closed
+ * `PathSafetyError` is normalized into the platform `BadArgument` channel so the
+ * read helpers keep their existing `PlatformError` failure type while still
+ * refusing the read before any bytes are touched.
+ *
+ * @since 0.0.0
+ * @category guards
+ */
+export const resolveLocalPath: (
+  filePath: string
+) => Effect.Effect<string, PlatformError, FileSystem.FileSystem | Path.Path> = Effect.fn("TextStream.resolveLocalPath")(
+  function* (filePath) {
+    const roots = yield* StreamingAllowedRoots;
+    return yield* Effect.firstSuccessOf(
+      A.map(roots, (root) => PathSafety.resolvePathWithinRoot({ candidate: filePath, root }))
+    ).pipe(
+      Effect.mapError((cause) =>
+        PlatformErrorNs.badArgument({
+          cause,
+          description: cause.message,
+          method: "resolveLocalPath",
+          module: "Streaming/TextStream",
+        })
+      )
+    );
+  }
+);
 
 /**
  * Text decoding labels accepted by the streaming text helpers.
@@ -201,8 +303,7 @@ export const streamLines = (
   return Stream.unwrap(
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const resolved = path.resolve(filePath);
+      const resolved = yield* resolveLocalPath(filePath);
 
       return fs.stream(resolved).pipe(
         Stream.decodeText({ encoding }),
@@ -259,8 +360,8 @@ export const readTextFile = Effect.fn("TextStream.readTextFile")(function* (
   encoding: TextEncoding = DEFAULT_ENCODING
 ) {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  return yield* fs.readFileString(path.resolve(filePath), encoding);
+  const resolved = yield* resolveLocalPath(filePath);
+  return yield* fs.readFileString(resolved, encoding);
 });
 
 /**
@@ -380,8 +481,8 @@ export const countLines = (
  */
 export const fileExists = Effect.fn("TextStream.fileExists")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  return yield* fs.exists(path.resolve(filePath));
+  const resolved = yield* resolveLocalPath(filePath);
+  return yield* fs.exists(resolved);
 });
 
 /**
@@ -402,8 +503,8 @@ export const fileExists = Effect.fn("TextStream.fileExists")(function* (filePath
  */
 export const getFileSize = Effect.fn("TextStream.getFileSize")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const info = yield* fs.stat(path.resolve(filePath));
+  const resolved = yield* resolveLocalPath(filePath);
+  const info = yield* fs.stat(resolved);
   return Num.Number(info.size);
 });
 

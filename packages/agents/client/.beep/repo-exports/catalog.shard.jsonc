@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "51d32f57d4cc0b3883c32380bbbcc08167fb79a0cf46318ff8f637074a5bb75b",
+    "digest": "8b115e87464c5d3e5013f8b50f9bc1b05dfa36efde52cd699ef46a9d00c80df6",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/agents/client/package.json",
-        "sha256": "48a943b7eb5b6d4c73049c6a023fe2c2867d1d8915002c9688754682b39ae062",
-        "bytes": 2501
+        "sha256": "1e1667cf0cb3c926b5e95a6f01f8d6eacf3bafacf7573bb6df83a09c50f1376f",
+        "bytes": 2535
       },
       {
         "path": "packages/agents/client/src/Chat.atoms.ts",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",

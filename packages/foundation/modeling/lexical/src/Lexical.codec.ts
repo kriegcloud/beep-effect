@@ -631,6 +631,17 @@ const tableToBlock = (node: TableNode): Md.Table =>
     children: A.map(A.filter(node.children, isTableRowNode), tableRowToMd),
   });
 
+// The lexical `YouTubeNode.videoID` is an unconstrained string, while the Md
+// `YouTube` embed enforces the CSF-026 guard (a bare 11-character video id) so
+// that downstream percent-encoders cannot be crashed by a malformed id. Project
+// the embed only when the id satisfies that schema; otherwise drop it (the embed
+// is presentation-only, so omitting it keeps the document valid) so the
+// Lexical -> Md projection stays total on arbitrary/untrusted input.
+const isValidYouTubeVideoId: (videoId: string) => boolean = S.is(Md.YouTubeVideoId);
+
+const youtubeToBlocks = (node: YouTubeNode): ReadonlyArray<Md.Block> =>
+  isValidYouTubeVideoId(node.videoID) ? [Md.YouTube.make({ videoId: node.videoID })] : A.empty<Md.Block>();
+
 /**
  * Project one serialized Lexical node onto Md blocks.
  *
@@ -663,7 +674,7 @@ export const nodeToBlocks: (node: LexicalNode) => ReadonlyArray<Md.Block> = Lexi
   table: (node) => [tableToBlock(node)],
   tablerow: (node) => [Md.Table.make({ headerRow: false, children: [tableRowToMd(node)] })],
   tablecell: (node) => [Md.P.make({ children: tableCellToMd(node).children })],
-  youtube: (node) => [Md.YouTube.make({ videoId: node.videoID })],
+  youtube: (node) => youtubeToBlocks(node),
   list: (node) => [listToBlock(node)],
   listitem: (node) => [Md.P.make({ children: textRunToInlines(node.children) })],
   "artifact-ref": (node) => [Md.P.make({ children: [inlineNodeToMd(node)] })], // Loose leaves outside an element wrap into a paragraph.

@@ -271,6 +271,10 @@ export const isUrl = (location: string): boolean =>
  */
 const isBlockedRemoteHost = (hostname: string): boolean => {
   const host = pipe(Str.toLowerCase(hostname), Str.replace(/^\[|\]$/g, ""));
+  // SSRF guard duplicated with @beep/schema SafeRemoteHost.isInternalHost by
+  // design: each slice owns a self-contained, independently auditable blocklist
+  // rather than coupling this driver to a foundation schema's internals.
+  // fallow-ignore-next-line code-duplication
   return (
     host === "localhost" ||
     Str.endsWith(".localhost")(host) ||

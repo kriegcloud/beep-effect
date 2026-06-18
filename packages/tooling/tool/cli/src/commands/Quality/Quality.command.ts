@@ -9,8 +9,8 @@ import { cpus, totalmem } from "node:os";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, jsonStringifyPretty } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { A, Str, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, Match, MutableHashMap, Order, Path, pipe, Stream } from "effect";
+import { A, Str, thunkFalse, thunkTrue } from "@beep/utils";
+import { Console, DateTime, Effect, FileSystem, flow, Match, MutableHashMap, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -769,8 +769,103 @@ const githubCheckChangesetStatusLanes = Effect.fn("QualityScriptCommands.githubC
   ];
 });
 
+// `[[IgnoredVulns]]` table header delimiting one OSV ignore entry in
+// osv-scanner.toml. Splitting the config on this header yields one chunk per
+// ignore block (plus a leading comment/preamble chunk).
+const OSV_IGNORED_VULNS_HEADER = "[[IgnoredVulns]]";
+// Per-block field patterns. The `m` flag anchors `^`/`$` to each physical line
+// inside a multi-line block chunk; `ignoreUntil` is a bare RFC-3339 TOML
+// datetime (optionally quoted) such as `2026-09-13T00:00:00Z`.
+const osvIgnoreIdPattern = /^\s*id\s*=\s*"(.+)"\s*$/mu;
+const osvIgnoreUntilPattern = /^\s*ignoreUntil\s*=\s*"?([^"#\s]+)"?\s*$/mu;
+
+type OsvIgnoreEntry = {
+  readonly id: string;
+  // `O.none` when the block declares no expiry; `O.some` with the parsed
+  // instant when `ignoreUntil` is present and parseable. A present-but-
+  // unparseable `ignoreUntil` is reported via `expiryMalformed` so the entry
+  // fails closed (it is not allowed to suppress the advisory).
+  readonly ignoreUntil: O.Option<DateTime.DateTime>;
+  readonly expiryMalformed: boolean;
+};
+
+const parseOsvIgnoreBlock = (block: string): O.Option<OsvIgnoreEntry> =>
+  pipe(
+    O.fromNullishOr(osvIgnoreIdPattern.exec(block)),
+    O.flatMap((match) => O.fromNullishOr(match[1])),
+    O.map((id) => {
+      const rawIgnoreUntil = pipe(
+        O.fromNullishOr(osvIgnoreUntilPattern.exec(block)),
+        O.flatMap((match) => O.fromNullishOr(match[1]))
+      );
+      const ignoreUntil = O.flatMap(rawIgnoreUntil, DateTime.make);
+      return {
+        id,
+        ignoreUntil,
+        expiryMalformed: O.isSome(rawIgnoreUntil) && O.isNone(ignoreUntil),
+      };
+    })
+  );
+
+const parseOsvIgnoreEntries = (configText: string): ReadonlyArray<OsvIgnoreEntry> =>
+  pipe(Str.split(configText, OSV_IGNORED_VULNS_HEADER), A.drop(1), A.map(parseOsvIgnoreBlock), A.getSomes);
+
+const osvIgnoreEntryIsActive = (now: DateTime.DateTime): ((entry: OsvIgnoreEntry) => boolean) =>
+  flow(
+    O.liftPredicate((entry: OsvIgnoreEntry) => !entry.expiryMalformed),
+    // Keep when there is no expiry, or the expiry is still in the future
+    // (`ignoreUntil >= now`); drop malformed or expired ignores so the audit
+    // fails closed and re-flags the advisory.
+    O.map((entry) =>
+      O.match(entry.ignoreUntil, {
+        onNone: thunkTrue,
+        onSome: Order.isGreaterThanOrEqualTo(DateTime.Order)(now),
+      })
+    ),
+    O.getOrElse(thunkFalse)
+  );
+
+/**
+ * Select the OSV advisory ids that may still be suppressed at `now`.
+ *
+ * Entries whose `ignoreUntil` has passed, or whose `ignoreUntil` is present but
+ * unparseable, are dropped so the Bun audit lane stops mirroring expired
+ * ignores and fails closed once the configured expiry elapses.
+ *
+ * @param configText - Raw `osv-scanner.toml` contents.
+ * @param now - Current instant used to compare against each `ignoreUntil`.
+ * @returns Active advisory ids in config order.
+ * @example
+ * ```ts
+ * import { DateTime } from "effect"
+ * import { activeOsvIgnoreIdsForTesting } from "@beep/repo-cli/test/Quality"
+ *
+ * const ids = activeOsvIgnoreIdsForTesting(
+ *   '[[IgnoredVulns]]\nid = "GHSA-x"\nignoreUntil = 2999-01-01T00:00:00Z\n',
+ *   DateTime.makeUnsafe("2026-06-17T00:00:00Z")
+ * )
+ * console.log(ids)
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const activeOsvIgnoreIdsForTesting: {
+  (configText: string, now: DateTime.DateTime): ReadonlyArray<string>;
+  (now: DateTime.DateTime): (configText: string) => ReadonlyArray<string>;
+} = dual(2, (configText: string, now: DateTime.DateTime): ReadonlyArray<string> =>
+  pipe(
+    parseOsvIgnoreEntries(configText),
+    A.filter(osvIgnoreEntryIsActive(now)),
+    A.map((entry) => entry.id)
+  )
+);
+
 /**
  * Run Bun's high-severity package audit with OSV ignores mirrored from config.
+ *
+ * Only ignores whose `ignoreUntil` is still in the future are forwarded to
+ * `bun audit --ignore`; expired or malformed-expiry entries are dropped so the
+ * audit re-flags the advisory instead of silently suppressing it past expiry.
  *
  * @param repoRoot - Repository root directory.
  * @returns Effect that exits non-zero when audit fails.
@@ -795,13 +890,25 @@ export const runBunAudit = Effect.fn("QualityScriptCommands.runBunAudit")(functi
   const configText = yield* fs
     .readFileString(configPath)
     .pipe(QualityScriptCommandError.mapError(`Failed to read ${configPath}.`));
+  const now = yield* DateTime.now;
+  const entries = parseOsvIgnoreEntries(configText);
+  const isActive = osvIgnoreEntryIsActive(now);
   const ignoredIds = pipe(
-    Str.split(configText, "\n"),
-    A.flatMap((line) => {
-      const match = /^id = "(.+)"$/u.exec(line);
-      return match?.[1] === undefined ? A.empty<string>() : A.of(match[1]);
-    })
+    entries,
+    A.filter(isActive),
+    A.map((entry) => entry.id)
   );
+  const droppedIds = pipe(
+    entries,
+    A.filter((entry) => !isActive(entry)),
+    A.map((entry) => entry.id)
+  );
+
+  if (A.isArrayNonEmpty(droppedIds)) {
+    yield* Console.log(
+      `[github-checks] repo-sanity:bun-audit: dropping expired/malformed OSV ignore(s): ${A.join(droppedIds, ", ")}`
+    );
+  }
 
   yield* runFixedStep(repoRoot, "repo-sanity:bun-audit", "bun", [
     "audit",

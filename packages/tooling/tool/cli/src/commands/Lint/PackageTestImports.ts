@@ -64,6 +64,12 @@ class PackageNameDocument extends S.Class<PackageNameDocument>($I`PackageNameDoc
 const decodePackageNameDocument = S.decodeUnknownEffect(S.fromJsonString(PackageNameDocument));
 const moduleExtensionPattern = /\.(?:[cm]?[tj]sx?)$/;
 const packageTestFilePattern = /^packages\/.+\/(?:test|dtslint)\/.+\.(?:ts|tsx)$/;
+// Source-owned test helpers live under a package `src` tree, i.e. a `src`
+// directory segment appears before the `test`/`dtslint` boundary (e.g.
+// `packages/foo/src/internal/test/Example.test-kit.ts`). Package-level tests
+// such as `packages/foo/test/src/Example.test.ts` keep `src` after the
+// boundary and must stay in scope for import linting.
+const packageSourceOwnedTestPattern = /\/src\/(?:.*\/)?(?:test|dtslint)\//;
 const stripKnownModuleExtension = Str.replace(moduleExtensionPattern, Str.empty);
 const bySourceRootLengthDescending = Order.mapInput(
   Order.Number,
@@ -77,7 +83,7 @@ const isRelativeModuleSpecifier = (specifier: string): boolean =>
   Str.startsWith("./")(specifier) || Str.startsWith("../")(specifier);
 
 const isPackageTestFilePath = (relativePath: string): boolean =>
-  packageTestFilePattern.test(relativePath) && !Str.includes("/src/")(relativePath);
+  packageTestFilePattern.test(relativePath) && !packageSourceOwnedTestPattern.test(relativePath);
 
 const toRootImportAlias = (source: PackageSourceRoot, sourceSubpath: string): string =>
   sourceSubpath === Str.empty || sourceSubpath === "index" ? source.name : `${source.name}/${sourceSubpath}`;

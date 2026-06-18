@@ -35,10 +35,14 @@ git rev-list --count "$(git merge-base HEAD origin/main)"..origin/main
 3. If the worktree contains unrelated changes, stage only the intended files.
    Never publish unrelated paths silently.
 4. Check for already-running heavyweight quality commands before starting a
-   Yeet lane:
+   Yeet lane. Use metadata-only columns (`comm` = executable name) and never the
+   full `cmd` column: process arguments routinely contain credentials (git
+   `http.extraHeader` bearer tokens, credentialed clone/fetch URLs, API keys),
+   and that output would leak into the agent transcript. Summarize matches by
+   pid/binary; never copy full command lines verbatim:
 
 ```bash
-ps -eo pid,ppid,stat,etime,cmd | rg 'bun run|beep yeet|audit:github|turbo|gh pr|git ' | rg -v 'rg|ps -eo' || true
+ps -eo pid,ppid,stat,etime,comm | rg 'bun|node|beep|turbo|gh|git' | rg -v 'rg|ps' || true
 ```
 
 ## Canonical Commands

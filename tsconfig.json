@@ -1188,6 +1188,9 @@
       ],
       "@beep/pandoc-ast/Pandoc.report": [
         "./packages/foundation/modeling/pandoc-ast/src/Pandoc.report.ts"
+      ],
+      "@beep/file-processing/PathSafety": [
+        "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
       ]
     }
   }

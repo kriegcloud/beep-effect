@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCodegraphId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Str, thunkFalse } from "@beep/utils";
@@ -207,8 +208,21 @@ const readRepoExportsCatalogShard = Effect.fn("RepoCodegraph.readRepoExportsCata
   RepoCodegraphCatalogReadError | S.SchemaError,
   FileSystem.FileSystem | Path.Path
 > {
-  const pathApi = yield* Path.Path;
-  const absoluteShardPath = pathApi.join(repoRoot, shardPath);
+  // The shardPath comes from an attacker-controllable catalog index, so resolve
+  // it through the shared fail-closed guard: it canonicalizes against repoRoot
+  // (following symlinks) and rejects any absolute, `..`, or symlink-escaping
+  // path before any file read happens. A rejection is mapped to the local
+  // catalog read error so the failure channel stays unchanged.
+  const absoluteShardPath = yield* resolvePathWithinRoot({ root: repoRoot, candidate: shardPath }).pipe(
+    Effect.mapError((cause) =>
+      catalogReadFailure(
+        "hydrate-index",
+        shardPath,
+        `Repo export shard path ${shardPath} escapes the repository root.`,
+        cause
+      )
+    )
+  );
   const content = yield* readTextFile(absoluteShardPath);
   const parsed = yield* parseJsoncUnknown(absoluteShardPath, content);
   return yield* decodeRepoExportsCatalogShard(parsed);

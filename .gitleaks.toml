@@ -12,3 +12,10 @@ description = "Venice OpenAPI operation id is not a secret"
 regexes = [
   '''getApiKeyGenerateWeb3Key''',
 ]
+
+[[allowlists]]
+description = "CauseRedaction is a secret-redaction helper; its JSDoc @example blocks and tests intentionally contain placeholder secret-shaped strings (sk-/token=/API_KEY=) to demonstrate redaction. These are not real secrets."
+paths = [
+  '''^packages/foundation/capability/observability/src/CauseRedaction\.ts$''',
+  '''^packages/foundation/capability/observability/test/CauseRedaction\.test\.ts$''',
+]

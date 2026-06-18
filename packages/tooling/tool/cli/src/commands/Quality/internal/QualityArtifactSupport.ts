@@ -1,9 +1,10 @@
 import { fileURLToPath } from "node:url";
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { A, Err, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, MutableHashMap, Order, Result, SchemaGetter, Stream } from "effect";
+import { Effect, FileSystem, MutableHashMap, MutableHashSet, Order, Path, Result, SchemaGetter, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -11,7 +12,6 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 import { Node } from "ts-morph";
-import type { Path } from "effect";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 
 const $I = $RepoCliId.create("commands/Quality/internal/QualityArtifactSupport");
@@ -239,6 +239,42 @@ export const repoRelative: {
 export const escapeRegExp = (value: string): string => Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(value);
 
 /**
+ * Resolve a scanned filesystem entry to its canonical path inside an allowed
+ * root, failing closed when the entry escapes the root.
+ *
+ * The shared {@link resolvePathWithinRoot} guard canonicalizes the entry
+ * (following symlinks via `realPath`) and rejects any target whose real path
+ * leaves `root` through a symlink, an absolute path, or a `..` traversal. A
+ * rejection is mapped to `Option.none` so escaping entries are silently skipped
+ * by the workspace and source scanners rather than crashing the generators or
+ * being parsed as in-repo source.
+ *
+ * The caller's `path` service is supplied directly to the guard so this helper
+ * keeps its requirement channel to `FileSystem` only and never widens callers
+ * (the Quality scanners hold `FileSystem` but expose only that service). The
+ * traversal protection from CSF-018 is preserved unchanged.
+ *
+ * @param root - Allowed root the entry must remain inside.
+ * @param entryPath - Candidate entry path produced by directory enumeration.
+ * @param path - Effect platform path service supplied to the safety guard.
+ * @returns Effect yielding the canonical in-root path, or `Option.none` when
+ * the entry escapes the root or cannot be canonicalized.
+ * @category paths
+ * @since 0.0.0
+ */
+export const resolveEntryWithinRoot = Effect.fn("QualityArtifactSupport.resolveEntryWithinRoot")(function* (
+  root: string,
+  entryPath: string,
+  path: Path.Path
+): Effect.fn.Return<O.Option<string>, never, FileSystem.FileSystem> {
+  return yield* resolvePathWithinRoot({ root, candidate: entryPath }).pipe(
+    Effect.provideService(Path.Path, path),
+    Effect.map(O.some),
+    Effect.orElseSucceed(O.none<string>)
+  );
+});
+
+/**
  * Read and decode a package manifest.
  *
  * @category filesystem
@@ -336,9 +372,13 @@ export const expandWorkspacePattern: {
             );
             for (const entry of entries) {
               const entryPath = path.join(candidate, entry);
-              const stat = yield* fs.stat(entryPath).pipe(Effect.option);
+              const safeEntry = yield* resolveEntryWithinRoot(repoRoot, entryPath, path);
+              if (O.isNone(safeEntry)) {
+                continue;
+              }
+              const stat = yield* fs.stat(safeEntry.value).pipe(Effect.option);
               if (O.isSome(stat) && stat.value.type === "Directory") {
-                A.appendInPlace(nextCandidates, entryPath);
+                A.appendInPlace(nextCandidates, safeEntry.value);
               }
             }
             continue;
@@ -483,6 +523,25 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
     return A.empty<string>();
   }
 
+  // Resolve the scan root to its canonical real path so the cycle tracker and
+  // the recursion compare like-for-like against the canonical entries returned
+  // by `resolveEntryWithinRoot`. A root that cannot be canonicalized yields no
+  // source files rather than scanning an unverifiable tree.
+  const canonicalRoot = yield* resolveEntryWithinRoot(directory, directory, path);
+  if (O.isNone(canonicalRoot)) {
+    return A.empty<string>();
+  }
+
+  // Track canonical directories already entered so a symlink whose real path
+  // points back at an ancestor (for example `src/loop -> src`) does not drive
+  // the recursion into an unbounded cycle. Entries are canonical realpaths
+  // produced by `resolveEntryWithinRoot`, so equal real directories collapse.
+  const visited = MutableHashSet.make(canonicalRoot.value);
+
+  // Path-safe recursive directory walk: every branch (canonical re-resolution,
+  // symlink-cycle guard, excluded dirs, extension/suffix filtering) is a
+  // security-relevant gate; flattening the traversal would risk dropping a check.
+  // fallow-ignore-next-line complexity
   const visit = Effect.fn("QualityArtifactSupport.listSourceFiles.visit")(function* (
     current: string
   ): Effect.fn.Return<ReadonlyArray<string>, QualityArtifactGeneratorError, FileSystem.FileSystem> {
@@ -492,7 +551,12 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
     let files = A.empty<string>();
 
     for (const entry of entries) {
-      const absolutePath = path.join(current, entry);
+      const entryPath = path.join(current, entry);
+      const safeEntry = yield* resolveEntryWithinRoot(directory, entryPath, path);
+      if (O.isNone(safeEntry)) {
+        continue;
+      }
+      const absolutePath = safeEntry.value;
       const stat = yield* fs
         .stat(absolutePath)
         .pipe(QualityArtifactGeneratorError.mapError(`Failed to stat ${absolutePath}.`, { filePath: absolutePath }));
@@ -501,6 +565,10 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
         if (entry === "node_modules" || entry === "dist" || entry === "build" || entry === ".turbo") {
           continue;
         }
+        if (MutableHashSet.has(visited, absolutePath)) {
+          continue;
+        }
+        MutableHashSet.add(visited, absolutePath);
         files = A.appendAll(files, yield* visit(absolutePath));
         continue;
       }
@@ -524,7 +592,7 @@ export const listSourceFiles = Effect.fn("QualityArtifactSupport.listSourceFiles
     return files;
   });
 
-  return A.sort(yield* visit(directory), Order.String);
+  return A.sort(yield* visit(canonicalRoot.value), Order.String);
 });
 
 /**

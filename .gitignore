@@ -121,3 +121,7 @@ sst-env.d.ts
 .repos/*
 
 .claude/settings.local.json
+
+# secrets / credential exports (never commit; public repo)
+*cookies*.txt
+openai.com_cookies.txt

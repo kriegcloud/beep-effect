@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c49fe39298107b4249a36416a7d98ea10c9d21cd61a494d952e06cfa5d1abbf1",
+    "digest": "8c63f3432fd53ebd2c3cf3665a0b4f508baa9084c197c4112538d648ddceb2f7",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -107,13 +107,13 @@
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sha256": "40a48e90a213328de00067eacf29e72c2daefc08ff981147096cefe3dc5f576d",
-        "bytes": 9146
+        "sha256": "1ff8bb0258497abb50c0f0287929b91921c4a7fbf2effb38cfc5fcb35a043181",
+        "bytes": 10291
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sha256": "4f009133c325b23b9eea4188e93842353161ae1618fbab1fff53bcdc377f4623",
-        "bytes": 13114
+        "sha256": "49a31c91b7b1e940531413ce9a9738f388efa79f41e1eb7bd876152c0ceaad90",
+        "bytes": 14555
       },
       {
         "path": "packages/foundation/ui-system/ui/src/components/checkbox.tsx",
@@ -632,8 +632,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -2452,7 +2452,7 @@
         "symbolName": "Carousel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 135,
+        "sourceLine": 149,
         "summary": "Carousel component.",
         "categories": [
           "components"
@@ -2502,7 +2502,7 @@
         "symbolName": "CarouselContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 222,
+        "sourceLine": 243,
         "summary": "Carousel content component.",
         "categories": [
           "components"
@@ -2527,7 +2527,7 @@
         "symbolName": "CarouselItem",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 245,
+        "sourceLine": 266,
         "summary": "Carousel item component.",
         "categories": [
           "components"
@@ -2552,7 +2552,7 @@
         "symbolName": "CarouselNext",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 315,
+        "sourceLine": 336,
         "summary": "Carousel next component.",
         "categories": [
           "components"
@@ -2577,7 +2577,7 @@
         "symbolName": "CarouselPrevious",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 272,
+        "sourceLine": 293,
         "summary": "Carousel previous component.",
         "categories": [
           "components"
@@ -2602,7 +2602,7 @@
         "symbolName": "useCarousel",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
-        "sourceLine": 117,
+        "sourceLine": 131,
         "summary": "Use carousel hook.",
         "categories": [
           "hooks"
@@ -2677,7 +2677,7 @@
         "symbolName": "ChartLegend",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sourceLine": 329,
+        "sourceLine": 352,
         "summary": "Recharts legend primitive paired with {@link ChartLegendContent}.",
         "categories": [
           "components"
@@ -2702,7 +2702,7 @@
         "symbolName": "ChartLegendContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sourceLine": 344,
+        "sourceLine": 367,
         "summary": "Themed legend content for charts, rendering each series' icon or color swatch and label.",
         "categories": [
           "components"
@@ -2727,7 +2727,7 @@
         "symbolName": "ChartStyle",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sourceLine": 117,
+        "sourceLine": 136,
         "summary": "Injects per-theme CSS custom properties for a chart's configured series colors.",
         "categories": [
           "components"
@@ -2752,7 +2752,7 @@
         "symbolName": "ChartTooltip",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sourceLine": 166,
+        "sourceLine": 189,
         "summary": "Recharts tooltip primitive paired with {@link ChartTooltipContent}.",
         "categories": [
           "components"
@@ -2777,7 +2777,7 @@
         "symbolName": "ChartTooltipContent",
         "exportKind": "function",
         "sourcePath": "packages/foundation/ui-system/ui/src/components/chart.tsx",
-        "sourceLine": 181,
+        "sourceLine": 204,
         "summary": "Themed tooltip content for charts, rendering the active payload's label, indicator, and values.",
         "categories": [
           "components"

@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a35ae741a300af200853d0f01638d11a4046412ca6e8cfb3860c1249ff9d99cd",
+    "digest": "d06c5d2d0c1df9b6398b0a9183a3622c1994d4fc55c34aa3decbf9870fdf9b5c",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -697,8 +697,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/index.ts",
-        "sha256": "e02d94741726b6d97ecd92e892447a1b09247ff22f0ed32e62fce565685ec743",
-        "bytes": 5856
+        "sha256": "3e9bc1191972cd23ac2825efcca8cb3702c209d412537751af8d7674e0a9b06c",
+        "bytes": 5941
       },
       {
         "path": "packages/foundation/modeling/schema/src/Int.ts",
@@ -956,6 +956,11 @@
         "bytes": 3464
       },
       {
+        "path": "packages/foundation/modeling/schema/src/SafeRemoteHost.ts",
+        "sha256": "e00684b59f4753053ba82a2e352d9f2e73ae1f116a97548c50ef622dead9e5c5",
+        "bytes": 10380
+      },
+      {
         "path": "packages/foundation/modeling/schema/src/SchemaUtils/index.ts",
         "sha256": "d482ecbb7ca5d7fc09623f5dbdbd3a8cd448e1305d915f79536f32c2378195d6",
         "bytes": 744
@@ -1027,8 +1032,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts",
-        "sha256": "96ef58299b94a6db74ec134b7213b05da8429f8fa58745db60fd31fe77331ada",
-        "bytes": 7675
+        "sha256": "55ccee92cb581a7a71c889cdab337fcd0d81a4c78b116b1b669a96491c42d113",
+        "bytes": 6892
       },
       {
         "path": "packages/foundation/modeling/schema/src/SemanticVersion.ts",
@@ -1172,8 +1177,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -1308,9 +1313,9 @@
       "@beep/schema/Yaml"
     ],
     "counts": {
-      "publicExportEntries": 1752,
-      "uniqueSymbols": 720,
-      "sourceFiles": 228
+      "publicExportEntries": 1756,
+      "uniqueSymbols": 724,
+      "sourceFiles": 229
     },
     "exports": [
       {
@@ -1790,6 +1795,58 @@
         "importSpecifier": "@beep/schema",
         "exportSubpath": ".",
         "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
+        "symbolName": "assertAllowedRemoteHost",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/SafeRemoteHost.ts",
+        "sourceLine": 198,
+        "summary": "Fail-closed assertion that a hostname does not target internal network space.",
+        "categories": [
+          "assertions"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . assertallowedremotehost const fail-closed assertion that a hostname does not target internal network space. assertions packages/foundation/modeling/schema/src/saferemotehost.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
+        "symbolName": "assertAllowedRemoteUrl",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/SafeRemoteHost.ts",
+        "sourceLine": 248,
+        "summary": "Fail-closed assertion that a full URL does not target internal network space.",
+        "categories": [
+          "assertions"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@effects",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . assertallowedremoteurl const fail-closed assertion that a full url does not target internal network space. assertions packages/foundation/modeling/schema/src/saferemotehost.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
         "symbolName": "AudioFileExtension",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/FileExtension.ts",
@@ -1907,6 +1964,31 @@
           "@example"
         ],
         "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . bigdecimalfromnumber const schema that decodes a number into an effect `bigdecimal` and encodes a validation packages/foundation/modeling/schema/src/bigdecimal.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
+        "symbolName": "BlockedHostError",
+        "exportKind": "class",
+        "sourcePath": "packages/foundation/modeling/schema/src/SafeRemoteHost.ts",
+        "sourceLine": 62,
+        "summary": "Typed failure raised when a hostname or URL targets internal network space",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . blockedhosterror class typed failure raised when a hostname or url targets internal network space errors packages/foundation/modeling/schema/src/saferemotehost.ts"
       },
       {
         "packageName": "@beep/schema",
@@ -6367,6 +6449,31 @@
           "@category"
         ],
         "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . isbefore const dual predicate returning `true` when `self` is chronologically before `that`. predicates packages/foundation/modeling/schema/src/localdate/localdate.schema.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/index.ts",
+        "symbolName": "isBlockedRemoteHost",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/SafeRemoteHost.ts",
+        "sourceLine": 165,
+        "summary": "Report whether a hostname should be blocked as loopback, link-local,",
+        "categories": [
+          "predicates"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema . isblockedremotehost const report whether a hostname should be blocked as loopback, link-local, predicates packages/foundation/modeling/schema/src/saferemotehost.ts"
       },
       {
         "packageName": "@beep/schema",
@@ -41454,7 +41561,7 @@
         "symbolName": "createHeadersObject",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts",
-        "sourceLine": 178,
+        "sourceLine": 163,
         "summary": "Resolve secure-header options into a plain `Record<string, string>` header object.",
         "categories": [
           "constructors"
@@ -41479,7 +41586,7 @@
         "symbolName": "createSecureHeaders",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/schema/src/SecureHeaderOptions/SecureHeaderOptions.schema.ts",
-        "sourceLine": 207,
+        "sourceLine": 192,
         "summary": "Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs.",
         "categories": [
           "constructors"

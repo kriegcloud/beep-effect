@@ -13,21 +13,38 @@
  */
 "use client";
 
+import type { TableBlock } from "@beep/agents-domain/values/AssistantContent";
 import { AssistantBlock, InlineNode } from "@beep/agents-domain/values/AssistantContent";
 import { MermaidView, YouTubeEmbed } from "@beep/editor";
-import { A } from "@beep/utils";
-import type { TableBlock } from "@beep/agents-domain/values/AssistantContent";
+import { A, O } from "@beep/utils";
+import { Hash, MutableHashMap } from "effect";
 import type { JSX, ReactNode } from "react";
 
-const stableOccurrenceKey = <Item,>(
+/**
+ * Collapses a content-derived render string into a fixed-length, collision-
+ * resistant token. Assistant content is attacker-influenceable and unbounded
+ * (a single code/Mermaid block can be megabytes), so the raw serialized key is
+ * never used directly as a React key — only this bounded hash is.
+ */
+const boundedKey = (raw: string): string => Hash.string(raw).toString(36);
+
+/**
+ * Computes occurrence-disambiguated, length-bounded keys for an entire list in
+ * a single pass. Replaces the previous per-item prior-scan that recomputed
+ * `renderKey` for every earlier candidate (O(n^2) over untrusted content); a
+ * running `MutableHashMap` count keeps this linear and the emitted keys bounded.
+ */
+const stableOccurrenceKeys = <Item,>(
   items: ReadonlyArray<Item>,
-  item: Item,
-  index: number,
   renderKey: (item: Item) => string
-): string => {
-  const baseKey = renderKey(item);
-  const occurrence = A.length(A.filter(A.take(items, index), (candidate) => renderKey(candidate) === baseKey));
-  return occurrence === 0 ? baseKey : `${baseKey}#${occurrence}`;
+): ReadonlyArray<string> => {
+  const counts = MutableHashMap.empty<string, number>();
+  return A.map(items, (item) => {
+    const baseKey = boundedKey(renderKey(item));
+    const occurrence = O.getOrElse(MutableHashMap.get(counts, baseKey), () => 0);
+    MutableHashMap.set(counts, baseKey, occurrence + 1);
+    return occurrence === 0 ? baseKey : `${baseKey}#${occurrence}`;
+  });
 };
 
 const inlineRenderKey = (node: InlineNode): string =>
@@ -76,13 +93,16 @@ const Inline = ({ node }: { readonly node: InlineNode }): ReactNode =>
     ),
   });
 
-const Inlines = ({ nodes }: { readonly nodes: ReadonlyArray<InlineNode> }): JSX.Element => (
-  <>
-    {A.map(nodes, (node, i) => (
-      <Inline key={stableOccurrenceKey(nodes, node, i, inlineRenderKey)} node={node} />
-    ))}
-  </>
-);
+const Inlines = ({ nodes }: { readonly nodes: ReadonlyArray<InlineNode> }): JSX.Element => {
+  const keys = stableOccurrenceKeys(nodes, inlineRenderKey);
+  return (
+    <>
+      {A.map(nodes, (node, i) => (
+        <Inline key={O.getOrElse(A.get(keys, i), () => `inline-${i}`)} node={node} />
+      ))}
+    </>
+  );
+};
 
 const TableRow = ({
   cells,
@@ -90,29 +110,31 @@ const TableRow = ({
 }: {
   readonly cells: TableBlock["rows"][number]["cells"];
   readonly header: boolean;
-}): JSX.Element => (
-  <tr className="border-b last:border-b-0">
-    {A.map(cells, (cell, i) =>
-      header ? (
-        <th
-          key={stableOccurrenceKey(cells, cell, i, tableCellRenderKey)}
-          className="bg-muted px-3 py-2 text-left font-medium"
-        >
-          <Inlines nodes={cell.children} />
-        </th>
-      ) : (
-        <td key={stableOccurrenceKey(cells, cell, i, tableCellRenderKey)} className="px-3 py-2 align-top">
-          <Inlines nodes={cell.children} />
-        </td>
-      )
-    )}
-  </tr>
-);
+}): JSX.Element => {
+  const keys = stableOccurrenceKeys(cells, tableCellRenderKey);
+  return (
+    <tr className="border-b last:border-b-0">
+      {A.map(cells, (cell, i) => {
+        const key = O.getOrElse(A.get(keys, i), () => `cell-${i}`);
+        return header ? (
+          <th key={key} className="bg-muted px-3 py-2 text-left font-medium">
+            <Inlines nodes={cell.children} />
+          </th>
+        ) : (
+          <td key={key} className="px-3 py-2 align-top">
+            <Inlines nodes={cell.children} />
+          </td>
+        );
+      })}
+    </tr>
+  );
+};
 
 const Table = ({ block }: { readonly block: TableBlock }): JSX.Element => {
   const hasHeader = block.headerRow === true;
   const headerRow = hasHeader ? block.rows[0] : undefined;
   const bodyRows = hasHeader ? A.drop(block.rows, 1) : block.rows;
+  const bodyKeys = stableOccurrenceKeys(bodyRows, tableRowRenderKey);
 
   return (
     <div className="my-3 overflow-x-auto">
@@ -124,7 +146,7 @@ const Table = ({ block }: { readonly block: TableBlock }): JSX.Element => {
         )}
         <tbody>
           {A.map(bodyRows, (row, i) => (
-            <TableRow key={stableOccurrenceKey(bodyRows, row, i, tableRowRenderKey)} cells={row.cells} header={false} />
+            <TableRow key={O.getOrElse(A.get(bodyKeys, i), () => `row-${i}`)} cells={row.cells} header={false} />
           ))}
         </tbody>
       </table>
@@ -153,8 +175,9 @@ const Block = ({ block, renderKey }: { readonly block: AssistantBlock; readonly 
       </blockquote>
     ),
     list: (b) => {
+      const itemKeys = stableOccurrenceKeys(b.items, (value) => inlinesRenderKey(value.children));
       const items = A.map(b.items, (item, i) => (
-        <li key={stableOccurrenceKey(b.items, item, i, (value) => inlinesRenderKey(value.children))} className="ml-4">
+        <li key={O.getOrElse(A.get(itemKeys, i), () => `item-${i}`)} className="ml-4">
           <Inlines nodes={item.children} />
         </li>
       ));
@@ -190,9 +213,10 @@ const Block = ({ block, renderKey }: { readonly block: AssistantBlock; readonly 
  * @since 0.0.0
  */
 export function StreamingBlocks({ blocks }: { readonly blocks: ReadonlyArray<AssistantBlock> }): JSX.Element {
+  const blockKeys = stableOccurrenceKeys(blocks, blockRenderKey);
   const keyedBlocks = A.map(blocks, (block, i) => ({
     block,
-    renderKey: stableOccurrenceKey(blocks, block, i, blockRenderKey),
+    renderKey: O.getOrElse(A.get(blockKeys, i), () => `block-${i}`),
   }));
 
   return (

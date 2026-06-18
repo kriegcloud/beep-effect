@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e56ada88375647715a12be1278dd6f24578762f972a337463e869de6b46569c4",
+    "digest": "8107d64c5b4034a3f3fbd68b306527260a453ebf23bbbbeaeaef6e755d04f138",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -72,8 +72,8 @@
       },
       {
         "path": "packages/foundation/ui-system/form/src/core/Path.ts",
-        "sha256": "bb122b2d3957607e6cb76e30040a82513685b122f643091085ceb6e08dc27f92",
-        "bytes": 6518
+        "sha256": "f3c5819e51fe0fd09d8fa006fe8a6c9051a917d0d8d721ca7c501963dced2e5d",
+        "bytes": 7379
       },
       {
         "path": "packages/foundation/ui-system/form/src/core/Validation.ts",
@@ -107,8 +107,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -1659,7 +1659,7 @@
         "symbolName": "getNestedValue",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/core/Path.ts",
-        "sourceLine": 151,
+        "sourceLine": 162,
         "summary": "Reads a value from a dot-and-bracket path.",
         "categories": [
           "getters"
@@ -1684,7 +1684,7 @@
         "symbolName": "isPathOrParentDirty",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/core/Path.ts",
-        "sourceLine": 109,
+        "sourceLine": 120,
         "summary": "Tests whether a path or one of its parents is marked dirty.",
         "categories": [
           "predicates"
@@ -1709,7 +1709,7 @@
         "symbolName": "isPathUnderRoot",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/core/Path.ts",
-        "sourceLine": 84,
+        "sourceLine": 95,
         "summary": "Tests whether a path is equal to or nested below a root path.",
         "categories": [
           "predicates"
@@ -1734,7 +1734,7 @@
         "symbolName": "schemaPathToFieldPath",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/core/Path.ts",
-        "sourceLine": 48,
+        "sourceLine": 59,
         "summary": "Converts a schema issue path into dot-and-bracket form field notation.",
         "categories": [
           "formatting"
@@ -1759,7 +1759,7 @@
         "symbolName": "setNestedValue",
         "exportKind": "const",
         "sourcePath": "packages/foundation/ui-system/form/src/core/Path.ts",
-        "sourceLine": 182,
+        "sourceLine": 194,
         "summary": "Sets a value at a dot-and-bracket path while copying touched containers.",
         "categories": [
           "setters"

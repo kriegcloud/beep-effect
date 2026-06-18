@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "d2c7479be957579cf12043a1c7aab272c6ed2548842d840dd35bdf79e1fd7f96",
+    "digest": "1a22de30cc48d14312ecd8c1ed89cf13dddc9ecc6b7db2e304a5aa262b04b8f1",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/tooling/library/repo-codegraph/package.json",
-        "sha256": "ef5a9b4a2ba4c918c711169bcd23456ad9b15f9bd8bacad76cec161ac09aa656",
-        "bytes": 2460
+        "sha256": "29cf211151df6e9a5d01d1ab3f59bbc24cbe4529834c822deaad3ea438906e8d",
+        "bytes": 2504
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/index.ts",
@@ -52,13 +52,13 @@
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sha256": "e48076cd2bb095ea35e4f547d05659f1ab39c39adc06fb2ffde0602d7036bc96",
-        "bytes": 12804
+        "sha256": "74ea2fcbd6a8f33a6a0675d427a56ff5749c58be3a55bdcbd2d5faa4dc082398",
+        "bytes": 13472
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -298,7 +298,7 @@
         "symbolName": "readRepoCodegraphImportPolicies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 390,
+        "sourceLine": 404,
         "summary": "Read package-local import policies from package.json metadata.",
         "categories": [
           "utilities"
@@ -323,7 +323,7 @@
         "symbolName": "readRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 360,
+        "sourceLine": 374,
         "summary": "Read and decode the generated repo export catalog from a repo root.",
         "categories": [
           "utilities"
@@ -423,7 +423,7 @@
         "symbolName": "RepoCodegraphCatalogReadError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 52,
+        "sourceLine": 53,
         "summary": "Typed failure raised while reading repo-codegraph inputs.",
         "categories": [
           "error-handling"
@@ -1023,7 +1023,7 @@
         "symbolName": "repoExportsCatalogPath",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 342,
+        "sourceLine": 356,
         "summary": "Resolve the generated export catalog path for a repo root.",
         "categories": [
           "utilities"
@@ -1577,7 +1577,7 @@
         "symbolName": "readRepoCodegraphImportPolicies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 390,
+        "sourceLine": 404,
         "summary": "Read package-local import policies from package.json metadata.",
         "categories": [
           "utilities"
@@ -1602,7 +1602,7 @@
         "symbolName": "readRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 360,
+        "sourceLine": 374,
         "summary": "Read and decode the generated repo export catalog from a repo root.",
         "categories": [
           "utilities"
@@ -1702,7 +1702,7 @@
         "symbolName": "RepoCodegraphCatalogReadError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 52,
+        "sourceLine": 53,
         "summary": "Typed failure raised while reading repo-codegraph inputs.",
         "categories": [
           "error-handling"
@@ -2302,7 +2302,7 @@
         "symbolName": "repoExportsCatalogPath",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 342,
+        "sourceLine": 356,
         "summary": "Resolve the generated export catalog path for a repo root.",
         "categories": [
           "utilities"
@@ -3156,7 +3156,7 @@
         "symbolName": "readRepoCodegraphImportPolicies",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 390,
+        "sourceLine": 404,
         "summary": "Read package-local import policies from package.json metadata.",
         "categories": [
           "utilities"
@@ -3181,7 +3181,7 @@
         "symbolName": "readRepoExportsCatalog",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 360,
+        "sourceLine": 374,
         "summary": "Read and decode the generated repo export catalog from a repo root.",
         "categories": [
           "utilities"
@@ -3206,7 +3206,7 @@
         "symbolName": "RepoCodegraphCatalogReadError",
         "exportKind": "class",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 52,
+        "sourceLine": 53,
         "summary": "Typed failure raised while reading repo-codegraph inputs.",
         "categories": [
           "error-handling"
@@ -3231,7 +3231,7 @@
         "symbolName": "repoExportsCatalogPath",
         "exportKind": "const",
         "sourcePath": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.ts",
-        "sourceLine": 342,
+        "sourceLine": 356,
         "summary": "Resolve the generated export catalog path for a repo root.",
         "categories": [
           "utilities"

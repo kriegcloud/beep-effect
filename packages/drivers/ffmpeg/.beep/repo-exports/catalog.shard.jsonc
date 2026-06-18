@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "43458290f22609285aebbb6825eba1308f5efe6fa3529a9226c131e9e0489eb0",
+    "digest": "a075db07650963be98a8cc1161f245ea7151e09c1e8bde14e0f61b8648e19456",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/ffmpeg/package.json",
-        "sha256": "0c44862ff57b7b6d7997d5a8041eb0e4f20158f468c3caca91d08f5df5f65076",
-        "bytes": 2430
+        "sha256": "19bc8ca42bb59e3f6190b5008c3b467fd837ee7dc02d5e7ba1c77ce2e489b8ac",
+        "bytes": 2474
       },
       {
         "path": "packages/drivers/ffmpeg/src/FFmpeg.errors.ts",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sha256": "0d819263bff59a7831d9e0d2a85f48d0c47d43763692d5ad7187f409c054aa3e",
-        "bytes": 29649
+        "sha256": "ffdd488d4e8f348c77297c885c18c87554e112705add35a79f85b914bea92d2c",
+        "bytes": 30932
       },
       {
         "path": "packages/drivers/ffmpeg/src/index.ts",
@@ -52,8 +52,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -90,7 +90,7 @@
         "symbolName": "buildExtractFramesArgs",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 381,
+        "sourceLine": 382,
         "summary": "Build ffmpeg arguments for extracting PNG frames.",
         "categories": [
           "utilities"
@@ -115,7 +115,7 @@
         "symbolName": "buildFfprobeArgs",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 349,
+        "sourceLine": 350,
         "summary": "Build ffprobe arguments for the video-probe operation.",
         "categories": [
           "utilities"
@@ -365,7 +365,7 @@
         "symbolName": "FFmpeg",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 999,
+        "sourceLine": 1020,
         "summary": "Effect service for native FFmpeg and ffprobe execution.",
         "categories": [
           "services"
@@ -590,7 +590,7 @@
         "symbolName": "FFmpegEventSink",
         "exportKind": "type",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 91,
+        "sourceLine": 92,
         "summary": "Effectful sink for structured FFmpeg events.",
         "categories": [
           "events"
@@ -640,7 +640,7 @@
         "symbolName": "FFmpegShape",
         "exportKind": "interface",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 111,
+        "sourceLine": 112,
         "summary": "Runtime shape exposed by the {@link FFmpeg} service.",
         "categories": [
           "services"
@@ -690,7 +690,7 @@
         "symbolName": "formatFrameFileName",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 329,
+        "sourceLine": 330,
         "summary": "Format a generated PNG frame filename.",
         "categories": [
           "utilities"
@@ -715,7 +715,7 @@
         "symbolName": "PlannedFrameCommit",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 177,
+        "sourceLine": 178,
         "summary": "Planned file-system move for a staged extracted frame.",
         "categories": [
           "models"
@@ -865,7 +865,7 @@
         "symbolName": "ProgressState",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 208,
+        "sourceLine": 209,
         "summary": "Buffered ffmpeg progress output accumulated while parsing progress blocks.",
         "categories": [
           "models"
@@ -1640,7 +1640,7 @@
         "symbolName": "buildExtractFramesArgs",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 381,
+        "sourceLine": 382,
         "summary": "Build ffmpeg arguments for extracting PNG frames.",
         "categories": [
           "utilities"
@@ -1665,7 +1665,7 @@
         "symbolName": "buildFfprobeArgs",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 349,
+        "sourceLine": 350,
         "summary": "Build ffprobe arguments for the video-probe operation.",
         "categories": [
           "utilities"
@@ -1690,7 +1690,7 @@
         "symbolName": "FFmpeg",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 999,
+        "sourceLine": 1020,
         "summary": "Effect service for native FFmpeg and ffprobe execution.",
         "categories": [
           "services"
@@ -1715,7 +1715,7 @@
         "symbolName": "FFmpegEventSink",
         "exportKind": "type",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 91,
+        "sourceLine": 92,
         "summary": "Effectful sink for structured FFmpeg events.",
         "categories": [
           "events"
@@ -1740,7 +1740,7 @@
         "symbolName": "FFmpegShape",
         "exportKind": "interface",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 111,
+        "sourceLine": 112,
         "summary": "Runtime shape exposed by the {@link FFmpeg} service.",
         "categories": [
           "services"
@@ -1765,7 +1765,7 @@
         "symbolName": "formatFrameFileName",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 329,
+        "sourceLine": 330,
         "summary": "Format a generated PNG frame filename.",
         "categories": [
           "utilities"
@@ -1790,7 +1790,7 @@
         "symbolName": "PlannedFrameCommit",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 177,
+        "sourceLine": 178,
         "summary": "Planned file-system move for a staged extracted frame.",
         "categories": [
           "models"
@@ -1815,7 +1815,7 @@
         "symbolName": "ProgressState",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 208,
+        "sourceLine": 209,
         "summary": "Buffered ffmpeg progress output accumulated while parsing progress blocks.",
         "categories": [
           "models"
@@ -1840,7 +1840,7 @@
         "symbolName": "buildExtractFramesArgs",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 381,
+        "sourceLine": 382,
         "summary": "Build ffmpeg arguments for extracting PNG frames.",
         "categories": [
           "utilities"
@@ -1865,7 +1865,7 @@
         "symbolName": "buildFfprobeArgs",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 349,
+        "sourceLine": 350,
         "summary": "Build ffprobe arguments for the video-probe operation.",
         "categories": [
           "utilities"
@@ -2115,7 +2115,7 @@
         "symbolName": "FFmpeg",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 999,
+        "sourceLine": 1020,
         "summary": "Effect service for native FFmpeg and ffprobe execution.",
         "categories": [
           "services"
@@ -2340,7 +2340,7 @@
         "symbolName": "FFmpegEventSink",
         "exportKind": "type",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 91,
+        "sourceLine": 92,
         "summary": "Effectful sink for structured FFmpeg events.",
         "categories": [
           "events"
@@ -2390,7 +2390,7 @@
         "symbolName": "FFmpegShape",
         "exportKind": "interface",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 111,
+        "sourceLine": 112,
         "summary": "Runtime shape exposed by the {@link FFmpeg} service.",
         "categories": [
           "services"
@@ -2440,7 +2440,7 @@
         "symbolName": "formatFrameFileName",
         "exportKind": "const",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 329,
+        "sourceLine": 330,
         "summary": "Format a generated PNG frame filename.",
         "categories": [
           "utilities"
@@ -2465,7 +2465,7 @@
         "symbolName": "PlannedFrameCommit",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 177,
+        "sourceLine": 178,
         "summary": "Planned file-system move for a staged extracted frame.",
         "categories": [
           "models"
@@ -2615,7 +2615,7 @@
         "symbolName": "ProgressState",
         "exportKind": "class",
         "sourcePath": "packages/drivers/ffmpeg/src/FFmpeg.service.ts",
-        "sourceLine": 208,
+        "sourceLine": 209,
         "summary": "Buffered ffmpeg progress output accumulated while parsing progress blocks.",
         "categories": [
           "models"

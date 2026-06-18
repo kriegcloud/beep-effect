@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "6385969a25fe956e562c65e140bee0548b2e0fe479fa43da51378162b2b54345",
+    "digest": "66e1bc2e64b911573c74643a88ab7f88e7c00787dbd465b3d8c2bf2b15e0de0d",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sha256": "6be13e214ad338efbaf8c1d45d17161657b7df152fc2653d7c75869bce6493a3",
-        "bytes": 26288
+        "sha256": "1cc5b672ffebdab7d4b50c0ff288f2fd1fbe1c6314e449dd28f049e8676a6f5d",
+        "bytes": 27985
       },
       {
         "path": "packages/foundation/modeling/rdf/src/SemanticSchemaMetadata.ts",
@@ -97,8 +97,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -271,7 +271,7 @@
         "symbolName": "areDatasetsEquivalent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1045,
+        "sourceLine": 1079,
         "summary": "Compare datasets by sorted quad serialization.",
         "categories": [
           "utilities"
@@ -1968,7 +1968,7 @@
         "symbolName": "serializeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1002,
+        "sourceLine": 1036,
         "summary": "Serialize an RDF quad to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -1995,7 +1995,7 @@
         "symbolName": "serializeTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 971,
+        "sourceLine": 1005,
         "summary": "Serialize an RDF term to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -2022,7 +2022,7 @@
         "symbolName": "sortDatasetQuads",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1024,
+        "sourceLine": 1058,
         "summary": "Sort dataset quads by deterministic quad serialization.",
         "categories": [
           "utilities"
@@ -2400,7 +2400,7 @@
         "symbolName": "areDatasetsEquivalent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1045,
+        "sourceLine": 1079,
         "summary": "Compare datasets by sorted quad serialization.",
         "categories": [
           "utilities"
@@ -4097,7 +4097,7 @@
         "symbolName": "serializeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1002,
+        "sourceLine": 1036,
         "summary": "Serialize an RDF quad to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -4124,7 +4124,7 @@
         "symbolName": "serializeTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 971,
+        "sourceLine": 1005,
         "summary": "Serialize an RDF term to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -4151,7 +4151,7 @@
         "symbolName": "sortDatasetQuads",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1024,
+        "sourceLine": 1058,
         "summary": "Sort dataset quads by deterministic quad serialization.",
         "categories": [
           "utilities"
@@ -4977,7 +4977,7 @@
         "symbolName": "areDatasetsEquivalent",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1045,
+        "sourceLine": 1079,
         "summary": "Compare datasets by sorted quad serialization.",
         "categories": [
           "utilities"
@@ -5664,7 +5664,7 @@
         "symbolName": "serializeQuad",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1002,
+        "sourceLine": 1036,
         "summary": "Serialize an RDF quad to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -5691,7 +5691,7 @@
         "symbolName": "serializeTerm",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 971,
+        "sourceLine": 1005,
         "summary": "Serialize an RDF term to a deterministic lexical form.",
         "categories": [
           "utilities"
@@ -5718,7 +5718,7 @@
         "symbolName": "sortDatasetQuads",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/rdf/src/Rdf.ts",
-        "sourceLine": 1024,
+        "sourceLine": 1058,
         "summary": "Sort dataset quads by deterministic quad serialization.",
         "categories": [
           "utilities"

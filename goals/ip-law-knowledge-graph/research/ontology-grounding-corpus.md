@@ -4,7 +4,7 @@ Curated grounding material for this packet's P0 ontology research, surveyed
 during the 2026-06-11 corpus/vision sessions. These sources complement the
 S1–S7 OWL ontology set already locked in `SPEC.md`.
 
-## Primary local corpus: `/home/elpresidank/YeeBois/ontology_research/`
+## Primary local corpus: `<local-corpus-root>/ontology_research/`
 
 | Anchor | Path | Why it matters |
 | --- | --- | --- |
@@ -13,14 +13,14 @@ S1–S7 OWL ontology set already locked in `SPEC.md`.
 | effect-ontology repo | `ontology_ts_repos/effect-ontology` | Effect-native OWL→prompt→LLM→SHACL→RDF extraction pipeline (catamorphic prompt folding, entity resolution). The pattern bridge from ontology to schema-constrained extraction. |
 | effect-langextract repo | `ontology_ts_repos/effect-langextract` | Already absorbed into the repo as `foundation/capability/langextract` (source-grounded char spans). Reference for parity. |
 | Patent KG fixtures | `IP_ONTOLOGY_AI_RESEARCH/citation_recommendation_model_*_spo.spo` (430k+ triples: assignees/inventors/classifications/dates/titles) | Shape reference for patent-KG facets; content is Chinese-patent data — fixtures only. |
-| Practice blueprint | `IP_ONTOLOGY_AI_RESEARCH/markdown/tom_oppold_practice_profile_and_automation_blueprint.md` | The target practice mapped to data sources: USPTO ODP, PatentsView, CourtListener, attorney identity resolution (OED#/bar#/attorney_id), Attorney/Patent/Case/DocketEntry node sketch. |
+| Practice blueprint | `IP_ONTOLOGY_AI_RESEARCH/markdown/<practice-profile-blueprint>.md` | The target practice mapped to data sources: USPTO ODP, PatentsView, CourtListener, attorney identity resolution (OED#/bar#/attorney_id), Attorney/Patent/Case/DocketEntry node sketch. |
 | LLM+KG paper | `IP_ONTOLOGY_AI_RESEARCH/1-s2.0-S0952197626004574-main.pdf` (Eng. Appl. of AI, 2026) | Two-stage ontology-guided patent knowledge extraction — same architecture family as effect-ontology. |
 
 ## Strays found in the 2026-06-11 workstation scan
 
-- `/home/elpresidank/Documents/patentlego-ontology/` (30 files) — patent
+- `<local-docs-root>/patentlego-ontology/` (30 files) — patent
   ontology working notes; review and absorb or retire during P0.
-- `/home/elpresidank/Documents/Research_sources_for_a_Palantir-style_IP_Law_ontology.md`
+- `<local-docs-root>/Research_sources_for_a_Palantir-style_IP_Law_ontology.md`
   — curated six-layer source list (Palantir operational-ontology paradigm,
   formal foundations, legal core ontologies, IP REL standards, doctrinal
   primary sources, property-graph/OWL bridges). Directly relevant to P0;

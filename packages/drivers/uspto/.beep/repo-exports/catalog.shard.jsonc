@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "4e2ed0814adb6a1ad1e01e06dec65180f977176bf5c43838a67a87c43df1aeb9",
+    "digest": "09c32df6d98028f38bc6f07f9a4d913c43367521ea1fc19b8f70360154de6249",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sha256": "01e788f0ee3e674062640405fcd7750a2c607f853af7b7444f4e09ed3559e890",
-        "bytes": 13979
+        "sha256": "34b4f396ad3a63362db90426a0244bbdbbc2f6ea2a8b07e04969da1ee2143590",
+        "bytes": 16013
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -175,7 +175,7 @@
         "symbolName": "Uspto",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 313,
+        "sourceLine": 357,
         "summary": "Effect service for product-neutral USPTO Open Data Portal access.",
         "categories": [
           "services"
@@ -627,7 +627,7 @@
         "symbolName": "Uspto",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 313,
+        "sourceLine": 357,
         "summary": "Effect service for product-neutral USPTO Open Data Portal access.",
         "categories": [
           "services"
@@ -1377,7 +1377,7 @@
         "symbolName": "Uspto",
         "exportKind": "class",
         "sourcePath": "packages/drivers/uspto/src/Uspto.service.ts",
-        "sourceLine": 313,
+        "sourceLine": 357,
         "summary": "Effect service for product-neutral USPTO Open Data Portal access.",
         "categories": [
           "services"

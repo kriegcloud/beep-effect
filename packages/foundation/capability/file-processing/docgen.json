@@ -44,6 +44,9 @@
       "@beep/file-processing/Operation": [
         "../../../../packages/foundation/capability/file-processing/src/Operation/index.ts"
       ],
+      "@beep/file-processing/PathSafety": [
+        "../../../../packages/foundation/capability/file-processing/src/PathSafety/index.ts"
+      ],
       "@beep/file-processing/Service": [
         "../../../../packages/foundation/capability/file-processing/src/Service/index.ts"
       ],

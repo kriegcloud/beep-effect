@@ -6,6 +6,11 @@
 # local Bun audit wrapper mirrors ignored vulnerability ids found here.
 #
 # Add ignored vulnerabilities only after review, with a reason and expiry date.
+# The `ignoreUntil` expiry is enforced by both consumers: OSV Scanner honors it
+# natively, and the local Bun audit wrapper (runBunAudit in
+# packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts) only
+# mirrors an `--ignore` for entries whose `ignoreUntil` is still in the future,
+# so expired entries stop suppressing the advisory automatically.
 
 [[IgnoredVulns]]
 id = "GHSA-gv7w-rqvm-qjhr"

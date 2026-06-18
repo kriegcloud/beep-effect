@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "c018dd98bc74500ef9c2db5ad711ae729eec3169de86f693377790902c2d1993",
+    "digest": "a7c0ba522653feded97b048e8eac74bb971fe41f5cad5b7b3c9fa1452a40f629",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sha256": "67928735bf06a4c464b7c727b4a12b62804d736590e49954f7ec52bf37287abe",
-        "bytes": 36611
+        "sha256": "f9814ea724cada7721db5d7d28a2e514a0988030dea63d0cedcae8fdf2d1467f",
+        "bytes": 37511
       },
       {
         "path": "packages/foundation/modeling/md/src/Md.render.ts",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -80,8 +80,8 @@
       "@beep/md/Md.utils"
     ],
     "counts": {
-      "publicExportEntries": 301,
-      "uniqueSymbols": 111,
+      "publicExportEntries": 303,
+      "uniqueSymbols": 112,
       "sourceFiles": 5
     },
     "exports": [
@@ -120,7 +120,7 @@
         "symbolName": "A",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 415,
+        "sourceLine": 440,
         "summary": "Inline hyperlink.",
         "categories": [
           "models"
@@ -145,7 +145,7 @@
         "symbolName": "A",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 441,
+        "sourceLine": 466,
         "summary": "Companion namespace for {@link A}.",
         "categories": [
           "models"
@@ -169,7 +169,7 @@
         "symbolName": "Block",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1721,
+        "sourceLine": 1746,
         "summary": "Discriminated union of block Markdown AST nodes.",
         "categories": [
           "models"
@@ -194,7 +194,7 @@
         "symbolName": "Block",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1759,
+        "sourceLine": 1784,
         "summary": "Companion namespace for {@link Block}.",
         "categories": [
           "models"
@@ -218,7 +218,7 @@
         "symbolName": "Block",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1751,
+        "sourceLine": 1776,
         "summary": "Runtime type for {@link Block}.",
         "categories": [
           "models"
@@ -242,7 +242,7 @@
         "symbolName": "BlockChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 634,
+        "sourceLine": 659,
         "summary": "Recursive block child list used by document and block quote containers.",
         "categories": [
           "models"
@@ -266,7 +266,7 @@
         "symbolName": "BlockChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 646,
+        "sourceLine": 671,
         "summary": "Companion namespace for {@link BlockChildren}.",
         "categories": [
           "models"
@@ -390,7 +390,7 @@
         "symbolName": "BlockQuote",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1357,
+        "sourceLine": 1382,
         "summary": "Block quote container.",
         "categories": [
           "models"
@@ -415,7 +415,7 @@
         "symbolName": "BlockQuote",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1375,
+        "sourceLine": 1400,
         "summary": "Companion namespace for {@link BlockQuote}.",
         "categories": [
           "models"
@@ -489,7 +489,7 @@
         "symbolName": "Br",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 531,
+        "sourceLine": 556,
         "summary": "Inline line break.",
         "categories": [
           "models"
@@ -514,7 +514,7 @@
         "symbolName": "Br",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 545,
+        "sourceLine": 570,
         "summary": "Companion namespace for {@link Br}.",
         "categories": [
           "models"
@@ -563,7 +563,7 @@
         "symbolName": "Code",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 366,
+        "sourceLine": 391,
         "summary": "Inline code span.",
         "categories": [
           "models"
@@ -588,7 +588,7 @@
         "symbolName": "Code",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 386,
+        "sourceLine": 411,
         "summary": "Companion namespace for {@link Code}.",
         "categories": [
           "models"
@@ -637,7 +637,7 @@
         "symbolName": "Del",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 314,
+        "sourceLine": 339,
         "summary": "Deleted inline content.",
         "categories": [
           "models"
@@ -662,7 +662,7 @@
         "symbolName": "Del",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 334,
+        "sourceLine": 359,
         "summary": "Companion namespace for {@link Del}.",
         "categories": [
           "models"
@@ -686,7 +686,7 @@
         "symbolName": "Document",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1817,
+        "sourceLine": 1842,
         "summary": "Root Markdown document AST.",
         "categories": [
           "models"
@@ -711,7 +711,7 @@
         "symbolName": "Document",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1835,
+        "sourceLine": 1860,
         "summary": "Companion namespace for {@link Document}.",
         "categories": [
           "models"
@@ -885,7 +885,7 @@
         "symbolName": "Em",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 262,
+        "sourceLine": 287,
         "summary": "Emphasized inline content.",
         "categories": [
           "models"
@@ -910,7 +910,7 @@
         "symbolName": "Em",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 282,
+        "sourceLine": 307,
         "summary": "Companion namespace for {@link Em}.",
         "categories": [
           "models"
@@ -1034,7 +1034,7 @@
         "symbolName": "H1",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 724,
+        "sourceLine": 749,
         "summary": "Level-one heading block.",
         "categories": [
           "models"
@@ -1059,7 +1059,7 @@
         "symbolName": "H1",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 744,
+        "sourceLine": 769,
         "summary": "Companion namespace for {@link H1}.",
         "categories": [
           "models"
@@ -1108,7 +1108,7 @@
         "symbolName": "H2",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 776,
+        "sourceLine": 801,
         "summary": "Level-two heading block.",
         "categories": [
           "models"
@@ -1133,7 +1133,7 @@
         "symbolName": "H2",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 796,
+        "sourceLine": 821,
         "summary": "Companion namespace for {@link H2}.",
         "categories": [
           "models"
@@ -1182,7 +1182,7 @@
         "symbolName": "H3",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 828,
+        "sourceLine": 853,
         "summary": "Level-three heading block.",
         "categories": [
           "models"
@@ -1207,7 +1207,7 @@
         "symbolName": "H3",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 848,
+        "sourceLine": 873,
         "summary": "Companion namespace for {@link H3}.",
         "categories": [
           "models"
@@ -1256,7 +1256,7 @@
         "symbolName": "H4",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 880,
+        "sourceLine": 905,
         "summary": "Level-four heading block.",
         "categories": [
           "models"
@@ -1281,7 +1281,7 @@
         "symbolName": "H4",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 900,
+        "sourceLine": 925,
         "summary": "Companion namespace for {@link H4}.",
         "categories": [
           "models"
@@ -1330,7 +1330,7 @@
         "symbolName": "H5",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 932,
+        "sourceLine": 957,
         "summary": "Level-five heading block.",
         "categories": [
           "models"
@@ -1355,7 +1355,7 @@
         "symbolName": "H5",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 952,
+        "sourceLine": 977,
         "summary": "Companion namespace for {@link H5}.",
         "categories": [
           "models"
@@ -1404,7 +1404,7 @@
         "symbolName": "H6",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 984,
+        "sourceLine": 1009,
         "summary": "Level-six heading block.",
         "categories": [
           "models"
@@ -1429,7 +1429,7 @@
         "symbolName": "H6",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1004,
+        "sourceLine": 1029,
         "summary": "Companion namespace for {@link H6}.",
         "categories": [
           "models"
@@ -1478,7 +1478,7 @@
         "symbolName": "Hr",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1677,
+        "sourceLine": 1702,
         "summary": "Horizontal rule block.",
         "categories": [
           "models"
@@ -1503,7 +1503,7 @@
         "symbolName": "Hr",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1691,
+        "sourceLine": 1716,
         "summary": "Companion namespace for {@link Hr}.",
         "categories": [
           "models"
@@ -1577,7 +1577,7 @@
         "symbolName": "Img",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 475,
+        "sourceLine": 500,
         "summary": "Inline image.",
         "categories": [
           "models"
@@ -1602,7 +1602,7 @@
         "symbolName": "Img",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 501,
+        "sourceLine": 526,
         "summary": "Companion namespace for {@link Img}.",
         "categories": [
           "models"
@@ -1626,7 +1626,7 @@
         "symbolName": "Inline",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 575,
+        "sourceLine": 600,
         "summary": "Discriminated union of inline Markdown AST nodes.",
         "categories": [
           "models"
@@ -1651,7 +1651,7 @@
         "symbolName": "Inline",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 621,
         "summary": "Companion namespace for {@link Inline}.",
         "categories": [
           "models"
@@ -1675,7 +1675,7 @@
         "symbolName": "Inline",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 588,
+        "sourceLine": 613,
         "summary": "Runtime type for {@link Inline}.",
         "categories": [
           "models"
@@ -1699,7 +1699,7 @@
         "symbolName": "InlineChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 22,
+        "sourceLine": 47,
         "summary": "Recursive inline child list used by inline containers and text-bearing block",
         "categories": [
           "models"
@@ -1723,7 +1723,7 @@
         "symbolName": "InlineChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 34,
+        "sourceLine": 59,
         "summary": "Companion namespace for {@link InlineChildren}.",
         "categories": [
           "models"
@@ -1897,7 +1897,7 @@
         "symbolName": "Li",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1036,
+        "sourceLine": 1061,
         "summary": "List item block.",
         "categories": [
           "models"
@@ -1922,7 +1922,7 @@
         "symbolName": "Li",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1056,
+        "sourceLine": 1081,
         "summary": "Companion namespace for {@link Li}.",
         "categories": [
           "models"
@@ -1946,7 +1946,7 @@
         "symbolName": "ListItemChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1080,
+        "sourceLine": 1105,
         "summary": "List item children used by ordered and unordered list blocks.",
         "categories": [
           "models"
@@ -1970,7 +1970,7 @@
         "symbolName": "ListItemChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1092,
+        "sourceLine": 1117,
         "summary": "Companion namespace for {@link ListItemChildren}.",
         "categories": [
           "models"
@@ -2144,7 +2144,7 @@
         "symbolName": "Ol",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1170,
+        "sourceLine": 1195,
         "summary": "Ordered list block.",
         "categories": [
           "models"
@@ -2169,7 +2169,7 @@
         "symbolName": "Ol",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1190,
+        "sourceLine": 1215,
         "summary": "Companion namespace for {@link Ol}.",
         "categories": [
           "models"
@@ -2218,7 +2218,7 @@
         "symbolName": "P",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 672,
+        "sourceLine": 697,
         "summary": "Paragraph block.",
         "categories": [
           "models"
@@ -2243,7 +2243,7 @@
         "symbolName": "P",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 692,
+        "sourceLine": 717,
         "summary": "Companion namespace for {@link P}.",
         "categories": [
           "models"
@@ -2292,7 +2292,7 @@
         "symbolName": "Pre",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1408,
+        "sourceLine": 1433,
         "summary": "Fenced code block.",
         "categories": [
           "models"
@@ -2317,7 +2317,7 @@
         "symbolName": "Pre",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1434,
+        "sourceLine": 1459,
         "summary": "Companion namespace for {@link Pre}.",
         "categories": [
           "models"
@@ -2416,7 +2416,7 @@
         "symbolName": "RawHtml",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 160,
+        "sourceLine": 185,
         "summary": "Raw HTML inline content for adapters that opt into trusted HTML rendering.",
         "categories": [
           "models"
@@ -2441,7 +2441,7 @@
         "symbolName": "RawHtml",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 181,
+        "sourceLine": 206,
         "summary": "Companion namespace for {@link RawHtml}.",
         "categories": [
           "models"
@@ -2490,7 +2490,7 @@
         "symbolName": "RawMarkdown",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 109,
+        "sourceLine": 134,
         "summary": "Trusted raw Markdown inline content.",
         "categories": [
           "models"
@@ -2515,7 +2515,7 @@
         "symbolName": "RawMarkdown",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 129,
+        "sourceLine": 154,
         "summary": "Companion namespace for {@link RawMarkdown}.",
         "categories": [
           "models"
@@ -3039,7 +3039,7 @@
         "symbolName": "Strong",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 210,
+        "sourceLine": 235,
         "summary": "Strong inline content.",
         "categories": [
           "models"
@@ -3064,7 +3064,7 @@
         "symbolName": "Strong",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 230,
+        "sourceLine": 255,
         "summary": "Companion namespace for {@link Strong}.",
         "categories": [
           "models"
@@ -3113,7 +3113,7 @@
         "symbolName": "Table",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1575,
+        "sourceLine": 1600,
         "summary": "Markdown table block.",
         "categories": [
           "models"
@@ -3138,7 +3138,7 @@
         "symbolName": "Table",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1596,
+        "sourceLine": 1621,
         "summary": "Companion namespace for {@link Table}.",
         "categories": [
           "models"
@@ -3187,7 +3187,7 @@
         "symbolName": "TableCell",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1472,
+        "sourceLine": 1497,
         "summary": "Table cell containing inline Markdown content.",
         "categories": [
           "models"
@@ -3212,7 +3212,7 @@
         "symbolName": "TableCell",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1490,
+        "sourceLine": 1515,
         "summary": "Companion namespace for {@link TableCell}.",
         "categories": [
           "models"
@@ -3286,7 +3286,7 @@
         "symbolName": "TableRow",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1522,
+        "sourceLine": 1547,
         "summary": "Table row containing cells in column order.",
         "categories": [
           "models"
@@ -3311,7 +3311,7 @@
         "symbolName": "TableRow",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1540,
+        "sourceLine": 1565,
         "summary": "Companion namespace for {@link TableRow}.",
         "categories": [
           "models"
@@ -3385,7 +3385,7 @@
         "symbolName": "TaskItem",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1222,
+        "sourceLine": 1247,
         "summary": "GFM task list item.",
         "categories": [
           "models"
@@ -3410,7 +3410,7 @@
         "symbolName": "TaskItem",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1243,
+        "sourceLine": 1268,
         "summary": "Companion namespace for {@link TaskItem}.",
         "categories": [
           "models"
@@ -3434,7 +3434,7 @@
         "symbolName": "TaskItemChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1269,
+        "sourceLine": 1294,
         "summary": "Task item children used by GFM task list blocks.",
         "categories": [
           "models"
@@ -3458,7 +3458,7 @@
         "symbolName": "TaskItemChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1281,
+        "sourceLine": 1306,
         "summary": "Companion namespace for {@link TaskItemChildren}.",
         "categories": [
           "models"
@@ -3507,7 +3507,7 @@
         "symbolName": "TaskList",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1307,
+        "sourceLine": 1332,
         "summary": "GFM task list block.",
         "categories": [
           "models"
@@ -3532,7 +3532,7 @@
         "symbolName": "TaskList",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1350,
         "summary": "Companion namespace for {@link TaskList}.",
         "categories": [
           "models"
@@ -3606,7 +3606,7 @@
         "symbolName": "Text",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 60,
+        "sourceLine": 85,
         "summary": "Plain escaped inline text.",
         "categories": [
           "models"
@@ -3631,7 +3631,7 @@
         "symbolName": "Text",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 80,
+        "sourceLine": 105,
         "summary": "Companion namespace for {@link Text}.",
         "categories": [
           "models"
@@ -3680,7 +3680,7 @@
         "symbolName": "Ul",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1118,
+        "sourceLine": 1143,
         "summary": "Unordered list block.",
         "categories": [
           "models"
@@ -3705,7 +3705,7 @@
         "symbolName": "Ul",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1138,
+        "sourceLine": 1163,
         "summary": "Companion namespace for {@link Ul}.",
         "categories": [
           "models"
@@ -3779,7 +3779,7 @@
         "symbolName": "YouTube",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1630,
+        "sourceLine": 1655,
         "summary": "YouTube video embed block.",
         "categories": [
           "models"
@@ -3804,7 +3804,7 @@
         "symbolName": "YouTube",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1673,
         "summary": "Companion namespace for {@link YouTube}.",
         "categories": [
           "models"
@@ -3817,6 +3817,30 @@
           "@since"
         ],
         "searchText": "@beep/md packages/foundation/modeling/md @beep/md . youtube namespace companion namespace for {@link youtube}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/foundation/modeling/md/src/index.ts",
+        "symbolName": "YouTubeVideoId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 27,
+        "summary": "Bare 11-character YouTube video id used by {@link YouTube} embeds.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md . youtubevideoid const bare 11-character youtube video id used by {@link youtube} embeds. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",
@@ -4878,7 +4902,7 @@
         "symbolName": "A",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 415,
+        "sourceLine": 440,
         "summary": "Inline hyperlink.",
         "categories": [
           "models"
@@ -4903,7 +4927,7 @@
         "symbolName": "A",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 441,
+        "sourceLine": 466,
         "summary": "Companion namespace for {@link A}.",
         "categories": [
           "models"
@@ -4927,7 +4951,7 @@
         "symbolName": "Block",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1721,
+        "sourceLine": 1746,
         "summary": "Discriminated union of block Markdown AST nodes.",
         "categories": [
           "models"
@@ -4952,7 +4976,7 @@
         "symbolName": "Block",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1759,
+        "sourceLine": 1784,
         "summary": "Companion namespace for {@link Block}.",
         "categories": [
           "models"
@@ -4976,7 +5000,7 @@
         "symbolName": "Block",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1751,
+        "sourceLine": 1776,
         "summary": "Runtime type for {@link Block}.",
         "categories": [
           "models"
@@ -5000,7 +5024,7 @@
         "symbolName": "BlockChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 634,
+        "sourceLine": 659,
         "summary": "Recursive block child list used by document and block quote containers.",
         "categories": [
           "models"
@@ -5024,7 +5048,7 @@
         "symbolName": "BlockChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 646,
+        "sourceLine": 671,
         "summary": "Companion namespace for {@link BlockChildren}.",
         "categories": [
           "models"
@@ -5048,7 +5072,7 @@
         "symbolName": "BlockQuote",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1357,
+        "sourceLine": 1382,
         "summary": "Block quote container.",
         "categories": [
           "models"
@@ -5073,7 +5097,7 @@
         "symbolName": "BlockQuote",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1375,
+        "sourceLine": 1400,
         "summary": "Companion namespace for {@link BlockQuote}.",
         "categories": [
           "models"
@@ -5097,7 +5121,7 @@
         "symbolName": "Br",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 531,
+        "sourceLine": 556,
         "summary": "Inline line break.",
         "categories": [
           "models"
@@ -5122,7 +5146,7 @@
         "symbolName": "Br",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 545,
+        "sourceLine": 570,
         "summary": "Companion namespace for {@link Br}.",
         "categories": [
           "models"
@@ -5146,7 +5170,7 @@
         "symbolName": "Code",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 366,
+        "sourceLine": 391,
         "summary": "Inline code span.",
         "categories": [
           "models"
@@ -5171,7 +5195,7 @@
         "symbolName": "Code",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 386,
+        "sourceLine": 411,
         "summary": "Companion namespace for {@link Code}.",
         "categories": [
           "models"
@@ -5195,7 +5219,7 @@
         "symbolName": "Del",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 314,
+        "sourceLine": 339,
         "summary": "Deleted inline content.",
         "categories": [
           "models"
@@ -5220,7 +5244,7 @@
         "symbolName": "Del",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 334,
+        "sourceLine": 359,
         "summary": "Companion namespace for {@link Del}.",
         "categories": [
           "models"
@@ -5244,7 +5268,7 @@
         "symbolName": "Document",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1817,
+        "sourceLine": 1842,
         "summary": "Root Markdown document AST.",
         "categories": [
           "models"
@@ -5269,7 +5293,7 @@
         "symbolName": "Document",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1835,
+        "sourceLine": 1860,
         "summary": "Companion namespace for {@link Document}.",
         "categories": [
           "models"
@@ -5293,7 +5317,7 @@
         "symbolName": "Em",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 262,
+        "sourceLine": 287,
         "summary": "Emphasized inline content.",
         "categories": [
           "models"
@@ -5318,7 +5342,7 @@
         "symbolName": "Em",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 282,
+        "sourceLine": 307,
         "summary": "Companion namespace for {@link Em}.",
         "categories": [
           "models"
@@ -5342,7 +5366,7 @@
         "symbolName": "H1",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 724,
+        "sourceLine": 749,
         "summary": "Level-one heading block.",
         "categories": [
           "models"
@@ -5367,7 +5391,7 @@
         "symbolName": "H1",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 744,
+        "sourceLine": 769,
         "summary": "Companion namespace for {@link H1}.",
         "categories": [
           "models"
@@ -5391,7 +5415,7 @@
         "symbolName": "H2",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 776,
+        "sourceLine": 801,
         "summary": "Level-two heading block.",
         "categories": [
           "models"
@@ -5416,7 +5440,7 @@
         "symbolName": "H2",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 796,
+        "sourceLine": 821,
         "summary": "Companion namespace for {@link H2}.",
         "categories": [
           "models"
@@ -5440,7 +5464,7 @@
         "symbolName": "H3",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 828,
+        "sourceLine": 853,
         "summary": "Level-three heading block.",
         "categories": [
           "models"
@@ -5465,7 +5489,7 @@
         "symbolName": "H3",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 848,
+        "sourceLine": 873,
         "summary": "Companion namespace for {@link H3}.",
         "categories": [
           "models"
@@ -5489,7 +5513,7 @@
         "symbolName": "H4",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 880,
+        "sourceLine": 905,
         "summary": "Level-four heading block.",
         "categories": [
           "models"
@@ -5514,7 +5538,7 @@
         "symbolName": "H4",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 900,
+        "sourceLine": 925,
         "summary": "Companion namespace for {@link H4}.",
         "categories": [
           "models"
@@ -5538,7 +5562,7 @@
         "symbolName": "H5",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 932,
+        "sourceLine": 957,
         "summary": "Level-five heading block.",
         "categories": [
           "models"
@@ -5563,7 +5587,7 @@
         "symbolName": "H5",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 952,
+        "sourceLine": 977,
         "summary": "Companion namespace for {@link H5}.",
         "categories": [
           "models"
@@ -5587,7 +5611,7 @@
         "symbolName": "H6",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 984,
+        "sourceLine": 1009,
         "summary": "Level-six heading block.",
         "categories": [
           "models"
@@ -5612,7 +5636,7 @@
         "symbolName": "H6",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1004,
+        "sourceLine": 1029,
         "summary": "Companion namespace for {@link H6}.",
         "categories": [
           "models"
@@ -5636,7 +5660,7 @@
         "symbolName": "Hr",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1677,
+        "sourceLine": 1702,
         "summary": "Horizontal rule block.",
         "categories": [
           "models"
@@ -5661,7 +5685,7 @@
         "symbolName": "Hr",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1691,
+        "sourceLine": 1716,
         "summary": "Companion namespace for {@link Hr}.",
         "categories": [
           "models"
@@ -5685,7 +5709,7 @@
         "symbolName": "Img",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 475,
+        "sourceLine": 500,
         "summary": "Inline image.",
         "categories": [
           "models"
@@ -5710,7 +5734,7 @@
         "symbolName": "Img",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 501,
+        "sourceLine": 526,
         "summary": "Companion namespace for {@link Img}.",
         "categories": [
           "models"
@@ -5734,7 +5758,7 @@
         "symbolName": "Inline",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 575,
+        "sourceLine": 600,
         "summary": "Discriminated union of inline Markdown AST nodes.",
         "categories": [
           "models"
@@ -5759,7 +5783,7 @@
         "symbolName": "Inline",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 596,
+        "sourceLine": 621,
         "summary": "Companion namespace for {@link Inline}.",
         "categories": [
           "models"
@@ -5783,7 +5807,7 @@
         "symbolName": "Inline",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 588,
+        "sourceLine": 613,
         "summary": "Runtime type for {@link Inline}.",
         "categories": [
           "models"
@@ -5807,7 +5831,7 @@
         "symbolName": "InlineChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 22,
+        "sourceLine": 47,
         "summary": "Recursive inline child list used by inline containers and text-bearing block",
         "categories": [
           "models"
@@ -5831,7 +5855,7 @@
         "symbolName": "InlineChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 34,
+        "sourceLine": 59,
         "summary": "Companion namespace for {@link InlineChildren}.",
         "categories": [
           "models"
@@ -5855,7 +5879,7 @@
         "symbolName": "Li",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1036,
+        "sourceLine": 1061,
         "summary": "List item block.",
         "categories": [
           "models"
@@ -5880,7 +5904,7 @@
         "symbolName": "Li",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1056,
+        "sourceLine": 1081,
         "summary": "Companion namespace for {@link Li}.",
         "categories": [
           "models"
@@ -5904,7 +5928,7 @@
         "symbolName": "ListItemChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1080,
+        "sourceLine": 1105,
         "summary": "List item children used by ordered and unordered list blocks.",
         "categories": [
           "models"
@@ -5928,7 +5952,7 @@
         "symbolName": "ListItemChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1092,
+        "sourceLine": 1117,
         "summary": "Companion namespace for {@link ListItemChildren}.",
         "categories": [
           "models"
@@ -5952,7 +5976,7 @@
         "symbolName": "Ol",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1170,
+        "sourceLine": 1195,
         "summary": "Ordered list block.",
         "categories": [
           "models"
@@ -5977,7 +6001,7 @@
         "symbolName": "Ol",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1190,
+        "sourceLine": 1215,
         "summary": "Companion namespace for {@link Ol}.",
         "categories": [
           "models"
@@ -6001,7 +6025,7 @@
         "symbolName": "P",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 672,
+        "sourceLine": 697,
         "summary": "Paragraph block.",
         "categories": [
           "models"
@@ -6026,7 +6050,7 @@
         "symbolName": "P",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 692,
+        "sourceLine": 717,
         "summary": "Companion namespace for {@link P}.",
         "categories": [
           "models"
@@ -6050,7 +6074,7 @@
         "symbolName": "Pre",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1408,
+        "sourceLine": 1433,
         "summary": "Fenced code block.",
         "categories": [
           "models"
@@ -6075,7 +6099,7 @@
         "symbolName": "Pre",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1434,
+        "sourceLine": 1459,
         "summary": "Companion namespace for {@link Pre}.",
         "categories": [
           "models"
@@ -6099,7 +6123,7 @@
         "symbolName": "RawHtml",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 160,
+        "sourceLine": 185,
         "summary": "Raw HTML inline content for adapters that opt into trusted HTML rendering.",
         "categories": [
           "models"
@@ -6124,7 +6148,7 @@
         "symbolName": "RawHtml",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 181,
+        "sourceLine": 206,
         "summary": "Companion namespace for {@link RawHtml}.",
         "categories": [
           "models"
@@ -6148,7 +6172,7 @@
         "symbolName": "RawMarkdown",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 109,
+        "sourceLine": 134,
         "summary": "Trusted raw Markdown inline content.",
         "categories": [
           "models"
@@ -6173,7 +6197,7 @@
         "symbolName": "RawMarkdown",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 129,
+        "sourceLine": 154,
         "summary": "Companion namespace for {@link RawMarkdown}.",
         "categories": [
           "models"
@@ -6197,7 +6221,7 @@
         "symbolName": "Strong",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 210,
+        "sourceLine": 235,
         "summary": "Strong inline content.",
         "categories": [
           "models"
@@ -6222,7 +6246,7 @@
         "symbolName": "Strong",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 230,
+        "sourceLine": 255,
         "summary": "Companion namespace for {@link Strong}.",
         "categories": [
           "models"
@@ -6246,7 +6270,7 @@
         "symbolName": "Table",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1575,
+        "sourceLine": 1600,
         "summary": "Markdown table block.",
         "categories": [
           "models"
@@ -6271,7 +6295,7 @@
         "symbolName": "Table",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1596,
+        "sourceLine": 1621,
         "summary": "Companion namespace for {@link Table}.",
         "categories": [
           "models"
@@ -6295,7 +6319,7 @@
         "symbolName": "TableCell",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1472,
+        "sourceLine": 1497,
         "summary": "Table cell containing inline Markdown content.",
         "categories": [
           "models"
@@ -6320,7 +6344,7 @@
         "symbolName": "TableCell",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1490,
+        "sourceLine": 1515,
         "summary": "Companion namespace for {@link TableCell}.",
         "categories": [
           "models"
@@ -6344,7 +6368,7 @@
         "symbolName": "TableRow",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1522,
+        "sourceLine": 1547,
         "summary": "Table row containing cells in column order.",
         "categories": [
           "models"
@@ -6369,7 +6393,7 @@
         "symbolName": "TableRow",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1540,
+        "sourceLine": 1565,
         "summary": "Companion namespace for {@link TableRow}.",
         "categories": [
           "models"
@@ -6393,7 +6417,7 @@
         "symbolName": "TaskItem",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1222,
+        "sourceLine": 1247,
         "summary": "GFM task list item.",
         "categories": [
           "models"
@@ -6418,7 +6442,7 @@
         "symbolName": "TaskItem",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1243,
+        "sourceLine": 1268,
         "summary": "Companion namespace for {@link TaskItem}.",
         "categories": [
           "models"
@@ -6442,7 +6466,7 @@
         "symbolName": "TaskItemChildren",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1269,
+        "sourceLine": 1294,
         "summary": "Task item children used by GFM task list blocks.",
         "categories": [
           "models"
@@ -6466,7 +6490,7 @@
         "symbolName": "TaskItemChildren",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1281,
+        "sourceLine": 1306,
         "summary": "Companion namespace for {@link TaskItemChildren}.",
         "categories": [
           "models"
@@ -6490,7 +6514,7 @@
         "symbolName": "TaskList",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1307,
+        "sourceLine": 1332,
         "summary": "GFM task list block.",
         "categories": [
           "models"
@@ -6515,7 +6539,7 @@
         "symbolName": "TaskList",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1325,
+        "sourceLine": 1350,
         "summary": "Companion namespace for {@link TaskList}.",
         "categories": [
           "models"
@@ -6539,7 +6563,7 @@
         "symbolName": "Text",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 60,
+        "sourceLine": 85,
         "summary": "Plain escaped inline text.",
         "categories": [
           "models"
@@ -6564,7 +6588,7 @@
         "symbolName": "Text",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 80,
+        "sourceLine": 105,
         "summary": "Companion namespace for {@link Text}.",
         "categories": [
           "models"
@@ -6588,7 +6612,7 @@
         "symbolName": "Ul",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1118,
+        "sourceLine": 1143,
         "summary": "Unordered list block.",
         "categories": [
           "models"
@@ -6613,7 +6637,7 @@
         "symbolName": "Ul",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1138,
+        "sourceLine": 1163,
         "summary": "Companion namespace for {@link Ul}.",
         "categories": [
           "models"
@@ -6637,7 +6661,7 @@
         "symbolName": "YouTube",
         "exportKind": "class",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1630,
+        "sourceLine": 1655,
         "summary": "YouTube video embed block.",
         "categories": [
           "models"
@@ -6662,7 +6686,7 @@
         "symbolName": "YouTube",
         "exportKind": "namespace",
         "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
-        "sourceLine": 1648,
+        "sourceLine": 1673,
         "summary": "Companion namespace for {@link YouTube}.",
         "categories": [
           "models"
@@ -6675,6 +6699,30 @@
           "@since"
         ],
         "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model youtube namespace companion namespace for {@link youtube}. models packages/foundation/modeling/md/src/md.model.ts"
+      },
+      {
+        "packageName": "@beep/md",
+        "packagePath": "packages/foundation/modeling/md",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/md/Md.model",
+        "exportSubpath": "./Md.model",
+        "exportedFromPath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "symbolName": "YouTubeVideoId",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/md/src/Md.model.ts",
+        "sourceLine": 27,
+        "summary": "Bare 11-character YouTube video id used by {@link YouTube} embeds.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/md packages/foundation/modeling/md @beep/md/md.model ./md.model youtubevideoid const bare 11-character youtube video id used by {@link youtube} embeds. models packages/foundation/modeling/md/src/md.model.ts"
       },
       {
         "packageName": "@beep/md",

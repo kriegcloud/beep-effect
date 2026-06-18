@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e06834837e01c8e72653472d5fc0a8e23839728d0d63300d95e2809c68b1ba38",
+    "digest": "7a5a9f9bd04d9808c8a45ace435c4dea6c72f0d50484eb0b50ba4163915d4e2b",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/drivers/nlp-mcp/package.json",
-        "sha256": "aa1ebef093ba0b252b4e612f293a342476676a2716d873a314d2fe35547d8a4c",
-        "bytes": 2581
+        "sha256": "6d3b5864059451cdcbe28b24ad7ca23c2bdd378b16486dd85868189b5e518831",
+        "bytes": 2625
       },
       {
         "path": "packages/drivers/nlp-mcp/src/bin.ts",
@@ -42,8 +42,8 @@
       },
       {
         "path": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
-        "sha256": "f5ba3d276d2784a2ca8c18e988849a803584ae3758afd067904dcbe4969c0153",
-        "bytes": 16484
+        "sha256": "d99a0a2b2579c68f84a8ea0b5f71888ad377ff6134fe758d514689e7f35290b5",
+        "bytes": 16763
       },
       {
         "path": "packages/drivers/nlp-mcp/src/Streaming/Jsonl.ts",
@@ -57,8 +57,8 @@
       },
       {
         "path": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sha256": "59eb4ae02577dc621b7bff81ebdb46b384a49f99b0f5b85ea1ed28ba5f47630e",
-        "bytes": 13757
+        "sha256": "29b35ecc4c783152fb94af7bb56122c22995b7bc5491822a9fa40d1f3cfd99ba",
+        "bytes": 17264
       },
       {
         "path": "packages/drivers/nlp-mcp/src/StreamingHandlers.ts",
@@ -77,8 +77,8 @@
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/QualityArtifactSupport.ts",
-        "sha256": "63f78dc49ad97e6aac47dab3b3ad00ec04212386d8b5156068eda584940be6a6",
-        "bytes": 20920
+        "sha256": "9da6f7262f38ee02ce6b690a53ddb5633dad6eedfcc69be54ed37fb136c58a8f",
+        "bytes": 24285
       },
       {
         "path": "packages/tooling/tool/cli/src/commands/Quality/internal/RepoExportsCatalog.ts",
@@ -105,8 +105,8 @@
       "@beep/nlp-mcp/StreamingTools"
     ],
     "counts": {
-      "publicExportEntries": 90,
-      "uniqueSymbols": 65,
+      "publicExportEntries": 93,
+      "uniqueSymbols": 68,
       "sourceFiles": 9
     },
     "exports": [
@@ -670,7 +670,7 @@
         "symbolName": "loadJson",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
-        "sourceLine": 529,
+        "sourceLine": 533,
         "summary": "Load and parse a single JSON document from a file or remote URL.",
         "categories": [
           "constructors"
@@ -696,7 +696,7 @@
         "symbolName": "loadJsonl",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
-        "sourceLine": 478,
+        "sourceLine": 482,
         "summary": "Load a JSONL dataset as an array of parsed records from a file or remote URL.",
         "categories": [
           "constructors"
@@ -722,7 +722,7 @@
         "symbolName": "loadLines",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
-        "sourceLine": 409,
+        "sourceLine": 413,
         "summary": "Load a dataset as an array of lines from a file or remote URL.",
         "categories": [
           "constructors"
@@ -748,7 +748,7 @@
         "symbolName": "loadText",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/DatasetLoader.ts",
-        "sourceLine": 358,
+        "sourceLine": 362,
         "summary": "Load raw text from a file or remote URL.",
         "categories": [
           "constructors"
@@ -1101,7 +1101,7 @@
         "symbolName": "computeStats",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 426,
+        "sourceLine": 527,
         "summary": "Compute aggregate line-length and byte statistics for a text file.",
         "categories": [
           "diagnostics"
@@ -1126,7 +1126,7 @@
         "symbolName": "countLines",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 359,
+        "sourceLine": 460,
         "summary": "Count the processed lines in a text file without buffering them.",
         "categories": [
           "diagnostics"
@@ -1151,7 +1151,7 @@
         "symbolName": "fileExists",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 381,
+        "sourceLine": 482,
         "summary": "Report whether a path exists.",
         "categories": [
           "diagnostics"
@@ -1177,7 +1177,7 @@
         "symbolName": "getFileSize",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 403,
+        "sourceLine": 504,
         "summary": "Report the size of a file in bytes.",
         "categories": [
           "diagnostics"
@@ -1203,7 +1203,7 @@
         "symbolName": "head",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 279,
+        "sourceLine": 380,
         "summary": "Read the first `n` processed lines of a text file.",
         "categories": [
           "utilities"
@@ -1225,10 +1225,35 @@
         "importSpecifier": "@beep/nlp-mcp/Streaming/TextStream",
         "exportSubpath": "./Streaming/TextStream",
         "exportedFromPath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+        "symbolName": "layerAllowedRoots",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+        "sourceLine": 87,
+        "summary": "Build a layer that overrides the {@link StreamingAllowedRoots} allow-list.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp-mcp packages/drivers/nlp-mcp @beep/nlp-mcp/streaming/textstream ./streaming/textstream layerallowedroots const build a layer that overrides the {@link streamingallowedroots} allow-list. guards packages/drivers/nlp-mcp/src/streaming/textstream.ts"
+      },
+      {
+        "packageName": "@beep/nlp-mcp",
+        "packagePath": "packages/drivers/nlp-mcp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp-mcp/Streaming/TextStream",
+        "exportSubpath": "./Streaming/TextStream",
+        "exportedFromPath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
         "symbolName": "readLines",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 235,
+        "sourceLine": 336,
         "summary": "Collect a text file into an array of processed lines.",
         "categories": [
           "utilities"
@@ -1253,7 +1278,7 @@
         "symbolName": "readTextFile",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 257,
+        "sourceLine": 358,
         "summary": "Read an entire text file into a single decoded string.",
         "categories": [
           "utilities"
@@ -1276,10 +1301,34 @@
         "importSpecifier": "@beep/nlp-mcp/Streaming/TextStream",
         "exportSubpath": "./Streaming/TextStream",
         "exportedFromPath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+        "symbolName": "resolveLocalPath",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+        "sourceLine": 106,
+        "summary": "Resolve a caller-supplied path against the configured allowed roots, failing",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp-mcp packages/drivers/nlp-mcp @beep/nlp-mcp/streaming/textstream ./streaming/textstream resolvelocalpath const resolve a caller-supplied path against the configured allowed roots, failing guards packages/drivers/nlp-mcp/src/streaming/textstream.ts"
+      },
+      {
+        "packageName": "@beep/nlp-mcp",
+        "packagePath": "packages/drivers/nlp-mcp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp-mcp/Streaming/TextStream",
+        "exportSubpath": "./Streaming/TextStream",
+        "exportedFromPath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
         "symbolName": "sampleLines",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 327,
+        "sourceLine": 428,
         "summary": "Sample up to `sampleSize` processed lines uniformly at random.",
         "categories": [
           "utilities"
@@ -1302,10 +1351,35 @@
         "importSpecifier": "@beep/nlp-mcp/Streaming/TextStream",
         "exportSubpath": "./Streaming/TextStream",
         "exportedFromPath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+        "symbolName": "StreamingAllowedRoots",
+        "exportKind": "const",
+        "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
+        "sourceLine": 61,
+        "summary": "Configurable allow-list of directories the streaming file tools may read.",
+        "categories": [
+          "guards"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/nlp-mcp packages/drivers/nlp-mcp @beep/nlp-mcp/streaming/textstream ./streaming/textstream streamingallowedroots const configurable allow-list of directories the streaming file tools may read. guards packages/drivers/nlp-mcp/src/streaming/textstream.ts"
+      },
+      {
+        "packageName": "@beep/nlp-mcp",
+        "packagePath": "packages/drivers/nlp-mcp",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/nlp-mcp/Streaming/TextStream",
+        "exportSubpath": "./Streaming/TextStream",
+        "exportedFromPath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
         "symbolName": "streamLines",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 191,
+        "sourceLine": 293,
         "summary": "Stream a text file as a sequence of processed lines.",
         "categories": [
           "streams"
@@ -1330,7 +1404,7 @@
         "symbolName": "tail",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 299,
+        "sourceLine": 400,
         "summary": "Read the last `n` processed lines of a text file.",
         "categories": [
           "utilities"
@@ -1355,7 +1429,7 @@
         "symbolName": "TextEncoding",
         "exportKind": "const",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 38,
+        "sourceLine": 140,
         "summary": "Text decoding labels accepted by the streaming text helpers.",
         "categories": [
           "models"
@@ -1380,7 +1454,7 @@
         "symbolName": "TextEncoding",
         "exportKind": "type",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 58,
+        "sourceLine": 160,
         "summary": "Type for {@link TextEncoding}.",
         "categories": [
           "models"
@@ -1405,7 +1479,7 @@
         "symbolName": "TextReadOptions",
         "exportKind": "class",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 76,
+        "sourceLine": 178,
         "summary": "Per-line processing options shared by the read-oriented helpers.",
         "categories": [
           "models"
@@ -1430,7 +1504,7 @@
         "symbolName": "TextStreamOptions",
         "exportKind": "class",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 107,
+        "sourceLine": 209,
         "summary": "Streaming options that extend {@link TextReadOptions} with windowing controls.",
         "categories": [
           "models"
@@ -1455,7 +1529,7 @@
         "symbolName": "TextStreamStats",
         "exportKind": "class",
         "sourcePath": "packages/drivers/nlp-mcp/src/Streaming/TextStream.ts",
-        "sourceLine": 143,
+        "sourceLine": 245,
         "summary": "Aggregate line-length and byte statistics computed for a text file.",
         "categories": [
           "models"
