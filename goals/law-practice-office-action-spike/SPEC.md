@@ -12,7 +12,7 @@ rung-0 office-action review loop end-to-end on **one** fixture office action.
 Observable end state: a single integration test runs one synthetic/public
 office-action document through the full loop —
 `tika`/`@beep/file-processing` extract text → `@beep/langextract` aligns a
-span → `@beep/nlp` Handoff IR → **IR→law-entity mapping** → one
+span-bearing `GroundedExtraction[]` → **IR→law-entity mapping** → one
 `OfficeAction` + one `Rejection(§102)` + one `Claim` + one
 `PriorArtReference` → one `Distinction` candidate emitted as a
 `CandidateClaim` carrying `Evidence(char-span)` → the epistemic `ClaimGate` +
@@ -95,7 +95,7 @@ tier):**
   langextract output, not the span-lossy nlp `AnnotatedDocument` envelope)
 - `src/OfficeActionReview/OfficeActionReview.ports.ts` +
   `OfficeActionReview.service.ts` (loop orchestrator
-  `(fixtureDocRef) => Effect<ClaimProjectionView>`)
+  `(OfficeActionReviewInput) => Effect<ClaimProjectionView>`)
 
 **`@beep/law-practice-server` (`packages/law-practice/server` — NEW tier):**
 
@@ -173,9 +173,8 @@ implementation before verify).
       `OfficeActionReview: (OfficeActionReviewInput) => Effect<ClaimProjectionView>`
       declaring deps on `@beep/langextract` (span-bearing `GroundedExtraction`),
       `IrToLaw`, and the epistemic `ClaimGate`/`ClaimLifecycle`/
-      `ClaimProjection`. (The spike consumes pre-extracted `sourceText`, so
-      `@beep/file-processing`/tika ingestion is deferred, not composed.) No loose
-      helpers precede the contract.
+      `ClaimProjection`, plus typed `SourceArtifact`/`OperationId` ingestion
+      through `@beep/file-processing`. No loose helpers precede the contract.
 - [ ] **P2 (implementation):** `IrToLaw` maps span-bearing `GroundedExtraction`
       records (keyed on the `label` vocabulary) → typed law entities, grounding
       the distinction's aligned `span` + original-case `matchedText` →
@@ -203,8 +202,7 @@ implementation before verify).
 | Packet launcher size | `test "$(wc -m < goals/law-practice-office-action-spike/GOAL.md)" -le 4000` | Passes |
 | Manifest JSON | `jq . goals/law-practice-office-action-spike/ops/manifest.json` | Passes |
 | Whitespace | `git diff --check -- goals/law-practice-office-action-spike` | Passes |
-| Domain schema check | `bun run check --filter @beep/law-practice-domain` | Green (no new failures) |
-| Use-cases + server check | `bun run check --filter @beep/law-practice-use-cases --filter @beep/law-practice-server` | Green (no new failures) |
+| Authoritative typecheck | `bun run check` | Green (no new failures) |
 | Loop integration test | `bun test` on the office-action loop test | One distinction, char-span linked, gate admits, ask answers |
 | No slice leakage | `rg -n 'from "@beep/epistemic-(domain\|use-cases\|server)' packages/law-practice/**/src` — every hit resolves to a canonical public subpath (root, `/values`, `/ClaimGate`, `/ClaimLifecycle`, `/ClaimProjection`, `/layer`); zero `/internal/*` | No internal imports; `packages/law-practice/domain/src` has zero hits |
 | Reflection present | `bun run beep lint reflection-artifacts` | Passes |

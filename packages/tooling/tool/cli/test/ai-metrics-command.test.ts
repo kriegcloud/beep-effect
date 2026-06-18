@@ -165,8 +165,9 @@ const seedAiMetricsData = Effect.fn("AIMetricsCommandTest.seedAiMetricsData")(fu
     "test-salt",
     "--json",
   ]);
+  const forwarderResult = yield* decodeForwarderResult(yield* lastLoggedLine());
 
-  return { dataRoot, homeDir, repoRoot };
+  return { dataRoot, forwarderResult, homeDir, repoRoot };
 });
 
 const withPrependedPath = <A, E, R>(binDir: string, use: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
@@ -1249,6 +1250,7 @@ describe("ai-metrics command", () => {
                 "--json",
               ])
             );
+            const forwarderResult = yield* decodeForwarderResult(yield* lastLoggedLine());
 
             yield* runAiMetricsCommand([
               "otlp",
@@ -1273,6 +1275,7 @@ describe("ai-metrics command", () => {
             expect(traceRequest.bodyText).not.toContain("private-otlp-fixture");
             expect(traceRequest.bodyText).not.toContain(tmpDir);
             expect(result.endpointTraceUrl).toBe(`${otlpBaseUrl}/v1/traces`);
+            expect(result.ingestRunId).toBe(forwarderResult.ingestRunId);
             expect(result.spanCount).toBeGreaterThan(0);
             expect(resultJson).not.toContain("private-otlp-fixture");
             expect(resultJson).not.toContain(rawArchiveKey);
@@ -1282,9 +1285,42 @@ describe("ai-metrics command", () => {
       )
     ));
 
+  it("exports an explicit derived OTLP ingest run without resolving latest", () =>
+    Effect.runPromise(
+      withOtlpSink((otlpBaseUrl, requests) =>
+        withTempDirectory((tmpDir) =>
+          Effect.gen(function* () {
+            const rawArchiveKey = Encoding.encodeBase64(new Uint8Array(32).fill(31));
+            const { dataRoot, forwarderResult } = yield* withRawArchiveKeyEnv(rawArchiveKey, seedAiMetricsData(tmpDir));
+
+            yield* runAiMetricsCommand([
+              "otlp",
+              "export",
+              "--target",
+              "local",
+              "--data-root",
+              dataRoot,
+              "--ingest-run",
+              forwarderResult.ingestRunId,
+              "--otlp-base-url",
+              otlpBaseUrl,
+              "--json",
+            ]);
+
+            const result = yield* decodeOtlpExportResult(yield* lastLoggedLine());
+            const traceRequest = yield* waitForCapturedOtlpTraceRequest(requests);
+
+            expect(traceRequest.contentType).toContain("application/x-protobuf");
+            expect(result.ingestRunId).toBe(forwarderResult.ingestRunId);
+            expect(result.spanCount).toBeGreaterThan(0);
+          })
+        )
+      )
+    ));
+
   it("accepts non-local OTLP export install secret references before reading derived runs", () =>
     Effect.runPromise(
-      withOtlpSink((otlpBaseUrl) =>
+      withOtlpSink((otlpBaseUrl, requests) =>
         withTempDirectory((tmpDir) =>
           Effect.gen(function* () {
             const path = yield* Path.Path;
@@ -1309,6 +1345,7 @@ describe("ai-metrics command", () => {
             ]);
 
             expect(output).toContain("Failed to select the latest AI metrics ingest run.");
+            expect(requests).toHaveLength(0);
             expect(output).not.toContain("hash-salt-secret-ref");
             expect(output).not.toContain("raw-archive-key-secret-ref");
             expect(output).not.toContain(dataRoot);

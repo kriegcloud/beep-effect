@@ -59,6 +59,7 @@ import {
   renderAiMetricsLocalPhoenixCompose,
   runAiMetricsForwarder,
   runAiMetricsOtlpExport,
+  runAiMetricsOtlpProjectionBatchExport,
   runAiMetricsRetentionCompact,
   runAiMetricsRetentionDelete,
   runAiMetricsRetentionRestoreDrill,
@@ -994,6 +995,7 @@ volumes:
             });
             const batch = yield* readAiMetricsOtlpSpanProjections(input);
             const result = yield* runAiMetricsOtlpExport(input);
+            const pipeableResult = yield* pipe(input, runAiMetricsOtlpProjectionBatchExport(batch));
             const json = yield* otlpExportResultToJson(result);
 
             expect(batch.ingestRunId).toBe("forwarder-otlp");
@@ -1027,6 +1029,7 @@ volumes:
               ])
             );
             expect(result.spanCount).toBe(4);
+            expect(pipeableResult).toEqual(result);
             expect(json).toContain("forwarder-otlp");
             expect(json).not.toContain("private-input");
             expect(json).not.toContain("private-model-output");
