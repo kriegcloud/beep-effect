@@ -65,7 +65,6 @@ Both exports were restored and are suppressed config-only via
 
 | Finding | Verdict | Evidence |
 | --- | --- | --- |
-| `packages/foundation/ui-system/form/test/helpers/SchemaCompat.ts:29` `Either` | tp-unexport | Only used inside the helper file. |
 | `apps/oip-web/src/contact/ContactSubmission.http.ts:124` `ContactSubmissionPayload` | fp-config | Used by `apps/oip-web/src/app/api/contact/ContactHttpApiRoute.ts`. |
 | `apps/oip-web/src/content/OipContent.model.ts:49` `ReviewStatus` | fp-config | Used by `OipContent.data.ts`. |
 | `apps/oip-web/src/content/OipContent.model.ts:151` `SocialPlatform` | fp-config | Used by `OipHomePage.tsx`. |

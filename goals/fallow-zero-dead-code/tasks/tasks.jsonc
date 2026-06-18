@@ -42,7 +42,6 @@
         "apps/codedank-web",
         "apps/storybook",
         "packages/foundation/ui-system/ui",
-        "packages/foundation/ui-system/form/test/helpers/SchemaCompat.ts",
         "packages/drivers/firecrawl/package.json",
         "packages/drivers/libpff/package.json",
         "packages/foundation/capability/langextract/package.json",

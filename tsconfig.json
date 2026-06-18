@@ -1022,18 +1022,8 @@
         "./packages/foundation/modeling/schema/src/Yaml.ts"
       ],
       "@beep/ai-sync": ["./packages/tooling/library/ai-sync/src/index.ts"],
-      "@beep/ai-sync/*": ["./packages/tooling/library/ai-sync/src/*"],
-      "@beep/form": ["./packages/foundation/ui-system/form/src/index.ts"],
-      "@beep/form/core": ["./packages/foundation/ui-system/form/src/core.ts"],
-      "@beep/form/core/internal/dirty": [
-        "./packages/foundation/ui-system/form/src/core/internal/dirty.ts"
-      ],
-      "@beep/form/core/internal/weak-registry": [
-        "./packages/foundation/ui-system/form/src/core/internal/weak-registry.ts"
-      ],
-      "@beep/form/react": ["./packages/foundation/ui-system/form/src/react.ts"],
-      "@beep/form/react/FormReact": [
-        "./packages/foundation/ui-system/form/src/react/FormReact.tsx"
+      "@beep/ai-sync/*": [
+        "./packages/tooling/library/ai-sync/src/*"
       ],
       "@beep/schema/test/Markdown": [
         "./packages/foundation/modeling/schema/src/internal/test/Markdown.test-kit.ts"

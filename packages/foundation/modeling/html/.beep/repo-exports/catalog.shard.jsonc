@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "44c710a79630edc844afd37125aa8cd8571d8ebb803f51e72d23a13222e05839",
+    "digest": "49981af125cc22a8475581c538215724f54cf04bf589a89994f2219384615bc5",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,13 +22,13 @@
       },
       {
         "path": "packages/foundation/modeling/html/package.json",
-        "sha256": "363f67e2acb300eab5ed1345b4f18274677a7b4cbe770b094e3d8143d517f170",
-        "bytes": 2796
+        "sha256": "43675ee94699a03ad1c2d46c613c0f5eacf4686c8e67a846420f0fa213675467",
+        "bytes": 2865
       },
       {
         "path": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sha256": "479496de1522fb1d61e17f7e4c0e2d738e242519af042f60778cd8632caa6ca5",
-        "bytes": 11094
+        "sha256": "b133a3d55de4bb702b4fcedef25367bc5a7151110e133d3b6a443a3b2426a509",
+        "bytes": 11118
       },
       {
         "path": "packages/foundation/modeling/html/src/Html.meta.ts",
@@ -384,7 +384,7 @@
         "symbolName": "AriaAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 283,
+        "sourceLine": 285,
         "summary": "`role` plus the WAI-ARIA `aria-*` state and property attributes. Universally",
         "categories": [
           "schemas"
@@ -552,7 +552,7 @@
         "symbolName": "AutoCapitalize",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 89,
+        "sourceLine": 91,
         "summary": "`autocapitalize` global attribute value.",
         "categories": [
           "schemas"
@@ -576,7 +576,7 @@
         "symbolName": "AutoCorrect",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 98,
+        "sourceLine": 100,
         "summary": "`autocorrect` global attribute value.",
         "categories": [
           "schemas"
@@ -1080,7 +1080,7 @@
         "symbolName": "BooleanAttribute",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 154,
+        "sourceLine": 156,
         "summary": "An HTML boolean attribute value. The attribute's presence means `true`; the",
         "categories": [
           "schemas"
@@ -1584,7 +1584,7 @@
         "symbolName": "ContentEditable",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 53,
+        "sourceLine": 55,
         "summary": "`contenteditable` global attribute value.",
         "categories": [
           "schemas"
@@ -1704,7 +1704,7 @@
         "symbolName": "DatasetAttribute",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 216,
+        "sourceLine": 218,
         "summary": "`data-*` custom data attributes, represented as the `dataset` record bag",
         "categories": [
           "schemas"
@@ -1968,7 +1968,7 @@
         "symbolName": "Dir",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 35,
+        "sourceLine": 37,
         "summary": "`dir` global attribute value.",
         "categories": [
           "schemas"
@@ -2232,7 +2232,7 @@
         "symbolName": "Draggable",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 62,
+        "sourceLine": 64,
         "summary": "`draggable` global attribute value.",
         "categories": [
           "schemas"
@@ -2448,7 +2448,7 @@
         "symbolName": "EnterKeyHint",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 116,
+        "sourceLine": 118,
         "summary": "`enterkeyhint` global attribute value.",
         "categories": [
           "schemas"
@@ -2472,7 +2472,7 @@
         "symbolName": "EventHandlerAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 372,
+        "sourceLine": 374,
         "summary": "The global event-handler content attributes (`on*`). Universally permitted;",
         "categories": [
           "schemas"
@@ -2952,7 +2952,7 @@
         "symbolName": "GlobalAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 383,
+        "sourceLine": 385,
         "summary": "The complete global attribute bundle spread into every generated element",
         "categories": [
           "schemas"
@@ -2976,7 +2976,7 @@
         "symbolName": "GlobalAttributesEncoded",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 414,
+        "sourceLine": 416,
         "summary": "Encoded type of the shared global attributes.",
         "categories": [
           "schemas"
@@ -3000,7 +3000,7 @@
         "symbolName": "GlobalAttributesStruct",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 398,
+        "sourceLine": 400,
         "summary": "Struct schema over {@link GlobalAttributes}; the source of the shared global",
         "categories": [
           "schemas"
@@ -3024,7 +3024,7 @@
         "symbolName": "GlobalAttributesType",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 406,
+        "sourceLine": 408,
         "summary": "Decoded type of the shared global attributes.",
         "categories": [
           "schemas"
@@ -3504,7 +3504,7 @@
         "symbolName": "Hidden",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 125,
+        "sourceLine": 127,
         "summary": "`hidden` global attribute value.",
         "categories": [
           "schemas"
@@ -3960,7 +3960,7 @@
         "symbolName": "InputMode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 107,
+        "sourceLine": 109,
         "summary": "`inputmode` global attribute value.",
         "categories": [
           "schemas"
@@ -5664,7 +5664,7 @@
         "symbolName": "Popover",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 134,
+        "sourceLine": 136,
         "summary": "`popover` global attribute value.",
         "categories": [
           "schemas"
@@ -5688,7 +5688,7 @@
         "symbolName": "PopoverTargetAction",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 143,
+        "sourceLine": 145,
         "summary": "`popovertargetaction` global attribute value.",
         "categories": [
           "schemas"
@@ -6720,7 +6720,7 @@
         "symbolName": "SpellCheck",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 71,
+        "sourceLine": 73,
         "summary": "`spellcheck` global attribute value.",
         "categories": [
           "schemas"
@@ -6744,7 +6744,7 @@
         "symbolName": "StandardGlobalAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 171,
+        "sourceLine": 173,
         "summary": "The WHATWG global attributes (`dom.html#global-attributes`), value-typed.",
         "categories": [
           "schemas"
@@ -7681,7 +7681,7 @@
         "symbolName": "Translate",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 44,
+        "sourceLine": 46,
         "summary": "`translate` global attribute value.",
         "categories": [
           "schemas"
@@ -8018,7 +8018,7 @@
         "symbolName": "WritingSuggestions",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 80,
+        "sourceLine": 82,
         "summary": "`writingsuggestions` global attribute value.",
         "categories": [
           "schemas"
@@ -8090,7 +8090,7 @@
         "symbolName": "AriaAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 283,
+        "sourceLine": 285,
         "summary": "`role` plus the WAI-ARIA `aria-*` state and property attributes. Universally",
         "categories": [
           "schemas"
@@ -8114,7 +8114,7 @@
         "symbolName": "AutoCapitalize",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 89,
+        "sourceLine": 91,
         "summary": "`autocapitalize` global attribute value.",
         "categories": [
           "schemas"
@@ -8138,7 +8138,7 @@
         "symbolName": "AutoCorrect",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 98,
+        "sourceLine": 100,
         "summary": "`autocorrect` global attribute value.",
         "categories": [
           "schemas"
@@ -8162,7 +8162,7 @@
         "symbolName": "BooleanAttribute",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 154,
+        "sourceLine": 156,
         "summary": "An HTML boolean attribute value. The attribute's presence means `true`; the",
         "categories": [
           "schemas"
@@ -8186,7 +8186,7 @@
         "symbolName": "ContentEditable",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 53,
+        "sourceLine": 55,
         "summary": "`contenteditable` global attribute value.",
         "categories": [
           "schemas"
@@ -8210,7 +8210,7 @@
         "symbolName": "DatasetAttribute",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 216,
+        "sourceLine": 218,
         "summary": "`data-*` custom data attributes, represented as the `dataset` record bag",
         "categories": [
           "schemas"
@@ -8234,7 +8234,7 @@
         "symbolName": "Dir",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 35,
+        "sourceLine": 37,
         "summary": "`dir` global attribute value.",
         "categories": [
           "schemas"
@@ -8258,7 +8258,7 @@
         "symbolName": "Draggable",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 62,
+        "sourceLine": 64,
         "summary": "`draggable` global attribute value.",
         "categories": [
           "schemas"
@@ -8282,7 +8282,7 @@
         "symbolName": "EnterKeyHint",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 116,
+        "sourceLine": 118,
         "summary": "`enterkeyhint` global attribute value.",
         "categories": [
           "schemas"
@@ -8306,7 +8306,7 @@
         "symbolName": "EventHandlerAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 372,
+        "sourceLine": 374,
         "summary": "The global event-handler content attributes (`on*`). Universally permitted;",
         "categories": [
           "schemas"
@@ -8330,7 +8330,7 @@
         "symbolName": "GlobalAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 383,
+        "sourceLine": 385,
         "summary": "The complete global attribute bundle spread into every generated element",
         "categories": [
           "schemas"
@@ -8354,7 +8354,7 @@
         "symbolName": "GlobalAttributesEncoded",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 414,
+        "sourceLine": 416,
         "summary": "Encoded type of the shared global attributes.",
         "categories": [
           "schemas"
@@ -8378,7 +8378,7 @@
         "symbolName": "GlobalAttributesStruct",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 398,
+        "sourceLine": 400,
         "summary": "Struct schema over {@link GlobalAttributes}; the source of the shared global",
         "categories": [
           "schemas"
@@ -8402,7 +8402,7 @@
         "symbolName": "GlobalAttributesType",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 406,
+        "sourceLine": 408,
         "summary": "Decoded type of the shared global attributes.",
         "categories": [
           "schemas"
@@ -8426,7 +8426,7 @@
         "symbolName": "Hidden",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 125,
+        "sourceLine": 127,
         "summary": "`hidden` global attribute value.",
         "categories": [
           "schemas"
@@ -8450,7 +8450,7 @@
         "symbolName": "InputMode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 107,
+        "sourceLine": 109,
         "summary": "`inputmode` global attribute value.",
         "categories": [
           "schemas"
@@ -8474,7 +8474,7 @@
         "symbolName": "Popover",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 134,
+        "sourceLine": 136,
         "summary": "`popover` global attribute value.",
         "categories": [
           "schemas"
@@ -8498,7 +8498,7 @@
         "symbolName": "PopoverTargetAction",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 143,
+        "sourceLine": 145,
         "summary": "`popovertargetaction` global attribute value.",
         "categories": [
           "schemas"
@@ -8522,7 +8522,7 @@
         "symbolName": "SpellCheck",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 71,
+        "sourceLine": 73,
         "summary": "`spellcheck` global attribute value.",
         "categories": [
           "schemas"
@@ -8546,7 +8546,7 @@
         "symbolName": "StandardGlobalAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 171,
+        "sourceLine": 173,
         "summary": "The WHATWG global attributes (`dom.html#global-attributes`), value-typed.",
         "categories": [
           "schemas"
@@ -8570,7 +8570,7 @@
         "symbolName": "Translate",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 44,
+        "sourceLine": 46,
         "summary": "`translate` global attribute value.",
         "categories": [
           "schemas"
@@ -8594,7 +8594,7 @@
         "symbolName": "WritingSuggestions",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 80,
+        "sourceLine": 82,
         "summary": "`writingsuggestions` global attribute value.",
         "categories": [
           "schemas"
@@ -16347,7 +16347,7 @@
         "symbolName": "AriaAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 283,
+        "sourceLine": 285,
         "summary": "`role` plus the WAI-ARIA `aria-*` state and property attributes. Universally",
         "categories": [
           "schemas"
@@ -16515,7 +16515,7 @@
         "symbolName": "AutoCapitalize",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 89,
+        "sourceLine": 91,
         "summary": "`autocapitalize` global attribute value.",
         "categories": [
           "schemas"
@@ -16539,7 +16539,7 @@
         "symbolName": "AutoCorrect",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 98,
+        "sourceLine": 100,
         "summary": "`autocorrect` global attribute value.",
         "categories": [
           "schemas"
@@ -17043,7 +17043,7 @@
         "symbolName": "BooleanAttribute",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 154,
+        "sourceLine": 156,
         "summary": "An HTML boolean attribute value. The attribute's presence means `true`; the",
         "categories": [
           "schemas"
@@ -17547,7 +17547,7 @@
         "symbolName": "ContentEditable",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 53,
+        "sourceLine": 55,
         "summary": "`contenteditable` global attribute value.",
         "categories": [
           "schemas"
@@ -17667,7 +17667,7 @@
         "symbolName": "DatasetAttribute",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 216,
+        "sourceLine": 218,
         "summary": "`data-*` custom data attributes, represented as the `dataset` record bag",
         "categories": [
           "schemas"
@@ -17931,7 +17931,7 @@
         "symbolName": "Dir",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 35,
+        "sourceLine": 37,
         "summary": "`dir` global attribute value.",
         "categories": [
           "schemas"
@@ -18195,7 +18195,7 @@
         "symbolName": "Draggable",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 62,
+        "sourceLine": 64,
         "summary": "`draggable` global attribute value.",
         "categories": [
           "schemas"
@@ -18411,7 +18411,7 @@
         "symbolName": "EnterKeyHint",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 116,
+        "sourceLine": 118,
         "summary": "`enterkeyhint` global attribute value.",
         "categories": [
           "schemas"
@@ -18435,7 +18435,7 @@
         "symbolName": "EventHandlerAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 372,
+        "sourceLine": 374,
         "summary": "The global event-handler content attributes (`on*`). Universally permitted;",
         "categories": [
           "schemas"
@@ -18915,7 +18915,7 @@
         "symbolName": "GlobalAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 383,
+        "sourceLine": 385,
         "summary": "The complete global attribute bundle spread into every generated element",
         "categories": [
           "schemas"
@@ -18939,7 +18939,7 @@
         "symbolName": "GlobalAttributesEncoded",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 414,
+        "sourceLine": 416,
         "summary": "Encoded type of the shared global attributes.",
         "categories": [
           "schemas"
@@ -18963,7 +18963,7 @@
         "symbolName": "GlobalAttributesStruct",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 398,
+        "sourceLine": 400,
         "summary": "Struct schema over {@link GlobalAttributes}; the source of the shared global",
         "categories": [
           "schemas"
@@ -18987,7 +18987,7 @@
         "symbolName": "GlobalAttributesType",
         "exportKind": "type",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 406,
+        "sourceLine": 408,
         "summary": "Decoded type of the shared global attributes.",
         "categories": [
           "schemas"
@@ -19467,7 +19467,7 @@
         "symbolName": "Hidden",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 125,
+        "sourceLine": 127,
         "summary": "`hidden` global attribute value.",
         "categories": [
           "schemas"
@@ -19923,7 +19923,7 @@
         "symbolName": "InputMode",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 107,
+        "sourceLine": 109,
         "summary": "`inputmode` global attribute value.",
         "categories": [
           "schemas"
@@ -21627,7 +21627,7 @@
         "symbolName": "Popover",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 134,
+        "sourceLine": 136,
         "summary": "`popover` global attribute value.",
         "categories": [
           "schemas"
@@ -21651,7 +21651,7 @@
         "symbolName": "PopoverTargetAction",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 143,
+        "sourceLine": 145,
         "summary": "`popovertargetaction` global attribute value.",
         "categories": [
           "schemas"
@@ -22683,7 +22683,7 @@
         "symbolName": "SpellCheck",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 71,
+        "sourceLine": 73,
         "summary": "`spellcheck` global attribute value.",
         "categories": [
           "schemas"
@@ -22707,7 +22707,7 @@
         "symbolName": "StandardGlobalAttributes",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 171,
+        "sourceLine": 173,
         "summary": "The WHATWG global attributes (`dom.html#global-attributes`), value-typed.",
         "categories": [
           "schemas"
@@ -23644,7 +23644,7 @@
         "symbolName": "Translate",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 44,
+        "sourceLine": 46,
         "summary": "`translate` global attribute value.",
         "categories": [
           "schemas"
@@ -23981,7 +23981,7 @@
         "symbolName": "WritingSuggestions",
         "exportKind": "const",
         "sourcePath": "packages/foundation/modeling/html/src/Html.attributes.ts",
-        "sourceLine": 80,
+        "sourceLine": 82,
         "summary": "`writingsuggestions` global attribute value.",
         "categories": [
           "schemas"

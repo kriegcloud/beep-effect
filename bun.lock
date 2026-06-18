@@ -923,6 +923,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1096,32 +1098,6 @@
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
         "storybook": "catalog:",
-      },
-      "peerDependencies": {
-        "react": "^19",
-        "react-dom": "^19",
-      },
-    },
-    "packages/foundation/ui-system/form": {
-      "name": "@beep/form",
-      "version": "0.0.1",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/types": "workspace:^",
-        "@effect/atom-react": "catalog:",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@testing-library/dom": "catalog:",
-        "@testing-library/jest-dom": "catalog:",
-        "@testing-library/react": "catalog:",
-        "@testing-library/user-event": "^14.6.1",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "bun-types": "catalog:",
-        "jsdom": "catalog:",
       },
       "peerDependencies": {
         "react": "^19",
@@ -2091,8 +2067,6 @@
     "@beep/file-processing": ["@beep/file-processing@workspace:packages/foundation/capability/file-processing"],
 
     "@beep/firecrawl": ["@beep/firecrawl@workspace:packages/drivers/firecrawl"],
-
-    "@beep/form": ["@beep/form@workspace:packages/foundation/ui-system/form"],
 
     "@beep/html": ["@beep/html@workspace:packages/foundation/modeling/html"],
 

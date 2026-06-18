@@ -192,12 +192,6 @@
         ]
       },
       {
-        "name": "@beep/form",
-        "patterns": [
-          "packages/foundation/ui-system/form/src/**"
-        ]
-      },
-      {
         "name": "@beep/html",
         "patterns": [
           "packages/foundation/modeling/html/src/**"
@@ -1013,27 +1007,18 @@
         ]
       },
       {
-        "from": "@beep/form",
-        "allow": [
-          "@beep/form",
-          "@beep/identity",
-          "@beep/types"
-        ],
-        "allowTypeOnly": [
-          "@beep/form",
-          "@beep/identity",
-          "@beep/types"
-        ]
-      },
-      {
         "from": "@beep/html",
         "allow": [
           "@beep/html",
-          "@beep/identity"
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/html",
-          "@beep/identity"
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {

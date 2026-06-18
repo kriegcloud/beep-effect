@@ -7,7 +7,6 @@
 "@beep/agents-use-cases": patch
 "@beep/acp": patch
 "@beep/architecture-lab-server": patch
-"@beep/form": patch
 "@beep/libpff": patch
 "@beep/md": patch
 "@beep/nlp": patch

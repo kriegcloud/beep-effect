@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-15T19:39:10.395Z
+Generated: 2026-06-18T04:33:51.303Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 87 |
+| packages | 88 |
 | cleanPackages | 19 |
 | packagesWithoutPublicSrcSurface | 2 |
-| packagesNeedingRemediation | 62 |
-| publicModules | 1240 |
-| publicExports | 12413 |
+| packagesNeedingRemediation | 63 |
+| publicModules | 1235 |
+| publicExports | 12787 |
 | openModules | 113 |
-| openExports | 1591 |
-| missingExportExamples | 1255 |
-| missingExportCategories | 63 |
-| missingExportSince | 63 |
+| openExports | 2001 |
+| missingExportExamples | 1667 |
+| missingExportCategories | 62 |
+| missingExportSince | 62 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
 | exampleImportFindings | 25 |
 | unsafeExampleFindings | 171 |
-| schemaAnnotationFindings | 165 |
+| schemaAnnotationFindings | 186 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -46,7 +46,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 5 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
-| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 12 | 39 | 0 | 4 |
+| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 12 | 39 | 0 | 3 |
 | 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
 | 8 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 9 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
@@ -91,43 +91,44 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 48 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 4 | 13 | 0 | 3 |
 | 49 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
 | 50 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 51 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
-| 52 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 102 | 0 | 4 |
-| 53 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 54 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
-| 55 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 56 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 5 | 26 | 0 | 0 |
-| 57 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 15 | 23 | 0 | 12 |
-| 58 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
-| 59 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
-| 60 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
-| 61 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 62 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
-| 63 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
-| 64 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 65 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 668 | 2 | 81 |
-| 66 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
-| 67 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
-| 68 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
-| 69 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
-| 70 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
-| 71 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 72 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
-| 73 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 74 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 75 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 20 | 0 | 4 |
-| 76 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
-| 77 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
-| 78 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
-| 79 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 51 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 104 | 0 | 4 |
+| 52 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 53 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
+| 54 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 55 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 5 | 26 | 0 | 0 |
+| 56 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 15 | 23 | 0 | 12 |
+| 57 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
+| 58 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
+| 59 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
+| 60 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 61 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 614 | 0 | 39 |
+| 62 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
+| 63 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
+| 64 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 65 | 668 | 2 | 81 |
+| 65 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 223 | 1471 | 0 | 704 |
+| 66 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
+| 67 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
+| 68 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
+| 69 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
+| 70 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 71 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
+| 72 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 73 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 74 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 20 | 0 | 4 |
+| 75 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
+| 76 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 134 | 3 | 24 |
+| 77 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
+| 78 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
+| 79 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 5 | 337 | 0 | 333 |
 | 80 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 506 | 108 | 64 |
-| 81 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
-| 82 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
-| 83 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
-| 84 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
-| 85 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 6 | 12 | 0 | 4 |
-| 86 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
-| 87 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 81 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 5 | 119 | 0 | 92 |
+| 82 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
+| 83 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
+| 84 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
+| 85 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
+| 86 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 6 | 12 | 0 | 4 |
+| 87 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
+| 88 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
 
 ## Open Findings
 
@@ -145,11 +146,6 @@ Export findings:
 Path: `packages/agents/domain`
 
 Export findings:
-- `src/turn/index.ts:49` `export type {
-  AssistantBlock as AssistantBlockType,
-  AssistantContent as AssistantContentType,
-  InlineNode as InlineNodeType,
-} from "../values/AssistantContent/index.js";` (re-export) - missing @example, @category, @since
 - `src/values/AssistantContent/AssistantContent.behavior.ts:78` `blockToMd` (const) - 2 schema annotation/type-alias gap(s)
 - `src/values/AssistantContent/AssistantContent.model.ts:118` `InlineNode` (type) - missing @example
 - `src/values/AssistantContent/AssistantContent.model.ts:469` `AssistantBlock` (type) - missing @example
@@ -563,8 +559,8 @@ Export findings:
 Path: `packages/agents/server`
 
 Export findings:
-- `src/AssistantTurn/BlockRepair.ts:100` `BlockRepairCall` (type) - missing @example
-- `src/AssistantTurn/BlockRepair.ts:111` `RepairInvalidBlocks` (type) - missing @example
+- `src/AssistantTurn/BlockRepair.ts:109` `BlockRepairCall` (type) - missing @example
+- `src/AssistantTurn/BlockRepair.ts:120` `RepairInvalidBlocks` (type) - missing @example
 - `src/index.ts:15` `export * as AssistantTurn from "./AssistantTurn/index.js";` (re-export) - missing @example
 
 ### @beep/workspace-use-cases
@@ -998,26 +994,6 @@ Export findings:
 - `src/index.ts:21` `export * from "./Libpff.pffexport.ts";` (re-export) - missing @example
 - `src/index.ts:28` `export * from "./Libpff.service.ts";` (re-export) - missing @example
 
-### @beep/form
-
-Path: `packages/foundation/ui-system/form`
-
-Export findings:
-- `src/core.ts:13` `export * from "./core/index.ts";` (re-export) - missing @example
-- `src/core/FormAtoms.ts:305` `make` (const) - 2 schema annotation/type-alias gap(s)
-- `src/core/FormBuilder.ts:444` `buildSchema` (const) - 2 schema annotation/type-alias gap(s)
-- `src/core/index.ts:7` `export * as Field from "./Field.ts";` (re-export) - missing @example
-- `src/core/index.ts:14` `export * as FieldState from "./FieldState.ts";` (re-export) - missing @example
-- `src/core/index.ts:21` `export * as FormAtoms from "./FormAtoms.ts";` (re-export) - missing @example
-- `src/core/index.ts:28` `export * as FormBuilder from "./FormBuilder.ts";` (re-export) - missing @example
-- `src/core/index.ts:35` `export * as Mode from "./Mode.ts";` (re-export) - missing @example
-- `src/core/index.ts:42` `export * as Path from "./Path.ts";` (re-export) - missing @example
-- `src/core/index.ts:49` `export * as Validation from "./Validation.ts";` (re-export) - missing @example
-- `src/index.ts:15` `export * from "./core.ts";` (re-export) - missing @example
-- `src/react.ts:13` `export * from "./react/index.ts";` (re-export) - missing @example
-- `src/react/index.ts:7` `export * from "../core.ts";` (re-export) - missing @example
-- `src/react/index.ts:14` `export * as FormReact from "./FormReact.tsx";` (re-export) - missing @example
-
 ### @beep/identity
 
 Path: `packages/foundation/modeling/identity`
@@ -1053,8 +1029,8 @@ Export findings:
 Path: `apps/professional-desktop`
 
 Export findings:
-- `src/chat/ChatOrchestrator.ts:111` `documentToPlainText` (const) - missing @example
-- `src/chat/ChatOrchestrator.ts:421` `makeChatOperations` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:112` `documentToPlainText` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:422` `makeChatOperations` (const) - missing @example
 - `src/chat/UsageRecordSink.ts:27` `UsageRecordSinkShape` (interface) - missing @example
 - `src/chat/UsageRecordSink.ts:38` `UsageRecordSink` (class) - missing @example
 - `src/chat/UsageRecordSink.ts:51` `makeInMemoryUsageRecordSink` (const) - missing @example
@@ -2397,10 +2373,10 @@ Export findings:
 Path: `packages/agents/client`
 
 Export findings:
-- `src/Chat.atoms.ts:220` `StreamingTurn` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:289` `EditTarget` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:394` `TurnRequest` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:402` `TurnRequest` (type) - missing @example
+- `src/Chat.atoms.ts:217` `StreamingTurn` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:286` `EditTarget` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:391` `TurnRequest` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:399` `TurnRequest` (type) - missing @example
 
 ### @beep/observability
 
@@ -2443,6 +2419,345 @@ Path: `packages/drivers/konva`
 
 Export findings:
 - `src/index.ts:21` `VERSION` (const) - 1 category casing violation(s)
+
+### @beep/html
+
+Path: `packages/foundation/modeling/html`
+
+Export findings:
+- `src/Html.attributes.ts:37` `Dir` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:46` `Translate` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:55` `ContentEditable` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:64` `Draggable` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:73` `SpellCheck` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:82` `WritingSuggestions` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:91` `AutoCapitalize` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:100` `AutoCorrect` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:109` `InputMode` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:118` `EnterKeyHint` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:127` `Hidden` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:136` `Popover` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:145` `PopoverTargetAction` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:156` `BooleanAttribute` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:173` `StandardGlobalAttributes` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:218` `DatasetAttribute` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:285` `AriaAttributes` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:374` `EventHandlerAttributes` (const) - missing @example
+- `src/Html.attributes.ts:385` `GlobalAttributes` (const) - missing @example
+- `src/Html.attributes.ts:400` `GlobalAttributesStruct` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:408` `GlobalAttributesType` (type) - missing @example
+- `src/Html.attributes.ts:416` `GlobalAttributesEncoded` (type) - missing @example
+- `src/Html.meta.ts:18` `HtmlElementMeta` (const) - missing @example
+- `src/Html.meta.ts:33` `HtmlElementMeta` (type) - missing @example
+- `src/Html.meta.ts:41` `ELEMENT_META` (const) - missing @example
+- `src/Html.model.ts:47` `HtmlChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.model.ts:56` `HtmlChildren` (namespace) - missing @example
+- `src/Html.model.ts:69` `Fragment` (class) - missing @example
+- `src/Html.model.ts:80` `Fragment` (namespace) - missing @example
+- `src/Html.model.ts:93` `Document` (class) - missing @example
+- `src/Html.model.ts:104` `Document` (namespace) - missing @example
+- `src/Html.model.ts:117` `A` (class) - missing @example
+- `src/Html.model.ts:165` `A` (namespace) - missing @example
+- `src/Html.model.ts:246` `Abbr` (class) - missing @example
+- `src/Html.model.ts:260` `Abbr` (namespace) - missing @example
+- `src/Html.model.ts:279` `Acronym` (class) - missing @example
+- `src/Html.model.ts:293` `Acronym` (namespace) - missing @example
+- `src/Html.model.ts:312` `Address` (class) - missing @example
+- `src/Html.model.ts:326` `Address` (namespace) - missing @example
+- `src/Html.model.ts:345` `Applet` (class) - missing @example
+- `src/Html.model.ts:359` `Applet` (namespace) - missing @example
+- `src/Html.model.ts:378` `Area` (class) - missing @example
+- `src/Html.model.ts:422` `Area` (namespace) - missing @example
+- `src/Html.model.ts:495` `Article` (class) - missing @example
+- `src/Html.model.ts:509` `Article` (namespace) - missing @example
+- `src/Html.model.ts:528` `Aside` (class) - missing @example
+- `src/Html.model.ts:542` `Aside` (namespace) - missing @example
+- `src/Html.model.ts:561` `Audio` (class) - missing @example
+- `src/Html.model.ts:583` `Audio` (namespace) - missing @example
+- `src/Html.model.ts:618` `B` (class) - missing @example
+- `src/Html.model.ts:632` `B` (namespace) - missing @example
+- `src/Html.model.ts:651` `Base` (class) - missing @example
+- `src/Html.model.ts:666` `Base` (namespace) - missing @example
+- `src/Html.model.ts:687` `Basefont` (class) - missing @example
+- `src/Html.model.ts:700` `Basefont` (namespace) - missing @example
+- `src/Html.model.ts:717` `Bdi` (class) - missing @example
+- `src/Html.model.ts:731` `Bdi` (namespace) - missing @example
+- `src/Html.model.ts:750` `Bdo` (class) - missing @example
+- `src/Html.model.ts:764` `Bdo` (namespace) - missing @example
+- `src/Html.model.ts:783` `Bgsound` (class) - missing @example
+- `src/Html.model.ts:796` `Bgsound` (namespace) - missing @example
+- `src/Html.model.ts:813` `Big` (class) - missing @example
+- `src/Html.model.ts:827` `Big` (namespace) - missing @example
+- `src/Html.model.ts:846` `Blink` (class) - missing @example
+- `src/Html.model.ts:860` `Blink` (namespace) - missing @example
+- `src/Html.model.ts:879` `Blockquote` (class) - missing @example
+- `src/Html.model.ts:894` `Blockquote` (namespace) - missing @example
+- `src/Html.model.ts:915` `Body` (class) - missing @example
+- `src/Html.model.ts:940` `Body` (namespace) - missing @example
+- `src/Html.model.ts:981` `Br` (class) - missing @example
+- `src/Html.model.ts:995` `Br` (namespace) - missing @example
+- `src/Html.model.ts:1014` `Button` (class) - missing @example
+- `src/Html.model.ts:1113` `Button` (namespace) - missing @example
+- `src/Html.model.ts:1296` `Canvas` (class) - missing @example
+- `src/Html.model.ts:1312` `Canvas` (namespace) - missing @example
+- `src/Html.model.ts:1335` `Caption` (class) - missing @example
+- `src/Html.model.ts:1350` `Caption` (namespace) - missing @example
+- `src/Html.model.ts:1371` `Center` (class) - missing @example
+- `src/Html.model.ts:1385` `Center` (namespace) - missing @example
+- `src/Html.model.ts:1404` `Cite` (class) - missing @example
+- `src/Html.model.ts:1418` `Cite` (namespace) - missing @example
+- `src/Html.model.ts:1437` `Code` (class) - missing @example
+- `src/Html.model.ts:1451` `Code` (namespace) - missing @example
+- `src/Html.model.ts:1470` `Col` (class) - missing @example
+- `src/Html.model.ts:1489` `Col` (namespace) - missing @example
+- `src/Html.model.ts:1518` `Colgroup` (class) - missing @example
+- `src/Html.model.ts:1533` `Colgroup` (namespace) - missing @example
+- `src/Html.model.ts:1554` `Data` (class) - missing @example
+- `src/Html.model.ts:1569` `Data` (namespace) - missing @example
+- `src/Html.model.ts:1590` `Datalist` (class) - missing @example
+- `src/Html.model.ts:1604` `Datalist` (namespace) - missing @example
+- `src/Html.model.ts:1623` `Dd` (class) - missing @example
+- `src/Html.model.ts:1637` `Dd` (namespace) - missing @example
+- `src/Html.model.ts:1656` `Del` (class) - missing @example
+- `src/Html.model.ts:1672` `Del` (namespace) - missing @example
+- `src/Html.model.ts:1695` `Details` (class) - missing @example
+- `src/Html.model.ts:1711` `Details` (namespace) - missing @example
+- `src/Html.model.ts:1734` `Dfn` (class) - missing @example
+- `src/Html.model.ts:1748` `Dfn` (namespace) - missing @example
+- `src/Html.model.ts:1767` `Dialog` (class) - missing @example
+- `src/Html.model.ts:1783` `Dialog` (namespace) - missing @example
+- `src/Html.model.ts:1806` `DirElement` (class) - missing @example
+- `src/Html.model.ts:1820` `DirElement` (namespace) - missing @example
+- `src/Html.model.ts:1839` `Div` (class) - missing @example
+- `src/Html.model.ts:1854` `Div` (namespace) - missing @example
+- `src/Html.model.ts:1875` `Dl` (class) - missing @example
+- `src/Html.model.ts:1890` `Dl` (namespace) - missing @example
+- `src/Html.model.ts:1911` `Dt` (class) - missing @example
+- `src/Html.model.ts:1925` `Dt` (namespace) - missing @example
+- `src/Html.model.ts:1944` `Em` (class) - missing @example
+- `src/Html.model.ts:1958` `Em` (namespace) - missing @example
+- `src/Html.model.ts:1977` `Embed` (class) - missing @example
+- `src/Html.model.ts:1998` `Embed` (namespace) - missing @example
+- `src/Html.model.ts:2031` `Fieldset` (class) - missing @example
+- `src/Html.model.ts:2116` `Fieldset` (namespace) - missing @example
+- `src/Html.model.ts:2271` `Figcaption` (class) - missing @example
+- `src/Html.model.ts:2285` `Figcaption` (namespace) - missing @example
+- `src/Html.model.ts:2304` `Figure` (class) - missing @example
+- `src/Html.model.ts:2318` `Figure` (namespace) - missing @example
+- `src/Html.model.ts:2337` `Font` (class) - missing @example
+- `src/Html.model.ts:2351` `Font` (namespace) - missing @example
+- `src/Html.model.ts:2370` `Footer` (class) - missing @example
+- `src/Html.model.ts:2384` `Footer` (namespace) - missing @example
+- `src/Html.model.ts:2403` `Form` (class) - missing @example
+- `src/Html.model.ts:2445` `Form` (namespace) - missing @example
+- `src/Html.model.ts:2514` `Frame` (class) - missing @example
+- `src/Html.model.ts:2527` `Frame` (namespace) - missing @example
+- `src/Html.model.ts:2544` `Frameset` (class) - missing @example
+- `src/Html.model.ts:2558` `Frameset` (namespace) - missing @example
+- `src/Html.model.ts:2577` `H1` (class) - missing @example
+- `src/Html.model.ts:2592` `H1` (namespace) - missing @example
+- `src/Html.model.ts:2613` `H2` (class) - missing @example
+- `src/Html.model.ts:2628` `H2` (namespace) - missing @example
+- `src/Html.model.ts:2649` `H3` (class) - missing @example
+- `src/Html.model.ts:2664` `H3` (namespace) - missing @example
+- `src/Html.model.ts:2685` `H4` (class) - missing @example
+- `src/Html.model.ts:2700` `H4` (namespace) - missing @example
+- `src/Html.model.ts:2721` `H5` (class) - missing @example
+- `src/Html.model.ts:2736` `H5` (namespace) - missing @example
+- `src/Html.model.ts:2757` `H6` (class) - missing @example
+- `src/Html.model.ts:2772` `H6` (namespace) - missing @example
+- `src/Html.model.ts:2793` `Head` (class) - missing @example
+- `src/Html.model.ts:2808` `Head` (namespace) - missing @example
+- `src/Html.model.ts:2829` `Header` (class) - missing @example
+- `src/Html.model.ts:2843` `Header` (namespace) - missing @example
+- `src/Html.model.ts:2862` `Hgroup` (class) - missing @example
+- `src/Html.model.ts:2876` `Hgroup` (namespace) - missing @example
+- `src/Html.model.ts:2895` `Hr` (class) - missing @example
+- `src/Html.model.ts:2913` `Hr` (namespace) - missing @example
+- `src/Html.model.ts:2940` `Html` (class) - missing @example
+- `src/Html.model.ts:2956` `Html` (namespace) - missing @example
+- `src/Html.model.ts:2979` `I` (class) - missing @example
+- `src/Html.model.ts:2993` `I` (namespace) - missing @example
+- `src/Html.model.ts:3012` `Iframe` (class) - missing @example
+- `src/Html.model.ts:3062` `Iframe` (namespace) - missing @example
+- `src/Html.model.ts:3147` `Img` (class) - missing @example
+- `src/Html.model.ts:3181` `Img` (namespace) - missing @example
+- `src/Html.model.ts:3240` `Input` (class) - missing @example
+- `src/Html.model.ts:3376` `Input` (namespace) - missing @example
+- `src/Html.model.ts:3627` `Ins` (class) - missing @example
+- `src/Html.model.ts:3643` `Ins` (namespace) - missing @example
+- `src/Html.model.ts:3666` `Isindex` (class) - missing @example
+- `src/Html.model.ts:3679` `Isindex` (namespace) - missing @example
+- `src/Html.model.ts:3696` `Kbd` (class) - missing @example
+- `src/Html.model.ts:3710` `Kbd` (namespace) - missing @example
+- `src/Html.model.ts:3729` `Keygen` (class) - missing @example
+- `src/Html.model.ts:3742` `Keygen` (namespace) - missing @example
+- `src/Html.model.ts:3759` `Label` (class) - missing @example
+- `src/Html.model.ts:3774` `Label` (namespace) - missing @example
+- `src/Html.model.ts:3795` `Legend` (class) - missing @example
+- `src/Html.model.ts:3810` `Legend` (namespace) - missing @example
+- `src/Html.model.ts:3831` `Li` (class) - missing @example
+- `src/Html.model.ts:3847` `Li` (namespace) - missing @example
+- `src/Html.model.ts:3870` `Link` (class) - missing @example
+- `src/Html.model.ts:3927` `Link` (namespace) - missing @example
+- `src/Html.model.ts:4026` `Listing` (class) - missing @example
+- `src/Html.model.ts:4040` `Listing` (namespace) - missing @example
+- `src/Html.model.ts:4059` `Main` (class) - missing @example
+- `src/Html.model.ts:4073` `Main` (namespace) - missing @example
+- `src/Html.model.ts:4092` `MapElement` (class) - missing @example
+- `src/Html.model.ts:4107` `MapElement` (namespace) - missing @example
+- `src/Html.model.ts:4128` `Mark` (class) - missing @example
+- `src/Html.model.ts:4142` `Mark` (namespace) - missing @example
+- `src/Html.model.ts:4161` `Marquee` (class) - missing @example
+- `src/Html.model.ts:4179` `Marquee` (namespace) - missing @example
+- `src/Html.model.ts:4206` `Menu` (class) - missing @example
+- `src/Html.model.ts:4223` `Menu` (namespace) - missing @example
+- `src/Html.model.ts:4248` `Menuitem` (class) - missing @example
+- `src/Html.model.ts:4262` `Menuitem` (namespace) - missing @example
+- `src/Html.model.ts:4281` `Meta` (class) - missing @example
+- `src/Html.model.ts:4321` `Meta` (namespace) - missing @example
+- `src/Html.model.ts:4380` `Meter` (class) - missing @example
+- `src/Html.model.ts:4400` `Meter` (namespace) - missing @example
+- `src/Html.model.ts:4431` `Multicol` (class) - missing @example
+- `src/Html.model.ts:4445` `Multicol` (namespace) - missing @example
+- `src/Html.model.ts:4464` `Nav` (class) - missing @example
+- `src/Html.model.ts:4478` `Nav` (namespace) - missing @example
+- `src/Html.model.ts:4497` `Nextid` (class) - missing @example
+- `src/Html.model.ts:4510` `Nextid` (namespace) - missing @example
+- `src/Html.model.ts:4527` `Nobr` (class) - missing @example
+- `src/Html.model.ts:4541` `Nobr` (namespace) - missing @example
+- `src/Html.model.ts:4560` `Noembed` (class) - missing @example
+- `src/Html.model.ts:4574` `Noembed` (namespace) - missing @example
+- `src/Html.model.ts:4593` `Noframes` (class) - missing @example
+- `src/Html.model.ts:4607` `Noframes` (namespace) - missing @example
+- `src/Html.model.ts:4626` `Noscript` (class) - missing @example
+- `src/Html.model.ts:4640` `Noscript` (namespace) - missing @example
+- `src/Html.model.ts:4659` `ObjectElement` (class) - missing @example
+- `src/Html.model.ts:4761` `ObjectElement` (namespace) - missing @example
+- `src/Html.model.ts:4950` `Ol` (class) - missing @example
+- `src/Html.model.ts:4968` `Ol` (namespace) - missing @example
+- `src/Html.model.ts:4995` `Optgroup` (class) - missing @example
+- `src/Html.model.ts:5011` `Optgroup` (namespace) - missing @example
+- `src/Html.model.ts:5034` `Option` (class) - missing @example
+- `src/Html.model.ts:5053` `Option` (namespace) - missing @example
+- `src/Html.model.ts:5082` `Output` (class) - missing @example
+- `src/Html.model.ts:5168` `Output` (namespace) - missing @example
+- `src/Html.model.ts:5325` `P` (class) - missing @example
+- `src/Html.model.ts:5340` `P` (namespace) - missing @example
+- `src/Html.model.ts:5361` `Param` (class) - missing @example
+- `src/Html.model.ts:5374` `Param` (namespace) - missing @example
+- `src/Html.model.ts:5391` `Picture` (class) - missing @example
+- `src/Html.model.ts:5405` `Picture` (namespace) - missing @example
+- `src/Html.model.ts:5424` `Plaintext` (class) - missing @example
+- `src/Html.model.ts:5438` `Plaintext` (namespace) - missing @example
+- `src/Html.model.ts:5457` `Pre` (class) - missing @example
+- `src/Html.model.ts:5472` `Pre` (namespace) - missing @example
+- `src/Html.model.ts:5493` `Progress` (class) - missing @example
+- `src/Html.model.ts:5509` `Progress` (namespace) - missing @example
+- `src/Html.model.ts:5532` `Q` (class) - missing @example
+- `src/Html.model.ts:5547` `Q` (namespace) - missing @example
+- `src/Html.model.ts:5568` `Rb` (class) - missing @example
+- `src/Html.model.ts:5582` `Rb` (namespace) - missing @example
+- `src/Html.model.ts:5601` `Rp` (class) - missing @example
+- `src/Html.model.ts:5615` `Rp` (namespace) - missing @example
+- `src/Html.model.ts:5634` `Rt` (class) - missing @example
+- `src/Html.model.ts:5648` `Rt` (namespace) - missing @example
+- `src/Html.model.ts:5667` `Rtc` (class) - missing @example
+- `src/Html.model.ts:5681` `Rtc` (namespace) - missing @example
+- `src/Html.model.ts:5700` `Ruby` (class) - missing @example
+- `src/Html.model.ts:5714` `Ruby` (namespace) - missing @example
+- `src/Html.model.ts:5733` `SElement` (class) - missing @example
+- `src/Html.model.ts:5747` `SElement` (namespace) - missing @example
+- `src/Html.model.ts:5766` `Samp` (class) - missing @example
+- `src/Html.model.ts:5780` `Samp` (namespace) - missing @example
+- `src/Html.model.ts:5799` `Script` (class) - missing @example
+- `src/Html.model.ts:5827` `Script` (namespace) - missing @example
+- `src/Html.model.ts:5874` `Search` (class) - missing @example
+- `src/Html.model.ts:5888` `Search` (namespace) - missing @example
+- `src/Html.model.ts:5907` `Section` (class) - missing @example
+- `src/Html.model.ts:5921` `Section` (namespace) - missing @example
+- `src/Html.model.ts:5940` `Select` (class) - missing @example
+- `src/Html.model.ts:6028` `Select` (namespace) - missing @example
+- `src/Html.model.ts:6189` `Selectedcontent` (class) - missing @example
+- `src/Html.model.ts:6203` `Selectedcontent` (namespace) - missing @example
+- `src/Html.model.ts:6222` `Slot` (class) - missing @example
+- `src/Html.model.ts:6237` `Slot` (namespace) - missing @example
+- `src/Html.model.ts:6258` `Small` (class) - missing @example
+- `src/Html.model.ts:6272` `Small` (namespace) - missing @example
+- `src/Html.model.ts:6291` `Source` (class) - missing @example
+- `src/Html.model.ts:6311` `Source` (namespace) - missing @example
+- `src/Html.model.ts:6342` `Spacer` (class) - missing @example
+- `src/Html.model.ts:6355` `Spacer` (namespace) - missing @example
+- `src/Html.model.ts:6372` `Span` (class) - missing @example
+- `src/Html.model.ts:6386` `Span` (namespace) - missing @example
+- `src/Html.model.ts:6405` `Strike` (class) - missing @example
+- `src/Html.model.ts:6419` `Strike` (namespace) - missing @example
+- `src/Html.model.ts:6438` `Strong` (class) - missing @example
+- `src/Html.model.ts:6452` `Strong` (namespace) - missing @example
+- `src/Html.model.ts:6471` `Style` (class) - missing @example
+- `src/Html.model.ts:6488` `Style` (namespace) - missing @example
+- `src/Html.model.ts:6513` `Sub` (class) - missing @example
+- `src/Html.model.ts:6527` `Sub` (namespace) - missing @example
+- `src/Html.model.ts:6546` `Summary` (class) - missing @example
+- `src/Html.model.ts:6560` `Summary` (namespace) - missing @example
+- `src/Html.model.ts:6579` `Sup` (class) - missing @example
+- `src/Html.model.ts:6593` `Sup` (namespace) - missing @example
+- `src/Html.model.ts:6612` `Table` (class) - missing @example
+- `src/Html.model.ts:6638` `Table` (namespace) - missing @example
+- `src/Html.model.ts:6681` `Tbody` (class) - missing @example
+- `src/Html.model.ts:6700` `Tbody` (namespace) - missing @example
+- `src/Html.model.ts:6729` `Td` (class) - missing @example
+- `src/Html.model.ts:6757` `Td` (namespace) - missing @example
+- `src/Html.model.ts:6804` `Template` (class) - missing @example
+- `src/Html.model.ts:6824` `Template` (namespace) - missing @example
+- `src/Html.model.ts:6855` `Textarea` (class) - missing @example
+- `src/Html.model.ts:6949` `Textarea` (namespace) - missing @example
+- `src/Html.model.ts:7122` `Tfoot` (class) - missing @example
+- `src/Html.model.ts:7136` `Tfoot` (namespace) - missing @example
+- `src/Html.model.ts:7155` `Th` (class) - missing @example
+- `src/Html.model.ts:7183` `Th` (namespace) - missing @example
+- `src/Html.model.ts:7230` `Thead` (class) - missing @example
+- `src/Html.model.ts:7244` `Thead` (namespace) - missing @example
+- `src/Html.model.ts:7263` `Time` (class) - missing @example
+- `src/Html.model.ts:7278` `Time` (namespace) - missing @example
+- `src/Html.model.ts:7299` `Title` (class) - missing @example
+- `src/Html.model.ts:7313` `Title` (namespace) - missing @example
+- `src/Html.model.ts:7332` `Tr` (class) - missing @example
+- `src/Html.model.ts:7352` `Tr` (namespace) - missing @example
+- `src/Html.model.ts:7383` `Track` (class) - missing @example
+- `src/Html.model.ts:7401` `Track` (namespace) - missing @example
+- `src/Html.model.ts:7428` `Tt` (class) - missing @example
+- `src/Html.model.ts:7442` `Tt` (namespace) - missing @example
+- `src/Html.model.ts:7461` `U` (class) - missing @example
+- `src/Html.model.ts:7475` `U` (namespace) - missing @example
+- `src/Html.model.ts:7494` `Ul` (class) - missing @example
+- `src/Html.model.ts:7510` `Ul` (namespace) - missing @example
+- `src/Html.model.ts:7533` `Var` (class) - missing @example
+- `src/Html.model.ts:7547` `Var` (namespace) - missing @example
+- `src/Html.model.ts:7566` `Video` (class) - missing @example
+- `src/Html.model.ts:7592` `Video` (namespace) - missing @example
+- `src/Html.model.ts:7635` `Wbr` (class) - missing @example
+- `src/Html.model.ts:7648` `Wbr` (namespace) - missing @example
+- `src/Html.model.ts:7665` `Xmp` (class) - missing @example
+- `src/Html.model.ts:7679` `Xmp` (namespace) - missing @example
+- `src/Html.model.ts:7699` `HtmlNode` (const) - missing @example
+- `src/Html.model.ts:7858` `HtmlNode` (namespace) - missing @example
+- `src/Html.model.ts:8166` `Metadata` (const) - missing @example
+- `src/Html.model.ts:8185` `Flow` (const) - missing @example
+- `src/Html.model.ts:8451` `Sectioning` (const) - missing @example
+- `src/Html.model.ts:8463` `Heading` (const) - missing @example
+- `src/Html.model.ts:8475` `Phrasing` (const) - missing @example
+- `src/Html.model.ts:8648` `Embedded` (const) - missing @example
+- `src/Html.model.ts:8676` `Interactive` (const) - missing @example
+- `src/Html.model.ts:8729` `Palpable` (const) - missing @example
+- `src/Html.model.ts:8959` `ScriptSupporting` (const) - missing @example
+- `src/Html.nodes.ts:48` `Text` (namespace) - missing @example
+- `src/Html.nodes.ts:64` `Comment` (class) - missing @example
+- `src/Html.nodes.ts:80` `Comment` (namespace) - missing @example
+- `src/Html.nodes.ts:96` `Doctype` (class) - missing @example
+- `src/Html.nodes.ts:114` `Doctype` (namespace) - missing @example
+- `src/index.ts:34` `export * from "./Html.attributes.ts";` (re-export) - missing @example
+- `src/index.ts:42` `export * from "./Html.meta.ts";` (re-export) - missing @example
 
 ### @beep/ui
 
@@ -2623,6 +2938,104 @@ Export findings:
 - `src/themes/theme-provider.tsx:108` `ResolvedThemeMode` (type) - missing @example
 - `src/themes/types.ts:17` `ThemeOptions` (type) - 1 unsafe example violation(s)
 - `src/themes/types.ts:33` `ThemeComponents` (type) - 1 unsafe example violation(s)
+
+### @beep/pandoc-ast
+
+Path: `packages/foundation/modeling/pandoc-ast`
+
+Export findings:
+- `src/Pandoc.codec.ts:57` `PandocConstructorWire` (class) - missing @example
+- `src/Pandoc.codec.ts:77` `PandocConstructorWire` (namespace) - missing @example
+- `src/Pandoc.codec.ts:130` `PandocJsonWire` (namespace) - missing @example
+- `src/Pandoc.codec.ts:152` `PandocJsonFromString` (const) - missing @example
+- `src/Pandoc.codec.ts:164` `PandocJsonFromString` (type) - missing @example
+- `src/Pandoc.mapping.ts:880` `PandocToDocumentResult` (class) - missing @example
+- `src/Pandoc.mapping.ts:900` `PandocToDocumentResult` (namespace) - missing @example
+- `src/Pandoc.mapping.ts:924` `DocumentToPandocResult` (class) - missing @example
+- `src/Pandoc.mapping.ts:944` `DocumentToPandocResult` (namespace) - missing @example
+- `src/Pandoc.model.ts:39` `PandocApiVersion` (type) - missing @example
+- `src/Pandoc.model.ts:47` `PandocKeyValue` (const) - missing @example
+- `src/Pandoc.model.ts:59` `PandocKeyValue` (type) - missing @example
+- `src/Pandoc.model.ts:100` `PandocAttr` (namespace) - missing @example
+- `src/Pandoc.model.ts:150` `PandocTarget` (namespace) - missing @example
+- `src/Pandoc.model.ts:190` `PandocMathType` (type) - missing @example
+- `src/Pandoc.model.ts:225` `PandocListNumberStyle` (type) - missing @example
+- `src/Pandoc.model.ts:252` `PandocListNumberDelimiter` (type) - missing @example
+- `src/Pandoc.model.ts:260` `PandocInlineChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Pandoc.model.ts:274` `PandocInlineChildren` (namespace) - missing @example
+- `src/Pandoc.model.ts:292` `PandocBlockChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Pandoc.model.ts:306` `PandocBlockChildren` (namespace) - missing @example
+- `src/Pandoc.model.ts:324` `PandocListItem` (const) - missing @example
+- `src/Pandoc.model.ts:338` `PandocListItem` (type) - missing @example
+- `src/Pandoc.model.ts:346` `PandocListItems` (const) - missing @example
+- `src/Pandoc.model.ts:358` `PandocListItems` (type) - missing @example
+- `src/Pandoc.model.ts:366` `Str` (class) - missing @example
+- `src/Pandoc.model.ts:384` `Str` (namespace) - missing @example
+- `src/Pandoc.model.ts:405` `Space` (class) - missing @example
+- `src/Pandoc.model.ts:419` `Space` (namespace) - missing @example
+- `src/Pandoc.model.ts:439` `SoftBreak` (class) - missing @example
+- `src/Pandoc.model.ts:453` `SoftBreak` (namespace) - missing @example
+- `src/Pandoc.model.ts:473` `LineBreak` (class) - missing @example
+- `src/Pandoc.model.ts:487` `LineBreak` (namespace) - missing @example
+- `src/Pandoc.model.ts:507` `Emph` (class) - missing @example
+- `src/Pandoc.model.ts:525` `Emph` (namespace) - missing @example
+- `src/Pandoc.model.ts:549` `Strong` (class) - missing @example
+- `src/Pandoc.model.ts:567` `Strong` (namespace) - missing @example
+- `src/Pandoc.model.ts:591` `Strikeout` (class) - missing @example
+- `src/Pandoc.model.ts:609` `Strikeout` (namespace) - missing @example
+- `src/Pandoc.model.ts:633` `Code` (class) - missing @example
+- `src/Pandoc.model.ts:654` `Code` (namespace) - missing @example
+- `src/Pandoc.model.ts:680` `Link` (class) - missing @example
+- `src/Pandoc.model.ts:704` `Link` (namespace) - missing @example
+- `src/Pandoc.model.ts:732` `Image` (class) - missing @example
+- `src/Pandoc.model.ts:756` `Image` (namespace) - missing @example
+- `src/Pandoc.model.ts:784` `Span` (class) - missing @example
+- `src/Pandoc.model.ts:805` `Span` (namespace) - missing @example
+- `src/Pandoc.model.ts:831` `Note` (class) - missing @example
+- `src/Pandoc.model.ts:849` `Note` (namespace) - missing @example
+- `src/Pandoc.model.ts:873` `Math` (class) - missing @example
+- `src/Pandoc.model.ts:894` `Math` (namespace) - missing @example
+- `src/Pandoc.model.ts:916` `UnknownInline` (class) - missing @example
+- `src/Pandoc.model.ts:937` `UnknownInline` (namespace) - missing @example
+- `src/Pandoc.model.ts:959` `PandocInline` (const) - missing @example
+- `src/Pandoc.model.ts:987` `PandocInline` (type) - missing @example
+- `src/Pandoc.model.ts:995` `PandocInline` (namespace) - missing @example
+- `src/Pandoc.model.ts:1041` `Plain` (class) - missing @example
+- `src/Pandoc.model.ts:1059` `Plain` (namespace) - missing @example
+- `src/Pandoc.model.ts:1083` `Para` (class) - missing @example
+- `src/Pandoc.model.ts:1101` `Para` (namespace) - missing @example
+- `src/Pandoc.model.ts:1125` `Header` (class) - missing @example
+- `src/Pandoc.model.ts:1149` `Header` (namespace) - missing @example
+- `src/Pandoc.model.ts:1177` `BlockQuote` (class) - missing @example
+- `src/Pandoc.model.ts:1195` `BlockQuote` (namespace) - missing @example
+- `src/Pandoc.model.ts:1219` `CodeBlock` (class) - missing @example
+- `src/Pandoc.model.ts:1240` `CodeBlock` (namespace) - missing @example
+- `src/Pandoc.model.ts:1266` `BulletList` (class) - missing @example
+- `src/Pandoc.model.ts:1284` `BulletList` (namespace) - missing @example
+- `src/Pandoc.model.ts:1305` `OrderedList` (class) - missing @example
+- `src/Pandoc.model.ts:1332` `OrderedList` (namespace) - missing @example
+- `src/Pandoc.model.ts:1356` `HorizontalRule` (class) - missing @example
+- `src/Pandoc.model.ts:1370` `HorizontalRule` (namespace) - missing @example
+- `src/Pandoc.model.ts:1390` `Div` (class) - missing @example
+- `src/Pandoc.model.ts:1411` `Div` (namespace) - missing @example
+- `src/Pandoc.model.ts:1437` `Table` (class) - missing @example
+- `src/Pandoc.model.ts:1461` `Table` (namespace) - missing @example
+- `src/Pandoc.model.ts:1489` `UnknownBlock` (class) - missing @example
+- `src/Pandoc.model.ts:1510` `UnknownBlock` (namespace) - missing @example
+- `src/Pandoc.model.ts:1532` `PandocBlock` (const) - missing @example
+- `src/Pandoc.model.ts:1557` `PandocBlock` (type) - missing @example
+- `src/Pandoc.model.ts:1565` `PandocBlock` (namespace) - missing @example
+- `src/Pandoc.model.ts:1605` `PandocMeta` (const) - missing @example
+- `src/Pandoc.model.ts:1617` `PandocMeta` (type) - missing @example
+- `src/Pandoc.model.ts:1657` `PandocDocument` (namespace) - missing @example
+- `src/Pandoc.report.ts:41` `PandocMappingDirection` (type) - missing @example
+- `src/Pandoc.report.ts:68` `PandocMappingSeverity` (type) - missing @example
+- `src/Pandoc.report.ts:95` `PandocMappingProfile` (type) - missing @example
+- `src/Pandoc.report.ts:122` `JsonPathSegment` (type) - missing @example
+- `src/Pandoc.report.ts:130` `JsonPath` (const) - missing @example
+- `src/Pandoc.report.ts:142` `JsonPath` (type) - missing @example
+- `src/Pandoc.report.ts:218` `PandocMappingIssue` (namespace) - missing @example
+- `src/Pandoc.report.ts:290` `PandocCompatibilityReport` (namespace) - missing @example
 
 ### @beep/repo-configs
 

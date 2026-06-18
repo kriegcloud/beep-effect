@@ -1,5 +1,4 @@
 ---
-"@beep/form": patch
 "@beep/oip-web": patch
 "@beep/professional-desktop": patch
 "@beep/ui": patch
