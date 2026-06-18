@@ -11,9 +11,6 @@
     "passThroughEnv": [
       "TURBO_TOKEN",
       "TURBO_TEAM",
-      "AI_VENICE_API_KEY",
-      "CLOUD_BOX_TOKEN",
-      "FIRECRAWL_API_KEY",
       "NODE_TLS_REJECT_UNAUTHORIZED",
       "PORTLESS_*",
       "AWS_*",
