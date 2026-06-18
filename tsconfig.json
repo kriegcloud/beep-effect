@@ -1172,6 +1172,9 @@
       ],
       "@beep/file-processing/PathSafety": [
         "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
+      ],
+      "@beep/form": [
+        "./packages/foundation/ui-system/form/src/index.ts"
       ]
     }
   }

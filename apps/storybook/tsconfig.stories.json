@@ -27,6 +27,8 @@
         "../../packages/foundation/ui-system/editor/src/index.ts"
       ],
       "@beep/editor/*": ["../../packages/foundation/ui-system/editor/src/*"],
+      "@beep/form": ["../../packages/foundation/ui-system/form/src/index.ts"],
+      "@beep/form/*": ["../../packages/foundation/ui-system/form/src/*"],
       "@beep/lexical-schema": [
         "../../packages/foundation/modeling/lexical/src/index.ts"
       ],
@@ -48,6 +50,9 @@
     },
     {
       "path": "../../packages/foundation/ui-system/editor/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/ui-system/form/tsconfig.json"
     },
     {
       "path": "../../packages/foundation/ui-system/ui/tsconfig.json"

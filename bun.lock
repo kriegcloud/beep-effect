@@ -154,6 +154,7 @@
       "name": "@beep/storybook",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/form": "workspace:^",
         "@beep/ui": "workspace:^",
         "@storybook/addon-a11y": "catalog:",
         "@storybook/addon-docs": "catalog:",
@@ -1111,6 +1112,31 @@
         "react-dom": "^19",
       },
     },
+    "packages/foundation/ui-system/form": {
+      "name": "@beep/form",
+      "version": "0.0.0",
+      "dependencies": {
+        "@base-ui/react": "catalog:",
+        "@beep/schema": "workspace:^",
+        "@beep/ui": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@effect/atom-react": "catalog:",
+        "@tanstack/react-form": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@storybook/react-vite": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "storybook": "catalog:",
+      },
+      "peerDependencies": {
+        "react": "^19",
+        "react-dom": "^19",
+      },
+    },
     "packages/foundation/ui-system/ui": {
       "name": "@beep/ui",
       "version": "0.1.2",
@@ -1649,6 +1675,7 @@
     "@streamdown/mermaid": "^1.0.2",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.20",
+    "@tanstack/react-form": "1.33.0",
     "@tanstack/react-router": "^1.170.16",
     "@tauri-apps/api": "^2.11.0",
     "@tauri-apps/cli": "^2.11.2",
@@ -2059,6 +2086,8 @@
     "@beep/file-processing": ["@beep/file-processing@workspace:packages/foundation/capability/file-processing"],
 
     "@beep/firecrawl": ["@beep/firecrawl@workspace:packages/drivers/firecrawl"],
+
+    "@beep/form": ["@beep/form@workspace:packages/foundation/ui-system/form"],
 
     "@beep/html": ["@beep/html@workspace:packages/foundation/modeling/html"],
 
@@ -3297,6 +3326,18 @@
     "@tailwindcss/postcss": ["@tailwindcss/postcss@4.3.0", "", { "dependencies": { "@alloc/quick-lru": "^5.2.0", "@tailwindcss/node": "4.3.0", "@tailwindcss/oxide": "4.3.0", "postcss": "^8.5.10", "tailwindcss": "4.3.0" } }, "sha512-Jm05Tjx+9yCLGv5qw1c+84Psds8MnyrEQYCB+FFk2lgGiUjlRqdxke4mVTuYrj2xnVZqKim2Apr5ySuQRYAw/w=="],
 
     "@tailwindcss/typography": ["@tailwindcss/typography@0.5.20", "", { "dependencies": { "postcss-selector-parser": "6.0.10" }, "peerDependencies": { "tailwindcss": ">=3.0.0 || >=4.0.0 || insiders" } }, "sha512-hwbzQuNUfcPvbegQFatVPl/MY/tcM9KLl963hQ5laJKPh81TEZ1+dNG9PirGvcaDBkp+BCshExAyKVPW91dozw=="],
+
+    "@tanstack/devtools-event-client": ["@tanstack/devtools-event-client@0.4.3", "", { "bin": { "intent": "bin/intent.js" } }, "sha512-OZI6QyULw0FI0wjgmeYzCIfbgPsOEzwJtCpa69XrfLMtNXLGnz3d/dIabk7frg0TmHo+Ah49w5I4KC7Tufwsvw=="],
+
+    "@tanstack/form-core": ["@tanstack/form-core@1.33.0", "", { "dependencies": { "@tanstack/devtools-event-client": "^0.4.1", "@tanstack/pacer-lite": "^0.1.1", "@tanstack/store": "^0.11.0" } }, "sha512-AV4Pw9Dk4orFsuPBcDssfWMJFs+yMYBae7zZ4oTqrCf4ftNGQKxvrQRZeqKHG6A4TkiLeSvf2kzIjcVkrW7E6w=="],
+
+    "@tanstack/pacer-lite": ["@tanstack/pacer-lite@0.1.1", "", {}, "sha512-y/xtNPNt/YeyoVxE/JCx+T7yjEzpezmbb+toK8DDD1P4m7Kzs5YR956+7OKexG3f8aXgC3rLZl7b1V+yNUSy5w=="],
+
+    "@tanstack/react-form": ["@tanstack/react-form@1.33.0", "", { "dependencies": { "@tanstack/form-core": "1.33.0", "@tanstack/react-store": "^0.11.0" }, "peerDependencies": { "@tanstack/react-start": "*", "react": "^17.0.0 || ^18.0.0 || ^19.0.0" }, "optionalPeers": ["@tanstack/react-start"] }, "sha512-unaee+VS4MvKo+s1dmgGUXI4902VeAhuaUbKsQbhFe3MceOpB3JpAUGCDpyzjQPXVFkFY0COKfLrUNX2XZYW4g=="],
+
+    "@tanstack/react-store": ["@tanstack/react-store@0.11.0", "", { "dependencies": { "@tanstack/store": "0.11.0", "use-sync-external-store": "^1.6.0" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-tX4YXh3PDkmpvGQWkWqKpzs/MSqbtuwY9dWdWhtV9Q50PmO+jOkUKIWIX4G85dwt7lxdHLXsiaEKPdKmC8F41w=="],
+
+    "@tanstack/store": ["@tanstack/store@0.11.0", "", {}, "sha512-WlzzCt3xi0G6pCAJu1U+2jiECwabETDpQDi3hfkFZvJii9AuZqEKbOiVarX1/bWhTNjU486yQtJCCasi/0q+Cw=="],
 
     "@tauri-apps/api": ["@tauri-apps/api@2.11.1", "", {}, "sha512-M2FPuYND2m+wh5hfW9ZpSdxMPdEJovPBWwoHJmwUpysTYNHaOkVFN419m/K0LIgjb/7KU2vBgsUepJWugQCvAA=="],
 

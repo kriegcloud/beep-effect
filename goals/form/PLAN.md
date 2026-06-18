@@ -2,18 +2,17 @@
 
 ## Status
 
-Status: `P0 complete — awaiting SPEC.md sign-off before P1`.
+Status: `P1 in progress` — SPEC signed off via the documented `/goal` launch.
 
-This plan describes the **full** implementation lifecycle (P0→Close). Only P0
-(research + packet authorship) runs in the authoring session; P1+ execute in
-later sessions **after** sign-off.
+This plan describes the **full** implementation lifecycle (P0→Close). P0
+(research + packet authorship) is complete; P1 (core + fields) is underway.
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Research | complete | Verify codebase facts; select 2026 widget libraries; record the form-core / validation / atom-boundary / date-adapter design. | `research/` holds the codebase-grounding note, widget-library selections (each pinned + adversarially verified), tanstack/base-ui/effect-schema notes, and the design-review note. Scaffolder confirmed by `--dry-run`. No locked-decision contradictions (or any are surfaced). |
-| P1 Core + simple fields | pending | Scaffold `@beep/form`; build the form-core API + the validation adapter + the defaults extractor; bind the P1 fields to existing `@beep/ui` primitives. | See P1 exit criteria below. |
+| P1 Core + simple fields | in progress | Scaffold `@beep/form`; build the form-core API + the validation adapter + the defaults extractor; bind the P1 fields to existing `@beep/ui` primitives. | Scaffold + core + builders + factory + Form/SubmitButton DONE and green; first fields (Text/Number/Textarea/Checkbox/Switch) + unit tests + demo story DONE. Remaining: rest of the field inventory + their stories/`play` tests + per-field units. See P1 exit criteria below. |
 | P2 Dates (adapter port) | pending | Port `AdapterEffectDateTime` to effect v4 into `@beep/ui` as a new MUI-x date/time primitive family; reconcile its `./schema` into `@beep/schema`; bind Date/DateTime/Time fields. | See P2 exit criteria below. |
 | P3 Heavy third-party fields | pending | Add the P3 base-ui/Tailwind primitives to `@beep/ui` (using the P0-selected libraries); bind Phone/Country/Color/Rating/Emoji/Upload fields. | See P3 exit criteria below. |
 | P4 Verify | pending | Run the full quality lane and capture evidence. | `bun run beep yeet verify` green (lint/typecheck/test/docgen); all stories + `play` tests pass in Storybook; demo form works; no new cross-boundary violations. Evidence in `history/`. |
@@ -133,8 +132,8 @@ Before marking the packet closed (and `status` → `completed-retained` /
 
 ## Current Blockers
 
-- **Gate:** awaiting human sign-off on `SPEC.md`. P1 must not start before
-  sign-off.
+- None. SPEC sign-off was given via the documented `/goal` launch (see
+  `README.md` Launch). P1 is underway.
 
 ## Execution Notes
 

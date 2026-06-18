@@ -2,8 +2,9 @@
 
 ## Status
 
-Lifecycle: `active` — P0 research complete; **awaiting `SPEC.md` sign-off before
-P1 begins.**
+Lifecycle: `active` — SPEC signed off (via the documented `/goal` launch); **P1
+in progress.** Package scaffolded and the schema-first core + first field set are
+green (typecheck/lint/test).
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -40,17 +41,28 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-**P0 Research — complete.** Codebase facts verified (scaffolder confirmed via
-two `--dry-run` proofs), 2026 field-widget libraries selected and adversarially
-verified, and the form-core / validation / atom-boundary / date-adapter design
-recorded in `research/`. **Next concrete action: human sign-off on `SPEC.md`.**
-Do **not** start P1 implementation until sign-off lands.
+**P1 Core + simple fields — in progress.** `@beep/form` is scaffolded at
+`packages/foundation/ui-system/form` (family-aware scaffolder; `$FormId`
+registered; root tsconfig + storybook wired; `@tanstack/react-form@1.33.0`
+cataloged). The schema-first core is built and green: `toFormSchema`
+(Standard-Schema validation), `getDefaultFormValues` (`schema.make({})`),
+`toFieldErrors` (issues → `FieldError`), the four `formOptions` builders, the
+`Path` helpers, the `useAppForm` factory, and `Form`/`SubmitButton`. First field
+set bound to `@beep/ui` primitives: Text, Number, Textarea, Checkbox, Switch
+(more landing). 16 `@effect/vitest`-style unit tests + a demo Storybook story
+with a `play` test pass. Remaining P1: the rest of the field inventory + their
+stories/tests, then P2 (dates) and P3 (heavy widgets).
 
 ## Latest Evidence
 
-P0 research artifacts under [`research/`](./research/) (dated 2026-06-18):
-codebase grounding, widget-library selections, core best-practice notes, and the
-design-review note. No implementation evidence yet (P1 not started).
+- P1 (2026-06-18): `bun run beep:check`, `beep:lint`, `beep:test` green for
+  `@beep/form` (5 test files / 16 tests). Demo story `Form/Demo` with a `play`
+  test. Notable infra fixes: `Path.ts` made envelope-clean (dropped `@beep/types`
+  for `as unknown as`); test/stories tsconfigs given project references so they
+  consume `@beep/ui` `.d.ts` instead of re-typechecking its transitive deps.
+- P0 research artifacts under [`research/`](./research/) (dated 2026-06-18):
+  codebase grounding, widget-library selections, core best-practice notes, and
+  the design-review note.
 
 ## Notes
 

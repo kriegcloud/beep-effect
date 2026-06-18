@@ -32,6 +32,7 @@
     "beep:lint:fix": "biome check package.json tsconfig.json tsconfig.stories.json vitest.config.ts vitest.storybook.config.ts vitest.storybook.setup.ts .storybook/ ../../packages/foundation/ui-system/*/stories/ --write"
   },
   "dependencies": {
+    "@beep/form": "workspace:^",
     "@beep/ui": "workspace:^",
     "@storybook/addon-a11y": "catalog:",
     "@storybook/addon-docs": "catalog:",

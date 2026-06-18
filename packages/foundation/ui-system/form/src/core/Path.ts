@@ -11,7 +11,6 @@ import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import type { TUnsafe } from "@beep/types";
 
 const BRACKET_NOTATION_REGEX = /\[(\d+)]/g;
 
@@ -168,7 +167,7 @@ export const getNestedValue: {
   for (const part of parts) {
     if (!P.isObjectOrArray(current)) return undefined;
     if (isBlockedPathSegment(part) || !hasOwnSegment(current, part)) return undefined;
-    current = (current as TUnsafe.Any as Readonly<Record<string, unknown>>)[part];
+    current = (current as unknown as Readonly<Record<string, unknown>>)[part];
   }
   return current;
 });
@@ -197,7 +196,7 @@ export const setNestedValue: {
   const { path, value } = options;
   if (path === "") return value as T;
   const parts = pipe(path, Str.replace(BRACKET_NOTATION_REGEX, ".$1"), Str.split("."));
-  const result = { ...(obj as TUnsafe.Any as Record<string, unknown>) } as Record<string, unknown>;
+  const result = { ...(obj as unknown as Record<string, unknown>) } as Record<string, unknown>;
 
   // Reject prototype-sensitive paths outright; they are never valid form field
   // paths and assigning through them would poison the returned object.
@@ -211,9 +210,9 @@ export const setNestedValue: {
     if (A.isArray(existing)) {
       current[part] = A.copy(existing);
     } else {
-      current[part] = { ...(existing as TUnsafe.Any as Record<string, unknown>) };
+      current[part] = { ...(existing as unknown as Record<string, unknown>) };
     }
-    current = current[part] as TUnsafe.Any as Record<string, unknown>;
+    current = current[part] as unknown as Record<string, unknown>;
   }
 
   const lastPart = parts[A.length(parts) - 1];
