@@ -1,0 +1,159 @@
+# Release Desktop (Tauri)
+#
+# Builds and publishes the `apps/professional-desktop` Tauri v2 app to GitHub
+# Releases, including auto-updater artifacts (`latest.json` + per-target
+# signatures). Each target compiles natively on its own OS runner — there is NO
+# cross-compilation — because the bundled Bun sidecar is compiled per
+# `rustc -vV` host target triple (see `scripts/build-sidecar.ts`).
+#
+# Triggered by pushing a tag matching `professional-desktop-v*` (kept distinct
+# from the npm/changeset release tags), or manually via workflow_dispatch.
+#
+# REQUIRED secrets (auto-updater signing — ALWAYS applied):
+#   TAURI_SIGNING_PRIVATE_KEY           — minisign private key for the updater.
+#   TAURI_SIGNING_PRIVATE_KEY_PASSWORD  — OPTIONAL: set ONLY if the key has a
+#       password. The scaffolded key is passwordless, so LEAVE THIS SECRET UNSET
+#       (the env expression then expands to "", which is required since GitHub
+#       Actions secrets cannot hold an empty string). Rotate to a
+#       password-protected key for production.
+#   Source from 1Password:
+#     op://BEEP_SECRETS/BEEP_SECRETS/TAURI_SIGNING_PRIVATE_KEY
+#   The matching PUBLIC key must live in `src-tauri/tauri.conf.json`
+#   (plugins.updater.pubkey). The updater endpoint there points at this repo's
+#   GitHub Releases `latest.json`
+#   (https://github.com/kriegcloud/beep-effect/releases/latest/download/latest.json),
+#   so the Release published by this workflow is what clients auto-update from.
+#
+# OPTIONAL secrets (platform code-signing — GATED, build stays UNSIGNED when
+# absent; the build never fails just because these are missing):
+#   macOS notarization + signing: APPLE_CERTIFICATE, APPLE_CERTIFICATE_PASSWORD,
+#     APPLE_SIGNING_IDENTITY, APPLE_ID, APPLE_PASSWORD, APPLE_TEAM_ID.
+#   Windows: see the commented Azure Trusted Signing placeholder below.
+
+name: Release Desktop
+
+on:
+  push:
+    tags:
+      - "professional-desktop-v*"
+  workflow_dispatch:
+
+concurrency:
+  group: release-desktop-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release-desktop:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macOS arm64
+            os: macos-14
+            rust-target: aarch64-apple-darwin
+            args: "--target aarch64-apple-darwin"
+          - name: macOS x64
+            os: macos-13
+            rust-target: x86_64-apple-darwin
+            args: "--target x86_64-apple-darwin"
+          - name: Linux x64
+            os: ubuntu-22.04
+            rust-target: x86_64-unknown-linux-gnu
+            args: ""
+          - name: Windows x64
+            os: windows-latest
+            rust-target: x86_64-pc-windows-msvc
+            args: ""
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Tauri v2 Linux prerequisites (webkit2gtk 4.1, gtk, rsvg, appindicator, …).
+      - name: Install Tauri Linux system dependencies
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libgtk-3-dev \
+            librsvg2-dev \
+            patchelf \
+            libayatana-appindicator3-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev
+
+      - name: Setup Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.rust-target }}
+          # Caches ~/.cargo and src-tauri/target keyed on the Cargo.lock + matrix.
+          cache: true
+          cache-workspaces: apps/professional-desktop/src-tauri
+
+      # Restores bun + node and installs workspace deps via
+      # `bun install --frozen-lockfile`, so `bun run build:sidecar` (needs bun)
+      # and the `beforeBuildCommand` frontend build both work.
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Build and publish desktop release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # Auto-provisioned; required by the action to create/update the Release.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # --- Auto-updater signing (ALWAYS applied) ---
+          # Signs `latest.json` + bundle signatures so clients can verify updates.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+
+          # --- macOS code-signing + notarization (GATED / optional) ---
+          # When these secrets are empty, tauri-action builds an UNSIGNED app and
+          # skips notarization — the build still succeeds. Signing/notarization
+          # only activate once all of these secrets exist in the repo/environment.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+          # --- Windows code-signing (GATED / optional) — DEFAULTS TO UNSIGNED ---
+          # Placeholder: to enable Azure Trusted Signing, configure tauri.conf
+          # `bundle.windows.signCommand` (or the legacy certificate fields) and
+          # surface the credentials here, e.g.:
+          #   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          #   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          #   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          #   AZURE_CODE_SIGNING_NAME: ${{ secrets.AZURE_CODE_SIGNING_NAME }}
+          #   AZURE_ENDPOINT: ${{ secrets.AZURE_ENDPOINT }}
+          # Until then, Windows builds are produced UNSIGNED.
+        with:
+          projectPath: apps/professional-desktop
+          tagName: ${{ github.ref_name }}
+          releaseName: "Professional Desktop ${{ github.ref_name }}"
+          # Published, NOT draft: GitHub serves /releases/latest/download/latest.json
+          # (the updater endpoint in tauri.conf.json) only from a PUBLISHED release.
+          # Pushing the `professional-desktop-v*` tag IS the deliberate publish gate;
+          # flip to `true` and add a publish step if you want a manual QA gate first.
+          releaseDraft: false
+          prerelease: false
+          # Per-arch native target (empty on Linux/Windows where the host target
+          # already matches the runner).
+          args: ${{ matrix.args }}

@@ -14,7 +14,12 @@
 import { Toaster } from "@beep/ui/components/sonner";
 import { ChatApp } from "./chat/ui/ChatApp.tsx";
 import { ChatTurnErrorToasts } from "./chat/ui/ChatTurnErrorToasts.tsx";
+import { IpcSpikePanel } from "./transport/IpcSpikePanel.tsx";
 import type { JSX } from "react";
+
+// Transport spike (opt-in): `?ipc=1` mounts the IPC validation panel. Off by
+// default so normal runs use the HTTP transport untouched.
+const ipcSpikeEnabled = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("ipc");
 
 /**
  * The desktop application root. A thin wrapper that mounts the chat surface.
@@ -35,6 +40,7 @@ export function App(): JSX.Element {
       <ChatApp />
       <ChatTurnErrorToasts />
       <Toaster richColors />
+      {ipcSpikeEnabled ? <IpcSpikePanel /> : null}
     </>
   );
 }

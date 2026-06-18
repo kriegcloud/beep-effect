@@ -19,6 +19,8 @@
     "sidecar": "bun run server/main.ts",
     "build:sidecar": "bun run scripts/build-sidecar.ts",
     "dev:tauri": "tauri dev",
+    "tauri": "tauri",
+    "build:tauri": "bun run build:sidecar && tauri build",
     "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "beep:build": "vite build",
     "beep:check": "tsgo -b tsconfig.json",
@@ -57,6 +59,7 @@
     "@effect/sql-pg": "catalog:",
     "@electric-sql/pglite": "catalog:",
     "@electric-sql/pglite-socket": "catalog:",
+    "@tauri-apps/api": "catalog:",
     "effect": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
