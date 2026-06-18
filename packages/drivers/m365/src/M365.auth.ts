@@ -18,7 +18,13 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { resolveM365Config } from "./M365.config.ts";
 import { M365Error } from "./M365.errors.ts";
-import type { AuthenticationResult, Configuration, CryptoProvider, PublicClientApplication } from "@azure/msal-node";
+import type {
+  AccountInfo,
+  AuthenticationResult,
+  Configuration,
+  CryptoProvider,
+  PublicClientApplication,
+} from "@azure/msal-node";
 import type { M365ConfigInput, ResolvedM365Config } from "./M365.config.ts";
 
 const $I = $M365Id.create("M365.auth");
@@ -94,6 +100,25 @@ const importMsalNode = Effect.tryPromise({
   catch: (cause) => M365Error.fromReason("config", { cause }),
 });
 
+const nullAuthenticationResultCause = { _tag: "NullAuthenticationResult" };
+const ambiguousCachedAccountsCause = { _tag: "AmbiguousCachedAccounts" };
+
+const requireAuthenticationResult = (
+  result: AuthenticationResult | null
+): Effect.Effect<AuthenticationResult, M365Error> =>
+  pipe(
+    O.fromNullishOr(result),
+    O.match({
+      onNone: () => M365Error.failEffectFromReason("auth", { cause: nullAuthenticationResultCause }),
+      onSome: Effect.succeed,
+    })
+  );
+
+const cachedAccount = (accounts: ReadonlyArray<AccountInfo>): Effect.Effect<O.Option<AccountInfo>, M365Error> =>
+  A.length(accounts) > 1
+    ? M365Error.failEffectFromReason("auth", { cause: ambiguousCachedAccountsCause })
+    : Effect.succeed(A.head(accounts));
+
 const buildCachePlugin = (resolved: ResolvedM365Config): Effect.Effect<O.Option<ICachePlugin>, M365Error> =>
   O.match(resolved.tokenCachePath, {
     onNone: () => Effect.succeed(O.none<ICachePlugin>()),
@@ -157,7 +182,7 @@ const interactiveAcquire = Effect.fnUntraced(function* (
         scopes: [...runtime.resolved.scopes],
       }),
     catch: (cause) => M365Error.fromReason("auth", { cause }),
-  });
+  }).pipe(Effect.flatMap(requireAuthenticationResult));
 });
 
 const acquireToken = Effect.fn("M365Auth.acquireToken")(function* (
@@ -167,15 +192,19 @@ const acquireToken = Effect.fn("M365Auth.acquireToken")(function* (
     try: () => runtime.pca.getTokenCache().getAllAccounts(),
     catch: (cause) => M365Error.fromReason("auth", { cause }),
   });
+  const account = yield* cachedAccount(accounts);
   const result = yield* pipe(
-    A.head(accounts),
+    account,
     O.match({
       onNone: () => interactiveAcquire(runtime),
       onSome: (account) =>
         Effect.tryPromise({
           try: () => runtime.pca.acquireTokenSilent({ account, scopes: [...runtime.resolved.scopes] }),
           catch: (cause) => M365Error.fromReason("auth", { cause }),
-        }).pipe(Effect.catch(() => interactiveAcquire(runtime))),
+        }).pipe(
+          Effect.flatMap(requireAuthenticationResult),
+          Effect.catch(() => interactiveAcquire(runtime))
+        ),
     })
   );
   return Redacted.make(result.accessToken);

@@ -1,6 +1,6 @@
 # GOAL: ship the `@beep/m365-mcp` MCP server
 
-Repo: `/home/elpresidank/YeeBois/projects/beep-effect7`.
+Repo: `.` (beep-effect).
 
 Outcome: an Effect-native MCP server at `packages/drivers/m365-mcp` that exposes
 the `@beep/m365` driver's read verbs (OneDrive/SharePoint files + Outlook
@@ -63,6 +63,7 @@ Verification:
 test "$(wc -m < goals/m365-mcp/GOAL.md)" -le 4000
 jq . goals/m365-mcp/ops/manifest.json
 git diff --check -- goals/m365-mcp
+bun run beep lint reflection-artifacts
 ```
 
 Stop and report before changing public API, schema, data migration, auth, infra,

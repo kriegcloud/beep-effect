@@ -887,18 +887,38 @@ const driveItemDownloadUrl = (item: GraphDriveItem, resource: string, url: strin
     })
   );
 
+const isTrustedDeltaLink = (config: ResolvedM365Config, link: string): Effect.Effect<boolean, M365Error> =>
+  Effect.try({
+    try: () => {
+      const base = new URL(config.graphBaseUrl);
+      const candidate = new URL(link);
+      const basePathWithBoundary = Str.endsWith("/")(base.pathname) ? base.pathname : `${base.pathname}/`;
+
+      return (
+        candidate.origin === base.origin &&
+        (candidate.pathname === base.pathname || Str.startsWith(basePathWithBoundary)(candidate.pathname))
+      );
+    },
+    catch: (cause) => M365Error.fromReason("request encoding", { cause, resource: "driveItems", url: link }),
+  });
+
 const deltaUrl = (config: ResolvedM365Config, request: M365DeltaDriveItemsRequest): Effect.Effect<string, M365Error> =>
   pipe(
     O.fromUndefinedOr(request.deltaLink),
     O.match({
       onNone: () => Effect.succeed(graphUrl(config, `/drives/${request.driveId}/root/delta`)),
       onSome: (link) =>
-        Str.startsWith(config.graphBaseUrl)(link)
-          ? Effect.succeed(link)
-          : M365Error.failEffectFromReason("request encoding", {
-              resource: "driveItems",
-              url: link,
-            }),
+        pipe(
+          isTrustedDeltaLink(config, link),
+          Effect.flatMap((isTrusted) =>
+            isTrusted
+              ? Effect.succeed(link)
+              : M365Error.failEffectFromReason("request encoding", {
+                  resource: "driveItems",
+                  url: link,
+                })
+          )
+        ),
     })
   );
 

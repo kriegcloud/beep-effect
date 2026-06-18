@@ -13,6 +13,7 @@ import {
   M365DownloadDriveItemContentRequest,
   M365DownloadedContent,
   M365DriveItemDownload,
+  M365Error,
   M365GetEventRequest,
   M365GetListItemRequest,
   M365GetMessageRequest,
@@ -25,14 +26,13 @@ import {
   M365SkippedEncryptedItem,
 } from "@beep/m365";
 import { describe, expect, layer } from "@effect/vitest";
-import { Cause, Context, Effect, Exit, Layer, Redacted, Ref } from "effect";
+import { Cause, Context, Effect, Exit, Layer, pipe, Redacted, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
-import type { M365Error } from "@beep/m365";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";
 
 type CapturedRequest = {
@@ -148,57 +148,81 @@ const makeTestLayer = (config = testConfig()): Layer.Layer<M365 | M365TestHttp, 
     Layer.provideMerge(M365TestHttpLayer)
   );
 
+type FixtureRoute = {
+  readonly respond: () => Effect.Effect<Response>;
+  readonly url: string;
+};
+
+const fixtureRoutes: ReadonlyArray<FixtureRoute> = [
+  {
+    url: `${GRAPH_BASE_URL}/sites/${SITE_ID}/drives`,
+    respond: () => Effect.succeed(makeJsonResponse({ value: [{ id: DRIVE_ID, name: "Documents" }] })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/sites?search=legal%20docs`,
+    respond: () => Effect.succeed(makeJsonResponse({ value: [{ displayName: "Legal Docs", id: SITE_ID }] })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/sites/${SITE_ID}`,
+    respond: () => Effect.succeed(makeJsonResponse({ displayName: "Legal Docs", id: SITE_ID })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta`,
+    respond: () =>
+      Effect.succeed(
+        makeJsonResponse({
+          "@odata.deltaLink": `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta?token=abc`,
+          value: [
+            {
+              file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+              id: ITEM_ID,
+              name: "memo.docx",
+            },
+          ],
+        })
+      ),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/sites/${SITE_ID}/lists/list-id/items/7?$expand=fields`,
+    respond: () =>
+      Effect.succeed(
+        makeJsonResponse({
+          fields: { Client: "Example Co", Matter: "M-100" },
+          id: "7",
+        })
+      ),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/items/${ITEM_ID}/versions`,
+    respond: () => Effect.succeed(makeJsonResponse({ value: [{ id: "1.0", size: 128 }] })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/me/messages?$filter=receivedDateTime%20ge%202026-01-01&$top=2`,
+    respond: () => Effect.succeed(makeJsonResponse({ value: [{ id: "message-id", subject: "Status" }] })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/me/messages/message-id`,
+    respond: () => Effect.succeed(makeJsonResponse({ id: "message-id", subject: "Status" })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/users/user-id/events?$top=3`,
+    respond: () => Effect.succeed(makeJsonResponse({ value: [{ id: "event-id", subject: "Hearing" }] })),
+  },
+  {
+    url: `${GRAPH_BASE_URL}/users/user-id/events/event-id`,
+    respond: () => Effect.succeed(makeJsonResponse({ id: "event-id", subject: "Hearing" })),
+  },
+];
+
 const routeFixture = (request: HttpClientRequest.HttpClientRequest): Effect.Effect<Response> => {
   const url = requestUrl(request);
 
-  if (url === `${GRAPH_BASE_URL}/sites/${SITE_ID}/drives`) {
-    return Effect.succeed(makeJsonResponse({ value: [{ id: DRIVE_ID, name: "Documents" }] }));
-  }
-  if (url === `${GRAPH_BASE_URL}/sites?search=legal%20docs`) {
-    return Effect.succeed(makeJsonResponse({ value: [{ displayName: "Legal Docs", id: SITE_ID }] }));
-  }
-  if (url === `${GRAPH_BASE_URL}/sites/${SITE_ID}`) {
-    return Effect.succeed(makeJsonResponse({ displayName: "Legal Docs", id: SITE_ID }));
-  }
-  if (url === `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta`) {
-    return Effect.succeed(
-      makeJsonResponse({
-        "@odata.deltaLink": `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta?token=abc`,
-        value: [
-          {
-            file: { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
-            id: ITEM_ID,
-            name: "memo.docx",
-          },
-        ],
-      })
-    );
-  }
-  if (url === `${GRAPH_BASE_URL}/sites/${SITE_ID}/lists/list-id/items/7?$expand=fields`) {
-    return Effect.succeed(
-      makeJsonResponse({
-        fields: { Client: "Example Co", Matter: "M-100" },
-        id: "7",
-      })
-    );
-  }
-  if (url === `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/items/${ITEM_ID}/versions`) {
-    return Effect.succeed(makeJsonResponse({ value: [{ id: "1.0", size: 128 }] }));
-  }
-  if (url === `${GRAPH_BASE_URL}/me/messages?$filter=receivedDateTime%20ge%202026-01-01&$top=2`) {
-    return Effect.succeed(makeJsonResponse({ value: [{ id: "message-id", subject: "Status" }] }));
-  }
-  if (url === `${GRAPH_BASE_URL}/me/messages/message-id`) {
-    return Effect.succeed(makeJsonResponse({ id: "message-id", subject: "Status" }));
-  }
-  if (url === `${GRAPH_BASE_URL}/users/user-id/events?$top=3`) {
-    return Effect.succeed(makeJsonResponse({ value: [{ id: "event-id", subject: "Hearing" }] }));
-  }
-  if (url === `${GRAPH_BASE_URL}/users/user-id/events/event-id`) {
-    return Effect.succeed(makeJsonResponse({ id: "event-id", subject: "Hearing" }));
-  }
-
-  return Effect.succeed(makeJsonResponse({ error: "missing fixture", url }, 404));
+  return pipe(
+    fixtureRoutes,
+    A.findFirst((route) => route.url === url),
+    O.map((route) => route.respond()),
+    O.getOrElse(() => Effect.succeed(makeJsonResponse({ error: "missing fixture", url }, 404)))
+  );
 };
 
 describe("@beep/m365 service", () => {
@@ -243,6 +267,46 @@ describe("@beep/m365 service", () => {
         expect(A.every(graphCaptures, (capture) => capture.headers.authorization === `Bearer ${TOKEN}`)).toBe(true);
         expect(A.every(graphCaptures, (capture) => capture.headers.accept === "application/json")).toBe(true);
         expect(A.map(captures, (capture) => capture.url)).toContain(`${GRAPH_BASE_URL}/sites/${SITE_ID}/drives`);
+      })
+    );
+  });
+
+  layer(makeTestLayer())((it) => {
+    it.effect(
+      "rejects untrusted deltaLink values before sending signed continuation requests",
+      Effect.fnUntraced(function* () {
+        const untrustedDeltaLink = `${GRAPH_BASE_URL}.evil.tld/drives/${DRIVE_ID}/root/delta?token=abc`;
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith((request) => {
+          const url = requestUrl(request);
+          return url === `${GRAPH_BASE_URL}/drives/${DRIVE_ID}/root/delta`
+            ? Effect.succeed(makeJsonResponse({ "@odata.deltaLink": untrustedDeltaLink, value: [] }))
+            : Effect.succeed(makeJsonResponse({ error: "unexpected continuation fetch", url }, 500));
+        });
+
+        const m365 = yield* M365;
+        const firstPage = yield* m365.deltaDriveItems(M365DeltaDriveItemsRequest.make({ driveId: DRIVE_ID }));
+        const deltaLink = yield* pipe(
+          firstPage["@odata.deltaLink"],
+          O.match({
+            onNone: () => M365Error.failEffectFromReason("response decoding"),
+            onSome: Effect.succeed,
+          })
+        );
+        const exit = yield* Effect.exit(
+          m365.deltaDriveItems(M365DeltaDriveItemsRequest.make({ deltaLink, driveId: DRIVE_ID }))
+        );
+        const captures = yield* testHttp.captures;
+
+        expect(captures).toHaveLength(1);
+        expect(Exit.isFailure(exit)).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const error = Cause.findErrorOption(exit.cause);
+          expect(O.isSome(error)).toBe(true);
+          if (O.isSome(error)) {
+            expect(error.value.reason).toBe("request encoding");
+          }
+        }
       })
     );
   });
