@@ -1,14 +1,14 @@
-import { readdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import { Data } from "effect";
+import { BunRuntime } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
+import { Data, Effect, FileSystem, Layer, Match, Path } from "effect";
 
 const startMarker = "// <generated:migration-bundle>";
 const endMarker = "// </generated:migration-bundle>";
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const sourceFolder = join(root, "packages/_internal/db-admin/drizzle");
-const targetFile = join(root, "apps/professional-desktop/src/runtime/Migrations.ts");
-const mode = Bun.argv.includes("--check") ? "check" : "write";
+const mode = Match.value(Bun.argv.includes("--check")).pipe(
+  Match.when(true, () => "check" as const),
+  Match.orElse(() => "write" as const)
+);
 
 class MissingMigrationBundleMarkers extends Data.TaggedError("MissingMigrationBundleMarkers")<{
   readonly message: string;
@@ -23,17 +23,39 @@ class StaleMigrationBundle extends Data.TaggedError("StaleMigrationBundle")<{
 const quoteTemplateLiteral = (value: string): string =>
   `\`${value.replaceAll("\\", "\\\\").replaceAll("`", "\\`").replaceAll("${", "\\${")}\``;
 
-const readMigrationBundle = async (): Promise<string> => {
-  const entries = await readdir(sourceFolder, { withFileTypes: true });
-  const migrations = await Promise.all(
-    entries
-      .filter((entry) => entry.isDirectory())
-      .map(async (entry) => ({
-        name: entry.name,
-        sql: await readFile(join(sourceFolder, entry.name, "migration.sql"), "utf8"),
-      }))
+const readMigrationBundleEntry = Effect.fnUntraced(function* (sourceFolder: string, entry: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const entryPath = path.join(sourceFolder, entry);
+  const info = yield* fs.stat(entryPath);
+  if (info.type !== "Directory") {
+    return undefined;
+  }
+
+  const migrationSqlPath = path.join(entryPath, "migration.sql");
+  const hasMigrationSql = yield* fs.exists(migrationSqlPath).pipe(Effect.orElseSucceed(() => false));
+  if (!hasMigrationSql) {
+    return undefined;
+  }
+
+  return {
+    name: entry,
+    sql: yield* fs.readFileString(migrationSqlPath),
+  };
+});
+
+const readMigrationBundle = Effect.fn("ProfessionalDesktop.syncMigrationBundle.readMigrationBundle")(function* (
+  sourceFolder: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const entries = yield* fs.readDirectory(sourceFolder);
+  const migrations = yield* Effect.all(
+    entries.map((entry) => readMigrationBundleEntry(sourceFolder, entry)),
+    { concurrency: "unbounded" }
   );
-  const sortedMigrations = migrations.toSorted((left, right) => left.name.localeCompare(right.name));
+  const sortedMigrations = migrations
+    .filter((migration): migration is Exclude<typeof migration, undefined> => migration !== undefined)
+    .toSorted((left, right) => left.name.localeCompare(right.name));
   const lines = [
     startMarker,
     "const MigrationBundle: ReadonlyArray<MigrationFile> = [",
@@ -48,9 +70,9 @@ const readMigrationBundle = async (): Promise<string> => {
   ];
 
   return lines.join("\n");
-};
+});
 
-const replaceGeneratedRegion = (source: string, generatedRegion: string): string => {
+const replaceGeneratedRegion = (targetFile: string, source: string, generatedRegion: string): string => {
   const startIndex = source.indexOf(startMarker);
   const endIndex = source.indexOf(endMarker, startIndex);
   if (startIndex === -1 || endIndex === -1) {
@@ -63,18 +85,33 @@ const replaceGeneratedRegion = (source: string, generatedRegion: string): string
   return `${source.slice(0, startIndex)}${generatedRegion}${source.slice(endIndex + endMarker.length)}`;
 };
 
-const source = await readFile(targetFile, "utf8");
-const generatedRegion = await readMigrationBundle();
-const nextSource = replaceGeneratedRegion(source, generatedRegion);
+const program = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const root = path.resolve(import.meta.dirname, "../../..");
+  const sourceFolder = path.join(root, "packages/_internal/db-admin/drizzle");
+  const targetFile = path.join(root, "apps/professional-desktop/src/runtime/Migrations.ts");
+  const source = yield* fs.readFileString(targetFile);
+  const generatedRegion = yield* readMigrationBundle(sourceFolder);
+  const nextSource = replaceGeneratedRegion(targetFile, source, generatedRegion);
 
-if (nextSource !== source) {
-  if (mode === "check") {
-    const command = "bun run --cwd apps/professional-desktop codegen";
-    throw new StaleMigrationBundle({
-      command,
-      message: `Professional Desktop migration bundle is stale. Run \`${command}\`.`,
-    });
+  if (nextSource === source) {
+    return;
   }
 
-  await writeFile(targetFile, nextSource);
-}
+  if (mode === "check") {
+    const command = "bun run --cwd apps/professional-desktop codegen";
+    return yield* Effect.fail(
+      new StaleMigrationBundle({
+        command,
+        message: `Professional Desktop migration bundle is stale. Run \`${command}\`.`,
+      })
+    );
+  }
+
+  yield* fs.writeFileString(targetFile, nextSource);
+});
+
+const MainLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+
+BunRuntime.runMain(program.pipe(Effect.provide(MainLive)));
