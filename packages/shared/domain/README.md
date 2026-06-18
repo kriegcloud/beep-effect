@@ -59,6 +59,7 @@ language and the encoded side is the persistence row shape.
 | `src/entity/primitives.ts`                   | Shared driver-neutral entity primitive schemas.        |
 | `src/identity/index.ts`                      | Shared entity-id modules and identity vocabulary.      |
 | `src/values/index.ts`                        | Shared value objects.                                  |
+| `src/values/ClaimLifecycle/`                 | Shared claim admission lifecycle vocabulary and transition value object. |
 | `src/values/LocalDate/index.ts`              | Shared `LocalDate` value-object barrel.                |
 | `src/values/LocalDate/LocalDate.model.ts`    | Shared `LocalDate` schema/model.                       |
 | `src/values/LocalDate/LocalDate.behavior.ts` | Pure `LocalDate` behavior.                             |
@@ -103,6 +104,19 @@ language and the encoded side is the persistence row shape.
 - **Runtime limits:** no live Layers.
 - **Coupling acceptors:** Stack Installer P1A planning accepted shared-domain ownership; PR review sign-off pending.
 - **Removal trigger:** retire if installer credential references move behind a different promoted shared contract that preserves the no-plaintext-secret boundary.
+
+### Promotion record: ClaimLifecycle
+
+- **Date promoted:** 2026-06-18
+- **Shared product semantics:** The admission lifecycle of a claim — `candidate -> shape_valid -> consistency_checked -> admitted` — plus the transition value object. It is the cross-vertical vocabulary for "where is this claim in its journey to authority," product-agnostic across knowledge verticals.
+- **Current consumers (2):** `@beep/epistemic-domain` — owns the gate/lifecycle/projection mechanism that drives the states and re-exports this vocabulary on its public surface (`packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts`); `@beep/law-practice-domain` — types its `Distinction.lifecycleState` work-product field from it (`packages/law-practice/domain/src/entities/Distinction/Distinction.model.ts:12`). The promotion was sequenced ahead of the second consumer (the spike was the forcing function, per `standards/architecture/DECISIONS.md` 2026-06-18); that consumer has now landed in the spike's P0, so the >=2-current-importer bar is met.
+- **Rejected homes:**
+  - Owning slice - `epistemic` owns the lifecycle *mechanism* (the SHACL gate, the transition service, the projection), but the lifecycle *vocabulary* is cross-slice product language a second vertical (`law-practice`) now types against; a slice's `domain` cannot import another slice's `domain` (`standards/architecture/01-hexagonal-vertical-slices.md:60-61`).
+  - Foundation - the claim-admission lifecycle is product semantics, not a domain-agnostic modeling substrate (contrast `@beep/provenance` `TextAnchor` / `@beep/schema` `UnitInterval`, which are substrate and live in foundation).
+- **Surface:** `@beep/shared-domain/values`, `@beep/shared-domain/values/ClaimLifecycle`, `Values.ClaimLifecycle.ClaimLifecycle`, `Values.ClaimLifecycle.ClaimLifecycleTransition`.
+- **Runtime limits:** no live Layers; pure schema-first value objects only. Transition *legality* is enforced by the owning slice's use-cases service, not here.
+- **Coupling acceptors:** Architecture grilling session 2026-06-18 (cross-slice consumption of the epistemic boundary, recorded in `standards/architecture/DECISIONS.md`) chose this promotion; an adversarial review (2026-06-18) verified the routing and flagged the pre-second-consumer status captured above. PR review sign-off pending.
+- **Removal trigger:** retire if a single vertical reclaims sole ownership of the claim lifecycle and all other consumers migrate off the shared vocabulary, or if it is superseded by a different promoted shared contract.
 
 ## Development
 

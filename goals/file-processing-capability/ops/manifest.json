@@ -3,7 +3,7 @@
   "initiative": {
     "id": "file-processing-capability",
     "title": "File Processing Capability",
-    "status": "pending-implementation",
+    "status": "active",
     "created": "2026-06-02",
     "updated": "2026-06-02",
     "packetAnchorDocument": "SPEC.md"

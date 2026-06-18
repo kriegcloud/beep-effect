@@ -37,6 +37,12 @@
       "@beep/law-practice-domain/entities": [
         "../../../packages/law-practice/domain/src/entities/index.ts"
       ],
+      "@beep/law-practice-domain/entities/Claim": [
+        "../../../packages/law-practice/domain/src/entities/Claim/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Distinction": [
+        "../../../packages/law-practice/domain/src/entities/Distinction/index.ts"
+      ],
       "@beep/law-practice-domain/entities/LegalClient": [
         "../../../packages/law-practice/domain/src/entities/LegalClient/index.ts"
       ],
@@ -46,8 +52,17 @@
       "@beep/law-practice-domain/entities/Matter": [
         "../../../packages/law-practice/domain/src/entities/Matter/index.ts"
       ],
+      "@beep/law-practice-domain/entities/OfficeAction": [
+        "../../../packages/law-practice/domain/src/entities/OfficeAction/index.ts"
+      ],
       "@beep/law-practice-domain/entities/PatentAsset": [
         "../../../packages/law-practice/domain/src/entities/PatentAsset/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/PriorArtReference": [
+        "../../../packages/law-practice/domain/src/entities/PriorArtReference/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Rejection": [
+        "../../../packages/law-practice/domain/src/entities/Rejection/index.ts"
       ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
@@ -57,6 +72,12 @@
       ],
       "@beep/identity/packages": [
         "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/provenance": [
+        "../../../packages/foundation/modeling/provenance/src/index.ts"
+      ],
+      "@beep/provenance/*": [
+        "../../../packages/foundation/modeling/provenance/src/*.ts"
       ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
@@ -373,6 +394,9 @@
       "@beep/schema/URL": [
         "../../../packages/foundation/modeling/schema/src/URL.ts"
       ],
+      "@beep/schema/UnitInterval": [
+        "../../../packages/foundation/modeling/schema/src/UnitInterval.ts"
+      ],
       "@beep/schema/VariantSchema": [
         "../../../packages/foundation/modeling/schema/src/VariantSchema/index.ts"
       ],
@@ -449,6 +473,9 @@
       ],
       "@beep/shared-domain/values": [
         "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/ClaimLifecycle": [
+        "../../../packages/shared/domain/src/values/ClaimLifecycle/index.ts"
       ],
       "@beep/shared-domain/values/LocalDate": [
         "../../../packages/shared/domain/src/values/LocalDate/index.ts"

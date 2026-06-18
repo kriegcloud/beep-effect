@@ -15,6 +15,9 @@ Overrideable = "Overrideable"
 libpff = "libpff"
 tika = "tika"
 Tika = "Tika"
+ALIS = "ALIS"
+Definely = "Definely"
+LOV = "LOV"
 
 # Biome rule names
 Inferrable = "Inferrable"

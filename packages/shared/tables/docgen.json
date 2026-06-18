@@ -97,6 +97,9 @@
       "@beep/shared-domain/values": [
         "../../../packages/shared/domain/src/values.ts"
       ],
+      "@beep/shared-domain/values/ClaimLifecycle": [
+        "../../../packages/shared/domain/src/values/ClaimLifecycle/index.ts"
+      ],
       "@beep/shared-domain/values/LocalDate": [
         "../../../packages/shared/domain/src/values/LocalDate/index.ts"
       ],

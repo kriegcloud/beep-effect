@@ -4,6 +4,51 @@ Dated decision log for the memory architecture standard. Records decisions as th
 
 ---
 
+## 2026-06-17: Reframe — Code-Intelligence Was the Learning Vehicle; Product Is the IP-Law Flywheel
+
+**Context:** The `atlas-synthesis` exploration (2026-06-17, formerly
+`baseline-synthesis`) plus a git-history archaeology pass established that the
+deterministic code-intelligence / repo-memory v0 body of work was a **learning
+vehicle** -- the user grounding themselves in software to learn ontology/graph/memory
+architecture -- and was **deliberately pruned** (spec corpus `309649ebcc` 2026-03-08;
+repo-memory hosts `apps/clawhole` + `packages/ai` `78f5d3fb0e` 2026-04-07; last UI
+residue `6c8bab5b25` 2026-04-27), with this standard crystallized *after* the prune.
+Yet this README's Core Thesis + Imperative #1, `01-memory-layer-taxonomy.md`,
+`02-thread-triage.md`, and `docs/BEEPGRAPH_ARCHITECTURE.md` still framed code
+intelligence as "the competitive edge / the diamond / Priority 1" in the present
+tense. That drift would mislead future sessions into treating archived
+code-intelligence work as a current priority.
+
+**Decision:** This standard is a durable **theoretical framework**, not a
+shipping-product roadmap. The deterministic-first, semantic-as-managed-cache, and
+provenance-verification **principles remain binding**. The **code-intelligence
+instantiation is superseded**: repo-memory v0 is archived; the live product is the
+**solo IP-law firm flywheel** (`goals/agentic-professional-runtime`, prose-to-proof /
+BeepGraph). The No-Escape Theorem and four-layer taxonomy now govern **law-domain**
+memory. Annotate the stale passages as superseded; do not delete the theory or the
+dated history.
+
+**Rationale:** The principles are domain-independent and correct; only the "our
+current moat is code intelligence" framing was time-bound to April 2026. Preserving the
+analysis and dated history while adding a status-amendment banner + this entry keeps the
+standard trustworthy on a cold read.
+
+**Consequences:**
+
+- README gains a status-amendment banner; Core Thesis + Imperatives #1/#3 reframed;
+  `01-memory-layer-taxonomy.md` (L3, repo-memory, BeepGraph) and `02-thread-triage.md`
+  (thread 1) annotated as superseded; `docs/BEEPGRAPH_ARCHITECTURE.md` L3 row relabeled
+  "dev tooling, not a product moat."
+- `explorations/effect-capability-kg` (the code-intelligence tooling track) is **parked**.
+- `goals/file-processing-capability` status corrected `pending-implementation → active`
+  (the capability + tika/libpff drivers are built; P1 underway). A broader
+  goal-status-vocabulary normalization is a separate, **deferred** cleanup.
+- The live residue (`@beep/repo-codegraph`, `EffectCapabilityKG.ts`) is retained as
+  **narrow dev tooling**, not a product moat.
+- The 2026-04-15 / 2026-05-12 entries below stand as dated history, unedited.
+
+---
+
 ## 2026-05-12: Context Graph Capability Portfolio
 
 **Context:** TrustGraph, Cognee, Graphiti/Zep, Microsoft GraphRAG, LangGraph,

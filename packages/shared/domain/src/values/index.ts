@@ -6,6 +6,20 @@
  */
 
 /**
+ * ClaimLifecycle - Shared admission lifecycle vocabulary for claims.
+ *
+ * @example
+ * ```ts
+ * import { ClaimLifecycle } from "@beep/shared-domain/values"
+ *
+ * console.log(ClaimLifecycle.ClaimLifecycle.Enum.admitted)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export * as ClaimLifecycle from "./ClaimLifecycle/index.ts";
+/**
  * LocalDate - Value object representing a local date.
  *
  * @example

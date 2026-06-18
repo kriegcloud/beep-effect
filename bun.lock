@@ -806,8 +806,24 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/provenance": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/epistemic/server": {
+      "name": "@beep/epistemic-server",
+      "version": "0.0.2",
+      "dependencies": {
+        "@beep/epistemic-domain": "workspace:^",
+        "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/semantic-web": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -823,6 +839,21 @@
         "@beep/drizzle": "workspace:^",
         "@beep/epistemic-domain": "workspace:^",
         "drizzle-orm": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/epistemic/use-cases": {
+      "name": "@beep/epistemic-use-cases",
+      "version": "0.0.2",
+      "dependencies": {
+        "@beep/epistemic-domain": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/semantic-web": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1016,6 +1047,19 @@
         "@beep/md": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/provenance": {
+      "name": "@beep/provenance",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1226,8 +1270,45 @@
       "version": "0.0.2",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/provenance": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/shared-domain": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/law-practice/server": {
+      "name": "@beep/law-practice-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/epistemic-server": "workspace:^",
+        "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/file-processing": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
+        "@beep/law-practice-use-cases": "workspace:^",
+        "@beep/tika": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/law-practice/use-cases": {
+      "name": "@beep/law-practice-use-cases",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/epistemic-domain": "workspace:^",
+        "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/file-processing": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/langextract": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1980,7 +2061,11 @@
 
     "@beep/epistemic-domain": ["@beep/epistemic-domain@workspace:packages/epistemic/domain"],
 
+    "@beep/epistemic-server": ["@beep/epistemic-server@workspace:packages/epistemic/server"],
+
     "@beep/epistemic-tables": ["@beep/epistemic-tables@workspace:packages/epistemic/tables"],
+
+    "@beep/epistemic-use-cases": ["@beep/epistemic-use-cases@workspace:packages/epistemic/use-cases"],
 
     "@beep/face-detection": ["@beep/face-detection@workspace:packages/drivers/face-detection"],
 
@@ -2005,6 +2090,10 @@
     "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
+
+    "@beep/law-practice-server": ["@beep/law-practice-server@workspace:packages/law-practice/server"],
+
+    "@beep/law-practice-use-cases": ["@beep/law-practice-use-cases@workspace:packages/law-practice/use-cases"],
 
     "@beep/lexical-schema": ["@beep/lexical-schema@workspace:packages/foundation/modeling/lexical"],
 
@@ -2033,6 +2122,8 @@
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 
     "@beep/professional-desktop": ["@beep/professional-desktop@workspace:apps/professional-desktop"],
+
+    "@beep/provenance": ["@beep/provenance@workspace:packages/foundation/modeling/provenance"],
 
     "@beep/rdf": ["@beep/rdf@workspace:packages/foundation/modeling/rdf"],
 
