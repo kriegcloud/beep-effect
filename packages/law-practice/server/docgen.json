@@ -88,15 +88,6 @@
       "@beep/file-processing/test": [
         "../../../packages/foundation/capability/file-processing/src/test.ts"
       ],
-      "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
-      ],
-      "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
-      ],
       "@beep/law-practice-domain": [
         "../../../packages/law-practice/domain/src/index.ts"
       ],

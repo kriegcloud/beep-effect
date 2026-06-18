@@ -21,9 +21,6 @@
       "path": "../../foundation/capability/file-processing/tsconfig.json"
     },
     {
-      "path": "../../foundation/modeling/identity/tsconfig.json"
-    },
-    {
       "path": "../domain/tsconfig.json"
     },
     {
@@ -31,6 +28,9 @@
     },
     {
       "path": "../../tooling/test-kit/test-utils/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/identity/tsconfig.json"
     }
   ]
 }
