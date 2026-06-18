@@ -61,16 +61,18 @@ const skipTestcontainersWhenUnavailable = (ctx: { readonly skip: (message?: stri
     : Effect.sync(() => ctx.skip("Docker/Testcontainers is unavailable or redundant for PGLite integration tests."));
 
 const makeSharedLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
-  hooks === undefined
-    ? makePgliteSqlTestLayer({
-        external: { connectionUri: sharedConnectionUri ?? "" },
-        mode: "external",
-      })
-    : makePgliteSqlTestLayer({
-        external: { connectionUri: sharedConnectionUri ?? "" },
-        hooks,
-        mode: "external",
-      });
+  Layer.fresh(
+    hooks === undefined
+      ? makePgliteSqlTestLayer({
+          external: { connectionUri: sharedConnectionUri ?? "" },
+          mode: "external",
+        })
+      : makePgliteSqlTestLayer({
+          external: { connectionUri: sharedConnectionUri ?? "" },
+          hooks,
+          mode: "external",
+        })
+  );
 
 const makeContainerLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
   makeSqlTestLayer(

@@ -23,7 +23,7 @@
 import { formOptions } from "@tanstack/react-form";
 import { Match } from "effect";
 import * as S from "effect/Schema";
-import { getDefaultFormValues } from "./Defaults.ts";
+import { getEncodedDefaultFormValues } from "./Defaults.ts";
 import { toFormSchema } from "./FormSchema.ts";
 import type { ToFormSchemaOptions } from "./FormSchema.ts";
 
@@ -108,15 +108,14 @@ export const makeFormOptions = <A, I>(
   });
 
 /**
- * Like {@link makeFormOptions}, but derives `defaultValues` from a type-side
- * schema's constructor defaults (see {@link getDefaultFormValues}) when not
+ * Like {@link makeFormOptions}, but derives `defaultValues` from a schema's
+ * constructor defaults and encodes them back to the field/wire shape when not
  * supplied.
  *
  * @remarks
  * Constructor defaults are decoded `Type` values, while TanStack
- * `defaultValues` are encoded form values. For that reason this helper accepts
- * only schemas whose `Type` and `Encoded` shapes are the same; transform
- * schemas should use {@link makeFormOptions} with explicit encoded defaults.
+ * `defaultValues` are encoded form values. This helper performs that encode
+ * step so transform schemas can still use schema-first defaults.
  *
  * @example
  * ```ts
@@ -134,14 +133,14 @@ export const makeFormOptions = <A, I>(
  * @category constructors
  * @since 0.0.0
  */
-export const formOptionsWithDefaults = <I>(
-  params: BaseParams<I, I> & {
+export const formOptionsWithDefaults = <A, I>(
+  params: BaseParams<A, I> & {
     readonly defaultValues?: I;
   }
 ) =>
   makeFormOptions({
     ...params,
-    defaultValues: params.defaultValues ?? getDefaultFormValues(params.schema),
+    defaultValues: params.defaultValues ?? getEncodedDefaultFormValues(params.schema),
   });
 
 /**

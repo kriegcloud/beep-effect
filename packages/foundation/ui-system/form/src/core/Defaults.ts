@@ -3,14 +3,17 @@
  *
  * The same effect schema that validates a form also supplies its initial
  * values: {@link getDefaultFormValues} materializes the schema's constructor
- * defaults via `schema.make({})`. Declare those defaults on the schema with
+ * defaults via `schema.make({})`. {@link getEncodedDefaultFormValues} then
+ * encodes those decoded defaults back to the wire shape TanStack stores in
+ * `defaultValues`. Declare defaults on the schema with
  * `S.withConstructorDefault` or `@beep/schema`'s `withKeyDefaults`.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import type * as S from "effect/Schema";
+import { pipe } from "effect";
+import * as S from "effect/Schema";
 
 /**
  * Materializes a schema's constructor defaults into a default form-values
@@ -38,3 +41,32 @@ import type * as S from "effect/Schema";
  */
 export const getDefaultFormValues = <Schema extends S.Top>(schema: Schema): Schema["Type"] =>
   schema.make({} as Schema["~type.make.in"]);
+
+/**
+ * Materializes constructor defaults and encodes them to the schema's wire shape.
+ *
+ * TanStack Form stores `defaultValues` as the field value shape. For transform
+ * schemas, that is the schema's `Encoded` side rather than its decoded `Type`.
+ * For example, `S.NumberFromString` decodes to a number but the form field
+ * still starts from a string.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { getEncodedDefaultFormValues } from "@beep/form/core/Defaults"
+ *
+ * const schema = S.Struct({
+ *   count: S.NumberFromString.pipe(S.withConstructorDefault(Effect.succeed(1))),
+ * })
+ *
+ * console.log(getEncodedDefaultFormValues(schema)) // { count: "1" }
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const getEncodedDefaultFormValues = <A, I>(schema: S.Codec<A, I>): I => {
+  const encode = schema.pipe(S.encodeSync);
+  return pipe(getDefaultFormValues(schema), encode);
+};
