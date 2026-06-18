@@ -90,6 +90,10 @@ const inputFlag = Flag.string("input").pipe(
   Flag.withDescription("Read input from a specific file path"),
   Flag.optional
 );
+const includeFlag = Flag.string("include").pipe(
+  Flag.withDescription("Comma-separated package-relative or srcDir-relative file globs to include"),
+  Flag.optional
+);
 const planFlag = Flag.boolean("plan").pipe(Flag.withDescription("Print the local docgen plan without executing it"));
 const fullFlag = Flag.boolean("full").pipe(Flag.withDescription("Run the canonical full docgen proof"));
 const allFlag = Flag.boolean("all").pipe(Flag.withDescription("Run against every configured docgen package"));
@@ -307,6 +311,11 @@ const splitCommaSeparatedFlag: (value: string) => ReadonlyArray<string> = flow(
   A.filter(Str.isNonEmpty)
 );
 
+const includePatternsFromFlag: (include: O.Option<string>) => ReadonlyArray<string> = flow(
+  O.map(splitCommaSeparatedFlag),
+  O.getOrElse(A.empty<string>)
+);
+
 const qualityReportHasBlockingFindings = (report: {
   readonly summary: { readonly failures: number; readonly warnings: number };
   readonly packages: ReadonlyArray<{ readonly status: string }>;
@@ -495,24 +504,30 @@ const docgenGenerateCommand = Command.make(
   {
     package: packageFlag,
     filter: filterFlag,
+    include: includeFlag,
     validateExamples: validateExamplesFlag,
     parallel: parallelFlag,
     json: jsonFlag,
   },
   Effect.fn(
-    function* ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, json }) {
+    function* ({ package: packageSelector, filter: filterSelector, include, validateExamples, parallel, json }) {
       void validateExamples;
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
+      const includePatterns = includePatternsFromFlag(include);
 
       if (targets.length === 0) {
         yield* Console.log("docgen: no configured packages found");
         return;
       }
 
-      const results = yield* Effect.forEach(targets, (target) => runDocgenForPackage(target), {
-        concurrency: Math.max(1, parallel),
-      });
+      const results = yield* Effect.forEach(
+        targets,
+        (target) => runDocgenForPackage(target, { include: includePatterns }),
+        {
+          concurrency: Math.max(1, parallel),
+        }
+      );
 
       if (json) {
         yield* Console.log(yield* renderJson(results));
@@ -543,24 +558,30 @@ const docgenRunCommand = Command.make(
   {
     package: packageFlag,
     filter: filterFlag,
+    include: includeFlag,
     validateExamples: validateExamplesFlag,
     parallel: parallelFlag,
     clean: cleanFlag,
   },
   Effect.fn(
-    function* ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, clean }) {
+    function* ({ package: packageSelector, filter: filterSelector, include, validateExamples, parallel, clean }) {
       void validateExamples;
       const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
+      const includePatterns = includePatternsFromFlag(include);
 
       if (targets.length === 0) {
         yield* Console.log("docgen: no configured packages found");
         return;
       }
 
-      const generationResults = yield* Effect.forEach(targets, (target) => runDocgenForPackage(target), {
-        concurrency: Math.max(1, parallel),
-      });
+      const generationResults = yield* Effect.forEach(
+        targets,
+        (target) => runDocgenForPackage(target, { include: includePatterns }),
+        {
+          concurrency: Math.max(1, parallel),
+        }
+      );
 
       const generationFailures = yield* logGenerationResults(generationResults);
 

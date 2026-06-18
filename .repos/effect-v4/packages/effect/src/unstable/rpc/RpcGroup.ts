@@ -304,9 +304,13 @@ const RpcGroupProto = {
       const handlers = Effect.isEffect(build) ? yield* build : build
       const contextMap = new Map<string, unknown>()
       self.requests.forEach((rpc, tag) => {
+        const handler = handlers[tag]
+        if (handler === undefined) {
+          return
+        }
         contextMap.set(rpc.key, {
           tag: rpc._tag,
-          handler: handlers[tag],
+          handler,
           context: services
         })
       })

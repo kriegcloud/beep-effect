@@ -34,6 +34,9 @@
       "@beep/ui/themes": [
         "../../../../packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
+      "@beep/ui/themes/theme-provider": [
+        "../../../../packages/foundation/ui-system/ui/src/themes/theme-provider.tsx"
+      ],
       "@beep/ui/themes/theme-init-script": [
         "../../../../packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
       ],

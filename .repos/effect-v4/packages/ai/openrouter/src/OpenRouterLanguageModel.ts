@@ -738,8 +738,10 @@ const prepareMessages = Effect.fnUntraced(
               }
 
               case "file": {
-                if (part.mediaType.startsWith("image/")) {
-                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType
+                const mediaType = Predicate.isString(part.mediaType) ? part.mediaType.toLowerCase() : ""
+
+                if (mediaType.startsWith("image/")) {
+                  const imageMediaType = mediaType === "image/*" ? "image/jpeg" : mediaType
 
                   content.push({
                     type: "image_url",
@@ -747,7 +749,7 @@ const prepareMessages = Effect.fnUntraced(
                       url: part.data instanceof URL
                         ? part.data.toString()
                         : part.data instanceof Uint8Array
-                        ? `data:${mediaType};base64,${Encoding.encodeBase64(part.data)}`
+                        ? `data:${imageMediaType};base64,${Encoding.encodeBase64(part.data)}`
                         : part.data
                     },
                     ...(Predicate.isNotNull(partCacheControl) ? { cache_control: partCacheControl } : undefined)
@@ -756,8 +758,8 @@ const prepareMessages = Effect.fnUntraced(
                   break
                 }
 
-                if (part.mediaType.startsWith("audio/")) {
-                  const format = audioFormats[part.mediaType.toLowerCase()]
+                if (mediaType.startsWith("audio/")) {
+                  const format = audioFormats[mediaType]
 
                   if (Predicate.isUndefined(format)) {
                     return yield* AiError.make({
@@ -797,6 +799,7 @@ const prepareMessages = Effect.fnUntraced(
 
                 const options = part.options.openrouter
                 const fileName = options?.fileName ?? part.fileName ?? ""
+                const fileMediaType = Predicate.isString(part.mediaType) ? part.mediaType : "application/octet-stream"
 
                 content.push({
                   type: "file",
@@ -805,7 +808,7 @@ const prepareMessages = Effect.fnUntraced(
                     file_data: part.data instanceof URL
                       ? part.data.toString()
                       : part.data instanceof Uint8Array
-                      ? `data:${part.mediaType};base64,${Encoding.encodeBase64(part.data)}`
+                      ? `data:${fileMediaType};base64,${Encoding.encodeBase64(part.data)}`
                       : part.data
                   },
                   ...(Predicate.isNotNull(partCacheControl) ? { cache_control: partCacheControl } : undefined)

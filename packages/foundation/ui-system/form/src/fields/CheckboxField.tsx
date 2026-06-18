@@ -56,6 +56,7 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ label, ...props })
         name={field.name}
         checked={field.state.value}
         onCheckedChange={(checked) => field.handleChange(checked)}
+        onBlur={field.handleBlur}
         aria-invalid={hasErrors || undefined}
       />
     </InlineBooleanField>

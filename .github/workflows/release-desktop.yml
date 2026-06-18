@@ -37,6 +37,11 @@ on:
     tags:
       - "professional-desktop-v*"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag to publish, e.g. professional-desktop-v0.1.0"
+        required: true
+        type: string
 
 concurrency:
   group: release-desktop-${{ github.ref }}
@@ -50,8 +55,11 @@ jobs:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
+    env:
+      RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     strategy:
       fail-fast: false
+      max-parallel: 1
       matrix:
         include:
           - name: macOS arm64
@@ -59,7 +67,7 @@ jobs:
             rust-target: aarch64-apple-darwin
             args: "--target aarch64-apple-darwin"
           - name: macOS x64
-            os: macos-13
+            os: macos-15-intel
             rust-target: x86_64-apple-darwin
             args: "--target x86_64-apple-darwin"
           - name: Linux x64
@@ -75,6 +83,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Validate release tag
+        shell: bash
+        run: |
+          if [[ ! "$RELEASE_DESKTOP_TAG" =~ ^professional-desktop-v.+$ ]]; then
+            echo "::error::Release tag must match professional-desktop-v*, got '$RELEASE_DESKTOP_TAG'"
+            exit 1
+          fi
 
       # Tauri v2 Linux prerequisites (webkit2gtk 4.1, gtk, rsvg, appindicator, …).
       - name: Install Tauri Linux system dependencies
@@ -146,8 +162,8 @@ jobs:
           # Until then, Windows builds are produced UNSIGNED.
         with:
           projectPath: apps/professional-desktop
-          tagName: ${{ github.ref_name }}
-          releaseName: "Professional Desktop ${{ github.ref_name }}"
+          tagName: ${{ env.RELEASE_DESKTOP_TAG }}
+          releaseName: "Professional Desktop ${{ env.RELEASE_DESKTOP_TAG }}"
           # Published, NOT draft: GitHub serves /releases/latest/download/latest.json
           # (the updater endpoint in tauri.conf.json) only from a PUBLISHED release.
           # Pushing the `professional-desktop-v*` tag IS the deliberate publish gate;

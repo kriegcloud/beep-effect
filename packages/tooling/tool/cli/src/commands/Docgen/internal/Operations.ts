@@ -141,6 +141,7 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
     enforceVersion: S.optionalKey(S.Boolean),
     tscExecutable: S.optionalKey(S.String),
     runExamples: S.optionalKey(S.Boolean),
+    include: S.String.pipe(S.Array, S.optionalKey),
     exclude: S.String.pipe(S.Array, S.optionalKey),
     parseCompilerOptions: S.optionalKey(S.Union([S.String, DocgenJsonObject])),
     examplesCompilerOptions: S.optionalKey(S.Union([S.String, DocgenJsonObject])),
@@ -304,6 +305,15 @@ export class DocgenGenerationResult extends S.Class<DocgenGenerationResult>($I`D
     description: "Per-package docgen generation result.",
   })
 ) {}
+
+type RunDocgenForPackageOptions = {
+  readonly include?: ReadonlyArray<string>;
+};
+
+const isDocgenWorkspacePackage = S.is(DocgenWorkspacePackage);
+
+const isRunDocgenForPackageDataFirst = (args: IArguments): boolean =>
+  (args.length === 1 && isDocgenWorkspacePackage(args[0])) || args.length === 2;
 
 /**
  * Per-package aggregated docs result.
@@ -1585,27 +1595,18 @@ export const aggregateGeneratedDocs: (options?: {
   );
 });
 
-/**
- * Run the repo-local `@beep/repo-docgen` implementation for a single workspace package.
- *
- * @param targetPackage - Target workspace package.
- * @returns Generation result including output and module count.
- * @category models
- * @since 0.0.0
- */
-export const runDocgenForPackage: (
-  targetPackage: DocgenWorkspacePackage
-) => Effect.Effect<
-  DocgenGenerationResult,
-  DocgenGenerationResult,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner
-> = Effect.fn("DocgenOperations.runDocgenForPackage")(
-  function* (targetPackage) {
+const runDocgenForPackageEffect = Effect.fn("DocgenOperations.runDocgenForPackage")(
+  function* (targetPackage: DocgenWorkspacePackage, options?: RunDocgenForPackageOptions) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot(targetPackage.absolutePath);
     const docgenEntrypoint = path.join(repoRoot, "packages", "tooling", "tool", "docgen", "src", "bin.ts");
-    const args = ["run", docgenEntrypoint] as const;
+    const include = options?.include ?? A.empty<string>();
+    const args: ReadonlyArray<string> = [
+      "run",
+      docgenEntrypoint,
+      ...(A.isReadonlyArrayEmpty(include) ? A.empty<string>() : ["--include", A.join(include, ",")]),
+    ];
     const command = ChildProcess.make("bun", [...args], {
       cwd: targetPackage.absolutePath,
       stdout: "pipe",
@@ -1687,3 +1688,53 @@ export const runDocgenForPackage: (
       )
     )
 );
+
+/**
+ * Runs the repo-local `@beep/repo-docgen` implementation for one workspace package.
+ *
+ * @param targetPackage - Workspace package to run through docgen.
+ * @param options - Optional focused include globs forwarded to repo-docgen.
+ * @returns Generation result including command output and module count.
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import {
+ *   DocgenWorkspacePackage,
+ *   runDocgenForPackage,
+ * } from "@beep/repo-cli/commands/Docgen/internal/Operations"
+ *
+ * const target = DocgenWorkspacePackage.make({
+ *   name: "@beep/example",
+ *   relativePath: "packages/example",
+ *   absolutePath: "/repo/packages/example",
+ *   docsOutputPath: "docs/generated/example",
+ *   hasDocgenConfig: true,
+ *   hasGeneratedDocs: false,
+ *   status: "configured-not-generated",
+ * })
+ *
+ * const effect = runDocgenForPackage(target, { include: ["src/index.ts"] })
+ * console.log(Effect.isEffect(effect))
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const runDocgenForPackage: {
+  (
+    targetPackage: DocgenWorkspacePackage,
+    options?: RunDocgenForPackageOptions
+  ): Effect.Effect<
+    DocgenGenerationResult,
+    DocgenGenerationResult,
+    FileSystem.FileSystem | Path.Path | ChildProcessSpawner
+  >;
+  (
+    options: RunDocgenForPackageOptions
+  ): (
+    targetPackage: DocgenWorkspacePackage
+  ) => Effect.Effect<
+    DocgenGenerationResult,
+    DocgenGenerationResult,
+    FileSystem.FileSystem | Path.Path | ChildProcessSpawner
+  >;
+} = dual(isRunDocgenForPackageDataFirst, runDocgenForPackageEffect);

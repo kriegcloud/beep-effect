@@ -1273,6 +1273,9 @@
       ],
       "@beep/m365-mcp/*": [
         "./packages/drivers/m365-mcp/src/*"
+      ],
+      "@beep/ui/themes/theme-provider": [
+        "./packages/foundation/ui-system/ui/src/themes/theme-provider.tsx"
       ]
     }
   }

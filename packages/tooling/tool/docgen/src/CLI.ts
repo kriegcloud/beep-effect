@@ -9,7 +9,7 @@
 
 import { TSConfigCompilerOptions } from "@beep/repo-utils";
 import { A, Str } from "@beep/utils";
-import { Effect, Layer, pipe } from "effect";
+import { Effect, flow, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -96,8 +96,11 @@ const decodeCompilerOptionsText = (value: string) =>
     )
   );
 
-const splitGlobList = (value: string): ReadonlyArray<string> =>
-  pipe(value, Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const splitGlobList: (value: string) => ReadonlyArray<string> = flow(
+  Str.split(","),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const resolveCompilerOptionsInput = (filePath: O.Option<string>, text: O.Option<string>) =>
   pipe(
