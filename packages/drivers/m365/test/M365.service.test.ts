@@ -97,18 +97,16 @@ const M365TestHttpLayer = Layer.effect(
   Effect.gen(function* () {
     const capturesRef = yield* Ref.make<ReadonlyArray<CapturedRequest>>([]);
     const respondRef = yield* Ref.make<TestRespond>(defaultRespond);
+    const recordCapture = (request: HttpClientRequest.HttpClientRequest): CapturedRequest => ({
+      headers: request.headers,
+      method: request.method,
+      url: requestUrl(request),
+    });
 
     return M365TestHttp.of({
       captures: Ref.get(capturesRef),
       handle: Effect.fn("M365TestHttp.handle")(function* (request) {
-        yield* Ref.update(
-          capturesRef,
-          A.append({
-            headers: request.headers,
-            method: request.method,
-            url: requestUrl(request),
-          })
-        );
+        yield* Ref.update(capturesRef, A.append(recordCapture(request)));
 
         const respond = yield* Ref.get(respondRef);
         return yield* respond(request);
@@ -126,10 +124,10 @@ const TestHttpClientLayer = Layer.effect(
     const testHttp = yield* M365TestHttp;
 
     return HttpClient.make((request) =>
-      Effect.gen(function* () {
-        const response = yield* testHttp.handle(request);
-        return HttpClientResponse.fromWeb(request, response);
-      })
+      pipe(
+        testHttp.handle(request),
+        Effect.map((response) => HttpClientResponse.fromWeb(request, response))
+      )
     );
   })
 );

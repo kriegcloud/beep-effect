@@ -174,11 +174,12 @@ describe("M365 MCP server", () => {
       Effect.gen(function* () {
         const toolkit = yield* M365Toolkit;
         const stream = yield* toolkit.handle("m365_list_drives", {});
-        const results = yield* Stream.runCollect(stream);
-        const first = results[0];
+        const first = yield* Stream.runHead(stream);
 
-        assert.isDefined(first);
-        assert.isFalse(first.isFailure);
+        assert.isTrue(O.isSome(first));
+        if (O.isSome(first)) {
+          assert.isFalse(first.value.isFailure);
+        }
       })
     );
   });

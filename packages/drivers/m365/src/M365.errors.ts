@@ -7,9 +7,9 @@
 
 import { $M365Id } from "@beep/identity";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { O, thunkUndefined } from "@beep/utils";
+import { O } from "@beep/utils";
 import { Effect, flow, pipe, Result } from "effect";
-import { dual } from "effect/Function";
+import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -170,40 +170,55 @@ export class M365Error extends TaggedErrorClass<M365Error>($I`M365Error`)(
 }
 
 const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
-  if (!P.isObject(value)) {
-    return O.none();
-  }
+  const target = O.fromNullishOr(value);
 
-  return O.fromUndefinedOr(
-    Result.getOrElse(
-      Result.try(() => Reflect.get(value, key)),
-      thunkUndefined
+  return pipe(
+    target,
+    O.filter(P.isObject),
+    O.flatMap((object) =>
+      Result.match(
+        Result.try(() => Reflect.get(object, key)),
+        {
+          onFailure: () => O.none<unknown>(),
+          onSuccess: O.fromUndefinedOr,
+        }
+      )
     )
   );
 };
 
-const readString: {
-  (value: unknown, key: PropertyKey): O.Option<string>;
-  (key: PropertyKey): (value: unknown) => O.Option<string>;
-} = dual(2, (value: unknown, key: PropertyKey): O.Option<string> => O.filter(readProperty(value, key), P.isString));
+const readString =
+  (key: PropertyKey) =>
+  (value: unknown): O.Option<string> =>
+    pipe(readProperty(value, key), O.filter(P.isString));
 
-const safeBoolean = (evaluate: () => boolean): boolean => Result.getOrElse(Result.try(evaluate), () => false);
+const safeBoolean = (evaluate: () => boolean): boolean =>
+  pipe(
+    Result.try(evaluate),
+    Result.getOrElse(() => false)
+  );
 
 const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
-  safeBoolean(() => HttpClientError.isHttpClientError(cause))
-    ? pipe(
-        readProperty(cause, "reason"),
-        O.flatMap(readString("_tag")),
-        O.map((tag) => `HttpClientError:${tag}`)
-      )
-    : O.none();
+  pipe(
+    O.fromNullishOr(cause),
+    O.filter((value) => safeBoolean(() => HttpClientError.isHttpClientError(value))),
+    O.flatMap((value) => readProperty(value, "reason")),
+    O.flatMap(readString("_tag")),
+    O.map((tag) => `HttpClientError:${tag}`)
+  );
+
+const stringCauseLabel = (cause: unknown): O.Option<string> => (P.isString(cause) ? O.some("String") : O.none());
+
+const causeLabelReaders: ReadonlyArray<(cause: unknown) => O.Option<string>> = [
+  httpClientCauseLabel,
+  readString("_tag"),
+  readString("name"),
+  stringCauseLabel,
+];
 
 const causeFromUnknown = (cause: unknown): O.Option<string> =>
-  P.isUndefined(cause)
-    ? O.none()
-    : O.firstSomeOf([
-        httpClientCauseLabel(cause),
-        readString(cause, "_tag"),
-        readString(cause, "name"),
-        P.isString(cause) ? O.some("String") : O.none(),
-      ]);
+  pipe(
+    causeLabelReaders,
+    A.filterMap((reader) => reader(cause)),
+    A.head
+  );
