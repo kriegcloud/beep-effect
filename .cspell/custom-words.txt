@@ -11,14 +11,18 @@ graphiti
 CAFC
 Gramm
 gramm
+HMAC
+ILTA
 IOLTA
 LEDES
+MADDI
 partes
 PTAB
 reattribute
 reattributed
 reattributes
 SDSU
+UTBMS
 mcporter
 nana
 Orthogonalization
@@ -38,6 +42,7 @@ generalise
 inprocess
 pgdata
 unbilled
+unlogged
 unreviewed
 QWEN
 Qwen
@@ -110,6 +115,7 @@ clusterer
 CNBC
 cnbc
 Cognify
+commoditizes
 commoditized
 Commoditizing
 commoditizing
@@ -131,6 +137,7 @@ erythropoietin
 ESTRELLA
 estrellaproject
 fcap
+financials
 fmod
 FPWD
 fprim
@@ -174,6 +181,7 @@ libyal
 LKIF
 LMSS
 LOV
+lawyered
 mgmt
 misgrounding
 mordorintelligence
