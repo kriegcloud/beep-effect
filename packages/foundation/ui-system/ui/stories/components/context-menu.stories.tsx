@@ -103,9 +103,7 @@ export const Default: Story = {
     const trigger = canvas.getByText("Right click here");
     expect(trigger).toBeVisible();
     fireEvent.contextMenu(trigger);
-    return screen.findByRole("menuitem", { name: /Back/ }).then((item) => {
-      return waitFor(() => expect(item).toBeVisible());
-    });
+    return screen.findByRole("menuitem", { name: /Back/ }).then((item) => waitFor(() => expect(item).toBeVisible()));
   },
 };
 
