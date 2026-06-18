@@ -136,7 +136,13 @@
       "path": "packages/epistemic/domain"
     },
     {
+      "path": "packages/epistemic/server"
+    },
+    {
       "path": "packages/epistemic/tables"
+    },
+    {
+      "path": "packages/epistemic/use-cases"
     },
     {
       "path": "packages/foundation/capability/chalk"
@@ -175,6 +181,9 @@
       "path": "packages/foundation/modeling/pandoc-ast"
     },
     {
+      "path": "packages/foundation/modeling/provenance"
+    },
+    {
       "path": "packages/foundation/modeling/rdf"
     },
     {
@@ -200,6 +209,9 @@
     },
     {
       "path": "packages/law-practice/domain"
+    },
+    {
+      "path": "packages/law-practice/use-cases"
     },
     {
       "path": "packages/shared/client"

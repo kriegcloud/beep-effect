@@ -148,3 +148,42 @@ The invariant is a stricter reading of vision commitments C1 (local-first/matter
 dead-end. Supersedes the `32 §4` "fork" framing (see `synthesis/32` Amendment 2). Caution retained:
 dad's enthusiasm is *distribution*, not *proof*; attorney #2's unprompted dependence is the venture
 signal.
+
+## 2026-06-17 — foundation-gaps-doc: anchor home
+
+**Question:** Where should `synthesis/60-foundation-gaps.md` recommend the shared provenance anchor
+(`TextAnchor`/`SourceRef`) live?
+
+**Answer:** A new **`@beep/provenance`** package in `foundation/modeling` (peer of `@beep/rdf` /
+`@beep/identity`).
+
+**Rationale:** Domain-agnostic substrate → `foundation`, not `shared` (per `02`/`07`); pure schema
+value objects (no service/Layer) → `modeling`, not `capability`. Layering note: `Span` (in `@beep/nlp`)
+and `ArtifactId`/`ContentDigest` (in `@beep/file-processing`) are in *capability* packages — promote
+those primitives down so a modeling anchor composes them without a modeling→capability inversion.
+Rejected: concept modules in `@beep/schema` (buries provenance in the generic kit); extend
+`@beep/identity` (`TextAnchor` exceeds identity).
+
+## 2026-06-17 — foundation-gaps-doc: posture
+
+**Question:** How prescriptive should the doc be?
+
+**Answer:** Analysis + concrete **sequencing & coordination** (build `@beep/provenance` first →
+`epistemic-claim-lifecycle-gate` consumes it for EvidenceSpan → embeddings/reasoner/ask are
+migrate-from-v3, deferred) — but **no goal-packet scaffolding**.
+
+**Rationale:** The user wants something actionable; the epistemic packet now exists with an
+EvidenceSpan item that should consume the shared anchor. Scaffolding a foundation goal packet would
+overlap the goal-packet branch's active lane. Rejected: pure analysis (less actionable);
+draft-a-packet (overlaps that lane).
+
+## 2026-06-17 — foundation-gaps-doc: integration
+
+**Question:** How to integrate the doc given concurrent branch activity on shared files?
+
+**Answer:** Standalone `synthesis/60-foundation-gaps.md` (60-band, no path collision) + careful
+append-only hygiene (re-read each shared file before touching; skip + report on conflict).
+
+**Rationale:** Avoids clobbering the assessment/goal-packet branches' edits to
+RESEARCH/DECISIONS/README/CAPTURE. Rejected: full integration now (clobber risk); standalone-only
+(doc not discoverable in the index).

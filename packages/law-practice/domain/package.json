@@ -31,10 +31,15 @@
   "exports": {
     ".": "./src/index.ts",
     "./entities": "./src/entities/index.ts",
+    "./entities/Claim": "./src/entities/Claim/index.ts",
+    "./entities/Distinction": "./src/entities/Distinction/index.ts",
     "./entities/LegalClient": "./src/entities/LegalClient/index.ts",
     "./entities/LegalContact": "./src/entities/LegalContact/index.ts",
     "./entities/Matter": "./src/entities/Matter/index.ts",
+    "./entities/OfficeAction": "./src/entities/OfficeAction/index.ts",
     "./entities/PatentAsset": "./src/entities/PatentAsset/index.ts",
+    "./entities/PriorArtReference": "./src/entities/PriorArtReference/index.ts",
+    "./entities/Rejection": "./src/entities/Rejection/index.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -47,6 +52,7 @@
   "sideEffects": [],
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/provenance": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/shared-domain": "workspace:^",
     "effect": "catalog:"

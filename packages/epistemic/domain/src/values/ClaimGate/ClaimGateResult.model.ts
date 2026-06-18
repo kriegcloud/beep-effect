@@ -1,0 +1,122 @@
+/**
+ * Claim gate verdict value schemas.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { $EpistemicDomainId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as S from "effect/Schema";
+
+const $I = $EpistemicDomainId.create("values/ClaimGate/ClaimGateResult.model");
+
+/**
+ * Severity of a claim gate violation. Mirrors the bounded SHACL severity
+ * vocabulary as a product-agnostic domain literal so the verdict carries no
+ * dependency on the semantic-web engine.
+ *
+ * @example
+ * ```ts
+ * import { ClaimGateSeverity } from "@beep/epistemic-domain"
+ *
+ * console.log(ClaimGateSeverity.is.violation("violation"))
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ClaimGateSeverity = LiteralKit(["info", "warning", "violation"]).pipe(
+  $I.annoteSchema("ClaimGateSeverity", {
+    description: "Severity of a claim gate violation.",
+  })
+);
+
+/**
+ * Runtime type for {@link ClaimGateSeverity}.
+ *
+ * @example
+ * ```ts
+ * import type { ClaimGateSeverity } from "@beep/epistemic-domain"
+ *
+ * const value: ClaimGateSeverity = "violation"
+ * console.log(value)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ClaimGateSeverity = typeof ClaimGateSeverity.Type;
+
+/**
+ * A single claim gate violation, projected from a SHACL validation violation
+ * into product-agnostic primitives (no RDF terms, no engine types).
+ *
+ * @example
+ * ```ts
+ * import { ClaimGateViolation } from "@beep/epistemic-domain"
+ *
+ * const violation = ClaimGateViolation.make({
+ *   focusNode: "<urn:claim:1>",
+ *   path: "https://beep.dev/epistemic/evidence",
+ *   message: "Expected at least 1 value(s) for evidence.",
+ *   severity: "violation",
+ * })
+ * console.log(violation.severity)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ClaimGateViolation extends S.Class<ClaimGateViolation>($I`ClaimGateViolation`)(
+  {
+    focusNode: S.String,
+    path: S.String,
+    message: S.String,
+    severity: ClaimGateSeverity,
+  },
+  $I.annote("ClaimGateViolation", {
+    description: "A single claim gate violation projected from a SHACL validation violation.",
+  })
+) {}
+
+const ClaimGateVerdict = LiteralKit(["admitted", "rejected"]);
+
+/**
+ * Typed verdict returned by the claim gate, discriminated on `verdict`: an
+ * `admitted` claim carries no violations and drives a lifecycle advance, while a
+ * `rejected` claim carries the violations that blocked it and does not advance.
+ *
+ * @example
+ * ```ts
+ * import { ClaimGateResult } from "@beep/epistemic-domain"
+ *
+ * console.log(ClaimGateResult)
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const ClaimGateResult = ClaimGateVerdict.toTaggedUnion("verdict")({
+  admitted: {},
+  rejected: { violations: S.Array(ClaimGateViolation) },
+}).pipe(
+  $I.annoteSchema("ClaimGateResult", {
+    description: "Typed admitted/rejected verdict returned by the claim gate.",
+  })
+);
+
+/**
+ * Runtime type for {@link ClaimGateResult}.
+ *
+ * @example
+ * ```ts
+ * import type { ClaimGateResult } from "@beep/epistemic-domain"
+ *
+ * const accept = (value: ClaimGateResult) => value
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ClaimGateResult = typeof ClaimGateResult.Type;

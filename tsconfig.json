@@ -1188,6 +1188,81 @@
       ],
       "@beep/pandoc-ast/Pandoc.report": [
         "./packages/foundation/modeling/pandoc-ast/src/Pandoc.report.ts"
+      ],
+      "@beep/epistemic-use-cases": [
+        "./packages/epistemic/use-cases/src/index.ts"
+      ],
+      "@beep/epistemic-use-cases/ClaimGate": [
+        "./packages/epistemic/use-cases/src/ClaimGate/index.ts"
+      ],
+      "@beep/epistemic-use-cases/ClaimLifecycle": [
+        "./packages/epistemic/use-cases/src/ClaimLifecycle/index.ts"
+      ],
+      "@beep/epistemic-use-cases/ClaimProjection": [
+        "./packages/epistemic/use-cases/src/ClaimProjection/index.ts"
+      ],
+      "@beep/epistemic-use-cases/public": [
+        "./packages/epistemic/use-cases/src/public.ts"
+      ],
+      "@beep/epistemic-use-cases/server": [
+        "./packages/epistemic/use-cases/src/server.ts"
+      ],
+      "@beep/epistemic-server": [
+        "./packages/epistemic/server/src/index.ts"
+      ],
+      "@beep/epistemic-server/layer": [
+        "./packages/epistemic/server/src/Layer.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimGate": [
+        "./packages/epistemic/domain/src/values/ClaimGate/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimProjection": [
+        "./packages/epistemic/domain/src/values/ClaimProjection/index.ts"
+      ],
+      "@beep/epistemic-domain/values/EvidenceSpan": [
+        "./packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
+      ],
+      "@beep/schema/UnitInterval": [
+        "./packages/foundation/modeling/schema/src/UnitInterval.ts"
+      ],
+      "@beep/provenance": [
+        "./packages/foundation/modeling/provenance/src/index.ts"
+      ],
+      "@beep/provenance/*": [
+        "./packages/foundation/modeling/provenance/src/*"
+      ],
+      "@beep/shared-domain/values/ClaimLifecycle": [
+        "./packages/shared/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Claim": [
+        "./packages/law-practice/domain/src/entities/Claim/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Distinction": [
+        "./packages/law-practice/domain/src/entities/Distinction/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/OfficeAction": [
+        "./packages/law-practice/domain/src/entities/OfficeAction/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/PriorArtReference": [
+        "./packages/law-practice/domain/src/entities/PriorArtReference/index.ts"
+      ],
+      "@beep/law-practice-domain/entities/Rejection": [
+        "./packages/law-practice/domain/src/entities/Rejection/index.ts"
+      ],
+      "@beep/law-practice-use-cases": [
+        "./packages/law-practice/use-cases/src/index.ts"
+      ],
+      "@beep/law-practice-use-cases/IrToLaw": [
+        "./packages/law-practice/use-cases/src/IrToLaw/index.ts"
+      ],
+      "@beep/law-practice-use-cases/OfficeActionReview": [
+        "./packages/law-practice/use-cases/src/OfficeActionReview/index.ts"
+      ],
+      "@beep/law-practice-use-cases/public": [
+        "./packages/law-practice/use-cases/src/public.ts"
+      ],
+      "@beep/law-practice-use-cases/server": [
+        "./packages/law-practice/use-cases/src/server.ts"
       ]
     }
   }

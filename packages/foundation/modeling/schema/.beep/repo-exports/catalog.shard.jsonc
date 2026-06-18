@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "a35ae741a300af200853d0f01638d11a4046412ca6e8cfb3860c1249ff9d99cd",
+    "digest": "000ace91ab318ec0448b0f73e344f78612ec535df9fe20d6caeaa564bd298abf",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/foundation/modeling/schema/package.json",
-        "sha256": "85f5e69a0d50784d5392dfcebb400ed1c2a9416cdf37857f2bc2aa53f5e67025",
-        "bytes": 19794
+        "sha256": "da8a75bcc9a897d0afa0ac8951a3bd101d450719f54cfba95449b0355ed3c9be",
+        "bytes": 19953
       },
       {
         "path": "packages/foundation/modeling/schema/src/AbortSignal.ts",
@@ -1126,6 +1126,11 @@
         "bytes": 2638
       },
       {
+        "path": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sha256": "6f90cbbf05fb2d0dfcd37054565472c8cbbb8e8366bc61f5659d1935b455e79b",
+        "bytes": 2805
+      },
+      {
         "path": "packages/foundation/modeling/schema/src/URL.ts",
         "sha256": "5f33d6acc463ad9764e4deab968b93ddcbdce44cdea185a78696962b9a5bf8d3",
         "bytes": 1829
@@ -1301,6 +1306,7 @@
       "@beep/schema/Timezone",
       "@beep/schema/Toml",
       "@beep/schema/Transformations",
+      "@beep/schema/UnitInterval",
       "@beep/schema/URL",
       "@beep/schema/VariantSchema",
       "@beep/schema/Xml",
@@ -1308,9 +1314,9 @@
       "@beep/schema/Yaml"
     ],
     "counts": {
-      "publicExportEntries": 1752,
-      "uniqueSymbols": 720,
-      "sourceFiles": 228
+      "publicExportEntries": 1758,
+      "uniqueSymbols": 723,
+      "sourceFiles": 229
     },
     "exports": [
       {
@@ -43618,6 +43624,156 @@
           "@category"
         ],
         "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/transformations ./transformations destructivetransform const applies a lossy transform by inferring the target type from a callback result. utilities packages/foundation/modeling/schema/src/transformations.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/UnitInterval",
+        "exportSubpath": "./UnitInterval",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "symbolName": "complement",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sourceLine": 116,
+        "summary": "The complement of a unit-interval value (`1 - value`).",
+        "categories": [
+          "utilities"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/unitinterval ./unitinterval complement const the complement of a unit-interval value (`1 - value`). utilities packages/foundation/modeling/schema/src/unitinterval.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/UnitInterval",
+        "exportSubpath": "./UnitInterval",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "symbolName": "isUnitInterval",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sourceLine": 71,
+        "summary": "Type guard for {@link UnitInterval}.",
+        "categories": [
+          "validation"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/unitinterval ./unitinterval isunitinterval const type guard for {@link unitinterval}. validation packages/foundation/modeling/schema/src/unitinterval.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/UnitInterval",
+        "exportSubpath": "./UnitInterval",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "symbolName": "ONE",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sourceLine": 101,
+        "summary": "UnitInterval constant for `1` (the full/certain bound).",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/unitinterval ./unitinterval one const unitinterval constant for `1` (the full/certain bound). constants packages/foundation/modeling/schema/src/unitinterval.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/UnitInterval",
+        "exportSubpath": "./UnitInterval",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "symbolName": "UnitInterval",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sourceLine": 32,
+        "summary": "Schema for a real number in the closed unit interval `[0, 1]` (inclusive).",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/unitinterval ./unitinterval unitinterval const schema for a real number in the closed unit interval `[0, 1]` (inclusive). models packages/foundation/modeling/schema/src/unitinterval.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/UnitInterval",
+        "exportSubpath": "./UnitInterval",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "symbolName": "UnitInterval",
+        "exportKind": "type",
+        "sourcePath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sourceLine": 55,
+        "summary": "{@inheritDoc UnitInterval}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/unitinterval ./unitinterval unitinterval type {@inheritdoc unitinterval} models packages/foundation/modeling/schema/src/unitinterval.ts"
+      },
+      {
+        "packageName": "@beep/schema",
+        "packagePath": "packages/foundation/modeling/schema",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/schema/UnitInterval",
+        "exportSubpath": "./UnitInterval",
+        "exportedFromPath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "symbolName": "ZERO",
+        "exportKind": "const",
+        "sourcePath": "packages/foundation/modeling/schema/src/UnitInterval.ts",
+        "sourceLine": 86,
+        "summary": "UnitInterval constant for `0` (the empty/none bound).",
+        "categories": [
+          "constants"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@since",
+          "@category"
+        ],
+        "searchText": "@beep/schema packages/foundation/modeling/schema @beep/schema/unitinterval ./unitinterval zero const unitinterval constant for `0` (the empty/none bound). constants packages/foundation/modeling/schema/src/unitinterval.ts"
       },
       {
         "packageName": "@beep/schema",

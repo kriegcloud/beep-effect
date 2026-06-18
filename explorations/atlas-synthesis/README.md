@@ -24,9 +24,14 @@ doctrine-hygiene calls the centerpiece teed up (`synthesis/00` §5) are now **do
 retired), `effect-capability-kg` was **parked**, and this packet was **renamed**
 `baseline-synthesis → atlas-synthesis`. The product-shaped open question remains: which
 **first IP-law workflow** (office-action review / intake / drafting / contract review),
-and should `law-practice` graduate from domain-only to a full slice now? Two strategic forks
-now sit on top (`synthesis/32`, `43`): **dad-tool vs venture-product**, and **migrate the
-proven v3 KG engine vs rebuild clean in v4**.
+and should `law-practice` graduate from domain-only to a full slice now? **Resolved (2026-06-17):** dad-tool-first
+(ambition ladder; rung-3 firm aggregation bracketed); migrate only the thin v3 slice
+(`EvidenceSpan`). The office-action wedge is chosen and **graduated into two goal packets** —
+[`goals/epistemic-claim-lifecycle-gate`](../../goals/epistemic-claim-lifecycle-gate/README.md)
+(the reusable boundary) and
+[`goals/law-practice-office-action-spike`](../../goals/law-practice-office-action-spike/README.md)
+(the IP-law vertical + loop). **Next:** build them — the epistemic boundary first, then the
+law-practice vertical that composes it.
 
 ## Read This First
 
@@ -39,6 +44,21 @@ proven v3 KG engine vs rebuild clean in v4**.
 
 ## Trail
 
+- 2026-06-17: **Foundation-gaps analysis** (`synthesis/60-foundation-gaps.md`). Grilled the
+  placement; recommends a shared **`@beep/provenance`** anchor (`TextAnchor`/`SourceRef`) in
+  `foundation/modeling` as the keystone fill-in. Coordination: `epistemic-claim-lifecycle-gate`'s
+  EvidenceSpan should **consume** it, not define char-offsets locally on `Evidence`. Embeddings /
+  reasoner / grounded-ask = migrate-from-v3; the in-memory graph (`@beep/nlp/Graph`) + SHACL gate
+  (`@beep/semantic-web`) already exist.
+- 2026-06-17: **Graduated the first two goal packets** from the office-action wedge. Ran a
+  workflow: deep-research (`synthesis/50` OA anatomy, `synthesis/51` OA data + ontology
+  reality-check) → `BRIEF.md` + `MAP.md` (the decomposition) → scaffolded
+  [`goals/epistemic-claim-lifecycle-gate`](../../goals/epistemic-claim-lifecycle-gate/README.md)
+  (reusable boundary, build first) and
+  [`goals/law-practice-office-action-spike`](../../goals/law-practice-office-action-spike/README.md)
+  (IP-law vertical + loop). Both `PLAN.md`s enforce **schema → service-contract → implementation
+  → verify**. Verified: GOAL.md ≤4000 chars, manifests valid JSON, capability-cited, slice-correct
+  (new `use-cases`/`server` tiers within existing slices — no `knowledge-law/*` packages).
 - 2026-06-17: Strategic & architectural **assessment** (branch `…_CHALLENGES_AND_SUGGESTIONS`).
   Ran two workflows: the assessment (`30`/`31`/`32` — steelman→red-team→verdict + a broad
   deep-research competitive/market/regulatory sweep) and a **v3 prior-art** exploration

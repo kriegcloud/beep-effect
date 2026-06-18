@@ -72,6 +72,11 @@ carries its own `## Confidence & Caveats` (with a dated `### Verification` subse
 | 42 | [`42-v3-knowledge-domain-and-demo.md`](./synthesis/42-v3-knowledge-domain-and-demo.md) | The v3 domain model + tables + UI + the synthetic-email POC; how v4 `epistemic-domain` distills it. |
 | 43 | [`43-v3-prior-art-impact.md`](./synthesis/43-v3-prior-art-impact.md) | **Impact:** the KG middle is a *migration* of a proven engine, not greenfield — softens the integration-gap red-team; amendments to 30/32. |
 
+### Foundation gaps (60-band — what to build/migrate next)
+| # | Doc | One line |
+|---|---|---|
+| 60 | [`60-foundation-gaps.md`](./synthesis/60-foundation-gaps.md) | The foundation is ~80% there: the shared **`@beep/provenance`** anchor is the keystone fill-in; the epistemic boundary is small; embeddings/reasoner/ask are migrate-from-v3; the graph + SHACL gate already exist. |
+
 ## Headline findings (drill into the docs above)
 
 - **In-repo:** substrate is broad and mature; the one product slice (`law-practice`) is

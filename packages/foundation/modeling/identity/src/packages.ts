@@ -52,6 +52,7 @@ const generatedComposers = $I.compose(
   "md",
   "nlp",
   "observability",
+  "provenance",
   "rdf",
   "schema",
   "semantic-web",
@@ -64,7 +65,9 @@ const generatedComposers = $I.compose(
   "agents-use-cases",
   "agents-server",
   "epistemic-domain",
+  "epistemic-use-cases",
   "law-practice-domain",
+  "law-practice-use-cases",
   "professional-desktop",
   "workspace-domain",
 
@@ -187,6 +190,21 @@ export const $IdentityId = composers.$IdentityId;
  * @category configuration
  */
 export const $SchemaId = composers.$SchemaId;
+
+/**
+ * Identity composer for the `@beep/provenance` package.
+ *
+ * @example
+ * ```typescript
+ * import { $ProvenanceId } from "@beep/identity"
+ *
+ * const id = $ProvenanceId.make("TextAnchor")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $ProvenanceId: Identity.IdentityComposer<"@beep/provenance"> = composers.$ProvenanceId;
 
 /**
  * Identity composer for the `@beep/rdf` package.
@@ -587,6 +605,23 @@ export const $WorkspaceDomainId: Identity.IdentityComposer<"@beep/workspace-doma
 export const $EpistemicDomainId: Identity.IdentityComposer<"@beep/epistemic-domain"> = composers.$EpistemicDomainId;
 
 /**
+ * Identity composer for the `@beep/epistemic-use-cases` package.
+ *
+ * @example
+ * ```typescript
+ * import { $EpistemicUseCasesId } from "@beep/identity"
+ *
+ * const id = $EpistemicUseCasesId.make("ClaimGate")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $EpistemicUseCasesId: Identity.IdentityComposer<"@beep/epistemic-use-cases"> =
+  composers.$EpistemicUseCasesId;
+
+/**
  * Identity composer for the `@beep/agents-domain` package.
  *
  * @example
@@ -646,6 +681,23 @@ export const $AgentsUseCasesId: Identity.IdentityComposer<"@beep/agents-use-case
  */
 export const $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice-domain"> =
   composers.$LawPracticeDomainId;
+
+/**
+ * Identity composer for the `@beep/law-practice-use-cases` package.
+ *
+ * @example
+ * ```typescript
+ * import { $LawPracticeUseCasesId } from "@beep/identity"
+ *
+ * const id = $LawPracticeUseCasesId.make("OfficeActionReview")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $LawPracticeUseCasesId: Identity.IdentityComposer<"@beep/law-practice-use-cases"> =
+  composers.$LawPracticeUseCasesId;
 
 /**
  * Identity composer for the `@beep/professional-desktop` package.

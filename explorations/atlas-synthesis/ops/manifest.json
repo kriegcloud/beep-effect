@@ -6,12 +6,14 @@
     "status": "active",
     "stage": "research",
     "openQuestions": [
-      "What is the user's next instruction / direction this baseline grounds — i.e., the outcome-decomposition half of atlas-synthesis (sequencing the vision into explorations/goals)?",
-      "First IP-law workflow wedge (office-action review recommended, synthesis/32 §5.2) + graduate law-practice from domain-only to a minimum-viable slice (synthesis/30 §A-NW-2).",
-      "Migrate/port the proven v3 knowledge engine (cross the v3->v4 boundary, strip the email domain) vs rebuild clean in v4 (synthesis/43) — port only the thin slice the first workflow needs."
+      "Launch the two graduated goal packets: build goals/epistemic-claim-lifecycle-gate FIRST (the reusable boundary), then goals/law-practice-office-action-spike (the IP-law vertical + loop).",
+      "Continue the outcome-decomposition: the verticals/goals AFTER office-action review (intake, drafting, contract review) once the loop turns once."
     ],
     "links": {
-      "goals": [],
+      "goals": [
+        "goals/epistemic-claim-lifecycle-gate",
+        "goals/law-practice-office-action-spike"
+      ],
       "docs": [
         "docs/PROSE_TO_PROOF_VISION.md",
         "docs/product/prose-to-proof.md",

@@ -352,6 +352,9 @@
         "../packages/foundation/modeling/schema/src/Transformations.ts"
       ],
       "@beep/schema/URL": ["../packages/foundation/modeling/schema/src/URL.ts"],
+      "@beep/schema/UnitInterval": [
+        "../packages/foundation/modeling/schema/src/UnitInterval.ts"
+      ],
       "@beep/schema/VariantSchema": [
         "../packages/foundation/modeling/schema/src/VariantSchema/index.ts"
       ],

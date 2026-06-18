@@ -150,3 +150,17 @@ authorities** (federation = the existing authority/projection split scaled), whi
 rehabilitates* the matter-wall/authority-projection investment. Candidate amendment to `32 §4`
 (replace "fork" with "ladder" + trust-model discontinuity + federation payoff) — pending the
 user's call on whether rung 3 is a real commitment or a bracketed north star.
+
+## 2026-06-17 — foundation-gaps follow-up (what to build/migrate next)
+
+The user asked: "what gaps/capabilities are we missing in foundation work (à la `@beep/langextract`,
+`@beep/nlp`, `@beep/editor`) that would make the things we're striving for more achievable?" Two
+read-only recon agents (foundation inventory + requirements-vs-v3-migration) grounded the answer →
+`synthesis/60-foundation-gaps.md`. Finding: the foundation is ~80% there; the keystone fill-in is a
+shared **`@beep/provenance`** anchor (`TextAnchor`/`SourceRef`) — today four incompatible
+"where-from?" shapes exist (`nlp` `Span`, `file-processing` `ArtifactId`/`ContentDigest`, epistemic
+`Evidence` opaque fixture keys, editor `ArtifactRefNode`) and nothing bridges them. Most else (entity
+resolution, GraphRAG, grounded-ask, embeddings) is migrate-from-v3; the in-memory graph
+(`@beep/nlp/Graph`) + SHACL gate (`@beep/semantic-web`) already exist. Coordination flagged: the
+`epistemic-claim-lifecycle-gate` EvidenceSpan item should consume the shared anchor. See `DECISIONS.md`
+(2026-06-17 `foundation-gaps-doc` entries).

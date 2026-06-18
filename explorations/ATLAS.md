@@ -44,7 +44,11 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   goals/vision, centered on a gap map
   ([`synthesis/00-baseline-gap-map.md`](./atlas-synthesis/synthesis/00-baseline-gap-map.md)).
   The **capability-inventory half of the grand-vision exercise** (renamed from
-  `baseline-synthesis`, 2026-06-17); the outcome-decomposition half is its next stage.
+  `baseline-synthesis`, 2026-06-17). First decomposition done (2026-06-17): graduated the
+  office-action wedge into two goal packets —
+  [`epistemic-claim-lifecycle-gate`](../goals/epistemic-claim-lifecycle-gate/README.md) (build
+  first) and [`law-practice-office-action-spike`](../goals/law-practice-office-action-spike/README.md).
+  More verticals (intake/drafting/contract review) follow once the loop turns once.
 
 ### Proposed
 

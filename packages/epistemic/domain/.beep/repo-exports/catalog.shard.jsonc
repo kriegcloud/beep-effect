@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "e11f7ef98c3737d2755059f5485f2ff633805a55ce134ae2eb9021ffd2b16eb9",
+    "digest": "36167d54a5e27b802ea43a4292c23665182e7b854530a2668f9b3f4ace058b45",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -22,8 +22,8 @@
       },
       {
         "path": "packages/epistemic/domain/package.json",
-        "sha256": "9cdc8511cd1356badb324fff71c255eb1ad49de48b29fced0e52ed656eab3d40",
-        "bytes": 2168
+        "sha256": "e6964e7fa29a115ee91be7efd817d755b2ded5b7c5f4be105782a07ff7aa71b0",
+        "bytes": 2408
       },
       {
         "path": "packages/epistemic/domain/src/entities/Activity/Activity.model.ts",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
-        "sha256": "aced944d33001d1e5848ce1633427ef32899138b66b5f01dae31a6d8bed0d1cc",
-        "bytes": 1185
+        "sha256": "d74db217293811d3e44ad00e73f5cce0e919c7e110e934a1685ba7d0e0c93424",
+        "bytes": 1626
       },
       {
         "path": "packages/epistemic/domain/src/entities/Evidence/index.ts",
@@ -76,19 +76,54 @@
         "bytes": 576
       },
       {
+        "path": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sha256": "0573aeff268ca33775bcb7e0f9377c93c033a4ef9fce9db3dcc17a5cb79b5324",
+        "bytes": 3210
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/ClaimGate/index.ts",
+        "sha256": "2958dc0644c346e878fe649f558230b4f99d07161870fdcaeddaed0bd719ec7b",
+        "bytes": 328
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sha256": "47215ce09b6368cfe31192d7a9acd1c19d2491c450451c973c7f97552c4c3ce7",
+        "bytes": 2474
+      },
+      {
         "path": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sha256": "b66e0adf6ad558eaf94e92f02af5e49b29b25663a2d2d7f43973e7024d452049",
-        "bytes": 1038
+        "sha256": "81d3d245872cd0858e9169417417608fc81d376440059329eb8641e32bdd03f9",
+        "bytes": 2462
       },
       {
         "path": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
-        "sha256": "a687f235e3b703abbb4feed0fb5f91c78063ff8a677150a452d626518cb29b46",
-        "bytes": 329
+        "sha256": "fa55a268413362a89a34eab982be490425066545df506021f0ccd2ad6889bc1f",
+        "bytes": 583
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sha256": "5cdb0853c1d9b5bb877f26e57f96a6eeffe1779453a160ffbf4087c48da49ba9",
+        "bytes": 2243
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/ClaimProjection/index.ts",
+        "sha256": "6a8c98d88738b2a47d17f10da9c1a0281c5158de352d9745d9943fe4ed926887",
+        "bytes": 341
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sha256": "5758e7d00002deca1bcdd29044f3da61c905a7aabee7f335192460fb6eae9e30",
+        "bytes": 2433
+      },
+      {
+        "path": "packages/epistemic/domain/src/values/EvidenceSpan/index.ts",
+        "sha256": "be12771c0ff55d63cd20fc6980ed70c51d75a761ef90592fe3f0d680a62cc041",
+        "bytes": 323
       },
       {
         "path": "packages/epistemic/domain/src/values/index.ts",
-        "sha256": "5ec2a44dcd4eff0c85faa700890af1f1c99b937ada40d4413dd0e1bfdc542ba3",
-        "bytes": 321
+        "sha256": "2581f0ee0ec8cea559779624d6f3092916e63318115f42a9152b6705b7486602",
+        "bytes": 1057
       },
       {
         "path": "packages/tooling/library/repo-codegraph/src/RepoExportsCatalog.model.ts",
@@ -120,12 +155,15 @@
       "@beep/epistemic-domain/entities/Evidence",
       "@beep/epistemic-domain/entities/UsageRecord",
       "@beep/epistemic-domain/values",
-      "@beep/epistemic-domain/values/ClaimLifecycle"
+      "@beep/epistemic-domain/values/ClaimGate",
+      "@beep/epistemic-domain/values/ClaimLifecycle",
+      "@beep/epistemic-domain/values/ClaimProjection",
+      "@beep/epistemic-domain/values/EvidenceSpan"
     ],
     "counts": {
-      "publicExportEntries": 24,
-      "uniqueSymbols": 7,
-      "sourceFiles": 13
+      "publicExportEntries": 66,
+      "uniqueSymbols": 17,
+      "sourceFiles": 20
     },
     "exports": [
       {
@@ -210,11 +248,11 @@
         "importSpecifier": "@beep/epistemic-domain",
         "exportSubpath": ".",
         "exportedFromPath": "packages/epistemic/domain/src/index.ts",
-        "symbolName": "ClaimLifecycle",
+        "symbolName": "ClaimGateResult",
         "exportKind": "const",
-        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sourceLine": 25,
-        "summary": "Candidate lifecycle vocabulary for claim outputs.",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 99,
+        "summary": "Typed verdict returned by the claim gate, discriminated on `verdict`: an",
         "categories": [
           "schemas"
         ],
@@ -226,7 +264,157 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycle const candidate lifecycle vocabulary for claim outputs. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimgateresult const typed verdict returned by the claim gate, discriminated on `verdict`: an schemas packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimGateResult",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 122,
+        "summary": "Runtime type for {@link ClaimGateResult}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimgateresult type runtime type for {@link claimgateresult}. models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimGateSeverity",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 28,
+        "summary": "Severity of a claim gate violation. Mirrors the bounded SHACL severity",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimgateseverity const severity of a claim gate violation. mirrors the bounded shacl severity schemas packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimGateSeverity",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 48,
+        "summary": "Runtime type for {@link ClaimGateSeverity}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimgateseverity type runtime type for {@link claimgateseverity}. models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimGateViolation",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 70,
+        "summary": "A single claim gate violation, projected from a SHACL validation violation",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimgateviolation class a single claim gate violation, projected from a shacl validation violation models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimInvalidTransition",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 30,
+        "summary": "Raised when a requested lifecycle transition is not a legal forward step for",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claiminvalidtransition class raised when a requested lifecycle transition is not a legal forward step for errors packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 32,
+        "summary": "Lifecycle vocabulary for epistemic claims.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycle const lifecycle vocabulary for epistemic claims. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -238,7 +426,7 @@
         "symbolName": "ClaimLifecycle",
         "exportKind": "type",
         "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sourceLine": 45,
+        "sourceLine": 52,
         "summary": "Runtime type for {@link ClaimLifecycle}.",
         "categories": [
           "models"
@@ -260,11 +448,36 @@
         "importSpecifier": "@beep/epistemic-domain",
         "exportSubpath": ".",
         "exportedFromPath": "packages/epistemic/domain/src/index.ts",
-        "symbolName": "Evidence",
-        "exportKind": "class",
-        "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
-        "sourceLine": 28,
-        "summary": "Source span evidence reference.",
+        "symbolName": "ClaimLifecycleError",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 73,
+        "summary": "Union of every claim lifecycle error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycleerror const union of every claim lifecycle error. errors packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimLifecycleError",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 93,
+        "summary": "Runtime type for {@link ClaimLifecycleError}.",
         "categories": [
           "models"
         ],
@@ -276,7 +489,182 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . evidence class source span evidence reference. models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycleerror type runtime type for {@link claimlifecycleerror}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimLifecycleTransition",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 75,
+        "summary": "A single claim lifecycle transition: the state before, the state after, and a",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimlifecycletransition class a single claim lifecycle transition: the state before, the state after, and a models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimProjectionView",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sourceLine": 68,
+        "summary": "Deterministic in-memory read model folded from a single-owner authority array",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimprojectionview class deterministic in-memory read model folded from a single-owner authority array models packages/epistemic/domain/src/values/claimprojection/claimprojectionview.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "ClaimStateCounts",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sourceLine": 34,
+        "summary": "Count of claims in each lifecycle state. One key per {@link ClaimLifecycle}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . claimstatecounts class count of claims in each lifecycle state. one key per {@link claimlifecycle} models packages/epistemic/domain/src/values/claimprojection/claimprojectionview.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "Confidence",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 34,
+        "summary": "Extraction confidence in the unit interval `[0, 1]` — the epistemic semantic",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . confidence const extraction confidence in the unit interval `[0, 1]` — the epistemic semantic schemas packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "Confidence",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 50,
+        "summary": "Runtime type for {@link Confidence}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . confidence type runtime type for {@link confidence}. models packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "Evidence",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
+        "sourceLine": 32,
+        "summary": "Source span evidence reference. Carries the ported v3 {@link EvidenceSpan}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . evidence class source span evidence reference. carries the ported v3 {@link evidencespan} models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain",
+        "exportSubpath": ".",
+        "exportedFromPath": "packages/epistemic/domain/src/index.ts",
+        "symbolName": "EvidenceSpan",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 76,
+        "summary": "Char-offset evidence span: the exact quoted source text and its `[startChar,",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain . evidencespan class char-offset evidence span: the exact quoted source text and its `[startchar, models packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -413,8 +801,8 @@
         "symbolName": "Evidence",
         "exportKind": "class",
         "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
-        "sourceLine": 28,
-        "summary": "Source span evidence reference.",
+        "sourceLine": 32,
+        "summary": "Source span evidence reference. Carries the ported v3 {@link EvidenceSpan}",
         "categories": [
           "models"
         ],
@@ -426,7 +814,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities evidence class source span evidence reference. models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities ./entities evidence class source span evidence reference. carries the ported v3 {@link evidencespan} models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -538,8 +926,8 @@
         "symbolName": "Evidence",
         "exportKind": "class",
         "sourcePath": "packages/epistemic/domain/src/entities/Evidence/Evidence.model.ts",
-        "sourceLine": 28,
-        "summary": "Source span evidence reference.",
+        "sourceLine": 32,
+        "summary": "Source span evidence reference. Carries the ported v3 {@link EvidenceSpan}",
         "categories": [
           "models"
         ],
@@ -551,7 +939,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/evidence ./entities/evidence evidence class source span evidence reference. models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/entities/evidence ./entities/evidence evidence class source span evidence reference. carries the ported v3 {@link evidencespan} models packages/epistemic/domain/src/entities/evidence/evidence.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -635,11 +1023,11 @@
         "importSpecifier": "@beep/epistemic-domain/values",
         "exportSubpath": "./values",
         "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
-        "symbolName": "ClaimLifecycle",
+        "symbolName": "ClaimGateResult",
         "exportKind": "const",
-        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sourceLine": 25,
-        "summary": "Candidate lifecycle vocabulary for claim outputs.",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 99,
+        "summary": "Typed verdict returned by the claim gate, discriminated on `verdict`: an",
         "categories": [
           "schemas"
         ],
@@ -651,7 +1039,157 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycle const candidate lifecycle vocabulary for claim outputs. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimgateresult const typed verdict returned by the claim gate, discriminated on `verdict`: an schemas packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimGateResult",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 122,
+        "summary": "Runtime type for {@link ClaimGateResult}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimgateresult type runtime type for {@link claimgateresult}. models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimGateSeverity",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 28,
+        "summary": "Severity of a claim gate violation. Mirrors the bounded SHACL severity",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimgateseverity const severity of a claim gate violation. mirrors the bounded shacl severity schemas packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimGateSeverity",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 48,
+        "summary": "Runtime type for {@link ClaimGateSeverity}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimgateseverity type runtime type for {@link claimgateseverity}. models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimGateViolation",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 70,
+        "summary": "A single claim gate violation, projected from a SHACL validation violation",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimgateviolation class a single claim gate violation, projected from a shacl validation violation models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimInvalidTransition",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 30,
+        "summary": "Raised when a requested lifecycle transition is not a legal forward step for",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claiminvalidtransition class raised when a requested lifecycle transition is not a legal forward step for errors packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 32,
+        "summary": "Lifecycle vocabulary for epistemic claims.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycle const lifecycle vocabulary for epistemic claims. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -663,7 +1201,7 @@
         "symbolName": "ClaimLifecycle",
         "exportKind": "type",
         "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sourceLine": 45,
+        "sourceLine": 52,
         "summary": "Runtime type for {@link ClaimLifecycle}.",
         "categories": [
           "models"
@@ -682,14 +1220,139 @@
         "packageName": "@beep/epistemic-domain",
         "packagePath": "packages/epistemic/domain",
         "topoOrder": 0,
-        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
-        "exportSubpath": "./values/ClaimLifecycle",
-        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
-        "symbolName": "ClaimLifecycle",
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimLifecycleError",
         "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 73,
+        "summary": "Union of every claim lifecycle error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycleerror const union of every claim lifecycle error. errors packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimLifecycleError",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 93,
+        "summary": "Runtime type for {@link ClaimLifecycleError}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycleerror type runtime type for {@link claimlifecycleerror}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimLifecycleTransition",
+        "exportKind": "class",
         "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sourceLine": 25,
-        "summary": "Candidate lifecycle vocabulary for claim outputs.",
+        "sourceLine": 75,
+        "summary": "A single claim lifecycle transition: the state before, the state after, and a",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimlifecycletransition class a single claim lifecycle transition: the state before, the state after, and a models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimProjectionView",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sourceLine": 68,
+        "summary": "Deterministic in-memory read model folded from a single-owner authority array",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimprojectionview class deterministic in-memory read model folded from a single-owner authority array models packages/epistemic/domain/src/values/claimprojection/claimprojectionview.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "ClaimStateCounts",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sourceLine": 34,
+        "summary": "Count of claims in each lifecycle state. One key per {@link ClaimLifecycle}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values claimstatecounts class count of claims in each lifecycle state. one key per {@link claimlifecycle} models packages/epistemic/domain/src/values/claimprojection/claimprojectionview.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "Confidence",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 34,
+        "summary": "Extraction confidence in the unit interval `[0, 1]` — the epistemic semantic",
         "categories": [
           "schemas"
         ],
@@ -701,7 +1364,232 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycle const candidate lifecycle vocabulary for claim outputs. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values confidence const extraction confidence in the unit interval `[0, 1]` — the epistemic semantic schemas packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "Confidence",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 50,
+        "summary": "Runtime type for {@link Confidence}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values confidence type runtime type for {@link confidence}. models packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values",
+        "exportSubpath": "./values",
+        "exportedFromPath": "packages/epistemic/domain/src/values/index.ts",
+        "symbolName": "EvidenceSpan",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 76,
+        "summary": "Char-offset evidence span: the exact quoted source text and its `[startChar,",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values ./values evidencespan class char-offset evidence span: the exact quoted source text and its `[startchar, models packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimGate",
+        "exportSubpath": "./values/ClaimGate",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimGate/index.ts",
+        "symbolName": "ClaimGateResult",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 99,
+        "summary": "Typed verdict returned by the claim gate, discriminated on `verdict`: an",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimgate ./values/claimgate claimgateresult const typed verdict returned by the claim gate, discriminated on `verdict`: an schemas packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimGate",
+        "exportSubpath": "./values/ClaimGate",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimGate/index.ts",
+        "symbolName": "ClaimGateResult",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 122,
+        "summary": "Runtime type for {@link ClaimGateResult}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimgate ./values/claimgate claimgateresult type runtime type for {@link claimgateresult}. models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimGate",
+        "exportSubpath": "./values/ClaimGate",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimGate/index.ts",
+        "symbolName": "ClaimGateSeverity",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 28,
+        "summary": "Severity of a claim gate violation. Mirrors the bounded SHACL severity",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimgate ./values/claimgate claimgateseverity const severity of a claim gate violation. mirrors the bounded shacl severity schemas packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimGate",
+        "exportSubpath": "./values/ClaimGate",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimGate/index.ts",
+        "symbolName": "ClaimGateSeverity",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 48,
+        "summary": "Runtime type for {@link ClaimGateSeverity}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimgate ./values/claimgate claimgateseverity type runtime type for {@link claimgateseverity}. models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimGate",
+        "exportSubpath": "./values/ClaimGate",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimGate/index.ts",
+        "symbolName": "ClaimGateViolation",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimGate/ClaimGateResult.model.ts",
+        "sourceLine": 70,
+        "summary": "A single claim gate violation, projected from a SHACL validation violation",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimgate ./values/claimgate claimgateviolation class a single claim gate violation, projected from a shacl validation violation models packages/epistemic/domain/src/values/claimgate/claimgateresult.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimInvalidTransition",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 30,
+        "summary": "Raised when a requested lifecycle transition is not a legal forward step for",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claiminvalidtransition class raised when a requested lifecycle transition is not a legal forward step for errors packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimLifecycle",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 32,
+        "summary": "Lifecycle vocabulary for epistemic claims.",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycle const lifecycle vocabulary for epistemic claims. schemas packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
       },
       {
         "packageName": "@beep/epistemic-domain",
@@ -713,7 +1601,7 @@
         "symbolName": "ClaimLifecycle",
         "exportKind": "type",
         "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
-        "sourceLine": 45,
+        "sourceLine": 52,
         "summary": "Runtime type for {@link ClaimLifecycle}.",
         "categories": [
           "models"
@@ -727,6 +1615,206 @@
           "@since"
         ],
         "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycle type runtime type for {@link claimlifecycle}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimLifecycleError",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 73,
+        "summary": "Union of every claim lifecycle error.",
+        "categories": [
+          "errors"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycleerror const union of every claim lifecycle error. errors packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimLifecycleError",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.errors.ts",
+        "sourceLine": 93,
+        "summary": "Runtime type for {@link ClaimLifecycleError}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycleerror type runtime type for {@link claimlifecycleerror}. models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.errors.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimLifecycle",
+        "exportSubpath": "./values/ClaimLifecycle",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimLifecycle/index.ts",
+        "symbolName": "ClaimLifecycleTransition",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts",
+        "sourceLine": 75,
+        "summary": "A single claim lifecycle transition: the state before, the state after, and a",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimlifecycle ./values/claimlifecycle claimlifecycletransition class a single claim lifecycle transition: the state before, the state after, and a models packages/epistemic/domain/src/values/claimlifecycle/claimlifecycle.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimProjection",
+        "exportSubpath": "./values/ClaimProjection",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimProjection/index.ts",
+        "symbolName": "ClaimProjectionView",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sourceLine": 68,
+        "summary": "Deterministic in-memory read model folded from a single-owner authority array",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimprojection ./values/claimprojection claimprojectionview class deterministic in-memory read model folded from a single-owner authority array models packages/epistemic/domain/src/values/claimprojection/claimprojectionview.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/ClaimProjection",
+        "exportSubpath": "./values/ClaimProjection",
+        "exportedFromPath": "packages/epistemic/domain/src/values/ClaimProjection/index.ts",
+        "symbolName": "ClaimStateCounts",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/ClaimProjection/ClaimProjectionView.model.ts",
+        "sourceLine": 34,
+        "summary": "Count of claims in each lifecycle state. One key per {@link ClaimLifecycle}",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/claimprojection ./values/claimprojection claimstatecounts class count of claims in each lifecycle state. one key per {@link claimlifecycle} models packages/epistemic/domain/src/values/claimprojection/claimprojectionview.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/EvidenceSpan",
+        "exportSubpath": "./values/EvidenceSpan",
+        "exportedFromPath": "packages/epistemic/domain/src/values/EvidenceSpan/index.ts",
+        "symbolName": "Confidence",
+        "exportKind": "const",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 34,
+        "summary": "Extraction confidence in the unit interval `[0, 1]` — the epistemic semantic",
+        "categories": [
+          "schemas"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/evidencespan ./values/evidencespan confidence const extraction confidence in the unit interval `[0, 1]` — the epistemic semantic schemas packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/EvidenceSpan",
+        "exportSubpath": "./values/EvidenceSpan",
+        "exportedFromPath": "packages/epistemic/domain/src/values/EvidenceSpan/index.ts",
+        "symbolName": "Confidence",
+        "exportKind": "type",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 50,
+        "summary": "Runtime type for {@link Confidence}.",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/evidencespan ./values/evidencespan confidence type runtime type for {@link confidence}. models packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
+      },
+      {
+        "packageName": "@beep/epistemic-domain",
+        "packagePath": "packages/epistemic/domain",
+        "topoOrder": 0,
+        "importSpecifier": "@beep/epistemic-domain/values/EvidenceSpan",
+        "exportSubpath": "./values/EvidenceSpan",
+        "exportedFromPath": "packages/epistemic/domain/src/values/EvidenceSpan/index.ts",
+        "symbolName": "EvidenceSpan",
+        "exportKind": "class",
+        "sourcePath": "packages/epistemic/domain/src/values/EvidenceSpan/EvidenceSpan.model.ts",
+        "sourceLine": 76,
+        "summary": "Char-offset evidence span: the exact quoted source text and its `[startChar,",
+        "categories": [
+          "models"
+        ],
+        "since": [
+          "0.0.0"
+        ],
+        "tags": [
+          "@example",
+          "@category",
+          "@since"
+        ],
+        "searchText": "@beep/epistemic-domain packages/epistemic/domain @beep/epistemic-domain/values/evidencespan ./values/evidencespan evidencespan class char-offset evidence span: the exact quoted source text and its `[startchar, models packages/epistemic/domain/src/values/evidencespan/evidencespan.model.ts"
       }
     ]
   }
