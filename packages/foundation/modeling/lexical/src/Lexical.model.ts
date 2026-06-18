@@ -17,9 +17,9 @@
 
 import { $LexicalSchemaId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { A, Str } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
+import { SchemaGetter } from "effect";
 import * as S from "effect/Schema";
-import type * as O from "effect/Option";
 import type * as R from "effect/Record";
 
 const $I = $LexicalSchemaId.create("Lexical.model");
@@ -236,6 +236,132 @@ export const ListTag = LiteralKit(["ul", "ol"]).pipe(
 export type ListTag = typeof ListTag.Type;
 
 /**
+ * Allowlist of inline CSS properties that are safe to preserve on serialized
+ * Lexical text/element nodes. Anything outside this set — positioning, overlay,
+ * stacking, animation, transforms, and any URL-bearing or function-call value —
+ * is dropped, because a serialized editor state can originate from untrusted
+ * persisted/synced content and Lexical renders these strings directly as DOM
+ * `style` attributes (UI redressing / external resource beacons otherwise).
+ */
+const SAFE_INLINE_STYLE_PROPERTIES: ReadonlyArray<string> = [
+  "color",
+  "background-color",
+  "font-weight",
+  "font-style",
+  "font-family",
+  "font-size",
+  "text-decoration",
+  "text-decoration-line",
+  "text-decoration-style",
+  "text-decoration-color",
+  "text-align",
+  "text-transform",
+  "letter-spacing",
+  "line-height",
+  "vertical-align",
+  "white-space",
+];
+
+const isSafeStyleValue = (value: string): boolean =>
+  Str.isNonEmpty(value) && !Str.includes("url(")(value) && !Str.includes("(")(value) && !Str.includes("\\")(value);
+
+const parseSafeDeclaration = (declaration: string): O.Option<string> => {
+  const colon = Str.indexOf(":")(declaration);
+  return O.flatMap(colon, (index) => {
+    const property = Str.toLowerCase(Str.trim(Str.takeLeft(declaration, index)));
+    const value = Str.trim(Str.slice(index + 1)(declaration));
+    return A.contains(SAFE_INLINE_STYLE_PROPERTIES, property) && isSafeStyleValue(value)
+      ? O.some(`${property}: ${value}`)
+      : O.none();
+  });
+};
+
+/**
+ * Sanitizes a serialized Lexical inline `style`/`textStyle` string down to an
+ * allowlist of safe presentation declarations, dropping anything that could be
+ * weaponized for UI redressing or external resource fetches. Empty input (the
+ * common Lexical default) round-trips to the empty string.
+ */
+const sanitizeInlineStyle = (style: string): string =>
+  Str.isEmpty(Str.trim(style)) ? "" : A.join(A.getSomes(A.map(Str.split(style, ";"), parseSafeDeclaration)), "; ");
+
+/**
+ * Serialized Lexical inline CSS, sanitized at the schema boundary on both
+ * decode and encode so that neither persisted untrusted state nor re-encoded
+ * viewer/composer state can carry attacker-controlled CSS into the DOM.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SafeInlineStyle } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const decode = S.decodeUnknownSync(SafeInlineStyle)
+ * console.log(decode("position:fixed;color:red")) // "color: red"
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const SafeInlineStyle: S.decodeTo<S.toType<S.String>, S.String> = S.String.pipe(
+  S.decode({
+    decode: SchemaGetter.transform(sanitizeInlineStyle),
+    encode: SchemaGetter.transform(sanitizeInlineStyle),
+  }),
+  $I.annoteSchema("SafeInlineStyle", {
+    description:
+      "Serialized Lexical inline CSS restricted to an allowlist of safe presentation properties; positioning, stacking, animation, transforms, and URL/function-bearing values are stripped on decode and encode.",
+    // The sanitizer runs on both decode and encode, so only its fixed points
+    // survive a round-trip. Projecting the generator through the (idempotent)
+    // sanitizer keeps schema-derived arbitraries on those fixed points and the
+    // round-trip total without weakening the boundary guard itself.
+    toArbitrary: () => (fc) => fc.string().map(sanitizeInlineStyle),
+  })
+);
+
+/**
+ * Sanitizes a serialized Lexical bare CSS value (e.g. a table cell
+ * `backgroundColor` or `verticalAlign`) that Lexical renders into a single DOM
+ * `style` declaration. Any value that smuggles a second declaration (`;`), a
+ * function call / URL (`(`), or an escape (`\`) is dropped to the empty string,
+ * preventing the bare-value sink from being used for CSS injection.
+ */
+const sanitizeStyleValue = (value: string): string => {
+  const trimmed = Str.trim(value);
+  return isSafeStyleValue(trimmed) && !Str.includes(";")(trimmed) && !Str.includes(":")(trimmed) ? trimmed : "";
+};
+
+/**
+ * Serialized Lexical single CSS value (table cell `backgroundColor` /
+ * `verticalAlign`) sanitized at the schema boundary so the bare-value sink
+ * cannot smuggle extra declarations or URL/function constructs into the DOM.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SafeStyleValue } from "@beep/lexical-schema/Lexical.model"
+ *
+ * const decode = S.decodeUnknownSync(SafeStyleValue)
+ * console.log(decode("red; position: fixed")) // ""
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const SafeStyleValue: S.decodeTo<S.toType<S.String>, S.String> = S.String.pipe(
+  S.decode({
+    decode: SchemaGetter.transform(sanitizeStyleValue),
+    encode: SchemaGetter.transform(sanitizeStyleValue),
+  }),
+  $I.annoteSchema("SafeStyleValue", {
+    description:
+      "Serialized Lexical single CSS value restricted to a safe form; multi-declaration, URL-bearing, and function-call values are stripped on decode and encode.",
+    // See SafeInlineStyle: keep schema-derived arbitraries on the sanitizer's
+    // (idempotent) fixed points so the encode/decode round-trip stays total.
+    toArbitrary: () => (fc) => fc.string().map(sanitizeStyleValue),
+  })
+);
+
+/**
  * Mirrors `SerializedLexicalNode`. The `type` discriminant is added by each
  * concrete subclass via `S.tag(...)`. `"$"` is `NODE_STATE_KEY`.
  *
@@ -343,10 +469,11 @@ export class ElementNode extends BaseNode.extend<ElementNode>($I`ElementNode`)(
         description: "Optional TextFormatType bitmask applied to newly inserted text within the element.",
       })
     ),
-    textStyle: S.String.pipe(
+    textStyle: SafeInlineStyle.pipe(
       S.OptionFromOptionalKey,
       S.annotateKey({
-        description: "Optional CSS style applied to newly inserted text within the element.",
+        description:
+          "Optional CSS style applied to newly inserted text within the element, sanitized to an allowlist of safe presentation properties.",
       })
     ),
   },
@@ -416,7 +543,9 @@ export class TextBase extends BaseNode.extend<TextBase>($I`TextBase`)(
       description: "TextFormatType bitmask (bold=1, italic=2, strikethrough=4, code=16).",
     }),
     mode: TextMode.annotateKey({ description: "Text node mode." }),
-    style: S.String.annotateKey({ description: "Inline CSS style." }),
+    style: SafeInlineStyle.annotateKey({
+      description: "Inline CSS style, sanitized to an allowlist of safe presentation properties.",
+    }),
     text: S.String.annotateKey({ description: "The text content." }),
   },
   $I.annote("TextBase", { description: "Schema base shared by text-like Lexical leaf nodes." })
@@ -1296,13 +1425,17 @@ export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCel
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional cell width emitted by Lexical table nodes." })
     ),
-    backgroundColor: S.NullOr(S.String).pipe(
+    backgroundColor: S.NullOr(SafeStyleValue).pipe(
       S.OptionFromOptional,
-      S.annotateKey({ description: "Optional cell background color emitted by Lexical table nodes." })
+      S.annotateKey({
+        description: "Optional cell background color emitted by Lexical table nodes, sanitized to a safe CSS value.",
+      })
     ),
-    verticalAlign: S.String.pipe(
+    verticalAlign: SafeStyleValue.pipe(
       S.OptionFromOptional,
-      S.annotateKey({ description: "Optional vertical alignment emitted by Lexical table nodes." })
+      S.annotateKey({
+        description: "Optional vertical alignment emitted by Lexical table nodes, sanitized to a safe CSS value.",
+      })
     ),
   },
   $I.annote("TableCellNode", { description: "A serialized Lexical table cell element node." })

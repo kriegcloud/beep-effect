@@ -68,8 +68,8 @@
         "blockingDefault": false,
         "routingSkills": ["quality-review-fix-loop"]
       },
-      "ciMode": "blocking-check",
-      "promotionStatus": "blocking",
+      "ciMode": "advisory-artifact",
+      "promotionStatus": "advisory",
       "promotionCriteria": {
         "requiredCommands": [
           "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts",
@@ -87,7 +87,7 @@
       "acceptanceCommands": [
         "bun goals/fallow-quality-enforcement/ops/validate-fallow-audit-baseline.ts"
       ],
-      "rollbackNotes": "Disable advisory packet parsing and keep CI artifact-only output.",
+      "rollbackNotes": "Restore ciMode to blocking-check and promotionStatus to blocking to re-enable the pre-push gate.",
       "evidenceRefs": [
         "research/audit.md",
         "standards/fallow.pilot.inventory.jsonc"

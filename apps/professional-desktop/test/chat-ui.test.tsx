@@ -25,7 +25,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { ChatApp } from "@/chat/ui/ChatApp";
 import { ChatTurnErrorToasts } from "@/chat/ui/ChatTurnErrorToasts";
 import { MessageView } from "@/chat/ui/MessageView";
-import { StreamingBlocks } from "@/chat/ui/StreamingBlocks";
+import { blockRenderKey, boundedKey, StreamingBlocks, stableOccurrenceKeys } from "@/chat/ui/StreamingBlocks";
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
 const decodeThreadId = S.decodeUnknownSync(WorkspaceIdentity.ThreadId);
@@ -128,6 +128,31 @@ describe("StreamingBlocks", () => {
   it("renders nothing problematic for an empty block array", () => {
     const { container } = render(<StreamingBlocks blocks={[]} />);
     expect(container.querySelector("p")).not.toBeInTheDocument();
+  });
+
+  it("bounds the key derived from megabyte-scale untrusted content (CSF-004)", () => {
+    const huge = "x".repeat(2_000_000);
+    // boundedKey hashes only a capped prefix + appends length, so the key never
+    // grows with content size and the full body is never hashed each render.
+    expect(boundedKey(huge).length).toBeLessThan(64);
+    // a multi-MB code block derives a bounded render key without materializing
+    // the whole body into the key string.
+    const codeRenderKey = blockRenderKey({ type: "code", code: huge });
+    expect(codeRenderKey.length).toBeLessThan(8192);
+    expect(boundedKey(codeRenderKey).length).toBeLessThan(64);
+  });
+
+  it("disambiguates duplicate content with stable #n occurrence suffixes (CSF-004)", () => {
+    const keys = stableOccurrenceKeys(["a", "a", "b", "a"], (s) => s);
+    expect(keys[0]).not.toContain("#");
+    expect(keys[1]).toBe(`${keys[0]}#1`);
+    expect(keys[3]).toBe(`${keys[0]}#2`);
+    expect(keys[2]).not.toBe(keys[0]);
+  });
+
+  it("keeps distinct large contents distinct via the appended length (no prefix collision)", () => {
+    const shared = "y".repeat(5000);
+    expect(boundedKey(shared)).not.toBe(boundedKey(`${shared}-tail`));
   });
 });
 

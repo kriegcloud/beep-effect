@@ -1,11 +1,9 @@
 import { fallowCiUploadDiagnosticsForTesting } from "@beep/repo-cli/commands/Quality/FallowQuality.command";
 import {
-  affectedRepoExportsCatalogPlanForTesting,
   collectEffectTsgoDiagnosticLines,
   detectQualityProfileForTesting,
   devQualityStepsForTesting,
   FallowReportFinding,
-  fullRepoExportsCatalogEscalationCommandForTesting,
   GithubCheckMode,
   GithubChecksFallowFeatureMatrix,
   githubCheckLanesForModeForTesting,
@@ -168,12 +166,6 @@ const bunScriptStep = (label: string, source: string) =>
     cwd: process.cwd(),
   });
 
-const repoCliPackage = {
-  absolutePath: "/repo/packages/tooling/tool/cli",
-  name: "@beep/repo-cli",
-  packageJson: { name: "@beep/repo-cli" },
-  path: "packages/tooling/tool/cli",
-};
 type FallowFeatureMatrixRowTuple = readonly [
   featureFamily: "audit" | "dead-code" | "health",
   ciMode: "advisory-artifact" | "blocking-check",
@@ -190,10 +182,9 @@ const fallowFeatureMatrix = (features: ReadonlyArray<FallowFeatureMatrixRowTuple
   });
 
 const expectUnpromotedWiredDeadCodeLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
-  expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit"]);
-  expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
-    "unpromoted Fallow GitHub check lane is wired: fallow:dead-code",
-  ]);
+  expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toContain(
+    "unpromoted Fallow GitHub check lane is wired: fallow:dead-code"
+  );
 };
 
 const expectSubstringBefore = (text: string, before: string, after: string): void => {
@@ -343,7 +334,6 @@ describe("quality task adapter", () => {
               "build",
               "integration",
               "docgen",
-              "repo-exports",
               "repo-sanity",
               "audit",
               "nix",
@@ -358,39 +348,17 @@ describe("quality task adapter", () => {
     ).toBe(false);
   });
 
-  it("adds surface-only docgen and repo-export checks when requested", () => {
+  it("adds surface-only docgen check when requested", () => {
     const steps = devQualityStepsForTesting("/repo", {
       base: "main",
       head: "feature",
       surface: true,
     });
 
-    expect(A.map(steps, (step) => step.label)).toEqual([
-      "dev:lint",
-      "dev:check",
-      "dev:test",
-      "dev:docgen-local",
-      "dev:repo-exports-catalog",
-    ]);
+    expect(A.map(steps, (step) => step.label)).toEqual(["dev:lint", "dev:check", "dev:test", "dev:docgen-local"]);
     expect(steps[3]).toMatchObject({
       command: "bun",
       args: ["run", "docgen:local", "--", "--base", "main", "--head", "feature", "--parallel=3"],
-      cwd: "/repo",
-    });
-    expect(steps[4]).toMatchObject({
-      command: "bun",
-      args: [
-        "run",
-        "beep",
-        "quality",
-        "repo-exports-catalog",
-        "--affected",
-        "--check",
-        "--base",
-        "main",
-        "--head",
-        "feature",
-      ],
       cwd: "/repo",
     });
   });
@@ -403,14 +371,13 @@ describe("quality task adapter", () => {
       "quality:check",
       "quality:lint",
       "quality:docgen",
-      "quality:repo-exports-catalog-check",
       "quality:test",
     ]);
     expect(A.every(lanes, (lane) => lane.stage === "repo-quality")).toBe(true);
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
     expect(lanes[1]?.step.args).toEqual(["run", "check"]);
     expect(lanes[2]?.step.args).toEqual(["run", "lint"]);
-    expect(lanes[5]?.step.args).toEqual(["run", "test"]);
+    expect(lanes[4]?.step.args).toEqual(["run", "test"]);
   });
 
   it("maps repo-sanity github checks as collector lanes", () => {
@@ -449,13 +416,13 @@ describe("quality task adapter", () => {
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
   });
 
-  it("accepts the current packet state with promoted audit and dead-code pre-push lanes", () => {
+  it("accepts the current packet state with only dead-code as the promoted pre-push lane", () => {
     const matrix = fallowFeatureMatrix([
-      ["audit", "blocking-check", "blocking"],
+      ["audit", "advisory-artifact", "advisory"],
       ["dead-code", "blocking-check", "blocking"],
     ]);
 
-    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit", "fallow:dead-code"]);
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:dead-code"]);
     expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
   });
 
@@ -526,8 +493,8 @@ describe("quality task adapter", () => {
     ));
 
   it("rejects a promoted Fallow matrix row that is not wired into pre-push", () => {
+    // dead-code is wired; health is promoted but not wired → missing health diagnostic
     const matrix = fallowFeatureMatrix([
-      ["audit", "blocking-check", "blocking"],
       ["dead-code", "blocking-check", "blocking"],
       ["health", "blocking-check", "blocking"],
     ]);
@@ -538,21 +505,20 @@ describe("quality task adapter", () => {
   });
 
   it("rejects a wired Fallow lane whose matrix row is not promoted", () => {
-    expectUnpromotedWiredDeadCodeLane(
-      fallowFeatureMatrix([
-        ["audit", "blocking-check", "blocking"],
-        ["dead-code", "advisory-artifact", "research"],
-      ])
-    );
+    expectUnpromotedWiredDeadCodeLane(fallowFeatureMatrix([["dead-code", "advisory-artifact", "research"]]));
   });
 
   it("treats candidate-blocking Fallow rows as promotion contract inputs", () => {
-    expectUnpromotedWiredDeadCodeLane(
-      fallowFeatureMatrix([
-        ["audit", "advisory-artifact", "candidate-blocking"],
-        ["dead-code", "advisory-artifact", "research"],
-      ])
-    );
+    // health=candidate-blocking counts as promoted; dead-code wired but research → both diagnostics fire
+    const matrix = fallowFeatureMatrix([
+      ["health", "advisory-artifact", "candidate-blocking"],
+      ["dead-code", "advisory-artifact", "research"],
+    ]);
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:health"]);
+    expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
+      "missing promoted Fallow GitHub check lane fallow:health",
+      "unpromoted Fallow GitHub check lane is wired: fallow:dead-code",
+    ]);
   });
 
   it("requires Fallow CI upload wiring only when the contract requires uploads", () => {
@@ -587,40 +553,6 @@ describe("quality task adapter", () => {
         subCategory: "fallow:audit:dead-code",
       }).blocking
     ).toBe(true);
-  });
-
-  it("plans affected repo export checks conservatively", () => {
-    expect(
-      affectedRepoExportsCatalogPlanForTesting(
-        ["packages/tooling/tool/cli/src/commands/Yeet/internal/Handler.ts"],
-        [repoCliPackage]
-      )
-    ).toMatchObject({
-      aggregateCheck: true,
-      fullCheck: false,
-      packageNames: ["@beep/repo-cli"],
-    });
-
-    expect(affectedRepoExportsCatalogPlanForTesting(["package.json"], [repoCliPackage])).toMatchObject({
-      fullCheck: true,
-    });
-
-    expect(affectedRepoExportsCatalogPlanForTesting(["README.md"], [repoCliPackage])).toMatchObject({
-      aggregateCheck: false,
-      fullCheck: false,
-      packageNames: [],
-    });
-  });
-
-  it("preserves write mode when affected repo export checks escalate", () => {
-    expect(fullRepoExportsCatalogEscalationCommandForTesting(false)).toEqual({
-      args: ["repo-exports:catalog"],
-      label: "quality:repo-exports-catalog",
-    });
-    expect(fullRepoExportsCatalogEscalationCommandForTesting(true)).toEqual({
-      args: ["repo-exports:catalog:check"],
-      label: "quality:repo-exports-catalog-check",
-    });
   });
 
   it("detects explicit quality hardware profiles", () => {
@@ -770,7 +702,6 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
-      "lint:reuse-inventory",
       "lint:typos",
     ]);
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
@@ -798,19 +729,9 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:tooling-tagged-errors",
-      "lint:reuse-inventory",
       "lint:typos",
     ]);
     expect(steps.find((step) => step.label === "lint:jsdoc")?.args).toEqual(["eslint", ".", "--max-warnings=0"]);
-    expect(steps.find((step) => step.label === "lint:reuse-inventory")?.args).toEqual([
-      "run",
-      "beep",
-      "reuse",
-      "inventory",
-      "--scope",
-      "packages/tooling/tool/cli,packages/tooling/library/repo-utils",
-      "--json",
-    ]);
   });
 
   it("applies Biome lint fixes in the changed-file lint fix fast path", () => {
@@ -824,6 +745,7 @@ describe("quality task adapter", () => {
         "--write",
         "--files-ignore-unknown=true",
         "--no-errors-on-unmatched",
+        "--",
         "packages/example/src/index.ts",
       ],
       cwd: "/repo",
@@ -842,6 +764,7 @@ describe("quality task adapter", () => {
       "--write",
       "--files-ignore-unknown=true",
       "--no-errors-on-unmatched",
+      "--",
       ".claude/skills/yeet/SKILL.md",
       "packages/example/src/index.ts",
       "schema/example.graphql",

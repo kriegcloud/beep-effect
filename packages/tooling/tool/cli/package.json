@@ -138,7 +138,6 @@
     "@beep/observability": "workspace:^",
     "@beep/phoenix": "workspace:^",
     "@beep/repo-ai-metrics": "workspace:^",
-    "@beep/repo-codegraph": "workspace:^",
     "@beep/repo-configs": "workspace:^",
     "@beep/repo-docgen": "workspace:^",
     "@beep/repo-utils": "workspace:^",

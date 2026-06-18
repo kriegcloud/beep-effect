@@ -22,15 +22,9 @@ Ship reliable code with effect first and schema first patterns.
   graduates into `goals/` packets and `docs/product/` prose (see
   `explorations/README.md`).
 - Before recreating shared helpers, schemas, utilities, models, or known symbols,
-  search `standards/repo-exports.catalog.md` or
-  `standards/repo-exports.catalog.jsonc`; refresh with
-  `bun run repo-exports:catalog` and verify with
-  `bun run repo-exports:catalog:check`.
-- Repo export catalog generation is shard-backed. Package-local
-  `.beep/repo-exports/catalog.shard.jsonc` files are tracked generated
-  artifacts, while the root `standards/repo-exports.catalog.{jsonc,md}` remains
-  the compatibility lookup surface. Use `bun run repo-exports:catalog:full`
-  only for an explicit full-scan fallback proof.
+  search the source with ripgrep (e.g. `rg "export (const|function|class) Name"`)
+  and the package barrels (`packages/*/*/*/src/index.ts`), or use the
+  `repo-symbol-discovery` skill. Reuse what exists instead of duplicating it.
 - Yeet is the canonical repo-quality operator path. Use the `yeet` skill and
   `bun run beep yeet repair`, `bun run beep yeet verify`,
   `bun run beep yeet publish --message "..."`, and

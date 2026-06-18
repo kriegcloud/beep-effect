@@ -230,19 +230,46 @@ export const emptyTurboPlanSnapshot = (warnings: ReadonlyArray<string>): TurboPl
     tasks: [],
   });
 
+// Deterministic auto-fixers run sequentially (runPhase concurrency:1) so parallel
+// inventory writes cannot corrupt each other. Code rewriters (effect-imports) run
+// first, then artifact generators (dual-arity inventory, fallow boundaries,
+// tsconfig), then biome formats everything, then docgen regenerates docs last.
+// terse-effect/schema-first are intentionally excluded: they can leave manual
+// candidates and are enforced advisory in verify, not auto-fixed here.
 const repairSteps = (context: RepoRunContext): ReadonlyArray<RepoPlanStep> => [
-  bunRunStep(context, "prepare:01-lint-fix", "prepare:lint:fix", "prepare", "lint:fix", [], "write", "repo"),
-  bunRunStep(context, "prepare:02-docgen", "prepare:docgen", "prepare", "docgen", [], "write", "repo"),
   bunRunStep(
     context,
-    "prepare:03-repo-exports-catalog",
-    "prepare:repo-exports:catalog",
+    "prepare:01-effect-imports",
+    "prepare:laws:effect-imports",
     "prepare",
-    "repo-exports:catalog",
+    "beep",
+    ["laws", "effect-imports", "--write"],
+    "write",
+    "repo"
+  ),
+  bunRunStep(
+    context,
+    "prepare:02-dual-arity",
+    "prepare:laws:dual-arity",
+    "prepare",
+    "beep",
+    ["laws", "dual-arity", "--write"],
+    "write",
+    "repo"
+  ),
+  bunRunStep(
+    context,
+    "prepare:03-boundaries",
+    "prepare:fallow:boundaries",
+    "prepare",
+    "fallow:boundaries:write",
     [],
     "write",
     "repo"
   ),
+  bunRunStep(context, "prepare:04-config-sync", "prepare:config-sync", "prepare", "config-sync", [], "write", "repo"),
+  bunRunStep(context, "prepare:05-lint-fix", "prepare:lint:fix", "prepare", "lint:fix", [], "write", "repo"),
+  bunRunStep(context, "prepare:06-docgen", "prepare:docgen", "prepare", "docgen", [], "write", "repo"),
 ];
 
 const packageNameForFeedbackTask =
@@ -345,18 +372,15 @@ const commitStep = (
       ? options.noEdit
         ? ["commit", "--amend", "--no-edit"]
         : ["commit", "--amend", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
-      : [
-          "commit",
-          ...(options.startPrEarly ? ["--no-verify"] : []),
-          "-m",
-          O.getOrElse(message, () => "<required-conventional-commit-message>"),
-        ]
+      : ["commit", "-m", O.getOrElse(message, () => "<required-conventional-commit-message>")]
   );
 
+// Keep local pre-push hooks (secret scanning, SAST, policy gates) active on the
+// early push: --no-verify would publish unverified content to the remote before
+// any hook could block secrets or policy violations.
 const earlyPushStep = (context: RepoRunContext): RepoPlanStep =>
   gitStep(context, "early-publish:01-git-push", "early-publish:git:push", "early-publish", [
     "push",
-    "--no-verify",
     "-u",
     "origin",
     "HEAD",

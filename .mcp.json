@@ -3,7 +3,7 @@
     "shadcn": {
       "type": "stdio",
       "command": "bunx",
-      "args": ["--bun", "shadcn@latest", "mcp"]
+      "args": ["--bun", "shadcn@4.11.0", "mcp"]
     },
     "next-devtools": {
       "type": "stdio",
@@ -35,7 +35,7 @@
       "url": "http://127.0.0.1:64542/stream",
       "type": "http",
       "headers": {
-        "IJ_MCP_SERVER_PROJECT_PATH": "/home/elpresidank/YeeBois/projects/beep-effect"
+        "IJ_MCP_SERVER_PROJECT_PATH": "${PWD}"
       }
     }
   }

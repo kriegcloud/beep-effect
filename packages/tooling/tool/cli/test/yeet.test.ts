@@ -15,6 +15,7 @@ import {
   commandTextForStep,
   decodeTurboPlanTasksFromQueryJsonForTesting,
   defaultYeetRunOptions,
+  FallowFeedbackAllowedRoot,
   GreptileSummary,
   gitPathListFromNulOutputForTesting,
   greptileIssueLimitExceededForTesting,
@@ -44,6 +45,7 @@ import {
   repoProofStepDefinition,
   restoreStashedWorktreeForTesting,
   runYeetFallowFeedbackForTesting,
+  safeOriginBranchFromBaseForTesting,
   shouldSkipCommitForReusablePublishForTesting,
   stashUnstagedWorktreeForTesting,
   summarizePublishPathsForTesting,
@@ -553,8 +555,12 @@ describe("yeet planner", () => {
     const commit = findStep(plan.steps, "commit:git:commit");
     const earlyPush = findStep(plan.steps, "early-publish:git:push");
 
-    expect(commit.args).toEqual(["commit", "--no-verify", "-m", "feat(repo-cli): add yeet"]);
-    expect(earlyPush.args).toEqual(["push", "--no-verify", "-u", "origin", "HEAD"]);
+    // start-pr-early must keep local pre-commit/pre-push hooks active so secret
+    // scanning and SAST gates cannot be bypassed before the remote publish.
+    expect(commit.args).toEqual(["commit", "-m", "feat(repo-cli): add yeet"]);
+    expect(commit.args).not.toContain("--no-verify");
+    expect(earlyPush.args).toEqual(["push", "-u", "origin", "HEAD"]);
+    expect(earlyPush.args).not.toContain("--no-verify");
     expect(earlyPush.env).toBeUndefined();
   });
 
@@ -687,16 +693,25 @@ describe("yeet planner", () => {
         A.map((step) => step.label)
       )
     ).toEqual([
+      "prepare:laws:effect-imports",
+      "prepare:laws:dual-arity",
+      "prepare:fallow:boundaries",
+      "prepare:config-sync",
       "prepare:lint:fix",
       "prepare:docgen",
-      "prepare:repo-exports:catalog",
       "feedback:build",
       "feedback:check",
       "feedback:lint",
       "feedback:test",
     ]);
+    expect(findStep(plan.steps, "prepare:laws:effect-imports").args).toEqual([
+      "run",
+      "beep",
+      "laws",
+      "effect-imports",
+      "--write",
+    ]);
     expect(findStep(plan.steps, "prepare:docgen").args).toEqual(["run", "docgen"]);
-    expect(findStep(plan.steps, "prepare:repo-exports:catalog").args).toEqual(["run", "repo-exports:catalog"]);
   });
 
   it("uses the shared pre-push proof definition for Yeet parity", () => {
@@ -789,7 +804,14 @@ describe("yeet planner", () => {
         plan.steps,
         A.map((step) => step.label)
       )
-    ).toEqual(["prepare:lint:fix", "prepare:docgen", "prepare:repo-exports:catalog"]);
+    ).toEqual([
+      "prepare:laws:effect-imports",
+      "prepare:laws:dual-arity",
+      "prepare:fallow:boundaries",
+      "prepare:config-sync",
+      "prepare:lint:fix",
+      "prepare:docgen",
+    ]);
   });
 
   it("filters publish paths against the reviewed staged intent", () => {
@@ -866,6 +888,25 @@ describe("yeet planner", () => {
     const extracted = jsonObjectTextFromMixedOutputForTesting(
       `turbo warning {not-json}\n{"ignored":true}\n${payload}\ntrailing warning {still-not-json}`
     );
+
+    expect(O.getOrThrow(extracted)).toBe(payload);
+  });
+
+  it("returns no object and stays bounded on pathological unmatched-brace output", () => {
+    // Regression for the quadratic JSON extractor: 256 KiB of unmatched closing
+    // braces previously triggered O(n^2) backward scanning and hung the CLI.
+    const hostile = Str.repeat(256 * 1024)("}");
+    const startedAt = globalThis.performance.now();
+    const extracted = jsonObjectTextFromMixedOutputForTesting(hostile);
+    const elapsedMs = globalThis.performance.now() - startedAt;
+
+    expect(O.isNone(extracted)).toBe(true);
+    expect(elapsedMs).toBeLessThan(1000);
+  });
+
+  it("still finds a trailing JSON object after pathological leading braces", () => {
+    const payload = `{"data":{"affectedTasks":{"items":[],"length":0}}}`;
+    const extracted = jsonObjectTextFromMixedOutputForTesting(`${Str.repeat(100_000)("}")}\n${payload}`);
 
     expect(O.getOrThrow(extracted)).toBe(payload);
   });
@@ -991,8 +1032,15 @@ describe("yeet planner", () => {
   });
 
   it("infers missing Greptile issue counts from active Greptile threads", () => {
-    expect(inferGreptileIssueCountForTesting(latestGreptileSummaryForTesting([]), 0)).toMatchObject({
-      issueCount: 0,
+    // CSF-030: a missing Greptile review (no parsed summary and no active
+    // Greptile-authored threads) must NOT be treated as a confident zero issues.
+    // The issue count is left undefined so the closeout gate stays fail-closed
+    // instead of granting a free pass when Greptile never ran.
+    expect(inferGreptileIssueCountForTesting(latestGreptileSummaryForTesting([]), 0).issueCount).toBeUndefined();
+    // With positive Greptile evidence (active threads) but no parsed summary
+    // count, the active thread count is inferred as the issue count.
+    expect(inferGreptileIssueCountForTesting(latestGreptileSummaryForTesting([]), 3)).toMatchObject({
+      issueCount: 3,
     });
     expect(
       inferGreptileIssueCountForTesting(
@@ -1079,7 +1127,13 @@ describe("yeet quality issue index", () => {
           yield* fs.makeDirectory(fromDir, { recursive: true });
           yield* fs.writeFileString(path.join(fromDir, "audit.json"), `${auditText}\n`);
           yield* fs.writeFileString(path.join(fromDir, "health.json"), `${healthText}\n`);
-          yield* runYeetFallowFeedbackForTesting({ advisory: true, emit: emitPath, from: fromDir });
+          // CSF-011: the Fallow feedback reader/writer is constrained to its
+          // configured allowed root. Point the guard at this temp dir so the
+          // mixed-output directory is exercised under the symlink/traversal
+          // protection without hardcoding the repository root.
+          yield* runYeetFallowFeedbackForTesting({ advisory: true, emit: emitPath, from: fromDir }).pipe(
+            Effect.provideService(FallowFeedbackAllowedRoot, O.some(tmpDir))
+          );
 
           const emittedText = yield* fs.readFileString(emitPath);
           const index = yield* S.decodeUnknownEffect(S.fromJsonString(QualityIssueIndex))(emittedText);
@@ -1859,4 +1913,26 @@ describe("yeet publish scope helpers", () => {
         })
       )
     ));
+});
+
+describe("yeet base ref safety", () => {
+  it("accepts ordinary origin branch names including dashes and slashes", () => {
+    expect(O.getOrThrow(safeOriginBranchFromBaseForTesting("origin/main"))).toBe("main");
+    expect(O.getOrThrow(safeOriginBranchFromBaseForTesting("origin/feature/6-17-2026"))).toBe("feature/6-17-2026");
+  });
+
+  it("refuses option-like and refspec-injecting base refs", () => {
+    // Regression for the git fetch option injection: the stripped branch must not
+    // be reparsable as a fetch option (--upload-pack=...) or a second refspec.
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("origin/--upload-pack=sh -c 'id' #"))).toBe(true);
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("origin/-rf"))).toBe(true);
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("origin/main:refs/heads/evil"))).toBe(true);
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("origin/has space"))).toBe(true);
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("origin/..evil"))).toBe(true);
+  });
+
+  it("ignores non-origin base refs so they fall back to rev-parse", () => {
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("main"))).toBe(true);
+    expect(O.isNone(safeOriginBranchFromBaseForTesting("HEAD~1"))).toBe(true);
+  });
 });

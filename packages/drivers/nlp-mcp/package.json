@@ -60,6 +60,7 @@
     }
   },
   "dependencies": {
+    "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/nlp": "workspace:^",
     "@beep/schema": "workspace:^",

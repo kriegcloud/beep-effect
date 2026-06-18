@@ -2,10 +2,18 @@
 
 ## Outcome
 
-`bun run beep corpus catalog --corpus-root /home/elpresidank/data-home/oppold-corpus`
+`bun run beep corpus catalog --corpus-root <CORPUS_ROOT>`
 built the DuckDB catalog, exact-duplicate report, and `$I`/`$R`
-name-restoration manifest. All 8,438 provenance records validated against the
+name-restoration manifest. All provenance records validated against the
 `CorpusProvenanceRecord` schema.
+
+> Note: corpus paths, archive names, restored original paths, deletion
+> timestamps, and exact counts are redacted to comply with the SPEC
+> no-corpus-content/no-PII constraint. `<CORPUS_ROOT>` denotes the
+> outside-repo corpus root; `<N>`/`<BYTES>` denote redacted counts/sizes;
+> `<archive-N>.pst`, `<matter-workspace>`, and `<restored-path>` denote
+> redacted corpus-side names. The machine-readable values live in the
+> outside-repo catalog surfaces only.
 
 ## Implementation
 
@@ -22,70 +30,65 @@ including an end-to-end synthetic-corpus catalog run). Package gates green:
 
 ## Catalog Surfaces (outside the repo)
 
-- `oppold-corpus/catalog/corpus.duckdb` — tables `corpus_source_files`
-  (8,438 rows, `digest` + `artifact_id` per file), `corpus_restorations`
-  (284 rows), view `corpus_duplicate_sets` (290 rows).
-- `oppold-corpus/catalog/restoration-manifest.jsonl` — 284 records.
-- `oppold-corpus/catalog/reports/duplicate-sets.json` — full duplicate-set
+- `<CORPUS_ROOT>/catalog/corpus.duckdb` — tables `corpus_source_files`
+  (`digest` + `artifact_id` per file), `corpus_restorations`, view
+  `corpus_duplicate_sets`. Row counts kept corpus-side.
+- `<CORPUS_ROOT>/catalog/restoration-manifest.jsonl` — restoration records.
+- `<CORPUS_ROOT>/catalog/reports/duplicate-sets.json` — full duplicate-set
   report (kept corpus-side; member file names may carry client information).
-- `oppold-corpus/catalog/reports/catalog-summary.json` — counts below.
+- `<CORPUS_ROOT>/catalog/reports/catalog-summary.json` — aggregate counts.
 
 ## Summary Counts
 
-| Metric | Value |
-| --- | --- |
-| Source files | 8,438 |
-| Total bytes | 31,687,534,556 |
-| Distinct digests | 7,330 |
-| Duplicate sets | 290 |
-| Redundant copies | 1,108 |
-| Redundant bytes | 677,638,251 |
-| `$I`/`$R` matched pairs | 251 |
-| `$I` without `$R` | 1 |
-| `$R` without `$I` | 32 |
+Exact source-file counts, byte totals, distinct-digest counts, and
+duplicate-set tallies are redacted; they live in the outside-repo
+`catalog-summary.json` only. Shape: source files `<N>`, total bytes
+`<BYTES>`, distinct digests `<N>`, duplicate sets `<N>`, redundant copies
+`<N>`, redundant bytes `<BYTES>`, `$I`/`$R` matched pairs `<N>`, `$I`
+without `$R` `<N>`, `$R` without `$I` `<N>`.
 
 ## Key Findings
 
-1. **`Sent_Emails.pst` triplet confirmed.** The largest duplicate set
-   (312,886,272 bytes, 3 copies) is `data-home-oppold-ip-law/$R0SFKGS.pst` =
-   `data-home-oppold-ip-law/source/Sent_Emails.pst` =
-   `documents-re5arta/Sent_Emails.pst`. The paired `$I0SFKGS.pst` restores the
-   original path `H:\Oppold_IP_Law\Emails\Sent_Emails.pst`, deleted
-   2026-05-29T18:33:12Z. One logical archive, three physical copies.
-2. **`LH_Inbox_2011.pst` is NOT an exact duplicate** (contrary to the
-   packet's going-in assumption): the USB copy is 2,431,607,808 bytes and
-   `~/Documents/LH_Emails/LH_Inbox_2011.pst` is 1,135,607,808 bytes with a
-   different digest. *Amended during P4:* the Documents copy hashed
-   byte-identical to the first 1,135,607,808 bytes of the USB original — it
-   is a truncated partial copy (interrupted transfer), unreadable by libpff
-   (index node referenced at offset 2.41 GB past EOF). The USB archive is
-   authoritative and exported 10,438 messages in P2.
-3. **Recycle-bin restoration covers all 252 `$I` files**: 251 matched to
+1. **Largest-archive triplet confirmed.** The largest duplicate set
+   (`<BYTES>`, 3 copies) is a recycle-bin `$R` content file equal to the
+   `source/<archive-1>.pst` copy and a separate recovery-dir copy. The paired
+   `$I` metadata restores the original Windows path (`<restored-path>`),
+   deleted at `<timestamp>`. One logical archive, three physical copies.
+2. **`<archive-2>.pst` is NOT an exact duplicate** (contrary to the
+   packet's going-in assumption): the USB copy and the
+   `<CORPUS_ROOT>`-side copy have different sizes and different digests.
+   *Amended during P4:* the smaller copy hashed byte-identical to the leading
+   bytes of the USB original — it is a truncated partial copy (interrupted
+   transfer), unreadable by libpff (index node referenced past EOF). The USB
+   archive is authoritative and exported `<N>` messages in P2.
+3. **Recycle-bin restoration covers all `$I` files**: nearly all matched to
    `$R` content with restored original names/paths (all v2 format, original
-   paths under `H:\Oppold_IP_Law\...`); the single unmatched `$I` is a
-   deleted empty directory (`H:\Oppold_IP_Law\Emails\New folder`, 0 bytes).
-   32 `$R` content files have no `$I` metadata and keep unknown names.
+   paths redacted as `<restored-path>`); the single unmatched `$I` is a
+   deleted empty directory (0 bytes). A small number of `$R` content files
+   have no `$I` metadata and keep unknown names.
 4. **Most duplicate bulk is recycle-bin PDF copies and repeated email
-   attachments** (`Sent_Emails.export/.../image00N.png` signature images,
-   duplicated attachment PDFs), not unique work product.
+   attachments** (per-message export signature images, duplicated attachment
+   PDFs), not unique work product.
 
 ## Provenance Manifest Amendment (P0 correction)
 
-`corpus catalog` schema validation surfaced 15 provenance records whose
-`sha256` field began with a literal `\` — the GNU coreutils `sha256sum`
-escape marker emitted when a file name contains a backslash (15 files under
-`Sent_Emails.export/.../Attachments/` contain literal `\x3b`/`\x26`
-sequences in their names). The digests themselves were correct. Fix applied:
+`corpus catalog` schema validation surfaced a batch of provenance records
+whose `sha256` field began with a literal `\` — the GNU coreutils
+`sha256sum` escape marker emitted when a file name contains a backslash
+(some files under a per-message export `.../Attachments/` tree contain
+literal `\x3b`/`\x26` sequences in their names). The digests themselves were
+correct. Fix applied:
 
-- Each affected copy AND its origin file re-hashed via Node crypto; all 15
-  stripped digests matched both (`fixed=15 originVerified=15`).
+- Each affected copy AND its origin file re-hashed via Node crypto; all
+  stripped digests matched both (`originVerified` for every record).
 - `raw/provenance.jsonl` rewritten with corrected fields; pre-fix manifest
-  archived at `oppold-corpus/logs/provenance.jsonl.pre-escape-fix`.
+  archived at `<CORPUS_ROOT>/logs/provenance.jsonl.pre-escape-fix`.
 - `ops/salvage.sh` patched to strip the escape marker in future runs.
 
 ## Open Questions Carried to P2
 
-- Confirm whether `Sent_Emails.pst` is the missing `LH_Sent_2015` (PST
-  internal date range during extraction).
-- Locate `LH_Inbox_2009` content (possibly within an adjacent year PST).
-- Diff the two `LH_Inbox_2011` snapshots at message level.
+- Confirm whether `<archive-1>.pst` is the missing late-year Sent archive
+  (PST internal date range during extraction).
+- Locate the missing early-year Inbox content (possibly within an adjacent
+  year PST).
+- Diff the two `<archive-2>.pst` snapshots at message level.

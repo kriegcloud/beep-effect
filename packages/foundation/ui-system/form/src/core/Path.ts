@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { HashSet, Match, Number as N } from "effect";
+import { HashSet, Match, Number as N, Struct } from "effect";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -14,6 +14,16 @@ import * as Str from "effect/String";
 import type { TUnsafe } from "@beep/types";
 
 const BRACKET_NOTATION_REGEX = /\[(\d+)]/g;
+
+/**
+ * Rejects prototype-sensitive path segments so dynamic paths can never read or
+ * write through `__proto__`, `constructor`, or `prototype`. Mirrors the repo
+ * convention in `@beep/utils/Struct`.
+ */
+const isBlockedPathSegment = (segment: string): boolean =>
+  segment === "__proto__" || segment === "constructor" || segment === "prototype";
+
+const hasOwnSegment = (obj: object, segment: string): boolean => A.contains(Struct.keys(obj), segment);
 
 interface StandardPathSegment {
   readonly key: PropertyKey;
@@ -157,6 +167,7 @@ export const getNestedValue: {
   let current: unknown = obj;
   for (const part of parts) {
     if (!P.isObjectOrArray(current)) return undefined;
+    if (isBlockedPathSegment(part) || !hasOwnSegment(current, part)) return undefined;
     current = (current as TUnsafe.Any as Readonly<Record<string, unknown>>)[part];
   }
   return current;
@@ -188,14 +199,19 @@ export const setNestedValue: {
   const parts = pipe(path, Str.replace(BRACKET_NOTATION_REGEX, ".$1"), Str.split("."));
   const result = { ...(obj as TUnsafe.Any as Record<string, unknown>) } as Record<string, unknown>;
 
+  // Reject prototype-sensitive paths outright; they are never valid form field
+  // paths and assigning through them would poison the returned object.
+  if (A.some(parts, isBlockedPathSegment)) return result as T;
+
   let current = result;
   for (let i = 0; i < A.length(parts) - 1; i++) {
     const part = parts[i];
     if (part === undefined) continue;
-    if (A.isArray(current[part])) {
-      current[part] = A.copy(current[part]);
+    const existing = hasOwnSegment(current, part) ? current[part] : undefined;
+    if (A.isArray(existing)) {
+      current[part] = A.copy(existing);
     } else {
-      current[part] = { ...(current[part] as TUnsafe.Any as Record<string, unknown>) };
+      current[part] = { ...(existing as TUnsafe.Any as Record<string, unknown>) };
     }
     current = current[part] as TUnsafe.Any as Record<string, unknown>;
   }

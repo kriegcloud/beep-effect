@@ -5,10 +5,11 @@
  * @since 0.0.0
  */
 
+import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety";
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { Console, Effect, FileSystem, Order, Path, pipe } from "effect";
+import { Console, Context, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -81,14 +82,87 @@ const readFileText = Effect.fn("YeetFallowFeedback.readFileText")(function* (
     .pipe(Effect.mapError(YeetCommandError.new(`Failed to read "${filePath}".`, { file: filePath })));
 });
 
+/**
+ * Configurable allowed root the Fallow advisory feedback reader/writer is
+ * constrained to.
+ *
+ * Every Fallow feedback path (the `--from` envelope directory, the `--emit`
+ * output index, and the fixture document) is resolved within this root via
+ * {@link resolvePathWithinRoot}, following symlinks and canonicalizing the
+ * deepest existing ancestor so not-yet-created write targets are still guarded.
+ * A candidate that escapes the root through `..`, an absolute path outside it,
+ * or a symlink pointing outside it is rejected before any bytes are read or
+ * written — preventing repo-controlled symlink file clobber (CSF-011).
+ *
+ * The reference defaults to {@link O.none}, which resolves against the repository
+ * root (the production behavior). Provide an override (see
+ * {@link layerFallowFeedbackAllowedRoot}) to constrain feedback to an explicit
+ * output directory — for example a temp directory in tests, or a non-repo Fallow
+ * output dir — while keeping the symlink/traversal protection intact.
+ *
+ * @example
+ * ```ts
+ * import { FallowFeedbackAllowedRoot } from "@beep/repo-cli/commands/Yeet/internal/FallowFeedback"
+ * console.log(FallowFeedbackAllowedRoot.key)
+ * ```
+ * @category guards
+ * @since 0.0.0
+ */
+export const FallowFeedbackAllowedRoot: Context.Reference<O.Option<string>> = Context.Reference<O.Option<string>>(
+  $I`FallowFeedbackAllowedRoot`,
+  {
+    defaultValue: O.none<string>,
+  }
+);
+
+/**
+ * Build a layer that overrides the {@link FallowFeedbackAllowedRoot} allowed
+ * root with an explicit directory.
+ *
+ * Pass the configured Fallow output directory (or, in tests, a temp directory)
+ * that the advisory feedback reader/writer is permitted to resolve paths within.
+ * The symlink/traversal protection of {@link resolvePathWithinRoot} is preserved
+ * — any candidate that escapes the supplied root is still rejected.
+ *
+ * @param root - Absolute directory the advisory feedback reader/writer may resolve paths within.
+ * @returns A layer that sets {@link FallowFeedbackAllowedRoot} to the supplied root.
+ * @example
+ * ```ts
+ * import { layerFallowFeedbackAllowedRoot } from "@beep/repo-cli/commands/Yeet/internal/FallowFeedback"
+ * const OutputRoot = layerFallowFeedbackAllowedRoot("/tmp/fallow-output")
+ * console.log(OutputRoot)
+ * ```
+ * @category guards
+ * @since 0.0.0
+ */
+export const layerFallowFeedbackAllowedRoot = (root: string): Layer.Layer<never> =>
+  Layer.succeed(FallowFeedbackAllowedRoot)(O.some(root));
+
+const resolveAllowedRoot = Effect.fn("YeetFallowFeedback.resolveAllowedRoot")(function* (): Effect.fn.Return<
+  string,
+  YeetCommandError,
+  Path.Path | FileSystem.FileSystem
+> {
+  const configuredRoot = yield* FallowFeedbackAllowedRoot;
+  return yield* O.match(configuredRoot, {
+    onNone: () => findRepoRoot().pipe(Effect.mapError(YeetCommandError.new("Failed to locate repository root."))),
+    onSome: (root) => Effect.succeed(root),
+  });
+});
+
 const resolveRepoPath = Effect.fn("YeetFallowFeedback.resolveRepoPath")(function* (
   value: string
 ): Effect.fn.Return<string, YeetCommandError, Path.Path | FileSystem.FileSystem> {
-  const path = yield* Path.Path;
-  const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError(YeetCommandError.new("Failed to locate repository root."))
+  const allowedRoot = yield* resolveAllowedRoot();
+  // Resolve the candidate (relative or absolute) against the configured allowed
+  // root, following symlinks and canonicalizing the deepest existing ancestor so
+  // not-yet-created write targets are still guarded. Fails closed (PathSafetyError)
+  // when the real path escapes the root via `..`, an absolute path outside the
+  // root, or a symlink pointing outside it — preventing repo-controlled symlink
+  // file clobber (CSF-011).
+  return yield* resolvePathWithinRoot({ root: allowedRoot, candidate: value }).pipe(
+    Effect.mapError(YeetCommandError.new(`Path "${value}" is not contained within the allowed Fallow feedback root.`))
   );
-  return path.isAbsolute(value) ? value : path.join(repoRoot, value);
 });
 
 const writeQualityIssueIndex = Effect.fn("YeetFallowFeedback.writeQualityIssueIndex")(function* (

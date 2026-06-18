@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-11",
+  "generatedOn": "2026-06-18",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -15,7 +15,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 140,
+      "line": 159,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -27,7 +27,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 197,
+      "line": 216,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -39,7 +39,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 196,
+      "line": 215,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -76,7 +76,7 @@
       "owner": "@beep/professional-desktop",
       "reason": "makeChatOperations is a service factory that binds already-acquired ThreadStore/AgentTurnKernel/UsageRecordSink services into an operations record; it has no pipeable data subject, so a data-last/data-first dual is meaningless. It is only ever called data-first once during ChatRpcs layer construction.",
       "issue": "PROFESSIONAL-DESKTOP-CHAT-OPERATIONS-FACTORY",
-      "line": 252,
+      "line": 422,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual"]
@@ -89,7 +89,7 @@
       "owner": "@beep/agents-server",
       "reason": "scanChunk is the (state, text) => [nextState, completed] fold step of the incremental streaming JSON extractor, always invoked data-first inside the per-chunk scan loop; its dtslint contract asserts the data-first [ScanState, Array<string>] tuple result. A data-last dual would add no pipeable ergonomics to a reducer step and would obscure the proven fold signature.",
       "issue": "AGENTS-SERVER-SCANSTATE-FOLD-STEP",
-      "line": 82,
+      "line": 79,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -125,7 +125,7 @@
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 279,
+      "line": 380,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual"]
@@ -137,7 +137,7 @@
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 299,
+      "line": 400,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual"]
@@ -329,7 +329,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public helper APIs may not expose more than 3 positional parameters.",
-      "line": 732,
+      "line": 761,
       "column": 14,
       "parameterCount": 5,
       "diagnostics": ["too-many-positional-params", "invalid-dual-arity"]
@@ -461,7 +461,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function. Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 392,
+      "line": 394,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["invalid-dual-source", "third-param-not-object-like"]
@@ -533,7 +533,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 191,
+      "line": 207,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -545,7 +545,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 160,
+      "line": 176,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -557,7 +557,7 @@
       "status": "candidate",
       "owner": "@beep/nlp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 229,
+      "line": 246,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -756,7 +756,7 @@
       "status": "candidate",
       "owner": "@beep/repo-cli",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 913,
+      "line": 1048,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -768,7 +768,7 @@
       "status": "candidate",
       "owner": "@beep/repo-cli",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 963,
+      "line": 1099,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual"]
@@ -780,7 +780,7 @@
       "status": "candidate",
       "owner": "@beep/repo-cli",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 1087,
+      "line": 1322,
       "column": 14,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -792,7 +792,7 @@
       "status": "candidate",
       "owner": "@beep/repo-cli",
       "reason": "Public helper APIs may not expose more than 3 positional parameters.",
-      "line": 832,
+      "line": 889,
       "column": 14,
       "parameterCount": 4,
       "diagnostics": ["too-many-positional-params"]

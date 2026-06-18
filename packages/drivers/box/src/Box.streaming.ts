@@ -8,6 +8,7 @@
 import { Buffer } from "node:buffer";
 import { Readable } from "node:stream";
 import { $BoxId } from "@beep/identity";
+import { assertAllowedRemoteUrl } from "@beep/schema";
 import { Cause, Effect, Exit, Queue, Result, Stream } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -15,6 +16,7 @@ import * as M from "./_generated/Box.models.gen.ts";
 import { BoxError } from "./Box.errors.ts";
 import { BOX_SDK_VERSION } from "./internal/Box.constants.ts";
 import { decodeWith, logDriverFailure } from "./internal/Box.runtime.ts";
+import type { BlockedHostError } from "@beep/schema";
 import type { BoxMethodName } from "./_generated/Box.models.gen.ts";
 
 const $I = $BoxId.create("Box.streaming");
@@ -628,6 +630,27 @@ const mergeCancellation = <A>(
   return { cancellationToken };
 };
 
+/**
+ * Fail-closed SSRF guard for caller-supplied Box by-URL parameters.
+ *
+ * The `chunkedUploads.uploadFilePartByUrl` and `zipDownloads.getZipDownloadContent`
+ * operations forward a full URL string straight to the Box SDK, turning the
+ * driver into an SSRF/readable-SSRF primitive if attacker-influenced. This guard
+ * parses the URL and rejects loopback, link-local, RFC1918/ULA private, and
+ * cloud-metadata destinations before any outbound request is issued, translating
+ * the typed `BlockedHostError` into a redacted `BoxError` so the failure stays on
+ * the driver's `BoxError` channel.
+ */
+const assertBoxUrlAllowed = (method: BoxMethodName, url: string): Effect.Effect<void, BoxError> =>
+  assertAllowedRemoteUrl(url).pipe(
+    Effect.mapError((error: BlockedHostError) =>
+      BoxError.fromReason("transport", {
+        cause: error.message,
+        method,
+      })
+    )
+  );
+
 const byteInputToReadable = (method: BoxMethodName, value: unknown): Effect.Effect<Readable, BoxError> => {
   if (value instanceof Uint8Array) {
     return Effect.succeed(Readable.from([Buffer.from(value)]));
@@ -951,7 +974,8 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
         M.UploadedPart,
         payload,
         (decoded, signal) =>
-          byteInputToReadable("chunkedUploads.uploadFilePartByUrl", decoded.requestBody).pipe(
+          assertBoxUrlAllowed("chunkedUploads.uploadFilePartByUrl", decoded.url).pipe(
+            Effect.andThen(byteInputToReadable("chunkedUploads.uploadFilePartByUrl", decoded.requestBody)),
             Effect.flatMap((requestBody) =>
               invokeSdkPromise(client, "chunkedUploads", "uploadFilePartByUrl", "chunkedUploads.uploadFilePartByUrl", [
                 decoded.url,
@@ -1046,10 +1070,14 @@ export const makeStreamingOperations = (client: unknown): BoxStreamingOperations
         BoxGetZipDownloadContentPayload,
         payload,
         (decoded, signal) =>
-          invokeSdkPromise(client, "zipDownloads", "getZipDownloadContent", "zipDownloads.getZipDownloadContent", [
-            decoded.downloadUrl,
-            mergeCancellation(decoded.optionalsInput, signal),
-          ])
+          assertBoxUrlAllowed("zipDownloads.getZipDownloadContent", decoded.downloadUrl).pipe(
+            Effect.andThen(
+              invokeSdkPromise(client, "zipDownloads", "getZipDownloadContent", "zipDownloads.getZipDownloadContent", [
+                decoded.downloadUrl,
+                mergeCancellation(decoded.optionalsInput, signal),
+              ])
+            )
+          )
       ),
   },
 });

@@ -38,4 +38,15 @@ export {
    */
   NoSuchFileError,
 } from "./NoSuchFileError.js";
+/**
+ * @category utilities
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @category utilities
+   * @since 0.0.0
+   */
+  OptionInjectionError,
+} from "./OptionInjectionError.js";
 // bench

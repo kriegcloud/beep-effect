@@ -25,7 +25,6 @@ import { lawsCommand } from "./Laws/index.js";
 import { lintCommand } from "./Lint/index.js";
 import { purgeCommand } from "./Purge/index.js";
 import { qualityCommand } from "./Quality/index.js";
-import { reuseCommand } from "./Reuse/index.js";
 import { syncDataToTsCommand } from "./SyncDataToTs/index.js";
 import { topoSortCommand } from "./TopoSort/index.js";
 import { tsconfigSyncCommand } from "./TsconfigSync/index.js";
@@ -67,7 +66,6 @@ export const rootCommand = Command.make("beep-cli").pipe(
     createPackageCommand,
     codegenCommand,
     purgeCommand,
-    reuseCommand,
     syncDataToTsCommand,
     tsconfigSyncCommand,
     versionSyncCommand,
