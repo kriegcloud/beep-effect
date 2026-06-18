@@ -12,7 +12,7 @@
 
 import { $M365Id } from "@beep/identity";
 import { getSomesStruct } from "@beep/utils/Option";
-import { Config, Context, Duration, Effect, Layer, pipe } from "effect";
+import { Config, Context, Duration, Effect, flow, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -72,6 +72,22 @@ const PROTECTED_EXTENSIONS: ReadonlyArray<string> = [
   ".pbmp",
   ".pgif",
 ];
+
+const isGraphPathSegment = (value: string): boolean =>
+  !Str.isEmpty(value) && !Str.includes("/")(value) && !Str.includes("..")(value);
+
+const GraphPathSegment = S.String.check(
+  S.makeFilter(isGraphPathSegment, {
+    identifier: $I`GraphPathSegment`,
+    title: "Graph path segment",
+    description: "A Microsoft Graph path identifier that cannot traverse or inject URL path segments.",
+    message: "Graph path identifiers must be non-empty and must not contain '/' or '..'.",
+  })
+).pipe(
+  $I.annoteSchema("GraphPathSegment", {
+    description: "Microsoft Graph path identifier safe for URL path interpolation.",
+  })
+);
 
 /**
  * Decoded Graph drive collection.
@@ -305,7 +321,7 @@ export type M365EventCollection = typeof M365EventCollection.Type;
  */
 export class M365ListDrivesRequest extends S.Class<M365ListDrivesRequest>($I`M365ListDrivesRequest`)(
   {
-    siteId: S.optionalKey(S.String).annotateKey({
+    siteId: S.optionalKey(GraphPathSegment).annotateKey({
       description: "Optional SharePoint composite site id; omitted to list the signed-in user's drives.",
     }),
   },
@@ -355,7 +371,7 @@ export class M365ListSitesRequest extends S.Class<M365ListSitesRequest>($I`M365L
  */
 export class M365GetSiteRequest extends S.Class<M365GetSiteRequest>($I`M365GetSiteRequest`)(
   {
-    siteId: S.String.annotateKey({ description: "SharePoint composite site id." }),
+    siteId: GraphPathSegment.annotateKey({ description: "SharePoint composite site id." }),
   },
   $I.annote("M365GetSiteRequest", {
     description: "Request for reading one SharePoint site by id.",
@@ -381,7 +397,9 @@ export class M365DeltaDriveItemsRequest extends S.Class<M365DeltaDriveItemsReque
     deltaLink: S.optionalKey(S.String).annotateKey({
       description: "Optional Graph-provided delta continuation URL; must target the configured Graph v1.0 origin.",
     }),
-    driveId: S.String.annotateKey({ description: "Drive id whose root delta feed is read when deltaLink is absent." }),
+    driveId: GraphPathSegment.annotateKey({
+      description: "Drive id whose root delta feed is read when deltaLink is absent.",
+    }),
   },
   $I.annote("M365DeltaDriveItemsRequest", {
     description: "Request for drive item delta enumeration.",
@@ -406,8 +424,8 @@ export class M365DownloadDriveItemContentRequest extends S.Class<M365DownloadDri
   $I`M365DownloadDriveItemContentRequest`
 )(
   {
-    driveId: S.String.annotateKey({ description: "Drive id containing the item." }),
-    itemId: S.String.annotateKey({ description: "Drive item id whose content should be downloaded." }),
+    driveId: GraphPathSegment.annotateKey({ description: "Drive id containing the item." }),
+    itemId: GraphPathSegment.annotateKey({ description: "Drive item id whose content should be downloaded." }),
   },
   $I.annote("M365DownloadDriveItemContentRequest", {
     description: "Request for downloading a drive item's content.",
@@ -430,9 +448,9 @@ export class M365DownloadDriveItemContentRequest extends S.Class<M365DownloadDri
  */
 export class M365GetListItemRequest extends S.Class<M365GetListItemRequest>($I`M365GetListItemRequest`)(
   {
-    itemId: S.String.annotateKey({ description: "List item id." }),
-    listId: S.String.annotateKey({ description: "SharePoint list id." }),
-    siteId: S.String.annotateKey({ description: "SharePoint composite site id." }),
+    itemId: GraphPathSegment.annotateKey({ description: "List item id." }),
+    listId: GraphPathSegment.annotateKey({ description: "SharePoint list id." }),
+    siteId: GraphPathSegment.annotateKey({ description: "SharePoint composite site id." }),
   },
   $I.annote("M365GetListItemRequest", {
     description: "Request for reading a SharePoint list item with expanded fields.",
@@ -457,8 +475,8 @@ export class M365ListDriveItemVersionsRequest extends S.Class<M365ListDriveItemV
   $I`M365ListDriveItemVersionsRequest`
 )(
   {
-    driveId: S.String.annotateKey({ description: "Drive id containing the item." }),
-    itemId: S.String.annotateKey({ description: "Drive item id whose versions should be listed." }),
+    driveId: GraphPathSegment.annotateKey({ description: "Drive id containing the item." }),
+    itemId: GraphPathSegment.annotateKey({ description: "Drive item id whose versions should be listed." }),
   },
   $I.annote("M365ListDriveItemVersionsRequest", {
     description: "Request for listing a drive item's immutable versions.",
@@ -483,7 +501,7 @@ export class M365ListMessagesRequest extends S.Class<M365ListMessagesRequest>($I
   {
     filter: S.optionalKey(S.String).annotateKey({ description: "Optional Graph OData `$filter` query value." }),
     top: S.optionalKey(S.Int).annotateKey({ description: "Optional Graph `$top` page size." }),
-    userId: S.optionalKey(S.String).annotateKey({
+    userId: S.optionalKey(GraphPathSegment).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's messages.",
     }),
   },
@@ -508,8 +526,8 @@ export class M365ListMessagesRequest extends S.Class<M365ListMessagesRequest>($I
  */
 export class M365GetMessageRequest extends S.Class<M365GetMessageRequest>($I`M365GetMessageRequest`)(
   {
-    messageId: S.String.annotateKey({ description: "Graph message id." }),
-    userId: S.optionalKey(S.String).annotateKey({
+    messageId: GraphPathSegment.annotateKey({ description: "Graph message id." }),
+    userId: S.optionalKey(GraphPathSegment).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's message.",
     }),
   },
@@ -535,7 +553,7 @@ export class M365GetMessageRequest extends S.Class<M365GetMessageRequest>($I`M36
 export class M365ListEventsRequest extends S.Class<M365ListEventsRequest>($I`M365ListEventsRequest`)(
   {
     top: S.optionalKey(S.Int).annotateKey({ description: "Optional Graph `$top` page size." }),
-    userId: S.optionalKey(S.String).annotateKey({
+    userId: S.optionalKey(GraphPathSegment).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's calendar events.",
     }),
   },
@@ -560,8 +578,8 @@ export class M365ListEventsRequest extends S.Class<M365ListEventsRequest>($I`M36
  */
 export class M365GetEventRequest extends S.Class<M365GetEventRequest>($I`M365GetEventRequest`)(
   {
-    eventId: S.String.annotateKey({ description: "Graph event id." }),
-    userId: S.optionalKey(S.String).annotateKey({
+    eventId: GraphPathSegment.annotateKey({ description: "Graph event id." }),
+    userId: S.optionalKey(GraphPathSegment).annotateKey({
       description: "Optional user id/mailbox; omitted to read the signed-in user's calendar event.",
     }),
   },
@@ -713,8 +731,7 @@ const decodeGetMessageRequest = S.decodeUnknownEffect(M365GetMessageRequest);
 const decodeListEventsRequest = S.decodeUnknownEffect(M365ListEventsRequest);
 const decodeGetEventRequest = S.decodeUnknownEffect(M365GetEventRequest);
 
-const splitScopes = (value: string): ReadonlyArray<string> =>
-  pipe(value, Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
+const splitScopes = flow(Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
 
 const queryString = (params: ReadonlyArray<QueryParam>): string => {
   const pairs = pipe(

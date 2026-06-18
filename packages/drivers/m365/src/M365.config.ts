@@ -7,7 +7,7 @@
 
 import { $M365Id } from "@beep/identity";
 import { O } from "@beep/utils";
-import { pipe } from "effect";
+import { HashSet, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -126,10 +126,10 @@ export const M365_RESERVED_WRITE_SCOPES = [
   "Calendars.ReadWrite",
 ] as const;
 
-const reservedWriteScopes: ReadonlySet<string> = new Set(M365_RESERVED_WRITE_SCOPES);
+const reservedWriteScopes = HashSet.make(...M365_RESERVED_WRITE_SCOPES);
 
 const requestsNoWriteScope = (scopes: ReadonlyArray<string>): boolean =>
-  A.every(scopes, (scope) => !reservedWriteScopes.has(scope));
+  A.every(scopes, (scope) => !HashSet.has(reservedWriteScopes, scope));
 
 /**
  * Runtime configuration accepted by the Microsoft 365 driver layers.

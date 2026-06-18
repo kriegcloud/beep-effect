@@ -1,25 +1,25 @@
 /**
  * Microsoft 365 MCP stdio server wiring.
  *
- * @category Server
+ * @category layers
  * @since 0.1.0
  */
 
 import { $M365McpId } from "@beep/identity/packages";
-import * as Layer from "effect/Layer";
+import type { M365 } from "@beep/m365";
+import { Layer } from "effect";
 import * as S from "effect/Schema";
+import type { Stdio } from "effect/Stdio";
 import * as McpServer from "effect/unstable/ai/McpServer";
 import { M365ToolkitHandlersLive } from "./M365Handlers.ts";
 import { M365Toolkit } from "./M365Tools.ts";
-import type { M365 } from "@beep/m365";
-import type { Stdio } from "effect/Stdio";
 
 const $I = $M365McpId.create("Server");
 
 /**
  * Configuration for the Microsoft 365 MCP server.
  *
- * @category Models
+ * @category models
  * @since 0.1.0
  */
 export class M365McpServerConfig extends S.Class<M365McpServerConfig>($I`M365McpServerConfig`)(
@@ -39,7 +39,7 @@ export class M365McpServerConfig extends S.Class<M365McpServerConfig>($I`M365Mcp
 /**
  * Builds the stdio MCP server layer.
  *
- * @category Layers
+ * @category layers
  * @since 0.1.0
  */
 export const makeServerLayer = (config: M365McpServerConfig): Layer.Layer<never, never, M365 | Stdio> =>

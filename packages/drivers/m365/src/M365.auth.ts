@@ -12,6 +12,7 @@
  */
 
 import { $M365Id } from "@beep/identity";
+import { getSomesStruct } from "@beep/utils/Option";
 import { Context, Effect, Layer, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -295,10 +296,7 @@ export class M365Auth extends Context.Service<M365Auth, M365AuthShape>()($I`M365
         const cachePlugin = yield* buildCachePlugin(resolved);
         const pca = new Msal.PublicClientApplication({
           auth: { authority: resolved.authority, clientId: resolved.clientId },
-          cache: O.match(cachePlugin, {
-            onNone: () => ({}),
-            onSome: (plugin) => ({ cachePlugin: plugin }),
-          }),
+          cache: getSomesStruct({ cachePlugin }),
           system: {
             loggerOptions: {
               logLevel: Msal.LogLevel.Error,

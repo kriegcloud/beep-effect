@@ -5,7 +5,7 @@
  * The toolkit mirrors the read side of `@beep/m365`. No write, mutation, or
  * ingestion verbs are exposed here.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 import {
@@ -38,7 +38,7 @@ import { Tool, Toolkit } from "effect/unstable/ai";
 /**
  * Lists SharePoint and OneDrive drives visible through the configured tenant.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365ListDrivesTool = Tool.make("m365_list_drives", {
@@ -56,7 +56,7 @@ export const M365ListDrivesTool = Tool.make("m365_list_drives", {
 /**
  * Lists SharePoint sites visible through the configured tenant.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365ListSitesTool = Tool.make("m365_list_sites", {
@@ -74,7 +74,7 @@ export const M365ListSitesTool = Tool.make("m365_list_sites", {
 /**
  * Loads a single SharePoint site by id or path.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365GetSiteTool = Tool.make("m365_get_site", {
@@ -92,7 +92,7 @@ export const M365GetSiteTool = Tool.make("m365_get_site", {
 /**
  * Reads a drive delta feed for changed drive items.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365DeltaDriveItemsTool = Tool.make("m365_delta_drive_items", {
@@ -110,7 +110,7 @@ export const M365DeltaDriveItemsTool = Tool.make("m365_delta_drive_items", {
 /**
  * Downloads drive item bytes or reports that an encrypted item was skipped.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365DownloadDriveItemContentTool = Tool.make("m365_download_drive_item_content", {
@@ -128,7 +128,7 @@ export const M365DownloadDriveItemContentTool = Tool.make("m365_download_drive_i
 /**
  * Loads a drive item's SharePoint list item fields.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365GetListItemTool = Tool.make("m365_get_list_item", {
@@ -146,7 +146,7 @@ export const M365GetListItemTool = Tool.make("m365_get_list_item", {
 /**
  * Lists versions for a drive item.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365ListDriveItemVersionsTool = Tool.make("m365_list_drive_item_versions", {
@@ -164,7 +164,7 @@ export const M365ListDriveItemVersionsTool = Tool.make("m365_list_drive_item_ver
 /**
  * Lists Outlook mail messages.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365ListMessagesTool = Tool.make("m365_list_messages", {
@@ -182,7 +182,7 @@ export const M365ListMessagesTool = Tool.make("m365_list_messages", {
 /**
  * Loads a single Outlook mail message.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365GetMessageTool = Tool.make("m365_get_message", {
@@ -200,7 +200,7 @@ export const M365GetMessageTool = Tool.make("m365_get_message", {
 /**
  * Lists Outlook calendar events.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365ListEventsTool = Tool.make("m365_list_events", {
@@ -218,7 +218,7 @@ export const M365ListEventsTool = Tool.make("m365_list_events", {
 /**
  * Loads a single Outlook calendar event.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365GetEventTool = Tool.make("m365_get_event", {
@@ -236,7 +236,7 @@ export const M365GetEventTool = Tool.make("m365_get_event", {
 /**
  * Read-only Microsoft 365 MCP toolkit.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export const M365Toolkit = Toolkit.make(
@@ -256,7 +256,7 @@ export const M365Toolkit = Toolkit.make(
 /**
  * Read-only Microsoft 365 MCP toolkit type.
  *
- * @category Tools
+ * @category tools
  * @since 0.1.0
  */
 export type M365Toolkit = typeof M365Toolkit;

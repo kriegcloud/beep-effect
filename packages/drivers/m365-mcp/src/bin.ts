@@ -1,7 +1,7 @@
 /**
  * Microsoft 365 MCP stdio executable.
  *
- * @category Executable
+ * @category services
  * @since 0.1.0
  */
 import { M365 } from "@beep/m365";

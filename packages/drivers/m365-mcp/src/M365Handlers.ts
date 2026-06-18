@@ -6,18 +6,10 @@
  * driver errors into the shared `AiToolError` failure schema and annotate spans
  * with counts and sizes only.
  *
- * @category Handlers
+ * @category handlers
  * @since 0.1.0
  */
 
-import { M365 } from "@beep/m365";
-import { AiToolError as AiToolErrorSchema } from "@beep/nlp/Tools";
-import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
-import * as Match from "effect/Match";
-import * as O from "effect/Option";
-import { M365Toolkit } from "./M365Tools.ts";
 import type {
   M365DeltaDriveItemsRequest,
   M365DownloadDriveItemContentRequest,
@@ -29,8 +21,15 @@ import type {
   M365ListMessagesRequest,
   M365ListSitesRequest,
 } from "@beep/m365";
+import { M365 } from "@beep/m365";
+import { AiToolError as AiToolErrorSchema } from "@beep/nlp/Tools";
+import { Effect, Match } from "effect";
+import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import type * as Layer from "effect/Layer";
+import * as O from "effect/Option";
 import type * as Tool from "effect/unstable/ai/Tool";
+import { M365Toolkit } from "./M365Tools.ts";
 
 type AiToolErrorValue = typeof AiToolErrorSchema.Type;
 
@@ -84,7 +83,7 @@ const annotateDownload = (download: M365DriveItemDownloadType): Effect.Effect<M3
 /**
  * Live handler layer for the Microsoft 365 MCP toolkit.
  *
- * @category Layers
+ * @category layers
  * @since 0.1.0
  */
 export const M365ToolkitHandlersLive: Layer.Layer<

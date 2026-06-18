@@ -20,21 +20,27 @@
  * ).pipe(NodeRuntime.runMain)
  * ```
  *
- * @category Package
+ * @packageDocumentation
+ * @since 0.1.0
+ */
+/**
+ * Microsoft 365 MCP tool handlers.
+ *
+ * @category handlers
  * @since 0.1.0
  */
 export * from "./M365Handlers.ts";
 /**
  * Schema-first Microsoft 365 MCP tool declarations.
  *
- * @category re-exports
+ * @category tools
  * @since 0.1.0
  */
 export * from "./M365Tools.ts";
 /**
  * Microsoft 365 MCP server configuration and layer constructors.
  *
- * @category re-exports
+ * @category layers
  * @since 0.1.0
  */
 export * from "./Server.ts";
@@ -42,7 +48,7 @@ export * from "./Server.ts";
 /**
  * Package version.
  *
- * @category Metadata
+ * @category constants
  * @since 0.1.0
  */
 export const VERSION = "0.1.0";

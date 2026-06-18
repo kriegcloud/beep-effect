@@ -312,6 +312,67 @@ describe("@beep/m365 service", () => {
 
   layer(makeTestLayer())((it) => {
     it.effect(
+      "rejects path-segment injection in Graph identifier request fields before HTTP",
+      Effect.fnUntraced(function* () {
+        const m365 = yield* M365;
+        const testHttp = yield* M365TestHttp;
+        const injectedSegment = "../../me";
+        const requests: ReadonlyArray<Effect.Effect<unknown, M365Error>> = [
+          m365.listDrives({ siteId: injectedSegment } as M365ListDrivesRequest),
+          m365.getSite({ siteId: injectedSegment } as M365GetSiteRequest),
+          m365.deltaDriveItems({ driveId: injectedSegment } as M365DeltaDriveItemsRequest),
+          m365.downloadDriveItemContent({
+            driveId: injectedSegment,
+            itemId: ITEM_ID,
+          } as M365DownloadDriveItemContentRequest),
+          m365.downloadDriveItemContent({
+            driveId: DRIVE_ID,
+            itemId: injectedSegment,
+          } as M365DownloadDriveItemContentRequest),
+          m365.getListItem({ itemId: injectedSegment, listId: "list-id", siteId: SITE_ID } as M365GetListItemRequest),
+          m365.getListItem({ itemId: "7", listId: injectedSegment, siteId: SITE_ID } as M365GetListItemRequest),
+          m365.getListItem({ itemId: "7", listId: "list-id", siteId: injectedSegment } as M365GetListItemRequest),
+          m365.listDriveItemVersions({
+            driveId: injectedSegment,
+            itemId: ITEM_ID,
+          } as M365ListDriveItemVersionsRequest),
+          m365.listDriveItemVersions({
+            driveId: DRIVE_ID,
+            itemId: injectedSegment,
+          } as M365ListDriveItemVersionsRequest),
+          m365.listMessages({ userId: injectedSegment } as M365ListMessagesRequest),
+          m365.getMessage({ messageId: injectedSegment } as M365GetMessageRequest),
+          m365.getMessage({ messageId: "message-id", userId: injectedSegment } as M365GetMessageRequest),
+          m365.listEvents({ userId: injectedSegment } as M365ListEventsRequest),
+          m365.getEvent({ eventId: injectedSegment } as M365GetEventRequest),
+          m365.getEvent({ eventId: "event-id", userId: injectedSegment } as M365GetEventRequest),
+        ];
+
+        yield* Effect.forEach(
+          requests,
+          Effect.fnUntraced(function* (request) {
+            const exit = yield* Effect.exit(request);
+
+            expect(Exit.isFailure(exit)).toBe(true);
+            if (Exit.isFailure(exit)) {
+              const error = Cause.findErrorOption(exit.cause);
+              expect(O.isSome(error)).toBe(true);
+              if (O.isSome(error)) {
+                expect(error.value.reason).toBe("request encoding");
+              }
+            }
+          }),
+          { discard: true }
+        );
+
+        const captures = yield* testHttp.captures;
+        expect(captures).toHaveLength(0);
+      })
+    );
+  });
+
+  layer(makeTestLayer())((it) => {
+    it.effect(
       "downloads file content from the preauthenticated URL without forwarding Authorization",
       Effect.fnUntraced(function* () {
         const testHttp = yield* M365TestHttp;
