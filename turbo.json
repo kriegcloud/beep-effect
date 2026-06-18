@@ -11,6 +11,9 @@
     "passThroughEnv": [
       "TURBO_TOKEN",
       "TURBO_TEAM",
+      "AI_VENICE_API_KEY",
+      "CLOUD_BOX_TOKEN",
+      "FIRECRAWL_API_KEY",
       "NODE_TLS_REJECT_UNAUTHORIZED",
       "PORTLESS_*",
       "AWS_*",
@@ -108,7 +111,12 @@
     "test:integration": {
       "cache": false,
       "dependsOn": ["^build"],
-      "env": ["BEEP_TEST_*"],
+      "env": [
+        "AI_VENICE_API_KEY",
+        "BEEP_TEST_*",
+        "CLOUD_BOX_TOKEN",
+        "FIRECRAWL_API_KEY"
+      ],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/tsconfig.json",

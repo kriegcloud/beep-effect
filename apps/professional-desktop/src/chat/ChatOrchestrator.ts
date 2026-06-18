@@ -23,7 +23,7 @@ import {
   UserTurnHistoryItem,
 } from "@beep/agents-use-cases/public";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
-import {thunkEmptyStr} from "@beep/utils";
+import { thunkEmptyStr } from "@beep/utils";
 import { Thread } from "@beep/workspace-use-cases/server";
 import { Clock, Duration, Effect, Match, Metric, Order, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";

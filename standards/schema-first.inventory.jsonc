@@ -1,11 +1,7 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-15",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "generatedOn": "2026-06-17",
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -38,22 +34,6 @@
       "status": "exception",
       "owner": "@beep/agents-domain",
       "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-      "symbol": "ScanState",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/agents-server",
-      "reason": "Internal carry state of the incremental streaming-JSON scanner (folded with let-destructuring per chunk), not a serialization-boundary DTO; a runtime schema codec would add no decode value and regress the hot scan loop."
-    },
-    {
-      "file": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-      "symbol": "IndexedBlock",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/agents-use-cases",
-      "reason": "Internal kernel stream-element pairing { block, index } whose block field is already the annotated AssistantBlock schema; the wrapper is a type-level signature for the AgentTurnKernel port, never decoded from untrusted input."
     },
     {
       "file": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.kernel.ts",

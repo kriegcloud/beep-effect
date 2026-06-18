@@ -1058,6 +1058,13 @@ describe("quality task adapter", () => {
             "[beep-cli] test:first output:\nfirst failed",
             "[beep-cli] test:second output:\nsecond failed"
           );
+
+          const errorText = A.join(A.filter(yield* TestConsole.errorLines, isString), "\n");
+          expect(errorText).toContain("[beep-cli] test:group: failed 2 step(s)");
+          expect(errorText).toContain("[beep-cli]   test:first: exit 7");
+          expect(errorText).toContain("[beep-cli]     command: bun -e console.log('first failed'); process.exit(7)");
+          expect(errorText).toContain("[beep-cli]   test:second: exit 3");
+          expect(errorText).toContain("[beep-cli]     command: bun -e console.log('second failed'); process.exit(3)");
         })
       )
     ));
@@ -1090,6 +1097,11 @@ describe("quality task adapter", () => {
           const logText = A.join(A.filter(yield* TestConsole.logLines, isString), "\n");
           expect(logText).toContain("[beep-cli] test:stream: running 2 streaming step(s)");
           expectSubstringBefore(logText, "[beep-cli] test:first:", "[beep-cli] test:second:");
+
+          const errorText = A.join(A.filter(yield* TestConsole.errorLines, isString), "\n");
+          expect(errorText).toContain("[beep-cli] test:stream: failed 1 step(s)");
+          expect(errorText).toContain("[beep-cli]   test:first: exit 7");
+          expect(errorText).toContain("[beep-cli]     command: bun -e process.exit(7)");
         })
       )
     ));

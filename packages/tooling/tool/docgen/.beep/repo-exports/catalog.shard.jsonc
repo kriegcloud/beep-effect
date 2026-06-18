@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7f297e7f8ac63442b63e62c711e1c413ec5edf4e4b8955e419c661962bf7fd82",
+    "digest": "e7c7d678bbdc5b6c31cd73ef20bd655f45d2cb6fd974bdc2edba6205126c598d",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -47,8 +47,8 @@
       },
       {
         "path": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sha256": "db060056f5aba4b7c5b75012ad29847715326e20c8ee29d94229f124d28409f8",
-        "bytes": 9634
+        "sha256": "4dd20c1ab352b6adb49b151b16bda9802e095dc703bcbbbe935421e2f4870bc4",
+        "bytes": 9702
       },
       {
         "path": "packages/tooling/tool/docgen/src/CLI.ts",
@@ -249,7 +249,7 @@
         "symbolName": "checkClasses",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 125,
+        "sourceLine": 130,
         "summary": "Checks documented classes and their members for required docgen annotations.",
         "categories": [
           "predicates"
@@ -276,7 +276,7 @@
         "symbolName": "checkConstants",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 147,
+        "sourceLine": 152,
         "summary": "Checks documented constants for required docgen annotations.",
         "categories": [
           "predicates"
@@ -303,7 +303,7 @@
         "symbolName": "checkExports",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 241,
+        "sourceLine": 246,
         "summary": "Checks documented manual exports for required docgen annotations.",
         "categories": [
           "predicates"
@@ -330,7 +330,7 @@
         "symbolName": "checkFunctions",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 99,
+        "sourceLine": 104,
         "summary": "Checks documented functions for required docgen annotations.",
         "categories": [
           "predicates"
@@ -357,7 +357,7 @@
         "symbolName": "checkInterfaces",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 169,
+        "sourceLine": 174,
         "summary": "Checks documented interfaces for required docgen annotations.",
         "categories": [
           "predicates"
@@ -384,7 +384,7 @@
         "symbolName": "checkModule",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 258,
+        "sourceLine": 263,
         "summary": "Checks a parsed module and all of its documented members for required docgen annotations.",
         "categories": [
           "predicates"
@@ -411,7 +411,7 @@
         "symbolName": "checkModules",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 302,
+        "sourceLine": 307,
         "summary": "Checks multiple parsed modules for required docgen annotations.",
         "categories": [
           "predicates"
@@ -438,7 +438,7 @@
         "symbolName": "checkNamespaces",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 219,
+        "sourceLine": 224,
         "summary": "Checks documented namespaces and their nested members for required docgen annotations.",
         "categories": [
           "predicates"
@@ -465,7 +465,7 @@
         "symbolName": "checkTypeAliases",
         "exportKind": "function",
         "sourcePath": "packages/tooling/tool/docgen/src/Checker.ts",
-        "sourceLine": 191,
+        "sourceLine": 196,
         "summary": "Checks documented type aliases for required docgen annotations.",
         "categories": [
           "predicates"

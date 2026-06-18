@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "dfe0475e9bb116ba0a46297f8db540dec1e347652f44aa02c401007aa97bb34e",
+    "digest": "c80ea8e529596ba93e2b99420b35c66aac3c24a227111ac140975393c29b42d6",
     "inputs": [
       {
         "path": "apps/professional-desktop/package.json",
@@ -27,8 +27,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ChatOrchestrator.ts",
-        "sha256": "f15cced9d818564468a4a0707f85c2d57e5b90b9bac7b83fdd42749ffa2dc7d8",
-        "bytes": 20549
+        "sha256": "11e38aaf06a72487fbcd2486d13fbe64031d8f4ed26f93987f716332f7a8e634",
+        "bytes": 20594
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/ChatApp.tsx",
@@ -62,8 +62,8 @@
       },
       {
         "path": "apps/professional-desktop/src/chat/ui/Thread.tsx",
-        "sha256": "6406b2d796480c1e97a1deb0da70adff9c89117e3de36ac60318bd6d8fa76191",
-        "bytes": 8627
+        "sha256": "c0a6b60c8fd53c25004671f1b9b2e7309d0ed53ad5992ef550d2849b29e02aed",
+        "bytes": 8636
       },
       {
         "path": "apps/professional-desktop/src/chat/UsageRecordSink.ts",

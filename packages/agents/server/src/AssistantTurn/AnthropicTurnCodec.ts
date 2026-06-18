@@ -25,7 +25,7 @@ import {
   YouTubeBlock,
 } from "@beep/agents-domain/values/AssistantContent";
 import { make } from "@beep/identity";
-import {thunkFalse} from "@beep/utils";
+import { thunkFalse } from "@beep/utils";
 import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -64,7 +64,7 @@ const isValidMermaidCodeBlock = (block: CodeBlock): boolean =>
   pipe(
     firstToken(block.code),
     O.match({
-      onNone: () => false,
+      onNone: thunkFalse,
       onSome: (token) => A.contains(mermaidDiagramTypes, token),
     })
   );

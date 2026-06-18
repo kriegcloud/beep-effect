@@ -23,7 +23,7 @@
 
 import { editTargetAtom, runTurnAtom, streamingTurnAtom, threadTimelineAtoms } from "@beep/agents-client/Chat.atoms";
 import { Button } from "@beep/ui/components/button";
-import { A, O, thunkNull} from "@beep/utils";
+import { A, O, thunkNull } from "@beep/utils";
 import { useAtomMount, useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
 import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { useCallback, useRef } from "react";

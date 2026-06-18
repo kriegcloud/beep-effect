@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "7fdb7403ed1a0cf498b1116053d67b2296bb2667b70014578bc4c298abce6855",
+    "digest": "4f8e27b2a4503416d2e1285c7166c62b7bee9e70ed2b3b98ee10178373e53361",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -32,8 +32,8 @@
       },
       {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
-        "sha256": "95e4c8543a6363d91788d2dd1f2137a433b95250f8fb89ca261a5b50fb6cf18e",
-        "bytes": 3275
+        "sha256": "c168af025e445a3865961f51cb14c5f141eac6bfc04aef566d673238c375b4b6",
+        "bytes": 3369
       },
       {
         "path": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.errors.ts",
@@ -433,7 +433,7 @@
         "exportSubpath": ".",
         "exportedFromPath": "packages/agents/use-cases/src/index.ts",
         "symbolName": "IndexedBlock",
-        "exportKind": "interface",
+        "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
@@ -448,7 +448,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases . indexedblock class a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -1532,7 +1532,7 @@
         "exportSubpath": "./proof",
         "exportedFromPath": "packages/agents/use-cases/src/proof.ts",
         "symbolName": "IndexedBlock",
-        "exportKind": "interface",
+        "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
@@ -1547,7 +1547,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/proof ./proof indexedblock class a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -2656,7 +2656,7 @@
         "exportSubpath": "./public",
         "exportedFromPath": "packages/agents/use-cases/src/public.ts",
         "symbolName": "IndexedBlock",
-        "exportKind": "interface",
+        "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
@@ -2671,7 +2671,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/public ./public indexedblock class a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",
@@ -3797,7 +3797,7 @@
         "exportSubpath": "./test",
         "exportedFromPath": "packages/agents/use-cases/src/test.ts",
         "symbolName": "IndexedBlock",
-        "exportKind": "interface",
+        "exportKind": "class",
         "sourcePath": "packages/agents/use-cases/src/processes/AssistantTurn/AssistantTurn.contracts.ts",
         "sourceLine": 115,
         "summary": "A single assistant block paired with its position in the generated turn.",
@@ -3812,7 +3812,7 @@
           "@category",
           "@since"
         ],
-        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test indexedblock interface a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
+        "searchText": "@beep/agents-use-cases packages/agents/use-cases @beep/agents-use-cases/test ./test indexedblock class a single assistant block paired with its position in the generated turn. models packages/agents/use-cases/src/processes/assistantturn/assistantturn.contracts.ts"
       },
       {
         "packageName": "@beep/agents-use-cases",

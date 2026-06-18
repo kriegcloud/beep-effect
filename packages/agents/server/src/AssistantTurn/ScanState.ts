@@ -53,7 +53,7 @@ export class ScanState extends S.Class<ScanState>($I`ScanState`)(
  * @category constructors
  * @since 0.0.0
  */
-export const initialScanState: ScanState = ScanState.make()
+export const initialScanState: ScanState = ScanState.make();
 
 /**
  * Fold one chunk of structured-output JSON text into the scan state, returning

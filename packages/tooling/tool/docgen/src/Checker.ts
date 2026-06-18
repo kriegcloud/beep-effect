@@ -21,7 +21,12 @@ const makeError = (
   position: Domain.Position,
   message: (filePath: string, frame: string) => string
 ) => {
-  const frame = codeFrameColumns(source.sourceFile.getFullText(), { start: position });
+  const frame = codeFrameColumns(source.sourceFile.getFullText(), {
+    start: {
+      line: position.line,
+      column: position.column - 1,
+    },
+  });
   return [message(source.sourceFile.getFilePath(), frame)];
 };
 

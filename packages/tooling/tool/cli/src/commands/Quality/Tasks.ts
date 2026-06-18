@@ -789,14 +789,35 @@ const emptyBoundedStepOutputState = (): BoundedStepOutputState => ({
   truncated: false,
 });
 
-const failQualityTaskFailures = Effect.fn("QualityTasks.failQualityTaskFailures")(function* (
+const renderFailureSummary = (label: string, failures: ReadonlyArray<QualityTaskFailed>): string =>
+  A.join(
+    [
+      `[beep-cli] ${label}: failed ${A.length(failures)} step(s)`,
+      ...A.map(
+        failures,
+        (failure) =>
+          `[beep-cli]   ${failure.label}: exit ${failure.exitCode}\n[beep-cli]     command: ${failure.command}`
+      ),
+    ],
+    "\n"
+  );
+
+const failQualityTaskGroup = Effect.fn("QualityTasks.failQualityTaskGroup")(function* (
   label: string,
   failures: ReadonlyArray<QualityTaskFailed>
 ) {
   const firstFailure = A.head(failures);
   if (O.isSome(firstFailure)) {
+    yield* Console.error(renderFailureSummary(label, failures));
     return yield* QualityTaskGroupFailed.new(failures, label, firstFailure.value.exitCode);
   }
+});
+
+const failQualityTaskFailures = Effect.fn("QualityTasks.failQualityTaskFailures")(function* (
+  label: string,
+  failures: ReadonlyArray<QualityTaskFailed>
+) {
+  yield* failQualityTaskGroup(label, failures);
 });
 
 const collectStreamingStepFailures = Effect.fn("QualityTasks.collectStreamingStepFailures")(function* (
@@ -934,10 +955,7 @@ const runStepGroup = Effect.fn("QualityTasks.runStepGroup")(function* (
   yield* Effect.forEach(results, renderStepOutput, { discard: true });
 
   const failures = failedStepOutputs(results);
-  const firstFailure = A.head(failures);
-  if (O.isSome(firstFailure)) {
-    return yield* QualityTaskGroupFailed.new(failures, label, firstFailure.value.exitCode);
-  }
+  yield* failQualityTaskGroup(label, failures);
 });
 
 const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, args: ReadonlyArray<string>) => {

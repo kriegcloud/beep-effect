@@ -13,7 +13,7 @@
   },
   "fingerprint": {
     "algorithm": "sha256",
-    "digest": "bace12c2e6fba01e6eab937ad5829f236b7a1c28018790612771cc1e25afb191",
+    "digest": "d5c37eae36a323ca51061b01420a37da734ac4b0442d1a896f6c0285cc41b4ae",
     "inputs": [
       {
         "path": "generator:repo-exports-catalog",
@@ -37,8 +37,8 @@
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.mapping.ts",
-        "sha256": "6b86aa2f6fbcd319e4500ba29b55df97aaa0fdc7eefd3eccd00431def1355a0b",
-        "bytes": 33940
+        "sha256": "479c451c87f2cdb688d2486227bee7ce1b6ff8c191945d041ce1627c9e43910f",
+        "bytes": 33960
       },
       {
         "path": "packages/foundation/modeling/pandoc-ast/src/Pandoc.model.ts",

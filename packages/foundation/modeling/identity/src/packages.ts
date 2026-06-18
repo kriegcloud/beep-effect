@@ -62,7 +62,7 @@ const generatedComposers = $I.compose(
   // Professional runtime packages
   "agents-domain",
   "agents-use-cases",
-	"agents-server",
+  "agents-server",
   "epistemic-domain",
   "law-practice-domain",
   "professional-desktop",

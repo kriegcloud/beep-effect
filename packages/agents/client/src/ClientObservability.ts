@@ -43,7 +43,7 @@ const otlpBaseUrl = ((): string => {
   }
   if (typeof window !== "undefined") {
     const origin = window.location.origin;
-    if (Str.startsWith(origin, "http://") || Str.startsWith(origin,"https://")) {
+    if (Str.startsWith(origin, "http://") || Str.startsWith(origin, "https://")) {
       return new URL("/otlp", origin).toString();
     }
   }
