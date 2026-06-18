@@ -21,18 +21,17 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     timeout-minutes: 2
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Count changed files
-        id: changed
-        uses: tj-actions/changed-files@v47
-
       - name: Label PR by size
         uses: actions/github-script@v7
         with:
           script: |
-            const count = parseInt('${{ steps.changed.outputs.all_changed_files_count }}', 10);
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100
+            });
+            const count = files.length;
             let label = 'size/S';
             if (count > 50) label = 'size/XL';
             else if (count > 20) label = 'size/L';
@@ -43,6 +42,7 @@ jobs:
               issue_number: context.issue.number,
               labels: [label]
             });
+            await core.summary.addRaw(`Changed files: ${count}; applied label: ${label}`).write();
   verify:
     name: ${{ matrix.name }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
@@ -464,7 +464,7 @@ jobs:
   secrets:
     name: Secret Scanning
     runs-on: blacksmith-2vcpu-ubuntu-2404
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

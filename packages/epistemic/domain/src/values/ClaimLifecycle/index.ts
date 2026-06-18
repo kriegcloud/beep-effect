@@ -6,6 +6,20 @@
  */
 
 /**
+ * Claim lifecycle error exports.
+ *
+ * @example
+ * ```ts
+ * import * as Module from "@beep/epistemic-domain/values/ClaimLifecycle"
+ *
+ * console.log(Module)
+ * ```
+
+ * @category errors
+ * @since 0.0.0
+ */
+export * from "./ClaimLifecycle.errors.js";
+/**
  * Claim lifecycle model exports.
  *
  * @example

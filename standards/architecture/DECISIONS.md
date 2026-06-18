@@ -910,6 +910,47 @@ paths became pure topology debt. Removing them makes `ls src` match the public
 mental model, prevents case-only ambiguity, and gives agents a much smaller
 navigation surface.
 
+## 2026-06-18: Cross-Slice Consumption Of The Epistemic Boundary
+
+- **Status:** Active
+
+Decision:
+
+A reusable, product-agnostic boundary realized as a slice — e.g. `epistemic`
+(domain entities + use-case services + a live SHACL Layer) — stays a slice. It
+cannot move wholesale to `shared/*` (no live Layers anywhere in the family;
+`shared/use-cases` is contract-only) or `foundation/capability` (no domain-entity
+ownership). A consuming vertical (e.g.
+`law-practice`) crosses the boundary by tier:
+
+- **Substrate** — domain-agnostic value shapes such as a char-offset anchor or a
+  unit interval — is promoted to `foundation/modeling` (`@beep/provenance`
+  `TextAnchor`, `@beep/schema` `UnitInterval`). Any slice's `domain` may import
+  it directly.
+- **Product-language vocabulary** that a second vertical types against — the
+  `ClaimLifecycle` admission states — is promoted to `shared/domain` with a
+  promotion record. Promote the minimum, not the whole model.
+- **Mechanism** — the gate, projection, and transition services and their live
+  Layers — stays in the owning slice. The consuming slice composes it at the
+  use-cases/server tier via a documented **bounded exception** recorded in the
+  consumer packet's Exception Ledger, until a third consumer justifies extracting
+  a `shared/use-cases` contract (or emitted event) per
+  `01-hexagonal-vertical-slices.md:71-74`.
+
+Rationale:
+
+This is the architecture's predicted "first contact" with cross-slice boundaries
+(see Known Unknowns). The absolute rule — a slice `domain` imports only
+shared-kernel plus `foundation/primitive|modeling`
+(`01-hexagonal-vertical-slices.md:60-61`) — is honored with zero exceptions by
+routing substrate to foundation and shared vocabulary to shared-kernel. The
+softer cross-slice integration rule (`:71-74`) is bent only at the
+use-cases/server composition tier, transparently and with a removal trigger,
+rather than building a full shared contract for a single-fixture spike. This
+keeps the just-shipped `epistemic` slice a slice while making `law-practice`
+doctrine-clean at the domain tier, and gives every future vertical that consumes
+a slice-shaped boundary a worked routing precedent.
+
 ## Known Unknowns
 
 Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:

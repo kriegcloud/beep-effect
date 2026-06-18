@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "law-practice-office-action-spike",
+    "title": "Law-Practice Office-Action Spike",
+    "status": "completed-retained",
+    "created": "2026-06-17",
+    "updated": "2026-06-18",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/law-practice-office-action-spike",
+  "lifecycle": "completed-retained",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/atlas-synthesis",
+    "graduated": "2026-06-17"
+  },
+  "relatedPackets": {
+    "productAuthority": "goals/agentic-professional-runtime",
+    "dependsOn": ["goals/epistemic-claim-lifecycle-gate"],
+    "reference": [
+      "goals/ip-law-knowledge-graph",
+      "goals/oppold-corpus-pipeline"
+    ]
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "standards/ARCHITECTURE.md",
+    "goals/agentic-professional-runtime/SPEC.md",
+    "goals/agentic-professional-runtime/docs/data-model-law-practice.md",
+    "goals/law-practice-office-action-spike/README.md",
+    "goals/law-practice-office-action-spike/SPEC.md",
+    "goals/law-practice-office-action-spike/PLAN.md",
+    "goals/law-practice-office-action-spike/GOAL.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/law-practice-office-action-spike/GOAL.md"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Schema / data-model",
+      "status": "complete"
+    },
+    {
+      "id": "P1",
+      "name": "Service contract",
+      "status": "complete"
+    },
+    {
+      "id": "P2",
+      "name": "Implementation",
+      "status": "complete"
+    },
+    {
+      "id": "P3",
+      "name": "Verify / close",
+      "status": "complete"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/law-practice-office-action-spike/GOAL.md)\" -le 4000",
+    "jq . goals/law-practice-office-action-spike/ops/manifest.json",
+    "rg -n \"law-practice-office-action-spike|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/law-practice-office-action-spike",
+    "git diff --check -- goals/law-practice-office-action-spike",
+    "bun run check --filter @beep/law-practice-domain",
+    "bun run check --filter @beep/law-practice-use-cases --filter @beep/law-practice-server",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The epistemic-claim-lifecycle-gate public surface (ClaimGate/ClaimLifecycle/ClaimProjection, Evidence char-span) is not yet available.",
+    "The implementation would exceed named scope (multi-ref §103, §101/§112, a real GraphRAG ask, FalkorDB, or the 7-source ontology grounding).",
+    "The IR→law mapping cannot type a generic Entity/Relation into a law entity without product vocabulary leaking back into @beep/nlp.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

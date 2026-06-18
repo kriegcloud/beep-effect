@@ -210,6 +210,17 @@ A `foundation` kind for reusable schemas, brands, identity contracts, and
 modeling vocabulary that higher-level foundation packages and slices may reuse
 without taking product-domain dependencies.
 
+## Provenance Anchor
+
+A domain-agnostic value that pins derived knowledge to where it came from in a
+source. The canonical shape is `TextAnchor` (`@beep/provenance`): a half-open
+character range `[startChar, endChar)` into a source document plus the exact
+quoted substring, re-sliceable as `text.slice(startChar, endChar)`. It is pure
+provenance substrate — no confidence, claim, or domain semantics — and lives in
+`foundation/modeling` so any slice's `domain` can ground knowledge in a source
+span without depending on another slice. Consuming slices wrap it (e.g.
+epistemic `EvidenceSpan` = `TextAnchor` fields + a `Confidence`).
+
 ## Schema Concept Module
 
 A flat public `@beep/schema/<Concept>` module that owns one reusable

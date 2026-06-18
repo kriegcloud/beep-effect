@@ -750,6 +750,18 @@
       "diagnostics": ["third-param-not-object-like"]
     },
     {
+      "file": "packages/law-practice/use-cases/src/internal/spikeEntity.ts",
+      "qualifiedName": "spikeEntityInput",
+      "kind": "exported-const-function",
+      "status": "candidate",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
+      "line": 42,
+      "column": 14,
+      "parameterCount": 2,
+      "diagnostics": ["missing-dual"]
+    },
+    {
       "file": "packages/tooling/library/ai-metrics/src/agent-effectiveness.ts",
       "qualifiedName": "AgentEffectivenessPhoenixSyncInput.new",
       "kind": "static-function-property",

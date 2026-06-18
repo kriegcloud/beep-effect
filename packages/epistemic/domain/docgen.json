@@ -52,8 +52,17 @@
       "@beep/epistemic-domain/values": [
         "../../../packages/epistemic/domain/src/values/index.ts"
       ],
+      "@beep/epistemic-domain/values/ClaimGate": [
+        "../../../packages/epistemic/domain/src/values/ClaimGate/index.ts"
+      ],
       "@beep/epistemic-domain/values/ClaimLifecycle": [
         "../../../packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimProjection": [
+        "../../../packages/epistemic/domain/src/values/ClaimProjection/index.ts"
+      ],
+      "@beep/epistemic-domain/values/EvidenceSpan": [
+        "../../../packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
       ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
@@ -63,6 +72,12 @@
       ],
       "@beep/identity/packages": [
         "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/provenance": [
+        "../../../packages/foundation/modeling/provenance/src/index.ts"
+      ],
+      "@beep/provenance/*": [
+        "../../../packages/foundation/modeling/provenance/src/*.ts"
       ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
@@ -379,6 +394,9 @@
       "@beep/schema/URL": [
         "../../../packages/foundation/modeling/schema/src/URL.ts"
       ],
+      "@beep/schema/UnitInterval": [
+        "../../../packages/foundation/modeling/schema/src/UnitInterval.ts"
+      ],
       "@beep/schema/VariantSchema": [
         "../../../packages/foundation/modeling/schema/src/VariantSchema/index.ts"
       ],
@@ -455,6 +473,9 @@
       ],
       "@beep/shared-domain/values": [
         "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/ClaimLifecycle": [
+        "../../../packages/shared/domain/src/values/ClaimLifecycle/index.ts"
       ],
       "@beep/shared-domain/values/LocalDate": [
         "../../../packages/shared/domain/src/values/LocalDate/index.ts"

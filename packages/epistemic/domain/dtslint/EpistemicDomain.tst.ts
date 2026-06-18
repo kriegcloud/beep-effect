@@ -16,7 +16,7 @@ declare const append: TurnFinalizationUsageAppend;
 describe("@beep/epistemic-domain", () => {
   it("preserves exported value schema types", () => {
     expect<ClaimLifecycle>().type.toBe<ClaimLifecycleType>();
-    expect<ClaimLifecycleType>().type.toBe<"candidate">();
+    expect<ClaimLifecycleType>().type.toBe<"candidate" | "shape_valid" | "consistency_checked" | "admitted">();
   });
 
   it("preserves CandidateClaim BaseEntity identity wiring", () => {

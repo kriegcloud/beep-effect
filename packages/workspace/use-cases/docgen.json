@@ -379,6 +379,9 @@
       "@beep/schema/URL": [
         "../../../packages/foundation/modeling/schema/src/URL.ts"
       ],
+      "@beep/schema/UnitInterval": [
+        "../../../packages/foundation/modeling/schema/src/UnitInterval.ts"
+      ],
       "@beep/schema/VariantSchema": [
         "../../../packages/foundation/modeling/schema/src/VariantSchema/index.ts"
       ],
@@ -455,6 +458,9 @@
       ],
       "@beep/shared-domain/values": [
         "../../../packages/shared/domain/src/values.ts"
+      ],
+      "@beep/shared-domain/values/ClaimLifecycle": [
+        "../../../packages/shared/domain/src/values/ClaimLifecycle/index.ts"
       ],
       "@beep/shared-domain/values/LocalDate": [
         "../../../packages/shared/domain/src/values/LocalDate/index.ts"

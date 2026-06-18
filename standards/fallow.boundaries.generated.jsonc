@@ -162,9 +162,21 @@
         ]
       },
       {
+        "name": "@beep/epistemic-server",
+        "patterns": [
+          "packages/epistemic/server/src/**"
+        ]
+      },
+      {
         "name": "@beep/epistemic-tables",
         "patterns": [
           "packages/epistemic/tables/src/**"
+        ]
+      },
+      {
+        "name": "@beep/epistemic-use-cases",
+        "patterns": [
+          "packages/epistemic/use-cases/src/**"
         ]
       },
       {
@@ -237,6 +249,18 @@
         "name": "@beep/law-practice-domain",
         "patterns": [
           "packages/law-practice/domain/src/**"
+        ]
+      },
+      {
+        "name": "@beep/law-practice-server",
+        "patterns": [
+          "packages/law-practice/server/src/**"
+        ]
+      },
+      {
+        "name": "@beep/law-practice-use-cases",
+        "patterns": [
+          "packages/law-practice/use-cases/src/**"
         ]
       },
       {
@@ -321,6 +345,12 @@
         "name": "@beep/professional-desktop",
         "patterns": [
           "apps/professional-desktop/src/**"
+        ]
+      },
+      {
+        "name": "@beep/provenance",
+        "patterns": [
+          "packages/foundation/modeling/provenance/src/**"
         ]
       },
       {
@@ -933,6 +963,7 @@
         "allow": [
           "@beep/epistemic-domain",
           "@beep/identity",
+          "@beep/provenance",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/test-utils"
@@ -940,8 +971,26 @@
         "allowTypeOnly": [
           "@beep/epistemic-domain",
           "@beep/identity",
+          "@beep/provenance",
           "@beep/schema",
           "@beep/shared-domain",
+          "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/epistemic-server",
+        "allow": [
+          "@beep/epistemic-domain",
+          "@beep/epistemic-server",
+          "@beep/epistemic-use-cases",
+          "@beep/semantic-web",
+          "@beep/test-utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/epistemic-domain",
+          "@beep/epistemic-server",
+          "@beep/epistemic-use-cases",
+          "@beep/semantic-web",
           "@beep/test-utils"
         ]
       },
@@ -957,6 +1006,23 @@
           "@beep/drizzle",
           "@beep/epistemic-domain",
           "@beep/epistemic-tables",
+          "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/epistemic-use-cases",
+        "allow": [
+          "@beep/epistemic-domain",
+          "@beep/epistemic-use-cases",
+          "@beep/identity",
+          "@beep/semantic-web",
+          "@beep/test-utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/epistemic-domain",
+          "@beep/epistemic-use-cases",
+          "@beep/identity",
+          "@beep/semantic-web",
           "@beep/test-utils"
         ]
       },
@@ -1118,6 +1184,7 @@
         "allow": [
           "@beep/identity",
           "@beep/law-practice-domain",
+          "@beep/provenance",
           "@beep/schema",
           "@beep/shared-domain",
           "@beep/test-utils"
@@ -1125,8 +1192,55 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/law-practice-domain",
+          "@beep/provenance",
           "@beep/schema",
           "@beep/shared-domain",
+          "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/law-practice-server",
+        "allow": [
+          "@beep/epistemic-server",
+          "@beep/epistemic-use-cases",
+          "@beep/file-processing",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/test-utils",
+          "@beep/tika"
+        ],
+        "allowTypeOnly": [
+          "@beep/epistemic-server",
+          "@beep/epistemic-use-cases",
+          "@beep/file-processing",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-server",
+          "@beep/law-practice-use-cases",
+          "@beep/test-utils",
+          "@beep/tika"
+        ]
+      },
+      {
+        "from": "@beep/law-practice-use-cases",
+        "allow": [
+          "@beep/epistemic-domain",
+          "@beep/epistemic-use-cases",
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/langextract",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-use-cases",
+          "@beep/test-utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/epistemic-domain",
+          "@beep/epistemic-use-cases",
+          "@beep/file-processing",
+          "@beep/identity",
+          "@beep/langextract",
+          "@beep/law-practice-domain",
+          "@beep/law-practice-use-cases",
           "@beep/test-utils"
         ]
       },
@@ -1398,6 +1512,19 @@
           "@beep/workspace-domain",
           "@beep/workspace-server",
           "@beep/workspace-use-cases"
+        ]
+      },
+      {
+        "from": "@beep/provenance",
+        "allow": [
+          "@beep/identity",
+          "@beep/provenance",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/provenance",
+          "@beep/schema"
         ]
       },
       {

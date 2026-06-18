@@ -60,8 +60,17 @@
       "@beep/epistemic-domain/values": [
         "../../../packages/epistemic/domain/src/values/index.ts"
       ],
+      "@beep/epistemic-domain/values/ClaimGate": [
+        "../../../packages/epistemic/domain/src/values/ClaimGate/index.ts"
+      ],
       "@beep/epistemic-domain/values/ClaimLifecycle": [
         "../../../packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/epistemic-domain/values/ClaimProjection": [
+        "../../../packages/epistemic/domain/src/values/ClaimProjection/index.ts"
+      ],
+      "@beep/epistemic-domain/values/EvidenceSpan": [
+        "../../../packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
       ],
       "@beep/test-utils": [
         "../../../packages/tooling/test-kit/test-utils/src/index.ts"
