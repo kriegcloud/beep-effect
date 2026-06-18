@@ -140,7 +140,28 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         expect(shouldMarkDataDir).toBe(false);
         expect(yield* fs.readFileString(retainedPath)).toBe("still here");
         expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
-      })
+      }),
+      { timeout: 30_000 }
+    );
+
+    it.effect(
+      "fails closed when an already marked data dir cannot be opened",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-marked-incompatible-" });
+        const dataDir = path.join(rootDir, "chat-db");
+
+        yield* createLegacyPglite053Fixture(dataDir);
+        yield* fs.writeFileString(markerPath(path, dataDir), "runtime=professional-desktop-pglite-inprocess\n");
+        const result = yield* ensureCompatibleChatDbDataDir(dataDir).pipe(Effect.exit);
+
+        expect(Exit.isFailure(result)).toBe(true);
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
+        expect(yield* fs.exists(path.join(dataDir, "PG_VERSION"))).toBe(true);
+        expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
+      }),
+      { timeout: 30_000 }
     );
 
     it.effect(

@@ -145,7 +145,7 @@ const assertCanOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglit
  * Ensure a desktop chat database directory is safe for the current in-process
  * PGlite runtime.
  *
- * Fresh and already-marked directories are preserved. Unmarked PGlite-looking
+ * Fresh directories are prepared. Already-marked and unmarked PGlite-looking
  * directories are first opened through the new driver; compatible stores are
  * retained, while stores that fail the probe are left untouched and fail boot
  * with a recovery log. Populated directories that do not look like PGlite are
@@ -167,6 +167,7 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
     const markerExists = dataDirExists ? yield* pathExists(fs, markerPath) : false;
 
     if (markerExists) {
+      yield* assertCanOpenInProcessPgliteDataDir(dataDir);
       return false;
     }
 
