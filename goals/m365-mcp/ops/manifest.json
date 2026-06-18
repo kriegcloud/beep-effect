@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "m365-mcp",
+    "title": "M365 MCP Server",
+    "status": "active",
+    "created": "2026-06-18",
+    "updated": "2026-06-18",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/m365-mcp",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/microsoft-365-integration",
+    "graduated": "2026-06-18"
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "explorations/microsoft-365-integration/README.md",
+    "explorations/microsoft-365-integration/RESEARCH.md",
+    "explorations/microsoft-365-integration/DECISIONS.md",
+    "explorations/microsoft-365-integration/BRIEF.md",
+    "explorations/microsoft-365-integration/MAP.md",
+    "goals/m365-driver/SPEC.md",
+    "goals/m365-mcp/README.md",
+    "goals/m365-mcp/SPEC.md",
+    "goals/m365-mcp/PLAN.md",
+    "goals/m365-mcp/GOAL.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/m365-mcp/GOAL.md"
+    }
+  ],
+  "phases": [
+    { "id": "P0", "name": "Research", "status": "pending" },
+    { "id": "P1", "name": "Implement", "status": "pending" },
+    { "id": "P2", "name": "Verify", "status": "pending" },
+    { "id": "P3", "name": "Close", "status": "pending" }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/m365-mcp/GOAL.md)\" -le 4000",
+    "jq . goals/m365-mcp/ops/manifest.json",
+    "rg -n \"m365-mcp|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/m365-mcp",
+    "git diff --check -- goals/m365-mcp",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The implementation would exceed named scope.",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

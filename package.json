@@ -72,7 +72,8 @@
     "packages/drivers/box",
     "packages/drivers/firecrawl",
     "packages/drivers/uspto",
-    "packages/drivers/pglite"
+    "packages/drivers/pglite",
+    "packages/drivers/m365"
   ],
   "repository": {
     "type": "git",
@@ -217,6 +218,9 @@
     "uuid": "catalog:"
   },
   "catalog": {
+    "@azure/msal-node": "^5.2.5",
+    "@azure/msal-node-extensions": "^5.2.5",
+    "@microsoft/microsoft-graph-types": "^2.43.1",
     "@arizeai/phoenix-client": "6.10.1",
     "@noble/hashes": "^2.2.0",
     "@scure/base": "^2.2.0",

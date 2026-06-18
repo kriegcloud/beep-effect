@@ -94,6 +94,9 @@
       "path": "packages/drivers/libpff"
     },
     {
+      "path": "packages/drivers/m365"
+    },
+    {
       "path": "packages/drivers/nlp-mcp"
     },
     {
