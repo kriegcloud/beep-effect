@@ -2,8 +2,9 @@
  * Delegated Microsoft Graph token acquisition for the Microsoft 365 driver.
  *
  * Implements OAuth2 authorization-code + PKCE as a public client via
- * `@azure/msal-node` with silent refresh, persisting the MSAL token cache
- * encrypted via `@azure/msal-node-extensions` (DPAPI / Keychain / libsecret).
+ * `@azure/msal-node` with silent refresh, optionally persisting the MSAL token
+ * cache encrypted via `@azure/msal-node-extensions` when `tokenCachePath` is
+ * configured (DPAPI / Keychain / libsecret).
  * Interactive redirect capture is injected by the host; the driver never owns a
  * loopback HTTP server.
  *
