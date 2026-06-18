@@ -13,6 +13,18 @@ import type React from "react";
 /**
  * Props for {@link SwitchField}.
  *
+ * @example
+ * ```ts
+ * import type { SwitchFieldProps } from "@beep/form/fields/SwitchField"
+ *
+ * const props = {
+ *   label: "Enabled",
+ *   disabled: false,
+ * } satisfies SwitchFieldProps
+ *
+ * console.log(props.label) // "Enabled"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

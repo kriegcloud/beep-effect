@@ -20,6 +20,26 @@ import type React from "react";
 import type { FieldOption } from "../core/Options.ts";
 import type { BoundFieldState } from "./FieldBinding.tsx";
 
+/**
+ * Extracts primitive option values for Base UI combobox item matching.
+ *
+ * @example
+ * ```ts
+ * import { optionValues } from "../../src/internal/ComboboxFieldParts.tsx"
+ * import type { FieldOption } from "../../src/core/Options.ts"
+ *
+ * const countries: ReadonlyArray<FieldOption> = [
+ *   { value: "us", label: "United States" },
+ *   { value: "ca", label: "Canada", disabled: true },
+ * ]
+ *
+ * export const countryValues = optionValues(countries)
+ * console.log(countryValues.join(",")) // "us,ca"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const optionValues = (options: ReadonlyArray<FieldOption>): ReadonlyArray<string> =>
   A.map(options, (option) => option.value);
 
@@ -29,6 +49,27 @@ type ComboboxOptionsContentProps = {
   readonly options: ReadonlyArray<FieldOption>;
 };
 
+/**
+ * Renders a shared combobox popup with empty-state text and option rows.
+ *
+ * @example
+ * ```tsx
+ * import { ComboboxOptionsContent } from "../../src/internal/ComboboxFieldParts.tsx"
+ *
+ * export const countryOptionsContent = (
+ *   <ComboboxOptionsContent
+ *     emptyLabel="No countries found."
+ *     options={[
+ *       { value: "us", label: "United States" },
+ *       { value: "ca", label: "Canada" },
+ *     ]}
+ *   />
+ * )
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export const ComboboxOptionsContent: React.FC<ComboboxOptionsContentProps> = ({ anchor, emptyLabel, options }) => (
   <ComboboxContent anchor={anchor}>
     <ComboboxEmpty>{emptyLabel}</ComboboxEmpty>
@@ -67,6 +108,37 @@ const comboboxValueBinding = (mode: StringComboboxMode, field: BoundFieldState<s
         value: field.state.value,
       };
 
+/**
+ * Renders the shared single-value combobox/autocomplete field body.
+ *
+ * @remarks
+ * In `selected` mode the TanStack value is passed as the combobox `value`; in
+ * `autocomplete` mode the same TanStack value is passed as `inputValue` and
+ * updated on input changes. Popup filtering and highlighted-item state stay
+ * inside the combobox primitive.
+ *
+ * @example
+ * ```tsx
+ * import { StringComboboxField } from "../../src/internal/ComboboxFieldParts.tsx"
+ *
+ * export const CountryComboboxBody = (
+ *   <StringComboboxField
+ *     comboboxProps={{}}
+ *     emptyLabel="No countries found."
+ *     label="Country"
+ *     mode="selected"
+ *     options={[
+ *       { value: "us", label: "United States" },
+ *       { value: "ca", label: "Canada" },
+ *     ]}
+ *     placeholder="Choose a country"
+ *   />
+ * )
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export const StringComboboxField: React.FC<StringComboboxFieldProps> = ({
   comboboxProps,
   description,

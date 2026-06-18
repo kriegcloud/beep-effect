@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link UploadBoxField}: `UploadBox` props plus label/description;
  * binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { UploadBoxFieldProps } from "@beep/form/fields/UploadBoxField"
+ *
+ * const props = {
+ *   label: "Gallery",
+ *   accept: { "image/*": [".png", ".jpg", ".webp"] },
+ *   maxFiles: 6,
+ * } satisfies UploadBoxFieldProps
+ *
+ * console.log(props.label) // "Gallery"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -27,13 +40,46 @@ export interface UploadBoxFieldProps
 }
 
 /**
- * Schema-bound upload box field whose value is an array of `File` objects.
+ * TanStack-bound dropzone upload field for multi-file arrays.
+ *
+ * Use through `useAppForm` as `field.UploadBox`; selected image files can be
+ * previewed by the underlying `@beep/ui` primitive while TanStack stores the
+ * canonical `ReadonlyArray<File>` value.
  *
  * @example
  * ```tsx
- * import { UploadBoxField } from "@beep/form/fields/UploadBoxField"
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
+ * import * as S from "effect/Schema"
  *
- * console.log(UploadBoxField)
+ * const GallerySchema = S.Struct({
+ *   attachments: S.Array(S.instanceOf(File)),
+ * })
+ *
+ * const galleryDefaults: { readonly attachments: ReadonlyArray<File> } = {
+ *   attachments: [],
+ * }
+ *
+ * export function GalleryUploadForm() {
+ *   const form = useAppForm(
+ *     makeFormOptions({
+ *       schema: GallerySchema,
+ *       defaultValues: galleryDefaults,
+ *       validateOn: "change",
+ *     })
+ *   )
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form aria-label="Gallery" onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="attachments">
+ *           {(field) => (
+ *             <field.UploadBox label="Gallery" accept={{ "image/*": [".png", ".jpg", ".webp"] }} maxFiles={6} />
+ *           )}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
  * ```
  *
  * @category components

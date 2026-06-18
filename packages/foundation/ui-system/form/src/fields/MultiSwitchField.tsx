@@ -15,6 +15,21 @@ import type { FieldOption } from "../core/Options.ts";
  * Props for {@link MultiSwitchField}: label/description/options. The bound value
  * is the array of switched-on option values.
  *
+ * @example
+ * ```ts
+ * import type { MultiSwitchFieldProps } from "@beep/form/fields/MultiSwitchField"
+ *
+ * const props = {
+ *   label: "Notifications",
+ *   options: [
+ *     { value: "mentions", label: "Mentions" },
+ *     { value: "releases", label: "Releases" },
+ *   ],
+ * } satisfies MultiSwitchFieldProps
+ *
+ * console.log(props.options.length) // 2
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

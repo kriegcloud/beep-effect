@@ -14,6 +14,18 @@ import type React from "react";
  * Props for {@link PhoneField}: `PhoneInput` props plus label/description;
  * binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { PhoneFieldProps } from "@beep/form/fields/PhoneField"
+ *
+ * const props = {
+ *   label: "Mobile phone",
+ *   description: "Stores an E.164 phone number string.",
+ * } satisfies PhoneFieldProps
+ *
+ * console.log(props.label) // "Mobile phone"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

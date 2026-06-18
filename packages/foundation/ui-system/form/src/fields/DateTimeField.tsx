@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link DateTimeField}: `EffectDateTimePicker` props plus
  * label/description; binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { DateTimeFieldProps } from "@beep/form/fields/DateTimeField"
+ *
+ * const props = {
+ *   label: "Starts at",
+ *   description: "Date and time in one control.",
+ *   ampm: true,
+ * } satisfies DateTimeFieldProps
+ *
+ * console.log(props.ampm) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

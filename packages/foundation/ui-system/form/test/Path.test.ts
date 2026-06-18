@@ -33,7 +33,7 @@ describe("@beep/form Path", () => {
     });
 
     it("refuses to read or write prototype-sensitive segments", () => {
-      expect(getNestedValue({ a: 1 }, "__proto__")).toBeUndefined();
+      expect(getNestedValue("__proto__")({ a: 1 })).toBeUndefined();
       const target: Record<string, unknown> = {};
       setNestedValue(target, { path: "__proto__.polluted", value: true });
       expect(({} as Record<string, unknown>).polluted).toBeUndefined();

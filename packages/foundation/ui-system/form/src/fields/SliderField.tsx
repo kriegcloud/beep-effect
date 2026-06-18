@@ -9,13 +9,27 @@
 import { Slider } from "@beep/ui/components/slider";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
 import { BoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 
 /**
  * Props for {@link SliderField}: `Slider` props plus label/description; binding
  * props (`value`/`onValueChange`/`onBlur`/`name`) are owned by the field.
+ *
+ * @example
+ * ```ts
+ * import type { SliderFieldProps } from "@beep/form/fields/SliderField"
+ *
+ * const props = {
+ *   label: "Volume",
+ *   description: "Stores one numeric value.",
+ *   min: 0,
+ *   max: 100,
+ *   step: 5,
+ * } satisfies SliderFieldProps
+ *
+ * console.log(props.step) // 5
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -32,9 +46,31 @@ export interface SliderFieldProps
  *
  * @example
  * ```tsx
- * import { SliderField } from "@beep/form/fields/SliderField"
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
+ * import * as S from "effect/Schema"
  *
- * console.log(SliderField)
+ * const VolumeSchema = S.Struct({ volume: S.Finite })
+ * const volumeOptions = makeFormOptions({
+ *   schema: VolumeSchema,
+ *   defaultValues: { volume: 50 },
+ *   validateOn: "change",
+ * })
+ *
+ * export const VolumeForm = () => {
+ *   const form = useAppForm(volumeOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="volume">
+ *           {(field) => <field.Slider label="Volume" min={0} max={100} step={5} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(volumeOptions.defaultValues.volume) // 50
  * ```
  *
  * @category components
@@ -47,9 +83,7 @@ export const SliderField: React.FC<SliderFieldProps> = ({ label, description, ..
         {...props}
         name={field.name}
         value={[field.state.value]}
-        onValueChange={(value: number | ReadonlyArray<number>) =>
-          field.handleChange(P.isNumber(value) ? value : O.getOrElse(A.head(value), () => field.state.value))
-        }
+        onValueChange={(value) => field.handleChange(O.getOrElse(A.head(A.ensure(value)), () => field.state.value))}
         onBlur={field.handleBlur}
         aria-invalid={hasErrors || undefined}
       />

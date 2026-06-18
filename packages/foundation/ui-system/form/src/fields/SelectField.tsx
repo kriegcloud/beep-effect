@@ -18,6 +18,22 @@ import type { FieldOption } from "../core/Options.ts";
  * Props for {@link SelectField}: `Select` props plus label/description/options;
  * binding props (`value`/`onValueChange`/`name`/`id`) are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { SelectFieldProps } from "@beep/form/fields/SelectField"
+ *
+ * const props = {
+ *   label: "Status",
+ *   options: [
+ *     { value: "draft", label: "Draft" },
+ *     { value: "published", label: "Published" },
+ *   ],
+ *   placeholder: "Choose status",
+ * } satisfies SelectFieldProps
+ *
+ * console.log(props.placeholder) // "Choose status"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

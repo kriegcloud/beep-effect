@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link DateField}: `EffectDatePicker` props plus
  * label/description; binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { DateFieldProps } from "@beep/form/fields/DateField"
+ *
+ * const props = {
+ *   label: "Due date",
+ *   description: "Date-only calendar selection.",
+ *   disablePast: true,
+ * } satisfies DateFieldProps
+ *
+ * console.log(props.disablePast) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

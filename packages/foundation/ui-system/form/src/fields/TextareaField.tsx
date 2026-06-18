@@ -13,6 +13,19 @@ import type React from "react";
 /**
  * Props for {@link TextareaField}.
  *
+ * @example
+ * ```ts
+ * import type { TextareaFieldProps } from "@beep/form/fields/TextareaField"
+ *
+ * const props = {
+ *   label: "Notes",
+ *   placeholder: "Add internal notes",
+ *   rows: 4,
+ * } satisfies TextareaFieldProps
+ *
+ * console.log(props.rows) // 4
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -13,6 +13,18 @@ import type React from "react";
 /**
  * Props for {@link ToggleField}.
  *
+ * @example
+ * ```ts
+ * import type { ToggleFieldProps } from "@beep/form/fields/ToggleField"
+ *
+ * const props = {
+ *   label: "Bold",
+ *   variant: "outline",
+ * } satisfies ToggleFieldProps
+ *
+ * console.log(props.variant) // "outline"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

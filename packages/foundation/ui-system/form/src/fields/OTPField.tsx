@@ -18,6 +18,18 @@ import type React from "react";
  * props (`value`/`onChange`/`onBlur`/`name`/`id`/`render`/`children`) are owned
  * by the field.
  *
+ * @example
+ * ```ts
+ * import type { OTPFieldProps } from "@beep/form/fields/OTPField"
+ *
+ * const props = {
+ *   label: "Verification code",
+ *   maxLength: 6,
+ * } satisfies OTPFieldProps
+ *
+ * console.log(props.maxLength) // 6
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -18,6 +18,17 @@ import * as S from "effect/Schema";
  * for end-user copy and `parseOptions` for decode behavior. Derived from the
  * underlying effect API so it stays in sync across upgrades.
  *
+ * @example
+ * ```ts
+ * import type { ToFormSchemaOptions } from "@beep/form/core/FormSchema"
+ *
+ * const options = {
+ *   parseOptions: { errors: "all" },
+ * } satisfies ToFormSchemaOptions
+ *
+ * console.log(options.parseOptions.errors) // "all"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -26,6 +37,18 @@ export type ToFormSchemaOptions = NonNullable<Parameters<typeof S.toStandardSche
 /**
  * The Standard Schema view of an effect `Codec`, carrying both the decoded
  * `Type` and the wire `Encoded` shape.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { toFormSchema } from "@beep/form/core/FormSchema"
+ * import type { FormSchema } from "@beep/form/core/FormSchema"
+ *
+ * const schema = S.Struct({ name: S.String })
+ * const standard = toFormSchema(schema) satisfies FormSchema<{ readonly name: string }, { readonly name: string }>
+ *
+ * console.log(standard["~standard"].vendor) // "effect"
+ * ```
  *
  * @category models
  * @since 0.0.0

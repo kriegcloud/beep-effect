@@ -17,6 +17,14 @@ import * as P from "effect/Predicate";
  * A single renderable field error, structurally compatible with `@beep/ui`'s
  * `FieldError` `errors` entries.
  *
+ * @example
+ * ```ts
+ * import type { FieldErrorEntry } from "@beep/form/core/Errors"
+ *
+ * const entry = { message: "Required" } satisfies FieldErrorEntry
+ * console.log(entry.message) // "Required"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -18,6 +18,21 @@ import type { FieldOption } from "../core/Options.ts";
  * label/description/options; binding props (`value`/`onValueChange`) are owned
  * by the field.
  *
+ * @example
+ * ```ts
+ * import type { ToggleGroupFieldProps } from "@beep/form/fields/ToggleGroupField"
+ *
+ * const props = {
+ *   label: "Text alignment",
+ *   options: [
+ *     { value: "left", label: "Left" },
+ *     { value: "center", label: "Center" },
+ *   ],
+ * } satisfies ToggleGroupFieldProps
+ *
+ * console.log(props.options[0]?.value) // "left"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

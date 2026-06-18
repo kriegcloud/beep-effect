@@ -17,6 +17,22 @@ import type { FieldOption } from "../core/Options.ts";
  * (`items`/`inputValue`/`onInputValueChange`/`onValueChange`/`name`) are owned
  * by the field.
  *
+ * @example
+ * ```ts
+ * import type { AutocompleteFieldProps } from "@beep/form/fields/AutocompleteField"
+ *
+ * const props = {
+ *   label: "Assignee",
+ *   options: [
+ *     { value: "ada", label: "Ada Lovelace" },
+ *     { value: "grace", label: "Grace Hopper" },
+ *   ],
+ *   placeholder: "Search people",
+ * } satisfies AutocompleteFieldProps
+ *
+ * console.log(props.options[0]?.value) // "ada"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

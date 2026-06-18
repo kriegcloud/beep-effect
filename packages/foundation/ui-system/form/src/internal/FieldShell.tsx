@@ -18,6 +18,20 @@ import type { FieldErrorEntry } from "../core/Errors.ts";
 /**
  * Props for {@link FieldShell}.
  *
+ * @example
+ * ```tsx
+ * import type { FieldShellProps } from "../../src/internal/FieldShell.tsx"
+ *
+ * const props = {
+ *   children: <input id="name" name="name" />,
+ *   errors: [{ message: "Required" }],
+ *   htmlFor: "name",
+ *   label: "Name",
+ * } satisfies FieldShellProps
+ *
+ * console.log(props.errors[0]?.message) // "Required"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

@@ -17,6 +17,18 @@ import type React from "react";
  * Props for {@link CountryField}: `CountrySelect` props plus
  * label/description; binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { CountryFieldProps } from "@beep/form/fields/CountryField"
+ *
+ * const props = {
+ *   label: "Country",
+ *   description: "Stores an ISO alpha-2 country code.",
+ * } satisfies CountryFieldProps
+ *
+ * console.log(props.description) // "Stores an ISO alpha-2 country code."
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

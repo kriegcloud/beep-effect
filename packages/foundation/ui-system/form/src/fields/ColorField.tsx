@@ -14,6 +14,18 @@ import type React from "react";
  * Props for {@link ColorField}: `ColorPicker` props plus label/description;
  * binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { ColorFieldProps } from "@beep/form/fields/ColorField"
+ *
+ * const props = {
+ *   label: "Brand color",
+ *   description: "Stored as a hex string.",
+ * } satisfies ColorFieldProps
+ *
+ * console.log(props.label) // "Brand color"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

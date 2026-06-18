@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link UploadField}: `Upload` props plus label/description; binding
  * props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { UploadFieldProps } from "@beep/form/fields/UploadField"
+ *
+ * const props = {
+ *   label: "Documents",
+ *   accept: { "application/pdf": [".pdf"] },
+ *   maxFiles: 3,
+ * } satisfies UploadFieldProps
+ *
+ * console.log(props.accept["application/pdf"]?.[0]) // ".pdf"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -27,13 +40,44 @@ export interface UploadFieldProps
 }
 
 /**
- * Schema-bound upload field whose value is an array of `File` objects.
+ * TanStack-bound upload field for document-style file arrays.
+ *
+ * Use through `useAppForm` as `field.Upload`; the field value remains the
+ * canonical `ReadonlyArray<File>` that the underlying `@beep/ui` primitive
+ * receives.
  *
  * @example
  * ```tsx
- * import { UploadField } from "@beep/form/fields/UploadField"
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
+ * import * as S from "effect/Schema"
  *
- * console.log(UploadField)
+ * const DocumentsSchema = S.Struct({
+ *   files: S.Array(S.instanceOf(File)),
+ * })
+ *
+ * const documentsDefaults: { readonly files: ReadonlyArray<File> } = {
+ *   files: [],
+ * }
+ *
+ * export function DocumentsForm() {
+ *   const form = useAppForm(
+ *     makeFormOptions({
+ *       schema: DocumentsSchema,
+ *       defaultValues: documentsDefaults,
+ *       validateOn: "change",
+ *     })
+ *   )
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form aria-label="Documents" onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="files">
+ *           {(field) => <field.Upload label="Documents" accept={{ "application/pdf": [".pdf"] }} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
  * ```
  *
  * @category components

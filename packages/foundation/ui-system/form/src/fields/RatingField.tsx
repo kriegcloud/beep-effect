@@ -15,6 +15,19 @@ import type { BoundFieldState } from "../internal/FieldBinding.tsx";
  * Props for {@link RatingField}: `Rating` props plus label/description; binding
  * props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { RatingFieldProps } from "@beep/form/fields/RatingField"
+ *
+ * const props = {
+ *   label: "Satisfaction",
+ *   description: "Collects a one-to-five score.",
+ *   max: 5,
+ * } satisfies RatingFieldProps
+ *
+ * console.log(props.max) // 5
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -24,19 +37,6 @@ export interface RatingFieldProps
   readonly label?: React.ReactNode | undefined;
 }
 
-/**
- * Schema-bound numeric rating field.
- *
- * @example
- * ```tsx
- * import { RatingField } from "@beep/form/fields/RatingField"
- *
- * console.log(RatingField)
- * ```
- *
- * @category components
- * @since 0.0.0
- */
 interface RatingControlProps {
   readonly "aria-invalid"?: boolean | undefined;
   readonly name: string;
@@ -53,6 +53,42 @@ const bindRatingControl = ({ field, hasErrors }: BoundFieldState<number>): Ratin
   "aria-invalid": hasErrors || undefined,
 });
 
+/**
+ * Schema-bound numeric rating field backed by the registered `Rating`
+ * AppField component.
+ *
+ * @example
+ * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
+ * import * as S from "effect/Schema"
+ *
+ * const ReviewSchema = S.Struct({ rating: S.Finite })
+ * const reviewOptions = makeFormOptions({
+ *   schema: ReviewSchema,
+ *   defaultValues: { rating: 3 },
+ *   validateOn: "change",
+ * })
+ *
+ * export const ReviewForm = () => {
+ *   const form = useAppForm(reviewOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="rating">
+ *           {(field) => <field.Rating label="Rating" max={5} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(reviewOptions.defaultValues.rating) // 3
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export const RatingField: React.FC<RatingFieldProps> = createBoundField<number, RatingFieldProps, RatingControlProps>({
   Control: Rating,
   bindControl: bindRatingControl,

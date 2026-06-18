@@ -16,6 +16,21 @@ import type { FieldOption } from "../core/Options.ts";
  * label/description/options; binding props (`value`/`onChange`/`onBlur`/`name`/
  * `id`) are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { NativeSelectFieldProps } from "@beep/form/fields/NativeSelectField"
+ *
+ * const props = {
+ *   label: "Priority",
+ *   options: [
+ *     { value: "low", label: "Low" },
+ *     { value: "high", label: "High" },
+ *   ],
+ * } satisfies NativeSelectFieldProps
+ *
+ * console.log(props.options[0]?.label) // "Low"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

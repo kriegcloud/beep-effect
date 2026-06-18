@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link TextField}: `Input` props plus label/description; binding
  * props (`value`/`onChange`/`onBlur`/`name`/`id`) are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { TextFieldProps } from "@beep/form/fields/TextField"
+ *
+ * const props = {
+ *   label: "Name",
+ *   description: "Shown above the text input.",
+ *   placeholder: "Ada Lovelace",
+ * } satisfies TextFieldProps
+ *
+ * console.log(props.placeholder) // "Ada Lovelace"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

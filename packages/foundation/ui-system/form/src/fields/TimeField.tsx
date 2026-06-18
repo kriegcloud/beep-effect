@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link TimeField}: `EffectTimePicker` props plus label/description;
  * binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { TimeFieldProps } from "@beep/form/fields/TimeField"
+ *
+ * const props = {
+ *   label: "Reminder time",
+ *   description: "Stores the selected time as Effect DateTime.",
+ *   ampm: true,
+ * } satisfies TimeFieldProps
+ *
+ * console.log(props.label) // "Reminder time"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

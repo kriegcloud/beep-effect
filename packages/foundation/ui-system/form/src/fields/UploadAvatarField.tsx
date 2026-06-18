@@ -14,6 +14,19 @@ import type React from "react";
  * Props for {@link UploadAvatarField}: `UploadAvatar` props plus
  * label/description; binding props are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { UploadAvatarFieldProps } from "@beep/form/fields/UploadAvatarField"
+ *
+ * const props = {
+ *   label: "Avatar",
+ *   accept: { "image/*": [".png", ".jpg", ".webp"] },
+ *   maxFiles: 1,
+ * } satisfies UploadAvatarFieldProps
+ *
+ * console.log(props.maxFiles) // 1
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -27,14 +40,46 @@ export interface UploadAvatarFieldProps
 }
 
 /**
- * Schema-bound single avatar upload field whose value is an array of `File`
- * objects with at most one entry.
+ * TanStack-bound avatar upload field backed by a single-file array value.
+ *
+ * Use through `useAppForm` as `field.UploadAvatar`; the avatar preview is
+ * rendered by the underlying `@beep/ui` primitive while the form value stays a
+ * `ReadonlyArray<File>`.
  *
  * @example
  * ```tsx
- * import { UploadAvatarField } from "@beep/form/fields/UploadAvatarField"
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
+ * import * as S from "effect/Schema"
  *
- * console.log(UploadAvatarField)
+ * const ProfileSchema = S.Struct({
+ *   avatar: S.Array(S.instanceOf(File)),
+ * })
+ *
+ * const profileDefaults: { readonly avatar: ReadonlyArray<File> } = {
+ *   avatar: [],
+ * }
+ *
+ * export function ProfileAvatarForm() {
+ *   const form = useAppForm(
+ *     makeFormOptions({
+ *       schema: ProfileSchema,
+ *       defaultValues: profileDefaults,
+ *       validateOn: "change",
+ *     })
+ *   )
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form aria-label="Profile avatar" onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="avatar">
+ *           {(field) => (
+ *             <field.UploadAvatar label="Avatar" accept={{ "image/*": [".png", ".jpg", ".webp"] }} maxFiles={1} />
+ *           )}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
  * ```
  *
  * @category components

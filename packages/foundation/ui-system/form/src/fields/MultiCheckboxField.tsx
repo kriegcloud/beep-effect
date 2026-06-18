@@ -15,6 +15,21 @@ import type { FieldOption } from "../core/Options.ts";
  * Props for {@link MultiCheckboxField}: label/description/options. The bound
  * value is the array of checked option values.
  *
+ * @example
+ * ```ts
+ * import type { MultiCheckboxFieldProps } from "@beep/form/fields/MultiCheckboxField"
+ *
+ * const props = {
+ *   label: "Channels",
+ *   options: [
+ *     { value: "email", label: "Email" },
+ *     { value: "sms", label: "SMS", disabled: true },
+ *   ],
+ * } satisfies MultiCheckboxFieldProps
+ *
+ * console.log(props.options[1]?.disabled) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

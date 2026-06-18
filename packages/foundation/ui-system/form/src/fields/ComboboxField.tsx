@@ -16,6 +16,22 @@ import type { FieldOption } from "../core/Options.ts";
  * label/description/options/placeholder; binding props
  * (`items`/`value`/`onValueChange`/`name`) are owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { ComboboxFieldProps } from "@beep/form/fields/ComboboxField"
+ *
+ * const props = {
+ *   label: "Country",
+ *   options: [
+ *     { value: "us", label: "United States" },
+ *     { value: "ca", label: "Canada" },
+ *   ],
+ *   placeholder: "Choose country",
+ * } satisfies ComboboxFieldProps
+ *
+ * console.log(props.options.length) // 2
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

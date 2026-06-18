@@ -22,6 +22,42 @@ type FieldChromeProps = {
   readonly label?: React.ReactNode | undefined;
 };
 
+type BoundFieldProps<TValue> = FieldChromeProps & {
+  readonly children: (binding: BoundFieldState<TValue>) => React.ReactNode;
+};
+
+/**
+ * Reads TanStack field state and normalizes errors for bound field controls.
+ *
+ * @remarks
+ * TanStack owns the field value, blur/change handlers, and validation meta.
+ * This hook only derives the `FieldError` shape and `aria-invalid` boolean
+ * used by `@beep/ui` controls, so it must run inside a registered field
+ * component context.
+ *
+ * @example
+ * ```tsx
+ * import { useBoundField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * export const UsernameInput = () => {
+ *   const { field, hasErrors } = useBoundField<string>()
+ *
+ *   return (
+ *     <input
+ *       id={field.name}
+ *       name={field.name}
+ *       value={field.state.value}
+ *       onBlur={field.handleBlur}
+ *       onChange={(event) => field.handleChange(event.target.value)}
+ *       aria-invalid={hasErrors || undefined}
+ *     />
+ *   )
+ * }
+ * ```
+ *
+ * @category hooks
+ * @since 0.0.0
+ */
 export const useBoundField = <TValue,>() => {
   const field = useFieldContext<TValue>();
   const errors = toFieldErrors(field.state.meta.errors);
@@ -30,12 +66,56 @@ export const useBoundField = <TValue,>() => {
   return { errors, field, hasErrors };
 };
 
+/**
+ * Type returned by {@link useBoundField}.
+ *
+ * @example
+ * ```ts
+ * import type { BoundFieldState } from "../../src/internal/FieldBinding.tsx"
+ *
+ * export const fieldSnapshot = (state: BoundFieldState<string>) => ({
+ *   hasErrors: state.hasErrors,
+ *   name: state.field.name,
+ *   value: state.field.state.value,
+ * })
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export type BoundFieldState<TValue> = ReturnType<typeof useBoundField<TValue>>;
 
-type BoundFieldProps<TValue> = FieldChromeProps & {
-  readonly children: (binding: BoundFieldState<TValue>) => React.ReactNode;
-};
-
+/**
+ * Renders shared field chrome around a control bound to TanStack field state.
+ *
+ * @remarks
+ * The child render function receives the live TanStack field API. `BoundField`
+ * supplies label, description, and normalized errors around that child but does
+ * not store a separate copy of the field value.
+ *
+ * @example
+ * ```tsx
+ * import { BoundField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * export const SearchFieldBody = (
+ *   <BoundField<string> label="Search" description="Filters by customer name">
+ *     {({ field, hasErrors }) => (
+ *       <input
+ *         id={field.name}
+ *         name={field.name}
+ *         value={field.state.value}
+ *         onBlur={field.handleBlur}
+ *         onChange={(event) => field.handleChange(event.target.value)}
+ *         aria-invalid={hasErrors || undefined}
+ *       />
+ *     )}
+ *   </BoundField>
+ * )
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export function BoundField<TValue>({ children, description, label }: BoundFieldProps<TValue>): React.ReactElement {
   const binding = useBoundField<TValue>();
 
@@ -46,13 +126,75 @@ export function BoundField<TValue>({ children, description, label }: BoundFieldP
   );
 }
 
-export type FieldControlBinder<TValue, TBoundProps extends object> = (binding: BoundFieldState<TValue>) => TBoundProps;
+type FieldControlBinder<TValue, TBoundProps extends object> = (binding: BoundFieldState<TValue>) => TBoundProps;
 
 type CreateBoundFieldOptions<TValue, TProps extends FieldChromeProps, TBoundProps extends object> = {
   readonly bindControl: FieldControlBinder<TValue, TBoundProps>;
   readonly Control: React.ComponentType<Omit<TProps, keyof FieldChromeProps> & TBoundProps>;
 };
 
+/**
+ * Creates a field component by binding a primitive control to TanStack state.
+ *
+ * @remarks
+ * `bindControl` is the only place where TanStack field state becomes primitive
+ * control props. The returned component still leaves value ownership with
+ * TanStack and forwards non-chrome props to the primitive.
+ *
+ * @example
+ * ```tsx
+ * import type React from "react"
+ * import { createBoundField } from "../../src/internal/FieldBinding.tsx"
+ * import type { BoundFieldState } from "../../src/internal/FieldBinding.tsx"
+ *
+ * type SearchFieldProps = {
+ *   readonly description?: React.ReactNode | undefined
+ *   readonly label?: React.ReactNode | undefined
+ *   readonly placeholder?: string | undefined
+ * }
+ *
+ * type SearchControlProps = {
+ *   readonly "aria-invalid"?: boolean | undefined
+ *   readonly id: string
+ *   readonly name: string
+ *   readonly onBlur: () => void
+ *   readonly onValueChange: (value: string) => void
+ *   readonly placeholder?: string | undefined
+ *   readonly value: string
+ * }
+ *
+ * const SearchControl: React.FC<SearchControlProps> = (props) => (
+ *   <input
+ *     id={props.id}
+ *     name={props.name}
+ *     value={props.value}
+ *     placeholder={props.placeholder}
+ *     onBlur={props.onBlur}
+ *     onChange={(event) => props.onValueChange(event.target.value)}
+ *     aria-invalid={props["aria-invalid"]}
+ *   />
+ * )
+ *
+ * const bindSearchControl = ({ field, hasErrors }: BoundFieldState<string>): SearchControlProps => ({
+ *   id: field.name,
+ *   name: field.name,
+ *   value: field.state.value,
+ *   onValueChange: field.handleChange,
+ *   onBlur: field.handleBlur,
+ *   "aria-invalid": hasErrors || undefined,
+ * })
+ *
+ * export const SearchField = createBoundField<string, SearchFieldProps, SearchControlProps>({
+ *   Control: SearchControl,
+ *   bindControl: bindSearchControl,
+ * })
+ *
+ * export const searchElement = <SearchField label="Search" placeholder="Customer name" />
+ * ```
+ *
+ * @category factories
+ * @since 0.0.0
+ */
 export function createBoundField<TValue, TProps extends FieldChromeProps, TBoundProps extends object>({
   bindControl,
   Control,
@@ -75,6 +217,48 @@ type NamedValueControlProps<TValue> = {
   readonly value: TValue;
 };
 
+/**
+ * Binds controls that expose `value` and `onValueChange`.
+ *
+ * @example
+ * ```tsx
+ * import type React from "react"
+ * import { bindNamedValueControl, createBoundField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * type TokenFieldProps = {
+ *   readonly description?: React.ReactNode | undefined
+ *   readonly label?: React.ReactNode | undefined
+ * }
+ *
+ * type TokenInputProps = {
+ *   readonly "aria-invalid"?: boolean | undefined
+ *   readonly id: string
+ *   readonly name: string
+ *   readonly onBlur: () => void
+ *   readonly onValueChange: (value: string) => void
+ *   readonly value: string
+ * }
+ *
+ * const TokenInput: React.FC<TokenInputProps> = (props) => (
+ *   <input
+ *     id={props.id}
+ *     name={props.name}
+ *     value={props.value}
+ *     onBlur={props.onBlur}
+ *     onChange={(event) => props.onValueChange(event.target.value)}
+ *     aria-invalid={props["aria-invalid"]}
+ *   />
+ * )
+ *
+ * export const TokenField = createBoundField<string, TokenFieldProps, TokenInputProps>({
+ *   Control: TokenInput,
+ *   bindControl: bindNamedValueControl<string>,
+ * })
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const bindNamedValueControl = <TValue,>({
   field,
   hasErrors,
@@ -96,6 +280,45 @@ type NamedChangeControlProps<TValue> = {
   readonly value: TValue;
 };
 
+/**
+ * Binds native string controls that report `ChangeEvent` values.
+ *
+ * @example
+ * ```tsx
+ * import type React from "react"
+ * import { bindStringChangeControl, createBoundField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * type NotesFieldProps = {
+ *   readonly description?: React.ReactNode | undefined
+ *   readonly label?: React.ReactNode | undefined
+ *   readonly placeholder?: string | undefined
+ * }
+ *
+ * type NotesControlProps = ReturnType<typeof bindStringChangeControl> & {
+ *   readonly placeholder?: string | undefined
+ * }
+ *
+ * const NotesControl: React.FC<NotesControlProps> = (props) => (
+ *   <textarea
+ *     id={props.id}
+ *     name={props.name}
+ *     value={props.value}
+ *     placeholder={props.placeholder}
+ *     onBlur={props.onBlur}
+ *     onChange={props.onChange}
+ *     aria-invalid={props["aria-invalid"]}
+ *   />
+ * )
+ *
+ * export const NotesField = createBoundField<string, NotesFieldProps, ReturnType<typeof bindStringChangeControl>>({
+ *   Control: NotesControl,
+ *   bindControl: bindStringChangeControl,
+ * })
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const bindStringChangeControl = ({
   field,
   hasErrors,
@@ -117,6 +340,51 @@ type UploadControlProps = {
   readonly value: ReadonlyArray<File>;
 };
 
+/**
+ * Binds upload primitives to file-array field values.
+ *
+ * @example
+ * ```tsx
+ * import type React from "react"
+ * import { bindUploadControl, createBoundField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * type DocumentsFieldProps = {
+ *   readonly accept?: string | undefined
+ *   readonly description?: React.ReactNode | undefined
+ *   readonly label?: React.ReactNode | undefined
+ * }
+ *
+ * type UploadInputProps = ReturnType<typeof bindUploadControl> & {
+ *   readonly accept?: string | undefined
+ * }
+ *
+ * const UploadInput: React.FC<UploadInputProps> = (props) => (
+ *   <input
+ *     accept={props.accept}
+ *     id={props.inputId}
+ *     name={props.inputName}
+ *     type="file"
+ *     multiple
+ *     onBlur={props.onInputBlur}
+ *     onChange={(event) => {
+ *       const files = event.currentTarget.files
+ *       props.onValueChange(files === null ? [] : Array.from(files))
+ *     }}
+ *     aria-invalid={props["aria-invalid"]}
+ *     data-file-count={props.value.length}
+ *   />
+ * )
+ *
+ * export const DocumentsField = createBoundField<
+ *   ReadonlyArray<File>,
+ *   DocumentsFieldProps,
+ *   ReturnType<typeof bindUploadControl>
+ * >({ Control: UploadInput, bindControl: bindUploadControl })
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const bindUploadControl = ({ field, hasErrors }: BoundFieldState<ReadonlyArray<File>>): UploadControlProps => ({
   inputId: field.name,
   inputName: field.name,
@@ -159,6 +427,55 @@ const pickerTextFieldProps = (
   };
 };
 
+/**
+ * Creates a date/time picker field component bound to DateTime values.
+ *
+ * @remarks
+ * Picker primitives usually own popup/navigation state, while TanStack owns the
+ * selected `DateTime | null` value. This factory injects the value handler and
+ * text-field error props without taking over the picker popup.
+ *
+ * @example
+ * ```tsx
+ * import type React from "react"
+ * import { createDateTimePickerField } from "../../src/internal/FieldBinding.tsx"
+ * import type * as DateTime from "effect/DateTime"
+ *
+ * type PickerSlotProps = {
+ *   readonly textField?: unknown
+ * }
+ *
+ * type ReminderFieldProps = {
+ *   readonly description?: React.ReactNode | undefined
+ *   readonly label?: React.ReactNode | undefined
+ *   readonly slotProps?: PickerSlotProps | undefined
+ *   readonly timezone?: string | undefined
+ * }
+ *
+ * type InlinePickerProps = {
+ *   readonly onValueChange: (value: DateTime.DateTime | null) => void
+ *   readonly slotProps: PickerSlotProps
+ *   readonly timezone?: string | undefined
+ *   readonly value: DateTime.DateTime | null
+ * }
+ *
+ * const InlinePicker: React.FC<InlinePickerProps> = (props) => (
+ *   <button
+ *     type="button"
+ *     data-has-value={props.value !== null}
+ *     data-text-field-props={typeof props.slotProps.textField}
+ *     onClick={() => props.onValueChange(props.value)}
+ *   >
+ *     {props.timezone ?? "Local time"}
+ *   </button>
+ * )
+ *
+ * export const ReminderField = createDateTimePickerField<ReminderFieldProps>(InlinePicker)
+ * ```
+ *
+ * @category factories
+ * @since 0.0.0
+ */
 export function createDateTimePickerField<TProps extends DateTimePickerFieldProps>(
   Control: React.ComponentType<Omit<TProps, keyof FieldChromeProps> & DateTimePickerControlProps>
 ): React.FC<TProps> {
@@ -185,6 +502,23 @@ type InlineBooleanFieldProps = FieldChromeProps & {
   readonly htmlFor: string;
 };
 
+/**
+ * Renders compact chrome for inline boolean controls.
+ *
+ * @example
+ * ```tsx
+ * import { InlineBooleanField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * export const AcceptTermsField = (
+ *   <InlineBooleanField htmlFor="accept" label="Accept terms" errors={[]} hasErrors={false}>
+ *     <input id="accept" name="accept" type="checkbox" />
+ *   </InlineBooleanField>
+ * )
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export const InlineBooleanField: React.FC<InlineBooleanFieldProps> = ({
   children,
   errors,
@@ -220,6 +554,50 @@ type MultiBooleanOptionFieldProps = FieldChromeProps & {
   readonly options: ReadonlyArray<FieldOption>;
 };
 
+/**
+ * Renders a multi-option boolean field such as checkbox or switch groups.
+ *
+ * @example
+ * ```tsx
+ * import type React from "react"
+ * import { MultiBooleanOptionField } from "../../src/internal/FieldBinding.tsx"
+ *
+ * type BooleanToggleProps = {
+ *   readonly "aria-invalid"?: boolean | undefined
+ *   readonly checked: boolean
+ *   readonly disabled?: boolean | undefined
+ *   readonly id: string
+ *   readonly name: string
+ *   readonly onCheckedChange: (checked: boolean) => void
+ * }
+ *
+ * const BooleanToggle: React.FC<BooleanToggleProps> = (props) => (
+ *   <input
+ *     checked={props.checked}
+ *     disabled={props.disabled}
+ *     id={props.id}
+ *     name={props.name}
+ *     type="checkbox"
+ *     onChange={(event) => props.onCheckedChange(event.target.checked)}
+ *     aria-invalid={props["aria-invalid"]}
+ *   />
+ * )
+ *
+ * export const NotificationChannelsField = (
+ *   <MultiBooleanOptionField
+ *     Control={BooleanToggle}
+ *     label="Notification channels"
+ *     options={[
+ *       { value: "email", label: "Email" },
+ *       { value: "sms", label: "SMS", disabled: true },
+ *     ]}
+ *   />
+ * )
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export const MultiBooleanOptionField: React.FC<MultiBooleanOptionFieldProps> = ({
   Control,
   description,

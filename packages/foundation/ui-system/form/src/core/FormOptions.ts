@@ -12,6 +12,10 @@
  * (`*Async`) because effect's `validate` returns a `Promise` that the sync slot
  * rejects. Pass `async: true` for async-capable schemas.
  *
+ * Default values live on TanStack's form-state side, so they are always the
+ * schema's encoded input shape (`I`). Submit helpers decode those encoded
+ * values before invoking callbacks that ask for the schema `Type` (`A`).
+ *
  * @packageDocumentation
  * @since 0.0.0
  */
@@ -25,6 +29,14 @@ import type { ToFormSchemaOptions } from "./FormSchema.ts";
 
 /**
  * Which validation event the schema runs on.
+ *
+ * @example
+ * ```ts
+ * import type { ValidateOn } from "@beep/form/core/FormOptions"
+ *
+ * const validateOn = "blur" satisfies ValidateOn
+ * console.log(validateOn) // "blur"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -58,14 +70,24 @@ const buildValidators = <A, I>(
  * Base builder: wires a schema's Standard Schema into TanStack `validators` on
  * the chosen slot, with caller-supplied default values.
  *
+ * @remarks
+ * `defaultValues` must match the schema's encoded input shape. This is visible
+ * for transform schemas such as `S.NumberFromString`: the field stores a
+ * string while validation and submit decoding produce a number.
+ *
  * @example
  * ```ts
  * import * as S from "effect/Schema"
  * import { makeFormOptions } from "@beep/form/core/FormOptions"
  *
- * const schema = S.Struct({ name: S.String })
- * const options = makeFormOptions({ schema, defaultValues: { name: "" } })
- * console.log(options.defaultValues) // { name: "" }
+ * const schema = S.Struct({ count: S.NumberFromString })
+ * const options = makeFormOptions({
+ *   schema,
+ *   defaultValues: { count: "1" },
+ *   validateOn: "change",
+ * })
+ *
+ * console.log(options.defaultValues.count) // "1"
  * ```
  *
  * @category constructors
@@ -86,12 +108,19 @@ export const makeFormOptions = <A, I>(
   });
 
 /**
- * Like {@link makeFormOptions}, but derives `defaultValues` from the schema's
- * constructor defaults (see {@link getDefaultFormValues}) when not supplied.
+ * Like {@link makeFormOptions}, but derives `defaultValues` from a type-side
+ * schema's constructor defaults (see {@link getDefaultFormValues}) when not
+ * supplied.
+ *
+ * @remarks
+ * Constructor defaults are decoded `Type` values, while TanStack
+ * `defaultValues` are encoded form values. For that reason this helper accepts
+ * only schemas whose `Type` and `Encoded` shapes are the same; transform
+ * schemas should use {@link makeFormOptions} with explicit encoded defaults.
  *
  * @example
  * ```ts
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { formOptionsWithDefaults } from "@beep/form/core/FormOptions"
  *
@@ -105,18 +134,14 @@ export const makeFormOptions = <A, I>(
  * @category constructors
  * @since 0.0.0
  */
-export const formOptionsWithDefaults = <A, I>(
-  params: BaseParams<A, I> & {
+export const formOptionsWithDefaults = <I>(
+  params: BaseParams<I, I> & {
     readonly defaultValues?: I;
   }
 ) =>
   makeFormOptions({
     ...params,
-    // `getDefaultFormValues` returns the decoded `Type`; the form holds the
-    // `Encoded` shape. They coincide for non-transform schemas (the common
-    // case). For transform schemas pass explicit `defaultValues`, or a
-    // type-side schema so Encoded === Type.
-    defaultValues: params.defaultValues ?? (getDefaultFormValues(params.schema) as unknown as I),
+    defaultValues: params.defaultValues ?? getDefaultFormValues(params.schema),
   });
 
 /**
@@ -130,13 +155,16 @@ export const formOptionsWithDefaults = <A, I>(
  * import * as S from "effect/Schema"
  * import { formOptionsWithSubmit } from "@beep/form/core/FormOptions"
  *
- * const schema = S.Struct({ name: S.String })
+ * const schema = S.Struct({ count: S.NumberFromString })
  * const options = formOptionsWithSubmit({
  *   schema,
- *   defaultValues: { name: "" },
- *   onSubmit: (value) => console.log(value.name),
+ *   defaultValues: { count: "1" },
+ *   onSubmit: (value) => {
+ *     console.log(value.count + 1) // 2
+ *   },
  * })
- * console.log(typeof options.onSubmit) // "function"
+ *
+ * console.log(options.defaultValues.count) // "1"
  * ```
  *
  * @category constructors
@@ -163,17 +191,21 @@ export const formOptionsWithSubmit = <A, I>(
  *
  * @example
  * ```ts
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { formOptionsWithSubmitEffect } from "@beep/form/core/FormOptions"
  *
- * const schema = S.Struct({ name: S.String })
+ * const schema = S.Struct({ count: S.NumberFromString })
  * const options = formOptionsWithSubmitEffect({
  *   schema,
- *   defaultValues: { name: "" },
- *   onSubmit: (effect) => Effect.runPromise(effect).then((v) => console.log(v.name)),
+ *   defaultValues: { count: "1" },
+ *   onSubmit: (effect) =>
+ *     Effect.runPromise(effect.pipe(Effect.map((value) => value.count + 1))).then((next) => {
+ *       console.log(next) // 2
+ *     }),
  * })
- * console.log(typeof options.onSubmit) // "function"
+ *
+ * console.log(options.defaultValues.count) // "1"
  * ```
  *
  * @category constructors

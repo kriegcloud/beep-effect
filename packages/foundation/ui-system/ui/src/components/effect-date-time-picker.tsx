@@ -25,7 +25,6 @@ import type {
   AdapterOptions,
   DateBuilderReturnType,
   FieldFormatTokenMap,
-  MuiPickersAdapter,
   PickersTimezone,
 } from "@mui/x-date-pickers/models";
 import type { TimePickerProps } from "@mui/x-date-pickers/TimePicker";
@@ -282,19 +281,41 @@ const formatExactToken = (value: DateTime.DateTime, locale: string, formatString
   );
 
 /**
- * MUI X adapter that lets pickers read and write Effect `DateTime`.
+ * MUI X adapter that lets pickers read and write Effect `DateTime` values.
+ *
+ * @remarks
+ * Effect `DateTime.DateTime` is the canonical value that crosses the public
+ * picker boundary. This adapter performs the MUI-specific month indexing,
+ * timezone, formatting, and JavaScript `Date` conversions internally so
+ * application state does not need to store `Date`.
  *
  * @example
- * ```tsx
+ * ```ts
+ * import { DateTime } from "effect"
  * import { AdapterEffectDateTime } from "@beep/ui/components/effect-date-time-picker"
  *
- * console.log(AdapterEffectDateTime)
+ * const adapter = new AdapterEffectDateTime({ locale: "en-US" })
+ * const value = DateTime.makeUnsafe("2024-02-03T04:05:06.007Z")
+ *
+ * const readAdapterBoundary = () => {
+ *   const effectMonth = DateTime.getPart(value, "month")
+ *   const pickerMonth = adapter.getMonth(value)
+ *   const calendarYear = adapter.formatByString(value, "yyyy")
+ *
+ *   return { calendarYear, effectMonth, pickerMonth }
+ * }
+ *
+ * const boundary = readAdapterBoundary()
+ *
+ * if (boundary.effectMonth !== 2 || boundary.pickerMonth !== 1 || boundary.calendarYear !== "2024") {
+ *   throw new Error("unexpected Effect DateTime adapter boundary")
+ * }
  * ```
  *
- * @category components
+ * @category adapters
  * @since 0.0.0
  */
-export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
+export class AdapterEffectDateTime {
   public isMUIAdapter = true;
   public isTimezoneCompatible = true;
   public lib = "effect-datetime";
@@ -611,13 +632,27 @@ type EffectDateTimeLocalizationProviderProps = Omit<
 >;
 
 /**
- * Localization provider preconfigured with {@link AdapterEffectDateTime}.
+ * Localization provider preconfigured for MUI pickers that consume Effect
+ * `DateTime` values.
  *
  * @example
  * ```tsx
+ * import * as React from "react"
+ * import { DateTime } from "effect"
+ * import { DatePicker } from "@mui/x-date-pickers/DatePicker"
  * import { EffectDateTimeLocalizationProvider } from "@beep/ui/components/effect-date-time-picker"
  *
- * console.log(EffectDateTimeLocalizationProvider)
+ * export function LocalizedInvoiceDateField() {
+ *   const [invoiceDate, setInvoiceDate] = React.useState<DateTime.DateTime | null>(
+ *     DateTime.makeUnsafe("2024-02-03T00:00:00.000Z")
+ *   )
+ *
+ *   return (
+ *     <EffectDateTimeLocalizationProvider adapterLocale="en-GB">
+ *       <DatePicker label="Invoice date" value={invoiceDate} onChange={setInvoiceDate} />
+ *     </EffectDateTimeLocalizationProvider>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -634,13 +669,21 @@ type ControlledPickerProps<TProps> = Omit<TProps, "value" | "defaultValue" | "on
 };
 
 /**
- * Date picker whose value is an Effect `DateTime`.
+ * Date picker wrapper whose controlled value is an Effect `DateTime`.
  *
  * @example
  * ```tsx
+ * import * as React from "react"
+ * import { DateTime } from "effect"
  * import { EffectDatePicker } from "@beep/ui/components/effect-date-time-picker"
  *
- * console.log(EffectDatePicker)
+ * export function BirthdayField() {
+ *   const [birthday, setBirthday] = React.useState<DateTime.DateTime | null>(
+ *     DateTime.makeUnsafe("1990-06-15T00:00:00.000Z")
+ *   )
+ *
+ *   return <EffectDatePicker label="Birthday" value={birthday} onValueChange={setBirthday} />
+ * }
  * ```
  *
  * @category components
@@ -665,13 +708,28 @@ export function EffectDatePicker({
 }
 
 /**
- * Date-time picker whose value is an Effect `DateTime`.
+ * Date-time picker wrapper whose controlled value is an Effect `DateTime`.
  *
  * @example
  * ```tsx
+ * import * as React from "react"
+ * import { DateTime } from "effect"
  * import { EffectDateTimePicker } from "@beep/ui/components/effect-date-time-picker"
  *
- * console.log(EffectDateTimePicker)
+ * export function AppointmentStartsAtField() {
+ *   const [startsAt, setStartsAt] = React.useState<DateTime.DateTime | null>(
+ *     DateTime.makeUnsafe("2024-02-03T09:30:00.000Z")
+ *   )
+ *
+ *   return (
+ *     <EffectDateTimePicker
+ *       label="Starts at"
+ *       timezone="America/Chicago"
+ *       value={startsAt}
+ *       onValueChange={setStartsAt}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -696,13 +754,21 @@ export function EffectDateTimePicker({
 }
 
 /**
- * Time picker whose value is an Effect `DateTime`.
+ * Time picker wrapper whose controlled value is an Effect `DateTime`.
  *
  * @example
  * ```tsx
+ * import * as React from "react"
+ * import { DateTime } from "effect"
  * import { EffectTimePicker } from "@beep/ui/components/effect-date-time-picker"
  *
- * console.log(EffectTimePicker)
+ * export function ReminderTimeField() {
+ *   const [reminderTime, setReminderTime] = React.useState<DateTime.DateTime | null>(
+ *     DateTime.makeUnsafe("2024-02-03T14:15:00.000Z")
+ *   )
+ *
+ *   return <EffectTimePicker label="Reminder time" value={reminderTime} onValueChange={setReminderTime} />
+ * }
  * ```
  *
  * @category components

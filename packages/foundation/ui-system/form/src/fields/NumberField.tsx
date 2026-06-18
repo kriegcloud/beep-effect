@@ -16,6 +16,19 @@ import type React from "react";
 /**
  * Props for {@link NumberField}.
  *
+ * @example
+ * ```ts
+ * import type { NumberFieldProps } from "@beep/form/fields/NumberField"
+ *
+ * const props = {
+ *   label: "Quantity",
+ *   description: "Accepts decimal input.",
+ *   min: 1,
+ * } satisfies NumberFieldProps
+ *
+ * console.log(props.min) // 1
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

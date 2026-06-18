@@ -13,6 +13,18 @@ import type React from "react";
 /**
  * Props for {@link CheckboxField}.
  *
+ * @example
+ * ```ts
+ * import type { CheckboxFieldProps } from "@beep/form/fields/CheckboxField"
+ *
+ * const props = {
+ *   label: "Accept terms",
+ *   disabled: false,
+ * } satisfies CheckboxFieldProps
+ *
+ * console.log(props.label) // "Accept terms"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

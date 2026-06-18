@@ -20,6 +20,21 @@ import type { FieldOption } from "../core/Options.ts";
  * label/description/options; binding props (`value`/`onValueChange`/`name`) are
  * owned by the field.
  *
+ * @example
+ * ```ts
+ * import type { RadioGroupFieldProps } from "@beep/form/fields/RadioGroupField"
+ *
+ * const props = {
+ *   label: "Plan",
+ *   options: [
+ *     { value: "free", label: "Free" },
+ *     { value: "pro", label: "Pro" },
+ *   ],
+ * } satisfies RadioGroupFieldProps
+ *
+ * console.log(props.options[1]?.value) // "pro"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

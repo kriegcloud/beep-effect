@@ -17,6 +17,23 @@ describe("@beep/form FormOptions", () => {
     expect(options.defaultValues).toEqual({ name: "" });
   });
 
+  it("keeps transform schemas on the explicit encoded-defaults path", () => {
+    const transformedSchema = S.Struct({ count: S.FiniteFromString });
+
+    const options = makeFormOptions({
+      schema: transformedSchema,
+      defaultValues: { count: "1" },
+    });
+
+    expect(options.defaultValues).toEqual({ count: "1" });
+
+    const expectTypeOnlyRejection = () => {
+      // @ts-expect-error constructor defaults are decoded values; TanStack defaultValues stay encoded.
+      formOptionsWithDefaults({ schema: transformedSchema });
+    };
+    void expectTypeOnlyRejection;
+  });
+
   it("routes to the async slot when async is requested", () => {
     const options = makeFormOptions({
       schema,
