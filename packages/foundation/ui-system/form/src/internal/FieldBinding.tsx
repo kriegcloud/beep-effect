@@ -500,7 +500,7 @@ export function createDateTimePickerField<TProps extends DateTimePickerFieldProp
       {(binding) => (
         <Control
           {...(props as Omit<TProps, keyof FieldChromeProps>)}
-          value={binding.field.state.value}
+          value={binding.field.state.value ?? null}
           onValueChange={(value) => binding.field.handleChange(value)}
           slotProps={pickerTextFieldProps(slotProps, binding)}
         />

@@ -351,7 +351,13 @@ export class AdapterEffectDateTime {
   public date = <T extends string | null | undefined>(
     value?: T,
     timezone: PickersTimezone = "default"
-  ): DateBuilderReturnType<T> => createDateTimeWithTimezone(value, timezone) as DateBuilderReturnType<T>;
+  ): DateBuilderReturnType<T> => {
+    if (value === undefined) {
+      return applyTimezone(DateTime.nowUnsafe(), timezone) as DateBuilderReturnType<T>;
+    }
+
+    return createDateTimeWithTimezone(value, timezone) as DateBuilderReturnType<T>;
+  };
 
   public getInvalidDate = (): DateTime.DateTime => createInvalidDateTime();
 
@@ -381,7 +387,7 @@ export class AdapterEffectDateTime {
   public format = (value: DateTime.DateTime, formatKey: keyof AdapterFormats): string =>
     this.formatByString(value, this.formats[formatKey]);
 
-  public formatByString = (value: DateTime.DateTime, formatString: string): string => {
+  public formatByString = (value: DateTime.DateTime | null | undefined, formatString: string): string => {
     if (!this.isValid(value)) {
       return "Invalid Date";
     }
@@ -436,8 +442,8 @@ export class AdapterEffectDateTime {
     return format.replace(/P{1,4}|p{1,4}/gu, (match) => expansions[match] ?? match);
   };
 
-  public isValid = (value: DateTime.DateTime | null): value is DateTime.DateTime =>
-    value !== null && !Number.isNaN(value.epochMilliseconds);
+  public isValid = (value: DateTime.DateTime | null | undefined): value is DateTime.DateTime =>
+    DateTime.isDateTime(value) && !Number.isNaN(value.epochMilliseconds);
 
   public getCurrentLocaleCode = (): string => this.locale ?? "en-US";
 

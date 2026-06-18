@@ -38,7 +38,14 @@ describe("AdapterEffectDateTime", () => {
     const invalid = createInvalidDateTime();
 
     expect(adapter.isValid(invalid)).toBe(false);
+    expect(adapter.isValid(undefined)).toBe(false);
+    expect(adapter.isValid("" as unknown as DateTime.DateTime)).toBe(false);
     expect(Number.isNaN(invalid.epochMilliseconds)).toBe(true);
+  });
+
+  it("formats absent picker values as invalid instead of throwing", () => {
+    expect(adapter.formatByString(undefined, "P")).toBe("Invalid Date");
+    expect(adapter.formatByString("" as unknown as DateTime.DateTime, "P")).toBe("Invalid Date");
   });
 
   it("round-trips timezone tokens", () => {
@@ -46,6 +53,13 @@ describe("AdapterEffectDateTime", () => {
 
     expect(adapter.getTimezone(DateTime.makeUnsafe("2024-01-01T00:00:00.000Z"))).toBe("UTC");
     expect(adapter.getTimezone(zoned)).toBe("Europe/London");
+  });
+
+  it("uses MUI reference-date semantics for undefined adapter dates", () => {
+    const referenceDate = adapter.date(undefined, "UTC");
+
+    expect(DateTime.isDateTime(referenceDate)).toBe(true);
+    expect(referenceDate !== null && DateTime.isUtc(referenceDate)).toBe(true);
   });
 
   it("formats clock field section tokens without meridiem leakage", () => {
