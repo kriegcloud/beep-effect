@@ -104,7 +104,7 @@ export const Default: Story = {
     expect(trigger).toBeVisible();
     fireEvent.contextMenu(trigger);
     return screen.findByRole("menuitem", { name: /Back/ }).then((item) => {
-      expect(item).toBeVisible();
+      return waitFor(() => expect(item).toBeVisible());
     });
   },
 };
