@@ -805,9 +805,9 @@ const executeWithRetry = Effect.fnUntraced(function* (
   remaining: number
 ): Effect.fn.Return<HttpClientResponse.HttpClientResponse, M365Error> {
   const request = yield* makeRequest;
-  const response = yield* client.execute(request).pipe(
-    Effect.mapError((cause) => M365Error.fromReason("transport", { cause, resource, url }))
-  );
+  const response = yield* client
+    .execute(request)
+    .pipe(Effect.mapError((cause) => M365Error.fromReason("transport", { cause, resource, url })));
 
   return yield* ensureSuccess(response, resource, url).pipe(
     Effect.catch((error) =>
