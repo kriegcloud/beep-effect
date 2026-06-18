@@ -10,11 +10,11 @@
  * @since 0.0.0
  */
 
-import type * as DomainCandidateClaim from "@beep/epistemic-domain/entities/CandidateClaim";
 import { ClaimProjectionView } from "@beep/epistemic-domain/values";
 import { Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import type * as DomainCandidateClaim from "@beep/epistemic-domain/entities/CandidateClaim";
 
 /**
  * Pure read-only projection from a single-owner authority array of candidate
