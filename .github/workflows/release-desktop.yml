@@ -63,7 +63,7 @@ jobs:
     strategy:
       # tauri-action mutates one release per matrix target. Keep matrix legs
       # serial and draft-only so a partial public updater release cannot escape.
-      fail-fast: false
+      fail-fast: true
       max-parallel: 1
       matrix:
         include:
