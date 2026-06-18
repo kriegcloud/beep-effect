@@ -48,6 +48,11 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   [`effect-capability-kg-seed`](../goals/effect-capability-kg-seed/README.md)
   is scaffolded, and later candidate goals remain uncreated pending the seed
   proof.
+- [`ip-attorney-time-tracking`](./ip-attorney-time-tracking/README.md) - active
+  align-stage exploration for a local-first IP attorney time-capture/prebill
+  assistant: agents may observe activity and propose candidate billable or
+  nonbillable entries, while the attorney approval gate controls what becomes
+  billable or exportable.
 
 ### Proposed
 
