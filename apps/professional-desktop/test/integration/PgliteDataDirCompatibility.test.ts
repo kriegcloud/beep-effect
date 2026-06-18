@@ -2,6 +2,7 @@ import * as Pglite from "@beep/pglite";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
+import { PGlite as LegacyPglite053 } from "@electric-sql/pglite";
 import { Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import {
@@ -40,6 +41,32 @@ const createPgliteFixture = Effect.fn("ProfessionalDesktop.PgliteCompatibilityTe
         VALUES ('keep me')
       `;
     })
+  );
+});
+
+const createLegacyPglite053Fixture = Effect.fn(
+  "ProfessionalDesktop.PgliteCompatibilityTest.createLegacyPglite053Fixture"
+)(function* (dataDir: string) {
+  yield* Effect.acquireUseRelease(
+    Effect.sync(() => new LegacyPglite053(dataDir)).pipe(
+      Effect.tap((pglite) => Effect.promise(() => pglite.waitReady))
+    ),
+    (pglite) =>
+      Effect.all(
+        [
+          Effect.promise(() =>
+            pglite.query(`
+        CREATE TABLE legacy_notes (
+          id SERIAL PRIMARY KEY,
+          body TEXT NOT NULL
+        )
+      `)
+          ),
+          Effect.promise(() => pglite.query("INSERT INTO legacy_notes (body) VALUES ('keep me')")),
+        ],
+        { discard: true }
+      ),
+    (pglite) => Effect.promise(() => pglite.close()).pipe(Effect.ignore)
   );
 });
 
@@ -127,7 +154,27 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         expect(yield* fs.exists(markerPath(path, dataDir))).toBe(true);
         expect(yield* readPgliteFixture(dataDir)).toEqual(["keep me"]);
         expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
-      })
+      }),
+      { timeout: 30_000 }
+    );
+
+    it.effect(
+      "fails closed instead of moving aside a prior PGlite 0.5 data dir",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-pglite-053-" });
+        const dataDir = path.join(rootDir, "chat-db");
+
+        yield* createLegacyPglite053Fixture(dataDir);
+        const result = yield* ensureCompatibleChatDbDataDir(dataDir).pipe(Effect.exit);
+
+        expect(Exit.isFailure(result)).toBe(true);
+        expect(yield* fs.exists(markerPath(path, dataDir))).toBe(false);
+        expect(yield* fs.exists(path.join(dataDir, "PG_VERSION"))).toBe(true);
+        expect(yield* backupNames(rootDir, "chat-db")).toEqual([]);
+      }),
+      { timeout: 30_000 }
     );
 
     it.effect(

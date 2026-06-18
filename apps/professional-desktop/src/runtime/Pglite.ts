@@ -10,9 +10,10 @@
  * migrations are applied on boot.
  *
  * Operational note: `CHAT_DB_PATH` is owned by this sidecar build's bundled
- * PGlite runtime. Existing unmarked directories that cannot be opened by the
- * in-process runtime are moved aside before first boot so older socket-bridge
- * stores do not block startup.
+ * PGlite runtime. Existing unmarked PGlite-looking directories are opened with
+ * the in-process runtime before they are marked compatible. If that probe
+ * fails, startup fails closed and leaves the directory untouched so an older
+ * socket-bridge store is not silently reset.
  *
  * The PGlite instance is owned by the layer {@link Scope}: it is acquired and
  * released (`pglite.close()`) by `@beep/pglite` when the runtime scope closes, so
@@ -28,7 +29,7 @@ import * as Pglite from "@beep/pglite";
 import { makeDrizzleLayer } from "@beep/postgres";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { Clock, Config, Effect, FileSystem, Layer, Path } from "effect";
+import { Clock, Config, Data, Effect, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
@@ -63,6 +64,15 @@ export const ChatDbCompatibilityMarker = ".beep-pglite-inprocess-v1";
 
 const PgliteDataDirRequiredEntries = ["PG_VERSION", "base", "global"] as const;
 
+const ChatDbIncompatibleRecoveryMessage =
+  "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; restore or export it with the prior runtime, or choose a new empty CHAT_DB_PATH for this build.";
+
+class IncompatiblePgliteDataDir extends Data.TaggedError("IncompatiblePgliteDataDir")<{
+  readonly cause: unknown;
+  readonly dataDir: string;
+  readonly recovery: string;
+}> {}
+
 const pathExists = (fs: FileSystem.FileSystem, target: string): Effect.Effect<boolean> =>
   fs.exists(target).pipe(Effect.orElseSucceed(() => false));
 
@@ -96,32 +106,40 @@ export const markCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite
   }
 );
 
-const canOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.canOpenInProcessPgliteDataDir")(function* (
-  dataDir: string
-) {
-  return yield* Effect.scoped(
-    Layer.build(Pglite.makeLayer({ dataDir })).pipe(
-      Effect.flatMap((context) =>
-        Effect.gen(function* () {
-          const sql = (yield* SqlClient.SqlClient).withoutTransforms();
-          yield* sql`SELECT 1`;
-        }).pipe(Effect.provide(context))
+const assertCanOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.assertCanOpenInProcessPgliteDataDir")(
+  function* (dataDir: string) {
+    yield* Effect.scoped(
+      Layer.build(Pglite.makeLayer({ dataDir })).pipe(
+        Effect.flatMap((context) =>
+          Effect.gen(function* () {
+            const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+            yield* sql`SELECT 1`;
+          }).pipe(Effect.provide(context))
+        )
       )
-    )
-  ).pipe(
-    Effect.as(true),
-    Effect.catchCause((cause) =>
-      Effect.logWarning("existing chat db data dir is not compatible with in-process PGlite").pipe(
-        Effect.annotateLogs({
-          cause,
-          component: "professional-desktop",
-          dataDir,
-        }),
-        Effect.as(false)
+    ).pipe(
+      Effect.catchCause((cause) =>
+        Effect.logError("existing PGlite chat db data dir cannot be opened by the current in-process runtime").pipe(
+          Effect.annotateLogs({
+            cause,
+            component: "professional-desktop",
+            dataDir,
+            recovery: ChatDbIncompatibleRecoveryMessage,
+          }),
+          Effect.andThen(
+            Effect.fail(
+              new IncompatiblePgliteDataDir({
+                cause,
+                dataDir,
+                recovery: ChatDbIncompatibleRecoveryMessage,
+              })
+            )
+          )
+        )
       )
-    )
-  );
-});
+    );
+  }
+);
 
 /**
  * Ensure a desktop chat database directory is safe for the current in-process
@@ -129,11 +147,12 @@ const canOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.canO
  *
  * Fresh and already-marked directories are preserved. Unmarked PGlite-looking
  * directories are first opened through the new driver; compatible stores are
- * retained, while incompatible populated stores are moved aside with a
- * timestamped backup before a fresh data dir is created. The returned boolean
- * tells the caller whether to write {@link ChatDbCompatibilityMarker} after the
- * real in-process PGlite layer opens successfully. Unreadable directories fail
- * boot instead of being quarantined.
+ * retained, while stores that fail the probe are left untouched and fail boot
+ * with a recovery log. Populated directories that do not look like PGlite are
+ * moved aside with a timestamped backup before a fresh data dir is created. The
+ * returned boolean tells the caller whether to write
+ * {@link ChatDbCompatibilityMarker} after the real in-process PGlite layer opens
+ * successfully. Unreadable directories fail boot instead of being quarantined.
  *
  * @category runtime
  * @since 0.0.0
@@ -160,7 +179,8 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
       return true;
     }
 
-    if (hasPgliteDataDirShape(entries) && (yield* canOpenInProcessPgliteDataDir(dataDir))) {
+    if (hasPgliteDataDirShape(entries)) {
+      yield* assertCanOpenInProcessPgliteDataDir(dataDir);
       yield* Effect.logInfo("existing chat db data dir preserved for in-process PGlite compatibility").pipe(
         Effect.annotateLogs({
           component: "professional-desktop",
