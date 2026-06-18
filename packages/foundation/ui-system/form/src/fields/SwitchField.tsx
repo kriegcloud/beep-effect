@@ -6,11 +6,8 @@
  */
 "use client";
 
-import { Field, FieldError, FieldLabel } from "@beep/ui/components/field";
 import { Switch } from "@beep/ui/components/switch";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
+import { InlineBooleanField, useBoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 
 /**
@@ -38,11 +35,9 @@ export interface SwitchFieldProps
  * @since 0.0.0
  */
 export const SwitchField: React.FC<SwitchFieldProps> = ({ label, ...props }) => {
-  const field = useFieldContext<boolean>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  const hasErrors = A.isReadonlyArrayNonEmpty(errors);
+  const { errors, field, hasErrors } = useBoundField<boolean>();
   return (
-    <Field orientation="horizontal" data-invalid={hasErrors || undefined}>
+    <InlineBooleanField htmlFor={field.name} label={label} errors={errors} hasErrors={hasErrors}>
       <Switch
         {...props}
         id={field.name}
@@ -51,8 +46,6 @@ export const SwitchField: React.FC<SwitchFieldProps> = ({ label, ...props }) => 
         onCheckedChange={(checked) => field.handleChange(checked)}
         aria-invalid={hasErrors || undefined}
       />
-      {label !== undefined ? <FieldLabel htmlFor={field.name}>{label}</FieldLabel> : null}
-      <FieldError errors={[...errors]} />
-    </Field>
+    </InlineBooleanField>
   );
 };

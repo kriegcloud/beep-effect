@@ -6,18 +6,8 @@
  */
 "use client";
 
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from "@beep/ui/components/combobox";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { StringComboboxField } from "../internal/ComboboxFieldParts.tsx";
+import type { Combobox } from "@beep/ui/components/combobox";
 import type React from "react";
 import type { FieldOption } from "../core/Options.ts";
 
@@ -51,36 +41,14 @@ export interface ComboboxFieldProps
  * @category components
  * @since 0.0.0
  */
-export const ComboboxField: React.FC<ComboboxFieldProps> = ({ label, description, options, placeholder, ...props }) => {
-  const field = useFieldContext<string>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  const hasErrors = A.isReadonlyArrayNonEmpty(errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
-      <Combobox
-        {...props}
-        items={A.map(options, (option) => option.value)}
-        name={field.name}
-        value={field.state.value}
-        onValueChange={(value) => field.handleChange(value === null ? "" : String(value))}
-      >
-        <ComboboxInput
-          id={field.name}
-          placeholder={placeholder}
-          onBlur={field.handleBlur}
-          aria-invalid={hasErrors || undefined}
-        />
-        <ComboboxContent>
-          <ComboboxEmpty>No results found.</ComboboxEmpty>
-          <ComboboxList>
-            {options.map((option) => (
-              <ComboboxItem key={option.value} value={option.value} disabled={option.disabled}>
-                {option.label}
-              </ComboboxItem>
-            ))}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </FieldShell>
-  );
-};
+export const ComboboxField: React.FC<ComboboxFieldProps> = ({ label, description, options, placeholder, ...props }) => (
+  <StringComboboxField
+    comboboxProps={props}
+    description={description}
+    emptyLabel="No results found."
+    label={label}
+    mode="selected"
+    options={options}
+    placeholder={placeholder}
+  />
+);

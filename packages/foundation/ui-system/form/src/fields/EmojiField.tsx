@@ -7,11 +7,9 @@
 "use client";
 
 import { EmojiPicker } from "@beep/ui/components/emoji-picker";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { createBoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
+import type { BoundFieldState } from "../internal/FieldBinding.tsx";
 
 /**
  * Props for {@link EmojiField}: `EmojiPicker` props plus label/description;
@@ -38,17 +36,19 @@ export interface EmojiFieldProps extends Omit<React.ComponentProps<typeof EmojiP
  * @category components
  * @since 0.0.0
  */
-export const EmojiField: React.FC<EmojiFieldProps> = ({ label, description, ...props }) => {
-  const field = useFieldContext<string>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
-      <EmojiPicker
-        {...props}
-        value={field.state.value}
-        onValueChange={(value) => field.handleChange(value)}
-        aria-invalid={A.isReadonlyArrayNonEmpty(errors) || undefined}
-      />
-    </FieldShell>
-  );
-};
+interface EmojiControlProps {
+  readonly "aria-invalid"?: boolean | undefined;
+  readonly onValueChange: (value: string) => void;
+  readonly value: string;
+}
+
+const bindEmojiControl = ({ field, hasErrors }: BoundFieldState<string>): EmojiControlProps => ({
+  value: field.state.value,
+  onValueChange: (value) => field.handleChange(value),
+  "aria-invalid": hasErrors || undefined,
+});
+
+export const EmojiField: React.FC<EmojiFieldProps> = createBoundField<string, EmojiFieldProps, EmojiControlProps>({
+  Control: EmojiPicker,
+  bindControl: bindEmojiControl,
+});

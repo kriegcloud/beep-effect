@@ -7,10 +7,7 @@
 "use client";
 
 import { UploadBox } from "@beep/ui/components/upload";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { bindUploadControl, createBoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 
 /**
@@ -42,20 +39,8 @@ export interface UploadBoxFieldProps
  * @category components
  * @since 0.0.0
  */
-export const UploadBoxField: React.FC<UploadBoxFieldProps> = ({ label, description, ...props }) => {
-  const field = useFieldContext<ReadonlyArray<File>>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
-      <UploadBox
-        {...props}
-        inputId={field.name}
-        inputName={field.name}
-        value={field.state.value}
-        onValueChange={(value) => field.handleChange(value)}
-        onInputBlur={field.handleBlur}
-        aria-invalid={A.isReadonlyArrayNonEmpty(errors) || undefined}
-      />
-    </FieldShell>
-  );
-};
+export const UploadBoxField: React.FC<UploadBoxFieldProps> = createBoundField<
+  ReadonlyArray<File>,
+  UploadBoxFieldProps,
+  ReturnType<typeof bindUploadControl>
+>({ Control: UploadBox, bindControl: bindUploadControl });

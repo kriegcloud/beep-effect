@@ -3,6 +3,7 @@ import { AdapterEffectDateTime } from "@beep/ui/components/effect-date-time-pick
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as DateTime from "effect/DateTime";
+import * as Str from "effect/String";
 
 const adapter = new AdapterEffectDateTime({ locale: "en-US" });
 
@@ -45,5 +46,24 @@ describe("AdapterEffectDateTime", () => {
 
     expect(adapter.getTimezone(DateTime.makeUnsafe("2024-01-01T00:00:00.000Z"))).toBe("UTC");
     expect(adapter.getTimezone(zoned)).toBe("Europe/London");
+  });
+
+  it("formats clock field section tokens without meridiem leakage", () => {
+    const value = DateTime.makeUnsafe("2024-02-03T03:05:09.000Z");
+    const afternoon = DateTime.makeUnsafe("2024-02-03T15:30:00.000Z");
+    const meridiem = adapter.formatByString(DateTime.makeUnsafe("2024-02-03T03:30:00.000Z"), "aa");
+
+    expect(adapter.formatByString(value, "h")).toBe("3");
+    expect(adapter.formatByString(value, "hh")).toBe("03");
+    expect(adapter.formatByString(value, "H")).toBe("3");
+    expect(adapter.formatByString(value, "HH")).toBe("03");
+    expect(adapter.formatByString(value, "m")).toBe("5");
+    expect(adapter.formatByString(value, "mm")).toBe("05");
+    expect(adapter.formatByString(value, "s")).toBe("9");
+    expect(adapter.formatByString(value, "ss")).toBe("09");
+    expect(adapter.formatByString(afternoon, "h")).toBe("3");
+    expect(adapter.formatByString(afternoon, "hh")).toBe("03");
+    expect(meridiem).toMatch(/^(AM|PM)$/u);
+    expect(adapter.formatByString(afternoon, "AA")).toBe(Str.toUpperCase(adapter.formatByString(afternoon, "aa")));
   });
 });

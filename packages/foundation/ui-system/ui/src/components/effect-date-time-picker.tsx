@@ -12,7 +12,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { DateTime } from "effect";
+import { DateTime, Result } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -149,6 +149,138 @@ const isBeforeDateTime = (value: DateTime.DateTime, comparing: DateTime.DateTime
 const isAfterDateTime = (value: DateTime.DateTime, comparing: DateTime.DateTime): boolean =>
   value.epochMilliseconds > comparing.epochMilliseconds;
 
+type FormatOptionRule = {
+  readonly pattern: RegExp;
+  readonly patch: Intl.DateTimeFormatOptions;
+};
+
+const dateStyleFormats: Partial<Record<string, Intl.DateTimeFormatOptions["dateStyle"]>> = {
+  P: "short",
+  PP: "medium",
+};
+
+const formatOptionRuleGroups = [
+  [
+    { pattern: /yyyy|YYYY/u, patch: { year: "numeric" } },
+    { pattern: /yy|YY/u, patch: { year: "2-digit" } },
+  ],
+  [
+    { pattern: /MMMM|LLLL/u, patch: { month: "long" } },
+    { pattern: /MMM|LLL/u, patch: { month: "short" } },
+    { pattern: /MM|LL/u, patch: { month: "2-digit" } },
+    { pattern: /[ML]/u, patch: { month: "numeric" } },
+  ],
+  [
+    { pattern: /dd|DD/u, patch: { day: "2-digit" } },
+    { pattern: /[dD]/u, patch: { day: "numeric" } },
+  ],
+  [
+    { pattern: /EEEE|eeee/u, patch: { weekday: "long" } },
+    { pattern: /EEE|eee|E/u, patch: { weekday: "short" } },
+  ],
+  [
+    { pattern: /HH|H/u, patch: { hour: "2-digit", hour12: false } },
+    { pattern: /hh|h/u, patch: { hour: "2-digit", hour12: true } },
+  ],
+  [{ pattern: /mm|m/u, patch: { minute: "2-digit" } }],
+  [{ pattern: /ss|s/u, patch: { second: "2-digit" } }],
+] satisfies ReadonlyArray<ReadonlyArray<FormatOptionRule>>;
+
+const dateStyleOptions = (formatString: string): O.Option<Intl.DateTimeFormatOptions> => {
+  const dateStyle = dateStyleFormats[formatString];
+  return dateStyle === undefined ? O.none() : O.some({ dateStyle });
+};
+
+const formatPatchForGroup = (
+  formatString: string,
+  rules: ReadonlyArray<FormatOptionRule>
+): Intl.DateTimeFormatOptions =>
+  pipe(
+    rules,
+    A.findFirst((rule) => rule.pattern.test(formatString)),
+    O.map((rule) => rule.patch),
+    O.getOrElse((): Intl.DateTimeFormatOptions => ({}))
+  );
+
+const formatStringToIntlOptions = (formatString: string): Intl.DateTimeFormatOptions =>
+  pipe(
+    dateStyleOptions(formatString),
+    O.getOrElse(() =>
+      pipe(
+        formatOptionRuleGroups,
+        A.reduce({} as Intl.DateTimeFormatOptions, (options, rules) => ({
+          ...options,
+          ...formatPatchForGroup(formatString, rules),
+        }))
+      )
+    )
+  );
+
+const fallbackMeridiem = (value: DateTime.DateTime): string => (DateTime.getPart(value, "hour") < 12 ? "AM" : "PM");
+
+const formatMeridiem = (value: DateTime.DateTime, locale: string, formatString: string): string =>
+  Result.getOrElse(
+    Result.try(() => {
+      const meridiem = pipe(
+        new Intl.DateTimeFormat(locale, { hour: "numeric", hour12: true }).formatToParts(DateTime.toDate(value)),
+        A.findFirst((part) => part.type === "dayPeriod"),
+        O.map((part) => part.value),
+        O.getOrElse(() => fallbackMeridiem(value))
+      );
+
+      return formatString === "A" || formatString === "AA" ? Str.toUpperCase(meridiem) : meridiem;
+    }),
+    () => fallbackMeridiem(value)
+  );
+
+type ExactFormatTokenHandler = (value: DateTime.DateTime, locale: string) => string;
+
+const formatPaddedPart = (width: number, value: number): string => pipe(`${value}`, Str.padStart(width, "0"));
+
+const formatTwoDigitPart = (value: number): string => formatPaddedPart(2, value);
+
+const getHour12 = (value: DateTime.DateTime): number => {
+  const hour = DateTime.getPart(value, "hour") % 12;
+  return hour === 0 ? 12 : hour;
+};
+
+const exactFormatTokenHandlers: Record<string, ExactFormatTokenHandler> = {
+  y: (value) => `${DateTime.getPart(value, "year")}`,
+  yy: (value) => formatTwoDigitPart(DateTime.getPart(value, "year") % 100),
+  yyy: (value) => formatPaddedPart(4, DateTime.getPart(value, "year")),
+  yyyy: (value) => formatPaddedPart(4, DateTime.getPart(value, "year")),
+  YYYY: (value) => formatPaddedPart(4, DateTime.getPart(value, "year")),
+  M: (value) => `${DateTime.getPart(value, "month")}`,
+  MM: (value) => formatTwoDigitPart(DateTime.getPart(value, "month")),
+  L: (value) => `${DateTime.getPart(value, "month")}`,
+  LL: (value) => formatTwoDigitPart(DateTime.getPart(value, "month")),
+  d: (value) => `${DateTime.getPart(value, "day")}`,
+  dd: (value) => formatTwoDigitPart(DateTime.getPart(value, "day")),
+  D: (value) => `${DateTime.getPart(value, "day")}`,
+  DD: (value) => formatTwoDigitPart(DateTime.getPart(value, "day")),
+  H: (value) => `${DateTime.getPart(value, "hour")}`,
+  HH: (value) => formatTwoDigitPart(DateTime.getPart(value, "hour")),
+  h: (value) => `${getHour12(value)}`,
+  hh: (value) => value.pipe(getHour12, formatTwoDigitPart),
+  m: (value) => `${DateTime.getPart(value, "minute")}`,
+  mm: (value) => formatTwoDigitPart(DateTime.getPart(value, "minute")),
+  s: (value) => `${DateTime.getPart(value, "second")}`,
+  ss: (value) => formatTwoDigitPart(DateTime.getPart(value, "second")),
+  a: (value, locale) => formatMeridiem(value, locale, "a"),
+  aa: (value, locale) => formatMeridiem(value, locale, "aa"),
+  A: (value, locale) => formatMeridiem(value, locale, "A"),
+  AA: (value, locale) => formatMeridiem(value, locale, "AA"),
+  S: (value) => `${Math.floor(DateTime.getPart(value, "millisecond") / 100)}`,
+  SS: (value) => formatTwoDigitPart(Math.floor(DateTime.getPart(value, "millisecond") / 10)),
+  SSS: (value) => formatPaddedPart(3, DateTime.getPart(value, "millisecond")),
+};
+
+const formatExactToken = (value: DateTime.DateTime, locale: string, formatString: string): O.Option<string> =>
+  pipe(
+    O.fromNullishOr(exactFormatTokenHandlers[formatString]),
+    O.map((formatter) => formatter(value, locale))
+  );
+
 /**
  * MUI X adapter that lets pickers read and write Effect `DateTime`.
  *
@@ -192,57 +324,7 @@ export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
   }
 
   private formatStringToIntlOptions(formatString: string): Intl.DateTimeFormatOptions {
-    const options: Intl.DateTimeFormatOptions = {};
-
-    if (/yyyy|YYYY/u.test(formatString)) {
-      options.year = "numeric";
-    } else if (/yy|YY/u.test(formatString)) {
-      options.year = "2-digit";
-    }
-
-    if (/MMMM|LLLL/u.test(formatString)) {
-      options.month = "long";
-    } else if (/MMM|LLL/u.test(formatString)) {
-      options.month = "short";
-    } else if (/MM|LL/u.test(formatString)) {
-      options.month = "2-digit";
-    } else if (/[ML]/u.test(formatString)) {
-      options.month = "numeric";
-    }
-
-    if (/dd|DD/u.test(formatString)) {
-      options.day = "2-digit";
-    } else if (/[dD]/u.test(formatString)) {
-      options.day = "numeric";
-    }
-
-    if (/EEEE|eeee/u.test(formatString)) {
-      options.weekday = "long";
-    } else if (/EEE|eee|E/u.test(formatString)) {
-      options.weekday = "short";
-    }
-
-    if (/HH|H/u.test(formatString)) {
-      options.hour = "2-digit";
-      options.hour12 = false;
-    } else if (/hh|h/u.test(formatString)) {
-      options.hour = "2-digit";
-      options.hour12 = true;
-    }
-
-    if (/mm|m/u.test(formatString)) {
-      options.minute = "2-digit";
-    }
-
-    if (/ss|s/u.test(formatString)) {
-      options.second = "2-digit";
-    }
-
-    if (formatString === "P" || formatString === "PP") {
-      return { dateStyle: formatString === "PP" ? "medium" : "short" };
-    }
-
-    return options;
+    return formatStringToIntlOptions(formatString);
   }
 
   public date = <T extends string | null | undefined>(
@@ -285,13 +367,17 @@ export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
 
     const date = DateTime.toDate(value);
     const locale = this.locale ?? "en-US";
-    const options = this.formatStringToIntlOptions(formatString);
+    return pipe(
+      formatExactToken(value, locale, formatString),
+      O.getOrElse(() => {
+        const options = this.formatStringToIntlOptions(formatString);
 
-    try {
-      return new Intl.DateTimeFormat(locale, options).format(date);
-    } catch {
-      return date.toISOString();
-    }
+        return Result.getOrElse(
+          Result.try(() => new Intl.DateTimeFormat(locale, options).format(date)),
+          () => date.toISOString()
+        );
+      })
+    );
   };
 
   public formatNumber = (numberToFormat: string): string => {
@@ -305,11 +391,10 @@ export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
     );
 
     if (A.some(rtlLocales, (value) => value === localePrefix)) {
-      try {
-        return new Intl.NumberFormat(this.locale).format(Number(numberToFormat));
-      } catch {
-        return numberToFormat;
-      }
+      return Result.getOrElse(
+        Result.try(() => new Intl.NumberFormat(this.locale).format(Number(numberToFormat))),
+        () => numberToFormat
+      );
     }
 
     return numberToFormat;
@@ -337,12 +422,11 @@ export class AdapterEffectDateTime implements MuiPickersAdapter<string> {
 
   public is12HourCycleInCurrentLocale = (): boolean => {
     const locale = this.getCurrentLocaleCode();
-    try {
-      const hourCycle = new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hourCycle;
-      return hourCycle === "h12" || hourCycle === "h11";
-    } catch {
-      return pipe(locale, Str.startsWith("en"));
-    }
+    return pipe(
+      Result.try(() => new Intl.DateTimeFormat(locale, { hour: "numeric" }).resolvedOptions().hourCycle),
+      Result.map((hourCycle) => hourCycle === "h12" || hourCycle === "h11"),
+      Result.getOrElse(() => pipe(locale, Str.startsWith("en")))
+    );
   };
 
   public getYear = (value: DateTime.DateTime): number => this.getDateTimePart(value, "year");

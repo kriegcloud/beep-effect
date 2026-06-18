@@ -14,19 +14,12 @@
  * @since 0.0.0
  */
 import { ChatRpcs } from "@beep/agents-use-cases/public";
-import * as Md from "@beep/md/Md.model";
-import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { Cause, Effect, Fiber, Layer, Stream } from "effect";
-import * as S from "effect/Schema";
 import { RpcClient } from "effect/unstable/rpc";
 import { useCallback, useRef, useState } from "react";
+import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 import { IpcChatProtocolLive } from "./IpcChatClient.js";
 import type { JSX } from "react";
-
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
-
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 // One self-contained run: open the IPC socket, create a thread, and stream a
 // turn. Scope discharges the socket on completion/interrupt; typed errors are

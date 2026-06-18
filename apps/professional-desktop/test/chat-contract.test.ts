@@ -10,7 +10,6 @@ import { assistantContentToDocument } from "@beep/agents-domain/values/Assistant
 import { FixtureTurnKernel, fixtureBlocksFor } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel, TurnHistoryItem } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
-import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { assertSchemaArbitraryDecodesToSelf, provideScopedLayer } from "@beep/test-utils";
 import { ThreadStoreInMemoryLayer } from "@beep/workspace-server/aggregates/Thread";
 import { Thread } from "@beep/workspace-use-cases/server";
@@ -20,19 +19,10 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { decodeWorkspaceId, userDocument, userParagraphDocument } from "@/chat/ChatFixtures";
 import { documentToPlainText, makeChatOperations } from "@/chat/ChatOrchestrator";
 import { makeInMemoryUsageRecordSink } from "@/chat/UsageRecordSink";
 import type { IndexedBlock, TurnHistoryItem as TurnHistoryItemType } from "@beep/agents-use-cases/public";
-
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
-
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
-
-const userParagraphDocument = (paragraphs: ReadonlyArray<string>): Md.Document.Type =>
-  Md.Document.make({
-    children: A.map(paragraphs, (text) => Md.P.make({ children: [Md.Text.make({ value: text })] })),
-  });
 
 // Build the chat operations + the usage Ref over the provided in-memory stack.
 const makeStack = Effect.gen(function* () {

@@ -6,11 +6,8 @@
  */
 "use client";
 
-import { Field, FieldError, FieldLabel } from "@beep/ui/components/field";
 import { Toggle } from "@beep/ui/components/toggle";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
+import { InlineBooleanField, useBoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 
 /**
@@ -23,6 +20,14 @@ export interface ToggleFieldProps
   extends Omit<React.ComponentProps<typeof Toggle>, "pressed" | "onPressedChange" | "name" | "id"> {
   readonly label?: React.ReactNode | undefined;
 }
+
+const toggleContent = (label: React.ReactNode | undefined, children: React.ReactNode | undefined): React.ReactNode =>
+  children ?? label;
+
+const toggleExternalLabel = (
+  label: React.ReactNode | undefined,
+  children: React.ReactNode | undefined
+): React.ReactNode | undefined => (children === undefined ? undefined : label);
 
 /**
  * Schema-bound toggle rendered inline with its label.
@@ -38,12 +43,14 @@ export interface ToggleFieldProps
  * @since 0.0.0
  */
 export const ToggleField: React.FC<ToggleFieldProps> = ({ label, children, variant = "outline", ...props }) => {
-  const field = useFieldContext<boolean>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  const hasErrors = A.isReadonlyArrayNonEmpty(errors);
-  const content = children ?? label;
+  const { errors, field, hasErrors } = useBoundField<boolean>();
   return (
-    <Field orientation="horizontal" data-invalid={hasErrors || undefined}>
+    <InlineBooleanField
+      htmlFor={field.name}
+      label={toggleExternalLabel(label, children)}
+      errors={errors}
+      hasErrors={hasErrors}
+    >
       <Toggle
         {...props}
         id={field.name}
@@ -54,10 +61,8 @@ export const ToggleField: React.FC<ToggleFieldProps> = ({ label, children, varia
         aria-invalid={hasErrors || undefined}
         variant={variant}
       >
-        {content}
+        {toggleContent(label, children)}
       </Toggle>
-      {children !== undefined && label !== undefined ? <FieldLabel htmlFor={field.name}>{label}</FieldLabel> : null}
-      <FieldError errors={[...errors]} />
-    </Field>
+    </InlineBooleanField>
   );
 };

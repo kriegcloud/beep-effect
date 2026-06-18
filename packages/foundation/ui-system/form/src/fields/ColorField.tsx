@@ -7,10 +7,7 @@
 "use client";
 
 import { ColorPicker } from "@beep/ui/components/color-picker";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { bindNamedValueControl, createBoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 
 /**
@@ -29,6 +26,15 @@ export interface ColorFieldProps
   readonly label?: React.ReactNode | undefined;
 }
 
+type ColorControlProps = {
+  readonly "aria-invalid"?: boolean | undefined;
+  readonly id: string;
+  readonly name: string;
+  readonly onBlur: () => void;
+  readonly onValueChange: (value: string) => void;
+  readonly value: string;
+};
+
 /**
  * Schema-bound color picker whose value is a canonical hex color string.
  *
@@ -42,20 +48,7 @@ export interface ColorFieldProps
  * @category components
  * @since 0.0.0
  */
-export const ColorField: React.FC<ColorFieldProps> = ({ label, description, ...props }) => {
-  const field = useFieldContext<string>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
-      <ColorPicker
-        {...props}
-        id={field.name}
-        name={field.name}
-        value={field.state.value}
-        onValueChange={(value) => field.handleChange(value)}
-        onBlur={field.handleBlur}
-        aria-invalid={A.isReadonlyArrayNonEmpty(errors) || undefined}
-      />
-    </FieldShell>
-  );
-};
+export const ColorField: React.FC<ColorFieldProps> = createBoundField<string, ColorFieldProps, ColorControlProps>({
+  Control: ColorPicker,
+  bindControl: bindNamedValueControl,
+});

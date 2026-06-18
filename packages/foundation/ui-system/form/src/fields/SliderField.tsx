@@ -10,9 +10,7 @@ import { Slider } from "@beep/ui/components/slider";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { BoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 
 /**
@@ -42,11 +40,9 @@ export interface SliderFieldProps
  * @category components
  * @since 0.0.0
  */
-export const SliderField: React.FC<SliderFieldProps> = ({ label, description, ...props }) => {
-  const field = useFieldContext<number>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
+export const SliderField: React.FC<SliderFieldProps> = ({ label, description, ...props }) => (
+  <BoundField<number> label={label} description={description}>
+    {({ field, hasErrors }) => (
       <Slider
         {...props}
         name={field.name}
@@ -55,8 +51,8 @@ export const SliderField: React.FC<SliderFieldProps> = ({ label, description, ..
           field.handleChange(P.isNumber(value) ? value : O.getOrElse(A.head(value), () => field.state.value))
         }
         onBlur={field.handleBlur}
-        aria-invalid={A.isReadonlyArrayNonEmpty(errors) || undefined}
+        aria-invalid={hasErrors || undefined}
       />
-    </FieldShell>
-  );
-};
+    )}
+  </BoundField>
+);

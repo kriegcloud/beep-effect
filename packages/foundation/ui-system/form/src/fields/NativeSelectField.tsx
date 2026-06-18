@@ -7,10 +7,7 @@
 "use client";
 
 import { NativeSelect, NativeSelectOption } from "@beep/ui/components/native-select";
-import * as A from "effect/Array";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { BoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 import type { FieldOption } from "../core/Options.ts";
 
@@ -42,11 +39,9 @@ export interface NativeSelectFieldProps
  * @category components
  * @since 0.0.0
  */
-export const NativeSelectField: React.FC<NativeSelectFieldProps> = ({ label, description, options, ...props }) => {
-  const field = useFieldContext<string>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
+export const NativeSelectField: React.FC<NativeSelectFieldProps> = ({ label, description, options, ...props }) => (
+  <BoundField<string> label={label} description={description}>
+    {({ field, hasErrors }) => (
       <NativeSelect
         {...props}
         id={field.name}
@@ -54,7 +49,7 @@ export const NativeSelectField: React.FC<NativeSelectFieldProps> = ({ label, des
         value={field.state.value}
         onChange={(event) => field.handleChange(event.target.value)}
         onBlur={field.handleBlur}
-        aria-invalid={A.isReadonlyArrayNonEmpty(errors) || undefined}
+        aria-invalid={hasErrors || undefined}
       >
         {options.map((option) => (
           <NativeSelectOption key={option.value} value={option.value} disabled={option.disabled}>
@@ -62,6 +57,6 @@ export const NativeSelectField: React.FC<NativeSelectFieldProps> = ({ label, des
           </NativeSelectOption>
         ))}
       </NativeSelect>
-    </FieldShell>
-  );
-};
+    )}
+  </BoundField>
+);

@@ -22,6 +22,7 @@ import * as S from "effect/Schema";
 import { Reactivity } from "effect/unstable/reactivity";
 import { useEffect } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { userDocument } from "@/chat/ChatFixtures";
 import { ChatApp } from "@/chat/ui/ChatApp";
 import { ChatTurnErrorToasts } from "@/chat/ui/ChatTurnErrorToasts";
 import { MessageView } from "@/chat/ui/MessageView";
@@ -29,9 +30,6 @@ import { blockRenderKey, boundedKey, StreamingBlocks, stableOccurrenceKeys } fro
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 
 const decodeThreadId = S.decodeUnknownSync(WorkspaceIdentity.ThreadId);
-
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 const failingChatClient = ChatClient.of(((tag: string) =>
   tag === "SendMessage"

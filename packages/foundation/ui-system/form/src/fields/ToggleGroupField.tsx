@@ -9,9 +9,7 @@
 import { ToggleGroup, ToggleGroupItem } from "@beep/ui/components/toggle-group";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import { useFieldContext } from "../core/contexts.ts";
-import { toFieldErrors } from "../core/Errors.ts";
-import { FieldShell } from "../internal/FieldShell.tsx";
+import { BoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
 import type { FieldOption } from "../core/Options.ts";
 
@@ -44,16 +42,14 @@ export interface ToggleGroupFieldProps
  * @category components
  * @since 0.0.0
  */
-export const ToggleGroupField: React.FC<ToggleGroupFieldProps> = ({ label, description, options, ...props }) => {
-  const field = useFieldContext<string>();
-  const errors = toFieldErrors(field.state.meta.errors);
-  return (
-    <FieldShell htmlFor={field.name} label={label} description={description} errors={errors}>
+export const ToggleGroupField: React.FC<ToggleGroupFieldProps> = ({ label, description, options, ...props }) => (
+  <BoundField<string> label={label} description={description}>
+    {({ field, hasErrors }) => (
       <ToggleGroup
         {...props}
         value={[field.state.value]}
         onValueChange={(value) => field.handleChange(O.getOrElse(A.head(value), () => ""))}
-        aria-invalid={A.isReadonlyArrayNonEmpty(errors) || undefined}
+        aria-invalid={hasErrors || undefined}
       >
         {options.map((option) => (
           <ToggleGroupItem key={option.value} value={option.value} disabled={option.disabled}>
@@ -61,6 +57,6 @@ export const ToggleGroupField: React.FC<ToggleGroupFieldProps> = ({ label, descr
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
-    </FieldShell>
-  );
-};
+    )}
+  </BoundField>
+);

@@ -16,21 +16,15 @@
  */
 
 import { ChatRpcs } from "@beep/agents-use-cases/public";
-import * as Md from "@beep/md/Md.model";
-import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { describe, expect, it } from "@effect/vitest";
 import { Chunk, Effect, FileSystem, Layer } from "effect";
-import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
 import { Socket } from "effect/unstable/socket";
+import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
-
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 const ipcStdioProgram = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;

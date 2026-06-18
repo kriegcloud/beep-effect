@@ -12,6 +12,7 @@ import { Button } from "@beep/ui/components/button";
 import { useAtomValue } from "@effect/atom-react";
 import { UploadSimpleIcon, UserIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { Atom } from "effect/unstable/reactivity";
@@ -93,6 +94,31 @@ export interface UploadBoxRenderProps {
   readonly value: ReadonlyArray<File>;
 }
 
+type UploadBoxDropzoneOptionName =
+  | "accept"
+  | "getFilesFromEvent"
+  | "maxFiles"
+  | "maxSize"
+  | "minSize"
+  | "noDrag"
+  | "noDragEventsBubbling"
+  | "noKeyboard"
+  | "onError"
+  | "onFileDialogCancel"
+  | "onFileDialogOpen"
+  | "preventDropOnDocument"
+  | "useFsAccessApi"
+  | "validator";
+
+type UploadBoxDropzoneProps = {
+  readonly [Name in UploadBoxDropzoneOptionName]: Required<Pick<UploadBoxProps, Name>>[Name] | undefined;
+} & {
+  readonly disabled: boolean;
+  readonly multiple: boolean;
+  readonly onRejectedFilesChange?: ((rejections: ReadonlyArray<FileRejection>) => void) | undefined;
+  readonly onValueChange?: ((files: ReadonlyArray<File>) => void) | undefined;
+};
+
 const fileNames = (files: ReadonlyArray<File>): string =>
   A.isReadonlyArrayNonEmpty(files)
     ? A.join(
@@ -138,20 +164,117 @@ const UploadPreviewGrid: React.FC<{ readonly previews: ReadonlyArray<UploadImage
   </div>
 );
 
-/**
- * Dropzone upload box.
- *
- * @example
- * ```tsx
- * import { UploadBox } from "@beep/ui/components/upload"
- *
- * console.log(UploadBox)
- * ```
- *
- * @category components
- * @since 0.0.0
- */
-export const UploadBox: React.FC<UploadBoxProps> = ({
+const optionalDropzoneOptions = ({
+  accept,
+  getFilesFromEvent,
+  maxFiles,
+  maxSize,
+  minSize,
+  noDrag,
+  noDragEventsBubbling,
+  noKeyboard,
+  onError,
+  onFileDialogCancel,
+  onFileDialogOpen,
+  preventDropOnDocument,
+  useFsAccessApi,
+  validator,
+}: UploadBoxDropzoneProps): Partial<DropzoneOptions> => {
+  const entries: ReadonlyArray<readonly [keyof DropzoneOptions, unknown]> = [
+    ["accept", accept],
+    ["getFilesFromEvent", getFilesFromEvent],
+    ["maxFiles", maxFiles],
+    ["maxSize", maxSize],
+    ["minSize", minSize],
+    ["noDrag", noDrag],
+    ["noDragEventsBubbling", noDragEventsBubbling],
+    ["noKeyboard", noKeyboard],
+    ["onError", onError],
+    ["onFileDialogCancel", onFileDialogCancel],
+    ["onFileDialogOpen", onFileDialogOpen],
+    ["preventDropOnDocument", preventDropOnDocument],
+    ["useFsAccessApi", useFsAccessApi],
+    ["validator", validator],
+  ];
+
+  return pipe(
+    entries,
+    A.reduce({} as Partial<DropzoneOptions>, (options, [key, value]) =>
+      value === undefined
+        ? options
+        : {
+            ...options,
+            [key]: value,
+          }
+    )
+  );
+};
+
+const makeDropzoneOptions = (options: UploadBoxDropzoneProps): DropzoneOptions => ({
+  disabled: options.disabled,
+  multiple: options.multiple,
+  noClick: true,
+  onDrop: (acceptedFiles, fileRejections) => {
+    options.onValueChange?.(acceptedFiles);
+    options.onRejectedFilesChange?.(fileRejections);
+  },
+  ...optionalDropzoneOptions(options),
+});
+
+const renderCustomUploadContent = (
+  children: UploadBoxProps["children"],
+  renderProps: UploadBoxRenderProps
+): React.ReactNode => (P.isFunction(children) ? children(renderProps) : children);
+
+const uploadBoxClassName = ({
+  className,
+  disabled,
+  isDragAccept,
+  isDragActive,
+  isDragReject,
+}: {
+  readonly className?: string | undefined;
+  readonly disabled: boolean;
+  readonly isDragAccept: boolean;
+  readonly isDragActive: boolean;
+  readonly isDragReject: boolean;
+}): string =>
+  cn(
+    "border-input bg-background text-foreground flex min-h-28 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-4 text-center transition-colors",
+    ...pipe(
+      [
+        [isDragActive, "border-ring bg-muted/50"],
+        [isDragAccept, "border-primary"],
+        [isDragReject, "border-destructive bg-destructive/5"],
+        [disabled, "pointer-events-none opacity-50"],
+      ] satisfies ReadonlyArray<readonly [boolean, string]>,
+      A.filter(([enabled]) => enabled),
+      A.map(([, enabledClassName]) => enabledClassName)
+    ),
+    className
+  );
+
+const UploadDefaultContent: React.FC<UploadBoxRenderProps> = ({ disabled, open, previews, value }) => (
+  <>
+    {A.isReadonlyArrayNonEmpty(previews) ? (
+      <UploadPreviewGrid previews={previews} />
+    ) : (
+      <UploadSimpleIcon className="text-muted-foreground size-5" />
+    )}
+    <div className="flex flex-col gap-1">
+      <span className="text-sm font-medium">Drop files here</span>
+      <span className="text-muted-foreground text-xs">{fileNames(value)}</span>
+    </div>
+    <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={open}>
+      Choose files
+    </Button>
+  </>
+);
+
+const uploadBoxContent = (content: React.ReactNode, renderProps: UploadBoxRenderProps): React.ReactNode =>
+  content ?? <UploadDefaultContent {...renderProps} />;
+
+const useUploadBoxState = ({
   accept,
   children,
   className,
@@ -177,76 +300,78 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   validator,
   value = A.empty(),
   ...props
-}) => {
+}: UploadBoxProps) => {
   const previews = useAtomValue(uploadImagePreviewsAtom(value));
-  const dropzoneOptions: DropzoneOptions = {
+  const dropzoneOptions = makeDropzoneOptions({
+    accept,
     disabled,
+    getFilesFromEvent,
+    maxFiles,
+    maxSize,
+    minSize,
     multiple,
-    noClick: true,
-    onDrop: (acceptedFiles, fileRejections) => {
-      onValueChange?.(acceptedFiles);
-      onRejectedFilesChange?.(fileRejections);
-    },
-  };
+    noDrag,
+    noDragEventsBubbling,
+    noKeyboard,
+    onError,
+    onFileDialogCancel,
+    onFileDialogOpen,
+    onRejectedFilesChange,
+    onValueChange,
+    preventDropOnDocument,
+    useFsAccessApi,
+    validator,
+  });
+  const dropzone = useDropzone(dropzoneOptions);
+  const renderProps = { disabled, open: dropzone.open, previews, value };
+  const content = renderCustomUploadContent(children, renderProps);
 
-  if (accept !== undefined) dropzoneOptions.accept = accept;
-  if (getFilesFromEvent !== undefined) dropzoneOptions.getFilesFromEvent = getFilesFromEvent;
-  if (maxFiles !== undefined) dropzoneOptions.maxFiles = maxFiles;
-  if (maxSize !== undefined) dropzoneOptions.maxSize = maxSize;
-  if (minSize !== undefined) dropzoneOptions.minSize = minSize;
-  if (noDrag !== undefined) dropzoneOptions.noDrag = noDrag;
-  if (noDragEventsBubbling !== undefined) dropzoneOptions.noDragEventsBubbling = noDragEventsBubbling;
-  if (noKeyboard !== undefined) dropzoneOptions.noKeyboard = noKeyboard;
-  if (onError !== undefined) dropzoneOptions.onError = onError;
-  if (onFileDialogCancel !== undefined) dropzoneOptions.onFileDialogCancel = onFileDialogCancel;
-  if (onFileDialogOpen !== undefined) dropzoneOptions.onFileDialogOpen = onFileDialogOpen;
-  if (preventDropOnDocument !== undefined) dropzoneOptions.preventDropOnDocument = preventDropOnDocument;
-  if (useFsAccessApi !== undefined) dropzoneOptions.useFsAccessApi = useFsAccessApi;
-  if (validator !== undefined) dropzoneOptions.validator = validator;
-
-  const { getInputProps, getRootProps, isDragAccept, isDragActive, isDragReject, open } = useDropzone(dropzoneOptions);
-  const content = P.isFunction(children)
-    ? children({
+  return {
+    content,
+    inputProps: dropzone.getInputProps({ id: inputId, name: inputName, onBlur: onInputBlur }),
+    renderProps,
+    rootProps: dropzone.getRootProps({
+      ...props,
+      className: uploadBoxClassName({
+        className,
         disabled,
-        open,
-        previews,
-        value,
-      })
-    : children;
+        isDragAccept: dropzone.isDragAccept,
+        isDragActive: dropzone.isDragActive,
+        isDragReject: dropzone.isDragReject,
+      }),
+    }),
+  };
+};
 
-  return (
-    <div
-      {...getRootProps({
-        ...props,
-        className: cn(
-          "border-input bg-background text-foreground flex min-h-28 w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed p-4 text-center transition-colors",
-          isDragActive && "border-ring bg-muted/50",
-          isDragAccept && "border-primary",
-          isDragReject && "border-destructive bg-destructive/5",
-          disabled && "pointer-events-none opacity-50",
-          className
-        ),
-      })}
-    >
-      <input {...getInputProps({ id: inputId, name: inputName, onBlur: onInputBlur })} />
-      {content ?? (
-        <>
-          {A.isReadonlyArrayNonEmpty(previews) ? (
-            <UploadPreviewGrid previews={previews} />
-          ) : (
-            <UploadSimpleIcon className="text-muted-foreground size-5" />
-          )}
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Drop files here</span>
-            <span className="text-muted-foreground text-xs">{fileNames(value)}</span>
-          </div>
-          <Button type="button" variant="outline" size="sm" disabled={disabled} onClick={open}>
-            Choose files
-          </Button>
-        </>
-      )}
-    </div>
-  );
+const UploadBoxRoot: React.FC<ReturnType<typeof useUploadBoxState>> = ({
+  content,
+  inputProps,
+  renderProps,
+  rootProps,
+}) => (
+  <div {...rootProps}>
+    <input {...inputProps} />
+    {uploadBoxContent(content, renderProps)}
+  </div>
+);
+
+/**
+ * Dropzone upload box.
+ *
+ * @example
+ * ```tsx
+ * import { UploadBox } from "@beep/ui/components/upload"
+ *
+ * console.log(UploadBox)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
+export const UploadBox: React.FC<UploadBoxProps> = (props) => {
+  const state = useUploadBoxState(props);
+
+  return <UploadBoxRoot {...state} />;
 };
 
 /**
