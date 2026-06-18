@@ -13,6 +13,7 @@ import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
+import type * as Option from "effect/Option";
 
 const $I = $M365Id.create("M365.errors");
 
@@ -169,7 +170,7 @@ export class M365Error extends TaggedErrorClass<M365Error>($I`M365Error`)(
   static readonly failEffectFromReasonThunk = flow(this.failEffectFromReason, (effect) => () => effect);
 }
 
-const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
+const readProperty = (value: unknown, key: PropertyKey): Option.Option<unknown> => {
   const target = O.fromNullishOr(value);
 
   return pipe(
@@ -189,7 +190,7 @@ const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
 
 const readString =
   (key: PropertyKey) =>
-  (value: unknown): O.Option<string> =>
+  (value: unknown): Option.Option<string> =>
     pipe(readProperty(value, key), O.filter(P.isString));
 
 const safeBoolean = (evaluate: () => boolean): boolean =>
@@ -198,7 +199,7 @@ const safeBoolean = (evaluate: () => boolean): boolean =>
     Result.getOrElse(() => false)
   );
 
-const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
+const httpClientCauseLabel = (cause: unknown): Option.Option<string> =>
   pipe(
     O.fromNullishOr(cause),
     O.filter((value) => safeBoolean(() => HttpClientError.isHttpClientError(value))),
@@ -207,16 +208,16 @@ const httpClientCauseLabel = (cause: unknown): O.Option<string> =>
     O.map((tag) => `HttpClientError:${tag}`)
   );
 
-const stringCauseLabel = (cause: unknown): O.Option<string> => (P.isString(cause) ? O.some("String") : O.none());
+const stringCauseLabel = (cause: unknown): Option.Option<string> => (P.isString(cause) ? O.some("String") : O.none());
 
-const causeLabelReaders: ReadonlyArray<(cause: unknown) => O.Option<string>> = [
+const causeLabelReaders: ReadonlyArray<(cause: unknown) => Option.Option<string>> = [
   httpClientCauseLabel,
   readString("_tag"),
   readString("name"),
   stringCauseLabel,
 ];
 
-const causeFromUnknown = (cause: unknown): O.Option<string> =>
+const causeFromUnknown = (cause: unknown): Option.Option<string> =>
   pipe(
     causeLabelReaders,
     A.findFirst((reader) => O.isSome(reader(cause))),
