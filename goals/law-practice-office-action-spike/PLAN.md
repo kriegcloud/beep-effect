@@ -2,7 +2,8 @@
 
 ## Status
 
-Status: `pending`
+Status: `complete` (2026-06-18) — P0–P3 landed green; global `bun run check`
+EXIT=0; closeout reflection written.
 
 ## Phases
 
@@ -12,10 +13,10 @@ acceptance).
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Schema / data-model | pending | Bespoke Effect-Schema for `OfficeAction`/`Claim`/`Rejection`(§101/§102/§103/§112)/`PriorArtReference`/`Distinction` in `@beep/law-practice-domain`; extend existing `Matter`/`PatentAsset`. Light `@source` JSDoc (CPC/IPC, PROV-O, SKOS). | Entities exist as `.model.ts` (+`.values.ts`/`.errors.ts`) with `$I` identity; `Rejection` cardinality encoded (§102=1 ref, §103=≥1+rationale, §101/§112=0); `Distinction.lifecycleState` typed from epistemic public `ClaimLifecycle`; field names reconciled with `docs/data-model-law-practice.md`; domain tests green. **No service code yet.** |
-| P1 Service contract | pending | Define the `Context.Service` ports/interfaces for `IrToLaw` and `OfficeActionReview` in `@beep/law-practice-use-cases`. Typed, **no implementation**. | `IrToLaw: (HandoffIR) => Effect<LawEntities>` and `OfficeActionReview: (fixtureDocRef) => Effect<ClaimProjectionView>` exist as typed services declaring deps on `@beep/file-processing`, `@beep/langextract`, `IrToLaw`, and the epistemic `ClaimGate`/`ClaimLifecycle`/`ClaimProjection`. **No loose helpers extracted before the contract.** |
-| P2 Implementation | pending | Implement `IrToLaw` (generic `Entity`/`Relation` discriminants → typed law entities, carrying `Span` → `Evidence(char-span)`); implement the `OfficeActionReview` orchestrator; wire the loop in `@beep/law-practice-server`; author one synthetic/public fixture OA. | The loop turns once GREEN on the fixture: one integration test asserts (a) exactly one `Distinction` candidate; (b) `Evidence` char-span re-slices the fixture to the expected quote; (c) gate admits, lifecycle reaches `shape_valid`; (d) trivial ask returns distinction + span. Bun test green. Candidate-only writes; no slice-to-slice internal imports. |
-| P3 Verify / close | pending | Run required checks; capture evidence; prepare PR, review response, and the closeout reflection. | `bun run check` green (no NEW failures vs `@beep/schema` Bun baseline) for `@beep/law-practice-{domain,use-cases,server}`; slice-leakage check clean; packet status + evidence updated; a closeout reflection exists. |
+| P0 Schema / data-model | complete | Bespoke Effect-Schema for `OfficeAction`/`Claim`/`Rejection`(§101/§102/§103/§112)/`PriorArtReference`/`Distinction` in `@beep/law-practice-domain`; extend existing `Matter`/`PatentAsset`. Light `@source` JSDoc (CPC/IPC, PROV-O, SKOS). | Entities exist as `.model.ts` (+`.values.ts`/`.errors.ts`) with `$I` identity; `Rejection` cardinality encoded (§102=1 ref, §103=≥1+rationale, §101/§112=0); `Distinction.lifecycleState` typed from epistemic public `ClaimLifecycle`; field names reconciled with `docs/data-model-law-practice.md`; domain tests green. **No service code yet.** |
+| P1 Service contract | complete | Define the `Context.Service` ports/interfaces for `IrToLaw` and `OfficeActionReview` in `@beep/law-practice-use-cases`. Typed, **no implementation**. | `IrToLaw: (HandoffIR) => Effect<LawEntities>` and `OfficeActionReview: (fixtureDocRef) => Effect<ClaimProjectionView>` exist as typed services declaring deps on `@beep/file-processing`, `@beep/langextract`, `IrToLaw`, and the epistemic `ClaimGate`/`ClaimLifecycle`/`ClaimProjection`. **No loose helpers extracted before the contract.** |
+| P2 Implementation | complete | Implement `IrToLaw` (generic `Entity`/`Relation` discriminants → typed law entities, carrying `Span` → `Evidence(char-span)`); implement the `OfficeActionReview` orchestrator; wire the loop in `@beep/law-practice-server`; author one synthetic/public fixture OA. | The loop turns once GREEN on the fixture: one integration test asserts (a) exactly one `Distinction` candidate; (b) `Evidence` char-span re-slices the fixture to the expected quote; (c) gate admits, lifecycle reaches `shape_valid`; (d) trivial ask returns distinction + span. Bun test green. Candidate-only writes; no slice-to-slice internal imports. |
+| P3 Verify / close | complete | Run required checks; capture evidence; prepare PR, review response, and the closeout reflection. | `bun run check` green (no NEW failures vs `@beep/schema` Bun baseline) for `@beep/law-practice-{domain,use-cases,server}`; slice-leakage check clean; packet status + evidence updated; a closeout reflection exists. |
 
 ## P3 Closeout Checklist
 

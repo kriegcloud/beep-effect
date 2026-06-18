@@ -1257,6 +1257,12 @@
       ],
       "@beep/shared-domain/values/ClaimLifecycle": [
         "./packages/shared/domain/src/values/ClaimLifecycle/index.ts"
+      ],
+      "@beep/law-practice-server": [
+        "./packages/law-practice/server/src/index.ts"
+      ],
+      "@beep/law-practice-server/layer": [
+        "./packages/law-practice/server/src/Layer.ts"
       ]
     }
   }

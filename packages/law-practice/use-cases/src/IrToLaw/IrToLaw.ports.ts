@@ -1,8 +1,15 @@
 /**
- * IR-to-law port: the typed contract through which the generic `@beep/nlp`
- * Handoff IR (a product-neutral annotated document of chunks, entities, and
- * relations) is mapped into concrete law-practice domain entities. This is the
+ * IR-to-law port: the typed contract through which span-bearing extraction
+ * output is mapped into concrete law-practice domain entities. This is the
  * boundary at which generic NLP annotations acquire IP-law meaning.
+ *
+ * The input is `ReadonlyArray<GroundedExtraction>` (from `@beep/langextract`),
+ * NOT the `@beep/nlp` `AnnotatedDocument` envelope. The envelope does not carry
+ * per-entity character spans: its `Entity.mentions` are bare `MentionId[]` and
+ * the span-bearing `Mention` objects are not included in the envelope, so a
+ * required `Distinction.anchor` (`TextAnchor`) cannot be recovered from it. A
+ * `GroundedExtraction` instead carries its own aligned `span` plus the original
+ * `matchedText`, which is exactly what grounding a distinction's anchor needs.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,15 +17,16 @@
 
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import { Context } from "effect";
+import type { GroundedExtraction } from "@beep/langextract/Extraction";
 import type { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
-import type { AnnotatedDocument } from "@beep/nlp/Handoff/Contract";
 import type { Effect } from "effect";
 
 const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.ports");
 
 /**
- * The bundle of law-practice domain entities produced by mapping one annotated
- * document. Each field is the concrete entity the generic IR resolves into.
+ * The bundle of law-practice domain entities produced by mapping one office
+ * action's grounded extractions. Each field is the concrete entity the generic
+ * extraction output resolves into.
  *
  * @example
  * ```ts
@@ -40,8 +48,10 @@ export interface LawEntities {
 }
 
 /**
- * Service shape for the IR-to-law mapping: take an annotated document emitted by
- * `@beep/nlp` and produce the law-practice {@link LawEntities} it encodes.
+ * Service shape for the IR-to-law mapping: take the span-bearing grounded
+ * extractions for one office action and produce the law-practice
+ * {@link LawEntities} they encode. The `span`/`matchedText` an extraction
+ * carries is what grounds the distinction's `TextAnchor`.
  *
  * @example
  * ```ts
@@ -55,7 +65,7 @@ export interface LawEntities {
  * @since 0.0.0
  */
 export interface IrToLawShape {
-  readonly toLaw: (ir: AnnotatedDocument) => Effect.Effect<LawEntities>;
+  readonly toLaw: (extractions: ReadonlyArray<GroundedExtraction>) => Effect.Effect<LawEntities>;
 }
 
 /**

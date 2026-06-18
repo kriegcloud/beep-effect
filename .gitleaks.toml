@@ -19,3 +19,9 @@ paths = [
   '''(^|/)packages/foundation/capability/observability/src/CauseRedaction\.ts$''',
   '''(^|/)packages/foundation/capability/observability/test/CauseRedaction\.test\.ts$''',
 ]
+
+[[allowlists]]
+description = "law-practice slice test fixtures are synthetic/public-only by mandate (privilege wall: a fixture is never a real client matter). Synthetic fixture keys such as \"rejection.102\" (a §102 rejection key) trip the generic-api-key entropy heuristic but are not secrets."
+paths = [
+  '''(^|/)packages/law-practice/[^/]+/test/.*$''',
+]

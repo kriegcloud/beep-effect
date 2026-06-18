@@ -257,7 +257,6 @@ graph authority.
 | RDF value models (IRI/Quad/Dataset, OWL/PROV vocab) | **Live** | `packages/foundation/modeling/rdf/src/Rdf.ts`, `Vocab/Owl.ts` |
 | PROV-O provenance + bounded SHACL | **Live** | `packages/foundation/capability/semantic-web/src/prov.ts`, `adapters/shacl-engine.ts` |
 | Epistemic authority (claims/evidence/lifecycle) | **Live (domain only)** | `packages/epistemic/domain/src/entities/{CandidateClaim,Evidence,Activity}`, `values/ClaimLifecycle` |
-| Deterministic L3 capability graph (dev tooling) | **Removed** | prior `EffectCapabilityKG.ts` prototype deleted; rebuild if pursued |
 | Ontology authoring over Effect Schema → JSON-LD/Turtle | **Specced, blocked** | `goals/ontology-modeling-foundation/SPEC.md` (`@beep/ontology`, retired) |
 | EventLog → graph projection | **Specced** | `goals/knowledge-workspace/00-event-sourced-graph.md` |
 | Curated-doc library + processing queue + grounded retrieval | **Specced** | `goals/trustgraph-port/{SPEC,PLAN}.md` → `packages/repo-memory` |

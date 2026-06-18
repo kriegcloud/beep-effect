@@ -211,6 +211,9 @@
       "path": "packages/law-practice/domain"
     },
     {
+      "path": "packages/law-practice/server"
+    },
+    {
       "path": "packages/law-practice/use-cases"
     },
     {

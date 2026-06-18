@@ -91,7 +91,8 @@ NET-NEW entities; extends existing `Matter`/`PatentAsset`/`LegalClient`):**
 tier):**
 
 - `src/IrToLaw/IrToLaw.ports.ts` + `IrToLaw.service.ts`
-  (`(HandoffIR) => Effect<LawEntities>`)
+  (`(ReadonlyArray<GroundedExtraction>) => Effect<LawEntities>` — span-bearing
+  langextract output, not the span-lossy nlp `AnnotatedDocument` envelope)
 - `src/OfficeActionReview/OfficeActionReview.ports.ts` +
   `OfficeActionReview.service.ts` (loop orchestrator
   `(fixtureDocRef) => Effect<ClaimProjectionView>`)
@@ -168,14 +169,17 @@ implementation before verify).
 - [ ] **P1 (service contract):** `IrToLaw` and `OfficeActionReview` exist as
       typed Effect `Context.Service` ports/interfaces in
       `packages/law-practice/use-cases/src/**` with **no implementation** —
-      `IrToLaw: (HandoffIR) => Effect<LawEntities>`;
-      `OfficeActionReview: (fixtureDocRef) => Effect<ClaimProjectionView>`
-      declaring deps on `@beep/file-processing`, `@beep/langextract`,
+      `IrToLaw: (ReadonlyArray<GroundedExtraction>) => Effect<LawEntities>`;
+      `OfficeActionReview: (OfficeActionReviewInput) => Effect<ClaimProjectionView>`
+      declaring deps on `@beep/langextract` (span-bearing `GroundedExtraction`),
       `IrToLaw`, and the epistemic `ClaimGate`/`ClaimLifecycle`/
-      `ClaimProjection`. No loose helpers precede the contract.
-- [ ] **P2 (implementation):** `IrToLaw` maps generic `Entity.type`/
-      `Relation.type` discriminants → typed law entities, carrying each
-      `Span` → `Evidence(char-span)`. The `OfficeActionReview` orchestrator
+      `ClaimProjection`. (The spike consumes pre-extracted `sourceText`, so
+      `@beep/file-processing`/tika ingestion is deferred, not composed.) No loose
+      helpers precede the contract.
+- [ ] **P2 (implementation):** `IrToLaw` maps span-bearing `GroundedExtraction`
+      records (keyed on the `label` vocabulary) → typed law entities, grounding
+      the distinction's aligned `span` + original-case `matchedText` →
+      `TextAnchor` → `Evidence(char-span)`. The `OfficeActionReview` orchestrator
       composes the HAVE ingestion bricks + the epistemic gate, emits one
       `Distinction(kind="missing_limitation")` as a `CandidateClaim`, gates
       it, projects it, and answers the trivial ask. Live Layer in
@@ -202,7 +206,7 @@ implementation before verify).
 | Domain schema check | `bun run check --filter @beep/law-practice-domain` | Green (no new failures) |
 | Use-cases + server check | `bun run check --filter @beep/law-practice-use-cases --filter @beep/law-practice-server` | Green (no new failures) |
 | Loop integration test | `bun test` on the office-action loop test | One distinction, char-span linked, gate admits, ask answers |
-| No slice leakage | `rg -n "from \"@beep/epistemic-(domain\|use-cases)/" packages/law-practice/**/src` only hits public surface | No internal imports |
+| No slice leakage | `rg -n 'from "@beep/epistemic-(domain\|use-cases\|server)' packages/law-practice/**/src` — every hit resolves to a canonical public subpath (root, `/values`, `/ClaimGate`, `/ClaimLifecycle`, `/ClaimProjection`, `/layer`); zero `/internal/*` | No internal imports; `packages/law-practice/domain/src` has zero hits |
 | Reflection present | `bun run beep lint reflection-artifacts` | Passes |
 
 ## Stop Conditions
@@ -253,4 +257,4 @@ decisions (2026-06-17):
 
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
-| Direct cross-slice composition of the epistemic gate/projection | `law-practice-use-cases` + `law-practice-server` import the `@beep/epistemic-use-cases` public surface (`ClaimGate`/`ClaimProjection`/`ClaimTransition`) to drive the loop | law-practice slice | Doctrine routes cross-slice integration through `shared/use-cases` or events (`01-hexagonal-vertical-slices.md:71-74`), but a full shared contract for a one-fixture spike is premature; the bounded exception is the deliberate, documented choice per `standards/architecture/DECISIONS.md` (2026-06-18). The domain tier stays clean (foundation + shared-kernel only). | Extract a `shared/use-cases` contract (or emitted event) when a third consumer of the epistemic boundary appears. |
+| Direct cross-slice composition of the epistemic gate/projection | `law-practice-use-cases` + `law-practice-server` import the epistemic mechanism's public surface: `@beep/epistemic-use-cases` (`ClaimGate`/`ClaimLifecycle`/`ClaimProjection`), the entailed mechanism types from `@beep/epistemic-domain` (`CandidateClaim`, `Evidence`, `ClaimProjectionView`), and `@beep/epistemic-server/layer` (`EpistemicServerLive`) to drive the loop | law-practice slice | Doctrine routes cross-slice integration through `shared/use-cases` or events (`01-hexagonal-vertical-slices.md:71-74`), but a full shared contract for a one-fixture spike is premature; the bounded exception is the deliberate, documented choice per `standards/architecture/DECISIONS.md` (2026-06-18). The domain tier stays clean (foundation + shared-kernel only). | Extract a `shared/use-cases` contract (or emitted event) when a third consumer of the epistemic boundary appears. |

@@ -1,15 +1,15 @@
 {
-  "name": "@beep/law-practice-use-cases",
+  "name": "@beep/law-practice-server",
   "version": "0.0.0",
-  "description": "Law-practice use-case package: IR-to-law mapping and office-action review loop contracts.",
+  "description": "Law-practice server tier: live Layer surface composing the IR-to-law mapping and office-action review loop over the epistemic server.",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/law-practice/use-cases",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/law-practice/server",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/law-practice/use-cases"
+    "directory": "packages/law-practice/server"
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
@@ -18,10 +18,10 @@
     "beep:check": "tsgo -b tsconfig.json",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
-    "beep:test": "bunx --bun vitest run --passWithNoTests",
+    "beep:test": "bunx --bun vitest run",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
-    "coverage": "bunx --bun vitest run --coverage --passWithNoTests",
+    "coverage": "bunx --bun vitest run --coverage",
     "docgen": "bun run ../../../packages/tooling/tool/docgen/src/bin.ts",
     "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "lint": "bun run beep:lint",
@@ -30,10 +30,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./public": "./src/public.ts",
-    "./server": "./src/server.ts",
-    "./IrToLaw": "./src/IrToLaw/index.ts",
-    "./OfficeActionReview": "./src/OfficeActionReview/index.ts",
+    "./layer": "./src/Layer.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -46,11 +43,11 @@
   ],
   "sideEffects": [],
   "dependencies": {
-    "@beep/epistemic-domain": "workspace:^",
+    "@beep/epistemic-server": "workspace:^",
     "@beep/epistemic-use-cases": "workspace:^",
     "@beep/identity": "workspace:^",
-    "@beep/langextract": "workspace:^",
     "@beep/law-practice-domain": "workspace:^",
+    "@beep/law-practice-use-cases": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

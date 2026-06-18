@@ -68,6 +68,7 @@ const generatedComposers = $I.compose(
   "epistemic-use-cases",
   "law-practice-domain",
   "law-practice-use-cases",
+  "law-practice-server",
   "professional-desktop",
   "workspace-domain",
 
@@ -697,6 +698,23 @@ export const $LawPracticeDomainId: Identity.IdentityComposer<"@beep/law-practice
  */
 export const $LawPracticeUseCasesId: Identity.IdentityComposer<"@beep/law-practice-use-cases"> =
   composers.$LawPracticeUseCasesId;
+
+/**
+ * Identity composer for the `@beep/law-practice-server` package.
+ *
+ * @example
+ * ```typescript
+ * import { $LawPracticeServerId } from "@beep/identity"
+ *
+ * const id = $LawPracticeServerId.make("LawPracticeServerLive")
+ * console.log(id)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const $LawPracticeServerId: Identity.IdentityComposer<"@beep/law-practice-server"> =
+  composers.$LawPracticeServerId;
 
 /**
  * Identity composer for the `@beep/professional-desktop` package.

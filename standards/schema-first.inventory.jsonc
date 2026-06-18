@@ -474,6 +474,32 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/epistemic/use-cases/src/ClaimGate/ClaimGate.ports.ts",
+      "symbol": "ClaimGateShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/epistemic-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/epistemic/use-cases/src/ClaimLifecycle/ClaimLifecycle.service.ts",
+      "symbol": "ClaimTransitionShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/epistemic-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/epistemic/use-cases/test/EpistemicUseCases.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 13,
+      "owner": "@beep/epistemic-use-cases",
+      "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+    },
+    {
       "file": "packages/foundation/capability/chalk/src/Chalk.browser.ts",
       "symbol": "ChalkInstance",
       "kind": "exported-interface",
@@ -1570,6 +1596,56 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "React tour configuration is coupled to Step render contracts containing ReactNode values, so it stays tracked as a UI boundary exception."
+    },
+    {
+      "file": "packages/law-practice/domain/test/LawPracticeDomain.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 35,
+      "owner": "@beep/law-practice-domain",
+      "reason": "Schema-heavy test file has 6 Schema codec assertions but no schema-derived property coverage."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/IrToLaw/IrToLaw.ports.ts",
+      "symbol": "IrToLawShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/IrToLaw/IrToLaw.ports.ts",
+      "symbol": "LawEntities",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Use-case aggregate of already schema-modeled domain entity instances (OfficeAction/Claim/Rejection/PriorArtReference/Distinction); a transient IrToLaw mapping result, not a persisted or wire contract."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.ports.ts",
+      "symbol": "OfficeActionReviewInput",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Rung-0 office-action review service input contract (matter/office-action fixture keys + pre-extracted sourceText); a plain DTO mirroring the slice's port-interface style; schema promotion deferred to graduation."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.ports.ts",
+      "symbol": "OfficeActionReviewShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.service.ts",
+      "symbol": "OfficeActionReviewDeps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/law-practice-use-cases",
+      "reason": "Dependency-injection container of Effect service shapes (ClaimGate/IrToLaw/ClaimTransition); a wiring bundle of function-bearing services, not serializable data."
     },
     {
       "file": "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",

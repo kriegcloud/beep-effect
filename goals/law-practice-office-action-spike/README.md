@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained` (2026-06-18)
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -47,15 +47,40 @@ Referenced (not merged): `goals/ip-law-knowledge-graph`,
 
 ## Current Phase
 
-`P0 Schema / data-model` — not started. Next concrete action: design the
-bespoke `OfficeAction`/`Claim`/`Rejection`/`PriorArtReference`/`Distinction`
-Effect-Schema in `@beep/law-practice-domain`, reconciling field names against
-`docs/data-model-law-practice.md`. **Do not** start P1 wiring until the
-`epistemic-claim-lifecycle-gate` public surface exists.
+`P3 Verify / close` — complete. All four phases (P0 schema → P1 contracts →
+P2 impl+loop → P3 verify) landed green. Closeout reflection written; packet
+retained as reference.
 
 ## Latest Evidence
 
-Not started.
+- P0 — `@beep/law-practice-domain`: 5 entities (OfficeAction/Claim/Rejection/
+  PriorArtReference/Distinction) + `RejectionGround`/`DistinctionDetail` value
+  unions; 8 domain tests green; decoupling clean (domain imports foundation +
+  shared-kernel only).
+- P1 — `@beep/law-practice-use-cases`: typed `IrToLaw` + `OfficeActionReview`
+  `Context.Service` ports.
+- P2 — IR→law impl + office-action review loop wired in new
+  `@beep/law-practice-server` (`LawPracticeServerLive`); 2 integration tests
+  green (anchor re-slices source to original-case quote via `match_lesser`;
+  gate admits → lifecycle reaches `shape_valid`, `admittedKeys === []`).
+- P3 — global `bun run check` EXIT=0 (88 packages + dtslint/test-tsgo/smoke);
+  `rg "@beep/epistemic" packages/law-practice/domain/src` empty;
+  `bun run beep lint reflection-artifacts` blocking_findings=0.
+- P3 — independent adversarial review (6-dimension workflow, per-finding
+  refutation): **0 confirmed blockers**; schema-domain + effect-laws dimensions
+  fully clean. Applied non-blocking polish: synced the SPEC `IrToLaw` signature
+  to `GroundedExtraction[]`, widened the Exception Ledger to the full epistemic
+  surface, fixed the leakage-check `rg` blind spot, added a `match_lesser`
+  assertion + candidate-sync caveat to the loop test, and a decoder-rationale
+  comment. Deferred to graduation: candidate-list sharing, non-happy-path
+  candidates, `Option`-style absence handling.
+- Built on the post-#254 baseline (origin/main merged into `baseline-synthesis`;
+  repo-exports catalog/shards removed in the merge).
+- Reflection: [`history/reflections/2026-06-18-claude.md`](./history/reflections/2026-06-18-claude.md).
+- Key spike finding: the nlp `AnnotatedDocument` envelope is span-lossy at the
+  entity level; `IrToLaw` consumes span-bearing `GroundedExtraction[]`
+  (`@beep/langextract`) instead — see the reflection + SPEC.
+- Not committed/pushed: all spike code is in the working tree (local only).
 
 ## Notes
 

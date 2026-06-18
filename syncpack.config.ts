@@ -31,6 +31,7 @@ const config = {
     "packages/epistemic/server/package.json",
     "packages/law-practice/domain/package.json",
     "packages/law-practice/use-cases/package.json",
+    "packages/law-practice/server/package.json",
     "packages/workspace/domain/package.json",
     "packages/shared/use-cases/package.json",
     "packages/shared/config/package.json",

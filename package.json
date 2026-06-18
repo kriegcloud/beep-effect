@@ -32,6 +32,7 @@
     "packages/epistemic/server",
     "packages/law-practice/domain",
     "packages/law-practice/use-cases",
+    "packages/law-practice/server",
     "packages/workspace/domain",
     "packages/shared/use-cases",
     "packages/shared/config",

@@ -1253,6 +1253,23 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/law-practice/server": {
+      "name": "@beep/law-practice-server",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/epistemic-server": "workspace:^",
+        "@beep/epistemic-use-cases": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/law-practice-domain": "workspace:^",
+        "@beep/law-practice-use-cases": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/law-practice/use-cases": {
       "name": "@beep/law-practice-use-cases",
       "version": "0.0.0",
@@ -1260,8 +1277,8 @@
         "@beep/epistemic-domain": "workspace:^",
         "@beep/epistemic-use-cases": "workspace:^",
         "@beep/identity": "workspace:^",
+        "@beep/langextract": "workspace:^",
         "@beep/law-practice-domain": "workspace:^",
-        "@beep/nlp": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -2164,6 +2181,8 @@
     "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
+
+    "@beep/law-practice-server": ["@beep/law-practice-server@workspace:packages/law-practice/server"],
 
     "@beep/law-practice-use-cases": ["@beep/law-practice-use-cases@workspace:packages/law-practice/use-cases"],
 

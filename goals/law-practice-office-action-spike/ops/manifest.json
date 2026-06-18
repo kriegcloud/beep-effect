@@ -3,13 +3,13 @@
   "initiative": {
     "id": "law-practice-office-action-spike",
     "title": "Law-Practice Office-Action Spike",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-17",
-    "updated": "2026-06-17",
+    "updated": "2026-06-18",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/law-practice-office-action-spike",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -48,22 +48,22 @@
     {
       "id": "P0",
       "name": "Schema / data-model",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "Service contract",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
       "name": "Implementation",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P3",
       "name": "Verify / close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

@@ -19,3 +19,17 @@
  * @since 0.0.0
  */
 export * from "./OfficeActionReview.ports.js";
+/**
+ * Office-action review implementation exports.
+ *
+ * @example
+ * ```ts
+ * import * as Module from "@beep/law-practice-use-cases/OfficeActionReview"
+ *
+ * console.log(Module)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export * from "./OfficeActionReview.service.js";
