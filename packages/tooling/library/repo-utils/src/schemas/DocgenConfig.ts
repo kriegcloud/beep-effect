@@ -420,7 +420,7 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
   return CanonicalDocgenConfig.make({
     $schema: `${rootRelativePrefix}packages/tooling/tool/docgen/schema.json`,
     exclude: [...DEFAULT_DOCGEN_EXCLUDE],
-    srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${input.packageRelativePath}/src/`,
+    srcLink: `https://github.com/beep-effect/beep-effect/tree/main/${input.packageRelativePath}/src/`,
     examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make({
       noEmit: true,
       strict: true,

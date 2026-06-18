@@ -1,7 +1,7 @@
 {
   "$schema": "../../../../packages/tooling/tool/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/library/ai-sync/src/",
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/tooling/library/ai-sync/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,

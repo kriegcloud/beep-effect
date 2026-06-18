@@ -21,7 +21,7 @@ const defaultInstallCommand = "cd ../.. && bun install";
 const defaultOutputDirectory = "storybook-static";
 const defaultProductionBranch = "main";
 const defaultProjectName = "beep-storybook";
-const defaultRepository = "kriegcloud/beep-effect";
+const defaultRepository = "beep-effect/beep-effect";
 const defaultRootDirectory = "apps/storybook";
 const defaultVercelAuthenticationDeploymentType: StorybookVercelAuthenticationDeploymentType = "none";
 

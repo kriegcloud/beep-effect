@@ -72,14 +72,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/tooling/policy-pack/repo-configs"
   },
   "beep": {
     "family": "tooling",
     "kind": "policy-pack"
   },
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/tooling/policy-pack/repo-configs",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/tooling/policy-pack/repo-configs",
   "sideEffects": [],
   "publishConfig": {
     "access": "public",

@@ -11,7 +11,7 @@ config:
   oipWeb:legacyWwwDomain: www.opip.law
   oipWeb:projectName: oip-web-staging
   oipWeb:productionBranch: main
-  oipWeb:repository: kriegcloud/beep-effect
+  oipWeb:repository: beep-effect/beep-effect
   oipWeb:rootDirectory: apps/oip-web
   oipWeb:stagingBranch: main
   oipWeb:stagingDomain: staging.oip.law
