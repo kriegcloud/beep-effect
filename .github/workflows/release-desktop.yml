@@ -46,7 +46,7 @@ on:
         type: string
 
 concurrency:
-  group: release-desktop-${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref }}
+  group: release-desktop-${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
   cancel-in-progress: false
 
 permissions:
@@ -57,7 +57,7 @@ jobs:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     environment: professional-desktop-release
-    timeout-minutes: 60
+    timeout-minutes: 120
     env:
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     strategy:
@@ -103,6 +103,17 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.version) || github.ref }}
+
+      - name: Verify release tag checkout
+        shell: bash
+        run: |
+          git fetch --force --tags origin "refs/tags/${RELEASE_DESKTOP_TAG}:refs/tags/${RELEASE_DESKTOP_TAG}"
+          tag_commit="$(git rev-list -n 1 "refs/tags/${RELEASE_DESKTOP_TAG}")"
+          head_commit="$(git rev-parse HEAD)"
+          if [[ "${head_commit}" != "${tag_commit}" ]]; then
+            echo "::error::Checked out ${head_commit}, but ${RELEASE_DESKTOP_TAG} points to ${tag_commit}."
+            exit 1
+          fi
 
       - name: Validate updater signing secret
         shell: bash
@@ -203,6 +214,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs: release-desktop
     if: ${{ always() }}
+    env:
+      RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - name: Verify every desktop target completed
         shell: bash
@@ -214,3 +227,36 @@ jobs:
             exit 1
           fi
           echo "::notice::All desktop release targets completed successfully. The draft release is ready for manual smoke testing and publication."
+
+      - name: Verify draft release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release_json="$(gh release view "${RELEASE_DESKTOP_TAG}" --repo "${GITHUB_REPOSITORY}" --json assets,isDraft)"
+          if [[ "$(jq -r '.isDraft' <<<"${release_json}")" != "true" ]]; then
+            echo "::error::Release ${RELEASE_DESKTOP_TAG} is not a draft. Do not publish updater artifacts before manual smoke testing."
+            exit 1
+          fi
+
+          mapfile -t asset_names < <(jq -r '.assets[].name' <<<"${release_json}")
+          require_asset() {
+            local label="$1"
+            local pattern="$2"
+            if ! printf '%s\n' "${asset_names[@]}" | grep -Eiq "${pattern}"; then
+              echo "::error::Draft release ${RELEASE_DESKTOP_TAG} is missing ${label} asset."
+              printf 'Observed assets:\n%s\n' "${asset_names[*]}"
+              exit 1
+            fi
+          }
+
+          require_asset "latest.json" '^latest\.json$'
+          require_asset "macOS arm64 updater/bundle" '(aarch64|arm64).*(dmg|app\.tar\.gz)|(dmg|app\.tar\.gz).*(aarch64|arm64)'
+          require_asset "macOS x64 updater/bundle" '(x64|x86_64).*(dmg|app\.tar\.gz)|(dmg|app\.tar\.gz).*(x64|x86_64)'
+          require_asset "Linux x64 updater/bundle" '(linux|appimage|\.deb|\.rpm).*(x64|x86_64|amd64)|(x64|x86_64|amd64).*(linux|appimage|\.deb|\.rpm)'
+          require_asset "Windows x64 updater/bundle" '(windows|msi|exe|nsis).*(x64|x86_64)|(x64|x86_64).*(windows|msi|exe|nsis)'
+
+          asset_dir="${RUNNER_TEMP}/desktop-release-assets"
+          mkdir -p "${asset_dir}"
+          gh release download "${RELEASE_DESKTOP_TAG}" --repo "${GITHUB_REPOSITORY}" --pattern latest.json --dir "${asset_dir}" --clobber
+          jq -e '.version and .platforms and (.platforms | length >= 4)' "${asset_dir}/latest.json" >/dev/null
