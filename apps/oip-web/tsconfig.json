@@ -9,6 +9,7 @@
     ".next/dev/types/**/*.ts",
     "next.config.ts"
   ],
+  "exclude": ["src/app/sw.ts", "public/sw.js"],
   "compilerOptions": {
     "lib": ["dom", "dom.iterable", "esnext"],
     "types": ["node"],
