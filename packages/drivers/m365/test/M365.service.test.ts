@@ -147,6 +147,20 @@ const makeTestLayer = (config = testConfig()): Layer.Layer<M365 | M365TestHttp, 
     Layer.provideMerge(M365TestHttpLayer)
   );
 
+const makeAuthFailureLayer = (): Layer.Layer<M365 | M365TestHttp, M365Error> =>
+  M365.makeLayer(testConfig()).pipe(
+    Layer.provide(
+      Layer.succeed(
+        M365Auth,
+        M365Auth.of({
+          acquireToken: M365Error.failEffectFromReason("auth"),
+        })
+      )
+    ),
+    Layer.provide(TestHttpClientLayer),
+    Layer.provideMerge(M365TestHttpLayer)
+  );
+
 type FixtureRoute = {
   readonly respond: () => Effect.Effect<Response>;
   readonly url: string;
@@ -266,6 +280,28 @@ describe("@beep/m365 service", () => {
         expect(A.every(graphCaptures, (capture) => capture.headers.authorization === `Bearer ${TOKEN}`)).toBe(true);
         expect(A.every(graphCaptures, (capture) => capture.headers.accept === "application/json")).toBe(true);
         expect(A.map(captures, (capture) => capture.url)).toContain(`${GRAPH_BASE_URL}/sites/${SITE_ID}/drives`);
+      })
+    );
+  });
+
+  layer(makeAuthFailureLayer())((it) => {
+    it.effect(
+      "preserves auth failures before HTTP execution",
+      Effect.fnUntraced(function* () {
+        const m365 = yield* M365;
+        const testHttp = yield* M365TestHttp;
+        const exit = yield* Effect.exit(m365.listDrives(M365ListDrivesRequest.make({ siteId: SITE_ID })));
+        const captures = yield* testHttp.captures;
+
+        expect(captures).toHaveLength(0);
+        expect(Exit.isFailure(exit)).toBe(true);
+        if (Exit.isFailure(exit)) {
+          const error = Cause.findErrorOption(exit.cause);
+          expect(O.isSome(error)).toBe(true);
+          if (O.isSome(error)) {
+            expect(error.value.reason).toBe("auth");
+          }
+        }
       })
     );
   });
