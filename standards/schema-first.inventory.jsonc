@@ -1906,6 +1906,14 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/Quality/FallowQuality.command.ts",
+      "symbol": "anonymous@319",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
       "symbol": "CategorySelectionServiceShape",
       "kind": "exported-type-literal",

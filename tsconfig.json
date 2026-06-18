@@ -1269,6 +1269,9 @@
       ],
       "@beep/pglite/*": [
         "./packages/drivers/pglite/src/*"
+      ],
+      "@beep/law-practice-use-cases/test": [
+        "./packages/law-practice/use-cases/src/test.ts"
       ]
     }
   }

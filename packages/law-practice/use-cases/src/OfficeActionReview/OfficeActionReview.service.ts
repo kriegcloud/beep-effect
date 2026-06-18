@@ -22,11 +22,11 @@ import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { projectClaims } from "@beep/epistemic-use-cases/ClaimProjection";
 import { FileProcessingOperationError, ProcessFileOperation } from "@beep/file-processing/Operation";
 import { alignCandidates } from "@beep/langextract/Alignment";
-import { ExtractionCandidate } from "@beep/langextract/Extraction";
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { spikeEntityInput } from "../internal/spikeEntity.js";
+import { OfficeActionReviewSpikeCandidates } from "./OfficeActionReview.candidates.js";
 import type { ClaimGateShape } from "@beep/epistemic-use-cases/ClaimGate";
 import type { ClaimTransitionShape } from "@beep/epistemic-use-cases/ClaimLifecycle";
 import type { ProcessFileResult } from "@beep/file-processing/Extraction";
@@ -36,14 +36,6 @@ import type { OfficeActionReviewShape } from "./OfficeActionReview.ports.js";
 
 const decodeCandidateClaim = S.decodeUnknownSync(CandidateClaim);
 const decodeEvidence = S.decodeUnknownSync(Evidence);
-
-// Fixed candidate set — stand-in for the deferred LLM extraction step.
-const candidates = [
-  ExtractionCandidate.make({ label: "office_action", text: "Office Action" }),
-  ExtractionCandidate.make({ label: "claim", text: "A widget comprising a lid and a base." }),
-  ExtractionCandidate.make({ label: "rejection_reference", text: "Smith" }),
-  ExtractionCandidate.make({ label: "distinction", text: "a hinge coupling the lid to the base" }),
-];
 
 const candidateClaimOf = (law: LawEntities): CandidateClaim =>
   decodeCandidateClaim({
@@ -66,30 +58,32 @@ const evidenceOf = (law: LawEntities): Evidence =>
     spanFixtureKey: law.distinction.fixtureKey,
   });
 
+const failFileExtraction = (
+  result: ProcessFileResult,
+  message: string
+): Effect.Effect<never, FileProcessingOperationError> =>
+  Effect.fail(
+    FileProcessingOperationError.fromReason("file-extraction-failed", {
+      artifactId: result.sourceArtifactId,
+      engine: result.engine,
+      format: result.format,
+      message,
+      operationId: result.operationId,
+    })
+  );
+
 const sourceTextFrom = Effect.fn("law_practice.office_action.source_text_from")(function* (
   result: ProcessFileResult
 ): Effect.fn.Return<string, FileProcessingOperationError> {
   if (result.resultKind !== "extracted") {
-    return yield* FileProcessingOperationError.fromReason("file-extraction-failed", {
-      artifactId: result.sourceArtifactId,
-      engine: result.engine,
-      format: result.format,
-      message: `Office-action review requires extracted text, received ${result.resultKind}.`,
-      operationId: result.operationId,
-    });
+    return yield* failFileExtraction(
+      result,
+      `Office-action review requires extracted text, received ${result.resultKind}.`
+    );
   }
 
   return yield* O.match(O.fromUndefinedOr(result.extraction.text), {
-    onNone: () =>
-      Effect.fail(
-        FileProcessingOperationError.fromReason("file-extraction-failed", {
-          artifactId: result.extraction.sourceArtifactId,
-          engine: result.engine,
-          format: result.format,
-          message: "Office-action review requires text extraction output.",
-          operationId: result.operationId,
-        })
-      ),
+    onNone: () => failFileExtraction(result, "Office-action review requires text extraction output."),
     onSome: Effect.succeed,
   });
 });
@@ -144,7 +138,7 @@ export const makeOfficeActionReview = (deps: OfficeActionReviewDeps): OfficeActi
     const sourceText = yield* sourceTextFrom(processed);
 
     // Deterministically align the fixed candidates against the extracted source text.
-    const extractions = alignCandidates(sourceText, candidates);
+    const extractions = alignCandidates(sourceText, OfficeActionReviewSpikeCandidates);
 
     // Map the grounded extractions into law entities.
     const law = yield* deps.irToLaw.toLaw(extractions);

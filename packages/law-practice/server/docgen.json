@@ -136,6 +136,9 @@
       "@beep/law-practice-use-cases/OfficeActionReview": [
         "../../../packages/law-practice/use-cases/src/OfficeActionReview/index.ts"
       ],
+      "@beep/law-practice-use-cases/test": [
+        "../../../packages/law-practice/use-cases/src/test.ts"
+      ],
       "@beep/test-utils": [
         "../../../packages/tooling/test-kit/test-utils/src/index.ts"
       ],

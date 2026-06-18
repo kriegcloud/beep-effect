@@ -1,9 +1,9 @@
 import { alignCandidates } from "@beep/langextract/Alignment";
-import { ExtractionCandidate } from "@beep/langextract/Extraction";
 import { Distinction } from "@beep/law-practice-domain";
 import { LawPracticeServerLive } from "@beep/law-practice-server/layer";
 import { IrToLaw } from "@beep/law-practice-use-cases/IrToLaw";
 import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
+import { OfficeActionReviewSpikeCandidates } from "@beep/law-practice-use-cases/test";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import {
@@ -13,25 +13,12 @@ import {
   OFFICE_ACTION_FIXTURE,
 } from "./fixture.ts";
 
-// Mirrors — byte for byte — the fixed candidate set inside the OfficeActionReview
-// loop (packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.service.ts).
-// This duplication is the spike's deliberate cost of NOT widening the use-cases
-// public surface; the two lists MUST stay in sync until LLM extraction replaces
-// the fixed candidates at graduation. Because they are identical, the anchor
-// re-slice proven below (Test 1) also covers the loop's grounding (Test 2).
-const candidates = [
-  ExtractionCandidate.make({ label: "office_action", text: "Office Action" }),
-  ExtractionCandidate.make({ label: "claim", text: "A widget comprising a lid and a base." }),
-  ExtractionCandidate.make({ label: "rejection_reference", text: "Smith" }),
-  ExtractionCandidate.make({ label: "distinction", text: EXPECTED_DISTINCTION_LIMITATION }),
-];
-
 describe("@beep/law-practice-server", () => {
   it.layer(LawPracticeServerLive)("office-action review loop over the epistemic server", (it) => {
     it.effect("IrToLaw grounds exactly one distinction to its source anchor", () =>
       Effect.gen(function* () {
         const irToLaw = yield* IrToLaw;
-        const extractions = alignCandidates(OFFICE_ACTION_FIXTURE, candidates);
+        const extractions = alignCandidates(OFFICE_ACTION_FIXTURE, OfficeActionReviewSpikeCandidates);
 
         // The distinction candidate is lower case vs the Title-Case source, so
         // alignment MUST take the case-insensitive `match_lesser` path (not a

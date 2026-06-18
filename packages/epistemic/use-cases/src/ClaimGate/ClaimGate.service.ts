@@ -29,6 +29,10 @@ const CLAIM_CLASS_IRI = "https://beep.dev/epistemic/Claim";
 const EVIDENCE_QUOTE_IRI = "https://beep.dev/epistemic/hasEvidenceQuote";
 const CLAIM_SUBJECT_PREFIX = "https://beep.dev/epistemic/claim/";
 
+const decodeClaimGateResult = S.decodeUnknownSync(ClaimGateResult);
+const decodeShaclValidationRequest = S.decodeUnknownSync(ShaclValidationRequest);
+const encodeDataset = S.encodeSync(Dataset);
+
 const toDataset = (
   claim: DomainCandidateClaim.CandidateClaim,
   evidence: ReadonlyArray<DomainEvidence.Evidence>
@@ -46,8 +50,8 @@ const buildRequest = (
   evidence: ReadonlyArray<DomainEvidence.Evidence>
 ): ShaclValidationRequest =>
   // Built from statically known-good shapes; decode brands minCount and re-decodes the encoded dataset.
-  S.decodeUnknownSync(ShaclValidationRequest)({
-    dataset: S.encodeSync(Dataset)(toDataset(claim, evidence)),
+  decodeShaclValidationRequest({
+    dataset: encodeDataset(toDataset(claim, evidence)),
     shapes: [
       {
         targetClass: { termType: "NamedNode", value: CLAIM_CLASS_IRI },
@@ -65,8 +69,8 @@ const buildRequest = (
 // Project the engine result into the domain verdict; decode brands the violation fields from known-good values.
 const toVerdict = (result: ShaclValidationResult): ClaimGateResult =>
   result.conforms && !result.truncated
-    ? S.decodeUnknownSync(ClaimGateResult)({ verdict: "admitted" })
-    : S.decodeUnknownSync(ClaimGateResult)({
+    ? decodeClaimGateResult({ verdict: "admitted" })
+    : decodeClaimGateResult({
         verdict: "rejected",
         violations: A.map(result.violations, (violation) => ({
           focusNode: violation.focusNode,
