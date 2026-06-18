@@ -123,7 +123,7 @@ export const COLORS: R.ReadonlyRecord<string, ReadonlyArray<number>> = {
 		0,
 		0,
 	],
-	blanchealmond: [
+	blanchedalmond: [
 		255,
 		235,
 		205,
@@ -200,7 +200,7 @@ export const COLORS: R.ReadonlyRecord<string, ReadonlyArray<number>> = {
 	],
 	darkgoldenrod: [
 		184,
-		132,
+		134,
 		11,
 	],
 	darkgray: [
@@ -568,7 +568,7 @@ export const COLORS: R.ReadonlyRecord<string, ReadonlyArray<number>> = {
 		21,
 		133,
 	],
-	midbightblue: [
+	midnightblue: [
 		25,
 		25,
 		112,
@@ -671,7 +671,7 @@ export const COLORS: R.ReadonlyRecord<string, ReadonlyArray<number>> = {
 	plum: [
 		221,
 		160,
-		203,
+		221,
 	],
 	powderblue: [
 		176,
@@ -749,12 +749,12 @@ export const COLORS: R.ReadonlyRecord<string, ReadonlyArray<number>> = {
 		205,
 	],
 	slategray: [
-		119,
+		112,
 		128,
 		144,
 	],
 	slategrey: [
-		119,
+		112,
 		128,
 		144,
 	],
@@ -832,7 +832,7 @@ export const COLORS: R.ReadonlyRecord<string, ReadonlyArray<number>> = {
 	yellowgreen: [
 		154,
 		205,
-		5,
+		50,
 	],
 };
 

@@ -6,24 +6,25 @@ Researched: 2026-06-18
 
 1. **Clio** - best first legal-native export candidate because the public API
    exposes Activities for time and expense entries ([Clio API reference](https://docs.developers.clio.com/clio-manage/api-reference/)).
-2. **Bill4Time** - public time-entry API docs exist, but write capability and
-   version behavior need validation because support docs warn that some API
-   versions are read-only ([Bill4Time time entries API](https://secure.bill4time.com/apinode/v1/docs/timeentries),
-   [Bill4Time API overview](https://support.bill4time.com/hc/en-us/articles/27906381671963-API-Overview)).
-3. **PracticePanther** - public RESTful/OData API support page and legal
+2. **PracticePanther** - public RESTful/OData API support page and legal
    leakage-detection product claims make it useful as a comparison target
    ([PracticePanther API](https://support.practicepanther.com/en/articles/479897-practicepanther-api),
    [PracticePanther legal billing](https://www.practicepanther.com/legal-billing/)).
-4. **MyCase** - Open API exists, but MyCase states it requires a paid Advanced
+3. **MyCase** - Open API exists, but MyCase states it requires a paid Advanced
    subscription ([MyCase Open API](https://www.mycase.com/blog/cloud-saas-for-lawyers/how-to-use-mycases-open-api-to-get-more-of-your-time-back/)).
-5. **LeanLaw / QuickBooks Online path** - best if the chosen doctrine makes
+4. **LeanLaw / QuickBooks Online path** - best if the chosen doctrine makes
    QuickBooks Online the accounting system of record ([LeanLaw on QuickBooks App Store](https://quickbooks.intuit.com/app/apps/appdetails/leanlaw/en-us/),
    [Intuit on LeanLaw integration](https://quickbooks.intuit.com/r/innovation/leanlaw-deep-integration-with-quickbooks-for-any-legal-timekeeping-and-billing-app/)).
-6. **Intapp / Aderant / Elite** - best enterprise comparators, but public
+5. **Intapp / Aderant / Elite** - best enterprise comparators, but public
    developer access appears partner/procurement-led from the reviewed materials
    ([Intapp Time](https://www.intapp.com/time-tracking/),
    [Aderant iTimekeep](https://www.aderant.com/solutions-itimekeep/),
    [iManage Elite partner page](https://imanage.com/technology-partners/elite/)).
+6. **Bill4Time** - useful as a small-firm market comparator, but not a
+   recommended first export target because public support materials describe
+   the public API as read-only; validate directly with Bill4Time before relying
+   on it for approved-entry writes ([Bill4Time time entries API](https://secure.bill4time.com/apinode/v1/docs/timeentries),
+   [Bill4Time API overview](https://support.bill4time.com/hc/en-us/articles/27906381671963-API-Overview)).
 
 ## MCP Findings
 
@@ -104,8 +105,9 @@ This is not a product-code design. It is an alignment sketch for later shape:
   timer session, source spans, or imported PST item.
 - `approval`: pending/approved/rejected/needs-edit, reviewer, timestamp,
   reason.
-- `exportTarget`: Clio/Bill4Time/CSV/LEDES/QuickBooks/other, selected only
-  after approval.
+- `exportTarget`: Clio/PracticePanther/MyCase/CSV/LEDES/QuickBooks/other,
+  selected only after approval. Bill4Time remains a comparator unless a
+  write-capable API path is confirmed.
 
 ## First Slice Recommendation
 

@@ -38,15 +38,16 @@ Best developer/agent benchmarks:
 
 1. **Clio** - public API reference and legal-native Activities surface for time
    and expenses ([Clio API reference](https://docs.developers.clio.com/clio-manage/api-reference/)).
-2. **Bill4Time** - public time-entry API docs, though public support materials
-   warn that some API versions are read-only ([Bill4Time time entries API](https://secure.bill4time.com/apinode/v1/docs/timeentries),
-   [Bill4Time API overview](https://support.bill4time.com/hc/en-us/articles/27906381671963-API-Overview)).
-3. **PracticePanther** - public RESTful/OData API support page ([PracticePanther API](https://support.practicepanther.com/en/articles/479897-practicepanther-api)).
-4. **MyCase** - Open API exists, but access requires a paid Advanced
+2. **PracticePanther** - public RESTful/OData API support page ([PracticePanther API](https://support.practicepanther.com/en/articles/479897-practicepanther-api)).
+3. **MyCase** - Open API exists, but access requires a paid Advanced
    subscription ([MyCase Open API](https://www.mycase.com/blog/cloud-saas-for-lawyers/how-to-use-mycases-open-api-to-get-more-of-your-time-back/)).
-5. **LeanLaw** - best integration story when the source-of-truth accounting
+4. **LeanLaw** - best integration story when the source-of-truth accounting
    choice is QuickBooks Online rather than a legal practice-management ledger
    ([Intuit on LeanLaw integration](https://quickbooks.intuit.com/r/innovation/leanlaw-deep-integration-with-quickbooks-for-any-legal-timekeeping-and-billing-app/)).
+5. **Bill4Time** - useful market comparator, but public support materials
+   describe the public API as read-only, so it should not be treated as a
+   first export target without vendor validation ([Bill4Time time entries API](https://secure.bill4time.com/apinode/v1/docs/timeentries),
+   [Bill4Time API overview](https://support.bill4time.com/hc/en-us/articles/27906381671963-API-Overview)).
 
 ## Vendor Notes
 
@@ -105,9 +106,9 @@ Best developer/agent benchmarks:
   ([Bill4Time API overview](https://support.bill4time.com/hc/en-us/articles/27906381671963-API-Overview)).
 - Bill4Time advertises timers, matter synchronization, invoices, and prebill
   review ([Bill4Time](https://www.bill4time.com/)).
-- Fit: promising if write support and auth are confirmed.
-- Caution: do not assume candidate-entry export is possible until API version
-  details are validated.
+- Fit: market/pricing comparator for billing-focused small firms.
+- Caution: treat as read-only for Beep export planning unless Bill4Time confirms
+  a write-capable API path.
 
 ### LeanLaw
 
