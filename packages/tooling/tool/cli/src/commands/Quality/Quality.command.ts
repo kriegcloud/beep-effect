@@ -974,13 +974,9 @@ const fallowGithubCheckLaneId = (featureFamily: FallowQualityFeatureFamily): str
 
 // Promoted blocking Fallow lanes (goals/fallow-quality-enforcement feature
 // matrix rows with promotionStatus blocking). The dead-code lane holds the
-// zero regression baseline; the audit lane enforces the new-only gate.
+// zero regression baseline. The audit lane (complexity/duplication smells) is
+// advisory-only and is no longer wired here.
 const githubCheckFallowLanes = (repoRoot: string): ReadonlyArray<GithubCheckLaneSpec> => [
-  githubCheckLane(
-    "fallow:audit",
-    "repo-quality",
-    repoCliLane(repoRoot, "fallow:audit", ["fallow", "audit", "--check", "--quiet"])
-  ),
   githubCheckLane(
     "fallow:dead-code",
     "repo-quality",

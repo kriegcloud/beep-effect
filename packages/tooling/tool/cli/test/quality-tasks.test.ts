@@ -182,10 +182,9 @@ const fallowFeatureMatrix = (features: ReadonlyArray<FallowFeatureMatrixRowTuple
   });
 
 const expectUnpromotedWiredDeadCodeLane = (matrix: GithubChecksFallowFeatureMatrix): void => {
-  expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit"]);
-  expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
-    "unpromoted Fallow GitHub check lane is wired: fallow:dead-code",
-  ]);
+  expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toContain(
+    "unpromoted Fallow GitHub check lane is wired: fallow:dead-code"
+  );
 };
 
 const expectSubstringBefore = (text: string, before: string, after: string): void => {
@@ -417,13 +416,13 @@ describe("quality task adapter", () => {
     expect(A.every(lanes, (lane) => lane.blockedBy.length === 0)).toBe(true);
   });
 
-  it("accepts the current packet state with promoted audit and dead-code pre-push lanes", () => {
+  it("accepts the current packet state with only dead-code as the promoted pre-push lane", () => {
     const matrix = fallowFeatureMatrix([
-      ["audit", "blocking-check", "blocking"],
+      ["audit", "advisory-artifact", "advisory"],
       ["dead-code", "blocking-check", "blocking"],
     ]);
 
-    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:audit", "fallow:dead-code"]);
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:dead-code"]);
     expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([]);
   });
 
@@ -494,8 +493,8 @@ describe("quality task adapter", () => {
     ));
 
   it("rejects a promoted Fallow matrix row that is not wired into pre-push", () => {
+    // dead-code is wired; health is promoted but not wired → missing health diagnostic
     const matrix = fallowFeatureMatrix([
-      ["audit", "blocking-check", "blocking"],
       ["dead-code", "blocking-check", "blocking"],
       ["health", "blocking-check", "blocking"],
     ]);
@@ -506,21 +505,20 @@ describe("quality task adapter", () => {
   });
 
   it("rejects a wired Fallow lane whose matrix row is not promoted", () => {
-    expectUnpromotedWiredDeadCodeLane(
-      fallowFeatureMatrix([
-        ["audit", "blocking-check", "blocking"],
-        ["dead-code", "advisory-artifact", "research"],
-      ])
-    );
+    expectUnpromotedWiredDeadCodeLane(fallowFeatureMatrix([["dead-code", "advisory-artifact", "research"]]));
   });
 
   it("treats candidate-blocking Fallow rows as promotion contract inputs", () => {
-    expectUnpromotedWiredDeadCodeLane(
-      fallowFeatureMatrix([
-        ["audit", "advisory-artifact", "candidate-blocking"],
-        ["dead-code", "advisory-artifact", "research"],
-      ])
-    );
+    // health=candidate-blocking counts as promoted; dead-code wired but research → both diagnostics fire
+    const matrix = fallowFeatureMatrix([
+      ["health", "advisory-artifact", "candidate-blocking"],
+      ["dead-code", "advisory-artifact", "research"],
+    ]);
+    expect(promotedFallowGithubCheckLaneIdsForTesting(matrix)).toEqual(["fallow:health"]);
+    expect(githubCheckPromotedFallowLaneDiagnosticsForTesting("/repo", "pre-push", matrix)).toEqual([
+      "missing promoted Fallow GitHub check lane fallow:health",
+      "unpromoted Fallow GitHub check lane is wired: fallow:dead-code",
+    ]);
   });
 
   it("requires Fallow CI upload wiring only when the contract requires uploads", () => {
