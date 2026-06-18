@@ -34,6 +34,7 @@
     "fast-xml-validator": "catalog:",
     "jsonc-parser": "catalog:",
     "micromark": "catalog:",
+    "countries-list": "catalog:",
     "micromark-extension-gfm": "catalog:",
     "uuid": "catalog:",
     "yaml": "catalog:"

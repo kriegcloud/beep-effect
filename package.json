@@ -241,7 +241,7 @@
     "@babel/preset-react": "^8.0.1",
     "@base-ui/react": "^1.5.0",
     "@biomejs/biome": "^2.5.0",
-    "countries-list": "3.3.0",
+    "countries-list": "^3.3.0",
     "country-flag-icons": "1.6.17",
     "@elevenlabs/client": "^1.11.2",
     "@ffmpeg/core": "^0.12.10",
