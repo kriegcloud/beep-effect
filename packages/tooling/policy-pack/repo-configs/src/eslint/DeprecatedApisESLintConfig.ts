@@ -28,6 +28,7 @@ const generatedAndBuildOutputIgnores = [
   "**/dist/**",
   "node_modules/**",
   "**/node_modules/**",
+  "apps/*/src/app/sw.ts",
   "**/.turbo/**",
   "**/.cache/**",
   "**/generated/**",

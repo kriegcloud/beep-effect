@@ -1,3 +1,4 @@
+// fallow-ignore-file unused-file
 import { defaultCache } from "@serwist/next/worker";
 import { Serwist } from "serwist";
 import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
