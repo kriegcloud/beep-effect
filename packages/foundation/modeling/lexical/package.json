@@ -33,7 +33,6 @@
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "dtslint": "bunx tstyche dtslint/Lexical.tst.ts",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "test": "bun run beep:test",
     "test:integration": "bun run beep:test:integration",
     "type-test": "bun run dtslint"

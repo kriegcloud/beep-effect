@@ -1310,14 +1310,12 @@
         "allow": [
           "@beep/identity",
           "@beep/m365",
-          "@beep/m365-mcp",
-          "@beep/nlp"
+          "@beep/m365-mcp"
         ],
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/m365",
-          "@beep/m365-mcp",
-          "@beep/nlp"
+          "@beep/m365-mcp"
         ]
       },
       {

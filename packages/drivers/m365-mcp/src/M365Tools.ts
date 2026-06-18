@@ -8,6 +8,8 @@
  * @category tools
  * @since 0.1.0
  */
+
+import { $M365McpId } from "@beep/identity/packages";
 import {
   GraphEvent,
   GraphListItem,
@@ -32,8 +34,55 @@ import {
   M365MessageCollection,
   M365SiteCollection,
 } from "@beep/m365";
-import { AiToolError } from "@beep/nlp/Tools";
+import * as S from "effect/Schema";
 import { Tool, Toolkit } from "effect/unstable/ai";
+
+const $I = $M365McpId.create("M365Tools");
+
+/**
+ * Structured failure returned by Microsoft 365 MCP tools.
+ *
+ * @example
+ * ```ts
+ * import { M365ToolError } from "@beep/m365-mcp"
+ *
+ * const failure = M365ToolError.make({
+ *   message: "Microsoft 365 listDrives failed: throttled",
+ *   operation: "listDrives",
+ *   reason: "throttled",
+ *   retryable: true,
+ *   toolName: "m365_list_drives"
+ * })
+ *
+ * console.log(failure.retryable)
+ * // true
+ * ```
+ *
+ * @category tool-schemas
+ * @since 0.1.0
+ */
+export class M365ToolError extends S.Class<M365ToolError>($I`M365ToolError`)(
+  {
+    message: S.String.annotateKey({
+      description: "Human-readable failure message safe to return to an MCP tool caller.",
+    }),
+    operation: S.String.annotateKey({
+      description: "Driver operation that failed.",
+    }),
+    reason: S.optionalKey(S.String).annotateKey({
+      description: "Stable failure category or driver error reason.",
+    }),
+    retryable: S.Boolean.annotateKey({
+      description: "Whether retrying the same tool call may reasonably succeed.",
+    }),
+    toolName: S.String.annotateKey({
+      description: "MCP tool that returned the failure.",
+    }),
+  },
+  $I.annote("M365ToolError", {
+    description: "Structured Microsoft 365 MCP tool failure with retry metadata.",
+  })
+) {}
 
 /**
  * Lists SharePoint and OneDrive drives visible through the configured tenant.
@@ -43,7 +92,7 @@ import { Tool, Toolkit } from "effect/unstable/ai";
  */
 export const M365ListDrivesTool = Tool.make("m365_list_drives", {
   description: "List Microsoft 365 drives for an optional site.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365ListDrivesRequest,
   success: M365DriveCollection,
@@ -61,7 +110,7 @@ export const M365ListDrivesTool = Tool.make("m365_list_drives", {
  */
 export const M365ListSitesTool = Tool.make("m365_list_sites", {
   description: "List Microsoft 365 SharePoint sites.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365ListSitesRequest,
   success: M365SiteCollection,
@@ -79,7 +128,7 @@ export const M365ListSitesTool = Tool.make("m365_list_sites", {
  */
 export const M365GetSiteTool = Tool.make("m365_get_site", {
   description: "Get a Microsoft 365 SharePoint site.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365GetSiteRequest,
   success: GraphSite,
@@ -97,7 +146,7 @@ export const M365GetSiteTool = Tool.make("m365_get_site", {
  */
 export const M365DeltaDriveItemsTool = Tool.make("m365_delta_drive_items", {
   description: "Read Microsoft 365 drive item delta changes.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365DeltaDriveItemsRequest,
   success: M365DriveItemCollection,
@@ -115,7 +164,7 @@ export const M365DeltaDriveItemsTool = Tool.make("m365_delta_drive_items", {
  */
 export const M365DownloadDriveItemContentTool = Tool.make("m365_download_drive_item_content", {
   description: "Download Microsoft 365 drive item content bytes.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365DownloadDriveItemContentRequest,
   success: M365DriveItemDownload,
@@ -133,7 +182,7 @@ export const M365DownloadDriveItemContentTool = Tool.make("m365_download_drive_i
  */
 export const M365GetListItemTool = Tool.make("m365_get_list_item", {
   description: "Get Microsoft 365 list item fields for a drive item.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365GetListItemRequest,
   success: GraphListItem,
@@ -151,7 +200,7 @@ export const M365GetListItemTool = Tool.make("m365_get_list_item", {
  */
 export const M365ListDriveItemVersionsTool = Tool.make("m365_list_drive_item_versions", {
   description: "List Microsoft 365 drive item versions.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365ListDriveItemVersionsRequest,
   success: M365DriveItemVersionCollection,
@@ -169,7 +218,7 @@ export const M365ListDriveItemVersionsTool = Tool.make("m365_list_drive_item_ver
  */
 export const M365ListMessagesTool = Tool.make("m365_list_messages", {
   description: "List Microsoft 365 Outlook mail messages.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365ListMessagesRequest,
   success: M365MessageCollection,
@@ -187,7 +236,7 @@ export const M365ListMessagesTool = Tool.make("m365_list_messages", {
  */
 export const M365GetMessageTool = Tool.make("m365_get_message", {
   description: "Get a Microsoft 365 Outlook mail message.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365GetMessageRequest,
   success: GraphMessage,
@@ -205,7 +254,7 @@ export const M365GetMessageTool = Tool.make("m365_get_message", {
  */
 export const M365ListEventsTool = Tool.make("m365_list_events", {
   description: "List Microsoft 365 Outlook calendar events.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365ListEventsRequest,
   success: M365EventCollection,
@@ -223,7 +272,7 @@ export const M365ListEventsTool = Tool.make("m365_list_events", {
  */
 export const M365GetEventTool = Tool.make("m365_get_event", {
   description: "Get a Microsoft 365 Outlook calendar event.",
-  failure: AiToolError,
+  failure: M365ToolError,
   failureMode: "return",
   parameters: M365GetEventRequest,
   success: GraphEvent,

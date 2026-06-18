@@ -370,7 +370,7 @@ const routeForCategory = (category: QualityIssueCategory): ReadonlyArray<Quality
       QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Changeset policy failure" }),
     ],
     "repo-export-policy": () => [
-      QualityIssueRouting.make({ skill: "repo-symbol-discovery", reason: "Repo export catalog failure" }),
+      QualityIssueRouting.make({ skill: "repo-symbol-discovery", reason: "Stale repo-export workflow reference" }),
     ],
     "security-audit": () => [
       QualityIssueRouting.make({ skill: "quality-review-fix-loop", reason: "Security audit failure" }),
@@ -461,9 +461,9 @@ const knownSubLaneHints: ReadonlyArray<KnownSubLaneHint> = [
   },
   {
     needle: "repo-exports",
-    subCategory: "repo-exports-catalog",
+    subCategory: "stale-repo-export-workflow",
     category: "repo-export-policy",
-    remediation: "Run `bun run repo-exports:catalog` then `bun run repo-exports:catalog:check`.",
+    remediation: "Remove stale repo-export workflow references and use live source/barrel search for symbol discovery.",
   },
   {
     needle: "docgen",

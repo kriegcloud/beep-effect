@@ -19,7 +19,6 @@
     "codegen": "echo 'no codegen needed'",
     "coverage": "bunx --bun vitest run --coverage",
     "docgen": "bun run ../../../../packages/tooling/tool/docgen/src/bin.ts",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "test": "bun run beep:test",

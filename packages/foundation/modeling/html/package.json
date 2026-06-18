@@ -32,7 +32,6 @@
     "generate:check": "bun run generate && git diff --exit-code -- src/Html.model.ts src/Html.meta.ts",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "test": "bun run beep:test",
     "test:integration": "bun run beep:test:integration"
   },

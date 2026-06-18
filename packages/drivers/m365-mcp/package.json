@@ -61,7 +61,6 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/m365": "workspace:^",
-    "@beep/nlp": "workspace:^",
     "@effect/platform-node": "catalog:",
     "effect": "catalog:"
   },

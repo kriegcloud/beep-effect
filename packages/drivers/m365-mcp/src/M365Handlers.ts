@@ -3,20 +3,19 @@
  *
  * @remarks
  * Handlers are thin wrappers around the `@beep/m365` driver. They translate
- * driver errors into the shared `AiToolError` failure schema and annotate spans
- * with counts and sizes only.
+ * driver errors into the local `M365ToolError` failure schema and annotate
+ * spans with counts and sizes only.
  *
  * @category handlers
  * @since 0.1.0
  */
 
 import { M365 } from "@beep/m365";
-import { AiToolError as AiToolErrorSchema } from "@beep/nlp/Tools";
 import { Effect, Match } from "effect";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
-import { M365Toolkit } from "./M365Tools.ts";
+import { M365ToolError, M365Toolkit } from "./M365Tools.ts";
 import type {
   M365DeltaDriveItemsRequest,
   M365DownloadDriveItemContentRequest,
@@ -31,15 +30,15 @@ import type {
 import type * as Layer from "effect/Layer";
 import type * as Tool from "effect/unstable/ai/Tool";
 
-type AiToolErrorValue = typeof AiToolErrorSchema.Type;
+type M365ToolErrorValue = M365ToolError;
 
 const isRetryableM365Error = (error: M365Error): boolean =>
   error.reason === "throttled" || error.reason === "transport";
 
 const toM365ToolError =
   (toolName: string, operation: string) =>
-  (error: M365Error): AiToolErrorValue =>
-    AiToolErrorSchema.make({
+  (error: M365Error): M365ToolErrorValue =>
+    M365ToolError.make({
       message: `Microsoft 365 ${operation} failed: ${error.reason}`,
       operation,
       reason: error.reason,
@@ -49,7 +48,7 @@ const toM365ToolError =
 
 const finalizeM365Tool =
   (toolName: string, operation: string) =>
-  <A2, R>(effect: Effect.Effect<A2, M365Error, R>): Effect.Effect<A2, AiToolErrorValue, R> =>
+  <A2, R>(effect: Effect.Effect<A2, M365Error, R>): Effect.Effect<A2, M365ToolErrorValue, R> =>
     effect.pipe(Effect.mapError(toM365ToolError(toolName, operation)));
 
 const annotateCollection = <Collection extends { readonly value: ReadonlyArray<unknown> }>(
