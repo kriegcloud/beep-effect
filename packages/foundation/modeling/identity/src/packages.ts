@@ -137,7 +137,9 @@ const generatedComposers = $I.compose(
   "html",
   "pandoc-ast",
   "form",
-  "pglite"
+  "pglite",
+  "m365",
+  "m365-mcp"
 );
 
 const composers = {
@@ -1508,3 +1510,35 @@ export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormI
  * @category configuration
  */
 export const $PgliteId: Identity.IdentityComposer<"@beep/pglite"> = composers.$PgliteId;
+
+/**
+ * Identity composer for `@beep/m365`.
+ *
+ * @example
+ * ```typescript
+ * import { $M365Id } from "@beep/identity"
+ *
+ * const id = $M365Id.make("M365")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $M365Id: Identity.IdentityComposer<"@beep/m365"> = composers.$M365Id;
+
+/**
+ * Identity composer for `@beep/m365-mcp`.
+ *
+ * @example
+ * ```typescript
+ * import { $M365McpId } from "@beep/identity"
+ *
+ * const id = $M365McpId.make("M365Mcp")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $M365McpId: Identity.IdentityComposer<"@beep/m365-mcp"> = composers.$M365McpId;

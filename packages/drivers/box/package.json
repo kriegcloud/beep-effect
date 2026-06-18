@@ -32,7 +32,6 @@
     "codegen": "bun run generate",
     "dtslint": "bunx tstyche --config ../../../tstyche.json --root ../../.. packages/drivers/box/dtslint/Box.tst.ts",
     "generate": "bun run scripts/generate.ts",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
     "test": "bun run beep:test",

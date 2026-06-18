@@ -14,7 +14,6 @@
   "scripts": {
     "audit": "bun run --if-present beep:audit",
     "codegen": "echo 'no codegen needed'",
-    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
     "lint": "bun run beep:lint",

@@ -1261,6 +1261,18 @@
       ],
       "@beep/law-practice-use-cases/test": [
         "./packages/law-practice/use-cases/src/test.ts"
+      ],
+      "@beep/m365": [
+        "./packages/drivers/m365/src/index.ts"
+      ],
+      "@beep/m365/*": [
+        "./packages/drivers/m365/src/*"
+      ],
+      "@beep/m365-mcp": [
+        "./packages/drivers/m365-mcp/src/index.ts"
+      ],
+      "@beep/m365-mcp/*": [
+        "./packages/drivers/m365-mcp/src/*"
       ]
     }
   }
