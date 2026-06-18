@@ -1,8 +1,9 @@
 # Release Desktop (Tauri)
 #
-# Builds and publishes the `apps/professional-desktop` Tauri v2 app to GitHub
+# Builds the `apps/professional-desktop` Tauri v2 app and stages draft GitHub
 # Releases, including auto-updater artifacts (`latest.json` + per-target
-# signatures). Each target compiles natively on its own OS runner — there is NO
+# signatures). Release managers publish the draft only after every matrix target
+# is green. Each target compiles natively on its own OS runner — there is NO
 # cross-compilation — because the bundled Bun sidecar is compiled per
 # `rustc -vV` host target triple (see `scripts/build-sidecar.ts`).
 #
@@ -22,7 +23,8 @@
 #   (plugins.updater.pubkey). The updater endpoint there points at this repo's
 #   GitHub Releases `latest.json`
 #   (https://github.com/kriegcloud/beep-effect/releases/latest/download/latest.json),
-#   so the Release published by this workflow is what clients auto-update from.
+#   so the draft Release staged by this workflow is what clients auto-update
+#   from after it is manually published.
 #
 # OPTIONAL secrets (platform code-signing — GATED, build stays UNSIGNED when
 # absent; the build never fails just because these are missing):
@@ -58,6 +60,8 @@ jobs:
     env:
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     strategy:
+      # tauri-action mutates one release per matrix target. Keep matrix legs
+      # serial and draft-only so a partial public updater release cannot escape.
       fail-fast: false
       max-parallel: 1
       matrix:
@@ -83,7 +87,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.version) || github.ref }}
+          ref: ${{ github.ref }}
 
       - name: Validate release tag
         shell: bash
@@ -92,6 +96,11 @@ jobs:
             echo "::error::Release tag must match professional-desktop-v*, got '$RELEASE_DESKTOP_TAG'"
             exit 1
           fi
+          if ! git rev-parse --verify --quiet "refs/tags/${RELEASE_DESKTOP_TAG}" >/dev/null; then
+            echo "::error::Release tag '${RELEASE_DESKTOP_TAG}' does not exist. Push the tag before running this workflow."
+            exit 1
+          fi
+          git checkout --detach "refs/tags/${RELEASE_DESKTOP_TAG}"
 
       - name: Validate updater signing secret
         shell: bash
@@ -144,7 +153,7 @@ jobs:
         run: bun run --cwd apps/professional-desktop build:sidecar
 
       - name: Build and publish desktop release
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@84b9d35b5fc46c1e45415bdb6144030364f7ebc5
         env:
           # Auto-provisioned; required by the action to create/update the Release.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -179,9 +188,9 @@ jobs:
           projectPath: apps/professional-desktop
           tagName: ${{ env.RELEASE_DESKTOP_TAG }}
           releaseName: "Professional Desktop ${{ env.RELEASE_DESKTOP_TAG }}"
-          # Tag pushes publish because clients fetch /releases/latest/download/latest.json.
-          # Manual dispatches create draft releases for QA of the requested tag.
-          releaseDraft: ${{ github.event_name == 'workflow_dispatch' }}
+          # Always stage drafts. Publish after every matrix target is green so
+          # clients never see partial updater assets.
+          releaseDraft: true
           prerelease: false
           # Per-arch native target (empty on Linux/Windows where the host target
           # already matches the runner).
