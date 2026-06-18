@@ -294,7 +294,9 @@ const FallowFlagsRawReport = S.Struct({
     description: "Raw Fallow flags JSON shape accepted by the P1 wrapper.",
   })
 );
-class FallowSecurityRawReport extends S.Class<FallowSecurityRawReport>($I`FallowSecurityRawReport`)(
+class FallowSecurityDetailedRawReport extends S.Class<FallowSecurityDetailedRawReport>(
+  $I`FallowSecurityDetailedRawReport`
+)(
   {
     kind: S.Literal("security"),
     schema_version: S.Union([S.Finite, S.String]),
@@ -302,10 +304,33 @@ class FallowSecurityRawReport extends S.Class<FallowSecurityRawReport>($I`Fallow
     unresolved_edge_files: S.Finite,
     unresolved_callee_sites: S.Finite,
   },
-  $I.annote("FallowSecurityRawReport", {
-    description: "Raw Fallow security JSON shape accepted by the P1 wrapper.",
+  $I.annote("FallowSecurityDetailedRawReport", {
+    description: "Detailed raw Fallow security JSON shape accepted by the P1 wrapper.",
   })
 ) {}
+class FallowSecuritySummaryRawReport extends S.Class<FallowSecuritySummaryRawReport>(
+  $I`FallowSecuritySummaryRawReport`
+)(
+  {
+    kind: S.Literal("security"),
+    schema_version: S.Union([S.Finite, S.String]),
+    version: S.String,
+    elapsed_ms: S.Finite,
+    summary: S.Struct({
+      security_findings: S.Finite,
+      unresolved_edge_files: S.Finite,
+      unresolved_callee_sites: S.Finite,
+    }),
+  },
+  $I.annote("FallowSecuritySummaryRawReport", {
+    description: "Summary raw Fallow security JSON shape accepted by the P1 wrapper.",
+  })
+) {}
+const FallowSecurityRawReport = S.Union([FallowSecurityDetailedRawReport, FallowSecuritySummaryRawReport]).pipe(
+  $I.annoteSchema("FallowSecurityRawReport", {
+    description: "Raw Fallow security JSON shapes accepted by the P1 wrapper.",
+  })
+);
 class FallowFixPreviewRawReport extends S.Class<FallowFixPreviewRawReport>($I`FallowFixPreviewRawReport`)(
   {
     dry_run: S.Literal(true),
@@ -626,6 +651,13 @@ const rawArrayCount = (document: unknown, key: string): number =>
     })
   );
 
+const rawSecurityFindingCount = (document: unknown): number =>
+  pipe(
+    unknownRecordProperty(document, "summary"),
+    O.flatMap((summary) => unknownNumberProperty(summary, "security_findings")),
+    O.getOrElse(() => rawArrayCount(document, "security_findings"))
+  );
+
 const rawSummaryIssueCount = (document: unknown): number => {
   const totalIssues = unknownNumberProperty(document, "total_issues");
   if (O.isSome(totalIssues)) {
@@ -679,7 +711,7 @@ const normalizeFindings = (feature: FallowFeature, document: unknown): ReadonlyA
     "fix-preview": () => normalizeArrayFindings(feature, document, "fixes", "fixes"),
     flags: () => normalizeFlagsFindings(document),
     health: () => normalizeArrayFindings(feature, document, "findings", "complexity-findings"),
-    security: () => normalizeArrayFindings(feature, document, "security_findings", "security-findings"),
+    security: () => findingsForCount(feature, "security-findings", rawSecurityFindingCount(document)),
   });
 
 const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
@@ -696,7 +728,7 @@ const rawFindingCount = (feature: FallowFeature, document: unknown): number =>
         )
       ),
     health: () => rawCountValue(rawArrayCount(document, "findings")),
-    security: () => rawCountValue(rawArrayCount(document, "security_findings")),
+    security: () => rawCountValue(rawSecurityFindingCount(document)),
   });
 
 const extractJsonDocumentText = (output: string): O.Option<string> =>
