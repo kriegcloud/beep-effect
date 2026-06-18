@@ -18,7 +18,8 @@ import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import type { NativeMigrationError } from "./PostgresInterop.models.ts";
 
 const $I = $PostgresId.create("PostgresDrizzle.service");
-const LegacyStatementBoundary = /;\s*\n(?=\s*(?:ALTER|COMMENT|CREATE|DELETE|DROP|INSERT|UPDATE)\b)/giu;
+const LegacyStatementBoundary =
+  /;\s*\n(?=\s*(?:ALTER|BEGIN|COMMENT|CREATE|DELETE|DROP|GRANT|INSERT|REVOKE|SET|TRUNCATE|UPDATE|WITH)\b)/giu;
 
 declare const PostgresDrizzleSchema: unique symbol;
 
@@ -153,6 +154,8 @@ const getDrizzleSession = <TSchema extends Record<string, unknown>, TRelations e
   db: PostgresDrizzleDatabase<TSchema, TRelations>
 ): unknown => (db as unknown as { readonly session: unknown }).session;
 
+// Drizzle's Effect migrator/session surface is still RC-shaped in 1.0.0-rc.4-5d5b77c.
+// Revisit these compatibility casts when the final Effect integration API stabilizes.
 const runPgEffectMigrations = <TSchema extends Record<string, unknown>, TRelations extends AnyRelations>(
   db: PostgresDrizzleDatabase<TSchema, TRelations>,
   migrations: ReadonlyArray<MigrationMeta>,
