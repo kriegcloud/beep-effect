@@ -51,6 +51,7 @@ type M365Runtime = {
 const REQUEST_ACCEPT = "application/json";
 const ALL_SITES_SEARCH = "*";
 const GRAPH_DRIVE_ITEM_SELECT = "id,name,size,file,folder,@microsoft.graph.downloadUrl";
+const DEFAULT_THROTTLE_RETRY_AFTER_SECONDS = 1;
 const ENCRYPTED_SKIP_REASON =
   "Graph v1.0 exposes protected/sensitivity-labeled files as encrypted bytes; v1 skips content by protected extension heuristic and never requests tenant-wide decrypt grants.";
 const PROTECTED_EXTENSIONS: ReadonlyArray<string> = [
@@ -794,16 +795,14 @@ const executeWithRetry = Effect.fnUntraced(function* (
   return yield* ensureSuccess(response, resource, url).pipe(
     Effect.catch((error) =>
       error.reason === "throttled" && remaining > 0
-        ? pipe(
-            error.retryAfterSeconds,
-            O.match({
-              onNone: () => Effect.fail(error),
-              onSome: (seconds) =>
-                Effect.sleep(Duration.seconds(seconds)).pipe(
-                  Effect.flatMap(() => executeWithRetry(client, makeRequest, resource, url, remaining - 1))
-                ),
-            })
-          )
+        ? Effect.sleep(
+            Duration.seconds(
+              pipe(
+                error.retryAfterSeconds,
+                O.getOrElse(() => DEFAULT_THROTTLE_RETRY_AFTER_SECONDS)
+              )
+            )
+          ).pipe(Effect.flatMap(() => executeWithRetry(client, makeRequest, resource, url, remaining - 1)))
         : Effect.fail(error)
     )
   );

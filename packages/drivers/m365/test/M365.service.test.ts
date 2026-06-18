@@ -26,10 +26,11 @@ import {
   M365SkippedEncryptedItem,
 } from "@beep/m365";
 import { describe, expect, layer } from "@effect/vitest";
-import { Cause, Context, Effect, Exit, Layer, pipe, Redacted, Ref } from "effect";
+import { Cause, Context, Duration, Effect, Exit, Fiber, Layer, pipe, Redacted, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
+import { TestClock } from "effect/testing";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
@@ -427,6 +428,32 @@ describe("@beep/m365 service", () => {
 
         const m365 = yield* M365;
         const drives = yield* m365.listDrives(M365ListDrivesRequest.make({}));
+        const captures = yield* testHttp.captures;
+
+        expect(drives.value[0]?.id).toBe(DRIVE_ID);
+        expect(captures).toHaveLength(2);
+      })
+    );
+  });
+
+  layer(makeTestLayer(testConfig(1)))((it) => {
+    it.effect(
+      "retries throttled requests with a default delay when Retry-After is absent",
+      Effect.fnUntraced(function* () {
+        const testHttp = yield* M365TestHttp;
+        yield* testHttp.respondWith(() =>
+          Effect.gen(function* () {
+            const captures = yield* testHttp.captures;
+            return A.length(captures) === 1
+              ? makeJsonResponse({ error: { code: "TooManyRequests" } }, 429)
+              : makeJsonResponse({ value: [{ id: DRIVE_ID, name: "Documents" }] });
+          })
+        );
+
+        const m365 = yield* M365;
+        const fiber = yield* m365.listDrives(M365ListDrivesRequest.make({})).pipe(Effect.forkChild);
+        yield* TestClock.adjust(Duration.seconds(1));
+        const drives = yield* Fiber.join(fiber);
         const captures = yield* testHttp.captures;
 
         expect(drives.value[0]?.id).toBe(DRIVE_ID);
