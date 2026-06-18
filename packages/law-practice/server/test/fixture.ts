@@ -12,6 +12,19 @@
  * helper (not a `src` module).
  */
 
+import {
+  ArtifactId,
+  ArtifactLocator,
+  ContentDigest,
+  OperationId,
+  SourceArtifact,
+} from "@beep/file-processing/Artifact";
+import { OfficeActionReviewInput } from "@beep/law-practice-use-cases/OfficeActionReview";
+import { NonNegativeInt } from "@beep/schema";
+import { PosixPath } from "@beep/schema/PosixPath";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+
 export const OFFICE_ACTION_FIXTURE =
   "Office Action\n\n" +
   "Claim 1 stands rejected under 35 U.S.C. 102 as anticipated by Smith.\n" +
@@ -31,3 +44,34 @@ export const EXPECTED_DISTINCTION_QUOTE = "A Hinge Coupling The Lid To The Base"
  * expected to carry (the candidate phrase the loop extracts).
  */
 export const EXPECTED_DISTINCTION_LIMITATION = "a hinge coupling the lid to the base";
+
+const OFFICE_ACTION_SHA256 = "ec825cf99e6592f2543ce7620e557d33946f0fe62efc12f11df628f41c6c5b6a";
+const OFFICE_ACTION_PROCESS_SHA256 = "9351216357999af1a32bb2e5e02a0f4983c32f93ff59dfee4a8979946a22de23";
+
+const decodeArtifactId = S.decodeUnknownEffect(ArtifactId);
+const decodeContentDigest = S.decodeUnknownEffect(ContentDigest);
+const decodeOperationId = S.decodeUnknownEffect(OperationId);
+const decodePosixPath = S.decodeUnknownEffect(PosixPath);
+
+export const makeOfficeActionReviewInput = Effect.fn("LawPracticeServerTest.makeOfficeActionReviewInput")(function* () {
+  const relativePath = yield* decodePosixPath("fixtures/law-practice/office-action-spike.txt");
+  const artifactId = yield* decodeArtifactId(`artifact:${OFFICE_ACTION_SHA256}`);
+  const digest = yield* decodeContentDigest(`sha256:${OFFICE_ACTION_SHA256}`);
+  const operationId = yield* decodeOperationId(`operation:${OFFICE_ACTION_PROCESS_SHA256}`);
+
+  return OfficeActionReviewInput.make({
+    matterFixtureKey: "matter.spike",
+    officeActionFixtureKey: "office-action.spike",
+    operationId,
+    sourceArtifact: SourceArtifact.make({
+      digest,
+      extension: "txt",
+      id: artifactId,
+      locator: ArtifactLocator.make({ kind: "synthetic", value: relativePath }),
+      name: "office-action-spike.txt",
+      relativePath,
+      sizeBytes: NonNegativeInt.make(OFFICE_ACTION_FIXTURE.length),
+      text: OFFICE_ACTION_FIXTURE,
+    }),
+  });
+});

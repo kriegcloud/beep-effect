@@ -1,12 +1,13 @@
 /**
  * Office-action review loop implementation.
  *
- * The end-to-end loop for reviewing one office action: build a fixed candidate
- * set (stand-in for LLM extraction), deterministically align those candidates
- * to the source text via `@beep/langextract`, map the grounded extractions into
- * law entities through {@link IrToLaw}, then run the distinction's claim through
- * the epistemic admission lifecycle (gate -> transition) and fold the result
- * into a {@link ClaimProjectionView}.
+ * The end-to-end loop for reviewing one office action: extract text through
+ * `@beep/file-processing`, build a fixed candidate set (stand-in for LLM
+ * extraction), deterministically align those candidates to the extracted text
+ * via `@beep/langextract`, map the grounded extractions into law entities
+ * through {@link IrToLaw}, then run the distinction's claim through the
+ * epistemic admission lifecycle (gate to transition) and fold the result into a
+ * {@link ClaimProjectionView}.
  *
  * The candidate set is FIXED here as a spike affordance — the LLM-driven
  * extraction step that would emit these candidates from the source text is
@@ -19,13 +20,17 @@
 
 import { CandidateClaim, Evidence } from "@beep/epistemic-domain";
 import { projectClaims } from "@beep/epistemic-use-cases/ClaimProjection";
+import { FileProcessingOperationError, ProcessFileOperation } from "@beep/file-processing/Operation";
 import { alignCandidates } from "@beep/langextract/Alignment";
 import { ExtractionCandidate } from "@beep/langextract/Extraction";
-import * as Effect from "effect/Effect";
+import { Effect } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { spikeEntityInput } from "../internal/spikeEntity.js";
 import type { ClaimGateShape } from "@beep/epistemic-use-cases/ClaimGate";
 import type { ClaimTransitionShape } from "@beep/epistemic-use-cases/ClaimLifecycle";
+import type { ProcessFileResult } from "@beep/file-processing/Extraction";
+import type { FileProcessingServiceShape } from "@beep/file-processing/Service";
 import type { IrToLawShape, LawEntities } from "../IrToLaw/IrToLaw.ports.js";
 import type { OfficeActionReviewShape } from "./OfficeActionReview.ports.js";
 
@@ -61,9 +66,38 @@ const evidenceOf = (law: LawEntities): Evidence =>
     spanFixtureKey: law.distinction.fixtureKey,
   });
 
+const sourceTextFrom = Effect.fn("law_practice.office_action.source_text_from")(function* (
+  result: ProcessFileResult
+): Effect.fn.Return<string, FileProcessingOperationError> {
+  if (result.resultKind !== "extracted") {
+    return yield* FileProcessingOperationError.fromReason("file-extraction-failed", {
+      artifactId: result.sourceArtifactId,
+      engine: result.engine,
+      format: result.format,
+      message: `Office-action review requires extracted text, received ${result.resultKind}.`,
+      operationId: result.operationId,
+    });
+  }
+
+  return yield* O.match(O.fromUndefinedOr(result.extraction.text), {
+    onNone: () =>
+      Effect.fail(
+        FileProcessingOperationError.fromReason("file-extraction-failed", {
+          artifactId: result.extraction.sourceArtifactId,
+          engine: result.engine,
+          format: result.format,
+          message: "Office-action review requires text extraction output.",
+          operationId: result.operationId,
+        })
+      ),
+    onSome: Effect.succeed,
+  });
+});
+
 /**
- * Dependencies the office-action review loop composes: the IR-to-law mapping
- * plus the epistemic claim gate and lifecycle transition.
+ * Dependencies the office-action review loop composes: file-processing source
+ * extraction, the IR-to-law mapping, plus the epistemic claim gate and
+ * lifecycle transition.
  *
  * @example
  * ```ts
@@ -77,6 +111,7 @@ const evidenceOf = (law: LawEntities): Evidence =>
  * @since 0.0.0
  */
 export interface OfficeActionReviewDeps {
+  readonly fileProcessing: FileProcessingServiceShape;
   readonly gate: ClaimGateShape;
   readonly irToLaw: IrToLawShape;
   readonly transition: ClaimTransitionShape;
@@ -97,8 +132,19 @@ export interface OfficeActionReviewDeps {
  */
 export const makeOfficeActionReview = (deps: OfficeActionReviewDeps): OfficeActionReviewShape => ({
   review: Effect.fn("law_practice.office_action.review")(function* (input) {
-    // Deterministically align the fixed candidates against the source text.
-    const extractions = alignCandidates(input.sourceText, candidates);
+    const processed = yield* deps.fileProcessing.process(
+      ProcessFileOperation.make({
+        exportChildren: false,
+        operationId: input.operationId,
+        operationKind: "process",
+        preference: { engine: "auto" },
+        source: input.sourceArtifact,
+      })
+    );
+    const sourceText = yield* sourceTextFrom(processed);
+
+    // Deterministically align the fixed candidates against the extracted source text.
+    const extractions = alignCandidates(sourceText, candidates);
 
     // Map the grounded extractions into law entities.
     const law = yield* deps.irToLaw.toLaw(extractions);

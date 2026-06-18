@@ -6,7 +6,12 @@ import { IrToLaw } from "@beep/law-practice-use-cases/IrToLaw";
 import { OfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { EXPECTED_DISTINCTION_LIMITATION, EXPECTED_DISTINCTION_QUOTE, OFFICE_ACTION_FIXTURE } from "./fixture.ts";
+import {
+  EXPECTED_DISTINCTION_LIMITATION,
+  EXPECTED_DISTINCTION_QUOTE,
+  makeOfficeActionReviewInput,
+  OFFICE_ACTION_FIXTURE,
+} from "./fixture.ts";
 
 // Mirrors — byte for byte — the fixed candidate set inside the OfficeActionReview
 // loop (packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.service.ts).
@@ -58,12 +63,9 @@ describe("@beep/law-practice-server", () => {
     it.effect("review admits the claim, advancing it to shape_valid", () =>
       Effect.gen(function* () {
         const review = yield* OfficeActionReview;
+        const input = yield* makeOfficeActionReviewInput();
 
-        const view = yield* review.review({
-          matterFixtureKey: "matter.spike",
-          officeActionFixtureKey: "office-action.spike",
-          sourceText: OFFICE_ACTION_FIXTURE,
-        });
+        const view = yield* review.review(input);
 
         // (c) gate admits -> transition advances candidate -> shape_valid. The
         // claim ends at "shape_valid" (NOT lifecycle "admitted"), so admittedKeys

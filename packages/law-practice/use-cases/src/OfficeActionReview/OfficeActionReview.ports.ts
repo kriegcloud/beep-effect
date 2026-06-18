@@ -1,42 +1,51 @@
 /**
  * Office-action review port: the typed contract for the loop orchestrator that
  * reviews a single office action end to end. Given the office action's fixture
- * identity and its raw source text, the review extracts spans, maps them into
- * law-practice entities, gates the resulting claims through the epistemic
- * admission lifecycle, and folds the authority into a deterministic projection.
+ * identity and its source artifact, the review extracts text and spans, maps
+ * them into law-practice entities, gates the resulting claims through the
+ * epistemic admission lifecycle, and folds the authority into a deterministic
+ * projection.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
+import { OperationId, SourceArtifact } from "@beep/file-processing/Artifact";
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import { Context } from "effect";
+import * as S from "effect/Schema";
 import type { ClaimProjectionView } from "@beep/epistemic-domain/values";
+import type { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import type { Effect } from "effect";
 
 const $I = $LawPracticeUseCasesId.create("OfficeActionReview/OfficeActionReview.ports");
 
 /**
  * Input to one office-action review: the fixture identity of the office action
- * under review, the matter it prosecutes, and the raw source text the loop
- * extracts character-anchored spans from.
+ * under review, the matter it prosecutes, and the source artifact the loop
+ * extracts character-anchored text from.
  *
  * @example
  * ```ts
- * import type { OfficeActionReviewInput } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import { OfficeActionReviewInput } from "@beep/law-practice-use-cases/OfficeActionReview"
  *
- * const accept = (input: OfficeActionReviewInput) => input.officeActionFixtureKey
- * console.log(accept)
+ * console.log(OfficeActionReviewInput)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export interface OfficeActionReviewInput {
-  readonly matterFixtureKey: string;
-  readonly officeActionFixtureKey: string;
-  readonly sourceText: string;
-}
+export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I`OfficeActionReviewInput`)(
+  {
+    matterFixtureKey: S.NonEmptyString,
+    officeActionFixtureKey: S.NonEmptyString,
+    operationId: OperationId,
+    sourceArtifact: SourceArtifact,
+  },
+  $I.annote("OfficeActionReviewInput", {
+    description: "Schema-backed input for reviewing one office-action source artifact.",
+  })
+) {}
 
 /**
  * Service shape for the office-action review loop: take an
@@ -62,7 +71,7 @@ export interface OfficeActionReviewInput {
  * @since 0.0.0
  */
 export interface OfficeActionReviewShape {
-  readonly review: (input: OfficeActionReviewInput) => Effect.Effect<ClaimProjectionView>;
+  readonly review: (input: OfficeActionReviewInput) => Effect.Effect<ClaimProjectionView, FileProcessingOperationError>;
 }
 
 /**

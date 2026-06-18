@@ -1608,6 +1608,16 @@
       "reason": "Schema-heavy test file has 6 Schema codec assertions but no schema-derived property coverage."
     },
     {
+      "file": "packages/law-practice/server/test/fixture.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 51,
+      "owner": "@beep/law-practice-server",
+      "reason": "Synthetic golden fixture helper decodes branded file-processing IDs and PosixPath values for one deterministic office-action source artifact; property coverage belongs in the file-processing package schemas."
+    },
+    {
       "file": "packages/law-practice/use-cases/src/IrToLaw/IrToLaw.ports.ts",
       "symbol": "IrToLawShape",
       "kind": "exported-interface",
@@ -1625,14 +1635,6 @@
     },
     {
       "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.ports.ts",
-      "symbol": "OfficeActionReviewInput",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/law-practice-use-cases",
-      "reason": "Rung-0 office-action review service input contract (matter/office-action fixture keys + pre-extracted sourceText); a plain DTO mirroring the slice's port-interface style; schema promotion deferred to graduation."
-    },
-    {
-      "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.ports.ts",
       "symbol": "OfficeActionReviewShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -1645,7 +1647,7 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/law-practice-use-cases",
-      "reason": "Dependency-injection container of Effect service shapes (ClaimGate/IrToLaw/ClaimTransition); a wiring bundle of function-bearing services, not serializable data."
+      "reason": "Dependency-injection container of Effect service shapes (FileProcessingService/ClaimGate/IrToLaw/ClaimTransition); a wiring bundle of function-bearing services, not serializable data."
     },
     {
       "file": "packages/shared/domain/src/values/LocalDate/LocalDate.model.ts",

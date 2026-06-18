@@ -9,10 +9,16 @@
   },
   "references": [
     {
+      "path": "../../drivers/tika/tsconfig.json"
+    },
+    {
       "path": "../../epistemic/server/tsconfig.json"
     },
     {
       "path": "../../epistemic/use-cases/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/capability/file-processing/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/identity/tsconfig.json"

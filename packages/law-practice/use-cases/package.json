@@ -48,6 +48,7 @@
   "dependencies": {
     "@beep/epistemic-domain": "workspace:^",
     "@beep/epistemic-use-cases": "workspace:^",
+    "@beep/file-processing": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/langextract": "workspace:^",
     "@beep/law-practice-domain": "workspace:^",

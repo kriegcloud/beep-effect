@@ -50,8 +50,8 @@ export const Confidence = UnitInterval;
 export type Confidence = typeof Confidence.Type;
 
 /**
- * Char-offset evidence span: the exact quoted source text and its `[startChar,
- * endChar)` offsets, with an extraction confidence. Structurally it is a
+ * Char-offset evidence span: the exact quoted source text and its start/end
+ * character offsets, with an extraction confidence. Structurally it is a
  * `@beep/provenance` `TextAnchor` (offset fields spread from `TextAnchorFields`)
  * plus a `Confidence` — the confidence is the epistemic judgement layered on top
  * of the pure provenance anchor.

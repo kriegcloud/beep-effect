@@ -18,8 +18,8 @@
  */
 
 import { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
+import { Effect } from "effect";
 import * as A from "effect/Array";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { spikeEntityInput } from "../internal/spikeEntity.js";
