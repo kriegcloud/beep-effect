@@ -32,11 +32,9 @@ type FencedCodeBlock = {
 
 const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
 
-const hasExtension = (extensions: ReadonlyArray<string>, filePath: string): boolean =>
-  A.some(extensions, (extension) => Str.endsWith(extension)(filePath));
-
 const isDocgenSourceFile = (filePath: string): boolean =>
-  hasExtension(SOURCE_FILE_EXTENSIONS, filePath) && !hasExtension(DECLARATION_FILE_EXTENSIONS, filePath);
+  A.some(SOURCE_FILE_EXTENSIONS, (extension) => Str.endsWith(extension)(filePath)) &&
+  !A.some(DECLARATION_FILE_EXTENSIONS, (extension) => Str.endsWith(extension)(filePath));
 
 const sourceGlobForExtension = (srcDir: string, extension: SourceFileExtension, path: Path.Path): string =>
   path.normalize(path.join(srcDir, "**", `*${extension}`));

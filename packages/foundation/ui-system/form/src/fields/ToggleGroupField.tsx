@@ -60,18 +60,22 @@ export interface ToggleGroupFieldProps
 export const ToggleGroupField: React.FC<ToggleGroupFieldProps> = ({ label, description, options, ...props }) => (
   <BoundField<string> label={label} description={description}>
     {({ field, hasErrors }) => (
-      <ToggleGroup
-        {...props}
-        value={[field.state.value]}
-        onValueChange={(value) => field.handleChange(O.getOrElse(A.head(value), () => ""))}
-        aria-invalid={hasErrors || undefined}
-      >
-        {options.map((option) => (
-          <ToggleGroupItem key={option.value} value={option.value} disabled={option.disabled}>
-            {option.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <>
+        <input type="hidden" name={field.name} value={field.state.value} />
+        <ToggleGroup
+          {...props}
+          value={[field.state.value]}
+          onValueChange={(value) => field.handleChange(O.getOrElse(A.head(value), () => ""))}
+          onBlur={field.handleBlur}
+          aria-invalid={hasErrors || undefined}
+        >
+          {options.map((option) => (
+            <ToggleGroupItem key={option.value} value={option.value} disabled={option.disabled}>
+              {option.label}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </>
     )}
   </BoundField>
 );

@@ -5,25 +5,7 @@ import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as P from "effect/Predicate";
 import * as ast from "ts-morph";
-
-const defaultConfig: Configuration.ConfigurationShape = {
-  projectName: "docgen",
-  projectHomepage: "https://github.com/effect-ts/docgen",
-  srcLink: "https://github.com/effect-ts/docgen/blob/main/src/",
-  srcDir: "src",
-  outDir: "docs",
-  theme: "mikearnaldi/just-the-docs",
-  enableSearch: true,
-  enforceDescriptions: false,
-  enforceExamples: false,
-  enforceVersion: true,
-  runExamples: false,
-  tscExecutable: "tsc",
-  include: [],
-  exclude: [],
-  parseCompilerOptions: {},
-  examplesCompilerOptions: {},
-};
+import { defaultDocgenConfig } from "./helpers.ts";
 
 const makeSourcefile = (source: string | ast.SourceFile) => {
   if (P.isString(source)) {
@@ -46,7 +28,7 @@ const makeTestLayer = (source: string | ast.SourceFile, config: Partial<Configur
   Layer.mergeAll(
     Parser.Source.layer(makeSource(source)),
     Configuration.Configuration.layer({
-      ...defaultConfig,
+      ...defaultDocgenConfig,
       ...config,
     })
   );

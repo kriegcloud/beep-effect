@@ -1,5 +1,6 @@
 import { formOptionsWithDefaults, makeFormOptions } from "@beep/form/core/FormOptions";
 import { withKeyDefaults } from "@beep/schema/SchemaUtils";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
@@ -17,21 +18,14 @@ describe("@beep/form FormOptions", () => {
     expect(options.defaultValues).toEqual({ name: "" });
   });
 
-  it("keeps transform schemas on the explicit encoded-defaults path", () => {
-    const transformedSchema = S.Struct({ count: S.FiniteFromString });
-
-    const options = makeFormOptions({
-      schema: transformedSchema,
-      defaultValues: { count: "1" },
+  it("encodes schema defaults for transform schemas", () => {
+    const transformedSchema = S.Struct({
+      count: S.FiniteFromString.pipe(S.withConstructorDefault(Effect.succeed(1))),
     });
 
-    expect(options.defaultValues).toEqual({ count: "1" });
+    const options = formOptionsWithDefaults({ schema: transformedSchema });
 
-    const expectTypeOnlyRejection = () => {
-      // @ts-expect-error constructor defaults are decoded values; TanStack defaultValues stay encoded.
-      formOptionsWithDefaults({ schema: transformedSchema });
-    };
-    void expectTypeOnlyRejection;
+    expect(options.defaultValues).toEqual({ count: "1" });
   });
 
   it("routes to the async slot when async is requested", () => {
