@@ -23,11 +23,12 @@ import type * as S from "effect/Schema";
  *
  * @example
  * ```ts
+ * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  * import { getDefaultFormValues } from "@beep/form/core/Defaults"
  *
  * const schema = S.Struct({
- *   name: S.String.pipe(S.withConstructorDefault(() => "")),
+ *   name: S.String.pipe(S.withConstructorDefault(Effect.succeed(""))),
  * })
  * console.log(getDefaultFormValues(schema)) // { name: "" }
  * ```

@@ -17,7 +17,7 @@
  */
 
 import { formOptions } from "@tanstack/react-form";
-import * as Match from "effect/Match";
+import { Match } from "effect";
 import * as S from "effect/Schema";
 import { getDefaultFormValues } from "./Defaults.ts";
 import { toFormSchema } from "./FormSchema.ts";
@@ -91,11 +91,12 @@ export const makeFormOptions = <A, I>(
  *
  * @example
  * ```ts
+ * import * as Effect from "effect/Effect"
  * import * as S from "effect/Schema"
  * import { formOptionsWithDefaults } from "@beep/form/core/FormOptions"
  *
  * const schema = S.Struct({
- *   name: S.String.pipe(S.withConstructorDefault(() => "")),
+ *   name: S.String.pipe(S.withConstructorDefault(Effect.succeed(""))),
  * })
  * const options = formOptionsWithDefaults({ schema })
  * console.log(options.defaultValues) // { name: "" }

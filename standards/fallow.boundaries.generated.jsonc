@@ -192,6 +192,12 @@
         ]
       },
       {
+        "name": "@beep/form",
+        "patterns": [
+          "packages/foundation/ui-system/form/src/**"
+        ]
+      },
+      {
         "name": "@beep/html",
         "patterns": [
           "packages/foundation/modeling/html/src/**"
@@ -1017,6 +1023,21 @@
         ]
       },
       {
+        "from": "@beep/form",
+        "allow": [
+          "@beep/form",
+          "@beep/schema",
+          "@beep/ui",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/form",
+          "@beep/schema",
+          "@beep/ui",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/html",
         "allow": [
           "@beep/html",
@@ -1673,10 +1694,12 @@
       {
         "from": "@beep/storybook",
         "allow": [
+          "@beep/form",
           "@beep/storybook",
           "@beep/ui"
         ],
         "allowTypeOnly": [
+          "@beep/form",
           "@beep/storybook",
           "@beep/ui"
         ]
