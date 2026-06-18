@@ -2,8 +2,8 @@
 
 ## Status
 
-Lifecycle: `active` — SPEC signed off (via the documented `/goal` launch); **P4
-complete (full Yeet verify green); P5 closeout next.** Package scaffolded;
+Lifecycle: `completed-retained` — SPEC signed off (via the documented `/goal`
+launch); **P5 closeout complete.** Package scaffolded;
 schema-first core + 28 fields bound/registered; focused unit tests + 29 form
 Storybook `play` tests passing.
 
@@ -42,7 +42,7 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-**P4 Verify — complete.** `@beep/form` is scaffolded at
+**Closed (P5 complete).** `@beep/form` is scaffolded at
 `packages/foundation/ui-system/form` and the schema-first core + full field set
 are built and verified. Core: `toFormSchema` (Standard-Schema validation),
 `getDefaultFormValues` (`schema.make({})`), `toFieldErrors` (issues →
@@ -56,7 +56,8 @@ Emoji, Upload, UploadAvatar, UploadBox. (Standalone `Radio` is intentionally
 subsumed by `RadioGroup` — a single boolean-radio is niche; surface as a
 follow-up if needed.)
 
-**Next: P5** closeout reflection.
+The closeout reflection is recorded at
+[`history/reflections/2026-06-18-codex.md`](./history/reflections/2026-06-18-codex.md).
 
 ## Latest Evidence
 
@@ -80,6 +81,9 @@ follow-up if needed.)
   generated tsconfig/docgen sync and fallow boundary snapshots were refreshed.
   This covers repo-wide build, check, lint/law gates, docgen, unit tests,
   type-tests, integration tests, secrets, security, SAST, and Nix proof.
+- P5 (2026-06-18) — closeout complete: reflection written at
+  [`history/reflections/2026-06-18-codex.md`](./history/reflections/2026-06-18-codex.md);
+  packet lifecycle/status moved to `completed-retained`.
 - P0 research artifacts under [`research/`](./research/) (dated 2026-06-18):
   codebase grounding, widget-library selections, core best-practice notes, and
   the design-review note.

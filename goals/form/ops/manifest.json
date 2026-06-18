@@ -3,13 +3,13 @@
   "initiative": {
     "id": "form",
     "title": "Form Substrate (@beep/form)",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-18",
     "updated": "2026-06-18",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/form",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -62,7 +62,7 @@
     {
       "id": "P5",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

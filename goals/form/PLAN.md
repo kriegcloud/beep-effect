@@ -2,13 +2,14 @@
 
 ## Status
 
-Status: `P4 complete (full Yeet verify green); P5 next` — SPEC signed off via the documented
+Status: `P5 complete (closed; full Yeet verify green)` — SPEC signed off via the documented
 `/goal` launch.
 
 This plan describes the **full** implementation lifecycle (P0→Close). P0
 (research + packet authorship) and P1 (core + all 17 fields + units + stories
 with passing `play` tests) are complete; P2 (dates adapter), P3 (heavy
-third-party fields), and P4 (full Yeet verify) are complete. P5 closeout is next.
+third-party fields), P4 (full Yeet verify), and P5 (closeout reflection) are
+complete.
 
 ## Phases
 
@@ -19,7 +20,7 @@ third-party fields), and P4 (full Yeet verify) are complete. P5 closeout is next
 | P2 Dates (adapter port) | complete | Port `AdapterEffectDateTime` to effect v4 into `@beep/ui` as a new MUI-x date/time primitive family; reconcile its `./schema` into `@beep/schema`; bind Date/DateTime/Time fields. | DONE + green: schema role helpers/tests, new `@beep/ui` MUI-X Effect DateTime primitive family + adapter unit tests, legal `@beep/ui` → `@beep/schema` dep/reference, Date/DateTime/Time fields registered, 21 form Storybook `play` tests passing in chromium. Full Yeet verify remains P4. |
 | P3 Heavy third-party fields | complete | Add the P3 base-ui/Tailwind primitives to `@beep/ui` (using the P0-selected libraries); bind Phone/Country/Color/Rating/Emoji/Upload fields. | DONE + green: exact-pinned P3 libraries cataloged, `@beep/ui` primitives added (Phone/Country/Color/Rating/Emoji/Upload family), `@beep/form` fields registered, helper unit tests added, 29 form Storybook `play` tests passing in chromium. Full Yeet verify remains P4. |
 | P4 Verify | complete | Run the full quality lane and capture evidence. | DONE + green: `bun run beep yeet verify` passed on 2026-06-18 after the repo-sanity writers refreshed tsconfig/docgen and fallow boundaries; all 29 form Storybook `play` tests pass in chromium; docgen, lint, typecheck, tests, secrets, security, SAST, and Nix gates pass. |
-| P5 Close | pending | PR, review response, closeout reflection, readiness. | Packet status + evidence updated; closeout reflection exists and `bun run beep lint reflection-artifacts` passes. |
+| P5 Close | complete | PR, review response, closeout reflection, readiness. | DONE: packet status + evidence updated, closeout reflection exists, and `bun run beep lint reflection-artifacts` is the closeout gate. |
 
 ### P1 exit criteria (Core + simple fields)
 
@@ -135,8 +136,9 @@ Before marking the packet closed (and `status` → `completed-retained` /
 
 ## Current Blockers
 
-- None for implementation. SPEC sign-off was given via the documented `/goal`
-  launch (see `README.md` Launch). P5 closeout reflection is next.
+- None. SPEC sign-off was given via the documented `/goal` launch (see
+  `README.md` Launch), implementation is complete, full Yeet verify is green,
+  and the closeout reflection is recorded.
 
 ## Execution Notes
 
