@@ -1,5 +1,5 @@
 import "@beep/ui/styles/globals.css";
-import { AppThemeProvider, ThemeMode } from "@beep/ui/themes/theme-provider";
+import { AppThemeProvider, ThemeMode } from "@beep/ui/themes";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.js";

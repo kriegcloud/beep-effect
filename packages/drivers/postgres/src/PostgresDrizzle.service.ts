@@ -7,16 +7,18 @@
 
 import { $PostgresId } from "@beep/identity";
 import * as PgDrizzle from "drizzle-orm/effect-postgres";
-import * as PgDrizzleMigrator from "drizzle-orm/effect-postgres/migrator";
+import { readMigrationFiles } from "drizzle-orm/migrator";
+import * as PgEffectSessionMigrator from "drizzle-orm/pg-core/effect/session";
 import { Context, Effect, Layer } from "effect";
 import { dual } from "effect/Function";
 import { PostgresError } from "./Postgres.errors.ts";
 import type * as Pg from "@effect/sql-pg/PgClient";
-import type { MigrationConfig } from "drizzle-orm/migrator";
+import type { MigrationConfig, MigrationMeta } from "drizzle-orm/migrator";
 import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import type { NativeMigrationError } from "./PostgresInterop.models.ts";
 
 const $I = $PostgresId.create("PostgresDrizzle.service");
+const LegacyStatementBoundary = /;\s*\n(?=\s*(?:ALTER|COMMENT|CREATE|DELETE|DROP|INSERT|UPDATE)\b)/giu;
 
 declare const PostgresDrizzleSchema: unique symbol;
 
@@ -124,6 +126,48 @@ export const makeDrizzleLayer = (
   config: PostgresDrizzleConfig = {}
 ): Layer.Layer<PostgresDrizzle, PostgresError, Pg.PgClient> => Layer.effect(PostgresDrizzle, makeDrizzle(config));
 
+const splitLegacyMigrationStatement = (statement: string): ReadonlyArray<string> => {
+  const parts = statement
+    .trim()
+    .split(LegacyStatementBoundary)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+
+  return parts.map((part) => (part.endsWith(";") ? part : `${part};`));
+};
+
+const normalizeMigration = (migration: MigrationMeta): MigrationMeta => ({
+  ...migration,
+  sql: migration.sql.flatMap(splitLegacyMigrationStatement),
+});
+
+const readNormalizedMigrationFiles = (
+  config: MigrationConfig
+): Effect.Effect<ReadonlyArray<MigrationMeta>, PostgresError> =>
+  Effect.try({
+    try: () => readMigrationFiles(config).map(normalizeMigration),
+    catch: (cause) => PostgresError.fromUnknown("migrate", cause),
+  });
+
+const getDrizzleSession = <TSchema extends Record<string, unknown>, TRelations extends AnyRelations>(
+  db: PostgresDrizzleDatabase<TSchema, TRelations>
+): unknown => (db as unknown as { readonly session: unknown }).session;
+
+const runPgEffectMigrations = <TSchema extends Record<string, unknown>, TRelations extends AnyRelations>(
+  db: PostgresDrizzleDatabase<TSchema, TRelations>,
+  migrations: ReadonlyArray<MigrationMeta>,
+  config: MigrationConfig
+): Effect.Effect<undefined, PostgresError> =>
+  (
+    PgEffectSessionMigrator.migrate as (
+      migrations: ReadonlyArray<MigrationMeta>,
+      session: unknown,
+      config: MigrationConfig
+    ) => Effect.Effect<undefined, NativeMigrationError, never>
+  )(migrations, getDrizzleSession(db), config).pipe(
+    Effect.mapError((cause) => PostgresError.fromUnknown("migrate", cause))
+  );
+
 /**
  * Run Drizzle Effect Postgres migrations and normalize failures.
  *
@@ -159,18 +203,7 @@ export const migrate: {
     db: PostgresDrizzleDatabase<TSchema, TRelations>,
     config: MigrationConfig
   ): Effect.Effect<undefined, PostgresError> =>
-    Effect.try({
-      try: () =>
-        (
-          PgDrizzleMigrator.migrate as <Schema extends Record<string, unknown>, Relations extends AnyRelations>(
-            database: PostgresDrizzleDatabase<Schema, Relations>,
-            migrationConfig: MigrationConfig
-          ) => Effect.Effect<undefined, NativeMigrationError>
-        )(db, config),
-      catch: (cause) => PostgresError.fromUnknown("migrate", cause),
-    }).pipe(
-      Effect.flatMap((migration) =>
-        migration.pipe(Effect.mapError((cause) => PostgresError.fromUnknown("migrate", cause)))
-      )
+    readNormalizedMigrationFiles(config).pipe(
+      Effect.flatMap((migrations) => runPgEffectMigrations(db, migrations, config))
     )
 );

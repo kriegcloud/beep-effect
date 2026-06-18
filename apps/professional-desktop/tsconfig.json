@@ -95,9 +95,6 @@
   },
   "references": [
     {
-      "path": "../../packages/_internal/db-admin/tsconfig.json"
-    },
-    {
       "path": "../../packages/agents/client/tsconfig.json"
     },
     {
@@ -120,6 +117,9 @@
     },
     {
       "path": "../../packages/epistemic/tables/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     },
     {
       "path": "../../packages/foundation/modeling/lexical/tsconfig.json"
@@ -153,9 +153,6 @@
     },
     {
       "path": "../../packages/drivers/anthropic/tsconfig.json"
-    },
-    {
-      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
     }
   ]
 }

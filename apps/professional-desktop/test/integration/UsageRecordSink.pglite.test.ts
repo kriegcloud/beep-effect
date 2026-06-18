@@ -1,13 +1,15 @@
-import { migrationsFolder } from "@beep/db-admin";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
 import * as UsageRecordTable from "@beep/epistemic-tables/entities/UsageRecord";
-import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
-import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
+import { makeDrizzle, makeDrizzleLayer } from "@beep/postgres";
+import { makePgliteIntegrationGate, makePgliteSqlTestLayer } from "@beep/test-utils";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, Layer, pipe } from "effect";
+import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
+import { migrateOnBoot } from "@/runtime/Migrations";
 
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
 const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
@@ -40,19 +42,14 @@ const usageAppendInput = {
 };
 
 const migrateEpistemicUsage = Effect.fnUntraced(function* () {
-  const info = yield* TestDatabaseInfo;
-  const db = yield* makeDrizzle();
-  const migrationsSchema = pipe(
-    info.schema,
-    O.getOrElse(() => "drizzle")
-  );
-
-  yield* migrate(db, { migrationsFolder, migrationsSchema });
+  yield* migrateOnBoot;
 });
 
 const UsageRecordSinkLayer = UsageRecordSinkDrizzle.pipe(
   Layer.provideMerge(makeDrizzleLayer()),
-  Layer.provideMerge(makeInProcessPgliteLayer())
+  Layer.provideMerge(makeInProcessPgliteLayer()),
+  Layer.provideMerge(BunFileSystem.layer),
+  Layer.provideMerge(BunPath.layer)
 );
 
 if (!shouldRunPgliteIntegration) {

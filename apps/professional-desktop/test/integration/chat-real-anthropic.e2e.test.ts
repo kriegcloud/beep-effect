@@ -15,15 +15,16 @@
  * @since 0.0.0
  */
 
-import { fileURLToPath } from "node:url";
 import { AnthropicTurnKernel } from "@beep/agents-server/AnthropicTurnKernel";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
 import * as Md from "@beep/md/Md.model";
-import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
+import { makeDrizzleLayer } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { makePgliteIntegrationGate, TestDatabaseInfo } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
@@ -34,8 +35,8 @@ import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
 import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
+import { migrateProfessionalDesktopDatabase } from "@/runtime/Migrations";
 
-const migrationsFolder = fileURLToPath(new URL("../../../../packages/_internal/db-admin/drizzle", import.meta.url));
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis, makePgliteLayer } = makePgliteIntegrationGate();
 
 const shouldRunRealAnthropic = Bun.env.BEEP_TEST_REAL_ANTHROPIC_CHAT === "1";
@@ -54,12 +55,11 @@ const prompt = [
 
 const migrateAll = Effect.fnUntraced(function* () {
   const info = yield* TestDatabaseInfo;
-  const db = yield* makeDrizzle();
   const migrationsSchema = pipe(
     info.schema,
     O.getOrElse(() => "drizzle")
   );
-  yield* migrate(db, { migrationsFolder, migrationsSchema });
+  yield* migrateProfessionalDesktopDatabase({ migrationsSchema });
 });
 
 const hasStreamedMermaid = (blocks: ReadonlyArray<unknown>): boolean =>
@@ -107,7 +107,9 @@ const hasPersistedYouTube = (document: Md.Document.Type): boolean =>
 const RealAnthropicChatLayer = Layer.mergeAll(
   ThreadLayers.ThreadStoreDrizzleLayer,
   UsageRecordSinkDrizzle,
-  AnthropicTurnKernel
+  AnthropicTurnKernel,
+  BunFileSystem.layer,
+  BunPath.layer
 ).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makePgliteLayer()));
 
 const hasAnthropicApiKey =

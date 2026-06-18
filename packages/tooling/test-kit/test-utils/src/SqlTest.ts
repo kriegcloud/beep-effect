@@ -1229,6 +1229,25 @@ const resolvePgliteExternalConfig = Effect.fn("SqlTest.resolvePgliteExternalConf
 const shouldUseExternalPgliteLayer = (mode: PgliteSqlTestLayerMode, config: PgExternalTestDriverConfigInput): boolean =>
   mode === "external" || (mode === "auto" && config?.connectionUri !== undefined);
 
+const shouldUseTestcontainersPgliteLayer = (mode: PgliteSqlTestLayerMode): boolean =>
+  mode === "testcontainers" || (mode === "auto" && Bun.env.BEEP_TEST_DATABASE_DRIVER === "pglite-testcontainers");
+
+const makeConfiguredSqlTestLayer = <Config, Services, SqlService extends Services, MigrateError, SeedError>(
+  driver: SqlTestDriver<Config, Services, SqlService>,
+  config: Config,
+  hooks: undefined | SqlTestHooks<MigrateError, SeedError>
+): Layer.Layer<Services, SqlTestHarnessError> =>
+  hooks === undefined
+    ? makeSqlTestLayer({
+        config,
+        driver,
+      })
+    : makeSqlTestLayer({
+        config,
+        driver,
+        hooks,
+      });
+
 /**
  * Pre-computed gate values for PGLite integration tests.
  *
@@ -1324,40 +1343,13 @@ export const makePgliteSqlTestLayer = <MigrateError = never, SeedError = never>(
       const externalConfig = yield* resolvePgliteExternalConfig(options.external);
 
       if (shouldUseExternalPgliteLayer(mode, externalConfig)) {
-        return options.hooks === undefined
-          ? makeSqlTestLayer({
-              config: externalConfig,
-              driver: PgExternalTestDriver,
-            })
-          : makeSqlTestLayer({
-              config: externalConfig,
-              driver: PgExternalTestDriver,
-              hooks: options.hooks,
-            });
+        return makeConfiguredSqlTestLayer(PgExternalTestDriver, externalConfig, options.hooks);
       }
 
-      if (mode === "testcontainers") {
-        return options.hooks === undefined
-          ? makeSqlTestLayer({
-              config: options.testcontainers,
-              driver: PgliteTestcontainersTestDriver,
-            })
-          : makeSqlTestLayer({
-              config: options.testcontainers,
-              driver: PgliteTestcontainersTestDriver,
-              hooks: options.hooks,
-            });
+      if (shouldUseTestcontainersPgliteLayer(mode)) {
+        return makeConfiguredSqlTestLayer(PgliteTestcontainersTestDriver, options.testcontainers, options.hooks);
       }
 
-      return options.hooks === undefined
-        ? makeSqlTestLayer({
-            config: undefined,
-            driver: PgliteInProcessTestDriver,
-          })
-        : makeSqlTestLayer({
-            config: undefined,
-            driver: PgliteInProcessTestDriver,
-            hooks: options.hooks,
-          });
+      return makeConfiguredSqlTestLayer(PgliteInProcessTestDriver, undefined, options.hooks);
     })
   );

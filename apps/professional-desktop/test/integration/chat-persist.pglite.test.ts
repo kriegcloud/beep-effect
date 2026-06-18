@@ -25,20 +25,22 @@
  */
 import { FixtureTurnKernel } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
-import { migrationsFolder } from "@beep/db-admin";
 import * as Md from "@beep/md/Md.model";
-import { makeDrizzle, makeDrizzleLayer, migrate } from "@beep/postgres";
+import { makeDrizzleLayer } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import { makePgliteIntegrationGate, makePgliteSqlTestLayer, TestDatabaseInfo } from "@beep/test-utils";
+import { makePgliteIntegrationGate, makePgliteSqlTestLayer } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Chunk, Effect, Layer, pipe } from "effect";
+import { Chunk, Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
+import { migrateOnBoot } from "@/runtime/Migrations";
 
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
 const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
@@ -48,19 +50,15 @@ const userDocument = (text: string): Md.Document.Type =>
   Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 const migrateAll = Effect.fnUntraced(function* () {
-  const info = yield* TestDatabaseInfo;
-  const db = yield* makeDrizzle();
-  const migrationsSchema = pipe(
-    info.schema,
-    O.getOrElse(() => "drizzle")
-  );
-  yield* migrate(db, { migrationsFolder, migrationsSchema });
+  yield* migrateOnBoot;
 });
 
 const ChatPersistLayer = Layer.mergeAll(
   ThreadLayers.ThreadStoreDrizzleLayer,
   UsageRecordSinkDrizzle,
-  FixtureTurnKernel
+  FixtureTurnKernel,
+  BunFileSystem.layer,
+  BunPath.layer
 ).pipe(Layer.provideMerge(makeDrizzleLayer()), Layer.provideMerge(makeInProcessPgliteLayer()));
 
 if (!shouldRunPgliteIntegration) {

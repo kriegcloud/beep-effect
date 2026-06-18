@@ -6,8 +6,13 @@
  * client under the `@effect/sql-pg` PgClient tag), then layers the repo's
  * {@link PostgresDrizzle} composition on top so every sidecar repository (the
  * Drizzle ThreadStore, the Drizzle usage-record sink) runs against the same
- * embedded database the integration tests prove. The db-admin Drizzle migrations
- * are applied on boot.
+ * embedded database the integration tests prove. The sidecar's bundled Drizzle
+ * migrations are applied on boot.
+ *
+ * Operational note: `CHAT_DB_PATH` should be treated as owned by this sidecar
+ * build's bundled PGlite runtime. Back up or reset existing directories created
+ * by an older socket-bridge PGlite runtime before first in-process boot if the
+ * embedded client cannot open them.
  *
  * The PGlite instance is owned by the layer {@link Scope}: it is acquired and
  * released (`pglite.close()`) by `@beep/pglite` when the runtime scope closes, so
@@ -19,10 +24,12 @@
  */
 
 import { fileURLToPath } from "node:url";
-import { migrateOnBoot } from "@beep/db-admin";
 import * as Pglite from "@beep/pglite";
 import { makeDrizzleLayer } from "@beep/postgres";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
 import { Config, Effect, Layer } from "effect";
+import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Context } from "effect";
 
@@ -55,9 +62,11 @@ const PgliteClientLive = Layer.unwrap(
   })
 ).pipe(Layer.orDie);
 
+const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+
 /**
  * Live {@link PostgresDrizzle} layer over a file-backed in-process PGlite
- * database, with the db-admin migrations applied on boot. This is the shared
+ * database, with the sidecar migrations applied on boot. This is the shared
  * database every sidecar repository (the Drizzle ThreadStore, the Drizzle
  * usage-record sink) runs against.
  *
@@ -67,5 +76,6 @@ const PgliteClientLive = Layer.unwrap(
 export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = makeDrizzleLayer().pipe(
   Layer.tap((context: Context.Context<PostgresDrizzle>) => Effect.provide(migrateOnBoot, context)),
   Layer.provide(PgliteClientLive),
+  Layer.provide(MigrationPlatformLive),
   Layer.orDie
 );

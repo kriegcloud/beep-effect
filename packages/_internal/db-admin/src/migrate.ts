@@ -62,7 +62,14 @@ export const migrationsSchema = "drizzle" as const;
  * @category constructors
  * @since 0.0.0
  */
-export const migrateOnBoot: Effect.Effect<void, PostgresError, PostgresDrizzle> = Effect.gen(function* () {
+export const migrateOnBoot: Effect.Effect<undefined, PostgresError, PostgresDrizzle> = Effect.gen(function* () {
   const db = yield* PostgresDrizzle;
   yield* migrate(db, { migrationsFolder, migrationsSchema });
+  yield* Effect.logInfo("db-admin migrations applied").pipe(
+    Effect.annotateLogs({
+      component: "db-admin",
+      migrationsSchema,
+    })
+  );
+  return undefined;
 });
