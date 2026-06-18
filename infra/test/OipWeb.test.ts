@@ -26,7 +26,7 @@ describe("@beep/infra OipWeb", () => {
     expect(args.dns.legacyStagingDomain).toBe("staging.opip.law");
     expect(args.dns.legacyWwwDomain).toBe("www.opip.law");
     expect(args.vercel.projectName).toBe("oip-web");
-    expect(args.vercel.repository).toBe("kriegcloud/beep-effect");
+    expect(args.vercel.repository).toBe("beep-effect/beep-effect");
     expect(args.vercel.rootDirectory).toBe("apps/oip-web");
     expect(args.vercel.vercelAuthenticationDeploymentType).toBe("none");
   });

@@ -47,10 +47,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "packages/foundation/primitive/data"
   },
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/primitive/data",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/primitive/data",
   "sideEffects": [],
   "publishConfig": {
     "access": "public",

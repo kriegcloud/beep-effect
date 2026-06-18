@@ -72,7 +72,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "url": "git@github.com:beep-effect/beep-effect.git",
     "directory": "."
   },
   "scripts": {

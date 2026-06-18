@@ -337,7 +337,7 @@ describe("tsconfig-sync", () => {
             },
             docgenConfig: {
               $schema: "../../../packages/tooling/tool/docgen/schema.json",
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/example-use-cases/src/",
+              srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/example-use-cases/src/",
             },
           });
 
@@ -454,7 +454,7 @@ describe("tsconfig-sync", () => {
             packageName: "@beep/schema",
             docgenConfig: {
               $schema: "../../../../packages/tooling/tool/docgen/schema.json",
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+              srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
             },
           });
           yield* bootstrapWorkspace(rootDir, {
@@ -468,7 +468,8 @@ describe("tsconfig-sync", () => {
               $schema: "../../../../packages/tooling/tool/docgen/schema.json",
               exclude: ["src/**/*.spec.ts"],
               enforceDescriptions: true,
-              srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/identity/src/",
+              srcLink:
+                "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/identity/src/",
               examplesCompilerOptions: {
                 noEmit: true,
                 strict: true,
@@ -566,7 +567,8 @@ describe("tsconfig-sync", () => {
               docgenConfig: {
                 $schema: "../../../../packages/tooling/tool/docgen/schema.json",
                 exclude: ["src/internal/**/*.ts"],
-                srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
+                srcLink:
+                  "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/schema/src/",
                 examplesCompilerOptions: {
                   noEmit: true,
                   strict: true,
@@ -609,7 +611,7 @@ describe("tsconfig-sync", () => {
               references: ["../../foundation/modeling/schema/tsconfig.json"],
               docgenConfig: {
                 $schema: "../../../packages/tooling/tool/docgen/schema.json",
-                srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/example/protocol/src/",
+                srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/example/protocol/src/",
               },
             });
 
@@ -716,7 +718,7 @@ describe("tsconfig-sync", () => {
   "exclude": [
     "src/internal/**/*.ts"
   ],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/modeling/example-docgen/src/",
+  "srcLink": "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/example-docgen/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,

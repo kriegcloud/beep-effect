@@ -100,6 +100,15 @@ const config: ViteUserConfig = {
     },
   },
   test: {
+    // Tests run globally concurrent (see `sequence.concurrent` below), so a
+    // full monorepo run (e.g. a many-package PR, or push-to-main) saturates the
+    // CI runner's CPU and can starve otherwise-fast tests — property-based
+    // (FastCheck) and WASM-backed (PGlite) suites especially — past vitest's 5s
+    // default, surfacing as flaky "Test timed out in 5000ms" failures under load
+    // even though they finish in well under a second in isolation. Use a
+    // generous global cap; a genuine hang still fails well within each lane's
+    // job timeout, and packages may still override per-test where needed.
+    testTimeout: 30_000,
     exclude: ["**/.context/**", "**/node_modules/**"],
     setupFiles: [new URL("./vitest.setup.ts", import.meta.url).pathname],
     fakeTimers: {

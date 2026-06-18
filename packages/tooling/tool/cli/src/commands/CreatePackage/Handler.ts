@@ -1325,10 +1325,10 @@ const generatePackageJson: (
       private: true,
       license: "MIT",
       description,
-      homepage: `https://github.com/kriegcloud/beep-effect/tree/main/${packagePath}`,
+      homepage: `https://github.com/beep-effect/beep-effect/tree/main/${packagePath}`,
       repository: {
         type: "git",
-        url: "git@github.com:kriegcloud/beep-effect.git",
+        url: "git@github.com:beep-effect/beep-effect.git",
         directory: packagePath,
       },
     };
