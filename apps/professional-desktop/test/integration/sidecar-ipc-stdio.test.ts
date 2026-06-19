@@ -23,9 +23,10 @@ import * as Stream from "effect/Stream";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
 import { Socket } from "effect/unstable/socket";
 import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
+import { SidecarReadyMarker } from "@/runtime/Migrations";
 
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
-const bootMarker = "chat sidecar migrations applied";
+const bootMarker = SidecarReadyMarker;
 
 class SidecarBinaryResolutionError extends Data.TaggedError("SidecarBinaryResolutionError")<{
   readonly message: string;

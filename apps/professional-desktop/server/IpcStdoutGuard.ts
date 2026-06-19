@@ -4,6 +4,11 @@ import * as P from "effect/Predicate";
 
 // biome-ignore lint/suspicious/noUndeclaredEnvVars: CHAT_TRANSPORT is declared in turbo.json under global.passThroughEnv.
 const ipcTransport = Bun.env.CHAT_TRANSPORT === "ipc";
+const originalBunWrite = Bun.write.bind(Bun);
+const originalBunWriteUnknown = originalBunWrite as (
+  destination: unknown,
+  input: unknown
+) => ReturnType<typeof Bun.write>;
 const originalStdoutWrite = process.stdout.write.bind(process.stdout);
 
 const writeConsoleToStderr = (...values: Array<unknown>): void => {
@@ -28,6 +33,9 @@ const writeProtocolStdout = (chunk: string | Uint8Array): Effect.Effect<void> =>
     });
   });
 
+const writeBunStdoutToStderr = ((destination: unknown, input: unknown) =>
+  originalBunWriteUnknown(destination === Bun.stdout ? Bun.stderr : destination, input)) as typeof Bun.write;
+
 const IpcStdioLive: Layer.Layer<Stdio.Stdio> = Layer.effect(
   Stdio.Stdio,
   Effect.map(Stdio.Stdio, (stdio) =>
@@ -47,6 +55,7 @@ if (ipcTransport) {
   console.warn = writeConsoleToStderr;
   console.trace = writeConsoleToStderr;
   process.stdout.write = writeDirectStdoutToStderr as typeof process.stdout.write;
+  Bun.write = writeBunStdoutToStderr;
 }
 
 /**

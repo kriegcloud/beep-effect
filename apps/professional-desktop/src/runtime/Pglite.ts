@@ -74,7 +74,7 @@ export const ChatDbCompatibilityMarker = ".beep-pglite-inprocess-v1";
 const PgliteDataDirRequiredEntries = ["PG_VERSION", "base", "global"] as const;
 
 const ChatDbIncompatibleRecoveryMessage =
-  "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; restore or export it with the prior runtime, or choose a new empty CHAT_DB_PATH for this build.";
+  "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; export it with the prior desktop build before importing into a fresh current data dir, or reset by moving the old chat-db directory aside and starting with an empty CHAT_DB_PATH.";
 
 const ViteFileSystemPrefix = "/@fs/";
 

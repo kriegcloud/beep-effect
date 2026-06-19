@@ -125,10 +125,12 @@ fn emit_or_buffer_ipc_stdout_frame(
 ) -> bool {
     match String::from_utf8(frame) {
         Ok(frame) => {
+            let mut pending = recover_lock(pending_stdout_frames);
             if ready.load(Ordering::SeqCst) {
+                drop(pending);
                 let _ = handle.emit("sidecar://rx", frame);
             } else {
-                recover_lock(pending_stdout_frames).push(frame);
+                pending.push(frame);
             }
             true
         }
@@ -301,14 +303,13 @@ async fn sidecar_send(state: tauri::State<'_, Sidecar>, frame: String) -> Result
 /// before emitting stdout frames that may arrive before the webview subscribes.
 #[tauri::command]
 fn sidecar_ipc_ready(app: AppHandle, state: tauri::State<'_, Sidecar>) -> Result<(), String> {
-    state.ipc_ready.store(true, Ordering::SeqCst);
-
-    let frames: Vec<String> = recover_lock(&state.pending_stdout_frames)
-        .drain(..)
-        .collect();
-    for frame in frames {
-        app.emit("sidecar://rx", frame)
-            .map_err(|err| err.to_string())?;
+    {
+        let mut frames = recover_lock(&state.pending_stdout_frames);
+        for frame in frames.drain(..) {
+            app.emit("sidecar://rx", frame)
+                .map_err(|err| err.to_string())?;
+        }
+        state.ipc_ready.store(true, Ordering::SeqCst);
     }
 
     if let Some(payload) = recover_lock(&state.pending_closed).take() {
