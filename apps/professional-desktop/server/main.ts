@@ -23,6 +23,9 @@
  * @since 0.0.0
  */
 
+// Guard IPC stdout before sidecar dependencies can run module initializers.
+import "./IpcStdoutGuard.ts";
+
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import { BunHttpServer, BunRuntime } from "@effect/platform-bun";
 import { Config, Effect, Layer, Logger } from "effect";
