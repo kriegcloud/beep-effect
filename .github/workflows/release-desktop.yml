@@ -285,10 +285,32 @@ jobs:
           };
 
           const assets = [];
+          const artifactPathSet = new Set(artifactPaths);
           for (const artifactPath of artifactPaths) {
-            if (!fs.existsSync(artifactPath) || !fs.statSync(artifactPath).isFile()) {
-              continue;
+            if (!fs.existsSync(artifactPath)) {
+              throw new Error(`Expected tauri artifact path does not exist: ${artifactPath}`);
             }
+
+            const stat = fs.statSync(artifactPath);
+            if (stat.isDirectory()) {
+              const archivePath = `${artifactPath}.tar.gz`;
+              const hasUpdaterArchive =
+                artifactPath.endsWith(".app") &&
+                artifactPathSet.has(archivePath) &&
+                fs.existsSync(archivePath) &&
+                fs.statSync(archivePath).isFile();
+
+              if (hasUpdaterArchive) {
+                continue;
+              }
+
+              throw new Error(`Expected tauri artifact path to be a file: ${artifactPath}`);
+            }
+
+            if (!stat.isFile()) {
+              throw new Error(`Expected tauri artifact path to be a file: ${artifactPath}`);
+            }
+
             const assetName = releaseAssetName(artifactPath);
             fs.copyFileSync(artifactPath, path.join(stagingDir, assetName));
             assets.push(assetName);
@@ -345,6 +367,7 @@ jobs:
       - release-desktop
     if: ${{ always() && needs.release-desktop.result != 'skipped' }}
     env:
+      EXPECTED_RELEASE_TARGETS: darwin-aarch64,darwin-x86_64,linux-x86_64,windows-x86_64
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
       - name: Verify every desktop target completed
@@ -383,6 +406,15 @@ jobs:
 
           expected_assets="${RUNNER_TEMP}/desktop-expected-assets.txt"
           expected_platforms="${RUNNER_TEMP}/desktop-expected-platforms.txt"
+          expected_targets="${RUNNER_TEMP}/desktop-expected-targets.txt"
+          actual_targets="${RUNNER_TEMP}/desktop-actual-targets.txt"
+          tr ',' '\n' <<<"${EXPECTED_RELEASE_TARGETS}" | sort > "${expected_targets}"
+          jq -r '.target' "${manifests[@]}" | sort > "${actual_targets}"
+          if ! diff -u "${expected_targets}" "${actual_targets}"; then
+            echo "::error::Downloaded desktop release manifests do not match the release matrix targets."
+            exit 1
+          fi
+
           jq -r '.assets[]' "${manifests[@]}" | sort > "${expected_assets}"
           jq -r '.updaterPlatform' "${manifests[@]}" | sort > "${expected_platforms}"
 
