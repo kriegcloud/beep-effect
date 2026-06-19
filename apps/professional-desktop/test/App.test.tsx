@@ -3,7 +3,7 @@ import { cleanup, render, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { App } from "@/App";
 
-describe.sequential("Professional Desktop app", () => {
+describe("Professional Desktop app", { concurrent: false }, () => {
   afterEach(cleanup);
 
   it("mounts the chat shell", () => {
