@@ -79,6 +79,8 @@ const PgliteDataDirRequiredEntries = ["PG_VERSION", "base", "global"] as const;
 const ChatDbIncompatibleRecoveryMessage =
   "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; restore or export it with the prior runtime, or choose a new empty CHAT_DB_PATH for this build.";
 
+const ViteFileSystemPrefix = "/@fs/";
+
 class IncompatiblePgliteDataDir extends Data.TaggedError("IncompatiblePgliteDataDir")<{
   readonly cause: unknown;
   readonly dataDir: string;
@@ -121,7 +123,7 @@ export const markCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite
 const assertCanOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.assertCanOpenInProcessPgliteDataDir")(
   function* (dataDir: string) {
     yield* Effect.scoped(
-      Layer.build(Pglite.makeLayer({ dataDir })).pipe(
+      Layer.build(makeBundledPgliteLayer({ dataDir })).pipe(
         Effect.flatMap((context) =>
           Effect.gen(function* () {
             const sql = (yield* SqlClient.SqlClient).withoutTransforms();
@@ -226,21 +228,30 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
  * @category layers
  * @since 0.0.0
  */
+const toBunFileSystemPath = (path: string): string =>
+  path.startsWith(ViteFileSystemPrefix) ? path.slice(ViteFileSystemPrefix.length - 1) : path;
+
 const compileWasmFile = (path: string): Promise<WebAssembly.Module> =>
-  Bun.file(path).arrayBuffer().then(WebAssembly.compile);
+  Bun.file(toBunFileSystemPath(path)).arrayBuffer().then(WebAssembly.compile);
 
 const PgliteBinaryAssets = Effect.promise(() =>
   Promise.all([compileWasmFile(pgliteWasmPath), compileWasmFile(initdbWasmPath)]).then(
     ([pgliteWasmModule, initdbWasmModule]) => ({
-      fsBundle: Bun.file(pgliteDataPath),
+      fsBundle: Bun.file(toBunFileSystemPath(pgliteDataPath)),
       initdbWasmModule,
       pgliteWasmModule,
     })
   )
 );
 
-const makePgliteClientLive = (dataDir: string) =>
-  Layer.unwrap(Effect.map(PgliteBinaryAssets, (assets) => Pglite.makeLayer({ dataDir, ...assets })));
+/**
+ * Build a PGlite layer with the desktop sidecar's bundled binary assets.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const makeBundledPgliteLayer = (options: Pglite.PgliteClientOptions = {}) =>
+  Layer.unwrap(Effect.map(PgliteBinaryAssets, (assets) => Pglite.makeLayer({ ...options, ...assets })));
 
 const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 
@@ -263,7 +274,7 @@ export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = Layer.unwrap(
       Layer.tap((context: Context.Context<PostgresDrizzle>) =>
         Effect.provide(migrateOnBoot, context).pipe(Effect.andThen(markAfterMigration))
       ),
-      Layer.provide(makePgliteClientLive(dataDir))
+      Layer.provide(makeBundledPgliteLayer({ dataDir }))
     );
   })
 ).pipe(Layer.provide(MigrationPlatformLive), Layer.orDie);
