@@ -116,6 +116,7 @@ fn bridge_sidecar_events(
     let handle = app.clone();
     tauri::async_runtime::spawn(async move {
         let mut stdout_buffer: Vec<u8> = Vec::new();
+        let mut closed_emitted = false;
 
         while let Some(event) = events.recv().await {
             match event {
@@ -127,8 +128,7 @@ fn bridge_sidecar_events(
                         {
                             let frame: Vec<u8> = stdout_buffer.drain(..=newline_index).collect();
                             if !emit_ipc_stdout_frame(&handle, frame) {
-                                stdout_buffer.clear();
-                                break;
+                                closed_emitted = true;
                             }
                         }
                     } else {
@@ -140,6 +140,7 @@ fn bridge_sidecar_events(
                 }
                 CommandEvent::Error(err) => {
                     log::error!("sidecar error: {err}");
+                    closed_emitted = true;
                     emit_sidecar_closed(
                         &handle,
                         SidecarClosed {
@@ -151,6 +152,7 @@ fn bridge_sidecar_events(
                     );
                 }
                 CommandEvent::Terminated(payload) => {
+                    closed_emitted = true;
                     if ipc && !stdout_buffer.is_empty() {
                         log::warn!(
                             "sidecar terminated with {} buffered stdout byte(s)",
@@ -174,6 +176,18 @@ fn bridge_sidecar_events(
                 }
                 _ => {}
             }
+        }
+
+        if !closed_emitted {
+            emit_sidecar_closed(
+                &handle,
+                SidecarClosed {
+                    code: None,
+                    kind: "event-stream-closed",
+                    message: Some("sidecar event stream closed before termination".to_string()),
+                    signal: None,
+                },
+            );
         }
     });
 }

@@ -23,14 +23,13 @@
  * @since 0.0.0
  */
 
-import "./IpcStdoutGuard.ts";
-
 import { ChatRpcs } from "@beep/agents-use-cases/public";
-import { BunHttpServer, BunRuntime, BunStdio } from "@effect/platform-bun";
+import { BunHttpServer, BunRuntime } from "@effect/platform-bun";
 import { Config, Effect, Layer, Logger } from "effect";
 import { HttpRouter } from "effect/unstable/http";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import { RuntimeLive } from "@/runtime/Layer";
+import { SidecarStdioLive } from "./IpcStdoutGuard.ts";
 
 // Loopback rpc port; defaults to 3939 (the desktop chat surface's sidecar
 // port). Configurable via CHAT_SIDECAR_PORT for tests/dev that need a free port.
@@ -73,7 +72,7 @@ const ipcMain = (): Layer.Layer<never> =>
   RpcServer.layer(ChatRpcs).pipe(
     Layer.provide(RuntimeLive),
     Layer.provide(RpcServer.layerProtocolStdio),
-    Layer.provide(BunStdio.layer),
+    Layer.provide(SidecarStdioLive),
     Layer.provide(RpcSerialization.layerNdjson),
     Layer.provide(Logger.layer([Logger.withConsoleError(Logger.formatLogFmt)], { mergeWithExisting: false }))
   );

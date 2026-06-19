@@ -47,6 +47,9 @@ import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Context } from "effect";
 
+// Bun resolves `type: "file"` imports while compiling the sidecar executable;
+// Vite exposes the same files through `/@fs/` during integration tests.
+
 /**
  * Directory PGlite persists into, resolved from the environment.
  *

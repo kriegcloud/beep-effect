@@ -18,7 +18,7 @@
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { describe, expect, it } from "@effect/vitest";
-import { Chunk, Effect, FileSystem, Layer } from "effect";
+import { Chunk, Data, Effect, FileSystem, Layer } from "effect";
 import * as Stream from "effect/Stream";
 import { RpcClient, RpcSerialization } from "effect/unstable/rpc";
 import { Socket } from "effect/unstable/socket";
@@ -26,7 +26,28 @@ import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
 const bootMarker = "chat sidecar migrations applied";
-const sidecarBinaryPath = `${process.cwd()}/src-tauri/binaries/sidecar-x86_64-unknown-linux-gnu`;
+
+class SidecarBinaryResolutionError extends Data.TaggedError("SidecarBinaryResolutionError")<{
+  readonly message: string;
+}> {}
+
+const resolveSidecarBinaryPath = Effect.try({
+  try: () => {
+    const result = Bun.spawnSync(["rustc", "-vV"], { stdout: "pipe", stderr: "pipe" });
+    if (!result.success) {
+      throw new Error(`rustc -vV failed: ${result.stderr.toString()}`);
+    }
+    const triple = result.stdout.toString().match(/host: (\S+)/)?.[1];
+    if (triple === undefined) {
+      throw new Error("could not determine the target triple from `rustc -vV`");
+    }
+    return `${process.cwd()}/src-tauri/binaries/sidecar-${triple}`;
+  },
+  catch: (cause) =>
+    new SidecarBinaryResolutionError({
+      message: cause instanceof Error ? cause.message : String(cause),
+    }),
+});
 
 const waitForSidecarBoot = (stderr: ReadableStream<Uint8Array>): Effect.Effect<void> =>
   Effect.callback<void>((resume) => {
@@ -76,6 +97,7 @@ const ipcStdioProgram = Effect.gen(function* () {
   );
 
   // Boot the real sidecar; kill it when the scope closes.
+  const sidecarBinaryPath = yield* resolveSidecarBinaryPath;
   const proc = yield* Effect.acquireRelease(
     Effect.sync(() =>
       Bun.spawn([sidecarBinaryPath], {

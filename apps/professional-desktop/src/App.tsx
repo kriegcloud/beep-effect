@@ -48,6 +48,15 @@ const readSidecarTransport = (): Promise<SidecarTransport> =>
 const hasIpcSpikeFlag = (): boolean =>
   typeof window !== "undefined" && new URLSearchParams(window.location.search).has("ipc");
 
+const TransportLoading = (): JSX.Element => (
+  <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
+    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+      <span className="h-2 w-2 rounded-full bg-primary motion-safe:animate-pulse" />
+      Connecting desktop transport
+    </div>
+  </div>
+);
+
 /**
  * The desktop application root. A thin wrapper that mounts the chat surface.
  *
@@ -90,6 +99,7 @@ export function App(): JSX.Element {
   if (transport._tag === "checking") {
     return (
       <>
+        <TransportLoading />
         <ChatTurnErrorToasts />
         <Toaster richColors />
       </>
