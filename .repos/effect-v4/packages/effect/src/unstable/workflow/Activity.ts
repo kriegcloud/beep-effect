@@ -49,7 +49,6 @@ export interface Activity<
   readonly successSchema: Success
   readonly errorSchema: Error
   readonly exitSchema: Schema.Exit<Success, Error, Schema.Defect>
-  readonly exitSchemaPartial: Schema.Exit<Success, Error, Schema.Unknown>
   readonly annotations: Context.Context<never>
   annotate<I, S>(
     key: Context.Key<I, S>,
@@ -154,7 +153,6 @@ export const make = <
     successSchema,
     errorSchema,
     exitSchema: Schema.Exit(successSchemaJson, errorSchemaJson, Schema.Defect()),
-    exitSchemaPartial: Schema.Exit(successSchemaJson, errorSchemaJson, Schema.Unknown),
     annotations: options.annotations ?? Context.empty(),
     annotate(tag: Context.Key<any, any>, value: any) {
       return make({

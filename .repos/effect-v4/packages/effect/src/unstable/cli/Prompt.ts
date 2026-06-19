@@ -1364,7 +1364,7 @@ const runLoop = Effect.fnUntraced(
       yield* Effect.orDie(terminal.display(msg))
       if (loop.events) {
         const takeInput = Queue.take(input).pipe(
-          Effect.map((input) => ({ _tag: "Input" as const, input }))
+          Effect.map((event) => ({ _tag: "Input" as const, event }))
         )
         const result = yield* Effect.raceFirst(
           takeInput,

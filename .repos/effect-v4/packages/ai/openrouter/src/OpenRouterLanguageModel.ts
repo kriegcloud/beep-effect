@@ -738,10 +738,8 @@ const prepareMessages = Effect.fnUntraced(
               }
 
               case "file": {
-                const mediaType = Predicate.isString(part.mediaType) ? part.mediaType.toLowerCase() : ""
-
-                if (mediaType.startsWith("image/")) {
-                  const imageMediaType = mediaType === "image/*" ? "image/jpeg" : mediaType
+                if (part.mediaType.startsWith("image/")) {
+                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType
 
                   content.push({
                     type: "image_url",
@@ -749,47 +747,8 @@ const prepareMessages = Effect.fnUntraced(
                       url: part.data instanceof URL
                         ? part.data.toString()
                         : part.data instanceof Uint8Array
-                        ? `data:${imageMediaType};base64,${Encoding.encodeBase64(part.data)}`
+                        ? `data:${mediaType};base64,${Encoding.encodeBase64(part.data)}`
                         : part.data
-                    },
-                    ...(Predicate.isNotNull(partCacheControl) ? { cache_control: partCacheControl } : undefined)
-                  })
-
-                  break
-                }
-
-                if (mediaType.startsWith("audio/")) {
-                  const format = audioFormats[mediaType]
-
-                  if (Predicate.isUndefined(format)) {
-                    return yield* AiError.make({
-                      module: "OpenRouterLanguageModel",
-                      method: "prepareMessages",
-                      reason: new AiError.InvalidUserInputError({
-                        description: `Detected unsupported media type for audio file: '${part.mediaType}' ` +
-                          `- OpenRouter supports ${supportedAudioFormats} audio`
-                      })
-                    })
-                  }
-
-                  if (part.data instanceof URL) {
-                    return yield* AiError.make({
-                      module: "OpenRouterLanguageModel",
-                      method: "prepareMessages",
-                      reason: new AiError.InvalidUserInputError({
-                        description: "Detected URL data for audio file - OpenRouter requires " +
-                          "audio to be provided as base64-encoded data"
-                      })
-                    })
-                  }
-
-                  content.push({
-                    type: "input_audio",
-                    input_audio: {
-                      data: part.data instanceof Uint8Array
-                        ? Encoding.encodeBase64(part.data)
-                        : getBase64FromDataUrl(part.data),
-                      format
                     },
                     ...(Predicate.isNotNull(partCacheControl) ? { cache_control: partCacheControl } : undefined)
                   })
@@ -799,7 +758,6 @@ const prepareMessages = Effect.fnUntraced(
 
                 const options = part.options.openrouter
                 const fileName = options?.fileName ?? part.fileName ?? ""
-                const fileMediaType = Predicate.isString(part.mediaType) ? part.mediaType : "application/octet-stream"
 
                 content.push({
                   type: "file",
@@ -808,7 +766,7 @@ const prepareMessages = Effect.fnUntraced(
                     file_data: part.data instanceof URL
                       ? part.data.toString()
                       : part.data instanceof Uint8Array
-                      ? `data:${fileMediaType};base64,${Encoding.encodeBase64(part.data)}`
+                      ? `data:${part.mediaType};base64,${Encoding.encodeBase64(part.data)}`
                       : part.data
                   },
                   ...(Predicate.isNotNull(partCacheControl) ? { cache_control: partCacheControl } : undefined)
@@ -1799,32 +1757,6 @@ const getResponseFormat = Effect.fnUntraced(function*({ config, options, transfo
   }
   return undefined
 })
-
-/**
- * Maps audio media types to the formats supported by OpenRouter.
- *
- * @see https://openrouter.ai/docs/guides/overview/multimodal/audio
- */
-const audioFormats: Record<string, string> = {
-  "audio/aac": "aac",
-  "audio/aiff": "aiff",
-  "audio/x-aiff": "aiff",
-  "audio/flac": "flac",
-  "audio/x-flac": "flac",
-  "audio/l16": "pcm16",
-  "audio/l24": "pcm24",
-  "audio/m4a": "m4a",
-  "audio/x-m4a": "m4a",
-  "audio/mp4": "m4a",
-  "audio/mp3": "mp3",
-  "audio/mpeg": "mp3",
-  "audio/ogg": "ogg",
-  "audio/wav": "wav",
-  "audio/wave": "wav",
-  "audio/x-wav": "wav"
-}
-
-const supportedAudioFormats = Array.from(new Set(Object.values(audioFormats))).join(", ")
 
 const getMediaType = (dataUrl: string, defaultMediaType: string): string => {
   const match = dataUrl.match(/^data:([^;]+)/)

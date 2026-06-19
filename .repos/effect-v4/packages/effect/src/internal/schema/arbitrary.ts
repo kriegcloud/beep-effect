@@ -382,18 +382,6 @@ function oneOf<T>(fc: typeof FastCheck, arbitraries: ReadonlyArray<FastCheck.Arb
   return arbitraries.length === 0 ? undefined : arbitraries.length === 1 ? arbitraries[0] : fc.oneof(...arbitraries)
 }
 
-const finiteNumberConstraint: Constraint = {
-  noInfinity: true,
-  noNaN: true
-}
-
-function finiteNumberContext(ctx: Context): Context {
-  return {
-    ...ctx,
-    constraint: finiteNumberConstraint
-  }
-}
-
 function reportChecks(report: MutableReport, checks: SchemaAST.Checks | undefined, path: ReadonlyArray<PropertyKey>) {
   function visit(check: SchemaAST.Check<any>, covered: boolean) {
     const arbitrary = check.annotations?.arbitrary
@@ -441,9 +429,6 @@ export function collectReport(ast: SchemaAST.AST, report: MutableReport) {
         break
       case "Union":
         ast.types.forEach((type) => visit(type, path))
-        break
-      case "TemplateLiteral":
-        ast.parts.forEach((part, i) => visit(SchemaAST.toEncoded(part), [...path, i]))
         break
       case "Suspend":
         visit(ast.thunk(), path)
@@ -620,14 +605,8 @@ function base(ast: SchemaAST.AST, path: ReadonlyArray<PropertyKey>): LazyArbitra
       return same((fc) => fc.oneof(fc.object(), fc.array(fc.anything())))
     case "Enum":
       return recur(SchemaAST.enumsToLiterals(ast), path)
-    case "TemplateLiteral": {
-      const parts = ast.parts.map((part, i) => recur(SchemaAST.toEncoded(part), [...path, i]))
-      return same((fc, ctx, recursionStack) =>
-        fc.tuple(...parts.map((part) => part(fc, finiteNumberContext(ctx), recursionStack))).map((segments) =>
-          segments.map((segment) => globalThis.String(segment)).join("")
-        )
-      )
-    }
+    case "TemplateLiteral":
+      return same((fc) => fc.stringMatching(SchemaAST.getTemplateLiteralRegExp(ast)))
     case "Arrays": {
       const elements = ast.elements.map((ast, i) => ({
         ast,

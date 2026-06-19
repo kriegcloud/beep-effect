@@ -144,7 +144,7 @@ jobs:
             release-target: windows-x86_64
             asset-arch: x64
             updater-platform: windows-x86_64
-            updater-suffixes: '[".msi.zip",".nsis.zip",".msi","-setup.exe"]'
+            updater-suffixes: '[".msi.zip",".nsis.zip"]'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -375,7 +375,7 @@ jobs:
     needs:
       - release-desktop-approval
       - release-desktop
-    if: ${{ always() && needs.release-desktop.result != 'skipped' }}
+    if: ${{ needs.release-desktop.result == 'success' }}
     env:
       EXPECTED_RELEASE_TARGETS: darwin-aarch64,darwin-x86_64,linux-x86_64,windows-x86_64
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
