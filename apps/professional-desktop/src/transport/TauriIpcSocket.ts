@@ -110,6 +110,7 @@ const makeStream = (): Socket.InputTransformStream => {
       ]).then(([stopRx, stopClosed]) => {
         stopListening = stopRx;
         stopClosedListening = stopClosed;
+        return invoke<void>("sidecar_ipc_ready");
       });
       return listenersReady;
     },
