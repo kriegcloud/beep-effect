@@ -54,7 +54,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   release-desktop-preflight:
@@ -153,15 +153,24 @@ jobs:
           ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.version) || github.ref }}
 
       - name: Verify release tag checkout
-        shell: bash
-        run: |
-          git fetch --force --tags origin "refs/tags/${RELEASE_DESKTOP_TAG}:refs/tags/${RELEASE_DESKTOP_TAG}"
-          tag_commit="$(git rev-list -n 1 "refs/tags/${RELEASE_DESKTOP_TAG}")"
-          head_commit="$(git rev-parse HEAD)"
-          if [[ "${head_commit}" != "${tag_commit}" ]]; then
-            echo "::error::Checked out ${head_commit}, but ${RELEASE_DESKTOP_TAG} points to ${tag_commit}."
-            exit 1
-          fi
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execFileSync } = require("node:child_process");
+
+            const tag = process.env.RELEASE_DESKTOP_TAG;
+            execFileSync("git", ["fetch", "--force", "--tags", "origin", `refs/tags/${tag}:refs/tags/${tag}`], {
+              stdio: "inherit",
+            });
+            const tagCommit = execFileSync("git", ["rev-list", "-n", "1", `refs/tags/${tag}`], {
+              encoding: "utf8",
+            }).trim();
+            const headCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+              encoding: "utf8",
+            }).trim();
+            if (headCommit !== tagCommit) {
+              throw new Error(`Checked out ${headCommit}, but ${tag} points to ${tagCommit}.`);
+            }
 
       # Tauri v2 Linux prerequisites (webkit2gtk 4.1, gtk, rsvg, appindicator, …).
       - name: Install Tauri Linux system dependencies
@@ -246,7 +255,7 @@ jobs:
           args: ${{ matrix.args }}
 
       - name: Stage desktop bundle artifact
-        shell: bash
+        uses: actions/github-script@v7
         env:
           ARTIFACT_PATHS: ${{ steps.tauri.outputs.artifactPaths }}
           RELEASE_DESKTOP_ASSET_ARCH: ${{ matrix.asset-arch }}
@@ -254,103 +263,101 @@ jobs:
           STAGING_DIR: ${{ runner.temp }}/desktop-release-${{ matrix.release-target }}
           UPDATER_PLATFORM: ${{ matrix.updater-platform }}
           UPDATER_SUFFIXES: ${{ matrix.updater-suffixes }}
-        run: |
-          mkdir -p "${STAGING_DIR}"
-          node <<'NODE'
-          const fs = require("node:fs");
-          const path = require("node:path");
+        with:
+          script: |
+            const fs = require("node:fs");
+            const path = require("node:path");
 
-          const artifactPaths = JSON.parse(process.env.ARTIFACT_PATHS || "[]");
-          const assetArch = process.env.RELEASE_DESKTOP_ASSET_ARCH;
-          const stagingDir = process.env.STAGING_DIR;
-          const target = process.env.RELEASE_DESKTOP_TARGET;
-          const updaterPlatform = process.env.UPDATER_PLATFORM;
-          const updaterSuffixes = JSON.parse(process.env.UPDATER_SUFFIXES || "[]");
+            const artifactPaths = JSON.parse(process.env.ARTIFACT_PATHS || "[]");
+            const assetArch = process.env.RELEASE_DESKTOP_ASSET_ARCH;
+            const stagingDir = process.env.STAGING_DIR;
+            const target = process.env.RELEASE_DESKTOP_TARGET;
+            const updaterPlatform = process.env.UPDATER_PLATFORM;
+            const updaterSuffixes = JSON.parse(process.env.UPDATER_SUFFIXES || "[]");
 
-          if (!assetArch || !stagingDir || !target || !updaterPlatform) {
-            throw new Error("Missing desktop release staging metadata.");
-          }
-
-          fs.mkdirSync(stagingDir, { recursive: true });
-
-          const releaseAssetName = (artifactPath) => {
-            const name = path.basename(artifactPath);
-            if (target.startsWith("darwin-") && name.endsWith(".app.tar.gz")) {
-              return `${name.slice(0, -".app.tar.gz".length)}_${assetArch}.app.tar.gz`;
-            }
-            if (target.startsWith("darwin-") && name.endsWith(".app.tar.gz.sig")) {
-              return `${name.slice(0, -".app.tar.gz.sig".length)}_${assetArch}.app.tar.gz.sig`;
-            }
-            return name;
-          };
-
-          const assets = [];
-          const artifactPathSet = new Set(artifactPaths);
-          for (const artifactPath of artifactPaths) {
-            if (!fs.existsSync(artifactPath)) {
-              throw new Error(`Expected tauri artifact path does not exist: ${artifactPath}`);
+            if (!assetArch || !stagingDir || !target || !updaterPlatform) {
+              throw new Error("Missing desktop release staging metadata.");
             }
 
-            const stat = fs.statSync(artifactPath);
-            if (stat.isDirectory()) {
-              const archivePath = `${artifactPath}.tar.gz`;
-              const hasUpdaterArchive =
-                artifactPath.endsWith(".app") &&
-                artifactPathSet.has(archivePath) &&
-                fs.existsSync(archivePath) &&
-                fs.statSync(archivePath).isFile();
+            fs.mkdirSync(stagingDir, { recursive: true });
 
-              if (hasUpdaterArchive) {
-                continue;
+            const releaseAssetName = (artifactPath) => {
+              const name = path.basename(artifactPath);
+              if (target.startsWith("darwin-") && name.endsWith(".app.tar.gz")) {
+                return `${name.slice(0, -".app.tar.gz".length)}_${assetArch}.app.tar.gz`;
+              }
+              if (target.startsWith("darwin-") && name.endsWith(".app.tar.gz.sig")) {
+                return `${name.slice(0, -".app.tar.gz.sig".length)}_${assetArch}.app.tar.gz.sig`;
+              }
+              return name;
+            };
+
+            const assets = [];
+            const artifactPathSet = new Set(artifactPaths);
+            for (const artifactPath of artifactPaths) {
+              if (!fs.existsSync(artifactPath)) {
+                throw new Error(`Expected tauri artifact path does not exist: ${artifactPath}`);
               }
 
-              throw new Error(`Expected tauri artifact path to be a file: ${artifactPath}`);
-            }
+              const stat = fs.statSync(artifactPath);
+              if (stat.isDirectory()) {
+                const archivePath = `${artifactPath}.tar.gz`;
+                const hasUpdaterArchive =
+                  artifactPath.endsWith(".app") &&
+                  artifactPathSet.has(archivePath) &&
+                  fs.existsSync(archivePath) &&
+                  fs.statSync(archivePath).isFile();
 
-            if (!stat.isFile()) {
-              throw new Error(`Expected tauri artifact path to be a file: ${artifactPath}`);
-            }
+                if (hasUpdaterArchive) {
+                  continue;
+                }
 
-            const assetName = releaseAssetName(artifactPath);
-            fs.copyFileSync(artifactPath, path.join(stagingDir, assetName));
-            assets.push(assetName);
-          }
-
-          const selectUpdaterPair = () => {
-            for (const suffix of updaterSuffixes) {
-              const updaterAsset = assets.find((name) => name.endsWith(suffix));
-              if (!updaterAsset) {
-                continue;
+                throw new Error(`Expected tauri artifact path to be a file: ${artifactPath}`);
               }
-              const signatureAsset = `${updaterAsset}.sig`;
-              if (assets.includes(signatureAsset)) {
-                return { updaterAsset, signatureAsset };
-              }
-            }
-            return null;
-          };
 
-          const updaterPair = selectUpdaterPair();
-          if (!updaterPair) {
-            throw new Error(
-              `Could not find an updater asset/signature pair for ${updaterPlatform}. Observed assets: ${assets.join(", ")}`,
+              if (!stat.isFile()) {
+                throw new Error(`Expected tauri artifact path to be a file: ${artifactPath}`);
+              }
+
+              const assetName = releaseAssetName(artifactPath);
+              fs.copyFileSync(artifactPath, path.join(stagingDir, assetName));
+              assets.push(assetName);
+            }
+
+            const selectUpdaterPair = () => {
+              for (const suffix of updaterSuffixes) {
+                const updaterAsset = assets.find((name) => name.endsWith(suffix));
+                if (!updaterAsset) {
+                  continue;
+                }
+                const signatureAsset = `${updaterAsset}.sig`;
+                if (assets.includes(signatureAsset)) {
+                  return { updaterAsset, signatureAsset };
+                }
+              }
+              return null;
+            };
+
+            const updaterPair = selectUpdaterPair();
+            if (!updaterPair) {
+              throw new Error(
+                `Could not find an updater asset/signature pair for ${updaterPlatform}. Observed assets: ${assets.join(", ")}`,
+              );
+            }
+
+            fs.writeFileSync(
+              path.join(stagingDir, "manifest.json"),
+              JSON.stringify(
+                {
+                  target,
+                  updaterPlatform,
+                  assets,
+                  ...updaterPair,
+                },
+                null,
+                2,
+              ),
             );
-          }
-
-          fs.writeFileSync(
-            path.join(stagingDir, "manifest.json"),
-            JSON.stringify(
-              {
-                target,
-                updaterPlatform,
-                assets,
-                ...updaterPair,
-              },
-              null,
-              2,
-            ),
-          );
-          NODE
 
       - name: Upload desktop bundle artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -362,6 +369,9 @@ jobs:
   release-desktop-ready:
     name: Desktop release draft ready
     runs-on: ubuntu-22.04
+    permissions:
+      actions: read
+      contents: write
     needs:
       - release-desktop-approval
       - release-desktop
