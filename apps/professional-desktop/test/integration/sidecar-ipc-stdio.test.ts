@@ -10,10 +10,9 @@
  * a real OS pipe (logs ride stderr, so stdout stays a clean frame stream).
  *
  * The in-process handler/streaming proof lives in `sidecar-smoke.test.ts`; this
- * suite is specifically the transport proof. Gated on `BEEP_TEST_SIDECAR_IPC=1`
- * (it builds a PGlite db and boots a subprocess) because hosted CI does not
- * build the Tauri `externalBin` sidecar before the app integration lane; run it
- * locally after `bun run build:sidecar` when validating the IPC spike.
+ * suite is specifically the transport proof. The default integration lane leaves
+ * it gated, while the Check workflow's "Professional Desktop IPC Stdio" job
+ * builds the sidecar binary and runs this file with `BEEP_TEST_SIDECAR_IPC=1`.
  */
 
 import { ChatRpcs } from "@beep/agents-use-cases/public";
