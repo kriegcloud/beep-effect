@@ -23,6 +23,8 @@
  * @since 0.0.0
  */
 
+import "./IpcStdoutGuard.ts";
+
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import { BunHttpServer, BunRuntime, BunStdio } from "@effect/platform-bun";
 import { Config, Effect, Layer, Logger } from "effect";

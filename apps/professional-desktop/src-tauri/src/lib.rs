@@ -264,6 +264,8 @@ pub fn run() {
 
                 if ipc {
                     command = command.env("CHAT_TRANSPORT", "ipc");
+                } else {
+                    command = command.env("CHAT_TRANSPORT", "http");
                 }
 
                 let (events, child) = command.spawn()?;

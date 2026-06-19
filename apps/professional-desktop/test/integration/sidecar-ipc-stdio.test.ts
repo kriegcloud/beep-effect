@@ -1,8 +1,8 @@
 /**
  * Sidecar IPC-transport stdio round-trip (gated).
  *
- * Spawns the REAL bun sidecar in ipc mode (`CHAT_TRANSPORT=ipc`, keyless
- * `CHAT_AGENT=fixture`) and bridges the child's stdio into an Effect
+ * Spawns the compiled sidecar artifact in ipc mode (`CHAT_TRANSPORT=ipc`,
+ * keyless `CHAT_AGENT=fixture`) and bridges the child's stdio into an Effect
  * {@link Socket} — exactly what `src-tauri/src/lib.rs` does, but from Node, so no
  * Tauri runtime is required. Driving {@link ChatRpcs} over
  * `RpcClient.layerProtocolSocket` then proves the `RpcServer.layerProtocolStdio`
@@ -25,6 +25,49 @@ import { Socket } from "effect/unstable/socket";
 import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
+const bootMarker = "chat sidecar migrations applied";
+const sidecarBinaryPath = `${process.cwd()}/src-tauri/binaries/sidecar-x86_64-unknown-linux-gnu`;
+
+const waitForSidecarBoot = (stderr: ReadableStream<Uint8Array>): Effect.Effect<void> =>
+  Effect.callback<void>((resume) => {
+    const decoder = new TextDecoder();
+    const reader = stderr.getReader();
+    let buffer = "";
+    let resumed = false;
+
+    const pump = (): void => {
+      reader.read().then(
+        ({ done, value }) => {
+          if (done) {
+            if (!resumed) {
+              resumed = true;
+              resume(Effect.die(new Error(`sidecar exited before emitting boot marker: ${bootMarker}`)));
+            }
+            return;
+          }
+
+          const text = decoder.decode(value, { stream: true });
+          process.stderr.write(text);
+          buffer += text;
+
+          if (!resumed && buffer.includes(bootMarker)) {
+            resumed = true;
+            resume(Effect.void);
+          }
+
+          pump();
+        },
+        (cause) => {
+          if (!resumed) {
+            resumed = true;
+            resume(Effect.die(cause));
+          }
+        }
+      );
+    };
+
+    pump();
+  });
 
 const ipcStdioProgram = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -35,16 +78,17 @@ const ipcStdioProgram = Effect.gen(function* () {
   // Boot the real sidecar; kill it when the scope closes.
   const proc = yield* Effect.acquireRelease(
     Effect.sync(() =>
-      Bun.spawn(["bun", "run", "server/main.ts"], {
+      Bun.spawn([sidecarBinaryPath], {
         cwd: process.cwd(),
         env: { ...process.env, CHAT_TRANSPORT: "ipc", CHAT_AGENT: "fixture", CHAT_DB_PATH: dbDir },
         stdin: "pipe",
         stdout: "pipe",
-        stderr: "inherit",
+        stderr: "pipe",
       })
     ),
     (child) => Effect.sync(() => child.kill())
   );
+  yield* waitForSidecarBoot(proc.stderr).pipe(Effect.timeout("20 seconds"));
 
   // Bridge the child's stdio into an Effect Socket: stdout → inbound frames,
   // stdin ← outbound frames (verbatim ndjson, encoded UTF-8 by fromTransformStream).
@@ -72,7 +116,8 @@ const ipcStdioProgram = Effect.gen(function* () {
     expect(Chunk.size(blocks)).toBeGreaterThan(0);
   });
 
-  // PGlite migrations run on boot, so give the first round-trip headroom.
+  // PGlite migrations are already complete; the streamed turn still gets
+  // headroom for the fixture agent and RPC framing.
   yield* program.pipe(Effect.provide(context), Effect.timeout("30 seconds"));
 });
 

@@ -1,3 +1,6 @@
+/// <reference path="../assets.d.ts" />
+// cspell:words initdb
+
 /**
  * In-process PGlite database provisioning for the desktop chat sidecar.
  *
@@ -31,6 +34,15 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Clock, Config, Data, Effect, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import initdbWasmPath from "../../../../node_modules/@effect/sql-pglite/node_modules/@electric-sql/pglite/dist/initdb.wasm" with {
+  type: "file",
+};
+import pgliteDataPath from "../../../../node_modules/@effect/sql-pglite/node_modules/@electric-sql/pglite/dist/pglite.data" with {
+  type: "file",
+};
+import pgliteWasmPath from "../../../../node_modules/@effect/sql-pglite/node_modules/@electric-sql/pglite/dist/pglite.wasm" with {
+  type: "file",
+};
 import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Context } from "effect";
@@ -214,7 +226,21 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
  * @category layers
  * @since 0.0.0
  */
-const makePgliteClientLive = (dataDir: string) => Pglite.makeLayer({ dataDir });
+const compileWasmFile = (path: string): Promise<WebAssembly.Module> =>
+  Bun.file(path).arrayBuffer().then(WebAssembly.compile);
+
+const PgliteBinaryAssets = Effect.promise(() =>
+  Promise.all([compileWasmFile(pgliteWasmPath), compileWasmFile(initdbWasmPath)]).then(
+    ([pgliteWasmModule, initdbWasmModule]) => ({
+      fsBundle: Bun.file(pgliteDataPath),
+      initdbWasmModule,
+      pgliteWasmModule,
+    })
+  )
+);
+
+const makePgliteClientLive = (dataDir: string) =>
+  Layer.unwrap(Effect.map(PgliteBinaryAssets, (assets) => Pglite.makeLayer({ dataDir, ...assets })));
 
 const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 

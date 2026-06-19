@@ -265,7 +265,7 @@ jobs:
 
             if [[ -z "$changed_files" ]]; then
               should_run=false
-            elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/professional-desktop/|^packages/agents/(client|server)/|^\.github/(actions/setup-monorepo-ci/|workflows/check\.yml$)|^(bun\.lock|package\.json|turbo\.json)$)'; then
+            elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/professional-desktop/|^packages/(agents|workspace|shared|drivers/(pglite|postgres))/|^\.github/(actions/setup-monorepo-ci/|workflows/check\.yml$)|^(bun\.lock|package\.json|turbo\.json)$)'; then
               should_run=false
             fi
           fi

@@ -12,6 +12,7 @@
       "TURBO_TOKEN",
       "TURBO_TEAM",
       "NODE_TLS_REJECT_UNAUTHORIZED",
+      "CHAT_TRANSPORT",
       "PORTLESS_*",
       "AWS_*",
       "SST_*"

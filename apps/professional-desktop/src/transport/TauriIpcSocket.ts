@@ -65,6 +65,7 @@ const unknownToMessage = (cause: unknown): string => {
 const makeStream = (): Socket.InputTransformStream => {
   let readableController: ReadableStreamDefaultController<string> | undefined;
   let outboundBuffer = "";
+  let listenersReady: Promise<void> = Promise.resolve();
   let sendFailure: SidecarSendError | undefined;
   let stopListening: StopListening | undefined;
   let stopClosedListening: StopListening | undefined;
@@ -99,12 +100,7 @@ const makeStream = (): Socket.InputTransformStream => {
   const readable = new ReadableStream<string>({
     start(controller) {
       readableController = controller;
-      // `listen` is async, but this rpc is strictly client-initiated: the server
-      // only ever emits frames in response to a request the client sends after
-      // the socket is open, so there is no unsolicited frame to miss while the
-      // listener is still registering. (A server-side boot banner or push would
-      // need Rust-side buffering until the first listener attaches.)
-      return Promise.all([
+      listenersReady = Promise.all([
         listen<string>("sidecar://rx", (event) => controller.enqueue(event.payload)),
         listen<SidecarClosedPayload>("sidecar://closed", (event) => {
           controller.error(
@@ -115,6 +111,7 @@ const makeStream = (): Socket.InputTransformStream => {
         stopListening = stopRx;
         stopClosedListening = stopClosed;
       });
+      return listenersReady;
     },
     cancel() {
       stopListening?.();
@@ -128,19 +125,23 @@ const makeStream = (): Socket.InputTransformStream => {
         return Promise.reject(sendFailure);
       }
       outboundBuffer += decoder.decode(chunk, { stream: true });
-      return flushCompleteFrames();
+      return listenersReady.then(flushCompleteFrames, failSend);
     },
     close() {
       if (sendFailure !== undefined) {
         return Promise.reject(sendFailure);
       }
       outboundBuffer += decoder.decode();
-      if (outboundBuffer.length === 0) {
-        return Promise.resolve();
-      }
-      const frame = outboundBuffer;
-      outboundBuffer = "";
-      return invoke<void>("sidecar_send", { frame }).then(undefined, failSend);
+      return listenersReady.then(
+        () =>
+          flushCompleteFrames().then(() => {
+            if (outboundBuffer.length === 0) {
+              return;
+            }
+            return failSend("socket closed with an incomplete ndjson frame");
+          }),
+        failSend
+      );
     },
     abort() {
       outboundBuffer = "";
