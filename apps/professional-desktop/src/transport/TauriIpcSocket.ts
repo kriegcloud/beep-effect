@@ -57,6 +57,9 @@ const unknownToMessage = (cause: unknown): string => {
   return String(cause);
 };
 
+const closeOutboundBuffer = (buffer: string): string =>
+  buffer.length > 0 && !buffer.endsWith("\n") ? `${buffer}\n` : buffer;
+
 // Inbound stdout frames ride the `sidecar://rx` event onto a web ReadableStream;
 // outbound frames are written to the sidecar's stdin via `sidecar_send`. The
 // frames are ndjson text, so the outgoing Uint8Array chunks are decoded back to
@@ -132,17 +135,8 @@ const makeStream = (): Socket.InputTransformStream => {
       if (sendFailure !== undefined) {
         return Promise.reject(sendFailure);
       }
-      outboundBuffer += decoder.decode();
-      return listenersReady.then(
-        () =>
-          flushCompleteFrames().then(() => {
-            if (outboundBuffer.length === 0) {
-              return;
-            }
-            return failSend("socket closed with an incomplete ndjson frame");
-          }),
-        failSend
-      );
+      outboundBuffer = closeOutboundBuffer(outboundBuffer + decoder.decode());
+      return listenersReady.then(flushCompleteFrames, failSend);
     },
     abort() {
       outboundBuffer = "";

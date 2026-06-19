@@ -72,9 +72,7 @@ const TransportLoading = (): JSX.Element => (
  */
 export function App(): JSX.Element {
   const setChatProtocolLayer = useAtomSet(chatProtocolLayerAtom);
-  const [transport, setTransport] = useState<TransportState>(() =>
-    hasTauriRuntime() ? { _tag: "checking" } : { _tag: "ready", ipc: false }
-  );
+  const [transport, setTransport] = useState<TransportState>({ _tag: "checking" });
 
   useEffect(() => {
     let mounted = true;
