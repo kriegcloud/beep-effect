@@ -136,7 +136,7 @@ jobs:
             release-target: linux-x86_64
             asset-arch: x86_64
             updater-platform: linux-x86_64
-            updater-suffixes: '[".AppImage",".AppImage.tar.gz"]'
+            updater-suffixes: '[".AppImage.tar.gz",".AppImage"]'
           - name: Windows x64
             os: windows-latest
             rust-target: x86_64-pc-windows-msvc
@@ -144,7 +144,7 @@ jobs:
             release-target: windows-x86_64
             asset-arch: x64
             updater-platform: windows-x86_64
-            updater-suffixes: '[".msi",".msi.zip","-setup.exe",".nsis.zip"]'
+            updater-suffixes: '[".msi.zip",".nsis.zip",".msi","-setup.exe"]'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -411,6 +411,12 @@ jobs:
           expected_targets="${RUNNER_TEMP}/desktop-expected-targets.txt"
           actual_targets="${RUNNER_TEMP}/desktop-actual-targets.txt"
           tr ',' '\n' <<<"${EXPECTED_RELEASE_TARGETS}" | sort > "${expected_targets}"
+          expected_target_count="$(wc -l < "${expected_targets}")"
+          if [[ "${#manifests[@]}" -ne "${expected_target_count}" ]]; then
+            echo "::error::Expected ${expected_target_count} desktop release manifests, found ${#manifests[@]}."
+            exit 1
+          fi
+
           jq -r '.target' "${manifests[@]}" | sort > "${actual_targets}"
           if ! diff -u "${expected_targets}" "${actual_targets}"; then
             echo "::error::Downloaded desktop release manifests do not match the release matrix targets."
