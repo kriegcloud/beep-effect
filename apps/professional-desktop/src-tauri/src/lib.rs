@@ -19,7 +19,7 @@ struct SidecarTransport {
     ipc: bool,
 }
 
-#[derive(Serialize)]
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SidecarClosed {
     code: Option<i32>,
@@ -77,27 +77,71 @@ fn ipc_transport() -> bool {
         .unwrap_or(false)
 }
 
-/// Pump the bundled sidecar's stdout to the webview over the `sidecar://rx`
-/// event channel. Each stdout chunk is the next slice of the ndjson rpc stream;
-/// the webview's ndjson decoder reassembles frames, so chunks are forwarded
-/// verbatim (decoded with UTF-8 replacement, which ndjson accepts). The sidecar keeps its
-/// logs on stderr in ipc mode, so they never pollute this frame stream.
-fn bridge_sidecar_stdio(app: &AppHandle, mut events: tauri::async_runtime::Receiver<CommandEvent>) {
+fn emit_sidecar_closed(handle: &AppHandle, payload: SidecarClosed) {
+    let _ = handle.emit("sidecar://closed", payload);
+}
+
+fn emit_ipc_stdout_frame(handle: &AppHandle, frame: Vec<u8>) -> bool {
+    match String::from_utf8(frame) {
+        Ok(frame) => {
+            let _ = handle.emit("sidecar://rx", frame);
+            true
+        }
+        Err(err) => {
+            let message = format!("sidecar stdout was not valid utf-8: {err}");
+            log::error!("{message}");
+            emit_sidecar_closed(
+                handle,
+                SidecarClosed {
+                    code: None,
+                    kind: "error",
+                    message: Some(message),
+                    signal: None,
+                },
+            );
+            false
+        }
+    }
+}
+
+/// Drain the bundled sidecar's output stream so child pipes can never fill.
+/// In IPC mode stdout is ndjson rpc and is forwarded to the webview only after
+/// a complete newline-delimited UTF-8 frame arrives. In HTTP mode stdout/stderr
+/// are logs, so both streams are simply pumped into the desktop log.
+fn bridge_sidecar_events(
+    app: &AppHandle,
+    mut events: tauri::async_runtime::Receiver<CommandEvent>,
+    ipc: bool,
+) {
     let handle = app.clone();
     tauri::async_runtime::spawn(async move {
+        let mut stdout_buffer: Vec<u8> = Vec::new();
+
         while let Some(event) = events.recv().await {
             match event {
                 CommandEvent::Stdout(bytes) => {
-                    let frame = String::from_utf8_lossy(&bytes).into_owned();
-                    let _ = handle.emit("sidecar://rx", frame);
+                    if ipc {
+                        stdout_buffer.extend(bytes);
+                        while let Some(newline_index) =
+                            stdout_buffer.iter().position(|byte| *byte == b'\n')
+                        {
+                            let frame: Vec<u8> = stdout_buffer.drain(..=newline_index).collect();
+                            if !emit_ipc_stdout_frame(&handle, frame) {
+                                stdout_buffer.clear();
+                                break;
+                            }
+                        }
+                    } else {
+                        log::info!("sidecar: {}", String::from_utf8_lossy(&bytes).trim_end());
+                    }
                 }
                 CommandEvent::Stderr(bytes) => {
                     log::info!("sidecar: {}", String::from_utf8_lossy(&bytes).trim_end());
                 }
                 CommandEvent::Error(err) => {
                     log::error!("sidecar error: {err}");
-                    let _ = handle.emit(
-                        "sidecar://closed",
+                    emit_sidecar_closed(
+                        &handle,
                         SidecarClosed {
                             code: None,
                             kind: "error",
@@ -107,13 +151,19 @@ fn bridge_sidecar_stdio(app: &AppHandle, mut events: tauri::async_runtime::Recei
                     );
                 }
                 CommandEvent::Terminated(payload) => {
+                    if ipc && !stdout_buffer.is_empty() {
+                        log::warn!(
+                            "sidecar terminated with {} buffered stdout byte(s)",
+                            stdout_buffer.len()
+                        );
+                    }
                     log::warn!(
                         "sidecar terminated: code={:?} signal={:?}",
                         payload.code,
                         payload.signal
                     );
-                    let _ = handle.emit(
-                        "sidecar://closed",
+                    emit_sidecar_closed(
+                        &handle,
                         SidecarClosed {
                             code: payload.code,
                             kind: "terminated",
@@ -217,9 +267,7 @@ pub fn run() {
                 }
 
                 let (events, child) = command.spawn()?;
-                if ipc {
-                    bridge_sidecar_stdio(app.handle(), events);
-                }
+                bridge_sidecar_events(app.handle(), events, ipc);
                 app.manage(Sidecar(std::sync::Mutex::new(Some(child))));
             }
 

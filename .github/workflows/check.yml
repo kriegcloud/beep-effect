@@ -246,7 +246,34 @@ jobs:
         with:
           fetch-depth: 100
 
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
+
+      - name: Determine lane execution
+        id: lane-gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          should_run=true
+
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            base_ref="origin/${GITHUB_BASE_REF:-main}"
+            changed_files="$(git diff --name-only "${base_ref}...HEAD")"
+
+            if [[ -z "$changed_files" ]]; then
+              should_run=false
+            elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/professional-desktop/|^packages/agents/(client|server)/|^\.github/(actions/setup-monorepo-ci/|workflows/check\.yml$)|^(bun\.lock|package\.json|turbo\.json)$)'; then
+              should_run=false
+            fi
+          fi
+
+          echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
+
       - name: Setup Rust toolchain
+        if: steps.lane-gate.outputs.should_run == 'true'
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
@@ -254,13 +281,19 @@ jobs:
           cache-workspaces: apps/professional-desktop/src-tauri
 
       - name: Setup monorepo CI
+        if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
           cache-turbo: "false"
           cache-write: "false"
 
       - name: Run desktop IPC stdio proof
+        if: steps.lane-gate.outputs.should_run == 'true'
         run: bun run --cwd apps/professional-desktop beep:test:integration:ipc
+
+      - name: Skip lane
+        if: steps.lane-gate.outputs.should_run != 'true'
+        run: echo "Skipping desktop IPC stdio proof for this change set."
 
   fallow-advisory:
     name: Fallow Advisory Envelopes

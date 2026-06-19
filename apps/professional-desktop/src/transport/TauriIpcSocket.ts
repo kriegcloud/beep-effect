@@ -45,17 +45,47 @@ class SidecarClosedError extends Data.TaggedError("SidecarClosedError")<{
   readonly payload: SidecarClosedPayload;
 }> {}
 
+class SidecarSendError extends Data.TaggedError("SidecarSendError")<{
+  readonly causeMessage: string;
+  readonly message: string;
+}> {}
+
+const unknownToMessage = (cause: unknown): string => {
+  if (cause instanceof Error) {
+    return cause.message;
+  }
+  return String(cause);
+};
+
 // Inbound stdout frames ride the `sidecar://rx` event onto a web ReadableStream;
 // outbound frames are written to the sidecar's stdin via `sidecar_send`. The
 // frames are ndjson text, so the outgoing Uint8Array chunks are decoded back to
 // strings for the command boundary, and `fromTransformStream`'s ndjson decoder
 // reassembles inbound chunks into lines.
 const makeStream = (): Socket.InputTransformStream => {
+  let readableController: ReadableStreamDefaultController<string> | undefined;
   let outboundBuffer = "";
+  let sendFailure: SidecarSendError | undefined;
   let stopListening: StopListening | undefined;
   let stopClosedListening: StopListening | undefined;
 
+  const failSend = (cause: unknown): Promise<never> => {
+    const causeMessage = unknownToMessage(cause);
+    const error = new SidecarSendError({
+      causeMessage,
+      message: `sidecar send failed: ${causeMessage}`,
+    });
+    sendFailure = error;
+    outboundBuffer = "";
+    readableController?.error(error);
+    return Promise.reject(error);
+  };
+
   const flushCompleteFrames = (): Promise<void> => {
+    if (sendFailure !== undefined) {
+      return Promise.reject(sendFailure);
+    }
+
     const newlineIndex = outboundBuffer.indexOf("\n");
     if (newlineIndex === -1) {
       return Promise.resolve();
@@ -63,11 +93,12 @@ const makeStream = (): Socket.InputTransformStream => {
 
     const frame = outboundBuffer.slice(0, newlineIndex + 1);
     outboundBuffer = outboundBuffer.slice(newlineIndex + 1);
-    return invoke<void>("sidecar_send", { frame }).then(flushCompleteFrames);
+    return invoke<void>("sidecar_send", { frame }).then(flushCompleteFrames, failSend);
   };
 
   const readable = new ReadableStream<string>({
     start(controller) {
+      readableController = controller;
       // `listen` is async, but this rpc is strictly client-initiated: the server
       // only ever emits frames in response to a request the client sends after
       // the socket is open, so there is no unsolicited frame to miss while the
@@ -88,21 +119,28 @@ const makeStream = (): Socket.InputTransformStream => {
     cancel() {
       stopListening?.();
       stopClosedListening?.();
+      readableController = undefined;
     },
   });
   const writable = new WritableStream<Uint8Array>({
     write(chunk) {
+      if (sendFailure !== undefined) {
+        return Promise.reject(sendFailure);
+      }
       outboundBuffer += decoder.decode(chunk, { stream: true });
       return flushCompleteFrames();
     },
     close() {
+      if (sendFailure !== undefined) {
+        return Promise.reject(sendFailure);
+      }
       outboundBuffer += decoder.decode();
       if (outboundBuffer.length === 0) {
         return Promise.resolve();
       }
       const frame = outboundBuffer;
       outboundBuffer = "";
-      return invoke<void>("sidecar_send", { frame });
+      return invoke<void>("sidecar_send", { frame }).then(undefined, failSend);
     },
     abort() {
       outboundBuffer = "";
