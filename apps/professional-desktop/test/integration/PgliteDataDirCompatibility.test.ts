@@ -1,7 +1,6 @@
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
-import { PGlite as LegacyPglite053 } from "@electric-sql/pglite";
 import { ConfigProvider, Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import {
@@ -50,30 +49,16 @@ const createPgliteFixture = Effect.fn("ProfessionalDesktop.PgliteCompatibilityTe
   );
 });
 
-const createLegacyPglite053Fixture = Effect.fn(
-  "ProfessionalDesktop.PgliteCompatibilityTest.createLegacyPglite053Fixture"
+const createIncompatiblePgliteDataDir = Effect.fn(
+  "ProfessionalDesktop.PgliteCompatibilityTest.createIncompatiblePgliteDataDir"
 )(function* (dataDir: string) {
-  yield* Effect.acquireUseRelease(
-    Effect.sync(() => new LegacyPglite053(dataDir)).pipe(
-      Effect.tap((pglite) => Effect.promise(() => pglite.waitReady))
-    ),
-    (pglite) =>
-      Effect.all(
-        [
-          Effect.promise(() =>
-            pglite.query(`
-        CREATE TABLE legacy_notes (
-          id SERIAL PRIMARY KEY,
-          body TEXT NOT NULL
-        )
-      `)
-          ),
-          Effect.promise(() => pglite.query("INSERT INTO legacy_notes (body) VALUES ('keep me')")),
-        ],
-        { discard: true }
-      ),
-    (pglite) => Effect.promise(() => pglite.close()).pipe(Effect.ignore)
-  );
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* fs.makeDirectory(path.join(dataDir, "base"), { recursive: true });
+  yield* fs.makeDirectory(path.join(dataDir, "global"), { recursive: true });
+  yield* fs.writeFileString(path.join(dataDir, "PG_VERSION"), "16\n");
+  yield* fs.writeFileString(path.join(dataDir, "global", "pg_control"), "not a pglite control file");
 });
 
 const readPgliteFixture = Effect.fn("ProfessionalDesktop.PgliteCompatibilityTest.readPgliteFixture")(function* (
@@ -152,7 +137,7 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
         const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-marked-incompatible-" });
         const dataDir = path.join(rootDir, "chat-db");
 
-        yield* createLegacyPglite053Fixture(dataDir);
+        yield* createIncompatiblePgliteDataDir(dataDir);
         yield* fs.writeFileString(markerPath(path, dataDir), "runtime=professional-desktop-pglite-inprocess\n");
         const result = yield* ensureCompatibleChatDbDataDir(dataDir).pipe(Effect.exit);
 
@@ -186,14 +171,14 @@ layer(TestServices)("Pglite data-dir compatibility gate", (it) => {
     );
 
     it.effect(
-      "fails closed instead of moving aside a prior PGlite 0.5 data dir",
+      "fails closed instead of moving aside an incompatible PGlite-shaped data dir",
       Effect.fn(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-pglite-053-" });
+        const rootDir = yield* fs.makeTempDirectoryScoped({ prefix: "beep-chat-db-pglite-incompatible-" });
         const dataDir = path.join(rootDir, "chat-db");
 
-        yield* createLegacyPglite053Fixture(dataDir);
+        yield* createIncompatiblePgliteDataDir(dataDir);
         const result = yield* ensureCompatibleChatDbDataDir(dataDir).pipe(Effect.exit);
 
         expect(Exit.isFailure(result)).toBe(true);

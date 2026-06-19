@@ -289,7 +289,7 @@ fn bridge_sidecar_events(
 /// blocks on a full stdin pipe, which must never stall the webview.
 #[tauri::command]
 async fn sidecar_send(state: tauri::State<'_, Sidecar>, frame: String) -> Result<(), String> {
-    let mut guard = state.child.lock().map_err(|err| err.to_string())?;
+    let mut guard = recover_lock(&state.child);
     match guard.as_mut() {
         Some(child) => child.write(frame.as_bytes()).map_err(|err| err.to_string()),
         None => Err("sidecar is not running".to_string()),

@@ -34,15 +34,9 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Clock, Config, Data, Effect, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
-import initdbWasmPath from "../../../../node_modules/@effect/sql-pglite/node_modules/@electric-sql/pglite/dist/initdb.wasm" with {
-  type: "file",
-};
-import pgliteDataPath from "../../../../node_modules/@effect/sql-pglite/node_modules/@electric-sql/pglite/dist/pglite.data" with {
-  type: "file",
-};
-import pgliteWasmPath from "../../../../node_modules/@effect/sql-pglite/node_modules/@electric-sql/pglite/dist/pglite.wasm" with {
-  type: "file",
-};
+import initdbWasmPath from "../../../../node_modules/@electric-sql/pglite/dist/initdb.wasm" with { type: "file" };
+import pgliteDataPath from "../../../../node_modules/@electric-sql/pglite/dist/pglite.data" with { type: "file" };
+import pgliteWasmPath from "../../../../node_modules/@electric-sql/pglite/dist/pglite.wasm" with { type: "file" };
 import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Context } from "effect";
@@ -232,7 +226,7 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
  * @since 0.0.0
  */
 const toBunFileSystemPath = (path: string): string =>
-  path.startsWith(ViteFileSystemPrefix) ? path.slice(ViteFileSystemPrefix.length - 1) : path;
+  path.startsWith(ViteFileSystemPrefix) ? `/${path.slice(ViteFileSystemPrefix.length)}` : path;
 
 const compileWasmFile = (path: string): Promise<WebAssembly.Module> =>
   Bun.file(toBunFileSystemPath(path)).arrayBuffer().then(WebAssembly.compile);

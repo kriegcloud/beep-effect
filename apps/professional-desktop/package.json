@@ -65,7 +65,7 @@
   "devDependencies": {
     "@beep/test-utils": "workspace:^",
     "@effect/vitest": "catalog:",
-    "@electric-sql/pglite": "0.5.3",
+    "@electric-sql/pglite": "0.4.6",
     "@tauri-apps/cli": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",
