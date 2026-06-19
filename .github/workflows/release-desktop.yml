@@ -110,7 +110,7 @@ jobs:
     env:
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - name: macOS arm64
