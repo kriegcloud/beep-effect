@@ -123,6 +123,11 @@ fn emit_or_buffer_ipc_stdout_frame(
     pending_stdout_frames: &SharedPendingStdoutFrames,
     frame: Vec<u8>,
 ) -> bool {
+    if is_blank_ipc_stdout_frame(&frame) {
+        log::warn!("sidecar stdout emitted a blank IPC frame; dropping it");
+        return true;
+    }
+
     match String::from_utf8(frame) {
         Ok(frame) => {
             let mut pending = recover_lock(pending_stdout_frames);
@@ -151,6 +156,12 @@ fn emit_or_buffer_ipc_stdout_frame(
             false
         }
     }
+}
+
+fn is_blank_ipc_stdout_frame(frame: &[u8]) -> bool {
+    frame
+        .iter()
+        .all(|byte| matches!(*byte, b'\n' | b'\r' | b'\t' | b' '))
 }
 
 fn kill_sidecar(sidecar: &SharedSidecarChild) {
@@ -441,4 +452,22 @@ pub fn run() {
                 }
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_blank_ipc_stdout_frame;
+
+    #[test]
+    fn detects_blank_ipc_stdout_frames() {
+        assert!(is_blank_ipc_stdout_frame(b"\n"));
+        assert!(is_blank_ipc_stdout_frame(b"\r\n"));
+        assert!(is_blank_ipc_stdout_frame(b" \t\r\n"));
+    }
+
+    #[test]
+    fn preserves_ndjson_ipc_stdout_frames() {
+        assert!(!is_blank_ipc_stdout_frame(br#"{"jsonrpc":"2.0"}"#));
+        assert!(!is_blank_ipc_stdout_frame(b"{\"jsonrpc\":\"2.0\"}\n"));
+    }
 }
