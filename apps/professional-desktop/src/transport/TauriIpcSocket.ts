@@ -19,11 +19,31 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { Effect, Layer } from "effect";
+import { Data, Effect, Layer } from "effect";
 import { Socket } from "effect/unstable/socket";
 
 const decoder = new TextDecoder();
 type StopListening = Awaited<ReturnType<typeof listen>>;
+type SidecarClosedPayload = {
+  readonly code: number | null;
+  readonly kind: string;
+  readonly message: string | null;
+  readonly signal: number | null;
+};
+
+const sidecarClosedMessage = (payload: SidecarClosedPayload): string => {
+  if (payload.message !== null && payload.message.length > 0) {
+    return `sidecar ${payload.kind}: ${payload.message}`;
+  }
+  const code = payload.code === null ? "none" : `${payload.code}`;
+  const signal = payload.signal === null ? "none" : `${payload.signal}`;
+  return `sidecar ${payload.kind}: code=${code} signal=${signal}`;
+};
+
+class SidecarClosedError extends Data.TaggedError("SidecarClosedError")<{
+  readonly message: string;
+  readonly payload: SidecarClosedPayload;
+}> {}
 
 // Inbound stdout frames ride the `sidecar://rx` event onto a web ReadableStream;
 // outbound frames are written to the sidecar's stdin via `sidecar_send`. The
@@ -31,7 +51,21 @@ type StopListening = Awaited<ReturnType<typeof listen>>;
 // strings for the command boundary, and `fromTransformStream`'s ndjson decoder
 // reassembles inbound chunks into lines.
 const makeStream = (): Socket.InputTransformStream => {
+  let outboundBuffer = "";
   let stopListening: StopListening | undefined;
+  let stopClosedListening: StopListening | undefined;
+
+  const flushCompleteFrames = (): Promise<void> => {
+    const newlineIndex = outboundBuffer.indexOf("\n");
+    if (newlineIndex === -1) {
+      return Promise.resolve();
+    }
+
+    const frame = outboundBuffer.slice(0, newlineIndex + 1);
+    outboundBuffer = outboundBuffer.slice(newlineIndex + 1);
+    return invoke<void>("sidecar_send", { frame }).then(flushCompleteFrames);
+  };
+
   const readable = new ReadableStream<string>({
     start(controller) {
       // `listen` is async, but this rpc is strictly client-initiated: the server
@@ -39,19 +73,39 @@ const makeStream = (): Socket.InputTransformStream => {
       // the socket is open, so there is no unsolicited frame to miss while the
       // listener is still registering. (A server-side boot banner or push would
       // need Rust-side buffering until the first listener attaches.)
-      return listen<string>("sidecar://rx", (event) => controller.enqueue(event.payload)).then((fn) => {
-        stopListening = fn;
+      return Promise.all([
+        listen<string>("sidecar://rx", (event) => controller.enqueue(event.payload)),
+        listen<SidecarClosedPayload>("sidecar://closed", (event) => {
+          controller.error(
+            new SidecarClosedError({ message: sidecarClosedMessage(event.payload), payload: event.payload })
+          );
+        }),
+      ]).then(([stopRx, stopClosed]) => {
+        stopListening = stopRx;
+        stopClosedListening = stopClosed;
       });
     },
     cancel() {
       stopListening?.();
+      stopClosedListening?.();
     },
   });
   const writable = new WritableStream<Uint8Array>({
     write(chunk) {
-      // `stream: true` keeps decoding correct if a frame ever spans two chunks
-      // mid-codepoint; the awaited invoke also applies natural write backpressure.
-      return invoke<void>("sidecar_send", { frame: decoder.decode(chunk, { stream: true }) });
+      outboundBuffer += decoder.decode(chunk, { stream: true });
+      return flushCompleteFrames();
+    },
+    close() {
+      outboundBuffer += decoder.decode();
+      if (outboundBuffer.length === 0) {
+        return Promise.resolve();
+      }
+      const frame = outboundBuffer;
+      outboundBuffer = "";
+      return invoke<void>("sidecar_send", { frame });
+    },
+    abort() {
+      outboundBuffer = "";
     },
   });
   return { readable, writable };

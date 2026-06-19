@@ -13,6 +13,21 @@ struct ProfessionalDesktopHealth {
     status: &'static str,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SidecarTransport {
+    ipc: bool,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SidecarClosed {
+    code: Option<i32>,
+    kind: &'static str,
+    message: Option<String>,
+    signal: Option<i32>,
+}
+
 #[tauri::command]
 fn professional_desktop_health() -> ProfessionalDesktopHealth {
     ProfessionalDesktopHealth {
@@ -21,6 +36,13 @@ fn professional_desktop_health() -> ProfessionalDesktopHealth {
         runtime_connection: "pending",
         slices: ["workspace", "agents", "epistemic", "law-practice"],
         status: "ready",
+    }
+}
+
+#[tauri::command]
+fn sidecar_transport() -> SidecarTransport {
+    SidecarTransport {
+        ipc: ipc_transport(),
     }
 }
 
@@ -72,7 +94,34 @@ fn bridge_sidecar_stdio(app: &AppHandle, mut events: tauri::async_runtime::Recei
                 CommandEvent::Stderr(bytes) => {
                     log::info!("sidecar: {}", String::from_utf8_lossy(&bytes).trim_end());
                 }
-                CommandEvent::Error(err) => log::error!("sidecar error: {err}"),
+                CommandEvent::Error(err) => {
+                    log::error!("sidecar error: {err}");
+                    let _ = handle.emit(
+                        "sidecar://closed",
+                        SidecarClosed {
+                            code: None,
+                            kind: "error",
+                            message: Some(err),
+                            signal: None,
+                        },
+                    );
+                }
+                CommandEvent::Terminated(payload) => {
+                    log::warn!(
+                        "sidecar terminated: code={:?} signal={:?}",
+                        payload.code,
+                        payload.signal
+                    );
+                    let _ = handle.emit(
+                        "sidecar://closed",
+                        SidecarClosed {
+                            code: payload.code,
+                            kind: "terminated",
+                            message: None,
+                            signal: payload.signal,
+                        },
+                    );
+                }
                 _ => {}
             }
         }
@@ -119,6 +168,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             professional_desktop_health,
+            sidecar_transport,
             sidecar_send,
             check_for_update
         ])
