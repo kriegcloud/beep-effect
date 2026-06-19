@@ -28,7 +28,9 @@ const shouldRun = Bun.env.BEEP_TEST_SIDECAR_IPC === "1";
 
 const ipcStdioProgram = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
-  const dbDir = yield* fs.makeTempDirectoryScoped({ prefix: "ipc-stdio-" });
+  const dbDir = yield* Effect.acquireRelease(fs.makeTempDirectory({ prefix: "ipc-stdio-" }), (path) =>
+    fs.remove(path, { force: true, recursive: true }).pipe(Effect.ignore)
+  );
 
   // Boot the real sidecar; kill it when the scope closes.
   const proc = yield* Effect.acquireRelease(
