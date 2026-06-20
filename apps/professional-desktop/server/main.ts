@@ -23,8 +23,10 @@
  * @since 0.0.0
  */
 
-// Guard IPC stdout before sidecar dependencies can run module initializers.
-import "./IpcStdoutGuard.ts";
+// Guard IPC stdout before ANY other module loads. The prelude has zero non-stdlib
+// imports, so this side-effect import patches stdout before the effect runtime or
+// sidecar dependencies can run their module initializers.
+import "./IpcStdoutGuard.prelude.ts";
 
 import { ChatRpcs } from "@beep/agents-use-cases/public";
 import { BunHttpServer, BunRuntime } from "@effect/platform-bun";

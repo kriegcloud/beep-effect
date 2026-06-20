@@ -63,6 +63,13 @@ type SharedPendingClosed = Arc<Mutex<Option<SidecarClosed>>>;
 type SharedPendingStdoutFrames = Arc<Mutex<Vec<String>>>;
 type SharedSidecarChild = Arc<Mutex<Option<CommandChild>>>;
 
+/// Upper bound on un-terminated IPC stdout bytes. A well-behaved sidecar emits
+/// newline-delimited ndjson rpc frames, so the buffer only ever holds one
+/// in-flight frame. A malformed or chatty child that floods stdout without a
+/// terminator would otherwise grow this buffer without bound and stall frame
+/// delivery; past this ceiling we fail closed (see `bridge_sidecar_events`).
+const MAX_IPC_STDOUT_BUFFER_BYTES: usize = 8 * 1024 * 1024;
+
 /// Packaged secrets story: prefer an exported AI_ANTHROPIC_API_KEY, fall back
 /// to asking the 1Password CLI for the same secret reference `op run` resolves
 /// in dev. Without either, the sidecar boots fine but assistant turns fail
@@ -211,6 +218,29 @@ fn bridge_sidecar_events(
                             }
                         }
                         if closed_emitted {
+                            break;
+                        }
+                        // Fail closed if the sidecar floods stdout without a frame
+                        // terminator so a malformed/chatty child can never grow the
+                        // buffer without bound or stall delivery of later frames.
+                        if stdout_buffer.len() > MAX_IPC_STDOUT_BUFFER_BYTES {
+                            let message = format!(
+                                "sidecar stdout exceeded {MAX_IPC_STDOUT_BUFFER_BYTES} bytes without a complete frame; closing transport"
+                            );
+                            log::error!("{message}");
+                            closed_emitted = true;
+                            kill_sidecar(&sidecar);
+                            emit_or_buffer_sidecar_closed(
+                                &handle,
+                                &ipc_ready,
+                                &pending_closed,
+                                SidecarClosed {
+                                    code: None,
+                                    kind: "error",
+                                    message: Some(message),
+                                    signal: None,
+                                },
+                            );
                             break;
                         }
                     } else {
