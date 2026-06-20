@@ -125,6 +125,32 @@ const mdInlineText = Match.type<Md.Inline>().pipe(
 
 const mdInlinesText: (inlines: ReadonlyArray<Md.Inline>) => string = flow(A.map(mdInlineText), A.join(""));
 
+const isMdInline = S.is(Md.Inline);
+
+const mdListItemChildrenText = (children: ReadonlyArray<Md.ListItemChild>): string => {
+  const chunks: Array<string> = [];
+  let pendingInlines: Array<Md.Inline> = [];
+  const flushInlines = (): void => {
+    if (pendingInlines.length > 0) {
+      A.appendInPlace(chunks, mdInlinesText(pendingInlines));
+      pendingInlines = [];
+    }
+  };
+
+  for (const child of children) {
+    if (isMdInline(child)) {
+      A.appendInPlace(pendingInlines, child);
+    } else {
+      flushInlines();
+      A.appendInPlace(chunks, mdBlockText(child));
+    }
+  }
+
+  flushInlines();
+
+  return A.join(chunks, "\n");
+};
+
 const mdBlockText = (block: Md.Block): string =>
   Match.value(block).pipe(
     Match.tagsExhaustive({
@@ -139,18 +165,17 @@ const mdBlockText = (block: Md.Block): string =>
       pre: (node) => node.value,
       ul: (node) =>
         A.join(
-          A.map(node.children, (item) => mdInlinesText(item.children)),
+          A.map(node.children, (item) => mdListItemChildrenText(item.children)),
           "\n"
         ),
       ol: (node) =>
         A.join(
-          A.map(node.children, (item) => mdInlinesText(item.children)),
+          A.map(node.children, (item) => mdListItemChildrenText(item.children)),
           "\n"
         ),
-      li: (node) => mdInlinesText(node.children),
       taskList: (node) =>
         A.join(
-          A.map(node.children, (item) => mdInlinesText(item.children)),
+          A.map(node.children, (item) => mdListItemChildrenText(item.children)),
           "\n"
         ),
       table: (node) =>
@@ -234,12 +259,12 @@ const headingToLexical = (
 
 const listItemsToLexical = (
   items: ReadonlyArray<{
-    readonly children: ReadonlyArray<Md.Inline>;
+    readonly children: ReadonlyArray<Md.ListItemChild>;
     readonly checked?: boolean;
   }>
 ): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> =>
   Effect.forEach(items, (item, index) =>
-    Effect.flatMap(inlinesToLexical(item.children, 0), (children) =>
+    Effect.flatMap(listItemChildrenToLexical(item.children), (children) =>
       ListItemNode.makeEffect({
         ...elementDefaults,
         checked: O.fromUndefinedOr(item.checked),
@@ -248,6 +273,16 @@ const listItemsToLexical = (
       })
     )
   );
+
+const listItemChildrenToLexical = (
+  children: ReadonlyArray<Md.ListItemChild>
+): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> => {
+  const inlines = A.filter(children, isMdInline);
+
+  return inlines.length === children.length
+    ? inlinesToLexical(inlines, 0)
+    : Effect.map(textLeaf(mdListItemChildrenText(children), 0), A.of<LexicalNode>);
+};
 
 const quoteChildToInlines = (block: Md.Block): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> =>
   block._tag === "p"
@@ -401,14 +436,6 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
           listType: "number",
           start: 1,
           tag: "ol",
-          children,
-        })
-      ), // A bare list item has no Lexical block equivalent; it degrades to a
-    // paragraph (README "Lossiness profile").
-    li: (node) =>
-      Effect.flatMap(inlinesToLexical(node.children, 0), (children) =>
-        ParagraphNode.makeEffect({
-          ...elementDefaults,
           children,
         })
       ),

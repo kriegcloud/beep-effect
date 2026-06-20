@@ -12,6 +12,7 @@ import type {
   Document,
   DocumentToHtmlFragment,
   DocumentToMarkdown,
+  DocumentToPlainText,
   EffectRenderAdapter,
   Em,
   H1,
@@ -25,6 +26,9 @@ import type {
   InlineContentBuilder,
   InlineInput,
   Li,
+  ListItemChildInput,
+  ListItemContent,
+  ListItemContentBuilder,
   ListItemInput,
   P,
   PureRenderAdapter,
@@ -34,9 +38,11 @@ import type {
   TaskList,
   TaskListItemInput,
   Ul,
+  YouTube,
 } from "@beep/md";
 import type { HtmlFragment, Markdown } from "@beep/schema";
 import type { Result } from "effect";
+import type * as S from "effect/Schema";
 
 describe("@beep/md", () => {
   it("keeps document, block, and inline constructors typed", () => {
@@ -58,6 +64,7 @@ describe("@beep/md", () => {
     expect(Md.em`Hello ${Md.strong("world")}`).type.toBe<Em>();
     expect(Md.del`Hello ${Md.em("world")}`).type.toBe<Del>();
     expect(Md.li`Item ${Md.code("one")}`).type.toBe<Li>();
+    expect(Md.li([Md.p("Parent"), Md.ul(["Child"])])).type.toBe<Li>();
     expect(Md.blockquote([Md.h2("Nested"), "plain"])).type.toBe<BlockQuote>();
     expect(Md.blockquote`Quoted ${Md.strong("text")}`).type.toBe<BlockQuote>();
     expect(Md.blockquote`${Md.h2("Nested")}`).type.toBe<BlockQuote>();
@@ -65,6 +72,10 @@ describe("@beep/md", () => {
     expect(Md.ul(["One", Md.li("Two"), [Md.strong("Three")]])).type.toBe<Ul>();
     expect(Md.taskItem("Done", { checked: true })).type.toBe<TaskItem>();
     expect(Md.taskList(["Todo", { text: "Done", checked: true }, Md.taskItem("Maybe")])).type.toBe<TaskList>();
+    expect(Md.taskList([{ children: [Md.p("Parent"), Md.ul(["Child"])], checked: true }])).type.toBe<TaskList>();
+    expect(Md.youtube("dQw4w9WgXcQ")).type.toBe<Result.Result<YouTube, S.SchemaError>>();
+    expect(Md.youtubeEffect("dQw4w9WgXcQ")).type.toBe<Effect.Effect<YouTube, S.SchemaError>>();
+    expect(Md.youtubeUnsafe("dQw4w9WgXcQ")).type.toBe<YouTube>();
     expect(Md.text("x")).type.toBeAssignableTo<Inline>();
     expect(Md.hr).type.toBeAssignableTo<Block>();
   });
@@ -78,13 +89,21 @@ describe("@beep/md", () => {
     expect<H2>().type.toBeAssignableTo<BlockTemplateValue>();
     expect<["a", "b"]>().type.toBeAssignableTo<BlockTemplateValue>();
     expect<Li>().type.toBeAssignableTo<ListItemInput>();
+    expect<Block>().type.toBeAssignableTo<ListItemChildInput>();
+    expect<[ListItemChildInput, ListItemChildInput]>().type.toBeAssignableTo<ListItemContent>();
     expect<{ readonly text: string; readonly checked?: boolean }>().type.toBeAssignableTo<TaskListItemInput>();
+    expect<{
+      readonly children: ListItemContent;
+      readonly checked?: boolean;
+    }>().type.toBeAssignableTo<TaskListItemInput>();
 
     const strongBuilder: InlineContentBuilder<Strong> = Md.strong;
     const blockquoteBuilder: BlockContentBuilder<BlockQuote> = Md.blockquote;
+    const listItemBuilder: ListItemContentBuilder<Li> = Md.li;
 
     expect(strongBuilder).type.toBe<InlineContentBuilder<Strong>>();
     expect(blockquoteBuilder).type.toBe<BlockContentBuilder<BlockQuote>>();
+    expect(listItemBuilder).type.toBe<ListItemContentBuilder<Li>>();
   });
 
   it("keeps render outputs branded by target", () => {
@@ -105,12 +124,15 @@ describe("@beep/md", () => {
     expect(Md.renderUnsafe(document)).type.toBe<Markdown>();
     expect(Md.renderHtml(document)).type.toBe<Result.Result<HtmlFragment, RenderError>>();
     expect(Md.renderHtmlUnsafe(document)).type.toBe<HtmlFragment>();
+    expect(Md.renderPlainText(document)).type.toBe<Result.Result<string, RenderError>>();
+    expect(Md.renderPlainTextUnsafe(document)).type.toBe<string>();
     expect(Md.renderWith(Md.MarkdownAdapter, document)).type.toBe<Result.Result<Markdown, RenderError>>();
     expect(Md.renderWithUnsafe(Md.MarkdownAdapter, document)).type.toBe<Markdown>();
     expect(Md.renderWith(packetAdapter, document)).type.toBe<Result.Result<RenderPacket, RenderError>>();
     expect(Md.renderWithUnsafe(packetAdapter, document)).type.toBe<RenderPacket>();
     expect(Md.MarkdownAdapter).type.toBe<PureRenderAdapter<Markdown>>();
     expect(Md.HtmlFragmentAdapter).type.toBe<PureRenderAdapter<HtmlFragment>>();
+    expect(Md.PlainTextAdapter).type.toBe<PureRenderAdapter<string>>();
 
     const bytesAdapter: EffectRenderAdapter<Uint8Array, "pdf-error", "fonts"> = {
       name: "bytes",
@@ -127,6 +149,7 @@ describe("@beep/md", () => {
   it("exposes schema transformation types and future effectful adapter shape", () => {
     expect<DocumentToMarkdown>().type.toBe<Markdown>();
     expect<DocumentToHtmlFragment>().type.toBe<HtmlFragment>();
+    expect<DocumentToPlainText>().type.toBe<string>();
 
     type BytesAdapter = EffectRenderAdapter<Uint8Array, Error, never>;
     expect<BytesAdapter["name"]>().type.toBe<string>();

@@ -23,9 +23,9 @@ import {
   UserTurnHistoryItem,
 } from "@beep/agents-use-cases/public";
 import { appendTurnFinalizationUsageRecord, TurnFinalizationUsageAppend } from "@beep/epistemic-domain";
-import { thunkEmptyStr } from "@beep/utils";
+import { renderPlainTextUnsafe } from "@beep/md/Md.render";
 import { Thread } from "@beep/workspace-use-cases/server";
-import { Clock, Duration, Effect, Match, Metric, Order, pipe, Ref, Stream } from "effect";
+import { Clock, Duration, Effect, Metric, Order, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -33,7 +33,7 @@ import * as Str from "effect/String";
 import { UsageRecordSink } from "./UsageRecordSink.ts";
 import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent";
 import type { IndexedBlock, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public";
-import type { Block, Document, Inline } from "@beep/md/Md.model";
+import type { Document } from "@beep/md/Md.model";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 
 // ---------------------------------------------------------------------------
@@ -41,76 +41,13 @@ import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace"
 // ---------------------------------------------------------------------------
 
 /**
- * Recursively extract plain text from an inline `@beep/md` node. Text-bearing
- * inlines (`text`, `code`, raw markdown/html) contribute their literal value;
- * styled wrappers (`strong`, `em`, `del`, `a`) contribute their children;
- * `img`/`br` contribute nothing.
- */
-const inlineToPlainText: (inline: Inline) => string = Match.type<Inline>().pipe(
-  Match.tags({
-    text: (i) => i.value,
-    code: (i) => i.value,
-    rawMarkdown: (i) => i.value,
-    rawHtml: (i) => i.value,
-    strong: (i) => A.join(A.map(i.children, inlineToPlainText), ""),
-    em: (i) => A.join(A.map(i.children, inlineToPlainText), ""),
-    del: (i) => A.join(A.map(i.children, inlineToPlainText), ""),
-    a: (i) => A.join(A.map(i.children, inlineToPlainText), ""),
-  }),
-  // img/br carry no text.
-  Match.orElse(thunkEmptyStr)
-);
-
-/**
- * Recursively extract plain text from a block `@beep/md` node. Inline-bearing
- * blocks join their children; code blocks contribute their literal value; list
- * containers recurse into their item blocks.
- */
-const blockToPlainText: (block: Block.Type) => string = Match.type<Block.Type>().pipe(
-  Match.tags({
-    p: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    h1: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    h2: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    h3: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    h4: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    h5: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    h6: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    li: (b) => A.join(A.map(b.children, inlineToPlainText), ""),
-    pre: (b) => b.value,
-    blockquote: (b) => A.join(A.map(b.children, blockToPlainText), "\n"),
-    ul: (b) => A.join(A.map(b.children, blockToPlainText), "\n"),
-    ol: (b) => A.join(A.map(b.children, blockToPlainText), "\n"),
-    taskList: (b) =>
-      A.join(
-        A.map(b.children, (item) => A.join(A.map(item.children, inlineToPlainText), "")),
-        "\n"
-      ),
-    table: (b) =>
-      A.join(
-        A.map(b.children, (row) =>
-          A.join(
-            A.map(row.children, (cell) => A.join(A.map(cell.children, inlineToPlainText), "")),
-            "\t"
-          )
-        ),
-        "\n"
-      ),
-    youtube: (b) => `https://www.youtube.com/watch?v=${b.videoId}`,
-  }),
-  // hr carries no text.
-  Match.orElse(thunkEmptyStr)
-);
-
-/**
  * Project a `@beep/md` {@link Document} to plain text for the turn-kernel
- * history. There is no plain-text renderer in `@beep/md` (its renderer emits
- * Markdown), so this walks the AST and joins block-level text with newlines.
+ * history.
  *
  * @category projections
  * @since 0.0.0
  */
-export const documentToPlainText = (document: Document.Type): string =>
-  A.join(A.map(document.children, blockToPlainText), "\n");
+export const documentToPlainText = (document: Document.Type): string => renderPlainTextUnsafe(document);
 
 const UNTITLED_THREAD_TITLE = "New thread" as const;
 const DERIVED_THREAD_TITLE_MAX_CHARS = 64;

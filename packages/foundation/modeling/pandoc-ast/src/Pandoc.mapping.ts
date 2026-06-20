@@ -95,6 +95,8 @@ const mdText = (value: string): Md.Text => Md.Text.make({ value });
 
 const mdInlinesText = (inlines: ReadonlyArray<Md.Inline>): string => A.join(A.map(inlines, mdInlineText), "");
 
+const isMdInline = S.is(Md.Inline);
+
 const mdInlineText: (inline: Md.Inline) => string = Match.type<Md.Inline>().pipe(
   Match.tagsExhaustive({
     text: (inline) => inline.value,
@@ -357,97 +359,138 @@ const headingToMd = (level: MdHeadingLevel, children: ReadonlyArray<Md.Inline>):
   return Md.H6.make({ children });
 };
 
-const pandocListItemHasBlockLoss = (item: ReadonlyArray<PandocBlock.Type>): boolean =>
-  item.length !== 1 || A.some(item, (block) => block._tag !== "plain" && block._tag !== "para");
+const isPlainOrPara = (block: PandocBlock.Type): block is Plain.Type | Para.Type =>
+  block._tag === "plain" || block._tag === "para";
 
 const pandocListItemBlockToMdInlines = (
   block: PandocBlock.Type,
   path: JsonPath
-): Effect.Effect<Projection<ReadonlyArray<Md.Inline>>, S.SchemaError> =>
+): Effect.Effect<Projection<ReadonlyArray<Md.ListItemChild>>, S.SchemaError> =>
   Match.value(block).pipe(
-    Match.tagsExhaustive({
+    Match.tags({
       plain: (node) => pandocInlinesToMd(node.children, path),
       para: (node) => pandocInlinesToMd(node.children, path),
-      header: (node) => pandocInlinesToMd(node.children, path),
-      codeblock: (node) =>
-        Effect.succeed({
-          issues: hasPandocAttr(node.attr)
-            ? [
-                issue({
-                  construct: "CodeBlock",
-                  direction: "pandoc-to-md",
-                  message: "Pandoc code block attributes have no Md list item inline equivalent.",
-                  path,
-                  severity: "lossy",
-                }),
-              ]
-            : [],
-          value: [Md.Code.make({ value: node.text })],
-        }),
-      blockquote: (node) =>
-        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
-          issues,
-          value: [mdText(mdBlockText(value))],
-        })),
-      bulletlist: (node) =>
-        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
-          issues,
-          value: [mdText(mdBlockText(value))],
-        })),
-      orderedlist: (node) =>
-        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
-          issues,
-          value: [mdText(mdBlockText(value))],
-        })),
-      horizontalrule: () => Effect.succeed(emptyProjection([])),
-      div: (node) =>
-        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
-          issues,
-          value: [mdText(mdBlockText(value))],
-        })),
-      table: (node) =>
-        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
-          issues,
-          value: [mdText(mdBlockText(value))],
-        })),
-      unknownBlock: (node) =>
-        Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
-          issues,
-          value: [mdText(mdBlockText(value))],
-        })),
-    })
+    }),
+    Match.orElse((node) =>
+      Effect.map(pandocBlockToMd(node, path), ({ issues, value }) => ({
+        issues,
+        value: [value],
+      }))
+    )
   );
+
+const pandocListItemBlockToMdChildBlocks = (
+  block: PandocBlock.Type,
+  path: JsonPath
+): Effect.Effect<Projection<ReadonlyArray<Md.ListItemChild>>, S.SchemaError> =>
+  Effect.map(pandocBlockToMd(block, path), ({ issues, value }) => ({
+    issues,
+    value: [value],
+  }));
+
+const pandocListItemBlocksToMdChildren = (
+  item: ReadonlyArray<PandocBlock.Type>,
+  path: JsonPath
+): Effect.Effect<Projection<ReadonlyArray<Md.ListItemChild>>, S.SchemaError> => {
+  const first = item[0];
+
+  return item.length === 1 && first !== undefined && isPlainOrPara(first)
+    ? pandocListItemBlockToMdInlines(first, appendIndex(path, "blocks", 0))
+    : Effect.map(
+        Effect.forEach(item, (block, index) =>
+          pandocListItemBlockToMdChildBlocks(block, appendIndex(path, "blocks", index))
+        ),
+        (blocks) => ({
+          issues: mergeIssues(blocks),
+          value: A.flatten(A.map(blocks, (block) => block.value)),
+        })
+      );
+};
+
+const mdListItemChildrenText = (children: ReadonlyArray<Md.ListItemChild>): string => {
+  const chunks: Array<string> = [];
+  let pendingInlines: Array<Md.Inline> = [];
+  const flushInlines = (): void => {
+    if (pendingInlines.length > 0) {
+      A.appendInPlace(chunks, mdInlinesText(pendingInlines));
+      pendingInlines = [];
+    }
+  };
+
+  for (const child of children) {
+    if (isMdInline(child)) {
+      A.appendInPlace(pendingInlines, child);
+    } else {
+      flushInlines();
+      A.appendInPlace(chunks, mdBlockText(child));
+    }
+  }
+
+  flushInlines();
+
+  return A.join(chunks, "\n");
+};
+
+const mdInlinesToPandocPlain = (
+  inlines: ReadonlyArray<Md.Inline>,
+  path: JsonPath
+): Effect.Effect<Projection<PandocBlock.Type>, S.SchemaError> =>
+  Effect.map(mdInlinesToPandoc(inlines, path), ({ issues, value }) => ({
+    issues,
+    value: Plain.make({ children: value }),
+  }));
+
+const mdListItemChildrenToPandocBlocks = (
+  children: ReadonlyArray<Md.ListItemChild>,
+  path: JsonPath
+): Effect.Effect<Projection<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
+  Effect.gen(function* () {
+    const blocks: Array<Projection<PandocBlock.Type>> = [];
+    let pendingInlines: Array<Md.Inline> = [];
+    let pendingStartIndex = 0;
+    const flushInlines = Effect.fnUntraced(function* () {
+      if (pendingInlines.length > 0) {
+        A.appendInPlace(
+          blocks,
+          yield* mdInlinesToPandocPlain(pendingInlines, appendIndex(path, "children", pendingStartIndex))
+        );
+        pendingInlines = [];
+      }
+    });
+    for (const [index, child] of children.entries()) {
+      if (isMdInline(child)) {
+        if (pendingInlines.length === 0) {
+          pendingStartIndex = index;
+        }
+        A.appendInPlace(pendingInlines, child);
+      } else {
+        yield* flushInlines();
+        A.appendInPlace(blocks, yield* mdBlockToPandoc(child, appendIndex(path, "children", index)));
+      }
+    }
+
+    yield* flushInlines();
+
+    return {
+      issues: mergeIssues(blocks),
+      value: A.map(blocks, (block) => block.value),
+    };
+  });
 
 const pandocListItemToMd = (
   item: ReadonlyArray<PandocBlock.Type>,
   path: JsonPath
 ): Effect.Effect<Projection<Md.Li>, S.SchemaError> =>
-  Effect.map(
-    Effect.forEach(item, (block, index) => pandocListItemBlockToMdInlines(block, appendIndex(path, "blocks", index))),
-    (blocks) => ({
-      issues: [
-        ...mergeIssues(blocks),
-        ...(pandocListItemHasBlockLoss(item)
-          ? [
-              issue({
-                construct: "ListItem",
-                direction: "pandoc-to-md",
-                message: "Pandoc list item block structure is flattened into Md list item inline children.",
-                path,
-                severity: "lossy",
-              }),
-            ]
-          : []),
-      ],
-      value: Md.Li.make({
-        children: A.flatten(A.map(blocks, (block) => block.value)),
-      }),
-    })
-  );
+  Effect.map(pandocListItemBlocksToMdChildren(item, path), ({ issues, value }) => ({
+    issues,
+    value: Md.Li.make({
+      children: value,
+    }),
+  }));
 
 const mdListText = (items: ReadonlyArray<Md.Li | Md.TaskItem>): string =>
   A.join(
-    A.map(items, (item) => mdInlinesText(item.children)),
+    A.map(items, (item) => mdListItemChildrenText(item.children)),
     "\n"
   );
 
@@ -477,7 +520,6 @@ const mdBlockText: (block: Md.Block) => string = Match.type<Md.Block>().pipe(
     pre: (block) => block.value,
     ul: (block) => mdListText(block.children),
     ol: (block) => mdListText(block.children),
-    li: (block) => mdInlinesText(block.children),
     taskList: (block) => mdListText(block.children),
     table: (block) => mdTableText(block),
     youtube: (block) => youtubeWatchUrl(block.videoId),
@@ -739,10 +781,7 @@ const mdListItemToPandocBlocks = (
   item: Md.Li | Md.TaskItem,
   path: JsonPath
 ): Effect.Effect<Projection<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
-  Effect.map(mdInlinesToPandoc(item.children, path), ({ issues, value }) => ({
-    issues,
-    value: [Plain.make({ children: value })],
-  }));
+  mdListItemChildrenToPandocBlocks(item.children, path);
 
 const mdListItemsToPandocBlocks = (
   items: ReadonlyArray<Md.Li | Md.TaskItem>,
@@ -807,11 +846,6 @@ const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Project
             start: 1,
             style: "DefaultStyle",
           }),
-        })),
-      li: (node) =>
-        Effect.map(mdInlinesToPandoc(node.children, path), ({ issues, value }) => ({
-          issues,
-          value: Plain.make({ children: value }),
         })),
       taskList: (node) =>
         Effect.map(mdListItemsToPandocBlocks(node.children, path), ({ issues, value }) => ({

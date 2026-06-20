@@ -13,7 +13,7 @@ import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Document as DocumentSchema, TableCell, TableRow } from "./Md.model.ts";
+import { Document as DocumentSchema, Inline as InlineSchema, TableCell, TableRow } from "./Md.model.ts";
 import {
   escapeHtmlUrlAttribute,
   escapeMarkdownDestination,
@@ -24,11 +24,26 @@ import {
   renderInlineCode,
   sanitizeCodeFenceLanguage,
 } from "./Md.utils.ts";
-import type { Block, Document, H1, H2, H3, H4, H5, H6, Inline, Li, Table, TaskItem } from "./Md.model.ts";
+import type {
+  Block,
+  Document,
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  Inline,
+  Li,
+  ListItemChild,
+  Table,
+  TaskItem,
+} from "./Md.model.ts";
 
 const $I = $MdId.create("Md.render");
 const joinEmpty = A.join("");
 const lineSeparatorPattern = /\r\n?|\n/;
+const lineSeparatorGlobalPattern = /\r\n?|\n/g;
 const headingMarkerCount = {
   h1: 1,
   h2: 2,
@@ -39,6 +54,7 @@ const headingMarkerCount = {
 } as const;
 
 type HeadingBlock = H1 | H2 | H3 | H4 | H5 | H6;
+const isInlineListItemChild = S.is(InlineSchema);
 
 /**
  * Error raised when a render adapter fails while producing output.
@@ -127,18 +143,60 @@ const renderMarkdownLinkLabelInlines: (children: ReadonlyArray<Inline>) => strin
 
 const renderHtmlInlines: (children: ReadonlyArray<Inline>) => string = flow(A.map(renderHtmlInline), joinEmpty);
 
-const renderMarkdownListItem = (item: Li): string => renderMarkdownInlines(item.children);
+const renderListItemChildSegments = (
+  children: ReadonlyArray<ListItemChild>,
+  renderInlines: (children: ReadonlyArray<Inline>) => string,
+  renderBlock: (block: Block) => string
+): ReadonlyArray<string> => {
+  const out: Array<string> = [];
+  let pendingInlines: Array<Inline> = [];
+  const flushInlines = (): void => {
+    if (pendingInlines.length > 0) {
+      A.appendInPlace(out, renderInlines(pendingInlines));
+      pendingInlines = [];
+    }
+  };
 
-const renderHtmlListItem = (item: Li): string => `<li>${renderHtmlInlines(item.children)}</li>`;
+  for (const child of children) {
+    if (isInlineListItemChild(child)) {
+      A.appendInPlace(pendingInlines, child);
+    } else {
+      flushInlines();
+      A.appendInPlace(out, renderBlock(child));
+    }
+  }
+
+  flushInlines();
+
+  return out;
+};
+
+const renderMarkdownListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
+  pipe(
+    children,
+    (items) => renderListItemChildSegments(items, renderMarkdownInlines, renderMarkdownBlock),
+    A.join("\n")
+  );
+
+const renderMarkdownListItem = (item: Li): string => renderMarkdownListItemChildren(item.children);
+
+const renderHtmlListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
+  pipe(children, (items) => renderListItemChildSegments(items, renderHtmlInlines, renderHtmlBlock), joinEmpty);
+
+const renderHtmlListItem = (item: Li): string => `<li>${renderHtmlListItemChildren(item.children)}</li>`;
 
 const renderHtmlTaskItem = (item: TaskItem): string => {
   const checked = item.checked ? " checked" : "";
 
-  return `<li><input type="checkbox" disabled${checked} /> ${renderHtmlInlines(item.children)}</li>`;
+  return `<li><input type="checkbox" disabled${checked} /> ${renderHtmlListItemChildren(item.children)}</li>`;
 };
 
 const renderMarkdownTableCell = (cell: TableCell): string =>
-  pipe(renderMarkdownInlines(cell.children), Str.replace(/\|/g, "\\|"), Str.replace(lineSeparatorPattern, "<br/>"));
+  pipe(
+    renderMarkdownInlines(cell.children),
+    Str.replace(/\|/g, "\\|"),
+    Str.replace(lineSeparatorGlobalPattern, "<br/>")
+  );
 
 const renderMarkdownTableFence = (cells: string): string => `| ${cells} |`;
 
@@ -155,6 +213,16 @@ const renderMarkdownTableSeparator = (columns: number): string =>
     renderMarkdownTableFence
   );
 
+const emptyTableCell = (): TableCell => TableCell.make({ children: [] });
+
+const padTableRow =
+  (columns: number) =>
+  (row: TableRow): TableRow => {
+    const missing = columns - tableRowColumnCount(row);
+
+    return missing > 0 ? TableRow.make({ children: [...row.children, ...A.makeBy(missing, emptyTableCell)] }) : row;
+  };
+
 const renderMarkdownTableRow = (row: TableRow): string =>
   pipe(row.children, A.map(renderMarkdownTableCell), A.join(" | "), renderMarkdownTableFence);
 
@@ -164,8 +232,10 @@ const renderMarkdownTable = (block: Table): string => {
     return "";
   }
 
+  const paddedRows = A.map(block.children, padTableRow(columns));
+
   if (block.headerRow) {
-    return pipe(block.children, A.map(renderMarkdownTableRow), ([header, ...body]) =>
+    return pipe(paddedRows, A.map(renderMarkdownTableRow), ([header, ...body]) =>
       A.join([header, renderMarkdownTableSeparator(columns), ...body], "\n")
     );
   }
@@ -176,7 +246,7 @@ const renderMarkdownTable = (block: Table): string => {
     })
   );
 
-  return pipe(block.children, A.map(renderMarkdownTableRow), (rows) =>
+  return pipe(paddedRows, A.map(renderMarkdownTableRow), (rows) =>
     A.join([emptyHeader, renderMarkdownTableSeparator(columns), ...rows], "\n")
   );
 };
@@ -227,8 +297,14 @@ const indentContinuationLines = (text: string, indent: string): string =>
     A.join("\n")
   );
 
-const renderMarkdownMarkedItem = (marker: string, content: string): string =>
-  `${marker}${indentContinuationLines(content, pipe(" ", Str.repeat(Str.length(marker))))}`;
+const renderMarkdownMarkedItem: {
+  (marker: string, content: string): string;
+  (content: string): (marker: string) => string;
+} = dual(
+  2,
+  (marker: string, content: string): string =>
+    `${marker}${indentContinuationLines(content, pipe(" ", Str.repeat(Str.length(marker))))}`
+);
 
 const languageToMarkdown = O.match({
   onNone: thunkEmptyStr,
@@ -389,6 +465,82 @@ export function renderHtmlInline(inline: Inline): string {
   return renderHtmlInlineMatcher(inline);
 }
 
+const renderPlainTextInlines: (children: ReadonlyArray<Inline>) => string = flow(
+  A.map(renderPlainTextInline),
+  joinEmpty
+);
+
+const renderPlainTextListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
+  pipe(
+    children,
+    (items) => renderListItemChildSegments(items, renderPlainTextInlines, renderPlainTextBlock),
+    A.join("\n")
+  );
+
+const renderPlainTextListItem = (item: Li): string => renderPlainTextListItemChildren(item.children);
+
+const renderPlainTextTaskItem = (item: TaskItem): string => renderPlainTextListItemChildren(item.children);
+
+const renderPlainTextTable = (block: Table): string =>
+  pipe(
+    block.children,
+    A.map((row) =>
+      pipe(
+        row.children,
+        A.map((cell) => renderPlainTextInlines(cell.children)),
+        A.join("\t")
+      )
+    ),
+    A.join("\n")
+  );
+
+/**
+ * Renders an inline node as plain text.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { renderPlainTextInline } from "@beep/md/Md.render"
+ *
+ * console.log(renderPlainTextInline(Md.strong("beep"))) // "beep"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+const renderPlainTextInlineMatcher = Match.type<Inline>().pipe(
+  Match.tagsExhaustive({
+    text: ({ value }) => value,
+    rawMarkdown: ({ value }) => value,
+    rawHtml: ({ value }) => value,
+    strong: ({ children }) => renderPlainTextInlines(children),
+    em: ({ children }) => renderPlainTextInlines(children),
+    del: ({ children }) => renderPlainTextInlines(children),
+    code: ({ value }) => value,
+    a: ({ children }) => renderPlainTextInlines(children),
+    img: thunkEmptyStr,
+    br: thunkEmptyStr,
+  })
+);
+
+/**
+ * Renders an inline node as plain text.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { renderPlainTextInline } from "@beep/md/Md.render"
+ *
+ * console.log(renderPlainTextInline(Md.code("beep"))) // "beep"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export function renderPlainTextInline(inline: Inline): string {
+  return renderPlainTextInlineMatcher(inline);
+}
+
 /**
  * Renders a block node as Markdown.
  *
@@ -430,12 +582,11 @@ export const renderMarkdownBlock: (block: Block) => string = Match.type<Block>()
         }),
         A.join("\n")
       ),
-    li: renderMarkdownListItem,
     taskList: (block) =>
       pipe(
         block.children,
         A.map((item) =>
-          renderMarkdownMarkedItem(`- [${item.checked ? "x" : " "}] `, renderMarkdownInlines(item.children))
+          renderMarkdownMarkedItem(`- [${item.checked ? "x" : " "}] `, renderMarkdownListItemChildren(item.children))
         ),
         A.join("\n")
       ),
@@ -472,13 +623,46 @@ export const renderHtmlBlock: (block: Block) => string = Match.type<Block>().pip
     pre: (block) => `<pre><code${languageToHtmlClass(block.language)}>${Html.escapeHtml(block.value)}</code></pre>`,
     ul: (block) => `<ul>${pipe(block.children, A.map(renderHtmlListItem), joinEmpty)}</ul>`,
     ol: (block) => `<ol>${pipe(block.children, A.map(renderHtmlListItem), joinEmpty)}</ol>`,
-    li: renderHtmlListItem,
     taskList: (block) =>
       `<ul class="contains-task-list">${pipe(block.children, A.map(renderHtmlTaskItem), joinEmpty)}</ul>`,
     table: renderHtmlTable,
     youtube: (block) =>
       `<iframe src="${escapeHtmlUrlAttribute(youtubeEmbedUrl(block.videoId))}" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`,
     hr: () => "<hr />",
+  })
+);
+
+/**
+ * Renders a block node as plain text.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { renderPlainTextBlock } from "@beep/md/Md.render"
+ *
+ * console.log(renderPlainTextBlock(Md.h1("Hello"))) // "Hello"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderPlainTextBlock: (block: Block) => string = Match.type<Block>().pipe(
+  Match.tagsExhaustive({
+    h1: (block) => renderPlainTextInlines(block.children),
+    h2: (block) => renderPlainTextInlines(block.children),
+    h3: (block) => renderPlainTextInlines(block.children),
+    h4: (block) => renderPlainTextInlines(block.children),
+    h5: (block) => renderPlainTextInlines(block.children),
+    h6: (block) => renderPlainTextInlines(block.children),
+    p: (block) => renderPlainTextInlines(block.children),
+    blockquote: (block) => renderPlainTextBlocks(block.children),
+    pre: (block) => block.value,
+    ul: (block) => pipe(block.children, A.map(renderPlainTextListItem), A.join("\n")),
+    ol: (block) => pipe(block.children, A.map(renderPlainTextListItem), A.join("\n")),
+    taskList: (block) => pipe(block.children, A.map(renderPlainTextTaskItem), A.join("\n")),
+    table: renderPlainTextTable,
+    youtube: (block) => youtubeWatchUrl(block.videoId),
+    hr: thunkEmptyStr,
   })
 );
 
@@ -522,6 +706,25 @@ export const renderHtmlBlocks: (blocks: ReadonlyArray<Block>) => HtmlFragment = 
 );
 
 /**
+ * Renders block nodes as plain text.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { renderPlainTextBlocks } from "@beep/md/Md.render"
+ *
+ * console.log(renderPlainTextBlocks([Md.h1("Hello"), Md.p("World")]))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderPlainTextBlocks: (blocks: ReadonlyArray<Block>) => string = flow(
+  A.map(renderPlainTextBlock),
+  A.join("\n")
+);
+
+/**
  * Renders a document through the Markdown adapter and returns the output directly.
  *
  * Prefer {@link render} when callers should handle adapter failure explicitly.
@@ -556,6 +759,24 @@ export const renderUnsafe = (document: Document): Markdown => renderWithUnsafe(M
  * @since 0.0.0
  */
 export const renderHtmlUnsafe = (document: Document): HtmlFragment => renderWithUnsafe(HtmlFragmentAdapter, document);
+
+/**
+ * Renders a document through the plain text adapter and returns the output directly.
+ *
+ * Prefer {@link renderPlainText} when callers should handle adapter failure explicitly.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { renderPlainTextUnsafe } from "@beep/md/Md.render"
+ *
+ * console.log(renderPlainTextUnsafe(Md.make([Md.h1("Hello")]))) // "Hello"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderPlainTextUnsafe = (document: Document): string => renderWithUnsafe(PlainTextAdapter, document);
 
 /**
  * Renders a document with a custom pure adapter and returns the output directly.
@@ -707,6 +928,25 @@ export const HtmlFragmentAdapter: PureRenderAdapter<HtmlFragment> = {
 };
 
 /**
+ * Built-in plain-text render adapter.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { PlainTextAdapter } from "@beep/md/Md.render"
+ *
+ * console.log(PlainTextAdapter.render(Md.make([Md.h1("Hello")]))) // "Hello"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const PlainTextAdapter: PureRenderAdapter<string> = {
+  name: "plain-text",
+  render: (document) => renderPlainTextBlocks(document.children),
+};
+
+/**
  * Renders a document with a custom pure adapter.
  *
  * Adapter failures are captured as {@link RenderError}. Use
@@ -781,6 +1021,28 @@ export const render = (document: Document): Result.Result<Markdown, RenderError>
 export const renderHtml = (document: Document): Result.Result<HtmlFragment, RenderError> =>
   renderWith(HtmlFragmentAdapter, document);
 
+/**
+ * Renders a document through the plain text adapter.
+ *
+ * Adapter failures are captured as {@link RenderError}. Use
+ * {@link renderPlainTextUnsafe} only at boundaries that intentionally throw.
+ *
+ * @example
+ * ```ts
+ * import { Result } from "effect"
+ * import { Md } from "@beep/md"
+ * import { renderPlainText } from "@beep/md/Md.render"
+ *
+ * const output = renderPlainText(Md.make([Md.h1("Hello")]))
+ * console.log(Result.getOrThrow(output)) // "Hello"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const renderPlainText = (document: Document): Result.Result<string, RenderError> =>
+  renderWith(PlainTextAdapter, document);
+
 const encodeUnsupported =
   <Output>(name: string) =>
   (value: unknown): Effect.Effect<Output, SchemaIssue.Issue> =>
@@ -795,12 +1057,13 @@ const encodeUnsupported =
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { Md } from "@beep/md"
  * import { DocumentToMarkdown } from "@beep/md/Md.render"
  *
- * const markdown = S.decodeUnknownSync(DocumentToMarkdown)(Md.make([Md.h1("Hello")]))
- * console.log(markdown) // "# Hello"
+ * const program = S.decodeUnknownEffect(DocumentToMarkdown)(Md.make([Md.h1("Hello")]))
+ * console.log(Effect.runSync(program)) // "# Hello"
  * ```
  *
  * @category validation
@@ -837,12 +1100,13 @@ export type DocumentToMarkdown = typeof DocumentToMarkdown.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { Md } from "@beep/md"
  * import { DocumentToHtmlFragment } from "@beep/md/Md.render"
  *
- * const html = S.decodeUnknownSync(DocumentToHtmlFragment)(Md.make([Md.p("Hello")]))
- * console.log(html) // "<p>Hello</p>"
+ * const program = S.decodeUnknownEffect(DocumentToHtmlFragment)(Md.make([Md.p("Hello")]))
+ * console.log(Effect.runSync(program)) // "<p>Hello</p>"
  * ```
  *
  * @category validation
@@ -857,6 +1121,49 @@ export const DocumentToHtmlFragment = DocumentSchema.pipe(
     description: "Schema transformation from a document AST to a branded HTML fragment.",
   })
 );
+
+/**
+ * Schema transformation from a document AST to plain text.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Md } from "@beep/md"
+ * import { DocumentToPlainText } from "@beep/md/Md.render"
+ *
+ * const program = S.decodeUnknownEffect(DocumentToPlainText)(Md.make([Md.h1("Hello")]))
+ * console.log(Effect.runSync(program)) // "Hello"
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const DocumentToPlainText = DocumentSchema.pipe(
+  S.decodeTo(S.String, {
+    decode: SchemaGetter.transform((document: Document) => renderPlainTextBlocks(document.children)),
+    encode: SchemaGetter.transformOrFail(encodeUnsupported<Document>("plain text")),
+  }),
+  $I.annoteSchema("DocumentToPlainText", {
+    description: "Schema transformation from a document AST to plain text.",
+  })
+);
+
+/**
+ * Type for {@link DocumentToPlainText}.
+ *
+ * @example
+ * ```ts
+ * import type { DocumentToPlainText } from "@beep/md/Md.render"
+ *
+ * const acceptPlainText = (value: DocumentToPlainText) => value
+ * console.log(acceptPlainText)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type DocumentToPlainText = typeof DocumentToPlainText.Type;
 
 /**
  * Type for {@link DocumentToHtmlFragment}.

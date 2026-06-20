@@ -64,28 +64,52 @@ const isUnsafeUrlProtocolDestination = S.is(UnsafeUrlProtocolDestination);
 const isCodeFenceLanguage = S.is(CodeFenceLanguage);
 
 const isValidCodePoint = (codePoint: number): boolean => codePoint >= 0 && codePoint <= maxUnicodeCodePoint;
-const parseCodePoint = (value: string, radix: 10 | 16): number => globalThis.Number.parseInt(value, radix);
+const parseCodePoint: {
+  (value: string, radix: 10 | 16): number;
+  (radix: 10 | 16): (value: string) => number;
+} = dual(2, (value: string, radix: 10 | 16): number => globalThis.Number.parseInt(value, radix));
 const codePointToString = (codePoint: number): string => globalThis.String.fromCodePoint(codePoint);
-const replaceHtmlCharacterReferences = (
-  value: string,
-  replacer: (
-    match: string,
-    decimal: string | undefined,
-    hexadecimal: string | undefined,
-    named: string | undefined
-  ) => string
-): string =>
-  pipe(
-    value,
-    Str.replaceAllWith(htmlCharacterReferencePattern, (match, decimal, hexadecimal, named) =>
-      replacer(
-        match,
-        P.isString(decimal) ? decimal : undefined,
-        P.isString(hexadecimal) ? hexadecimal : undefined,
-        P.isString(named) ? named : undefined
+const replaceHtmlCharacterReferences: {
+  (
+    value: string,
+    replacer: (
+      match: string,
+      decimal: string | undefined,
+      hexadecimal: string | undefined,
+      named: string | undefined
+    ) => string
+  ): string;
+  (
+    replacer: (
+      match: string,
+      decimal: string | undefined,
+      hexadecimal: string | undefined,
+      named: string | undefined
+    ) => string
+  ): (value: string) => string;
+} = dual(
+  2,
+  (
+    value: string,
+    replacer: (
+      match: string,
+      decimal: string | undefined,
+      hexadecimal: string | undefined,
+      named: string | undefined
+    ) => string
+  ): string =>
+    pipe(
+      value,
+      Str.replaceAllWith(htmlCharacterReferencePattern, (match, decimal, hexadecimal, named) =>
+        replacer(
+          match,
+          P.isString(decimal) ? decimal : undefined,
+          P.isString(hexadecimal) ? hexadecimal : undefined,
+          P.isString(named) ? named : undefined
+        )
       )
     )
-  );
+);
 
 const decodeHtmlCharacterReferences = (value: string): string =>
   replaceHtmlCharacterReferences(
@@ -225,7 +249,16 @@ export const sanitizeUrlDestination = (destination: string): string => {
   const decodedHtml = decodeHtmlCharacterReferences(destination);
   const decodedPercent = decodePercentEncodedBytes(destination);
   const decodedHtmlAndPercent = decodePercentEncodedBytes(decodedHtml);
-  const candidates = [destination, decodedHtml, decodedPercent, decodedHtmlAndPercent];
+  const decodedPercentAndHtml = decodeHtmlCharacterReferences(decodedPercent);
+  const decodedHtmlPercentAndHtml = decodeHtmlCharacterReferences(decodedHtmlAndPercent);
+  const candidates = [
+    destination,
+    decodedHtml,
+    decodedPercent,
+    decodedHtmlAndPercent,
+    decodedPercentAndHtml,
+    decodedHtmlPercentAndHtml,
+  ];
 
   // Evaluate normalized/decoded candidates, but preserve the original destination when safe.
   return pipe(candidates, A.map(normalizeUrlProtocolCandidate), A.some(isUnsafeUrlProtocolDestination))
