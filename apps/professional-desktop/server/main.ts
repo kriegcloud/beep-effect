@@ -43,6 +43,12 @@ const PORT = Effect.runSync(Config.port("CHAT_SIDECAR_PORT").pipe(Config.withDef
 // Transport selector; mirrored by the Rust shell's `CHAT_TRANSPORT` switch.
 const TRANSPORT = Effect.runSync(Config.string("CHAT_TRANSPORT").pipe(Config.withDefault("http")));
 
+// The ChatRpcs handler group backed by the app-local runtime. RuntimeLive fully
+// provides the group (AgentTurnKernel | ThreadStore | UsageRecordSink), so each
+// transport below only adds its own protocol + serialization layers. Shared so the
+// rpc/runtime wiring lives in exactly one place.
+const ChatRpcServer = RpcServer.layer(ChatRpcs).pipe(Layer.provide(RuntimeLive));
+
 // HTTP transport (default): one HttpRouter carries the rpc protocol and the CORS
 // middleware via layer memoization, served by HttpRouter.serve.
 const httpMain = (): Layer.Layer<never> => {
@@ -55,11 +61,7 @@ const httpMain = (): Layer.Layer<never> => {
       allowedHeaders: ["*"],
     }).pipe(Layer.provide(HttpRouter.layer))
   );
-  return RpcServer.layer(ChatRpcs).pipe(
-    // RuntimeLive fully provides the ChatRpcs handler group
-    // (AgentTurnKernel | ThreadStore | UsageRecordSink), so only the rpc/http
-    // transport remains to be added here.
-    Layer.provide(RuntimeLive),
+  return ChatRpcServer.pipe(
     Layer.provideMerge(App),
     Layer.provide(HttpRouter.serve(App)),
     // Bun's default 10s idleTimeout severs streamed responses during the silent
@@ -74,8 +76,7 @@ const httpMain = (): Layer.Layer<never> => {
 // the Tauri Rust shell). Logs are pinned to stderr so they never interleave with
 // the stdout frame stream the bridge parses.
 const ipcMain = (): Layer.Layer<never> =>
-  RpcServer.layer(ChatRpcs).pipe(
-    Layer.provide(RuntimeLive),
+  ChatRpcServer.pipe(
     Layer.provide(RpcServer.layerProtocolStdio),
     Layer.provide(SidecarStdioLive),
     Layer.provide(RpcSerialization.layerNdjson),
