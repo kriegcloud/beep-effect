@@ -1,7 +1,7 @@
 # Reference: Implementation Surface
 
 Read-only synthesis (2026-06-20) of the code this packet will change. Paths are
-repo-relative to `/home/elpresidank/YeeBois/projects/beep-effect3`.
+repo-relative to the repository root.
 
 ## 1. Desktop chat app — `apps/professional-desktop`
 

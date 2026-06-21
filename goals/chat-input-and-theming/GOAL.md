@@ -1,6 +1,6 @@
 # GOAL: Green-workbench theming + a feature-flagged rich chat input
 
-Repo root (this clone): `/home/elpresidank/YeeBois/projects/beep-effect3`.
+All paths in this packet are repo-relative to the repository root.
 
 Outcome: `apps/professional-desktop` launches with a green "workbench" theme
 (near-black green dark + green/parchment light) following the OS preference with a
