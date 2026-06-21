@@ -1,0 +1,44 @@
+{
+  // Lint-only oxlint lane (P3). Biome stays the formatter + primary linter; oxlint runs ONLY
+  // the @beep/lint-rules custom plugin for the stateful/path-aware rules that GritQL cannot
+  // express. No native oxlint rule categories are enabled, to avoid overlap with Biome.
+  // Severity is per-rule: the two zero-violation rules are mandatory (error); the three with
+  // an existing cleanup backlog ship advisory (warn). Promoting the advisory rules + adding
+  // lint:oxlint to a blocking CI lane is tracked in the SPEC exception ledger (re-assess
+  // 2026-09-20).
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": [],
+  "categories": {
+    "correctness": "off",
+    "suspicious": "off",
+    "perf": "off",
+    "style": "off",
+    "pedantic": "off",
+    "restriction": "off",
+    "nursery": "off"
+  },
+  "jsPlugins": ["./packages/tooling/policy-pack/lint-rules/src/rules/index.ts"],
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/build/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/.turbo/**",
+    "**/coverage/**",
+    "**/generated/**",
+    "**/*.gen.*",
+    ".repos/**",
+    "docs/generated/**",
+    "**/scripts/**",
+    "goals/**",
+    "explorations/**",
+    "packages/tooling/policy-pack/lint-rules/src/rules/**"
+  ],
+  "rules": {
+    "beep/no-opaque-instance-fields": "error",
+    "beep/no-manual-effect-runtime-in-tests": "warn",
+    "beep/namespace-node-imports": "warn",
+    "beep/no-global-process-runtime": "warn",
+    "beep/no-inline-schema-compile": "warn"
+  }
+}

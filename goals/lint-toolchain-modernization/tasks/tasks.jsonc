@@ -78,35 +78,35 @@
       "id": "ltm-010",
       "title": "Wire GritQL into turbo lint inputs + existing CI lint lane (advisory). CLI deprecation/removal coupled to P2 mandatory flip (parity 'run both until accepted')",
       "lane": "ci",
-      "status": "in-progress",
+      "status": "done",
       "proof": ["turbo.json"]
     },
     {
       "id": "ltm-011",
       "title": "P2: flip clean rules to error (noVar/no-native-error/no-empty-named-blocks/prefer-array-flat-map; 0 violations); keep no-bigint/noConsole/noUselessConstructor advisory (documented divergences); remove tooling-tagged-errors",
       "lane": "remediation",
-      "status": "in-progress",
+      "status": "done",
       "proof": ["bun run lint", "bun run beep yeet verify"]
     },
     {
       "id": "ltm-012",
       "title": "P3a: rebuild t3code LEGACY_BASELINE + host-process path for beep tree",
       "lane": "oxlint",
-      "status": "pending",
-      "proof": ["packages/tooling/policy-pack/lint-rules/oxlint"]
+      "status": "done",
+      "proof": ["packages/tooling/policy-pack/lint-rules/src/rules"]
     },
     {
       "id": "ltm-013",
       "title": "P3: add oxlint lint-only lane + port 4 t3code rules; advisory->mandatory",
       "lane": "oxlint",
-      "status": "pending",
+      "status": "done",
       "proof": [".oxlintrc.json", "bun run lint:oxlint"]
     },
     {
       "id": "ltm-014",
       "title": "P4 close: reflection + status updates + reflection-artifacts lint",
       "lane": "close",
-      "status": "pending",
+      "status": "done",
       "proof": ["bun run beep lint reflection-artifacts"]
     }
   ]

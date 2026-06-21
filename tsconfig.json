@@ -1293,6 +1293,9 @@
       ],
       "@beep/lint-rules/services": [
         "./packages/tooling/policy-pack/lint-rules/configs/services.jsonc"
+      ],
+      "@beep/lint-rules/oxlint": [
+        "./packages/tooling/policy-pack/lint-rules/src/rules/index.ts"
       ]
     }
   }

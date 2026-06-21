@@ -21,16 +21,20 @@
     "audit": "bun run --if-present beep:audit"
   },
   "devDependencies": {
+    "@beep/utils": "workspace:^",
     "@biomejs/biome": "catalog:",
     "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
+    "@oxlint/plugins": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native-preview": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "oxlint": "catalog:"
   },
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./oxlint": "./src/rules/index.ts",
     "./recommended": "./configs/core.jsonc",
     "./core": "./configs/core.jsonc",
     "./schema": "./configs/schema.jsonc",

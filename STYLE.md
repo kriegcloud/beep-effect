@@ -29,8 +29,8 @@ exactly, and a whole-repo reformat is out of scope.
 | `no-import-from-barrel-package` | forbid barrel/root package imports | not ported | skipped | `CLAUDE.md` deliberately allows root `effect` imports for core combinators; `laws effect-imports` already owns beep's import discipline (with `--write` remediation). |
 | `no-js-extension-imports` | mandate `.ts` extension in relative imports | not ported | skipped | beep's `tsconfig.base.json` uses `module/moduleResolution: NodeNext`, which **requires** `.js` extensions on relative imports (~838 in-tree, all `.js`); porting would flag correct, required imports. |
 | `jsdocs` | effect-smol JSDoc shape rule | not ported | skipped | beep has its own JSDoc tooling (`quality jsdoc-inventory`, jsdoc skills). |
-| `no-opaque-instance-fields` | no instance members on `Schema.Opaque` classes | deferred to P3 oxlint | deferred | needs import-binding + static-vs-instance member scope; GritQL cannot express it cleanly. effect-smol's own implementation is an oxlint ESTree rule — beep ports it faithfully in the P3 oxlint lane. |
-| `import/no-duplicates`, `import/no-self-import` | one import per module / no self-import | deferred to P3 oxlint | deferred | no Biome builtin; need multi-import / current-package scope (oxlint `import` plugin). |
+| `no-opaque-instance-fields` | no instance members on `Schema.Opaque` classes | **implemented (P3 oxlint, mandatory)** | done | Ported to the P3 oxlint lane as `beep/no-opaque-instance-fields` (needs import-binding + static-vs-instance member scope that GritQL can't express). 0 violations across beep's 114 `S.Opaque` classes → `error`. See "oxlint lane" below. |
+| `import/no-duplicates`, `import/no-self-import` | one import per module / no self-import | not enabled | skipped | These are oxlint's **native `import`-plugin** rules, not custom; enabling native oxlint rule categories would overlap/conflict with Biome (the primary linter). The P3 oxlint lane runs ONLY beep's custom plugin, so these stay disabled. |
 | `no-bigint-literals` | forbid bigint literals | enabled, **advisory only** (src-scoped) | advisory (kept) | P2 verdict: the in-tree bigint literals are **intentional domain values** — `Match.when(1n, ...)` version discriminators, `1n << 32n` id seeds — not just test data. Forcing `BigInt(1)` is more verbose and less readable. Scoped to `**/src/**` (excludes test/`LiteralKit` data); kept `warn` (not mandatory) like `no-js-extension-imports`, because the literals beep writes are correct. |
 | `noConsole` | disallow `console` | enabled, **advisory only** | advisory (kept) | P2 verdict: enforcing repo-wide as `error` is a large, separate effort (~118 sites) and much `console` use is legitimate (CLI output, scripts, diagnostics already allowlisted). Kept `warn` pending a dedicated logging-migration initiative. |
 | `noUselessConstructor` | no useless constructors | enabled, **advisory only** | advisory (kept) | P2 verdict: the flagged constructors carry typed parameters / DI shape (e.g. `chalk` `ChalkValue(_options?: ...)`) that are not safely removable without changing call-site types. Kept `warn`. |
@@ -63,3 +63,28 @@ table above for why).
 | `no-useless-constructor` | Biome `complexity/noUselessConstructor` | enabled, advisory (kept — see divergences) |
 | bigint literals | GritQL `no-bigint-literals` (src-scoped) | enabled, advisory (kept — intentional domain values) |
 | PascalCase tooling filenames | Biome `style/useFilenamingConvention` (scoped) | not migrated — the current `lint tooling-schema-first` filename check flags compound-extension files (`X.command.ts`) which `useFilenamingConvention` cannot reproduce without rewriting the convention; kept in ts-morph |
+
+## oxlint lane (P3)
+
+oxlint is added **lint-only** (Biome stays the formatter + primary linter). The root
+`.oxlintrc.json` runs ONLY the `@beep/lint-rules` custom plugin (`jsPlugins`) — no native
+oxlint rule categories, to avoid overlap with Biome. These 5 stateful/path-aware rules
+(which GritQL cannot express) are ported as oxlint ESTree plugins under
+`packages/tooling/policy-pack/lint-rules/src/rules/`, run via `bun run lint:oxlint`:
+
+The lane runs native oxlint categories **off** (`categories: all off`) so only the custom
+`beep/*` rules fire; `scripts/`, `goals/`, and `explorations/` are excluded (operational
+code, not the rules' target). `bun run lint:oxlint` exits 0 today.
+
+| Rule | Source | beep violations | Severity |
+| --- | --- | --- | --- |
+| `no-opaque-instance-fields` | effect-smol v4 | 0 | **error** (mandatory) |
+| `namespace-node-imports` | t3code | 53 | warn (advisory — `node:` import-style cleanup) |
+| `no-inline-schema-compile` | t3code | 19 | warn (advisory — hot-path hoisting) |
+| `no-manual-effect-runtime-in-tests` | t3code (76 `packages`/`apps` test files baselined) | 9 (`infra/test`, not yet baselined) | warn (advisory — promote to `error` once the baseline covers `infra`) |
+| `no-global-process-runtime` | t3code (host file re-pointed to `chalk/.../SupportsColor.ts`) | 5 | warn (advisory) |
+
+oxlint custom JS plugins are stable on Linux (spike confirmed; no alpha breakage), so the
+lane is real — not "complete-with-exception." Promotion of the 4 advisory rules to `error`
+(and adding `lint:oxlint` to a blocking CI lane) is tracked by the SPEC exception ledger's
+**2026-09-20** re-assessment.

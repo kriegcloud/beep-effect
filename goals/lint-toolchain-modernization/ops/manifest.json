@@ -3,14 +3,14 @@
   "initiative": {
     "id": "lint-toolchain-modernization",
     "title": "Lint Toolchain Modernization",
-    "status": "active",
+    "status": "completed-retained",
     "created": "2026-06-20",
     "updated": "2026-06-21",
-    "currentPhase": "P2",
+    "currentPhase": "P4",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/lint-toolchain-modernization",
-  "lifecycle": "active",
+  "lifecycle": "completed-retained",
   "executionCapable": true,
   "reflectionRequired": true,
   "ownership": {
@@ -69,18 +69,20 @@
     {
       "id": "P2",
       "name": "Remediation",
-      "status": "in-progress",
-      "evidence": "noVar/no-native-error/no-empty-named-blocks/prefer-array-flat-map flipped to error (0 violations); no-bigint-literals/noConsole/noUselessConstructor kept advisory (documented); tooling-tagged-errors removed"
+      "status": "done",
+      "evidence": "PR #274 + #275 merged. noVar/no-native-error/no-empty-named-blocks/prefer-array-flat-map flipped to error (0 violations); no-bigint-literals/noConsole/noUselessConstructor kept advisory (documented divergences); tooling-tagged-errors removed"
     },
     {
       "id": "P3",
       "name": "Oxlint lint-only lane",
-      "status": "pending"
+      "status": "done",
+      "evidence": "oxlint lint-only lane live: 5 rules ported to packages/tooling/policy-pack/lint-rules/src/rules (effect-first, effect Hash collections, @beep/utils reuse). no-opaque-instance-fields mandatory (error, 0 violations); namespace-node-imports/no-inline-schema-compile/no-manual-effect-runtime-in-tests/no-global-process-runtime advisory (86 warnings). bun run lint:oxlint exits 0. oxlint custom plugins stable on Linux; advisory->mandatory promotion tracked for 2026-09-20."
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "done",
+      "evidence": "Closeout reflection at history/reflections/2026-06-21-claude.md; bun run beep lint reflection-artifacts passes (blocking_findings=0)."
     }
   ],
   "verificationCommands": [
