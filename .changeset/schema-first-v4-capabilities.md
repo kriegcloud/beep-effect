@@ -8,6 +8,8 @@
 "@beep/acp": patch
 "@beep/architecture-lab-server": patch
 "@beep/libpff": patch
+"@beep/identity": patch
+"@beep/lexical-schema": patch
 "@beep/md": patch
 "@beep/nlp": patch
 "@beep/observability": patch
@@ -36,3 +38,9 @@ Also keeps the schema and shared config surfaces compatible with the current
 Effect 4 and Next 16 dependency stack by restoring strict file-name diagnostics,
 validating record keys before package-json/RDF namespace decoding, and adapting
 the Serwist Next.js plugin wrapper across nested Next.js type identities.
+
+Also records the rich-text/identity public-surface tightening in this change
+set: Lexical and Markdown schema guards now reject impossible serialized values
+at the boundary, invalid artifact/code-fence metadata degrades through the
+document projection path, and deleted workspace identity composers are removed
+from the generated `@beep/identity` package composer surface.

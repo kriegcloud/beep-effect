@@ -71,6 +71,7 @@ const firstOrdinal = PosInt.make(1);
 const noTableCellHeader = 0 satisfies TableCellHeaderState;
 const rowTableCellHeader = 1 satisfies TableCellHeaderState;
 const decodeArtifactRefIdOption = S.decodeUnknownOption(ArtifactRefId);
+const decodeCodeFenceLanguageOption = S.decodeUnknownOption(Md.CodeFenceLanguage);
 
 const elementDefaults = {
   version: lexicalNodeVersion,
@@ -325,6 +326,9 @@ const paragraphArtifactRef = (
   });
 };
 
+const codeFenceLanguageOption = (language: O.Option<string>): O.Option<Md.CodeFenceLanguage> =>
+  O.flatMap(language, decodeCodeFenceLanguageOption);
+
 /**
  * Lift one Md block into its serialized Lexical node.
  *
@@ -394,7 +398,7 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
         (children) =>
           CodeNode.makeEffect({
             ...elementDefaults,
-            language: node.language,
+            language: codeFenceLanguageOption(node.language),
             theme: O.none(),
             children,
           })

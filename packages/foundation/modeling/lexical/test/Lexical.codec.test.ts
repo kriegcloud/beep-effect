@@ -96,6 +96,44 @@ describe("Lexical.codec", () => {
     expect(roundTrip(document)).toEqual(document);
   });
 
+  it("keeps malformed artifact:// links as normal Markdown links", () => {
+    const invalidArtifactLink = MdModel.P.make({
+      children: [MdModel.A.make({ href: `${ARTIFACT_URI_PREFIX}bad id`, children: [mdText("Legacy artifact")] })],
+    });
+
+    const node = Effect.runSync(blockToLexical(invalidArtifactLink));
+    expect(node.type).toBe("paragraph");
+    if (node.type === "paragraph") {
+      expect(node.children[0]).toMatchObject({ type: "link", url: `${ARTIFACT_URI_PREFIX}bad id` });
+    }
+
+    expect(roundTrip(MdModel.Document.make({ children: [invalidArtifactLink] }))).toEqual(
+      MdModel.Document.make({ children: [invalidArtifactLink] })
+    );
+  });
+
+  it("drops invalid legacy code-fence languages during Lexical projection", () => {
+    const invalidLanguage = MdModel.Pre.make({ value: "console.log('beep')", language: O.some("ts bad") });
+    const validLanguage = MdModel.Pre.make({ value: "console.log('beep')", language: O.some("ts") });
+
+    const invalidNode = Effect.runSync(blockToLexical(invalidLanguage));
+    expect(invalidNode.type).toBe("code");
+    if (invalidNode.type === "code") {
+      expect(invalidNode.language).toEqual(O.none());
+    }
+
+    const validNode = Effect.runSync(blockToLexical(validLanguage));
+    if (validNode.type === "code") {
+      expect(validNode.language).toEqual(O.some("ts"));
+    }
+
+    expect(roundTrip(MdModel.Document.make({ children: [invalidLanguage] }))).toEqual(
+      MdModel.Document.make({
+        children: [MdModel.Pre.make({ value: "console.log('beep')", language: O.none() })],
+      })
+    );
+  });
+
   it("drops Lexical-only text format bits (underline) per the lossiness profile", () => {
     const state = S.decodeUnknownSync(SerializedEditorState)({
       root: {
