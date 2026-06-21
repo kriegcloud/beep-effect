@@ -72,16 +72,14 @@ const parseReport = (stdout: string) => decodeReport(stdout).pipe(Effect.orElseS
 export const runRule = Effect.fn("harness.runRule")(function* (ruleName: RuleName, source: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-
-  const tempDir = yield* fs.makeTempDirectory({ prefix: "beep-lint-rule-" });
-  const configPath = path.join(tempDir, "biome.json");
-  const sourcePath = path.join(tempDir, "fixture.ts");
   const config = { linter: { enabled: true }, plugins: [rulePath(ruleName)] };
 
   return yield* Effect.acquireUseRelease(
-    Effect.void,
-    () =>
+    fs.makeTempDirectory({ prefix: "beep-lint-rule-" }),
+    (tempDir) =>
       Effect.gen(function* () {
+        const configPath = path.join(tempDir, "biome.json");
+        const sourcePath = path.join(tempDir, "fixture.ts");
         yield* fs.writeFileString(configPath, `${encodeConfig(config)}\n`);
         yield* fs.writeFileString(sourcePath, `${source}\n`);
 
@@ -113,6 +111,6 @@ export const runRule = Effect.fn("harness.runRule")(function* (ruleName: RuleNam
 
         return { status: exitCode, diagnostics } as const;
       }),
-    () => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
   );
 });

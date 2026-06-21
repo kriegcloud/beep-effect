@@ -11,8 +11,8 @@ Rule-by-rule routing for the initiative. **Engine**: `gritql` (Biome plugin, P1)
 | --- | --- | --- | --- | --- |
 | `lint tooling-tagged-errors` | ts-morph regex (`new Error`) | **gritql** | high | Cleanest port; match `new Error(...)`, suggest tagged error. ~40 LoC removed. |
 | `lint tooling-schema-first` (filename checks only) | ts-morph + regex | **gritql** | high | Split the PascalCase/index-bin filename check into a GritQL rule; keep the pattern/inventory checks in ts-morph. |
-| `laws effect-fn --check` | ts-morph Project | **gritql** | medium | Match `function*` decls + `Effect.fn.Return<…>` JSDoc; syntactic. JSDoc parsing is the risk. |
-| `laws effect-imports --check` (lint path) | ts-morph Project + rewrite | **gritql** (lint) | medium | GritQL for the *diagnostic*; keep `laws effect-imports --write` (ts-morph) for remediation. |
+| `laws effect-fn --check` | ts-morph Project | **keep-tsmorph** (P1 verdict) | ~~medium~~ | **Not migrated.** P1 GritQL spike produced 51 false positives in `packages/foundation` (precise check finds 0) and ~98s runtime on `apps` (`within`-ancestor traversal on the hot `Effect.gen` pattern). Needs direct-return-owner/nearest-owner/generator scope analysis → stays in ts-morph (SPEC Stop Condition). See `STYLE.md`, `p0-spike-result.md`. |
+| `laws effect-imports --check` (lint path) | ts-morph Project + rewrite | **keep-tsmorph** (P1 verdict) | ~~medium~~ | **Not migrated.** Whole-file import consolidation (8-entry alias table, moving named imports root↔submodule) is not a single-file GritQL pattern; the `--write` codemod is also required by `yeet` repair (`Yeet/internal/Planner.ts`) → stays in ts-morph. See `STYLE.md`. |
 | `laws native-runtime --check` | ts-morph + allowlist | **hybrid** | medium | GritQL detects `node:` imports; keep ts-morph for method-call scope + allowlist reconciliation. (Exact name confirmed: `native-runtime`, not `no-native-runtime`.) |
 | `laws dual-arity --check` | ts-morph (types) | keep-tsmorph | high | Needs type info + exception inventory. |
 | `laws terse-effect --check` | ts-morph (scope + rewrite) | keep-tsmorph | high | Multi-node codemods + scope analysis. |

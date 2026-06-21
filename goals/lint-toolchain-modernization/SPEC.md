@@ -123,10 +123,14 @@ A migrated CLI check is removed only after a runnable parity proof, not by inspe
 
 - [ ] `@beep/lint-rules` exists under `packages/tooling/policy-pack/lint-rules`, builds,
       and its rule unit tests pass.
-- [ ] The GritQL-eligible CLI checks (`lint tooling-tagged-errors`, the filename portion
-      of `lint tooling-schema-first`, `laws effect-fn --check`, and `laws effect-imports
-      --check` lint path) are replaced by GritQL rules with proven parity; the superseded
-      CLI commands are removed or marked deprecated and dropped from the lint aggregators.
+- [ ] The GritQL-reproducible CLI checks (`lint tooling-tagged-errors`; the filename
+      portion of `lint tooling-schema-first` via the `useFilenamingConvention` builtin) are
+      replaced with proven parity; the superseded CLI commands are removed or marked
+      deprecated and dropped from the lint aggregators. **`laws effect-fn --check` and
+      `laws effect-imports --check` are NOT migrated** — the P1 spike proved them
+      non-reproducible in GritQL (effect-fn: 51 false positives + ~98s runtime; effect-imports:
+      whole-file consolidation + `--write` needed by yeet). They stay in `ts-morph` per the
+      Stop Conditions, recorded in the Exception Ledger, `STYLE.md`, and `rule-inventory.md`.
 - [ ] `biome.jsonc` enables the full effect-smol-mappable lint-rule set (import discipline,
       `noConsole`, `noVar`, etc.); Biome formatting options are unchanged.
 - [ ] `STYLE.md` documents, with rationale, every deviation in a table (rule | effect-smol
@@ -180,6 +184,7 @@ A migrated CLI check is removed only after a runnable parity proof, not by inspe
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
 | Biome formatting kept (not effect-smol's dprint ASI/`never`) | `biome.jsonc` formatter | repo | Avoids whole-repo reformat; Biome cannot replicate dprint ASI exactly; user decision | Revisit only if a dedicated formatting-parity initiative is opened |
+| `laws effect-fn` + `laws effect-imports` kept in `ts-morph` (not GritQL) | `packages/tooling/tool/cli` | repo | P1 spike: effect-fn GritQL = 51 false positives + ~98s runtime; effect-imports needs whole-file consolidation + a `--write` codemod yeet depends on. Not single-file-reproducible (SPEC Stop Condition). | Revisit only if a type-aware lint engine (e.g. oxlint type-aware) makes faithful single-pass replacement viable |
 | oxlint deferred to P3, advisory-first | CI lint lane | repo | oxlint custom-plugin API is alpha (Windows/type-aware gaps) | Promote to mandatory when "stable" (oxlint lint lane runs green on Linux CI for 3+ consecutive weeks with no custom-plugin-API breakage). Re-assess **2026-09-20**. |
 
 **P3 exit is closeable either way:** (a) oxlint reaches mandatory + green and all four t3code

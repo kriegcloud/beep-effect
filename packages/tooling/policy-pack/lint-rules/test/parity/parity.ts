@@ -30,14 +30,21 @@ export type ViolationKey = string;
 export const oldCliViolations = Effect.fn("parity.oldCliViolations")(function* (args: ReadonlyArray<string>) {
   const path = yield* Path.Path;
 
-  const text = yield* Effect.sync(() => {
+  const { exitCode, text } = yield* Effect.sync((): { readonly exitCode: number | null; readonly text: string } => {
     const result = Bun.spawnSync(["bun", "run", "beep", ...args], {
       cwd: repoRoot,
       stdout: "pipe",
       stderr: "pipe",
     });
-    return `${result.stdout.toString()}${result.stderr.toString()}`;
+    return { exitCode: result.exitCode, text: `${result.stdout.toString()}${result.stderr.toString()}` };
   });
+
+  // A normal non-zero exit is expected (the beep CLI returns 1 when it finds
+  // violations); only a `null` exitCode means the process never spawned, which would
+  // otherwise let an empty output silently false-pass the ∅⊆∅ parity assertion.
+  if (exitCode === null) {
+    return yield* Effect.die(`parity: \`bun run beep ${args.join(" ")}\` failed to spawn`);
+  }
 
   const keys = new Set<ViolationKey>();
   const re = /^([^\s:]+\.[cm]?tsx?):(\d+)/gm;
@@ -82,9 +89,6 @@ export const newRuleViolations = Effect.fn("parity.newRuleViolations")(function*
 ) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-
-  const tempDir = yield* fs.makeTempDirectory({ prefix: "beep-parity-" });
-  const configPath = path.join(tempDir, "biome.json");
   const config = {
     linter: { enabled: true },
     files: {
@@ -101,26 +105,36 @@ export const newRuleViolations = Effect.fn("parity.newRuleViolations")(function*
   };
 
   return yield* Effect.acquireUseRelease(
-    Effect.void,
-    () =>
+    fs.makeTempDirectory({ prefix: "beep-parity-" }),
+    (tempDir) =>
       Effect.gen(function* () {
+        const configPath = path.join(tempDir, "biome.json");
         yield* fs.writeFileString(configPath, `${encodeConfig(config)}\n`);
 
-        const stdout = yield* Effect.sync(() => {
-          const result = Bun.spawnSync(
-            [
-              "bunx",
-              "biome",
-              "lint",
-              "--reporter=json",
-              "--max-diagnostics=none",
-              `--config-path=${configPath}`,
-              ...roots,
-            ],
-            { cwd: repoRoot, stdout: "pipe", stderr: "pipe" }
-          );
-          return result.stdout.toString();
-        });
+        const { exitCode, stdout } = yield* Effect.sync(
+          (): { readonly exitCode: number | null; readonly stdout: string } => {
+            const result = Bun.spawnSync(
+              [
+                "bunx",
+                "biome",
+                "lint",
+                "--reporter=json",
+                "--max-diagnostics=none",
+                `--config-path=${configPath}`,
+                ...roots,
+              ],
+              { cwd: repoRoot, stdout: "pipe", stderr: "pipe" }
+            );
+            return { exitCode: result.exitCode, stdout: result.stdout.toString() };
+          }
+        );
+
+        // Biome exits 0 (warn) or 1 (error) for findings — both expected. Only a `null`
+        // exitCode means biome never spawned, which would let empty output silently
+        // false-pass the ∅⊆∅ parity assertion.
+        if (exitCode === null) {
+          return yield* Effect.die(`parity: \`bunx biome lint ${roots.join(" ")}\` failed to spawn`);
+        }
 
         const keys = new Set<ViolationKey>();
         const report = yield* parseReport(stdout);
@@ -134,7 +148,7 @@ export const newRuleViolations = Effect.fn("parity.newRuleViolations")(function*
         }
         return keys as ReadonlySet<ViolationKey>;
       }),
-    () => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
   );
 });
 
