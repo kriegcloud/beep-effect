@@ -16,6 +16,7 @@
 import { rulePath } from "@beep/lint-rules";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as S from "effect/Schema";
+import { encodeConfig, jsonReportParser } from "./codec.ts";
 import type { RuleName } from "@beep/lint-rules";
 
 /** Absolute path to the package root (`.../lint-rules`). */
@@ -56,13 +57,10 @@ const BiomeReport = S.Struct({
   ).pipe(S.optional),
 });
 
-const encodeConfig = S.encodeUnknownSync(S.UnknownFromJsonString);
-const decodeReport = S.decodeUnknownEffect(S.fromJsonString(BiomeReport));
-
 const emptyReport: S.Schema.Type<typeof BiomeReport> = { diagnostics: undefined };
 
 /** Decode Biome's stdout, tolerating non-JSON noise by returning an empty report. */
-const parseReport = (stdout: string) => decodeReport(stdout).pipe(Effect.orElseSucceed(() => emptyReport));
+const parseReport = jsonReportParser(BiomeReport, emptyReport);
 
 /**
  * Lint the given `source` with only `ruleName`'s `.grit` plugin loaded and return the
