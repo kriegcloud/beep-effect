@@ -1,5 +1,5 @@
 import { Md } from "@beep/md";
-import { Block, Document, Inline, Pre, Table, TableCell, TableRow, Text } from "@beep/md/Md.model";
+import { Block, CodeFenceLanguage, Document, Inline, Pre, Table, TableCell, TableRow, Text } from "@beep/md/Md.model";
 import {
   DocumentToHtmlFragment,
   DocumentToMarkdown,
@@ -136,6 +136,8 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
       expect(yield* S.decodeUnknownEffect(Document)(yield* S.encodeEffect(Document)(doc))).toEqual(doc);
       const tsPre = Pre.make({ value: "x", language: O.some("ts") });
       expect(yield* S.decodeUnknownEffect(Pre)(yield* S.encodeEffect(Pre)(tsPre))).toEqual(tsPre);
+      expect(yield* S.decodeUnknownEffect(CodeFenceLanguage)("ts")).toBe("ts");
+      expect(() => S.decodeUnknownSync(Pre)({ _tag: "pre", language: "ts bad", value: "x" })).toThrow();
       expect(yield* S.decodeUnknownEffect(Text)(Text.make({ value: "Hello" }))).toEqual(text);
     })
   );
@@ -336,7 +338,8 @@ ${Md.h3("Inside")}
     expect(renderMarkdownBlock(Md.taskList(["one\ntwo"]))).toBe("- [ ] one\n      two");
     expect(renderMarkdownBlock(Md.blockquote`one\rtwo`)).toBe("> one\n> two");
     expect(renderMarkdownBlock(Md.pre("plain"))).toBe("```\nplain\n```");
-    expect(renderMarkdownBlock(Md.pre("plain", { language: "ts bad" }))).toBe("```\nplain\n```");
+    expect(() => Md.pre("plain", { language: "ts bad" })).toThrow();
+    expect(renderFencedCode("plain", "ts bad")).toBe("```\nplain\n```");
     expect(renderMarkdownBlock(Md.hr)).toBe("---");
 
     expect(renderHtmlBlock(Md.h1("H1"))).toBe("<h1>H1</h1>");
@@ -358,7 +361,7 @@ ${Md.h3("Inside")}
     expect(renderHtmlBlock(Md.pre("<x>", { language: "ts" }))).toBe(
       '<pre><code class="language-ts">&lt;x&gt;</code></pre>'
     );
-    expect(renderHtmlBlock(Md.pre("<x>", { language: "ts bad" }))).toBe("<pre><code>&lt;x&gt;</code></pre>");
+    expect(() => Md.pre("<x>", { language: "ts bad" })).toThrow();
     expect(renderHtmlBlock(Md.pre("<x>"))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.hr)).toBe("<hr />");
   });

@@ -22,23 +22,27 @@ const codexServerToMcpJsonServer = (server: {
 }): McpJsonServer =>
   McpJsonServer.make({
     type: server.url === undefined ? "stdio" : "http",
-    ...O.getSomesStruct({ command: O.fromUndefinedOr(server.command) }),
-    ...O.getSomesStruct({ args: O.fromUndefinedOr(server.args) }),
-    ...O.getSomesStruct({ env: O.fromUndefinedOr(server.env) }),
-    ...O.getSomesStruct({ url: O.fromUndefinedOr(server.url) }),
-    ...O.getSomesStruct({ headers: O.fromUndefinedOr(server.headers) }),
-    ...O.getSomesStruct({ timeout_ms: O.fromUndefinedOr(server.timeout_ms) }),
+    ...O.getSomesStruct({
+      command: O.fromUndefinedOr(server.command),
+      args: O.fromUndefinedOr(server.args),
+      env: O.fromUndefinedOr(server.env),
+      url: O.fromUndefinedOr(server.url),
+      headers: O.fromUndefinedOr(server.headers),
+      timeout_ms: O.fromUndefinedOr(server.timeout_ms),
+    }),
   });
 
 const mcpJsonServerToCodexServer = (server: McpJsonServer): CodexMcpServer =>
-  CodexMcpServer.make({
-    ...O.getSomesStruct({ command: O.fromUndefinedOr(server.command) }),
-    ...O.getSomesStruct({ args: O.fromUndefinedOr(server.args) }),
-    ...O.getSomesStruct({ env: O.fromUndefinedOr(server.env) }),
-    ...O.getSomesStruct({ url: O.fromUndefinedOr(server.url) }),
-    ...O.getSomesStruct({ headers: O.fromUndefinedOr(server.headers) }),
-    ...O.getSomesStruct({ timeout_ms: O.fromUndefinedOr(server.timeout_ms) }),
-  });
+  CodexMcpServer.make(
+    O.getSomesStruct({
+      command: O.fromUndefinedOr(server.command),
+      args: O.fromUndefinedOr(server.args),
+      env: O.fromUndefinedOr(server.env),
+      url: O.fromUndefinedOr(server.url),
+      headers: O.fromUndefinedOr(server.headers),
+      timeout_ms: O.fromUndefinedOr(server.timeout_ms),
+    })
+  );
 
 /**
  * Transform Codex TOML MCP server config into Claude-style `.mcp.json`.

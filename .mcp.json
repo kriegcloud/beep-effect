@@ -10,10 +10,6 @@
       "command": "bunx",
       "args": ["next-devtools-mcp@latest"]
     },
-    "graphiti-memory": {
-      "type": "http",
-      "url": "http://localhost:8123/mcp"
-    },
     "serena": {
       "type": "stdio",
       "command": "serena",

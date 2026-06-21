@@ -16,13 +16,341 @@
  */
 
 import { $LexicalSchemaId } from "@beep/identity/packages";
-import { LiteralKit } from "@beep/schema";
+import * as Md from "@beep/md/Md.model";
+import { LiteralKit, NonNegativeInt, PosInt } from "@beep/schema";
 import { A, O, Str } from "@beep/utils";
 import { SchemaGetter } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import type { CodeFenceLanguage as MdCodeFenceLanguage } from "@beep/md/Md.model";
 import type * as R from "effect/Record";
 
 const $I = $LexicalSchemaId.create("Lexical.model");
+
+const artifactRefIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]*$/u;
+
+/**
+ * Serialized Lexical node version accepted by this package.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const LexicalNodeVersion = S.Literal(1).pipe(
+  $I.annoteSchema("LexicalNodeVersion", {
+    description: "Serialized Lexical node version currently written by built-in v1 nodes.",
+  })
+);
+
+/**
+ * Type for {@link LexicalNodeVersion}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LexicalNodeVersion = typeof LexicalNodeVersion.Type;
+
+/**
+ * Lexical TextFormatType flag values.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextFormatBits = {
+  bold: 1,
+  italic: 1 << 1,
+  strikethrough: 1 << 2,
+  underline: 1 << 3,
+  code: 1 << 4,
+  subscript: 1 << 5,
+  superscript: 1 << 6,
+  highlight: 1 << 7,
+  lowercase: 1 << 8,
+  uppercase: 1 << 9,
+  capitalize: 1 << 10,
+} as const;
+
+/**
+ * Reusable literal domain for individual Lexical text format bits.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextFormatBit = LiteralKit([
+  TextFormatBits.bold,
+  TextFormatBits.italic,
+  TextFormatBits.strikethrough,
+  TextFormatBits.underline,
+  TextFormatBits.code,
+  TextFormatBits.subscript,
+  TextFormatBits.superscript,
+  TextFormatBits.highlight,
+  TextFormatBits.lowercase,
+  TextFormatBits.uppercase,
+  TextFormatBits.capitalize,
+]).pipe(
+  $I.annoteSchema("TextFormatBit", {
+    description: "One Lexical TextFormatType bit value.",
+  })
+);
+
+/**
+ * Type for {@link TextFormatBit}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TextFormatBit = typeof TextFormatBit.Type;
+
+/**
+ * Bitwise union of every known Lexical text-format bit.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const TEXT_FORMAT_MASK_ALL =
+  TextFormatBits.bold |
+  TextFormatBits.italic |
+  TextFormatBits.strikethrough |
+  TextFormatBits.underline |
+  TextFormatBits.code |
+  TextFormatBits.subscript |
+  TextFormatBits.superscript |
+  TextFormatBits.highlight |
+  TextFormatBits.lowercase |
+  TextFormatBits.uppercase |
+  TextFormatBits.capitalize;
+
+const TextFormatMaskBase = NonNegativeInt.check(
+  S.isLessThanOrEqualTo(TEXT_FORMAT_MASK_ALL, {
+    identifier: $I`TextFormatMaskKnownBitsCheck`,
+    title: "Text Format Mask",
+    description: "A Lexical text format bitmask containing only known TextFormatType bits.",
+    message: "Text format mask must contain only known Lexical TextFormatType bits.",
+  })
+).pipe(
+  S.brand("TextFormatMask"),
+  $I.annoteSchema("TextFormatMask", {
+    description: "Non-negative Lexical TextFormatType bitmask containing only known formatting bits.",
+  })
+);
+
+/**
+ * Branded Lexical TextFormatType bitmask.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextFormatMask = TextFormatMaskBase;
+
+/**
+ * Type for {@link TextFormatMask}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TextFormatMask = typeof TextFormatMask.Type;
+
+/**
+ * Returns whether a Lexical text-format mask contains a specific flag.
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const hasTextFormat: {
+  (bit: TextFormatBit): (format: TextFormatMask) => boolean;
+  (format: TextFormatMask, bit: TextFormatBit): boolean;
+} = dual(2, (format: TextFormatMask, bit: TextFormatBit): boolean => (format & bit) === bit);
+
+/**
+ * Adds a Lexical text-format bit and rebrands the resulting valid mask.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const withTextFormat: {
+  (bit: TextFormatBit): (format: TextFormatMask) => TextFormatMask;
+  (format: TextFormatMask, bit: TextFormatBit): TextFormatMask;
+} = dual(2, (format: TextFormatMask, bit: TextFormatBit): TextFormatMask => TextFormatMask.make(format | bit));
+
+/**
+ * Lexical TextDetailType flag values.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextDetailBits = {
+  directionless: 1,
+  unmergeable: 1 << 1,
+} as const;
+
+/**
+ * Reusable literal domain for individual Lexical text detail bits.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextDetailBit = LiteralKit([TextDetailBits.directionless, TextDetailBits.unmergeable]).pipe(
+  $I.annoteSchema("TextDetailBit", {
+    description: "One Lexical TextDetailType bit value.",
+  })
+);
+
+/**
+ * Type for {@link TextDetailBit}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TextDetailBit = typeof TextDetailBit.Type;
+
+/**
+ * Bitwise union of every known Lexical text-detail bit.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const TEXT_DETAIL_MASK_ALL = TextDetailBits.directionless | TextDetailBits.unmergeable;
+
+const TextDetailMaskBase = NonNegativeInt.check(
+  S.isLessThanOrEqualTo(TEXT_DETAIL_MASK_ALL, {
+    identifier: $I`TextDetailMaskKnownBitsCheck`,
+    title: "Text Detail Mask",
+    description: "A Lexical text detail bitmask containing only known TextDetailType bits.",
+    message: "Text detail mask must contain only known Lexical TextDetailType bits.",
+  })
+).pipe(
+  S.brand("TextDetailMask"),
+  $I.annoteSchema("TextDetailMask", {
+    description: "Non-negative Lexical TextDetailType bitmask containing only known detail bits.",
+  })
+);
+
+/**
+ * Branded Lexical TextDetailType bitmask.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TextDetailMask = TextDetailMaskBase;
+
+/**
+ * Type for {@link TextDetailMask}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TextDetailMask = typeof TextDetailMask.Type;
+
+/**
+ * Non-negative Lexical indentation depth.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const LexicalIndentDepth = NonNegativeInt.pipe(
+  S.brand("LexicalIndentDepth"),
+  $I.annoteSchema("LexicalIndentDepth", {
+    description: "Non-negative Lexical indentation depth.",
+  })
+);
+
+/**
+ * Type for {@link LexicalIndentDepth}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type LexicalIndentDepth = typeof LexicalIndentDepth.Type;
+
+/**
+ * Lexical table cell header-state bitmask.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TableCellHeaderState = LiteralKit([0, 1, 2, 3]).pipe(
+  $I.annoteSchema("TableCellHeaderState", {
+    description: "Lexical table cell header-state bitmask: 0 none, 1 row, 2 column, 3 both.",
+  })
+);
+
+/**
+ * Type for {@link TableCellHeaderState}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TableCellHeaderState = typeof TableCellHeaderState.Type;
+
+/**
+ * Positive span count for merged Lexical table cells.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TableCellSpan = PosInt.pipe(
+  S.brand("TableCellSpan"),
+  $I.annoteSchema("TableCellSpan", {
+    description: "Positive row or column span for a Lexical table cell.",
+  })
+);
+
+/**
+ * Type for {@link TableCellSpan}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TableCellSpan = typeof TableCellSpan.Type;
+
+/**
+ * Non-negative pixel-like table dimension emitted by Lexical table nodes.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const TableDimension = NonNegativeInt.pipe(
+  S.brand("TableDimension"),
+  $I.annoteSchema("TableDimension", {
+    description: "Non-negative table dimension emitted by Lexical table nodes.",
+  })
+);
+
+/**
+ * Type for {@link TableDimension}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TableDimension = typeof TableDimension.Type;
+
+/**
+ * Package-owned artifact reference id used by `artifact-ref` decorator nodes.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ArtifactRefId = S.NonEmptyString.check(
+  S.isPattern(artifactRefIdPattern, {
+    identifier: $I`ArtifactRefIdPatternCheck`,
+    title: "Artifact Reference ID",
+    description: "An artifact id that can be embedded in the artifact:// Markdown projection.",
+    message:
+      "Artifact reference id must start with an alphanumeric character and contain only alphanumerics, _, ., :, or -.",
+  })
+).pipe(
+  $I.annoteSchema("ArtifactRefId", {
+    description: "Non-empty artifact reference id accepted by package-owned Lexical artifact-ref nodes.",
+  })
+);
+
+/**
+ * Type for {@link ArtifactRefId}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ArtifactRefId = typeof ArtifactRefId.Type;
 
 /**
  * `ElementFormatType` from lexical.
@@ -377,7 +705,7 @@ export const SafeStyleValue: S.decodeTo<S.toType<S.String>, S.String> = S.String
  */
 export class BaseNode extends S.Class<BaseNode>($I`BaseNode`)(
   {
-    version: S.Finite.annotateKey({
+    version: LexicalNodeVersion.annotateKey({
       description: "Serialized Lexical node schema version; Lexical currently writes version 1 for built-in nodes.",
     }),
     $: S.Record(S.String, S.Unknown).pipe(
@@ -408,7 +736,7 @@ export declare namespace BaseNode {
    */
   export interface Type {
     readonly $: O.Option<R.ReadonlyRecord<string, unknown>>;
-    readonly version: number;
+    readonly version: LexicalNodeVersion;
   }
 
   /**
@@ -462,8 +790,8 @@ export class ElementNode extends BaseNode.extend<ElementNode>($I`ElementNode`)(
       description: "Optional text direction decoded from Lexical's nullable direction field.",
     }),
     format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the element." }),
-    indent: S.Finite.annotateKey({ description: "Lexical indentation depth for nested block layout." }),
-    textFormat: S.Finite.pipe(
+    indent: LexicalIndentDepth.annotateKey({ description: "Lexical indentation depth for nested block layout." }),
+    textFormat: TextFormatMask.pipe(
       S.OptionFromOptionalKey,
       S.annotateKey({
         description: "Optional TextFormatType bitmask applied to newly inserted text within the element.",
@@ -499,8 +827,8 @@ export declare namespace ElementNode {
     readonly children: ReadonlyArray<LexicalNode.Type>;
     readonly direction: O.Option<Direction>;
     readonly format: ElementFormat;
-    readonly indent: number;
-    readonly textFormat: O.Option<number>;
+    readonly indent: LexicalIndentDepth;
+    readonly textFormat: O.Option<TextFormatMask>;
     readonly textStyle: O.Option<string>;
   }
 
@@ -538,8 +866,8 @@ export declare namespace ElementNode {
  */
 export class TextBase extends BaseNode.extend<TextBase>($I`TextBase`)(
   {
-    detail: S.Finite.annotateKey({ description: "TextDetailType bitmask." }),
-    format: S.Finite.annotateKey({
+    detail: TextDetailMask.annotateKey({ description: "TextDetailType bitmask." }),
+    format: TextFormatMask.annotateKey({
       description: "TextFormatType bitmask (bold=1, italic=2, strikethrough=4, code=16).",
     }),
     mode: TextMode.annotateKey({ description: "Text node mode." }),
@@ -565,8 +893,8 @@ export declare namespace TextBase {
    * @since 0.0.0
    */
   export interface Type extends BaseNode.Type {
-    readonly detail: number;
-    readonly format: number;
+    readonly detail: TextDetailMask;
+    readonly format: TextFormatMask;
     readonly mode: TextMode;
     readonly style: string;
     readonly text: string;
@@ -1009,7 +1337,7 @@ export class ListNode extends ElementNode.extend<ListNode>($I`ListNode`)(
   {
     type: S.tag("list"),
     listType: ListType.annotateKey({ description: "List semantics." }),
-    start: S.Finite.annotateKey({ description: "Starting number for ordered lists." }),
+    start: PosInt.annotateKey({ description: "Starting number for ordered lists." }),
     tag: ListTag.annotateKey({ description: "HTML list tag." }),
   },
   $I.annote("ListNode", { description: "A serialized Lexical list element node." })
@@ -1038,7 +1366,7 @@ export declare namespace ListNode {
    */
   export interface Type extends ElementNode.Type {
     readonly listType: ListType;
-    readonly start: number;
+    readonly start: PosInt;
     readonly tag: ListTag;
     readonly type: "list";
   }
@@ -1077,7 +1405,7 @@ export class ListItemNode extends ElementNode.extend<ListItemNode>($I`ListItemNo
     checked: S.OptionFromOptional(S.Boolean).annotateKey({
       description: "Checkbox state for check lists; absent otherwise.",
     }),
-    value: S.Finite.annotateKey({ description: "Ordinal value within the list." }),
+    value: PosInt.annotateKey({ description: "Ordinal value within the list." }),
   },
   $I.annote("ListItemNode", { description: "A serialized Lexical list-item element node." })
 ) {
@@ -1106,7 +1434,7 @@ export declare namespace ListItemNode {
   export interface Type extends ElementNode.Type {
     readonly checked: O.Option<boolean>;
     readonly type: "listitem";
-    readonly value: number;
+    readonly value: PosInt;
   }
 
   /**
@@ -1207,7 +1535,7 @@ export declare namespace LinkNode {
 export class CodeNode extends ElementNode.extend<CodeNode>($I`CodeNode`)(
   {
     type: S.tag("code"),
-    language: S.OptionFromOptionalNullOr(S.String).annotateKey({
+    language: S.OptionFromOptionalNullOr(Md.CodeFenceLanguage).annotateKey({
       description: "Optional code-fence language identifier.",
     }),
     theme: S.OptionFromOptional(S.String).annotateKey({ description: "Optional code highlight theme." }),
@@ -1237,7 +1565,7 @@ export declare namespace CodeNode {
    * @since 0.0.0
    */
   export interface Type extends ElementNode.Type {
-    readonly language: O.Option<string>;
+    readonly language: O.Option<MdCodeFenceLanguage>;
     readonly theme: O.Option<string>;
     readonly type: "code";
   }
@@ -1277,8 +1605,8 @@ export declare namespace CodeNode {
 export class ArtifactRefNode extends BaseNode.extend<ArtifactRefNode>($I`ArtifactRefNode`)(
   {
     type: S.tag("artifact-ref"),
-    artifactId: S.String.annotateKey({ description: "Identifier of the referenced runtime artifact." }),
-    label: S.OptionFromOptionalKey(S.String).annotateKey({
+    artifactId: ArtifactRefId.annotateKey({ description: "Identifier of the referenced runtime artifact." }),
+    label: S.OptionFromOptionalKey(S.NonEmptyString).annotateKey({
       description: "Optional human-readable label; defaults to the artifact id when absent.",
     }),
   },
@@ -1307,7 +1635,7 @@ export declare namespace ArtifactRefNode {
    * @since 0.0.0
    */
   export interface Type extends BaseNode.Type {
-    readonly artifactId: string;
+    readonly artifactId: ArtifactRefId;
     readonly label: O.Option<string>;
     readonly type: "artifact-ref";
   }
@@ -1348,7 +1676,9 @@ export declare namespace ArtifactRefNode {
 export class YouTubeNode extends BaseNode.extend<YouTubeNode>($I`YouTubeNode`)(
   {
     type: S.tag("youtube"),
-    videoID: S.String.annotateKey({ description: "The bare YouTube video id rendered by the decorator block." }),
+    videoID: Md.YouTubeVideoId.annotateKey({
+      description: "The bare YouTube video id rendered by the decorator block.",
+    }),
     format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the embed." }),
   },
   $I.annote("YouTubeNode", { description: "A serialized YouTube decorator block node." })
@@ -1410,18 +1740,18 @@ export declare namespace YouTubeNode {
 export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCellNode`)(
   {
     type: S.tag("tablecell"),
-    headerState: S.Finite.annotateKey({
+    headerState: TableCellHeaderState.annotateKey({
       description: "TableCellHeaderState bitmask: 0 none, 1 row header, 2 column header, 3 both.",
     }),
-    colSpan: S.Finite.pipe(
+    colSpan: TableCellSpan.pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional colspan for merged table cells." })
     ),
-    rowSpan: S.Finite.pipe(
+    rowSpan: TableCellSpan.pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional rowspan for merged table cells." })
     ),
-    width: S.Finite.pipe(
+    width: TableDimension.pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional cell width emitted by Lexical table nodes." })
     ),
@@ -1464,12 +1794,12 @@ export declare namespace TableCellNode {
    */
   export interface Type extends ElementNode.Type {
     readonly backgroundColor: O.Option<string | null>;
-    readonly colSpan: O.Option<number>;
-    readonly headerState: number;
-    readonly rowSpan: O.Option<number>;
+    readonly colSpan: O.Option<TableCellSpan>;
+    readonly headerState: TableCellHeaderState;
+    readonly rowSpan: O.Option<TableCellSpan>;
     readonly type: "tablecell";
     readonly verticalAlign: O.Option<string>;
-    readonly width: O.Option<number>;
+    readonly width: O.Option<TableDimension>;
   }
 
   /**
@@ -1505,7 +1835,7 @@ export declare namespace TableCellNode {
 export class TableRowNode extends ElementNode.extend<TableRowNode>($I`TableRowNode`)(
   {
     type: S.tag("tablerow"),
-    height: S.Finite.pipe(
+    height: TableDimension.pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional row height emitted by Lexical table nodes." })
     ),
@@ -1535,7 +1865,7 @@ export declare namespace TableRowNode {
    * @since 0.0.0
    */
   export interface Type extends ElementNode.Type {
-    readonly height: O.Option<number>;
+    readonly height: O.Option<TableDimension>;
     readonly type: "tablerow";
   }
 
@@ -1567,7 +1897,7 @@ export declare namespace TableRowNode {
 export class TableNode extends ElementNode.extend<TableNode>($I`TableNode`)(
   {
     type: S.tag("table"),
-    colWidths: S.Array(S.Finite).pipe(
+    colWidths: S.Array(TableDimension).pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional table column widths emitted by Lexical table nodes." })
     ),
@@ -1575,11 +1905,11 @@ export class TableNode extends ElementNode.extend<TableNode>($I`TableNode`)(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional row-striping flag emitted by Lexical table nodes." })
     ),
-    frozenColumnCount: S.Finite.pipe(
+    frozenColumnCount: NonNegativeInt.pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional number of frozen columns emitted by Lexical table nodes." })
     ),
-    frozenRowCount: S.Finite.pipe(
+    frozenRowCount: NonNegativeInt.pipe(
       S.OptionFromOptional,
       S.annotateKey({ description: "Optional number of frozen rows emitted by Lexical table nodes." })
     ),
@@ -1609,9 +1939,9 @@ export declare namespace TableNode {
    * @since 0.0.0
    */
   export interface Type extends ElementNode.Type {
-    readonly colWidths: O.Option<ReadonlyArray<number>>;
-    readonly frozenColumnCount: O.Option<number>;
-    readonly frozenRowCount: O.Option<number>;
+    readonly colWidths: O.Option<ReadonlyArray<TableDimension>>;
+    readonly frozenColumnCount: O.Option<NonNegativeInt>;
+    readonly frozenRowCount: O.Option<NonNegativeInt>;
     readonly rowStriping: O.Option<boolean>;
     readonly type: "table";
   }

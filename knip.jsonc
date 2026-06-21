@@ -80,14 +80,7 @@
   // Scaffolded stub packages (only `export const VERSION`): their architectural deps are
   // pre-provisioned to encode intended slice wiring and are deliberately unused until built out.
   // Excluded wholesale so that intentional scaffolding doesn't read as dependency drift.
-  "ignoreWorkspaces": [
-    "packages/drivers/konva",
-    "packages/shared/client",
-    "packages/shared/config",
-    "packages/shared/server",
-    "packages/shared/use-cases",
-    "**/test/fixtures/mock-monorepo"
-  ],
+  "ignoreWorkspaces": ["**/test/fixtures/mock-monorepo"],
   "rules": {
     // Duplicate exports here are intentional conventions: Schema/<DomainName> dual-naming on
     // schema modules, Overridable/Overrideable upstream-compat aliases, and named/default React

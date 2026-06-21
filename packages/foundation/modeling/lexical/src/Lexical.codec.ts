@@ -13,13 +13,17 @@
  */
 
 import * as Md from "@beep/md/Md.model";
+import { PosInt } from "@beep/schema";
 import { A, dual, O, Str } from "@beep/utils";
 import { Effect, flow, Match, pipe } from "effect";
 import * as S from "effect/Schema";
 import {
+  ArtifactRefId,
   ArtifactRefNode,
   CodeNode,
   HeadingNode,
+  hasTextFormat,
+  LexicalIndentDepth,
   LexicalNode,
   LineBreakNode,
   LinkNode,
@@ -33,16 +37,15 @@ import {
   TableCellNode,
   TableNode,
   TableRowNode,
+  TextDetailMask,
+  TextFormatBits,
+  TextFormatMask,
   TextNode,
+  withTextFormat,
   YouTubeNode,
 } from "./Lexical.model.ts";
-
-// Lexical TextFormatType bitmask flags with an Md equivalent (see README for
-// the dropped remainder: underline=8, highlight, sub/superscript, casing).
-const IS_BOLD = 1;
-const IS_ITALIC = 2;
-const IS_STRIKETHROUGH = 4;
-const IS_CODE = 16;
+import type { NonNegativeInt } from "@beep/schema";
+import type { TableCellHeaderState, TableCellSpan, TableDimension } from "./Lexical.model.ts";
 
 /**
  * URI scheme that round-trips {@link ArtifactRefNode} through the Md AST as a
@@ -60,45 +63,54 @@ const IS_CODE = 16;
  */
 export const ARTIFACT_URI_PREFIX = "artifact://";
 
+const emptyTextFormat = TextFormatMask.make(0);
+const emptyTextDetail = TextDetailMask.make(0);
+const zeroIndent = LexicalIndentDepth.make(0);
+const lexicalNodeVersion = 1 as const;
+const firstOrdinal = PosInt.make(1);
+const noTableCellHeader = 0 satisfies TableCellHeaderState;
+const rowTableCellHeader = 1 satisfies TableCellHeaderState;
+const decodeArtifactRefIdOption = S.decodeUnknownOption(ArtifactRefId);
+
 const elementDefaults = {
-  version: 1,
+  version: lexicalNodeVersion,
   $: O.none<Record<string, unknown>>(),
   direction: O.none<"ltr" | "rtl">(),
   format: "" as const,
-  indent: 0,
-  textFormat: O.none<number>(),
+  indent: zeroIndent,
+  textFormat: O.none<TextFormatMask>(),
   textStyle: O.none<string>(),
 };
 
 const leafDefaults = {
-  version: 1,
+  version: lexicalNodeVersion,
   $: O.none<Record<string, unknown>>(),
 };
 
 const tableCellDefaults = {
-  colSpan: O.none<number>(),
-  rowSpan: O.none<number>(),
-  width: O.none<number>(),
+  colSpan: O.none<TableCellSpan>(),
+  rowSpan: O.none<TableCellSpan>(),
+  width: O.none<TableDimension>(),
   backgroundColor: O.none<string | null>(),
   verticalAlign: O.none<string>(),
 };
 
 const tableNodeDefaults = {
-  colWidths: O.none<ReadonlyArray<number>>(),
+  colWidths: O.none<ReadonlyArray<TableDimension>>(),
   rowStriping: O.none<boolean>(),
-  frozenColumnCount: O.none<number>(),
-  frozenRowCount: O.none<number>(),
+  frozenColumnCount: O.none<NonNegativeInt>(),
+  frozenRowCount: O.none<NonNegativeInt>(),
 };
 
 const textLeaf: {
-  (text: string, format: number): Effect.Effect<TextNode, S.SchemaError>;
-  (format: number): (text: string) => Effect.Effect<TextNode, S.SchemaError>;
+  (text: string, format: TextFormatMask): Effect.Effect<TextNode, S.SchemaError>;
+  (format: TextFormatMask): (text: string) => Effect.Effect<TextNode, S.SchemaError>;
 } = dual(
   2,
-  (text: string, format: number): Effect.Effect<TextNode, S.SchemaError> =>
+  (text: string, format: TextFormatMask): Effect.Effect<TextNode, S.SchemaError> =>
     TextNode.makeEffect({
       ...leafDefaults,
-      detail: 0,
+      detail: emptyTextDetail,
       format,
       mode: "normal",
       style: "",
@@ -195,24 +207,27 @@ const mdBlockText = (block: Md.Block): string =>
 
 const inlinesToLexical = (
   inlines: ReadonlyArray<Md.Inline>,
-  format: number
+  format: TextFormatMask
 ): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> =>
   Effect.map(
     Effect.forEach(inlines, (inline) => inlineToLexical(inline, format)),
     A.flatten
   );
 
-const inlineToLexical = (inline: Md.Inline, format: number): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> =>
+const inlineToLexical = (
+  inline: Md.Inline,
+  format: TextFormatMask
+): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> =>
   Match.value(inline).pipe(
     Match.tagsExhaustive({
       text: (node) => Effect.map(textLeaf(node.value, format), A.of<LexicalNode>), // Trusted raw runs have no Lexical equivalent; they degrade to plain
       // text runs (README "Lossiness profile").
       rawMarkdown: (node) => Effect.map(textLeaf(node.value, format), A.of<LexicalNode>),
       rawHtml: (node) => Effect.map(textLeaf(node.value, format), A.of<LexicalNode>),
-      strong: (node) => inlinesToLexical(node.children, format | IS_BOLD),
-      em: (node) => inlinesToLexical(node.children, format | IS_ITALIC),
-      del: (node) => inlinesToLexical(node.children, format | IS_STRIKETHROUGH),
-      code: (node) => Effect.map(textLeaf(node.value, format | IS_CODE), A.of<LexicalNode>),
+      strong: (node) => inlinesToLexical(node.children, withTextFormat(format, TextFormatBits.bold)),
+      em: (node) => inlinesToLexical(node.children, withTextFormat(format, TextFormatBits.italic)),
+      del: (node) => inlinesToLexical(node.children, withTextFormat(format, TextFormatBits.strikethrough)),
+      code: (node) => Effect.map(textLeaf(node.value, withTextFormat(format, TextFormatBits.code)), A.of<LexicalNode>),
       a: (node) =>
         Effect.flatMap(inlinesToLexical(node.children, format), (children) =>
           Effect.map(
@@ -249,7 +264,7 @@ const headingToLexical = (
   tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6",
   children: ReadonlyArray<Md.Inline>
 ): Effect.Effect<LexicalNode, S.SchemaError> =>
-  Effect.flatMap(inlinesToLexical(children, 0), (inlines) =>
+  Effect.flatMap(inlinesToLexical(children, emptyTextFormat), (inlines) =>
     HeadingNode.makeEffect({
       ...elementDefaults,
       tag,
@@ -268,7 +283,7 @@ const listItemsToLexical = (
       ListItemNode.makeEffect({
         ...elementDefaults,
         checked: O.fromUndefinedOr(item.checked),
-        value: index + 1,
+        value: PosInt.make(index + 1),
         children,
       })
     )
@@ -280,30 +295,33 @@ const listItemChildrenToLexical = (
   const inlines = A.filter(children, isMdInline);
 
   return inlines.length === children.length
-    ? inlinesToLexical(inlines, 0)
-    : Effect.map(textLeaf(mdListItemChildrenText(children), 0), A.of<LexicalNode>);
+    ? inlinesToLexical(inlines, emptyTextFormat)
+    : Effect.map(textLeaf(mdListItemChildrenText(children), emptyTextFormat), A.of<LexicalNode>);
 };
 
 const quoteChildToInlines = (block: Md.Block): Effect.Effect<ReadonlyArray<LexicalNode>, S.SchemaError> =>
   block._tag === "p"
-    ? inlinesToLexical(block.children, 0)
-    : Effect.map(textLeaf(mdBlockText(block), 0), A.of<LexicalNode>);
+    ? inlinesToLexical(block.children, emptyTextFormat)
+    : Effect.map(textLeaf(mdBlockText(block), emptyTextFormat), A.of<LexicalNode>);
 
 const paragraphArtifactRef = (
   block: Md.P
 ): O.Option<{
-  readonly artifactId: string;
+  readonly artifactId: ArtifactRefId;
   readonly label: O.Option<string>;
 }> => {
   const child = block.children.length === 1 ? block.children[0] : undefined;
   if (child === undefined || child._tag !== "a" || !Str.startsWith(ARTIFACT_URI_PREFIX)(child.href)) {
     return O.none();
   }
-  const artifactId = Str.slice(ARTIFACT_URI_PREFIX.length)(child.href);
+  const artifactId = decodeArtifactRefIdOption(Str.slice(ARTIFACT_URI_PREFIX.length)(child.href));
+  if (O.isNone(artifactId)) {
+    return O.none();
+  }
   const label = mdInlinesText(child.children);
   return O.some({
-    artifactId,
-    label: label === artifactId ? O.none() : O.some(label),
+    artifactId: artifactId.value,
+    label: label === artifactId.value || label.length === 0 ? O.none() : O.some(label),
   });
 };
 
@@ -334,7 +352,7 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
     p: (node) =>
       O.match(paragraphArtifactRef(node), {
         onNone: () =>
-          Effect.flatMap(inlinesToLexical(node.children, 0), (children) =>
+          Effect.flatMap(inlinesToLexical(node.children, emptyTextFormat), (children) =>
             ParagraphNode.makeEffect({
               ...elementDefaults,
               children,
@@ -364,8 +382,12 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
         Effect.map(
           Effect.forEach(Str.split(node.value, "\n"), (line, index) =>
             index === 0
-              ? Effect.map(textLeaf(line, 0), A.of<LexicalNode>)
-              : Effect.zipWith(lineBreak(), textLeaf(line, 0), (brk, text) => [brk, text] as ReadonlyArray<LexicalNode>)
+              ? Effect.map(textLeaf(line, emptyTextFormat), A.of<LexicalNode>)
+              : Effect.zipWith(
+                  lineBreak(),
+                  textLeaf(line, emptyTextFormat),
+                  (brk, text) => [brk, text] as ReadonlyArray<LexicalNode>
+                )
           ),
           A.flatten
         ),
@@ -384,7 +406,7 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
           const cells = yield* Effect.forEach(
             row.children,
             Effect.fnUntraced(function* (cell: Md.TableCell) {
-              const inlines = yield* inlinesToLexical(cell.children, 0);
+              const inlines = yield* inlinesToLexical(cell.children, emptyTextFormat);
               const paragraph = yield* ParagraphNode.makeEffect({
                 ...elementDefaults,
                 children: inlines,
@@ -393,7 +415,7 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
               return yield* TableCellNode.makeEffect({
                 ...elementDefaults,
                 ...tableCellDefaults,
-                headerState: node.headerRow && rowIndex === 0 ? 1 : 0,
+                headerState: node.headerRow && rowIndex === 0 ? rowTableCellHeader : noTableCellHeader,
                 children: [paragraph],
               });
             })
@@ -424,7 +446,7 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
         ListNode.makeEffect({
           ...elementDefaults,
           listType: "bullet",
-          start: 1,
+          start: firstOrdinal,
           tag: "ul",
           children,
         })
@@ -434,7 +456,7 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
         ListNode.makeEffect({
           ...elementDefaults,
           listType: "number",
-          start: 1,
+          start: firstOrdinal,
           tag: "ol",
           children,
         })
@@ -451,14 +473,14 @@ export const blockToLexical = Match.type<Md.Block>().pipe(
           ListNode.makeEffect({
             ...elementDefaults,
             listType: "check",
-            start: 1,
+            start: firstOrdinal,
             tag: "ul",
             children,
           })
       ), // Thematic breaks are outside the v1 node scope; they degrade to a
     // literal "---" paragraph (README "Lossiness profile").
     hr: () =>
-      Effect.flatMap(textLeaf("---", 0), (text) =>
+      Effect.flatMap(textLeaf("---", emptyTextFormat), (text) =>
         ParagraphNode.makeEffect({
           ...elementDefaults,
           children: [text],
@@ -495,11 +517,11 @@ export const documentToEditorState = (document: Md.Document): Effect.Effect<Seri
     )
   );
 
-const wrapMarks = (base: Md.Inline, format: number): Md.Inline => {
+const wrapMarks = (base: Md.Inline, format: TextFormatMask): Md.Inline => {
   let inline = base;
-  if ((format & IS_STRIKETHROUGH) !== 0) inline = Md.Del.make({ children: [inline] });
-  if ((format & IS_ITALIC) !== 0) inline = Md.Em.make({ children: [inline] });
-  if ((format & IS_BOLD) !== 0) inline = Md.Strong.make({ children: [inline] });
+  if (hasTextFormat(format, TextFormatBits.strikethrough)) inline = Md.Del.make({ children: [inline] });
+  if (hasTextFormat(format, TextFormatBits.italic)) inline = Md.Em.make({ children: [inline] });
+  if (hasTextFormat(format, TextFormatBits.bold)) inline = Md.Strong.make({ children: [inline] });
   return inline;
 };
 
@@ -509,7 +531,9 @@ const textRunToInlines = (children: ReadonlyArray<LexicalNode>): ReadonlyArray<M
 const inlineNodeToMd: (node: LexicalNode) => Md.Inline = LexicalNode.match({
   text: (node) =>
     wrapMarks(
-      (node.format & IS_CODE) !== 0 ? Md.Code.make({ value: node.text }) : Md.Text.make({ value: node.text }),
+      hasTextFormat(node.format, TextFormatBits.code)
+        ? Md.Code.make({ value: node.text })
+        : Md.Text.make({ value: node.text }),
       node.format
     ),
   tab: () => Md.Text.make({ value: "\t" }),
@@ -648,7 +672,7 @@ const tableHasHeaderRow = (node: TableNode): boolean =>
   pipe(
     node.children,
     A.findFirst(isTableRowNode),
-    O.map((row) => A.some(row.children, (child) => isTableCellNode(child) && child.headerState !== 0)),
+    O.map((row) => A.some(row.children, (child) => isTableCellNode(child) && child.headerState !== noTableCellHeader)),
     O.getOrElse(() => false)
   );
 

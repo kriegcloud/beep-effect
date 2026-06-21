@@ -133,9 +133,6 @@ const bootstrapRootConfig = Effect.fn(function* (
   yield* writeJsonFile(path.join(rootDir, "tsconfig.packages.json"), {
     references: A.map(options.references, (referencePath) => ({ path: referencePath })),
   });
-  yield* writeJsonFile(path.join(rootDir, "tsconfig.quality.packages.json"), {
-    references: A.map(options.references, (referencePath) => ({ path: referencePath })),
-  });
   yield* writeJsonFile(path.join(rootDir, "tsconfig.json"), {
     compilerOptions: {
       paths: options.paths,
@@ -269,20 +266,11 @@ describe("tsconfig-sync", () => {
             "root-syncpack",
             "root-aliases",
             "root-references",
-            "root-quality-references",
             "root-tstyche",
           ]);
 
           const refs = decodeTsconfigReferences(yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json")));
           expect(A.map(refs.references, (entry) => entry.path)).toEqual([
-            "packages/example-domain",
-            "packages/foundation/modeling/identity",
-          ]);
-
-          const qualityRefs = decodeTsconfigReferences(
-            yield* readJsoncFile(path.join(rootDir, "tsconfig.quality.packages.json"))
-          );
-          expect(A.map(qualityRefs.references, (entry) => entry.path)).toEqual([
             "packages/example-domain",
             "packages/foundation/modeling/identity",
           ]);

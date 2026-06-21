@@ -15,7 +15,6 @@
 "@beep/runpod": patch
 "@beep/semantic-web": patch
 "@beep/shared-domain": patch
-"@beep/shared-ui": patch
 "@beep/tika": patch
 "@beep/venice-ai": patch
 "@beep/wink": patch

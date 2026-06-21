@@ -1,5 +1,6 @@
 import {$ScratchpadId} from "@beep/identity";
 import {SchemaUtils} from "@beep/schema";
+import {P} from "@beep/utils";
 import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -975,7 +976,7 @@ export class ColorKit {
 			pad2(Math.round(a * 255).toString(16)),
 		];
 
-		if (allowShort) {
+		if (P.isTruthy(allowShort)) {
 			if (hex[0][0] === hex[0][1] && hex[1][0] === hex[1][1] && hex[2][0] === hex[2][1] && hex[3][0] === hex[3][1]) {
 				return useAlpha
 					? `#${hex[0][0]}${hex[1][0]}${hex[2][0]}${hex[3][0]}`
@@ -1082,11 +1083,9 @@ export class ColorKit {
 	}
 }
 
-const pad2 = (v: string) => {
-	return v.length === 1
-		? `0${v}`
-		: v;
-};
+const pad2 = (v: string) => v.length === 1
+	? `0${v}`
+	: v;
 
 const rgbNormalize = (val: number) => {
 	val /= 255;
@@ -1193,7 +1192,7 @@ const toColor: (color: string | Color) => Color | undefined = (color) => {
 
 	const parsedColor = color.trim().toLowerCase();
 
-	if (COLORS[parsedColor]) {
+	if (P.isTruthy(COLORS[parsedColor])) {
 		const colorArray = COLORS[parsedColor];
 		return RgbColor.make({
 			r: Math.round(colorArray[0]),

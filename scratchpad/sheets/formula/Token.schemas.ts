@@ -1,6 +1,5 @@
 import {$ScratchpadId} from "@beep/identity";
 import {MappedLiteralKit} from "@beep/schema";
-import * as S from "effect/Schema";
 
 const $I = $ScratchpadId.create("sheets/formula/Token.schemas");
 

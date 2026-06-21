@@ -282,9 +282,9 @@ Client/UI dependency caveats:
 - `ui` may import `domain` only for driver-neutral schemas, value objects,
   display contracts, and form validation. UI behavior should go through
   `client` services/state instead of calling use-case orchestration directly.
-- `shared/domain` and `shared/config` follow the same inward rules as slice
-  `domain` and `config`. High-bar `shared/use-cases`, `shared/client`,
-  `shared/server`, `shared/tables`, and `shared/ui` packages never own drivers.
+- `shared/domain` and any future `shared/config` package follow the same inward
+  rules as slice `domain` and `config`. High-bar shared packages never own
+  drivers.
 - `shared/tables` may import `@beep/drizzle` only for metadata-only table
   projection from shared-kernel entity schemas. This exception does not permit
   live driver capability, query execution, migrations, repositories, seeders, or
@@ -330,34 +330,39 @@ minimal packages and add optional packages only through explicit flags or
 prompts.
 
 `config` is optional canonical-shape. Create it only when a slice has meaningful
-configuration contracts. The canonical shared package names are
-`@beep/<kernel>-domain`, `@beep/<kernel>-config`, and high-bar
-`@beep/<kernel>-use-cases` when that package exists. `env` package naming is
-legacy source-specific vocabulary, not a slice package kind. Environment
-variables are one possible `ConfigProvider` source for config declarations.
+configuration contracts. The canonical shared package names are names for roles
+when those packages exist: `@beep/<kernel>-domain`, `@beep/<kernel>-config`, and
+high-bar `@beep/<kernel>-use-cases`. `env` package naming is legacy
+source-specific vocabulary, not a slice package kind. Environment variables are
+one possible `ConfigProvider` source for config declarations.
 
 `shared` is the canonical cross-slice slice with a reduced spine:
 
 ```txt
 packages/<kernel>/
   domain/
-  config/
-  use-cases/ # high bar only
-  client/   # high bar only
-  server/   # high bar only
+  config/   # create only after real shared config contracts exist
+  use-cases/ # create only after high-bar contract promotion
+  client/   # create only after high-bar contract promotion
+  server/   # create only after high-bar contract promotion
   tables/   # high bar only
-  ui/       # high bar only
+  ui/       # create only after high-bar contract promotion
 ```
 
-`shared/domain` and `shared/config` are the normal homes. `shared/use-cases`,
-`shared/client`, `shared/server`, `shared/tables`, and `shared/ui` are high-bar
-exceptions. `shared/use-cases` is contract-only: deliberate cross-slice
-commands, queries, driver-neutral DTOs, driver-neutral boundary contracts,
-client-safe application errors, facade interfaces, and ultra-high-bar product
-ports are allowed. A shared product port must prove why a shared command,
-query, event, or facade contract is insufficient. It never owns workflows,
-process managers, schedulers, handlers, concrete adapters, driver imports, or
-live Layer values. `shared` never owns drivers or generic substrate.
+`shared/domain` is the active normal home today; `shared/config` is a reserved
+normal role for real cross-slice config contracts. `shared/use-cases`,
+`shared/client`, `shared/server`, and `shared/ui` do not exist yet. They are
+reserved high-bar exceptions, created only when real exported behavior clears the
+promotion bar. `shared/use-cases` in particular has no package directory today
+because nothing has met that bar.
+
+A future `shared/use-cases` package would be contract-only: deliberate
+cross-slice commands, queries, driver-neutral DTOs, driver-neutral boundary
+contracts, client-safe application errors, facade interfaces, and ultra-high-bar
+product ports are allowed. A shared product port must prove why a shared
+command, query, event, or facade contract is insufficient. It never owns
+workflows, process managers, schedulers, handlers, concrete adapters, driver
+imports, or live Layer values. `shared` never owns drivers or generic substrate.
 
 Meaningful exports in high-bar `shared/*` packages require a promotion record in
 that package's README before or alongside the export. The record must include:
@@ -367,7 +372,7 @@ that package's README before or alongside the export. The record must include:
 - the exported surface being promoted
 - rejected homes, especially the owning slice and `foundation`
 - runtime, adapter, driver, and Layer limits
-- contract-only proof for `shared/use-cases`
+- contract-only proof for future `shared/use-cases`
 - review evidence for the deliberate coupling
 
 `standards/architecture/DECISIONS.md` records architecture-wide policy changes.
@@ -619,9 +624,9 @@ appropriate ways:
   import drivers.
 - Slice-to-slice direct imports across `domain`, `use-cases`, `server`,
   `tables`, `client`, or `ui` packages of *different* slices are forbidden.
-  Cross-slice integration goes through `shared/use-cases` (commands, queries,
-  events, contracts) or through emitted events. This is the same family of
-  acyclic ceiling that drivers respect among themselves, applied to slices.
+  Cross-slice integration goes through emitted events or, if a real contract has
+  been promoted, the future `shared/use-cases` package. This is the same family
+  of acyclic ceiling that drivers respect among themselves, applied to slices.
 - Product slices and shared-kernel packages do not depend on
   `packages/tooling/*/*`.
 - `foundation`, `drivers`, and `tooling` do not depend on product slices or the
@@ -1007,14 +1012,14 @@ Canonical subpath names are required names when that role exists, not a requirem
 to add placeholder exports. Package roots and `./*` exports may remain during
 migration, but they are not the canonical boundary contract.
 
-The high-bar `shared/use-cases` exception follows the same `/public`, `/server`,
-and `/test` contract. It is narrower than slice `use-cases`: only commands,
-queries, driver-neutral DTOs, driver-neutral boundary contracts, client-safe
-application errors, facade interfaces, and ultra-high-bar product ports are
-allowed. Product ports require proof that a command/query/event/facade contract
-would not preserve the intended boundary. It never owns workflows, process
-managers, schedulers, handlers, concrete adapters, driver imports, or live
-Layer values.
+If a future high-bar `shared/use-cases` package is created, it follows the same
+`/public`, `/server`, and `/test` contract. It is narrower than slice
+`use-cases`: only commands, queries, driver-neutral DTOs, driver-neutral boundary
+contracts, client-safe application errors, facade interfaces, and ultra-high-bar
+product ports are allowed. Product ports require proof that a
+command/query/event/facade contract would not preserve the intended boundary. It
+never owns workflows, process managers, schedulers, handlers, concrete adapters,
+driver imports, or live Layer values.
 
 ### Config Role Vocabulary
 
@@ -1103,19 +1108,18 @@ Use-cases own imperative application intent and boundary language:
 
 Product ports live here by default because they describe what the application
 needs in product language. Protocol declarations also live here by default.
-Slice `use-cases` may also declare workflow/process/scheduler contracts. High-
-bar `shared/use-cases` does not: it is contract-only and limited to deliberate
-cross-slice commands, queries, driver-neutral DTOs, driver-neutral boundary
-contracts, client-safe application errors, facade interfaces, and
-ultra-high-bar product ports.
-Product ports in `shared/use-cases` are exceptional even inside the high-bar
-exception and require explicit proof that a less coupled shared contract is
-insufficient.
+Slice `use-cases` may also declare workflow/process/scheduler contracts. A
+future high-bar `shared/use-cases` package does not: it is contract-only and
+limited to deliberate cross-slice commands, queries, driver-neutral DTOs,
+driver-neutral boundary contracts, client-safe application errors, facade
+interfaces, and ultra-high-bar product ports. Product ports in that future
+package are exceptional even inside the high-bar exception and require explicit
+proof that a less coupled shared contract is insufficient.
 
 Use-cases may import config contracts and services, but neither slice
-`use-cases` nor `shared/use-cases` own live Layers that read the runtime
-environment or participate in package-local or top-level application entrypoint
-Layer composition.
+`use-cases` nor any future `shared/use-cases` package owns live Layers that read
+the runtime environment or participate in package-local or top-level application
+entrypoint Layer composition.
 
 ### `config`
 
@@ -1155,25 +1159,29 @@ Server may depend on use-cases, config, domain, tables, and drivers.
 
 ### `shared/*`
 
-`shared` is the cross-slice slice. Its normal homes are:
+`shared` is the cross-slice slice. Its active normal home today is:
 
 - `shared/domain`
+
+Reserved roles are:
+
 - `shared/config`
-
-High-bar exceptions are:
-
 - `shared/use-cases`
 - `shared/client`
 - `shared/server`
 - `shared/tables`
 - `shared/ui`
 
-`shared/use-cases` is contract-only. It may own cross-slice commands, queries,
-driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
-errors, facade interfaces, and ultra-high-bar product ports. Product ports must
-prove why a command/query/event/facade contract is insufficient. It never owns
-workflows, process managers, schedulers, handlers, concrete adapters, driver
-imports, or live Layer values.
+`shared/tables` currently exists as a narrow metadata-only package. The others
+above are role names, not package directories today. `shared/use-cases` does not
+exist yet because no cross-slice contract has met the promotion bar.
+
+A future `shared/use-cases` package is contract-only. It may own cross-slice
+commands, queries, driver-neutral DTOs, driver-neutral boundary contracts,
+client-safe application errors, facade interfaces, and ultra-high-bar product
+ports. Product ports must prove why a command/query/event/facade contract is
+insufficient. It never owns workflows, process managers, schedulers, handlers,
+concrete adapters, driver imports, or live Layer values.
 
 Shared packages encode deliberate cross-slice product semantics. They do not
 own generic substrate, technical wrappers, or drivers.

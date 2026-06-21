@@ -180,8 +180,9 @@ import { revokeMembershipCommand } from "@beep/iam-use-cases/test";
 ````
 
 Cross-slice tests never import another slice's `/test` directly. If a fixture
-is genuinely cross-slice, promote it to `shared/use-cases/test`. Promotion
-requires a record per `02-shared-kernel.md`.
+is genuinely cross-slice, promote it to the future `shared/use-cases/test`
+surface. Promotion creates that package only when it includes a record per
+`02-shared-kernel.md`.
 
 Foundation `test-kit` packages (under `packages/tooling/test-kit/`) provide
 infrastructure that any slice may import without promotion: deterministic clock
@@ -285,8 +286,8 @@ A slice's tests must not need to boot another slice's `Layer.ts`, nor any
 slice, one of the following is true:
 
 - the test belongs to the other slice and should move
-- the dependency is on a `shared/use-cases` contract that should be stubbed at
-  the boundary
+- the dependency is on a promoted `shared/use-cases` contract that should be
+  stubbed at the boundary
 
 This isolation is what lets a slice be removed, rewritten, or forked without
 breaking the rest of the repo. It is the test-time enforcement of the
@@ -297,7 +298,7 @@ optionality promise made by `01-hexagonal-vertical-slices.md` and
 
 | Smell                                                      | Diagnostic                                                                                                                |
 |------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
-| Test imports `@beep/<other-slice>-server`                  | Cross-slice coupling. Refactor to stub the boundary; if the dependency is real, promote a contract to `shared/use-cases`. |
+| Test imports `@beep/<other-slice>-server`                  | Cross-slice coupling. Refactor to stub the boundary; if the dependency is real, promote a contract to future `shared/use-cases`. |
 | Test imports `apps/web/src/runtime/Layer.ts`               | The test is testing the app, not the slice. Move it under `apps/web`.                                                     |
 | Test mocks `Effect` itself or `effect/Schema`              | Testing the framework, not your code. Remove.                                                                             |
 | Test reads `process.env` directly                          | Test should provide a `ConfigProvider` test Layer from `tooling/test-kit/` or `@beep/<kernel>-config/test`.               |

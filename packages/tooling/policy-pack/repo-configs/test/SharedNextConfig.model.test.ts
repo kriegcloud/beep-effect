@@ -32,7 +32,7 @@ describe("Shared Next.js config preset", () => {
       repoRoot: "/repo",
       allowedDevOrigins: ["oip-web.localhost"],
       additionalPageExtensions: ["mdoc"],
-      additionalTranspilePackages: ["@beep/shared-ui"],
+      additionalTranspilePackages: ["@beep/shared-domain"],
       additionalOptimizePackageImports: ["@beep/ui"],
       next: {
         pageExtensions: ["tsx", "story.tsx"],
@@ -50,7 +50,7 @@ describe("Shared Next.js config preset", () => {
       "@beep/identity",
       "@beep/schema",
       "@beep/utils",
-      "@beep/shared-ui",
+      "@beep/shared-domain",
     ]);
     expect(config.experimental?.optimizePackageImports).toContain("@base-ui/react");
     expect(config.experimental?.optimizePackageImports).toContain("@mui/material");

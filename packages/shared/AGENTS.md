@@ -17,21 +17,21 @@ standard. Shared code is cross-slice product language, not a convenience bucket.
 - Treat `standards/architecture/02-shared-kernel.md` as the primary rulebook for
   this directory.
 - Check the current leaf package source before assuming a package already owns a
-  runtime surface. `domain/`, `tables/`, and `ui/` are active; `config/`,
-  `use-cases/`, `client/`, and `server/` are still scaffolded leaves whose docs
-  describe intended boundaries.
+  runtime surface. `domain/` and `tables/` are active. `config/`, `use-cases/`,
+  `client/`, `server/`, and `ui/` are reserved roles, not package directories
+  today.
 
 ## Package Roles
 
 | Package | Status | Add only when the content is |
 | --- | --- | --- |
 | `@beep/shared-domain` | Active | Driver-neutral shared product concepts, values, schemas, domain events, and pure behavior. |
-| `@beep/shared-config` | Scaffolded | Shared typed config contracts, config vocabulary, redacted-secret contracts, and test config utilities. |
-| `@beep/shared-use-cases` | Scaffolded | Contract-only commands, queries, DTOs, protocols, product ports, facades, and actionable application errors. |
-| `@beep/shared-client` | Scaffolded | Browser-safe shared client adapters, state, services, and command/query clients tied to shared product semantics. |
-| `@beep/shared-server` | Scaffolded | Server-only shared product boundary helpers that remain driver-neutral and do not aggregate slices. |
 | `@beep/shared-tables` | Active | Shared persistence/read-model metadata tied to shared product language. |
-| `@beep/shared-ui` | Active | Cross-slice product UI concepts, forms, and display contracts tied to shared domain language. |
+
+Reserved future packages: `@beep/shared-config`, `@beep/shared-use-cases`,
+`@beep/shared-client`, `@beep/shared-server`, and `@beep/shared-ui`. Do not
+create them for symmetry. `@beep/shared-use-cases` does not exist yet because no
+cross-slice contract has met the promotion bar.
 
 ## Rules
 
@@ -42,8 +42,9 @@ standard. Shared code is cross-slice product language, not a convenience bucket.
   `shared/*`.
 - Do not add global registries, God Layers, catch-all config objects, or
   app-wide aggregation here.
-- Keep `shared/use-cases` contract-only: no workflows, schedulers, handlers,
-  concrete adapters, transports, persistence, driver imports, or live Layers.
+- Keep any future `shared/use-cases` package contract-only: no workflows,
+  schedulers, handlers, concrete adapters, transports, persistence, driver
+  imports, or live Layers.
 - Keep the `shared-tables` Drizzle allowance narrow: metadata-only `pgTable`
   definitions and indexes may be derived from shared-domain descriptors, but
   connections, query execution, migrations, repositories, and live DB access are

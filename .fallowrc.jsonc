@@ -50,11 +50,6 @@
     "**/postcss.config.*",
     "packages/canvas/client/**",
     "packages/canvas/ui/**",
-    "packages/drivers/konva/**",
-    "packages/shared/client/**",
-    "packages/shared/config/**",
-    "packages/shared/server/**",
-    "packages/shared/use-cases/**",
     "**/test/fixtures/mock-monorepo/**",
     // @beep/html: generated AST (one TaggedClass per HTML element) is intentionally
     // repetitive; the codegen script and vendored spec data are tooling, not

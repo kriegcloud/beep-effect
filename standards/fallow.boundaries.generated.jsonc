@@ -234,12 +234,6 @@
         ]
       },
       {
-        "name": "@beep/konva",
-        "patterns": [
-          "packages/drivers/konva/src/**"
-        ]
-      },
-      {
         "name": "@beep/langextract",
         "patterns": [
           "packages/foundation/capability/langextract/src/**"
@@ -426,21 +420,15 @@
         ]
       },
       {
+        "name": "@beep/scratchpad",
+        "patterns": [
+          "scratchpad/src/**"
+        ]
+      },
+      {
         "name": "@beep/semantic-web",
         "patterns": [
           "packages/foundation/capability/semantic-web/src/**"
-        ]
-      },
-      {
-        "name": "@beep/shared-client",
-        "patterns": [
-          "packages/shared/client/src/**"
-        ]
-      },
-      {
-        "name": "@beep/shared-config",
-        "patterns": [
-          "packages/shared/config/src/**"
         ]
       },
       {
@@ -450,27 +438,9 @@
         ]
       },
       {
-        "name": "@beep/shared-server",
-        "patterns": [
-          "packages/shared/server/src/**"
-        ]
-      },
-      {
         "name": "@beep/shared-tables",
         "patterns": [
           "packages/shared/tables/src/**"
-        ]
-      },
-      {
-        "name": "@beep/shared-ui",
-        "patterns": [
-          "packages/shared/ui/src/**"
-        ]
-      },
-      {
-        "name": "@beep/shared-use-cases",
-        "patterns": [
-          "packages/shared/use-cases/src/**"
         ]
       },
       {
@@ -1182,15 +1152,6 @@
         ]
       },
       {
-        "from": "@beep/konva",
-        "allow": [
-          "@beep/konva"
-        ],
-        "allowTypeOnly": [
-          "@beep/konva"
-        ]
-      },
-      {
         "from": "@beep/langextract",
         "allow": [
           "@beep/identity",
@@ -1784,6 +1745,23 @@
         ]
       },
       {
+        "from": "@beep/scratchpad",
+        "allow": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/scratchpad",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/md",
+          "@beep/schema",
+          "@beep/scratchpad",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/semantic-web",
         "allow": [
           "@beep/identity",
@@ -1803,24 +1781,6 @@
         ]
       },
       {
-        "from": "@beep/shared-client",
-        "allow": [
-          "@beep/shared-client"
-        ],
-        "allowTypeOnly": [
-          "@beep/shared-client"
-        ]
-      },
-      {
-        "from": "@beep/shared-config",
-        "allow": [
-          "@beep/shared-config"
-        ],
-        "allowTypeOnly": [
-          "@beep/shared-config"
-        ]
-      },
-      {
         "from": "@beep/shared-domain",
         "allow": [
           "@beep/identity",
@@ -1836,15 +1796,6 @@
         ]
       },
       {
-        "from": "@beep/shared-server",
-        "allow": [
-          "@beep/shared-server"
-        ],
-        "allowTypeOnly": [
-          "@beep/shared-server"
-        ]
-      },
-      {
         "from": "@beep/shared-tables",
         "allow": [
           "@beep/drizzle",
@@ -1857,30 +1808,6 @@
           "@beep/shared-domain",
           "@beep/shared-tables",
           "@beep/utils"
-        ]
-      },
-      {
-        "from": "@beep/shared-ui",
-        "allow": [
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/shared-domain",
-          "@beep/shared-ui"
-        ],
-        "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/schema",
-          "@beep/shared-domain",
-          "@beep/shared-ui"
-        ]
-      },
-      {
-        "from": "@beep/shared-use-cases",
-        "allow": [
-          "@beep/shared-use-cases"
-        ],
-        "allowTypeOnly": [
-          "@beep/shared-use-cases"
         ]
       },
       {

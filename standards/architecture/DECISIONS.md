@@ -951,13 +951,36 @@ keeps the just-shipped `epistemic` slice a slice while making `law-practice`
 doctrine-clean at the domain tier, and gives every future vertical that consumes
 a slice-shaped boundary a worked routing precedent.
 
+## 2026-06-21: Remove Placeholder Shared-Kernel Packages
+
+- **Status:** Active
+- **Refines:** [2026-04-23: Allow `shared/use-cases` As A High-Bar Shared-Kernel Exception](#2026-04-23-allow-shareduse-cases-as-a-high-bar-shared-kernel-exception)
+
+Decision:
+
+Placeholder shared-kernel package directories are removed. The current
+`packages/shared` inventory is only the packages with real surfaces:
+`shared/domain` and `shared/tables`. `shared/config`, `shared/use-cases`,
+`shared/client`, `shared/server`, and `shared/ui` remain reserved role names, not
+package directories. `shared/use-cases` in particular does not exist yet because
+no contract-only cross-slice surface has met the promotion bar.
+
+Rationale:
+
+Empty or nearly empty packages make the architecture look heavier than the code
+really is. Keeping role names in the doctrine is useful; keeping placeholder
+workspace packages is not. A future promotion PR can recreate the exact package
+it needs, with a package README promotion record, generated identity composer,
+workspace registration, tsconfig reference, and boundary provenance in the same
+change.
+
 ## Known Unknowns
 
 Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:
 
 - **Testing strategy.** Doc `08-testing.md` codifies slice-isolation testing, port stubs via `Layer.mock`, fixture ownership, and contract tests between use-cases and server adapters. The doctrine has not yet been load-tested against a real refactor; first contact with a non-trivial slice may surface gaps in the fixture-ownership and contract-test rules.
-- **Cross-slice coordination.** Doc `10-cross-slice-coordination.md` codifies workflow / saga / process-manager governance, event contracts in `shared/use-cases`, and the God Process Manager anti-pattern. The open question is how the rules hold up the first time a real workflow needs to span three or more slices with partial-failure semantics.
-- **Evolution and deprecation.** Doc `11-evolution-and-deprecation.md` codifies slice retirement, `shared/use-cases` versioning, port deprecation, and feature-flag lifetime. The deprecation-window durations and the five-step retirement procedure are unproven; the first real slice retirement will tell us whether the windows are realistic and whether the DECISIONS-entry requirement creates useful pressure or just paperwork.
+- **Cross-slice coordination.** Doc `10-cross-slice-coordination.md` codifies workflow / saga / process-manager governance, future event contracts in `shared/use-cases`, and the God Process Manager anti-pattern. The open question is how the rules hold up the first time a real workflow needs to span three or more slices with partial-failure semantics.
+- **Evolution and deprecation.** Doc `11-evolution-and-deprecation.md` codifies slice retirement, future `shared/use-cases` versioning, port deprecation, and feature-flag lifetime. The deprecation-window durations and the five-step retirement procedure are unproven; the first real slice retirement will tell us whether the windows are realistic and whether the DECISIONS-entry requirement creates useful pressure or just paperwork.
 - **Observability conventions.** Doc `12-observability.md` codifies span naming, attribute conventions, the logging-vs-tracing-vs-Console split, and slice boundaries as span boundaries. The open question is whether the span/attribute namespacing survives contact with a real distributed trace across three or more slices, and whether the conventions need adjustment once a tracer backend is wired up end-to-end.
 - **Error translation across boundaries.** Doc `09-errors-across-boundaries.md` codifies who translates, where translation lives, and the canonical translator function shape. The fixture proves port-to-action translation; the doctrine has not yet been exercised against a real driver-to-port adapter path. The first non-trivial adapter will tell us whether the translator placement rules are precise enough or need a worked example per boundary kind.
 - **Promotion record enforcement.** Records are required by doctrine; lint enforcement (`lint:promotion-records`) is planned but not yet implemented.
