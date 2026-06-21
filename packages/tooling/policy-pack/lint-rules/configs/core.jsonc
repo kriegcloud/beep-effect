@@ -1,0 +1,14 @@
+{
+  // @beep/lint-rules — core preset: repo-wide syntactic hygiene rules.
+  //
+  // beep's root `biome.jsonc` registers these `.grit` files directly in its top-level
+  // `plugins` array (Biome resolves plugin paths relative to the config file, so the
+  // root config uses repo-root-relative paths). This preset documents the canonical
+  // grouping; the paths below are package-relative for external `extends` consumers.
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "plugins": [
+    "./rules/no-bigint-literals.grit",
+    "./rules/no-empty-named-blocks.grit",
+    "./rules/prefer-array-flat-map.grit"
+  ]
+}

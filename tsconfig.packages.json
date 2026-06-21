@@ -256,6 +256,9 @@
       "path": "packages/tooling/library/repo-utils"
     },
     {
+      "path": "packages/tooling/policy-pack/lint-rules"
+    },
+    {
       "path": "packages/tooling/policy-pack/repo-configs"
     },
     {
