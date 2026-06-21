@@ -95,12 +95,6 @@ After the `@beep/semantic-web` JSON-LD DTO pilot, the live repo now reports:
 [schema-first] sfv4_arbitrary_tests_advisories=10
 ```
 
-After the `@beep/form` core builder pilot, the live repo now reports:
-
-```text
-[schema-first] sfv4_arbitrary_tests_advisories=9
-```
-
 After the tooling agent-effectiveness command pilot, the live repo now reports:
 
 ```text

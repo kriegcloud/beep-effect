@@ -79,10 +79,12 @@ export const Default: Story = {
     const canvas = within(canvasElement);
     const trigger = canvas.getByRole("button", { name: "Show dialog" });
     expect(trigger).toBeVisible();
-    return userEvent.click(trigger).then(() => {
-      expect(screen.getByText("Are you absolutely sure?")).toBeVisible();
-      expect(args.onOpenChange).toHaveBeenCalledWith(true, expect.anything());
-    });
+    return userEvent
+      .click(trigger)
+      .then(() => waitFor(() => expect(screen.getByText("Are you absolutely sure?")).toBeVisible()))
+      .then(() => {
+        expect(args.onOpenChange).toHaveBeenCalledWith(true, expect.anything());
+      });
   },
 };
 

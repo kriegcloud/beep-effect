@@ -8,8 +8,8 @@
  */
 
 import { TSConfigCompilerOptions } from "@beep/repo-utils";
-import { A } from "@beep/utils";
-import { Effect, Layer, pipe } from "effect";
+import { A, Str } from "@beep/utils";
+import { Effect, flow, Layer, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -72,6 +72,11 @@ const runExamples = Flag.boolean("run-examples").pipe(
   Flag.optional
 );
 
+const include = Flag.string("include").pipe(
+  Flag.withDescription("Comma-separated package-relative or srcDir-relative file globs to include"),
+  Flag.optional
+);
+
 const exclude = Flag.string("exclude").pipe(
   Flag.withDescription("A glob pattern specifying files that should be excluded from the generated documentation"),
   Flag.optional
@@ -90,6 +95,12 @@ const decodeCompilerOptionsText = (value: string) =>
       })
     )
   );
+
+const splitGlobList: (value: string) => ReadonlyArray<string> = flow(
+  Str.split(","),
+  A.map(Str.trim),
+  A.filter(Str.isNonEmpty)
+);
 
 const resolveCompilerOptionsInput = (filePath: O.Option<string>, text: O.Option<string>) =>
   pipe(
@@ -114,6 +125,7 @@ const options = {
   enforceExamples,
   enforceVersion,
   runExamples,
+  include,
   exclude,
   tscExecutable,
   parseTsconfigFile,
@@ -158,6 +170,7 @@ export const docgenCommand = Command.make(
       enforceVersion: input.enforceVersion,
       tscExecutable: input.tscExecutable,
       runExamples: input.runExamples,
+      include: input.include.pipe(O.map(splitGlobList)),
       exclude: input.exclude.pipe(O.map(A.of)),
       parseCompilerOptions,
       examplesCompilerOptions,

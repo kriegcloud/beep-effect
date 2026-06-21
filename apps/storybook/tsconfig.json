@@ -29,6 +29,9 @@
   },
   "references": [
     {
+      "path": "../../packages/foundation/ui-system/form/tsconfig.json"
+    },
+    {
       "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
     }
   ]

@@ -18,6 +18,8 @@
  * @since 0.0.0
  */
 import { $HtmlId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
+import { A, Struct } from "@beep/utils";
 import * as S from "effect/Schema";
 
 const $I = $HtmlId.create("Html.attributes");
@@ -32,7 +34,7 @@ const $I = $HtmlId.create("Html.attributes");
  * @category schemas
  * @since 0.0.0
  */
-export const Dir = S.Literals(["ltr", "rtl", "auto"]).pipe(
+export const Dir = LiteralKit(["ltr", "rtl", "auto"]).pipe(
   $I.annoteSchema("Dir", { description: "Text directionality." })
 );
 /**
@@ -41,7 +43,7 @@ export const Dir = S.Literals(["ltr", "rtl", "auto"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const Translate = S.Literals(["yes", "no"]).pipe(
+export const Translate = LiteralKit(["yes", "no"]).pipe(
   $I.annoteSchema("Translate", { description: "Whether to translate the element's contents." })
 );
 /**
@@ -50,7 +52,7 @@ export const Translate = S.Literals(["yes", "no"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const ContentEditable = S.Union([S.Literal(""), S.Literals(["true", "false", "plaintext-only"])]).pipe(
+export const ContentEditable = LiteralKit(["", "true", "false", "plaintext-only"]).pipe(
   $I.annoteSchema("ContentEditable", { description: "Whether the element is editable." })
 );
 /**
@@ -59,7 +61,7 @@ export const ContentEditable = S.Union([S.Literal(""), S.Literals(["true", "fals
  * @category schemas
  * @since 0.0.0
  */
-export const Draggable = S.Literals(["true", "false"]).pipe(
+export const Draggable = LiteralKit(["true", "false"]).pipe(
   $I.annoteSchema("Draggable", { description: "Whether the element is draggable." })
 );
 /**
@@ -68,7 +70,7 @@ export const Draggable = S.Literals(["true", "false"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const SpellCheck = S.Union([S.Literal(""), S.Literals(["true", "false"])]).pipe(
+export const SpellCheck = LiteralKit(["true", "false", ""]).pipe(
   $I.annoteSchema("SpellCheck", { description: "Whether spellchecking is enabled." })
 );
 /**
@@ -77,7 +79,7 @@ export const SpellCheck = S.Union([S.Literal(""), S.Literals(["true", "false"])]
  * @category schemas
  * @since 0.0.0
  */
-export const WritingSuggestions = S.Literals(["true", "false"]).pipe(
+export const WritingSuggestions = LiteralKit(["true", "false"]).pipe(
   $I.annoteSchema("WritingSuggestions", { description: "Whether writing suggestions are enabled." })
 );
 /**
@@ -86,7 +88,7 @@ export const WritingSuggestions = S.Literals(["true", "false"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const AutoCapitalize = S.Literals(["off", "none", "on", "sentences", "words", "characters"]).pipe(
+export const AutoCapitalize = LiteralKit(["off", "none", "on", "sentences", "words", "characters"]).pipe(
   $I.annoteSchema("AutoCapitalize", { description: "Autocapitalization behavior." })
 );
 /**
@@ -95,7 +97,7 @@ export const AutoCapitalize = S.Literals(["off", "none", "on", "sentences", "wor
  * @category schemas
  * @since 0.0.0
  */
-export const AutoCorrect = S.Literals(["on", "off"]).pipe(
+export const AutoCorrect = LiteralKit(["on", "off"]).pipe(
   $I.annoteSchema("AutoCorrect", { description: "Autocorrection behavior." })
 );
 /**
@@ -104,7 +106,7 @@ export const AutoCorrect = S.Literals(["on", "off"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const InputMode = S.Literals(["none", "text", "tel", "url", "email", "numeric", "decimal", "search"]).pipe(
+export const InputMode = LiteralKit(["none", "text", "tel", "url", "email", "numeric", "decimal", "search"]).pipe(
   $I.annoteSchema("InputMode", { description: "Virtual keyboard input mode hint." })
 );
 /**
@@ -113,7 +115,7 @@ export const InputMode = S.Literals(["none", "text", "tel", "url", "email", "num
  * @category schemas
  * @since 0.0.0
  */
-export const EnterKeyHint = S.Literals(["enter", "done", "go", "next", "previous", "search", "send"]).pipe(
+export const EnterKeyHint = LiteralKit(["enter", "done", "go", "next", "previous", "search", "send"]).pipe(
   $I.annoteSchema("EnterKeyHint", { description: "Enter-key action hint." })
 );
 /**
@@ -122,7 +124,7 @@ export const EnterKeyHint = S.Literals(["enter", "done", "go", "next", "previous
  * @category schemas
  * @since 0.0.0
  */
-export const Hidden = S.Union([S.Literal(""), S.Literals(["hidden", "until-found"])]).pipe(
+export const Hidden = LiteralKit(["", "hidden", "until-found"]).pipe(
   $I.annoteSchema("Hidden", { description: "Hidden state of the element." })
 );
 /**
@@ -131,7 +133,7 @@ export const Hidden = S.Union([S.Literal(""), S.Literals(["hidden", "until-found
  * @category schemas
  * @since 0.0.0
  */
-export const Popover = S.Literals(["auto", "manual", "hint"]).pipe(
+export const Popover = LiteralKit(["auto", "manual", "hint"]).pipe(
   $I.annoteSchema("Popover", { description: "Popover behavior." })
 );
 /**
@@ -140,7 +142,7 @@ export const Popover = S.Literals(["auto", "manual", "hint"]).pipe(
  * @category schemas
  * @since 0.0.0
  */
-export const PopoverTargetAction = S.Literals(["toggle", "show", "hide"]).pipe(
+export const PopoverTargetAction = LiteralKit(["toggle", "show", "hide"]).pipe(
   $I.annoteSchema("PopoverTargetAction", { description: "Action a popover invoker performs." })
 );
 /**
@@ -282,7 +284,7 @@ const ariaAttributeNames = [
  */
 export const AriaAttributes = {
   role: S.optionalKey(S.String),
-  ...(Object.fromEntries(ariaAttributeNames.map((n) => [n, Str])) as {
+  ...(Struct.fromEntries(A.map(ariaAttributeNames, (n) => [n, Str])) as {
     readonly [K in (typeof ariaAttributeNames)[number]]: Str;
   }),
 } as const;
@@ -369,7 +371,7 @@ const eventHandlerNames = [
  * @category schemas
  * @since 0.0.0
  */
-export const EventHandlerAttributes = Object.fromEntries(eventHandlerNames.map((n) => [n, Str])) as {
+export const EventHandlerAttributes = Struct.fromEntries(A.map(eventHandlerNames, (n) => [n, Str])) as {
   readonly [K in (typeof eventHandlerNames)[number]]: Str;
 };
 

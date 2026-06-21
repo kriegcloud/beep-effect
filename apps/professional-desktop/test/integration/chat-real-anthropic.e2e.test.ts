@@ -19,9 +19,7 @@
 
 import { AnthropicTurnKernel } from "@beep/agents-server/AnthropicTurnKernel";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
-import * as Md from "@beep/md/Md.model";
 import { makeDrizzleLayer } from "@beep/postgres";
-import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { makePgliteSqlTestLayer } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
@@ -32,21 +30,18 @@ import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import * as Str from "effect/String";
+import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 import { migrateProfessionalDesktopDatabase } from "@/runtime/Migrations";
+import type * as Md from "@beep/md/Md.model";
 
 const realAnthropicChatTimeoutMillis = 300_000;
 const shouldRunRealAnthropic = Bun.env.BEEP_TEST_REAL_ANTHROPIC_CHAT === "1";
 const anthropicApiKeyEnv = "AI_ANTHROPIC_API_KEY";
 const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
-
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 const prompt = [
   "Return exactly these three rich blocks and no prose:",

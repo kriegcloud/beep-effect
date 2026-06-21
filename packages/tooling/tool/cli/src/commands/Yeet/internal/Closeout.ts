@@ -178,7 +178,7 @@ class GhReview extends S.Class<GhReview>($I`GhReview`)(
     comments: GhInlineReviewCommentConnection,
     id: S.String,
     state: S.String,
-    submittedAt: S.optionalKey(S.String),
+    submittedAt: S.String.pipe(S.NullOr, S.optionalKey),
   },
   $I.annote("GhReview", {
     description: "Pull request review returned by GitHub GraphQL.",

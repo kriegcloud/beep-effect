@@ -49,6 +49,8 @@ Nam = "Nam"
 ND = "ND"
 Som = "Som"
 HPE = "HPE"
+BA = "BA"
+PN = "PN"
 mis = "mis"
 
 # MIME/file-extension tokens and generated doc anchors.

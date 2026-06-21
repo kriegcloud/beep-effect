@@ -167,6 +167,32 @@ export const datePickerTheme: ThemeComponents = {
       }),
     },
   },
+  MuiMultiSectionDigitalClock: {
+    styleOverrides: {
+      root: {
+        width: "max-content",
+      },
+    },
+  },
+  MuiMultiSectionDigitalClockSection: {
+    styleOverrides: {
+      root: {
+        width: "auto",
+        minWidth: 56,
+        "&:last-of-type": {
+          minWidth: 88,
+          "& .MuiMultiSectionDigitalClockSection-item": {
+            minWidth: 80,
+          },
+        },
+      },
+      item: {
+        justifyContent: "center",
+        minWidth: 48,
+        paddingInline: 8,
+      },
+    },
+  },
   MuiPickersSectionList: {
     styleOverrides: {
       root: {

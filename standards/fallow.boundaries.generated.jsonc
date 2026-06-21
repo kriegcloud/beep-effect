@@ -1104,24 +1104,28 @@
         "from": "@beep/form",
         "allow": [
           "@beep/form",
-          "@beep/identity",
-          "@beep/types"
+          "@beep/schema",
+          "@beep/ui"
         ],
         "allowTypeOnly": [
           "@beep/form",
-          "@beep/identity",
-          "@beep/types"
+          "@beep/schema",
+          "@beep/ui"
         ]
       },
       {
         "from": "@beep/html",
         "allow": [
           "@beep/html",
-          "@beep/identity"
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/html",
-          "@beep/identity"
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -1861,10 +1865,12 @@
       {
         "from": "@beep/storybook",
         "allow": [
+          "@beep/form",
           "@beep/storybook",
           "@beep/ui"
         ],
         "allowTypeOnly": [
+          "@beep/form",
           "@beep/storybook",
           "@beep/ui"
         ]
@@ -1917,10 +1923,12 @@
       {
         "from": "@beep/ui",
         "allow": [
+          "@beep/schema",
           "@beep/ui",
           "@beep/utils"
         ],
         "allowTypeOnly": [
+          "@beep/schema",
           "@beep/ui",
           "@beep/utils"
         ]

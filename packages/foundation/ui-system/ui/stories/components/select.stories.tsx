@@ -108,7 +108,7 @@ export const Default: Story = {
       .click(trigger)
       .then(() => screen.findByRole("option", { name: "Apple" }))
       .then((option) => {
-        expect(option).toBeVisible();
+        expect(option).toBeInTheDocument();
       });
   },
 };

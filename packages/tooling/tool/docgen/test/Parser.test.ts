@@ -7,6 +7,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Path, pipe } from "effect";
 import * as P from "effect/Predicate";
 import * as ast from "ts-morph";
+import { defaultDocgenConfig } from "./helpers.ts";
 
 let testCounter = 0;
 
@@ -14,24 +15,6 @@ const project = new ast.Project({
   compilerOptions: { strict: true },
   useInMemoryFileSystem: true,
 });
-
-const defaultConfig: Configuration.ConfigurationShape = {
-  projectName: "docgen",
-  projectHomepage: "https://github.com/effect-ts/docgen",
-  srcLink: "https://github.com/effect-ts/docgen/blob/main/src/",
-  srcDir: "src",
-  outDir: "docs",
-  theme: "mikearnaldi/just-the-docs",
-  enableSearch: true,
-  enforceDescriptions: false,
-  enforceExamples: false,
-  enforceVersion: true,
-  runExamples: false,
-  tscExecutable: "tsc",
-  exclude: [],
-  parseCompilerOptions: {},
-  examplesCompilerOptions: {},
-};
 
 const makeSourcefile = (source: string | ast.SourceFile) => {
   if (P.isString(source)) {
@@ -64,7 +47,7 @@ const makeParserTestLayer = (source: string | ast.SourceFile, config?: Partial<C
     Path.layer,
     Parser.Source.layer(makeSource(source)),
     Configuration.Configuration.layer({
-      ...defaultConfig,
+      ...defaultDocgenConfig,
       ...config,
     })
   );

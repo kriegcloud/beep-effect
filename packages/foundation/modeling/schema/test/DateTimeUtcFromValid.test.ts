@@ -1,4 +1,8 @@
 import {
+  applyTimezone,
+  createDateTimeWithTimezone,
+  createInvalidDateTime,
+  DateInputToDateTime,
   DateTimeInput,
   DateTimeInputDate,
   DateTimeInputInstant,
@@ -31,6 +35,44 @@ const expectEpochMillis = (actual: DateTime.Utc, expected: number) => {
 describe("DateTimeInputKind", () => {
   it("decodes supported discriminator values", () => {
     expect(S.decodeUnknownSync(DateTimeInputKind)("Instant")).toBe("Instant");
+  });
+});
+
+describe("DateTime adapter helpers", () => {
+  it("decodes nullable adapter input", () => {
+    const decode = S.decodeUnknownSync(DateInputToDateTime);
+
+    expect(decode(null)).toBeNull();
+    expect(decode(undefined)).toBeUndefined();
+    expect(decode(iso)).toBe(iso);
+  });
+
+  it("creates DateTime values with picker timezone semantics", () => {
+    const utc = createDateTimeWithTimezone(iso, "UTC");
+    const zoned = createDateTimeWithTimezone(iso, "Europe/London");
+
+    expect(utc).not.toBeNull();
+    expect(zoned).not.toBeNull();
+    expect(utc !== null && DateTime.isUtc(utc)).toBe(true);
+    expect(zoned !== null && DateTime.isZoned(zoned)).toBe(true);
+    expect(zoned !== null && DateTime.isZoned(zoned) ? DateTime.zoneToString(zoned.zone) : "").toBe("Europe/London");
+  });
+
+  it("returns null for absent input and an invalid DateTime-shaped value for invalid strings", () => {
+    const invalid = createDateTimeWithTimezone("not-a-date", "UTC");
+
+    expect(createDateTimeWithTimezone(null, "UTC")).toBeNull();
+    expect(createDateTimeWithTimezone(undefined, "UTC")).toBeNull();
+    expect(invalid).not.toBeNull();
+    expect(invalid !== null && Number.isNaN(invalid.epochMilliseconds)).toBe(true);
+    expect(Number.isNaN(createInvalidDateTime().epochMilliseconds)).toBe(true);
+  });
+
+  it("applies offset timezone strings through Effect zone parsing", () => {
+    const zoned = applyTimezone(DateTime.makeUnsafe(iso), "+03:00");
+
+    expect(DateTime.isZoned(zoned)).toBe(true);
+    expect(DateTime.isZoned(zoned) ? DateTime.zoneToString(zoned.zone) : "").toBe("+03:00");
   });
 });
 

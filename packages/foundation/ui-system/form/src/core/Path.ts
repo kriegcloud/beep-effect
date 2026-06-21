@@ -11,9 +11,120 @@ import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
-import type { TUnsafe } from "@beep/types";
 
 const BRACKET_NOTATION_REGEX = /\[(\d+)]/g;
+
+type PrimitivePathLeaf = string | number | boolean | bigint | symbol | null | undefined;
+
+type BuildTuple<N extends number, Acc extends ReadonlyArray<unknown> = readonly []> = Acc["length"] extends N
+  ? Acc
+  : BuildTuple<N, readonly [...Acc, unknown]>;
+
+type Prev<N extends number> = BuildTuple<N> extends readonly [unknown, ...infer Rest] ? Rest["length"] : 0;
+
+type AppendDotPath<Path extends string, Segment extends string | number> = Path extends ""
+  ? `${Segment}`
+  : `${Path}.${Segment}`;
+
+type AppendBracketPath<Path extends string, Segment extends string | number> = Path extends ""
+  ? `${Segment}`
+  : `${Path}[${Segment}]`;
+
+type DepthExceededPath<Path extends string> = Path extends ""
+  ? string
+  : Path | `${Path}.${string}` | `${Path}[${number}]${string}`;
+
+type ArrayPathVariants<Element, Path extends string, Depth extends number> =
+  | AppendDotPath<Path, number>
+  | AppendBracketPath<Path, number>
+  | PathsLimited<Element, AppendDotPath<Path, number>, Prev<Depth>>
+  | PathsLimited<Element, AppendBracketPath<Path, number>, Prev<Depth>>;
+
+type ObjectPathVariants<Data, Path extends string, Depth extends number> = {
+  [Key in Extract<keyof Data, string | number>]-?:
+    | AppendDotPath<Path, Key>
+    | PathsLimited<Data[Key], AppendDotPath<Path, Key>, Prev<Depth>>;
+}[Extract<keyof Data, string | number>];
+
+type PathsLimited<Data, Path extends string = "", Depth extends number = 3> = Depth extends 0
+  ? DepthExceededPath<Path>
+  : Data extends PrimitivePathLeaf
+    ? Path
+    : Data extends ReadonlyArray<infer Element>
+      ? ArrayPathVariants<Element, Path, Depth>
+      : Data extends object
+        ? ObjectPathVariants<Data, Path, Depth>
+        : Path;
+
+/**
+ * Dot/bracket field paths available for a form value shape.
+ *
+ * @remarks
+ * Object keys use dot notation (`user.name`). Array entries accept both the
+ * TanStack-friendly dot form (`items.0.name`) and the schema formatter's
+ * bracket form (`items[0].name`).
+ *
+ * @example
+ * ```ts
+ * import type { Paths } from "@beep/form/core/Path"
+ *
+ * type ProfileForm = {
+ *   readonly user: {
+ *     readonly addresses: ReadonlyArray<{ readonly city: string }>
+ *   }
+ * }
+ *
+ * const cityPath = "user.addresses[0].city" satisfies Paths<ProfileForm>
+ * console.log(cityPath)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type Paths<Data> = PathsLimited<Data, "", 5>;
+
+/**
+ * Error map keyed by typed form paths, plus the empty-string root error key.
+ *
+ * @example
+ * ```ts
+ * import type { PathErrorMap } from "@beep/form/core/Path"
+ *
+ * type LoginForm = { readonly email: string }
+ *
+ * const errors = {
+ *   "": "Fix the highlighted fields.",
+ *   email: "Enter an email address.",
+ * } satisfies PathErrorMap<LoginForm>
+ *
+ * console.log(errors.email)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PathErrorMap<Data> = Partial<Record<Paths<Data> | "", string>>;
+
+/**
+ * Validator result shape used by path-keyed form validation helpers.
+ *
+ * @example
+ * ```ts
+ * import type { PathValidationResult } from "@beep/form/core/Path"
+ *
+ * type LoginForm = { readonly email: string }
+ *
+ * const result = {
+ *   email: "Required",
+ * } satisfies NonNullable<PathValidationResult<LoginForm>>
+ *
+ * console.log(result.email)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PathValidationResult<Data> = PathErrorMap<Data> | null;
 
 /**
  * Rejects prototype-sensitive path segments so dynamic paths can never read or
@@ -160,15 +271,15 @@ export const isPathOrParentDirty: {
  */
 export const getNestedValue: {
   (path: string): (obj: unknown) => unknown;
-  (obj: unknown, path: string): unknown;
-} = dual(2, (obj: unknown, path: string): unknown => {
+  <T>(obj: T, path: Paths<NoInfer<T>>): unknown;
+} = dual(2, <T>(obj: T, path: string): unknown => {
   if (path === "") return obj;
   const parts = pipe(path, Str.replace(BRACKET_NOTATION_REGEX, ".$1"), Str.split("."));
   let current: unknown = obj;
   for (const part of parts) {
     if (!P.isObjectOrArray(current)) return undefined;
     if (isBlockedPathSegment(part) || !hasOwnSegment(current, part)) return undefined;
-    current = (current as TUnsafe.Any as Readonly<Record<string, unknown>>)[part];
+    current = (current as unknown as Readonly<Record<string, unknown>>)[part];
   }
   return current;
 });
@@ -192,12 +303,12 @@ export const getNestedValue: {
  */
 export const setNestedValue: {
   (options: { readonly path: string; readonly value: unknown }): <T>(obj: T) => T;
-  <T>(obj: T, options: { readonly path: string; readonly value: unknown }): T;
+  <T>(obj: T, options: { readonly path: Paths<NoInfer<T>>; readonly value: unknown }): T;
 } = dual(2, <T>(obj: T, options: { readonly path: string; readonly value: unknown }): T => {
   const { path, value } = options;
   if (path === "") return value as T;
   const parts = pipe(path, Str.replace(BRACKET_NOTATION_REGEX, ".$1"), Str.split("."));
-  const result = { ...(obj as TUnsafe.Any as Record<string, unknown>) } as Record<string, unknown>;
+  const result = { ...(obj as unknown as Record<string, unknown>) } as Record<string, unknown>;
 
   // Reject prototype-sensitive paths outright; they are never valid form field
   // paths and assigning through them would poison the returned object.
@@ -211,9 +322,9 @@ export const setNestedValue: {
     if (A.isArray(existing)) {
       current[part] = A.copy(existing);
     } else {
-      current[part] = { ...(existing as TUnsafe.Any as Record<string, unknown>) };
+      current[part] = { ...(existing as unknown as Record<string, unknown>) };
     }
-    current = current[part] as TUnsafe.Any as Record<string, unknown>;
+    current = current[part] as unknown as Record<string, unknown>;
   }
 
   const lastPart = parts[A.length(parts) - 1];

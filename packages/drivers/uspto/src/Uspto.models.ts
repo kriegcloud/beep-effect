@@ -132,9 +132,9 @@ export const normalizeUsptoApplicationNumber = (text: string): O.Option<string> 
  */
 export const normalizeUsptoPatentNumber: (text: string) => O.Option<string> = flow(
   Str.toUpperCase,
-  (value) => value.replaceAll(/[\s,]/gu, ""),
-  (value) => value.replace(/^US/u, ""),
-  (value) => value.replace(/[A-Z]\d?$/u, ""),
+  Str.replaceAll(/[\s,]/gu, ""),
+  Str.replace(/^US/u, ""),
+  Str.replace(/[A-Z]\d?$/u, ""),
   (candidate) => (patentNumberPattern.test(candidate) ? O.some(candidate) : O.none())
 );
 

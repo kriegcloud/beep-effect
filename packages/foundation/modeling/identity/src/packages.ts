@@ -124,7 +124,6 @@ const generatedComposers = $I.compose(
   "phoenix",
   "konva",
   "ai-sync",
-  "form",
   "nlp-mcp",
   "wink",
   "file-processing",
@@ -137,6 +136,7 @@ const generatedComposers = $I.compose(
   "editor",
   "html",
   "pandoc-ast",
+  "form",
   "pglite",
   "m365",
   "m365-mcp"
@@ -1272,22 +1272,6 @@ export const $KonvaId: Identity.IdentityComposer<"@beep/konva"> = composers.$Kon
 export const $AiSyncId: Identity.IdentityComposer<"@beep/ai-sync"> = composers.$AiSyncId;
 
 /**
- * Identity composer for `@beep/form`.
- *
- * @example
- * ```typescript
- * import { $FormId } from "@beep/identity"
- *
- * const id = $FormId.make("Form")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormId;
-
-/**
  * Identity composer for `@beep/box`.
  *
  * @example
@@ -1494,6 +1478,22 @@ export const $HtmlId: Identity.IdentityComposer<"@beep/html"> = composers.$HtmlI
  * @category configuration
  */
 export const $PandocAstId: Identity.IdentityComposer<"@beep/pandoc-ast"> = composers.$PandocAstId;
+
+/**
+ * Identity composer for `@beep/form`.
+ *
+ * @example
+ * ```typescript
+ * import { $FormId } from "@beep/identity"
+ *
+ * const id = $FormId.make("Form")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FormId: Identity.IdentityComposer<"@beep/form"> = composers.$FormId;
 
 /**
  * Identity composer for `@beep/pglite`.

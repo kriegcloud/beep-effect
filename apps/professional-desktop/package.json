@@ -27,6 +27,7 @@
     "beep:lint:fix": "biome check package.json postcss.config.mjs tsconfig.json vite.config.ts vitest.config.ts vitest.integration.config.ts index.html public src server scripts test src-tauri/tauri.conf.json src-tauri/capabilities/default.json --write",
     "beep:test": "bunx --bun vitest run --exclude=test/integration/**",
     "beep:test:integration": "bunx --bun vitest run --config vitest.integration.config.ts --passWithNoTests",
+    "beep:test:integration:ipc": "bun run build:sidecar && BEEP_TEST_SIDECAR_IPC=1 bunx --bun vitest run --config vitest.integration.config.ts test/integration/sidecar-ipc-stdio.test.ts",
     "build": "bun run beep:build",
     "check": "bun run beep:check",
     "coverage": "bunx --bun vitest run --coverage --exclude=test/integration/**",
@@ -56,6 +57,7 @@
     "@beep/workspace-use-cases": "workspace:^",
     "@effect/atom-react": "catalog:",
     "@effect/platform-bun": "catalog:",
+    "@tauri-apps/api": "catalog:",
     "effect": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"
@@ -63,7 +65,8 @@
   "devDependencies": {
     "@beep/test-utils": "workspace:^",
     "@effect/vitest": "catalog:",
-    "@electric-sql/pglite": "0.5.3",
+    "@electric-sql/pglite": "0.4.6",
+    "@electric-sql/pglite-legacy-053": "npm:@electric-sql/pglite@0.5.3",
     "@tauri-apps/cli": "catalog:",
     "@testing-library/dom": "catalog:",
     "@testing-library/jest-dom": "catalog:",

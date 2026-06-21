@@ -64,6 +64,7 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
   enforceVersion: S.optionalKey(S.Boolean),
   tscExecutable: S.optionalKey(S.String),
   runExamples: S.optionalKey(S.Boolean),
+  include: S.Array(S.String).pipe(S.optionalKey),
   exclude: S.Array(S.String).pipe(S.optionalKey),
   parseCompilerOptions: S.optionalKey(CompilerOptionsSchema),
   examplesCompilerOptions: S.optionalKey(CompilerOptionsSchema),
@@ -100,6 +101,7 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
   enforceVersion: S.Boolean,
   examplesCompilerOptions: CompilerOptionsShape,
   exclude: S.Array(S.String),
+  include: S.Array(S.String),
   outDir: S.String,
   parseCompilerOptions: CompilerOptionsShape,
   projectHomepage: S.String,
@@ -157,6 +159,7 @@ type LoadArgs = {
   readonly enforceVersion: O.Option<boolean>;
   readonly examplesCompilerOptions: O.Option<CompilerOptionsInput>;
   readonly exclude: O.Option<ReadonlyArray<string>>;
+  readonly include: O.Option<ReadonlyArray<string>>;
   readonly outDir: O.Option<string>;
   readonly parseCompilerOptions: O.Option<CompilerOptionsInput>;
   readonly projectHomepage: O.Option<string>;
@@ -361,6 +364,7 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
   const enforceVersion = resolveBoolean(args.enforceVersion, O.fromNullishOr(docgenConfig?.enforceVersion), true);
   const tscExecutable = resolveString(args.tscExecutable, O.fromNullishOr(docgenConfig?.tscExecutable), "tsc");
   const runExamples = resolveBoolean(args.runExamples, O.fromNullishOr(docgenConfig?.runExamples), false);
+  const include = O.getOrElse(args.include, () => docgenConfig?.include ?? []);
   const exclude = O.getOrElse(args.exclude, () => docgenConfig?.exclude ?? []);
   const parseCompilerOptions = yield* resolveCompilerOptions(
     args.parseCompilerOptions,
@@ -397,6 +401,7 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
     enforceVersion,
     tscExecutable,
     runExamples,
+    include,
     exclude,
     parseCompilerOptions,
     examplesCompilerOptions,

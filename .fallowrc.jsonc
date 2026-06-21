@@ -110,6 +110,14 @@
     "@lexical/link",
     "@lexical/list",
     "@lexical/rich-text",
+    // @beep/storybook: package stories are discovered by Storybook's external
+    // stories glob; the host app declares @beep/form so Vite can resolve the
+    // workspace package while fallow attributes the imports to the package that
+    // owns the stories.
+    "@beep/form",
+    // @beep/storybook: mounted through Storybook staticDirs so frimousse can
+    // load the self-hosted emojibase dataset at runtime.
+    "emojibase-data",
     // @beep/m365: upstream Graph conformance imports live in dtslint/**
     // (ignored above); the driver intentionally has no runtime SDK dependency.
     "@microsoft/microsoft-graph-types",

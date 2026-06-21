@@ -1,7 +1,7 @@
 # @beep/form Agent Guide
 
 ## Purpose & Fit
--
+- 
 
 ## Surface Map
 | Surface | Key exports | Notes |

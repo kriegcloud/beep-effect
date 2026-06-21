@@ -1014,18 +1014,6 @@
       ],
       "@beep/ai-sync": ["./packages/tooling/library/ai-sync/src/index.ts"],
       "@beep/ai-sync/*": ["./packages/tooling/library/ai-sync/src/*"],
-      "@beep/form": ["./packages/foundation/ui-system/form/src/index.ts"],
-      "@beep/form/core": ["./packages/foundation/ui-system/form/src/core.ts"],
-      "@beep/form/core/internal/dirty": [
-        "./packages/foundation/ui-system/form/src/core/internal/dirty.ts"
-      ],
-      "@beep/form/core/internal/weak-registry": [
-        "./packages/foundation/ui-system/form/src/core/internal/weak-registry.ts"
-      ],
-      "@beep/form/react": ["./packages/foundation/ui-system/form/src/react.ts"],
-      "@beep/form/react/FormReact": [
-        "./packages/foundation/ui-system/form/src/react/FormReact.tsx"
-      ],
       "@beep/schema/test/Markdown": [
         "./packages/foundation/modeling/schema/src/internal/test/Markdown.test-kit.ts"
       ],
@@ -1183,6 +1171,7 @@
       "@beep/file-processing/PathSafety": [
         "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
       ],
+      "@beep/form": ["./packages/foundation/ui-system/form/src/index.ts"],
       "@beep/epistemic-domain/values/ClaimGate": [
         "./packages/epistemic/domain/src/values/ClaimGate/index.ts"
       ],
@@ -1284,6 +1273,9 @@
       ],
       "@beep/m365-mcp/*": [
         "./packages/drivers/m365-mcp/src/*"
+      ],
+      "@beep/ui/themes/theme-provider": [
+        "./packages/foundation/ui-system/ui/src/themes/theme-provider.tsx"
       ]
     }
   }

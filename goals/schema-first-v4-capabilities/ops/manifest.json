@@ -88,7 +88,6 @@
     "packages/foundation/capability/nlp/test/PatternCore.test.ts",
     "packages/foundation/capability/semantic-web/test/JsonLd.test.ts",
     "packages/foundation/capability/semantic-web/test/ServicesAndSurface.test.ts",
-    "packages/foundation/ui-system/form/test/core/Form.test.ts",
     "packages/foundation/modeling/schema/test/Sha256.test.ts",
     "packages/foundation/modeling/schema/test/Email.test.ts",
     "packages/foundation/modeling/schema/test/Markdown.test.ts",
@@ -218,7 +217,7 @@
     "cd packages/tooling/tool/cli && bun run lint",
     "bun run beep yeet verify --plan --json",
     "bun run beep yeet verify --tier review-fix --plan --json",
-    "git diff --check -- goals/schema-first-v4-capabilities scratchpad standards .claude package.json bun.lock packages/tooling/tool/cli packages/drivers/runpod packages/drivers/libpff packages/drivers/tika packages/drivers/venice-ai packages/drivers/acp packages/architecture-lab/server packages/shared/ui packages/foundation/modeling/md packages/foundation/capability/file-processing packages/foundation/capability/nlp packages/foundation/capability/semantic-web packages/foundation/ui-system/form packages/drivers/hubspot packages/foundation/modeling/schema packages/foundation/modeling/rdf packages/shared/domain packages/tooling/policy-pack/repo-configs apps/oip-web packages/agent-capability/use-cases packages/tooling/library/repo-utils"
+    "git diff --check -- goals/schema-first-v4-capabilities scratchpad standards .claude package.json bun.lock packages/tooling/tool/cli packages/drivers/runpod packages/drivers/libpff packages/drivers/tika packages/drivers/venice-ai packages/drivers/acp packages/architecture-lab/server packages/shared/ui packages/foundation/modeling/md packages/foundation/capability/file-processing packages/foundation/capability/nlp packages/foundation/capability/semantic-web packages/drivers/hubspot packages/foundation/modeling/schema packages/foundation/modeling/rdf packages/shared/domain packages/tooling/policy-pack/repo-configs apps/oip-web packages/agent-capability/use-cases packages/tooling/library/repo-utils"
   ],
   "yeetIntegration": {
     "qualityStep": "bun run beep lint schema-first",

@@ -25,9 +25,7 @@
  */
 import { FixtureTurnKernel } from "@beep/agents-use-cases/proof";
 import { AgentTurnKernel } from "@beep/agents-use-cases/public";
-import * as Md from "@beep/md/Md.model";
 import { makeDrizzleLayer } from "@beep/postgres";
-import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { makePgliteIntegrationGate, makePgliteSqlTestLayer } from "@beep/test-utils";
 import { Thread as ThreadLayers } from "@beep/workspace-server";
 import { Thread } from "@beep/workspace-use-cases/server";
@@ -36,18 +34,14 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
 import { Chunk, Effect, Layer } from "effect";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
+import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 import { makeChatOperations } from "@/chat/ChatOrchestrator";
 import { UsageRecordSink, UsageRecordSinkDrizzle } from "@/chat/UsageRecordSink";
 import { migrateOnBoot } from "@/runtime/Migrations";
 
 const { shouldRunPgliteIntegration, pgliteIntegrationTimeoutMillis } = makePgliteIntegrationGate();
 const makeInProcessPgliteLayer = () => Layer.fresh(makePgliteSqlTestLayer({ mode: "in-process" }));
-
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 const migrateAll = Effect.fnUntraced(function* () {
   yield* migrateOnBoot;

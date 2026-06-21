@@ -11,15 +11,17 @@
     "outDir": "dist-test",
     "rootDir": ".",
     "sourceMap": false,
-    "types": ["node", "bun-types", "@testing-library/jest-dom"],
-    "plugins": [
-      {
-        "name": "@effect/language-service",
-        "ignoreEffectSuggestionsInTscExitCode": true,
-        "ignoreEffectWarningsInTscExitCode": true,
-        "ignoreEffectErrorsInTscExitCode": true,
-        "includeSuggestionsInTsc": false
-      }
-    ]
-  }
+    "types": ["node", "bun-types"]
+  },
+  "references": [
+    {
+      "path": "../../modeling/schema/tsconfig.json"
+    },
+    {
+      "path": "../../modeling/utils/tsconfig.json"
+    },
+    {
+      "path": "../ui/tsconfig.json"
+    }
+  ]
 }

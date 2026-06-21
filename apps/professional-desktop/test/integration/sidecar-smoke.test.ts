@@ -21,21 +21,15 @@
  * integration-lane suites.
  */
 import { ChatRpcs } from "@beep/agents-use-cases/public";
-import * as Md from "@beep/md/Md.model";
-import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { provideScopedLayer } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Chunk, Effect } from "effect";
-import * as S from "effect/Schema";
 import * as Stream from "effect/Stream";
 import { RpcTest } from "effect/unstable/rpc";
+import { decodeWorkspaceId, userDocument } from "@/chat/ChatFixtures";
 import { RuntimeTest } from "@/runtime/Layer";
 
 const shouldRun = Bun.env.BEEP_TEST_SIDECAR_SMOKE === "1";
-
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceIdentity.WorkspaceId);
-const userDocument = (text: string): Md.Document.Type =>
-  Md.Document.make({ children: [Md.P.make({ children: [Md.Text.make({ value: text })] })] });
 
 // Build a fresh in-process rpc client wired to the fixture runtime handler
 // group, mirroring how the sidecar binds ChatRpcs to RuntimeLive.

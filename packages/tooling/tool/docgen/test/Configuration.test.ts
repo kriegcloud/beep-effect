@@ -21,6 +21,7 @@ const makeLoadArgs = (): Parameters<typeof Configuration.load>[0] => ({
   enforceVersion: O.none(),
   tscExecutable: O.none(),
   runExamples: O.none(),
+  include: O.none(),
   exclude: O.none(),
   parseCompilerOptions: O.none(),
   examplesCompilerOptions: O.none(),
@@ -85,6 +86,7 @@ describe("Configuration", () => {
               enforceVersion: true,
               runExamples: false,
               tscExecutable: "tsc",
+              include: [],
               exclude: [],
               parseCompilerOptions: Configuration.defaultCompilerOptions,
               examplesCompilerOptions: {
@@ -133,6 +135,7 @@ describe("Configuration", () => {
               enforceVersion: true,
               runExamples: false,
               tscExecutable: "tsc",
+              include: [],
               exclude: [],
               parseCompilerOptions: {
                 noEmit: true,

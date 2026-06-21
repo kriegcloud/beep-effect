@@ -1,7 +1,7 @@
 {
   "name": "@beep/form",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.0",
+  "description": "Schema-first, effect-first form substrate on @tanstack/react-form bound to @beep/ui primitives",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -17,11 +17,11 @@
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
-    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
-    "beep:build": "tsc -b tsconfig.json && bun run babel",
-    "beep:check": "tsgo -b tsconfig.json && bun run beep:check:tests",
-    "beep:check:tests": "tsc -p tsconfig.test.json --noEmit",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "beep:build": "tsc -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json && bun run beep:check:tests && bun run beep:check:stories",
+    "beep:check:stories": "tsc -p tsconfig.stories.json --noEmit",
+    "beep:check:tests": "tsgo -p tsconfig.test.json --noEmit",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
     "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
@@ -32,63 +32,37 @@
     "docgen": "bun run ../../../../packages/tooling/tool/docgen/src/bin.ts",
     "lint": "bun run beep:lint",
     "lint:fix": "bun run beep:lint:fix",
+    "repo-exports:shard": "beep-cli quality repo-exports-catalog --package-shard",
     "test": "bun run beep:test",
     "test:integration": "bun run beep:test:integration"
   },
   "exports": {
+    "./package.json": "./package.json",
     ".": "./src/index.ts",
-    "./core": "./src/core.ts",
-    "./core/internal/dirty": "./src/core/internal/dirty.ts",
-    "./core/internal/weak-registry": "./src/core/internal/weak-registry.ts",
-    "./core/internal/*": null,
     "./core/*": "./src/core/*.ts",
-    "./internal/*": null,
-    "./react": "./src/react.ts",
-    "./react/FormReact": "./src/react/FormReact.tsx",
-    "./package.json": "./package.json"
+    "./fields/*": "./src/fields/*.tsx",
+    "./components/*": "./src/components/*.tsx",
+    "./hooks/*": "./src/hooks/*.tsx",
+    "./internal/*": null
   },
   "files": [
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "dist/**/*.js",
-    "dist/**/*.js.map",
-    "dist/**/*.d.ts",
-    "dist/**/*.d.ts.map"
+    "src/**/*.tsx"
   ],
   "sideEffects": [],
-  "publishConfig": {
-    "access": "public",
-    "provenance": true,
-    "exports": {
-      ".": "./dist/index.js",
-      "./core": "./dist/core.js",
-      "./core/internal/dirty": "./dist/core/internal/dirty.js",
-      "./core/internal/weak-registry": "./dist/core/internal/weak-registry.js",
-      "./core/internal/*": null,
-      "./core/*": "./dist/core/*.js",
-      "./internal/*": null,
-      "./react": "./dist/react.js",
-      "./react/FormReact": "./dist/react/FormReact.js",
-      "./package.json": "./package.json"
-    }
-  },
   "dependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/types": "workspace:^",
-    "@effect/atom-react": "catalog:",
+    "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@tanstack/react-form": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@testing-library/dom": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
-    "@testing-library/react": "catalog:",
-    "@testing-library/user-event": "^14.6.1",
+    "@storybook/react-vite": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "bun-types": "catalog:",
-    "jsdom": "catalog:"
+    "storybook": "catalog:"
   },
   "peerDependencies": {
     "react": "^19",
