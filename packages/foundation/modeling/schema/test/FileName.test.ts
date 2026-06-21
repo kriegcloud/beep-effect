@@ -9,6 +9,7 @@ describe("FileName", () => {
   it("accepts portable file names with known extensions", () => {
     expect(decode("readme.txt")).toBe("readme.txt");
     expect(decode("archive.tar.gz")).toBe("archive.tar.gz");
+    expect(decode("release.notes.v1.txt")).toBe("release.notes.v1.txt");
     expect(decode(".cache.png")).toBe(".cache.png");
   });
 
@@ -23,6 +24,7 @@ describe("FileName", () => {
 
   it("rejects names without a known extension segment", () => {
     expect(() => decode("readme")).toThrow();
+    expect(() => decode("readme.")).toThrow();
     expect(() => decode("readme.unknownext")).toThrow();
   });
 

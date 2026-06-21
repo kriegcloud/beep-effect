@@ -14,6 +14,12 @@ epistemic public surface, and projected into the same trivial answer as the
 rung-0 spike. Tests also prove at least one non-happy-path extraction/alignment
 case does not silently become an admitted unsupported claim.
 
+Operational end state: the implementation is completed on a feature branch and
+published with Yeet into a mergeable PR. "Mergeable" means hosted checks are
+green, `yeet closeout` reports no unresolved actionable review comments or bot
+blockers, and GitHub reports the branch as mergeable/not conflicted. Do not
+auto-merge without explicit user approval.
+
 ## Non-Goals
 
 - No real client matter, private corpus fixture, or privileged document.
@@ -24,6 +30,19 @@ case does not silently become an admitted unsupported claim.
   stable; multi-reference 103 plus 101/112 can begin only after P1 is green.
 - No direct imports from epistemic internals; compose only public surfaces.
 - No rework of `@beep/file-processing` P1 unless a narrow blocker is proven.
+
+## Branch And PR Contract
+
+- If the `/goal` launcher starts on `main` or another protected/default branch,
+  fetch `origin/main`, confirm the base is fresh, and create a feature branch
+  before editing.
+- Use Yeet for the end-to-end path: local proof with
+  `bun run beep yeet verify`, publish with
+  `bun run beep yeet publish --pr --monitor --message "feat(law-practice): service-backed office action extraction"`,
+  then monitor and close out hosted checks/review feedback.
+- Use follow-up Yeet publishes for failed checks or actionable PR nits. The goal
+  is not closed merely because local tests pass; it closes only when the PR is
+  ready to merge.
 
 ## Source Hierarchy
 
@@ -90,6 +109,9 @@ Higher sources outrank lower sources when they conflict.
       handling are either implemented after service extraction is green or
       recorded as the next packet phase with no overclaim.
 - [ ] No real client fixtures or provider secrets are introduced.
+- [ ] The branch is published through Yeet as a PR and brought to mergeable
+      state: hosted checks green, closeout clean, and no unresolved actionable
+      review comments.
 - [ ] No unrelated refactors or formatting churn.
 
 ## Verification Matrix
@@ -103,6 +125,8 @@ Higher sources outrank lower sources when they conflict.
 | Focused tests | `bun test packages/law-practice/server/test/LawPracticeServer.test.ts` | Happy and non-happy paths covered |
 | Authoritative typecheck | `bun run check` | Green or unrelated failures classified |
 | Final quality | `bun run beep yeet verify` | Green or no new failures classified |
+| PR publish | `bun run beep yeet publish --pr --monitor --message "feat(law-practice): service-backed office action extraction"` | PR exists for the feature branch |
+| Hosted closeout | `bun run beep yeet monitor --summary` and `bun run beep yeet closeout --summary --require-greptile-score 5/5 --require-greptile-issues 0 --require-review-comments 0` | Checks green; no actionable review/bot blockers |
 
 Packet reference search:
 

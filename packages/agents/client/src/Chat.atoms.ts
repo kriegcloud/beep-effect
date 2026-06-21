@@ -53,6 +53,47 @@ const SERVER_URL = ((): string => {
 Atom.runtime.addGlobalLayer(ClientObservabilityLive);
 
 /**
+ * The default HTTP protocol used by browser and non-IPC desktop sessions.
+ *
+ * The URL is resolved at module load from the active browser origin: dev-server
+ * sessions use a relative `/rpc`, while packaged non-IPC desktop sessions fall
+ * back to the local sidecar server.
+ *
+ * @example
+ * ```ts
+ * import { HttpChatProtocolLive } from "@beep/agents-client"
+ *
+ * console.log(HttpChatProtocolLive)
+ * ```
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export const HttpChatProtocolLive: Layer.Layer<RpcClient.Protocol> = RpcClient.layerProtocolHttp({
+  url: SERVER_URL,
+}).pipe(Layer.provide([RpcSerialization.layerNdjson, FetchHttpClient.layer]));
+
+/**
+ * Writable transport selector consumed by {@link ChatClient}.
+ *
+ * Apps that own a non-HTTP transport set this atom before mounting chat atoms;
+ * otherwise the client keeps the default HTTP protocol. Professional Desktop
+ * uses this to swap in its Tauri IPC protocol only after the shell confirms the
+ * sidecar was spawned in IPC mode.
+ *
+ * @example
+ * ```ts
+ * import { chatProtocolLayerAtom, HttpChatProtocolLive } from "@beep/agents-client"
+ *
+ * console.log(chatProtocolLayerAtom, HttpChatProtocolLive)
+ * ```
+ *
+ * @category atoms
+ * @since 0.0.0
+ */
+export const chatProtocolLayerAtom: Atom.Writable<Layer.Layer<RpcClient.Protocol>> = Atom.make(HttpChatProtocolLive);
+
+/**
  * Flattened rpc client for {@link ChatRpcs}, integrated with atom reactivity.
  * Exposes `query`/`runtime`/the flat client used by the atoms below.
  *
@@ -68,9 +109,7 @@ Atom.runtime.addGlobalLayer(ClientObservabilityLive);
  */
 export class ChatClient extends AtomRpc.Service<ChatClient>()("ChatClient", {
   group: ChatRpcs,
-  protocol: RpcClient.layerProtocolHttp({ url: SERVER_URL }).pipe(
-    Layer.provide([RpcSerialization.layerNdjson, FetchHttpClient.layer])
-  ),
+  protocol: (get) => get(chatProtocolLayerAtom),
 }) {}
 
 // ---------------------------------------------------------------------------

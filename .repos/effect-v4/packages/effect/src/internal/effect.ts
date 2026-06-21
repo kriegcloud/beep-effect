@@ -934,11 +934,6 @@ export const succeedNone: Effect.Effect<Option.Option<never>> = succeed(
 )
 
 /** @internal */
-export const transposeOption = <A = never, E = never, R = never>(
-  self: Option.Option<Effect.Effect<A, E, R>>
-): Effect.Effect<Option.Option<A>, E, R> => Option.isNone(self) ? succeedNone : map(self.value, Option.some)
-
-/** @internal */
 export const failCauseSync = <E>(
   evaluate: LazyArg<Cause.Cause<E>>
 ): Effect.Effect<never, E> => suspend(() => failCause(internalCall(evaluate)))
@@ -955,24 +950,17 @@ const void_: Effect.Effect<void> = succeed(void 0)
 export { void_ as void }
 
 /** @internal */
-const try_ = <A, E = Cause.UnknownError>(
-  options: {
-    readonly try: LazyArg<A>
-    readonly catch: (error: unknown) => E
-  } | LazyArg<A>
-): Effect.Effect<A, E> => {
-  const evaluate = typeof options === "function" ? options : options.try
-  const catcher = typeof options === "function"
-    ? ((cause: unknown) => new UnknownError(cause, "An error occurred in Effect.try"))
-    : options.catch
-  return suspend(() => {
+const try_ = <A, E>(options: {
+  try: LazyArg<A>
+  catch: (error: unknown) => E
+}): Effect.Effect<A, E> =>
+  suspend(() => {
     try {
-      return succeed(internalCall(evaluate))
+      return succeed(internalCall(options.try))
     } catch (err) {
-      return fail(internalCall(() => catcher(err)) as E)
+      return fail(internalCall(() => options.catch(err)))
     }
   })
-}
 /** @internal */
 export { try_ as try }
 
@@ -999,22 +987,15 @@ export const tryPromise = <A, E = Cause.UnknownError>(
     ? ((cause: unknown) => new UnknownError(cause, "An error occurred in Effect.tryPromise"))
     : options.catch
   return callbackOptions<A, E>(function(resume, signal) {
-    const failWithCatch = (cause: unknown) => {
-      try {
-        resume(fail(internalCall(() => catcher(cause)) as E))
-      } catch (err) {
-        resume(die(err))
-      }
-    }
     try {
       internalCall(() => f(signal!)).then(
         (a) => resume(succeed(a)),
-        failWithCatch
+        (e) => resume(fail(internalCall(() => catcher(e)) as E))
       )
     } catch (err) {
-      failWithCatch(err)
+      resume(fail(internalCall(() => catcher(err)) as E))
     }
-  }, f.length !== 0)
+  }, eval.length !== 0)
 }
 
 /** @internal */

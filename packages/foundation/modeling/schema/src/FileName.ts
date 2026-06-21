@@ -21,47 +21,77 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { flow, pipe } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { FileExtension } from "./FileExtension.ts";
 import { HasNullByte, UsesPosixSeparator, UsesWindowsSeparator } from "./FilePath/index.ts";
 
 const $I = $SchemaId.create("FileName");
 
 const isHasNullByte = S.is(HasNullByte);
+const isFileExtension = S.is(FileExtension);
+const isNonEmptyString = S.is(S.NonEmptyString);
 const isUsesPosixSeparator = S.is(UsesPosixSeparator);
 const isUsesWindowsSeparator = S.is(UsesWindowsSeparator);
 
-const FileNameStemChecks = S.makeFilterGroup(
+const fileNameLastDotIndex = (value: string): number =>
+  pipe(
+    Str.lastIndexOf(".")(value),
+    O.getOrElse(() => -1)
+  );
+
+const fileNameStem = (value: string): string => {
+  const index = fileNameLastDotIndex(value);
+  return index < 0 ? "" : pipe(value, Str.slice(0, index));
+};
+
+const fileNameExtension = (value: string): string => {
+  const index = fileNameLastDotIndex(value);
+  return index < 0 ? "" : pipe(value, Str.slice(index + 1));
+};
+
+const FileNameChecks = S.makeFilterGroup(
   [
-    S.makeFilter(P.not(isHasNullByte), {
+    S.makeFilter(flow(fileNameStem, isNonEmptyString), {
+      identifier: $I`FileNameStemNonEmptyCheck`,
+      title: "File Name Stem Non Empty",
+      description: "A file name with a non-empty stem before the final extension separator.",
+      message: "File name stems must not be empty",
+    }),
+    S.makeFilter(flow(fileNameStem, P.not(isHasNullByte)), {
       identifier: $I`FileNameStemNoNullByteCheck`,
       title: "File Name Stem No Null Byte",
       description: "A file-name stem without embedded NUL bytes.",
       message: "File name stems must not contain embedded NUL bytes",
     }),
-    S.makeFilter(P.not(isUsesPosixSeparator), {
+    S.makeFilter(flow(fileNameStem, P.not(isUsesPosixSeparator)), {
       identifier: $I`FileNameStemNoPosixSeparatorCheck`,
       title: "File Name Stem No Posix Separator",
       description: "A file-name stem that does not contain the POSIX path separator /.",
       message: "File name stems must not contain /",
     }),
-    S.makeFilter(P.not(isUsesWindowsSeparator), {
+    S.makeFilter(flow(fileNameStem, P.not(isUsesWindowsSeparator)), {
       identifier: $I`FileNameStemNoWindowsSeparatorCheck`,
       title: "File Name Stem No Windows Separator",
       description: "A file-name stem that does not contain the Windows path separator \\.",
       message: "File name stems must not contain \\",
     }),
+    S.makeFilter(flow(fileNameExtension, isFileExtension), {
+      identifier: $I`FileNameKnownExtensionCheck`,
+      title: "File Name Known Extension",
+      description: "A file name whose final extension segment is a known file extension.",
+      message: "File names must end with a known file extension",
+    }),
   ],
   {
-    identifier: $I`FileNameStemChecks`,
-    title: "File Name Stem",
-    description: "Checks for a non-empty file-name stem that can include additional dots but not path separators.",
+    identifier: $I`FileNameChecks`,
+    title: "File Name",
+    description: "Checks for a portable file name with a non-empty stem and known final extension.",
   }
 );
-
-const FileNameStem = S.NonEmptyString.check(FileNameStemChecks);
-const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
 
 /**
  * Schema for portable file names with a non-empty basename and known file extension.
@@ -85,7 +115,7 @@ const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
  * @since 0.0.0
  * @category validation
  */
-const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
+const FileNameSchema = S.String.check(FileNameChecks).pipe(
   (schema) =>
     schema.annotate({
       toArbitrary: () => (fc) =>

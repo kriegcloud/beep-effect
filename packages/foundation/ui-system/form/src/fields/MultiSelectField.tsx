@@ -17,6 +17,7 @@ import {
 } from "@beep/ui/components/combobox";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { ComboboxOptionsContent, optionValues } from "../internal/ComboboxFieldParts.tsx";
 import { BoundField } from "../internal/FieldBinding.tsx";
 import type React from "react";
@@ -63,6 +64,15 @@ const optionLabel = (options: ReadonlyArray<FieldOption>, value: string): React.
     {
       onNone: () => value,
       onSome: (option) => option.label,
+    }
+  );
+
+const optionAccessibleLabel = (options: ReadonlyArray<FieldOption>, value: string): string =>
+  O.match(
+    A.findFirst(options, (option) => option.value === value),
+    {
+      onNone: () => value,
+      onSome: (option) => (P.isString(option.label) || P.isNumber(option.label) ? String(option.label) : value),
     }
   );
 
@@ -129,7 +139,7 @@ export const MultiSelectField: React.FC<MultiSelectFieldProps> = ({
             <ComboboxValue>
               {(value: ReadonlyArray<string>) =>
                 A.map(value, (selected) => (
-                  <ComboboxChip key={selected} aria-label={selected}>
+                  <ComboboxChip key={selected} aria-label={optionAccessibleLabel(options, selected)}>
                     {optionLabel(options, selected)}
                   </ComboboxChip>
                 ))

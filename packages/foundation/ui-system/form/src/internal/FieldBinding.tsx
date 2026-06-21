@@ -6,13 +6,16 @@
  */
 "use client";
 
+import { DateTimeUtcFromValid } from "@beep/schema/DateTimeUtcFromValid";
 import { Field, FieldError, FieldLabel } from "@beep/ui/components/field";
+import { DateTime } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { useFieldContext } from "../core/contexts.ts";
 import { toFieldErrors } from "../core/Errors.ts";
 import { FieldShell } from "./FieldShell.tsx";
-import type * as DateTime from "effect/DateTime";
 import type React from "react";
 import type { FieldErrorEntry } from "../core/Errors.ts";
 import type { FieldOption } from "../core/Options.ts";
@@ -422,6 +425,17 @@ type DateTimePickerFieldProps = FieldChromeProps & {
   readonly slotProps?: PickerSlotProps | undefined;
 };
 
+const decodeDateTimePickerValue = S.decodeUnknownOption(DateTimeUtcFromValid);
+
+const toDateTimePickerValue = (value: unknown): DateTime.DateTime | null => {
+  if (value === null || value === undefined) return null;
+  if (DateTime.isDateTime(value)) return value;
+  return O.match(decodeDateTimePickerValue(value), {
+    onNone: () => null,
+    onSome: (decoded) => decoded,
+  });
+};
+
 const pickerTextFieldProps = (
   slotProps: PickerSlotProps | undefined,
   binding: BoundFieldState<DateTime.DateTime | null>
@@ -448,6 +462,11 @@ const pickerTextFieldProps = (
  * Picker primitives usually own popup/navigation state, while TanStack owns the
  * selected `DateTime | null` value. This factory injects the value handler and
  * text-field error props without taking over the picker popup.
+ *
+ * Date/time fields are intentionally type-side controls: pair them with schemas
+ * such as `S.NullOr(S.toType(DateTimeUtcFromValid))`. The binding preserves
+ * `DateTime.DateTime | null` values and decodes `DateTimeUtcFromValid`
+ * compatible encoded defaults before they enter the picker.
  *
  * @example
  * ```tsx
@@ -500,7 +519,7 @@ export function createDateTimePickerField<TProps extends DateTimePickerFieldProp
       {(binding) => (
         <Control
           {...(props as Omit<TProps, keyof FieldChromeProps>)}
-          value={binding.field.state.value}
+          value={toDateTimePickerValue(binding.field.state.value)}
           onValueChange={(value) => binding.field.handleChange(value)}
           slotProps={pickerTextFieldProps(slotProps, binding)}
         />

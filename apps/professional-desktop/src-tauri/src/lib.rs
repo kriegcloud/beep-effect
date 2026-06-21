@@ -1,4 +1,8 @@
 use serde::Serialize;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc, Mutex, MutexGuard,
+};
 use tauri::{AppHandle, Emitter, Manager, RunEvent};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
@@ -13,6 +17,21 @@ struct ProfessionalDesktopHealth {
     status: &'static str,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SidecarTransport {
+    ipc: bool,
+}
+
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SidecarClosed {
+    code: Option<i32>,
+    kind: &'static str,
+    message: Option<String>,
+    signal: Option<i32>,
+}
+
 #[tauri::command]
 fn professional_desktop_health() -> ProfessionalDesktopHealth {
     ProfessionalDesktopHealth {
@@ -24,8 +43,33 @@ fn professional_desktop_health() -> ProfessionalDesktopHealth {
     }
 }
 
+#[tauri::command]
+fn sidecar_transport() -> SidecarTransport {
+    SidecarTransport {
+        ipc: ipc_transport(),
+    }
+}
+
 /// The bundled rpc sidecar process, killed when the app exits.
-struct Sidecar(std::sync::Mutex<Option<CommandChild>>);
+struct Sidecar {
+    child: SharedSidecarChild,
+    ipc_ready: SharedIpcReady,
+    pending_closed: SharedPendingClosed,
+    pending_stdout_frames: SharedPendingStdoutFrames,
+}
+
+type SharedIpcReady = Arc<AtomicBool>;
+type SharedPendingClosed = Arc<Mutex<Option<SidecarClosed>>>;
+type SharedPendingStdoutFrames = Arc<Mutex<Vec<String>>>;
+type SharedSidecarChild = Arc<Mutex<Option<CommandChild>>>;
+
+/// Upper bound on a single IPC ndjson rpc frame, enforced in both directions: the
+/// inbound stdout bridge buffer (which only ever holds one in-flight frame, see
+/// `bridge_sidecar_events`) and outbound `sidecar_send` writes. A malformed/chatty
+/// child that floods stdout without a terminator, or a webview that sends an
+/// oversized frame, fails closed rather than growing memory without bound or
+/// stalling the transport.
+const MAX_IPC_FRAME_BYTES: usize = 8 * 1024 * 1024;
 
 /// Packaged secrets story: prefer an exported AI_ANTHROPIC_API_KEY, fall back
 /// to asking the 1Password CLI for the same secret reference `op run` resolves
@@ -55,26 +99,230 @@ fn ipc_transport() -> bool {
         .unwrap_or(false)
 }
 
-/// Pump the bundled sidecar's stdout to the webview over the `sidecar://rx`
-/// event channel. Each stdout chunk is the next slice of the ndjson rpc stream;
-/// the webview's ndjson decoder reassembles frames, so chunks are forwarded
-/// verbatim (decoded with UTF-8 replacement, which ndjson accepts). The sidecar keeps its
-/// logs on stderr in ipc mode, so they never pollute this frame stream.
-fn bridge_sidecar_stdio(app: &AppHandle, mut events: tauri::async_runtime::Receiver<CommandEvent>) {
+fn recover_lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(|err| err.into_inner())
+}
+
+fn emit_sidecar_closed(handle: &AppHandle, payload: SidecarClosed) {
+    let _ = handle.emit("sidecar://closed", payload);
+}
+
+fn emit_or_buffer_sidecar_closed(
+    handle: &AppHandle,
+    ready: &SharedIpcReady,
+    pending_closed: &SharedPendingClosed,
+    payload: SidecarClosed,
+) {
+    if ready.load(Ordering::SeqCst) {
+        emit_sidecar_closed(handle, payload);
+        return;
+    }
+
+    let mut pending = recover_lock(pending_closed);
+    if pending.is_none() {
+        *pending = Some(payload);
+    }
+}
+
+fn emit_or_buffer_ipc_stdout_frame(
+    handle: &AppHandle,
+    ready: &SharedIpcReady,
+    pending_closed: &SharedPendingClosed,
+    pending_stdout_frames: &SharedPendingStdoutFrames,
+    frame: Vec<u8>,
+) -> bool {
+    if is_blank_ipc_stdout_frame(&frame) {
+        log::warn!("sidecar stdout emitted a blank IPC frame; dropping it");
+        return true;
+    }
+
+    match String::from_utf8(frame) {
+        Ok(frame) => {
+            let mut pending = recover_lock(pending_stdout_frames);
+            if ready.load(Ordering::SeqCst) {
+                drop(pending);
+                let _ = handle.emit("sidecar://rx", frame);
+            } else {
+                pending.push(frame);
+            }
+            true
+        }
+        Err(err) => {
+            let message = format!("sidecar stdout was not valid utf-8: {err}");
+            log::error!("{message}");
+            emit_or_buffer_sidecar_closed(
+                handle,
+                ready,
+                pending_closed,
+                SidecarClosed {
+                    code: None,
+                    kind: "error",
+                    message: Some(message),
+                    signal: None,
+                },
+            );
+            false
+        }
+    }
+}
+
+fn is_blank_ipc_stdout_frame(frame: &[u8]) -> bool {
+    frame
+        .iter()
+        .all(|byte| matches!(*byte, b'\n' | b'\r' | b'\t' | b' '))
+}
+
+fn kill_sidecar(sidecar: &SharedSidecarChild) {
+    let mut guard = recover_lock(sidecar);
+    if let Some(child) = guard.take() {
+        let _ = child.kill();
+    }
+}
+
+/// Drain the bundled sidecar's output stream so child pipes can never fill.
+/// In IPC mode stdout is ndjson rpc and is forwarded to the webview only after
+/// a complete newline-delimited UTF-8 frame arrives. In HTTP mode stdout/stderr
+/// are logs, so both streams are simply pumped into the desktop log.
+fn bridge_sidecar_events(
+    app: &AppHandle,
+    mut events: tauri::async_runtime::Receiver<CommandEvent>,
+    ipc: bool,
+    sidecar: SharedSidecarChild,
+    ipc_ready: SharedIpcReady,
+    pending_closed: SharedPendingClosed,
+    pending_stdout_frames: SharedPendingStdoutFrames,
+) {
     let handle = app.clone();
     tauri::async_runtime::spawn(async move {
+        let mut stdout_buffer: Vec<u8> = Vec::new();
+        let mut closed_emitted = false;
+
         while let Some(event) = events.recv().await {
             match event {
                 CommandEvent::Stdout(bytes) => {
-                    let frame = String::from_utf8_lossy(&bytes).into_owned();
-                    let _ = handle.emit("sidecar://rx", frame);
+                    if ipc {
+                        stdout_buffer.extend(bytes);
+                        while let Some(newline_index) =
+                            stdout_buffer.iter().position(|byte| *byte == b'\n')
+                        {
+                            let frame: Vec<u8> = stdout_buffer.drain(..=newline_index).collect();
+                            if !emit_or_buffer_ipc_stdout_frame(
+                                &handle,
+                                &ipc_ready,
+                                &pending_closed,
+                                &pending_stdout_frames,
+                                frame,
+                            ) {
+                                closed_emitted = true;
+                                kill_sidecar(&sidecar);
+                                break;
+                            }
+                        }
+                        if closed_emitted {
+                            break;
+                        }
+                        // Fail closed if the sidecar floods stdout without a frame
+                        // terminator so a malformed/chatty child can never grow the
+                        // buffer without bound or stall delivery of later frames.
+                        if stdout_buffer.len() > MAX_IPC_FRAME_BYTES {
+                            let message = format!(
+                                "sidecar stdout exceeded {MAX_IPC_FRAME_BYTES} bytes without a complete frame; closing transport"
+                            );
+                            log::error!("{message}");
+                            closed_emitted = true;
+                            kill_sidecar(&sidecar);
+                            emit_or_buffer_sidecar_closed(
+                                &handle,
+                                &ipc_ready,
+                                &pending_closed,
+                                SidecarClosed {
+                                    code: None,
+                                    kind: "error",
+                                    message: Some(message),
+                                    signal: None,
+                                },
+                            );
+                            break;
+                        }
+                    } else {
+                        log::info!("sidecar: {}", String::from_utf8_lossy(&bytes).trim_end());
+                    }
                 }
                 CommandEvent::Stderr(bytes) => {
                     log::info!("sidecar: {}", String::from_utf8_lossy(&bytes).trim_end());
                 }
-                CommandEvent::Error(err) => log::error!("sidecar error: {err}"),
+                CommandEvent::Error(err) => {
+                    log::error!("sidecar error: {err}");
+                    closed_emitted = true;
+                    kill_sidecar(&sidecar);
+                    emit_or_buffer_sidecar_closed(
+                        &handle,
+                        &ipc_ready,
+                        &pending_closed,
+                        SidecarClosed {
+                            code: None,
+                            kind: "error",
+                            message: Some(err),
+                            signal: None,
+                        },
+                    );
+                }
+                CommandEvent::Terminated(payload) => {
+                    closed_emitted = true;
+                    if ipc && !stdout_buffer.is_empty() {
+                        let message = format!(
+                            "sidecar terminated with {} buffered stdout byte(s)",
+                            stdout_buffer.len()
+                        );
+                        log::error!("{message}");
+                        emit_or_buffer_sidecar_closed(
+                            &handle,
+                            &ipc_ready,
+                            &pending_closed,
+                            SidecarClosed {
+                                code: payload.code,
+                                kind: "error",
+                                message: Some(message),
+                                signal: payload.signal,
+                            },
+                        );
+                        kill_sidecar(&sidecar);
+                        continue;
+                    }
+                    log::warn!(
+                        "sidecar terminated: code={:?} signal={:?}",
+                        payload.code,
+                        payload.signal
+                    );
+                    kill_sidecar(&sidecar);
+                    emit_or_buffer_sidecar_closed(
+                        &handle,
+                        &ipc_ready,
+                        &pending_closed,
+                        SidecarClosed {
+                            code: payload.code,
+                            kind: "terminated",
+                            message: None,
+                            signal: payload.signal,
+                        },
+                    );
+                }
                 _ => {}
             }
+        }
+
+        if !closed_emitted {
+            emit_or_buffer_sidecar_closed(
+                &handle,
+                &ipc_ready,
+                &pending_closed,
+                SidecarClosed {
+                    code: None,
+                    kind: "event-stream-closed",
+                    message: Some("sidecar event stream closed before termination".to_string()),
+                    signal: None,
+                },
+            );
         }
     });
 }
@@ -85,11 +333,41 @@ fn bridge_sidecar_stdio(app: &AppHandle, mut events: tauri::async_runtime::Recei
 /// blocks on a full stdin pipe, which must never stall the webview.
 #[tauri::command]
 async fn sidecar_send(state: tauri::State<'_, Sidecar>, frame: String) -> Result<(), String> {
-    let mut guard = state.0.lock().map_err(|err| err.to_string())?;
+    // Reject oversized frames before touching stdin, mirroring the inbound stdout
+    // cap, so a buggy or hostile webview cannot block/kill the IPC transport.
+    if frame.len() > MAX_IPC_FRAME_BYTES {
+        return Err(format!(
+            "outbound ipc frame of {} bytes exceeds the {MAX_IPC_FRAME_BYTES}-byte limit",
+            frame.len()
+        ));
+    }
+    let mut guard = recover_lock(&state.child);
     match guard.as_mut() {
         Some(child) => child.write(frame.as_bytes()).map_err(|err| err.to_string()),
         None => Err("sidecar is not running".to_string()),
     }
+}
+
+/// Mark the IPC event listeners ready and replay frames buffered during sidecar
+/// boot. Tauri events are not durable, so the Rust bridge waits for this command
+/// before emitting stdout frames that may arrive before the webview subscribes.
+#[tauri::command]
+fn sidecar_ipc_ready(app: AppHandle, state: tauri::State<'_, Sidecar>) -> Result<(), String> {
+    {
+        let mut frames = recover_lock(&state.pending_stdout_frames);
+        for frame in frames.drain(..) {
+            app.emit("sidecar://rx", frame)
+                .map_err(|err| err.to_string())?;
+        }
+        state.ipc_ready.store(true, Ordering::SeqCst);
+    }
+
+    if let Some(payload) = recover_lock(&state.pending_closed).take() {
+        app.emit("sidecar://closed", payload)
+            .map_err(|err| err.to_string())?;
+    }
+
+    Ok(())
 }
 
 /// Ask the configured update server whether a newer version is available.
@@ -119,6 +397,8 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             professional_desktop_health,
+            sidecar_transport,
+            sidecar_ipc_ready,
             sidecar_send,
             check_for_update
         ])
@@ -164,13 +444,27 @@ pub fn run() {
 
                 if ipc {
                     command = command.env("CHAT_TRANSPORT", "ipc");
+                } else {
+                    command = command.env("CHAT_TRANSPORT", "http");
                 }
 
                 let (events, child) = command.spawn()?;
-                if ipc {
-                    bridge_sidecar_stdio(app.handle(), events);
-                }
-                app.manage(Sidecar(std::sync::Mutex::new(Some(child))));
+                let sidecar = Sidecar {
+                    child: Arc::new(Mutex::new(Some(child))),
+                    ipc_ready: Arc::new(AtomicBool::new(!ipc)),
+                    pending_closed: Arc::new(Mutex::new(None)),
+                    pending_stdout_frames: Arc::new(Mutex::new(Vec::new())),
+                };
+                bridge_sidecar_events(
+                    app.handle(),
+                    events,
+                    ipc,
+                    Arc::clone(&sidecar.child),
+                    Arc::clone(&sidecar.ipc_ready),
+                    Arc::clone(&sidecar.pending_closed),
+                    Arc::clone(&sidecar.pending_stdout_frames),
+                );
+                app.manage(sidecar);
             }
 
             // Best-effort update check on launch (packaged only); logs the result.
@@ -193,13 +487,26 @@ pub fn run() {
         .run(|app, event| {
             if let RunEvent::Exit = event {
                 if let Some(sidecar) = app.try_state::<Sidecar>() {
-                    // Don't panic on a poisoned lock during shutdown — recover the
-                    // guard so the child is still killed and never leaked.
-                    let mut guard = sidecar.0.lock().unwrap_or_else(|err| err.into_inner());
-                    if let Some(child) = guard.take() {
-                        let _ = child.kill();
-                    }
+                    kill_sidecar(&sidecar.child);
                 }
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_blank_ipc_stdout_frame;
+
+    #[test]
+    fn detects_blank_ipc_stdout_frames() {
+        assert!(is_blank_ipc_stdout_frame(b"\n"));
+        assert!(is_blank_ipc_stdout_frame(b"\r\n"));
+        assert!(is_blank_ipc_stdout_frame(b" \t\r\n"));
+    }
+
+    #[test]
+    fn preserves_ndjson_ipc_stdout_frames() {
+        assert!(!is_blank_ipc_stdout_frame(br#"{"jsonrpc":"2.0"}"#));
+        assert!(!is_blank_ipc_stdout_frame(b"{\"jsonrpc\":\"2.0\"}\n"));
+    }
 }

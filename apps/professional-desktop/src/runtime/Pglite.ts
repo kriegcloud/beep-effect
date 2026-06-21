@@ -1,3 +1,6 @@
+/// <reference path="../assets.d.ts" />
+// cspell:words initdb
+
 /**
  * In-process PGlite database provisioning for the desktop chat sidecar.
  *
@@ -31,9 +34,15 @@ import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Clock, Config, Data, Effect, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import initdbWasmPath from "../../../../node_modules/@electric-sql/pglite/dist/initdb.wasm" with { type: "file" };
+import pgliteDataPath from "../../../../node_modules/@electric-sql/pglite/dist/pglite.data" with { type: "file" };
+import pgliteWasmPath from "../../../../node_modules/@electric-sql/pglite/dist/pglite.wasm" with { type: "file" };
 import { migrateOnBoot } from "./Migrations.js";
 import type { PostgresDrizzle } from "@beep/postgres";
 import type { Context } from "effect";
+
+// Bun resolves `type: "file"` imports while compiling the sidecar executable;
+// Vite exposes the same files through `/@fs/` during integration tests.
 
 /**
  * Directory PGlite persists into, resolved from the environment.
@@ -65,7 +74,9 @@ export const ChatDbCompatibilityMarker = ".beep-pglite-inprocess-v1";
 const PgliteDataDirRequiredEntries = ["PG_VERSION", "base", "global"] as const;
 
 const ChatDbIncompatibleRecoveryMessage =
-  "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; restore or export it with the prior runtime, or choose a new empty CHAT_DB_PATH for this build.";
+  "Existing CHAT_DB_PATH looks like a PGlite data directory but cannot be opened by the bundled in-process runtime. The directory was left in place; export it with the prior desktop build before importing into a fresh current data dir, or reset by moving the old chat-db directory aside and starting with an empty CHAT_DB_PATH.";
+
+const ViteFileSystemPrefix = "/@fs/";
 
 class IncompatiblePgliteDataDir extends Data.TaggedError("IncompatiblePgliteDataDir")<{
   readonly cause: unknown;
@@ -109,7 +120,7 @@ export const markCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pglite
 const assertCanOpenInProcessPgliteDataDir = Effect.fn("ProfessionalDesktop.Pglite.assertCanOpenInProcessPgliteDataDir")(
   function* (dataDir: string) {
     yield* Effect.scoped(
-      Layer.build(Pglite.makeLayer({ dataDir })).pipe(
+      Layer.build(makeBundledPgliteLayer({ dataDir })).pipe(
         Effect.flatMap((context) =>
           Effect.gen(function* () {
             const sql = (yield* SqlClient.SqlClient).withoutTransforms();
@@ -214,7 +225,30 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
  * @category layers
  * @since 0.0.0
  */
-const makePgliteClientLive = (dataDir: string) => Pglite.makeLayer({ dataDir });
+const toBunFileSystemPath = (path: string): string =>
+  path.startsWith(ViteFileSystemPrefix) ? `/${path.slice(ViteFileSystemPrefix.length)}` : path;
+
+const compileWasmFile = (path: string): Promise<WebAssembly.Module> =>
+  Bun.file(toBunFileSystemPath(path)).arrayBuffer().then(WebAssembly.compile);
+
+const PgliteBinaryAssets = Effect.promise(() =>
+  Promise.all([compileWasmFile(pgliteWasmPath), compileWasmFile(initdbWasmPath)]).then(
+    ([pgliteWasmModule, initdbWasmModule]) => ({
+      fsBundle: Bun.file(toBunFileSystemPath(pgliteDataPath)),
+      initdbWasmModule,
+      pgliteWasmModule,
+    })
+  )
+);
+
+/**
+ * Build a PGlite layer with the desktop sidecar's bundled binary assets.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const makeBundledPgliteLayer = (options: Pglite.PgliteClientOptions = {}) =>
+  Layer.unwrap(Effect.map(PgliteBinaryAssets, (assets) => Pglite.makeLayer({ ...options, ...assets })));
 
 const MigrationPlatformLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 
@@ -237,7 +271,7 @@ export const PgliteDrizzleLive: Layer.Layer<PostgresDrizzle> = Layer.unwrap(
       Layer.tap((context: Context.Context<PostgresDrizzle>) =>
         Effect.provide(migrateOnBoot, context).pipe(Effect.andThen(markAfterMigration))
       ),
-      Layer.provide(makePgliteClientLive(dataDir))
+      Layer.provide(makeBundledPgliteLayer({ dataDir }))
     );
   })
 ).pipe(Layer.provide(MigrationPlatformLive), Layer.orDie);

@@ -1,13 +1,13 @@
-import * as Pglite from "@beep/pglite";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { describe, expect, layer } from "@effect/vitest";
-import { PGlite as LegacyPglite053 } from "@electric-sql/pglite";
+import { PGlite as LegacyPglite053 } from "@electric-sql/pglite-legacy-053";
 import { ConfigProvider, Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import {
   ChatDbCompatibilityMarker,
   ensureCompatibleChatDbDataDir,
+  makeBundledPgliteLayer,
   markCompatibleChatDbDataDir,
   PgliteDrizzleLive,
 } from "@/runtime/Pglite";
@@ -20,7 +20,7 @@ const provideScopedLayer =
     Effect.scoped(Layer.build(scopeLayer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
 const withPgliteSql = <A, E, R>(dataDir: string, effect: Effect.Effect<A, E, R>) =>
-  effect.pipe(provideScopedLayer(Pglite.makeLayer({ dataDir, relaxedDurability: true })));
+  effect.pipe(provideScopedLayer(makeBundledPgliteLayer({ dataDir, relaxedDurability: true })));
 
 const withChatDbPath =
   (dataDir: string) =>

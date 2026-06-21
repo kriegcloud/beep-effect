@@ -338,6 +338,7 @@ const pwaEnabledFromEnv = (env: BeepNextConfigEnv | undefined): boolean =>
 type BundleAnalyzerFeatureConfig = Exclude<BeepNextBundleAnalyzerConfig, false>;
 type MdxFeatureConfig = Exclude<BeepNextMdxConfig, false>;
 type PwaFeatureConfig = Exclude<BeepNextPwaConfig, false>;
+type SerwistNextConfigPlugin = ReturnType<typeof withSerwistInit>;
 
 const emptyBundleAnalyzerConfig: BundleAnalyzerFeatureConfig = {};
 const emptyMdxConfig: MdxFeatureConfig = {};
@@ -363,10 +364,10 @@ const pwaConfig = (config: BeepNextPwaConfig | undefined): O.Option<PwaFeatureCo
   return O.some(config);
 };
 
-const adaptForeignNextPlugin =
-  (plugin: ForeignNextConfigPlugin): NextConfigPlugin =>
-  (config) =>
-    plugin(config) as NextConfigFromNext;
+// Serwist can resolve its own Next canary, so its plugin type can point at a
+// different NextConfig identity even though the runtime config contract matches.
+const adaptSerwistNextConfigPlugin = (plugin: SerwistNextConfigPlugin): NextConfigPlugin =>
+  plugin as unknown as NextConfigPlugin;
 
 const makeBundleAnalyzerPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugin> =>
   pipe(
@@ -395,7 +396,7 @@ const makePwaPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugi
   pipe(
     pwaConfig(options.pwa),
     O.map((config) =>
-      adaptForeignNextPlugin(
+      adaptSerwistNextConfigPlugin(
         withSerwistInit({
           swSrc: withDefault(config.swSrc, "src/app/sw.ts"),
           swDest: withDefault(config.swDest, "public/sw.js"),
@@ -403,7 +404,7 @@ const makePwaPlugin = (options: BeepNextConfigOptions): O.Option<NextConfigPlugi
           ...(P.isUndefined(config.register) ? {} : { register: config.register }),
           ...(P.isUndefined(config.cacheOnNavigation) ? {} : { cacheOnNavigation: config.cacheOnNavigation }),
           ...(P.isUndefined(config.reloadOnOnline) ? {} : { reloadOnOnline: config.reloadOnOnline }),
-        }) as ForeignNextConfigPlugin
+        })
       )
     )
   );

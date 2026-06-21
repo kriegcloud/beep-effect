@@ -11,11 +11,13 @@
  */
 
 import { OperationId, SourceArtifact } from "@beep/file-processing/Artifact";
+import { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
+import { LangExtractError } from "@beep/langextract/Extraction";
 import { Context } from "effect";
 import * as S from "effect/Schema";
+import { IrToLawExtractionError } from "../IrToLaw/IrToLaw.errors.js";
 import type { ClaimProjectionView } from "@beep/epistemic-domain/values";
-import type { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import type { Effect } from "effect";
 
 const $I = $LawPracticeUseCasesId.create("OfficeActionReview/OfficeActionReview.ports");
@@ -48,16 +50,46 @@ export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I
 ) {}
 
 /**
+ * Failure raised by the office-action review loop while extracting source text,
+ * extracting grounded law labels, or mapping those labels into law entities.
+ *
+ * @example
+ * ```ts
+ * import { OfficeActionReviewError } from "@beep/law-practice-use-cases/OfficeActionReview"
+ *
+ * console.log(OfficeActionReviewError)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export const OfficeActionReviewError = S.Union([
+  FileProcessingOperationError,
+  LangExtractError,
+  IrToLawExtractionError,
+]).annotate(
+  $I.annote("OfficeActionReviewError", {
+    description: "Failure union for the law-practice office-action review loop.",
+  })
+);
+
+/**
+ * Type for {@link OfficeActionReviewError}.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type OfficeActionReviewError = typeof OfficeActionReviewError.Type;
+
+/**
  * Service shape for the office-action review loop: take an
  * {@link OfficeActionReviewInput} and return the epistemic
  * {@link ClaimProjectionView} folded from the reviewed claims.
  *
- * The eventual P2 live Layer satisfying this contract will depend on
- * `@beep/file-processing` + `@beep/langextract` for source ingestion, the
- * {@link IrToLaw} mapping for IR-to-entity translation, and the epistemic
- * `ClaimGate` / `ClaimLifecycle` services (plus the pure `projectClaims` fold)
- * for admission and projection. None of that orchestration lives in this tier —
- * this is a contract only.
+ * The server Layer satisfying this contract composes `@beep/file-processing`,
+ * `@beep/langextract`, the {@link IrToLaw} mapper, and the epistemic `ClaimGate`
+ * / `ClaimLifecycle` services. The shape stays driver-neutral so tests can
+ * inject deterministic fake extraction output without live provider credentials.
  *
  * @example
  * ```ts
@@ -71,7 +103,7 @@ export class OfficeActionReviewInput extends S.Class<OfficeActionReviewInput>($I
  * @since 0.0.0
  */
 export interface OfficeActionReviewShape {
-  readonly review: (input: OfficeActionReviewInput) => Effect.Effect<ClaimProjectionView, FileProcessingOperationError>;
+  readonly review: (input: OfficeActionReviewInput) => Effect.Effect<ClaimProjectionView, OfficeActionReviewError>;
 }
 
 /**

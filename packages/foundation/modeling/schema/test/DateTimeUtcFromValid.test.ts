@@ -58,10 +58,11 @@ describe("DateTime adapter helpers", () => {
     expect(zoned !== null && DateTime.isZoned(zoned) ? DateTime.zoneToString(zoned.zone) : "").toBe("Europe/London");
   });
 
-  it("returns null for null and an invalid DateTime-shaped value for invalid strings", () => {
+  it("returns null for absent input and an invalid DateTime-shaped value for invalid strings", () => {
     const invalid = createDateTimeWithTimezone("not-a-date", "UTC");
 
     expect(createDateTimeWithTimezone(null, "UTC")).toBeNull();
+    expect(createDateTimeWithTimezone(undefined, "UTC")).toBeNull();
     expect(invalid).not.toBeNull();
     expect(invalid !== null && Number.isNaN(invalid.epochMilliseconds)).toBe(true);
     expect(Number.isNaN(createInvalidDateTime().epochMilliseconds)).toBe(true);

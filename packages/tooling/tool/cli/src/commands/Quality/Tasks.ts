@@ -8,10 +8,9 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot, insertEndOfOptions } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { makePgliteTestcontainerResource } from "@beep/test-utils";
 import { A, Str, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import * as O from "@beep/utils/Option";
-import { Console, Effect, FileSystem, flow, Match, Order, Path, pipe, Stream } from "effect";
+import { Console, Effect, FileSystem, flow, Inspectable, Match, Order, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -1053,8 +1052,16 @@ const sqlIntegrationStep = (
     env: sqlIntegrationEnv(resource.connectionUri),
   });
 
+const loadTestUtilsModule = Effect.tryPromise({
+  try: () => import("@beep/test-utils"),
+  catch: (cause) =>
+    QualityTaskConfigurationError.new(
+      `Failed to load @beep/test-utils SQL integration helpers: ${Inspectable.toStringUnknown(cause, 0)}`
+    ),
+});
+
 const acquireTestcontainersSqlIntegrationResource = withRyukDisabledDuringAcquire(
-  makePgliteTestcontainerResource()
+  Effect.flatMap(loadTestUtilsModule, ({ makePgliteTestcontainerResource }) => makePgliteTestcontainerResource())
 ).pipe(QualityTaskConfigurationError.mapError("Failed to start shared PGLite SQL integration database"));
 
 const acquireExternalSqlIntegrationResource = (connectionUri: string): Effect.Effect<SqlIntegrationLaneResource> =>

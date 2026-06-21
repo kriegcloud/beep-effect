@@ -115,12 +115,8 @@ export const createDateTimeWithTimezone = (
   value: DateInputToDateTime,
   timezone: DateTimeAdapterTimezone
 ): DateTime.DateTime | null => {
-  if (value === null) {
+  if (value === null || value === undefined) {
     return null;
-  }
-
-  if (value === undefined) {
-    return applyTimezone(DateTime.nowUnsafe(), timezone);
   }
 
   return pipe(

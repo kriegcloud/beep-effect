@@ -1,6 +1,7 @@
 /**
- * Dev/QA panel for the Tauri-IPC sidecar transport spike, gated behind `?ipc=1`
- * (so it ships in packaged builds for validation but stays hidden by default).
+ * Dev/QA panel for the Tauri-IPC sidecar transport spike, gated behind both an
+ * IPC sidecar launch and `?ipc=1` (so it ships in packaged builds for
+ * validation but stays hidden by default).
  *
  * "Send over IPC" creates a thread and streams a fixture assistant turn over the
  * {@link IpcChatProtocolLive} transport — proving the streaming `SendMessage`
@@ -53,7 +54,7 @@ const sendOverIpc = (log: (line: string) => void): Effect.Effect<void> =>
 
 /**
  * Floating dev panel that drives the IPC transport spike. Mounted by `App` only
- * when the page URL carries `?ipc=1`.
+ * when the shell reports IPC mode and the page URL carries `?ipc=1`.
  *
  * @example
  * ```tsx

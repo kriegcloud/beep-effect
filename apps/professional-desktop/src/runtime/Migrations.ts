@@ -238,6 +238,24 @@ export const migrateProfessionalDesktopDatabase = (
   );
 
 /**
+ * Stderr marker emitted after sidecar migrations finish in IPC mode.
+ *
+ * The IPC stdio integration test waits for this marker instead of coupling to
+ * the human-readable migration log line.
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const SidecarReadyMarker = "BEEP_PROFESSIONAL_DESKTOP_SIDECAR_READY";
+
+const writeSidecarReadyMarker = Effect.sync(() => {
+  // biome-ignore lint/suspicious/noUndeclaredEnvVars: CHAT_TRANSPORT is declared in turbo.json under global.passThroughEnv.
+  if (Bun.env.CHAT_TRANSPORT === "ipc") {
+    process.stderr.write(`${SidecarReadyMarker}\n`);
+  }
+});
+
+/**
  * Boot-time migration effect for the sidecar database layer.
  *
  * @example
@@ -260,7 +278,8 @@ export const migrateOnBoot: Effect.Effect<
       Effect.annotateLogs({
         component: "professional-desktop",
         migrationsSchema,
-      })
+      }),
+      Effect.andThen(writeSidecarReadyMarker)
     )
   )
 );

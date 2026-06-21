@@ -64,7 +64,7 @@ export const ToggleGroupField: React.FC<ToggleGroupFieldProps> = ({ label, descr
         <input type="hidden" name={field.name} value={field.state.value} />
         <ToggleGroup
           {...props}
-          value={[field.state.value]}
+          value={field.state.value.length === 0 ? [] : [field.state.value]}
           onValueChange={(value) => field.handleChange(O.getOrElse(A.head(value), () => ""))}
           onBlur={field.handleBlur}
           aria-invalid={hasErrors || undefined}
