@@ -241,10 +241,10 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
   function tick(){ if(alpha<0.005) return;
     for(let i=0;i<nodes.length;i++){ const a=nodes[i];
       for(let j=i+1;j<nodes.length;j++){ const b=nodes[j];
-        let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy; if(d2<0.01)d2=0.01; let d=Math.sqrt(d2),f=2400/d2,fx=f*dx/d,fy=f*dy/d;
+        let dx=a.x-b.x,dy=a.y-b.y,d2=dx*dx+dy*dy; if(d2<0.01)d2=0.01; const d=Math.sqrt(d2),f=2400/d2,fx=f*dx/d,fy=f*dy/d;
         a.vx+=fx;a.vy+=fy;b.vx-=fx;b.vy-=fy; } }
-    for(const l of links){ let dx=l.target.x-l.source.x,dy=l.target.y-l.source.y,d=Math.hypot(dx,dy)||0.01;
-      let f=0.05*(d-74),fx=f*dx/d,fy=f*dy/d; l.source.vx+=fx;l.source.vy+=fy;l.target.vx-=fx;l.target.vy-=fy; }
+    for(const l of links){ const dx=l.target.x-l.source.x,dy=l.target.y-l.source.y,d=Math.hypot(dx,dy)||0.01;
+      const f=0.05*(d-74),fx=f*dx/d,fy=f*dy/d; l.source.vx+=fx;l.source.vy+=fy;l.target.vx-=fx;l.target.vy-=fy; }
     for(const n of nodes){ n.vx+=-n.x*0.016; n.vy+=-n.y*0.016; if(n===dragging)continue;
       n.vx*=0.85; n.vy*=0.85; n.x+=n.vx*Math.min(1,alpha*2); n.y+=n.vy*Math.min(1,alpha*2); }
     alpha*=0.985; }

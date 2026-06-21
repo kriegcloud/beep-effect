@@ -6,7 +6,11 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | VERSION, `Md`, models, render adapters, utilities | package entry point |
+| `Md.model` | schema-first AST nodes | schema is the source of truth |
+| `Md` | builder DSL | text, block, list, table, and embed constructors |
+| `Md.render` | Markdown, HTML fragment, and plain-text adapters | prefer Result-returning helpers at boundaries |
+| `Md.utils` | escaping, URL sanitation, block formatting | keep low-level helpers schema-backed where practical |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -16,7 +20,10 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/md"
+import { Md, renderPlainTextUnsafe } from "@beep/md"
+
+const doc = Md.make([Md.h1("Hello")])
+console.log(renderPlainTextUnsafe(doc))
 ```
 
 ## Verifications

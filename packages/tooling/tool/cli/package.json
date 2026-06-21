@@ -156,6 +156,7 @@
     "jsonc-parser": "catalog:",
     "madge": "catalog:",
     "sharp": "catalog:",
+    "tar": "catalog:",
     "ts-morph": "catalog:",
     "yaml": "catalog:"
   },

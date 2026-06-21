@@ -38,15 +38,7 @@ type MarkdownParserOptions = {
  * @category type-level
  * @since 0.0.0
  */
-export type MarkdownParseResult =
-  | {
-      readonly _tag: "success";
-      readonly html: string;
-    }
-  | {
-      readonly _tag: "failure";
-      readonly message: string;
-    };
+export type MarkdownParseResult = Result.Result<string, string>;
 
 /**
  * Public schema module export.
@@ -90,24 +82,12 @@ const getBunMarkdownHtml = (input: unknown): O.Option<MarkdownHtmlRender> =>
     )
   );
 
+const decodeMarkdownHtml = (html: unknown): MarkdownParseResult =>
+  P.isString(html) ? Result.succeed(html) : Result.fail(invalidMarkdownOutput);
+
 const toMarkdownParseResult: (result: Result.Result<unknown, unknown>) => MarkdownParseResult = flow(
-  Result.match({
-    onFailure: (cause) =>
-      ({
-        _tag: "failure",
-        message: renderMarkdownIssueMessage(cause),
-      }) satisfies MarkdownParseResult,
-    onSuccess: (html) =>
-      P.isString(html)
-        ? ({
-            _tag: "success",
-            html,
-          } satisfies MarkdownParseResult)
-        : ({
-            _tag: "failure",
-            message: invalidMarkdownOutput,
-          } satisfies MarkdownParseResult),
-  })
+  Result.mapError(renderMarkdownIssueMessage),
+  Result.flatMap(decodeMarkdownHtml)
 );
 
 /**

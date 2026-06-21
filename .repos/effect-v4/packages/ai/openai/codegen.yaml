@@ -3,7 +3,7 @@ spec: https://app.stainless.com/api/spec/documented/openai/openapi.documented.ym
 output: src/Generated.ts
 name: OpenAiClient
 header: |
-  /**
+  /** 
    * @since 1.0.0
    */
 patches:

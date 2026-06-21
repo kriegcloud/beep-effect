@@ -91,6 +91,7 @@
     "packages/drivers/venice-ai/swagger.yaml",
     "packages/foundation/modeling/schema/src/Timezone.ts",
     "**/internal/data/**",
+    "packages/foundation/primitive/data/src/generated/**",
     "**/dtslint/**",
     "**/test/**",
     "patches/**",

@@ -80,6 +80,20 @@ export * as KeyboardShortcuts from "./KeyboardShortcuts.ts";
  */
 export * as MimeTypesData from "./MimeTypes.ts";
 /**
+ * Unicode CLDR territory and continent constants namespace.
+ *
+ * @example
+ * ```typescript
+ * import { Territories } from "@beep/data"
+ *
+ * console.log(Territories.TerritoryDataByCode.US.name)
+ * ```
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export * as Territories from "./Territories.ts";
+/**
  * IANA timezone constants namespace.
  *
  * @example

@@ -586,11 +586,12 @@ export declare namespace Br {
  *
  * @example
  * ```ts
+ * import { Result } from "effect"
  * import * as S from "effect/Schema"
  * import { Inline, Text } from "@beep/md/Md.model"
  *
- * const decode = S.decodeUnknownSync(Inline)
- * const node = decode(Text.make({ value: "Hello" }))
+ * const decode = S.decodeUnknownResult(Inline)
+ * const node = Result.getOrThrow(decode(Text.make({ value: "Hello" })))
  * console.log(node._tag) // "text"
  * ```
  *
@@ -678,6 +679,78 @@ export declare namespace BlockChildren {
    * @since 0.0.0
    */
   export type Encoded = ReadonlyArray<Block.Encoded>;
+}
+
+/**
+ * List item child content. Inline children render directly after the list marker;
+ * block children preserve nested document structure such as paragraphs, code
+ * blocks, and nested lists.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ListItemChild = S.suspend(
+  (): S.Codec<Inline.Type | Block.Type, Inline.Encoded | Block.Encoded> => S.Union([Inline, Block])
+).pipe(
+  $I.annoteSchema("ListItemChild", {
+    description: "Inline or block Markdown AST node rendered inside a list item.",
+  })
+);
+
+/**
+ * Runtime type for {@link ListItemChild}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListItemChild = typeof ListItemChild.Type;
+
+/**
+ * Companion namespace for {@link ListItemChild}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ListItemChild {
+  /**
+   * @since 0.0.0
+   */
+  export type Type = Inline.Type | Block.Type;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded = Inline.Encoded | Block.Encoded;
+}
+
+/**
+ * List item children used by ordered, unordered, and task list items.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ListItemChildren = S.Array(ListItemChild).pipe(
+  $I.annoteSchema("ListItemChildren", {
+    description: "Inline and block children rendered inside a Markdown list item.",
+  })
+);
+
+/**
+ * Companion namespace for {@link ListItemChildren}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace ListItemChildren {
+  /**
+   * @since 0.0.0
+   */
+  export type Type = ReadonlyArray<ListItemChild.Type>;
+
+  /**
+   * @since 0.0.0
+   */
+  export type Encoded = ReadonlyArray<ListItemChild.Encoded>;
 }
 
 /**
@@ -1045,7 +1118,7 @@ export declare namespace H6 {
 }
 
 /**
- * List item block.
+ * List item node used by ordered, unordered, and task lists.
  *
  * @example
  * ```ts
@@ -1061,15 +1134,15 @@ export declare namespace H6 {
 export class Li extends S.TaggedClass<Li>($I`Li`)(
   "li",
   {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered inside the list item.",
+    children: ListItemChildren.annotateKey({
+      description: "Inline and block children rendered inside the list item.",
     }),
   },
   $I.annote("Li", {
-    description: "List item block.",
+    description: "List item node used by ordered, unordered, and task lists.",
   })
 ) {
-  static readonly fromChildren = (children: InlineChildren.Type) => Li.make({ children });
+  static readonly fromChildren = (children: ListItemChildren.Type) => Li.make({ children });
 }
 
 /**
@@ -1084,7 +1157,7 @@ export declare namespace Li {
    */
   export interface Type {
     readonly _tag: "li";
-    readonly children: InlineChildren.Type;
+    readonly children: ListItemChildren.Type;
   }
 
   /**
@@ -1092,29 +1165,29 @@ export declare namespace Li {
    */
   export interface Encoded {
     readonly _tag: "li";
-    readonly children: InlineChildren.Encoded;
+    readonly children: ListItemChildren.Encoded;
   }
 }
 
 /**
- * List item children used by ordered and unordered list blocks.
+ * List children used by ordered and unordered list blocks.
  *
  * @category models
  * @since 0.0.0
  */
-export const ListItemChildren = S.Array(Li).pipe(
-  $I.annoteSchema("ListItemChildren", {
-    description: "List item children used by ordered and unordered list blocks.",
+export const ListChildren = S.Array(Li).pipe(
+  $I.annoteSchema("ListChildren", {
+    description: "List item nodes used by ordered and unordered list blocks.",
   })
 );
 
 /**
- * Companion namespace for {@link ListItemChildren}.
+ * Companion namespace for {@link ListChildren}.
  *
  * @category models
  * @since 0.0.0
  */
-export declare namespace ListItemChildren {
+export declare namespace ListChildren {
   /**
    * @since 0.0.0
    */
@@ -1143,7 +1216,7 @@ export declare namespace ListItemChildren {
 export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
   "ul",
   {
-    children: ListItemChildren.annotateKey({
+    children: ListChildren.annotateKey({
       description: "List items rendered as an unordered list.",
     }),
   },
@@ -1151,7 +1224,7 @@ export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
     description: "Unordered list block.",
   })
 ) {
-  static readonly fromChildren = (children: ListItemChildren.Type) => Ul.make({ children });
+  static readonly fromChildren = (children: ListChildren.Type) => Ul.make({ children });
 }
 
 /**
@@ -1166,7 +1239,7 @@ export declare namespace Ul {
    */
   export interface Type {
     readonly _tag: "ul";
-    readonly children: ListItemChildren.Type;
+    readonly children: ListChildren.Type;
   }
 
   /**
@@ -1174,7 +1247,7 @@ export declare namespace Ul {
    */
   export interface Encoded {
     readonly _tag: "ul";
-    readonly children: ListItemChildren.Encoded;
+    readonly children: ListChildren.Encoded;
   }
 }
 
@@ -1195,7 +1268,7 @@ export declare namespace Ul {
 export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
   "ol",
   {
-    children: ListItemChildren.annotateKey({
+    children: ListChildren.annotateKey({
       description: "List items rendered as an ordered list.",
     }),
   },
@@ -1203,7 +1276,7 @@ export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
     description: "Ordered list block.",
   })
 ) {
-  static readonly fromChildren = (children: ListItemChildren.Type) => Ol.make({ children });
+  static readonly fromChildren = (children: ListChildren.Type) => Ol.make({ children });
 }
 
 /**
@@ -1218,7 +1291,7 @@ export declare namespace Ol {
    */
   export interface Type {
     readonly _tag: "ol";
-    readonly children: ListItemChildren.Type;
+    readonly children: ListChildren.Type;
   }
 
   /**
@@ -1226,7 +1299,7 @@ export declare namespace Ol {
    */
   export interface Encoded {
     readonly _tag: "ol";
-    readonly children: ListItemChildren.Encoded;
+    readonly children: ListChildren.Encoded;
   }
 }
 
@@ -1250,8 +1323,8 @@ export class TaskItem extends S.TaggedClass<TaskItem>($I`TaskItem`)(
     checked: S.Boolean.annotateKey({
       description: "Whether the task list item is checked.",
     }),
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as the task item label.",
+    children: ListItemChildren.annotateKey({
+      description: "Inline and block children rendered as the task item label.",
     }),
   },
   $I.annote("TaskItem", {
@@ -1272,7 +1345,7 @@ export declare namespace TaskItem {
   export interface Type {
     readonly _tag: "taskItem";
     readonly checked: boolean;
-    readonly children: InlineChildren.Type;
+    readonly children: ListItemChildren.Type;
   }
 
   /**
@@ -1281,7 +1354,7 @@ export declare namespace TaskItem {
   export interface Encoded {
     readonly _tag: "taskItem";
     readonly checked: boolean;
-    readonly children: InlineChildren.Encoded;
+    readonly children: ListItemChildren.Encoded;
   }
 }
 
@@ -1732,35 +1805,19 @@ export declare namespace Hr {
  *
  * @example
  * ```ts
+ * import { Result } from "effect"
  * import * as S from "effect/Schema"
  * import { Block, P, Text } from "@beep/md/Md.model"
  *
- * const decode = S.decodeUnknownSync(Block)
- * const node = decode(P.make({ children: [Text.make({ value: "Hello" })] }))
+ * const decode = S.decodeUnknownResult(Block)
+ * const node = Result.getOrThrow(decode(P.make({ children: [Text.make({ value: "Hello" })] })))
  * console.log(node._tag) // "p"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const Block = S.Union([
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  P,
-  BlockQuote,
-  Pre,
-  Ul,
-  Ol,
-  Li,
-  TaskList,
-  Table,
-  YouTube,
-  Hr,
-]).pipe(
+export const Block = S.Union([H1, H2, H3, H4, H5, H6, P, BlockQuote, Pre, Ul, Ol, TaskList, Table, YouTube, Hr]).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("Block", {
     description: "Discriminated union of block Markdown AST nodes.",
@@ -1797,7 +1854,6 @@ export declare namespace Block {
     | Pre.Type
     | Ul.Type
     | Ol.Type
-    | Li.Type
     | TaskList.Type
     | Table.Type
     | YouTube.Type
@@ -1818,7 +1874,6 @@ export declare namespace Block {
     | Pre.Encoded
     | Ul.Encoded
     | Ol.Encoded
-    | Li.Encoded
     | TaskList.Encoded
     | Table.Encoded
     | YouTube.Encoded

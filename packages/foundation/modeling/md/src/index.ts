@@ -12,13 +12,13 @@
  * ```ts
  * import { VERSION } from "@beep/md"
  *
- * console.log(VERSION) // "0.0.0"
+ * console.log(VERSION) // "0.0.2"
  * ```
  *
  * @since 0.0.0
  * @category configuration
  */
-export const VERSION = "0.0.0" as const;
+export const VERSION = "0.0.2" as const;
 
 /**
  * Schema-first Markdown AST models.

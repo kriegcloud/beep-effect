@@ -60,6 +60,7 @@ import {
   readDocstring,
   readSignature,
 } from "./TSMorph.shared.js";
+import type * as Crypto from "effect/Crypto";
 import type { SourceFile } from "ts-morph";
 import type {
   ProjectCacheKey,
@@ -466,7 +467,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   symbolFilePath: SymbolFilePath,
   declaration: OutlineDeclaration,
   parentSymbol: O.Option<TsMorphSymbol>
-): Effect.fn.Return<O.Option<ScopeSymbolEntry>, TSMorphServiceError> {
+): Effect.fn.Return<O.Option<ScopeSymbolEntry>, TSMorphServiceError, Crypto.Crypto> {
   const declarationName = getDeclarationName(declaration);
   if (O.isNone(declarationName)) {
     return O.none<ScopeSymbolEntry>();
@@ -595,7 +596,7 @@ const resolveSymbolFilePath = Effect.fn(function* (
 const collectOutlineEntries = Effect.fn(function* (
   filePath: TypeScriptFilePath,
   sourceFile: SourceFile
-): Effect.fn.Return<ReadonlyArray<ScopeSymbolEntry>, TSMorphServiceError> {
+): Effect.fn.Return<ReadonlyArray<ScopeSymbolEntry>, TSMorphServiceError, Crypto.Crypto> {
   const symbolFilePath = yield* resolveSymbolFilePath(filePath);
 
   let entries = A.empty<ScopeSymbolEntry>();
@@ -667,10 +668,11 @@ const collectOutlineEntries = Effect.fn(function* (
 export const createTSMorphService = Effect.fn("createTSMorphService")(function* (): Effect.fn.Return<
   TSMorphServiceShape,
   never,
-  FileSystem.FileSystem | Path.Path
+  Crypto.Crypto | FileSystem.FileSystem | Path.Path
 > {
   const fs = yield* FileSystem.FileSystem;
   const pathApi = yield* Path.Path;
+  const cryptoContext = yield* Effect.context<Crypto.Crypto>();
 
   const resolvedScopes = MutableHashMap.empty<string, TsMorphProjectScope>();
   const projectPool = createProjectPool(pathApi);
@@ -956,7 +958,9 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
 
       const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
       if (O.isSome(implementationFilePath)) {
-        const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
+        const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile).pipe(
+          Effect.provide(cryptoContext)
+        );
         entries = A.appendAll(entries, sourceEntries);
       }
     }
@@ -1048,7 +1052,8 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
           filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
           message: `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
         })
-      )
+      ),
+      Effect.provide(cryptoContext)
     );
 
     return TsMorphSourceTextResult.make({
@@ -1061,7 +1066,9 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
   const getFileOutline: TSMorphServiceShape["getFileOutline"] = Effect.fn(function* (request) {
     const scope = yield* resolveScopeById(request.scopeId);
     const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
-    const outlineEntries = yield* collectOutlineEntries(loadedSourceFile.filePath, loadedSourceFile.sourceFile);
+    const outlineEntries = yield* collectOutlineEntries(loadedSourceFile.filePath, loadedSourceFile.sourceFile).pipe(
+      Effect.provide(cryptoContext)
+    );
     const symbols = A.map(outlineEntries, (entry) => entry.symbol);
 
     return TsMorphFileOutline.make({
@@ -1321,7 +1328,5 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
  * @category configuration
  * @since 0.0.0
  */
-export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
-  TSMorphService,
-  createTSMorphService().pipe(Effect.map(TSMorphService.of))
-);
+export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, Crypto.Crypto | FileSystem.FileSystem | Path.Path> =
+  Layer.effect(TSMorphService, createTSMorphService().pipe(Effect.map(TSMorphService.of)));

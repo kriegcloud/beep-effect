@@ -57,7 +57,7 @@ describe("MimeType kinds", () => {
     expect(AudioMimeType.Options).toContain("audio/mpeg");
   });
 
-  it("keeps the category kits aligned with the vendored MIME data", () => {
+  it("keeps the category kits aligned with the generated IANA media type data", () => {
     expect(MimeType.kinds.Application.Options).toContain("application/json");
     expect(MimeType.kinds.Application.Options).toContain("application/ld+json");
     expect(MimeType.kinds.Text.Options).toContain("text/html");
@@ -65,10 +65,16 @@ describe("MimeType kinds", () => {
     expect(MimeType.kinds.Audio.Options).toContain("audio/mpeg");
 
     expect(MimeType.kinds.Application.Options).toContain(
-      "application/json" satisfies keyof typeof MimeTypesData.application
+      "application/json" satisfies keyof typeof MimeTypesData.OfficialMimeTypeDataByTopLevel.application
     );
-    expect(MimeType.kinds.Text.Options).toContain("text/html" satisfies keyof typeof MimeTypesData.text);
-    expect(MimeType.kinds.Image.Options).toContain("image/png" satisfies keyof typeof MimeTypesData.image);
-    expect(MimeType.kinds.Audio.Options).toContain("audio/mpeg" satisfies keyof typeof MimeTypesData.audio);
+    expect(MimeType.kinds.Text.Options).toContain(
+      "text/html" satisfies keyof typeof MimeTypesData.OfficialMimeTypeDataByTopLevel.text
+    );
+    expect(MimeType.kinds.Image.Options).toContain(
+      "image/png" satisfies keyof typeof MimeTypesData.OfficialMimeTypeDataByTopLevel.image
+    );
+    expect(MimeType.kinds.Audio.Options).toContain(
+      "audio/mpeg" satisfies keyof typeof MimeTypesData.OfficialMimeTypeDataByTopLevel.audio
+    );
   });
 });

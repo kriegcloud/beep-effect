@@ -3,7 +3,7 @@ name: Official Data Sync
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 15 1 *"
+    - cron: "0 6 15 * *"
 
 permissions:
   contents: write
@@ -30,11 +30,18 @@ jobs:
           cache-write: "true"
 
       - name: Sync official datasets
-        run: bun run beep sync-data-to-ts --all
+        run: bun run beep sync-data-to-ts --all --report-dir "$RUNNER_TEMP/data-sync-report"
+
+      - name: Upload data sync report
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-sync-report
+          path: ${{ runner.temp }}/data-sync-report
+          if-no-files-found: error
 
       - name: Run focused check verification
         id: focused-check
-        run: bun run check -- --filter=@beep/repo-cli --filter=@beep/data --summarize
+        run: bun run check -- --filter=@beep/repo-cli --filter=@beep/data --filter=@beep/schema --filter=@beep/md --filter=@beep/file-processing --filter=@beep/libpff --summarize
 
       - name: Append Turbo summary (check)
         if: always() && steps.focused-check.outcome != 'skipped'
@@ -43,7 +50,25 @@ jobs:
       - name: Run focused unit verification
         id: focused-test
         if: steps.focused-check.outcome == 'success'
-        run: bun run test -- --unit --filter=@beep/repo-cli --filter=@beep/data --summarize
+        run: bun run test -- --unit --filter=@beep/repo-cli --filter=@beep/data --filter=@beep/schema --filter=@beep/md --filter=@beep/file-processing --filter=@beep/libpff --summarize
+
+      - name: Prepare pull request body
+        id: pr-body
+        if: always()
+        run: |
+          delimiter="EOF_$(openssl rand -hex 16)"
+          report="$RUNNER_TEMP/data-sync-report/data-sync-report.md"
+          {
+            echo "body<<${delimiter}"
+            if [ -f "$report" ]; then
+              cat "$report"
+            else
+              echo "_Data sync report unavailable: a sync or verification step failed._"
+            fi
+            echo
+            echo 'This PR was opened automatically by `.github/workflows/data-sync.yml`.'
+            echo "${delimiter}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Append Turbo summary (test)
         if: always() && steps.focused-test.outcome != 'skipped'
@@ -57,10 +82,4 @@ jobs:
           delete-branch: true
           commit-message: "chore(data): sync official datasets"
           title: "chore(data): sync official datasets"
-          body: |
-            ## Summary
-
-            - refresh official generated datasets with `bun run beep sync-data-to-ts --all`
-            - re-run the focused CLI and `@beep/data` verification steps
-
-            This PR was opened automatically by `.github/workflows/data-sync.yml`.
+          body: ${{ steps.pr-body.outputs.body }}

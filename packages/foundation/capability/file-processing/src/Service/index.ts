@@ -36,6 +36,7 @@ import type {
   FileProcessingCapability,
   FileProcessingEngineDescriptor,
 } from "@beep/file-processing/Strategy";
+import type * as Crypto from "effect/Crypto";
 import type { FileProcessingOperationErrorReason } from "../Operation/index.ts";
 
 const $I = $FileProcessingId.create("Service");
@@ -59,7 +60,7 @@ export type FileProcessingEngineShape = {
   readonly detect: (operation: DetectFileOperation) => Effect.Effect<DetectionResult, FileProcessingOperationError>;
   readonly exportArchive: (
     operation: ExportArchiveOperation
-  ) => Effect.Effect<ArchiveExportResult, FileProcessingOperationError>;
+  ) => Effect.Effect<ArchiveExportResult, FileProcessingOperationError, Crypto.Crypto>;
   readonly extract: (operation: ExtractFileOperation) => Effect.Effect<ExtractionResult, FileProcessingOperationError>;
 };
 
@@ -228,48 +229,81 @@ export const collectSourceOutcomeRecords = (
  */
 export const makeFileProcessingServiceLayer = (
   engines: ReadonlyArray<FileProcessingEngineShape>
-): Layer.Layer<FileProcessingService> =>
-  Layer.succeed(
+): Layer.Layer<FileProcessingService, never, Crypto.Crypto> =>
+  Layer.effect(
     FileProcessingService,
-    FileProcessingService.of({
-      detect: Effect.fn("FileProcessingService.detect")(function* (operation) {
-        const engine = yield* selectEngine(engines, operation.preference.engine);
-        return yield* engine.detect(operation);
-      }),
-      exportArchive: Effect.fn("FileProcessingService.exportArchive")(function* (operation) {
-        const engine = yield* selectEngine(engines, operation.preference.engine);
-        return yield* engine.exportArchive(operation);
-      }),
-      extract: Effect.fn("FileProcessingService.extract")(function* (operation) {
-        const engine = yield* selectEngine(engines, operation.preference.engine);
-        return yield* engine.extract(operation);
-      }),
-      process: Effect.fn("FileProcessingService.process")(function* (operation) {
-        const [detectionEngine, detected] = yield* detectWithAvailableEngine(engines, operation);
+    Effect.gen(function* () {
+      const cryptoContext = yield* Effect.context<Crypto.Crypto>();
 
-        if (detected.format === "pst") {
-          if (!operation.exportChildren) {
-            return SkippedProcessFileResult.make({
-              engine: detectionEngine.descriptor.name,
+      return FileProcessingService.of({
+        detect: Effect.fn("FileProcessingService.detect")(function* (operation) {
+          const engine = yield* selectEngine(engines, operation.preference.engine);
+          return yield* engine.detect(operation);
+        }),
+        exportArchive: Effect.fn("FileProcessingService.exportArchive")(function* (operation) {
+          const engine = yield* selectEngine(engines, operation.preference.engine);
+          return yield* engine.exportArchive(operation).pipe(Effect.provide(cryptoContext));
+        }),
+        extract: Effect.fn("FileProcessingService.extract")(function* (operation) {
+          const engine = yield* selectEngine(engines, operation.preference.engine);
+          return yield* engine.extract(operation);
+        }),
+        process: Effect.fn("FileProcessingService.process")(function* (operation) {
+          const [detectionEngine, detected] = yield* detectWithAvailableEngine(engines, operation);
+
+          if (detected.format === "pst") {
+            if (!operation.exportChildren) {
+              return SkippedProcessFileResult.make({
+                engine: detectionEngine.descriptor.name,
+                format: detected.format,
+                operationId: operation.operationId,
+                resultKind: "skipped",
+                skipReason: "operation-not-required",
+                sourceArtifactId: operation.source.id,
+                warnings: ["Archive export was not requested for this source."],
+              });
+            }
+
+            const archiveEngine = yield* selectEngine(
+              engines,
+              operation.preference.engine,
+              "export-children",
+              detected.format
+            );
+            const archiveExport = yield* archiveEngine
+              .exportArchive({
+                format: detected.format,
+                operationId: operation.operationId,
+                operationKind: "export-archive",
+                preference: operation.preference,
+                source: operation.source,
+                ...R.getSomes({
+                  maxMaterializedBytes: O.fromUndefinedOr(operation.maxMaterializedBytes),
+                }),
+              })
+              .pipe(Effect.provide(cryptoContext));
+
+            return ArchiveExportProcessFileResult.make({
+              archiveExport,
+              engine: archiveEngine.descriptor.name,
               format: detected.format,
               operationId: operation.operationId,
-              resultKind: "skipped",
-              skipReason: "operation-not-required",
+              resultKind: "archive-exported",
               sourceArtifactId: operation.source.id,
-              warnings: ["Archive export was not requested for this source."],
+              warnings: archiveExport.warnings,
             });
           }
 
-          const archiveEngine = yield* selectEngine(
+          const extractionEngine = yield* selectEngine(
             engines,
             operation.preference.engine,
-            "export-children",
+            processCapabilityForFormat(detected.format),
             detected.format
           );
-          const archiveExport = yield* archiveEngine.exportArchive({
+          const extraction = yield* extractionEngine.extract({
             format: detected.format,
             operationId: operation.operationId,
-            operationKind: "export-archive",
+            operationKind: "extract",
             preference: operation.preference,
             source: operation.source,
             ...R.getSomes({
@@ -277,44 +311,17 @@ export const makeFileProcessingServiceLayer = (
             }),
           });
 
-          return ArchiveExportProcessFileResult.make({
-            archiveExport,
-            engine: archiveEngine.descriptor.name,
-            format: detected.format,
+          return ExtractedProcessFileResult.make({
+            engine: extractionEngine.descriptor.name,
+            extraction,
+            format: extraction.format,
             operationId: operation.operationId,
-            resultKind: "archive-exported",
+            resultKind: "extracted",
             sourceArtifactId: operation.source.id,
-            warnings: archiveExport.warnings,
+            warnings: extraction.warnings,
           });
-        }
-
-        const extractionEngine = yield* selectEngine(
-          engines,
-          operation.preference.engine,
-          processCapabilityForFormat(detected.format),
-          detected.format
-        );
-        const extraction = yield* extractionEngine.extract({
-          format: detected.format,
-          operationId: operation.operationId,
-          operationKind: "extract",
-          preference: operation.preference,
-          source: operation.source,
-          ...R.getSomes({
-            maxMaterializedBytes: O.fromUndefinedOr(operation.maxMaterializedBytes),
-          }),
-        });
-
-        return ExtractedProcessFileResult.make({
-          engine: extractionEngine.descriptor.name,
-          extraction,
-          format: extraction.format,
-          operationId: operation.operationId,
-          resultKind: "extracted",
-          sourceArtifactId: operation.source.id,
-          warnings: extraction.warnings,
-        });
-      }),
+        }),
+      });
     })
   );
 
@@ -329,6 +336,7 @@ export const makeFileProcessingServiceLayer = (
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -356,7 +364,7 @@ export const makeFileProcessingServiceLayer = (
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.format)) // "markdown"
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.format)) // "markdown"
  * ```
  *
  * @effects Requires {@link FileProcessingService}; delegates detection to the configured engine and fails through the operation error channel.
@@ -381,6 +389,7 @@ export const detectFile = Effect.fn("FileProcessing.detectFile")(function* (
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -409,7 +418,7 @@ export const detectFile = Effect.fn("FileProcessing.detectFile")(function* (
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.text)) // "hello"
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.text)) // "hello"
  * ```
  *
  * @effects Requires {@link FileProcessingService}; delegates extraction to the configured engine and fails through the operation error channel.
@@ -434,6 +443,7 @@ export const extractFile = Effect.fn("FileProcessing.extractFile")(function* (
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -461,7 +471,7 @@ export const extractFile = Effect.fn("FileProcessing.extractFile")(function* (
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.children.length)) // 1
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.children.length)) // 1
  * ```
  *
  * @effects Requires {@link FileProcessingService}; delegates archive export to the configured engine and fails through the operation error channel.
@@ -486,6 +496,7 @@ export const exportArchive = Effect.fn("FileProcessing.exportArchive")(function*
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -514,7 +525,7 @@ export const exportArchive = Effect.fn("FileProcessing.exportArchive")(function*
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.resultKind)) // "extracted"
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.resultKind)) // "extracted"
  * ```
  *
  * @effects Requires {@link FileProcessingService}; detects the source and then delegates extraction or archive export to configured engines.

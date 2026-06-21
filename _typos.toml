@@ -55,14 +55,23 @@ mis = "mis"
 
 # MIME/file-extension tokens and generated doc anchors.
 aas = "aas"
+anser = "anser"
 aso = "aso"
 caf = "caf"
 colorts = "colorts"
+commonspace = "commonspace"
+exstream = "exstream"
 fo = "fo"
 gam = "gam"
 iif = "iif"
+nervana = "nervana"
 odf = "odf"
 opf = "opf"
+recordare = "recordare"
+sycle = "sycle"
+ue = "ue"
+uper = "uper"
+vas = "vas"
 vor = "vor"
 
 # 3D / Three.js material API names (not typos)

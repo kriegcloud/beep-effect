@@ -5,7 +5,8 @@
  * @since 0.0.0
  */
 
-import { A, Str, thunkFalse } from "@beep/utils";
+import { A, dual, Str, thunkFalse } from "@beep/utils";
+import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -45,16 +46,20 @@ import {
 import {
   HtmlFragmentAdapter,
   MarkdownAdapter,
+  PlainTextAdapter,
   render,
   renderEffectWith,
   renderEffectWithUnsafe,
   renderHtml,
   renderHtmlUnsafe,
+  renderPlainText,
+  renderPlainTextUnsafe,
   renderUnsafe,
   renderWith,
   renderWithUnsafe,
 } from "./Md.render.ts";
-import type { Block, Inline } from "./Md.model.ts";
+import type { Result } from "effect";
+import type { Block, Inline, ListItemChild } from "./Md.model.ts";
 
 /**
  * Inline constructor input accepted by text-oriented builders.
@@ -183,6 +188,60 @@ export type BlockContentBuilder<Node> = {
 };
 
 /**
+ * Child input accepted inside list item constructors.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { ListItemChildInput } from "@beep/md/Md"
+ *
+ * const item: ListItemChildInput = Md.strong("Item")
+ * console.log(item)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListItemChildInput = InlineInput | Block;
+
+/**
+ * List item child content accepted by ordered, unordered, and task list builders.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { ListItemContent } from "@beep/md/Md"
+ *
+ * const content: ListItemContent = [Md.p("Parent"), Md.ul(["Child"])]
+ * console.log(content)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListItemContent = ListItemChildInput | ReadonlyArray<ListItemChildInput>;
+
+/**
+ * Overloaded builder shape for list item content constructors.
+ *
+ * @example
+ * ```ts
+ * import type { ListItemContentBuilder } from "@beep/md/Md"
+ * import type { Li } from "@beep/md/Md.model"
+ *
+ * const accept = (builder: ListItemContentBuilder<Li>) => builder
+ * console.log(accept)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListItemContentBuilder<Node> = {
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<ListItemContent>): Node;
+  (children: ListItemContent): Node;
+};
+
+/**
  * Input accepted by ordered and unordered list constructors.
  *
  * @example
@@ -197,7 +256,7 @@ export type BlockContentBuilder<Node> = {
  * @category models
  * @since 0.0.0
  */
-export type ListItemInput = string | Inline | Li | ReadonlyArray<InlineInput>;
+export type ListItemInput = ListItemContent | Li;
 
 /**
  * Input accepted by task list constructors.
@@ -218,6 +277,10 @@ export type TaskListItemInput =
   | TaskItem
   | {
       readonly text: string;
+      readonly checked?: boolean;
+    }
+  | {
+      readonly children: ListItemContent;
       readonly checked?: boolean;
     };
 
@@ -262,6 +325,9 @@ const isInlineInputArray = (input: InlineContent): input is ReadonlyArray<Inline
 
 const isBlockInputArray = (input: BlockContent): input is ReadonlyArray<BlockInput> => A.isArray(input);
 
+const isListItemChildInputArray = (input: ListItemContent): input is ReadonlyArray<ListItemChildInput> =>
+  A.isArray(input);
+
 const isBlock = S.is(BlockSchema);
 const isLi = S.is(Li);
 const isTaskItem = S.is(TaskItem);
@@ -269,6 +335,9 @@ const isTableCell = S.is(TableCell);
 const isTableRow = S.is(TableRow);
 
 const isBlockTemplateBlockValue = (input: BlockTemplateValue): input is Block => isBlock(input);
+
+const isListItemContentBlockValue = (input: ListItemContent | undefined): boolean =>
+  input !== undefined && (isBlock(input) || (A.isArray(input) && A.some(input, isBlock)));
 
 const isBlockTemplateFormattingChunk = (chunk: string): boolean =>
   Str.trim(chunk) === "" && blockTemplateFormattingLinePattern.test(chunk);
@@ -318,12 +387,15 @@ const asBlock = (input: BlockInput): Block => (P.isString(input) ? p(input) : in
 const asBlockArray = (input: BlockContent): ReadonlyArray<Block> =>
   isBlockInputArray(input) ? A.map(input, asBlock) : [asBlock(input)];
 
-const hasBlockTemplateNeighbor = (
-  value: BlockTemplateValue | undefined,
-  previousValue: BlockTemplateValue | undefined
-): boolean =>
-  (value !== undefined && isBlockTemplateBlockValue(value)) ||
-  (previousValue !== undefined && isBlockTemplateBlockValue(previousValue));
+const hasBlockTemplateNeighbor: {
+  (value: BlockTemplateValue | undefined, previousValue: BlockTemplateValue | undefined): boolean;
+  (previousValue: BlockTemplateValue | undefined): (value: BlockTemplateValue | undefined) => boolean;
+} = dual(
+  2,
+  (value: BlockTemplateValue | undefined, previousValue: BlockTemplateValue | undefined): boolean =>
+    (value !== undefined && isBlockTemplateBlockValue(value)) ||
+    (previousValue !== undefined && isBlockTemplateBlockValue(previousValue))
+);
 
 const shouldAppendBlockTemplateChunk = (chunk: string, hasBlockNeighbor: boolean): boolean =>
   chunk !== "" && !(hasBlockNeighbor && isBlockTemplateFormattingChunk(chunk));
@@ -390,6 +462,56 @@ const makeBlockContentBuilder = <Node>(
   return build;
 };
 
+const asListItemChild = (input: ListItemChildInput): ListItemChild => (P.isString(input) ? text(input) : input);
+
+const asListItemChildren = (input: ListItemContent): ReadonlyArray<ListItemChild> =>
+  isListItemChildInputArray(input) ? A.map(input, asListItemChild) : [asListItemChild(input)];
+
+const hasListItemTemplateBlockNeighbor = (
+  value: ListItemContent | undefined,
+  previousValue: ListItemContent | undefined
+): boolean => isListItemContentBlockValue(value) || isListItemContentBlockValue(previousValue);
+
+const appendListItemTemplateValue = (out: Array<ListItemChild>, value: ListItemContent | undefined): void => {
+  if (value !== undefined) {
+    A.appendAllInPlace(out, asListItemChildren(value));
+  }
+};
+
+const templateToListItemChildren = (
+  strings: TemplateStringsArray,
+  values: ReadonlyArray<ListItemContent>
+): ReadonlyArray<ListItemChild> => {
+  const out: Array<ListItemChild> = [];
+
+  for (let index = 0; index < strings.length; index++) {
+    const chunk = strings[index];
+    const value = values[index];
+    const previousValue = values[index - 1];
+    if (shouldAppendBlockTemplateChunk(chunk, hasListItemTemplateBlockNeighbor(value, previousValue))) {
+      A.appendInPlace(out, text(chunk));
+    }
+
+    appendListItemTemplateValue(out, value);
+  }
+
+  return out;
+};
+
+const makeListItemContentBuilder = <Node>(
+  makeNode: (children: ReadonlyArray<ListItemChild>) => Node
+): ListItemContentBuilder<Node> => {
+  function build(strings: TemplateStringsArray, ...values: ReadonlyArray<ListItemContent>): Node;
+  function build(children: ListItemContent): Node;
+  function build(input: TemplateStringsArray | ListItemContent, ...values: ReadonlyArray<ListItemContent>): Node {
+    return isTemplateStringsArray(input)
+      ? makeNode(templateToListItemChildren(input, values))
+      : makeNode(asListItemChildren(input));
+  }
+
+  return build;
+};
+
 const asListItem = (input: ListItemInput): Li => (isLi(input) ? input : li(input));
 
 const asTaskItem = (input: TaskListItemInput): TaskItem => {
@@ -401,7 +523,9 @@ const asTaskItem = (input: TaskListItemInput): TaskItem => {
     return taskItem(input);
   }
 
-  return P.isBoolean(input.checked) ? taskItem(input.text, { checked: input.checked }) : taskItem(input.text);
+  const children = P.hasProperty(input, "children") ? input.children : input.text;
+
+  return P.isBoolean(input.checked) ? taskItem(children, { checked: input.checked }) : taskItem(children);
 };
 
 const asTableCell = (input: TableCellInput): TableCell =>
@@ -685,7 +809,7 @@ export const h6 = makeInlineContentBuilder((children): H6 => H6.make({ children 
 export const p = makeInlineContentBuilder((children): PNode => PNode.make({ children }));
 
 /**
- * Creates a list item block.
+ * Creates a list item node.
  *
  * @example
  * ```ts
@@ -698,7 +822,7 @@ export const p = makeInlineContentBuilder((children): PNode => PNode.make({ chil
  * @category constructors
  * @since 0.0.0
  */
-export const li = makeInlineContentBuilder((children): Li => Li.make({ children }));
+export const li = makeListItemContentBuilder((children): Li => Li.make({ children }));
 
 /**
  * Creates an unordered list block.
@@ -746,10 +870,10 @@ export const ol = (children: ReadonlyArray<ListItemInput>): Ol => Ol.make({ chil
  * @category constructors
  * @since 0.0.0
  */
-export const taskItem = (children: InlineContent, options: { readonly checked?: boolean } = {}): TaskItem =>
+export const taskItem = (children: ListItemContent, options: { readonly checked?: boolean } = {}): TaskItem =>
   TaskItem.make({
     checked: O.getOrElse(O.fromUndefinedOr(options.checked), thunkFalse),
-    children: asInlineArray(children),
+    children: asListItemChildren(children),
   });
 
 /**
@@ -856,20 +980,75 @@ export const table = (children: ReadonlyArray<TableRowInput>, options: { readonl
   });
 
 /**
- * Creates a YouTube embed block.
+ * Creates the encoded YouTube embed payload decoded by public constructors.
  *
  * @example
  * ```ts
+ * import { Result } from "effect"
  * import { Md } from "@beep/md"
  *
- * const node = Md.youtube("dQw4w9WgXcQ")
+ * const node = Result.getOrThrow(Md.youtube("dQw4w9WgXcQ"))
  * console.log(node._tag) // "youtube"
  * ```
  *
  * @category constructors
  * @since 0.0.0
  */
-export const youtube = (videoId: string): YouTube => YouTube.make({ videoId });
+const youtubeInput = (videoId: string): YouTube.Encoded => ({ _tag: "youtube", videoId });
+
+/**
+ * Creates a YouTube embed block and captures schema validation failures.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { Result } from "effect"
+ *
+ * const node = Result.getOrThrow(Md.youtube("dQw4w9WgXcQ"))
+ * console.log(node._tag) // "youtube"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const youtube = (videoId: string): Result.Result<YouTube, S.SchemaError> =>
+  S.decodeUnknownResult(YouTube)(youtubeInput(videoId));
+
+/**
+ * Effectful YouTube embed constructor.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ *
+ * const program = Md.youtubeEffect("dQw4w9WgXcQ")
+ * console.log(program)
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const youtubeEffect = Effect.fn("Md.youtubeEffect")(function* (videoId: string) {
+  return yield* S.decodeUnknownEffect(YouTube)(youtubeInput(videoId));
+});
+
+/**
+ * Creates a YouTube embed block and throws on schema validation failure.
+ *
+ * Prefer {@link youtube} or {@link youtubeEffect} at input boundaries.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ *
+ * const node = Md.youtubeUnsafe("dQw4w9WgXcQ")
+ * console.log(node._tag) // "youtube"
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const youtubeUnsafe = (videoId: string): YouTube => YouTube.make({ videoId });
 
 /**
  * Creates a horizontal rule block.
@@ -925,6 +1104,7 @@ export const make = (children: ReadonlyArray<Block>): Document => Document.make(
 export const Md = {
   MarkdownAdapter,
   HtmlFragmentAdapter,
+  PlainTextAdapter,
   a,
   blockquote,
   br,
@@ -951,6 +1131,8 @@ export const Md = {
   renderEffectWithUnsafe,
   renderHtml,
   renderHtmlUnsafe,
+  renderPlainText,
+  renderPlainTextUnsafe,
   renderUnsafe,
   renderWith,
   renderWithUnsafe,
@@ -963,4 +1145,6 @@ export const Md = {
   text,
   ul,
   youtube,
+  youtubeEffect,
+  youtubeUnsafe,
 } as const;

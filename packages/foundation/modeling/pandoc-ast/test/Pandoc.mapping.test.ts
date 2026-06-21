@@ -290,7 +290,7 @@ describe("Pandoc.mapping", () => {
       })
     ));
 
-  it("reports lossy Pandoc list item block flattening explicitly", () =>
+  it("preserves Pandoc list item block structure", () =>
     Effect.runPromise(
       Effect.gen(function* () {
         const pandoc = yield* decodePandocJson({
@@ -309,9 +309,12 @@ describe("Pandoc.mapping", () => {
           meta: {},
         });
         const result = yield* pandocToDocument(pandoc);
+        const list = expectUl(result.document.children[0]);
+        const item = list.children[0];
 
-        expect(result.report.profile).toBe("gap");
-        expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("ListItem");
+        expect(result.report.profile).toBe("supported");
+        expect(result.report.issues).toEqual([]);
+        expect(A.map(item?.children ?? [], (child) => child._tag)).toEqual(["p", "p"]);
       })
     ));
 
