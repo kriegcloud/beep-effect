@@ -14,7 +14,11 @@
  * @since 0.0.0
  */
 
+import { $EditorId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import { Button } from "@beep/ui/components/button";
+import { Separator } from "@beep/ui/components/separator";
+import { Toggle } from "@beep/ui/components/toggle";
 import { cn } from "@beep/ui/lib/utils";
 import { useAtomValue } from "@effect/atom-react";
 import { $createCodeNode, $isCodeNode } from "@lexical/code";
@@ -56,19 +60,28 @@ import {
 import type { ElementNode, LexicalEditor, TextFormatType } from "lexical";
 import type { JSX, ReactNode } from "react";
 
-type BlockType =
-  | "paragraph"
-  | "h1"
-  | "h2"
-  | "h3"
-  | "h4"
-  | "h5"
-  | "h6"
-  | "quote"
-  | "code"
-  | "bullet"
-  | "number"
-  | "check";
+const $I = $EditorId.create("chat/toolbar");
+
+const BlockType = LiteralKit([
+  "paragraph",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "quote",
+  "code",
+  "bullet",
+  "number",
+  "check",
+]).pipe(
+  $I.annoteSchema("BlockType", {
+    description: "The type of block that is currently selected.",
+  })
+);
+
+type BlockType = typeof BlockType.Type;
 
 interface SelectionState {
   readonly blockType: BlockType;
@@ -143,9 +156,7 @@ const computeSelectionState = (): SelectionState => {
 const toolbarSelectionAtom = Atom.family((editor: LexicalEditor) =>
   Atom.make((get) => {
     get.addFinalizer(
-      editor.registerUpdateListener(({ editorState }) => {
-        get.setSelf(editorState.read(computeSelectionState));
-      })
+      editor.registerUpdateListener(({ editorState }) => get.setSelf(editorState.read(computeSelectionState)))
     );
     get.addFinalizer(
       editor.registerCommand(
@@ -161,6 +172,30 @@ const toolbarSelectionAtom = Atom.family((editor: LexicalEditor) =>
   })
 );
 
+// Keep the editor selection alive: a toolbar press must not blur the editor
+// before the format/command dispatch runs.
+const preventBlur = (event: { preventDefault: () => void }): void => event.preventDefault();
+
+interface ToolbarToggleProps {
+  readonly children: ReactNode;
+  readonly label: string;
+  readonly onClick: () => void;
+  readonly pressed: boolean;
+}
+
+// Toggleable text marks (bold/italic/underline/strikethrough/inline-code). The
+// canonical `Toggle` surfaces an unmistakable pressed state via `data-[pressed]`
+// (accent fill + foreground) in both light and dark themes. We drive `pressed`
+// straight from the selection atom and dispatch on press, so the Lexical command
+// — not the toggle's internal state — remains the source of truth.
+function ToolbarToggle({ pressed, label, onClick, children }: ToolbarToggleProps): JSX.Element {
+  return (
+    <Toggle size="sm" aria-label={label} title={label} pressed={pressed} onMouseDown={preventBlur} onClick={onClick}>
+      {children}
+    </Toggle>
+  );
+}
+
 interface ToolbarButtonProps {
   readonly active?: boolean;
   readonly children: ReactNode;
@@ -168,6 +203,9 @@ interface ToolbarButtonProps {
   readonly onClick: () => void;
 }
 
+// One-shot / block actions (lists, quote, code block, link). Canonical ghost
+// icon button; when the block/link is active we mirror the toggle's pressed
+// styling so the active state reads identically across the bar.
 function ToolbarButton({ active = false, label, onClick, children }: ToolbarButtonProps): JSX.Element {
   return (
     <Button
@@ -176,10 +214,8 @@ function ToolbarButton({ active = false, label, onClick, children }: ToolbarButt
       aria-label={label}
       aria-pressed={active}
       title={label}
-      className={cn(active && "bg-accent text-accent-foreground")}
-      // Keep the editor selection: a toolbar press must not blur the editor
-      // before the format command runs.
-      onMouseDown={(event) => event.preventDefault()}
+      className={cn(active && "bg-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground")}
+      onMouseDown={preventBlur}
       onClick={onClick}
     >
       {children}
@@ -188,7 +224,7 @@ function ToolbarButton({ active = false, label, onClick, children }: ToolbarButt
 }
 
 function ToolbarDivider(): JSX.Element {
-  return <span aria-hidden="true" className="bg-border mx-1 h-5 w-px" />;
+  return <Separator orientation="vertical" className="mx-1 h-5" />;
 }
 
 /**
@@ -208,18 +244,15 @@ export function FixedToolbarPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const state = useAtomValue(toolbarSelectionAtom(editor));
 
-  const formatText = (format: TextFormatType): void => {
-    editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
-  };
+  const formatText = (format: TextFormatType): void => void editor.dispatchCommand(FORMAT_TEXT_COMMAND, format);
 
-  const setBlock = (target: BlockType, create: () => ElementNode): void => {
+  const setBlock = (target: BlockType, create: () => ElementNode): void =>
     editor.update(() => {
       const selection = $getSelection();
       if ($isRangeSelection(selection)) {
-        $setBlocksType(selection, state.blockType === target ? () => $createParagraphNode() : create);
+        $setBlocksType<ElementNode>(selection, state.blockType === target ? () => $createParagraphNode() : create);
       }
     });
-  };
 
   const toggleList = (target: BlockType, insert: typeof INSERT_UNORDERED_LIST_COMMAND): void => {
     if (state.blockType === target) {
@@ -235,21 +268,21 @@ export function FixedToolbarPlugin(): JSX.Element {
       aria-label="Formatting"
       className="border-border flex flex-wrap items-center gap-0.5 border-b px-1.5 py-1"
     >
-      <ToolbarButton active={state.bold} label="Bold" onClick={() => formatText("bold")}>
+      <ToolbarToggle pressed={state.bold} label="Bold" onClick={() => formatText("bold")}>
         <TextBIcon />
-      </ToolbarButton>
-      <ToolbarButton active={state.italic} label="Italic" onClick={() => formatText("italic")}>
+      </ToolbarToggle>
+      <ToolbarToggle pressed={state.italic} label="Italic" onClick={() => formatText("italic")}>
         <TextItalicIcon />
-      </ToolbarButton>
-      <ToolbarButton active={state.underline} label="Underline" onClick={() => formatText("underline")}>
+      </ToolbarToggle>
+      <ToolbarToggle pressed={state.underline} label="Underline" onClick={() => formatText("underline")}>
         <TextUnderlineIcon />
-      </ToolbarButton>
-      <ToolbarButton active={state.strikethrough} label="Strikethrough" onClick={() => formatText("strikethrough")}>
+      </ToolbarToggle>
+      <ToolbarToggle pressed={state.strikethrough} label="Strikethrough" onClick={() => formatText("strikethrough")}>
         <TextStrikethroughIcon />
-      </ToolbarButton>
-      <ToolbarButton active={state.code} label="Inline code" onClick={() => formatText("code")}>
+      </ToolbarToggle>
+      <ToolbarToggle pressed={state.code} label="Inline code" onClick={() => formatText("code")}>
         <CodeIcon />
-      </ToolbarButton>
+      </ToolbarToggle>
       <ToolbarDivider />
       <ToolbarButton
         active={state.blockType === "bullet"}

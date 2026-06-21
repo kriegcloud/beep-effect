@@ -180,7 +180,7 @@ export function Composer({ threadId }: { readonly threadId: ThreadId }): JSX.Ele
   };
 
   return (
-    <div className="border-t bg-background p-3" data-testid="composer">
+    <div className="border-t bg-background/80 p-3 backdrop-blur" data-testid="composer">
       {isEditing ? (
         <div className="mb-2 flex items-center justify-between rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-muted-foreground">
           <span>Editing message — sending will rewrite the thread from this point.</span>

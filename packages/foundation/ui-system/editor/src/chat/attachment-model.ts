@@ -329,6 +329,4 @@ export const fileToAttachment = (
  * @category utilities
  * @since 0.0.0
  */
-export const revokeAttachment = (attachment: ComposerAttachment): void => {
-  URL.revokeObjectURL(attachment.objectUrl);
-};
+export const revokeAttachment = (attachment: ComposerAttachment): void => URL.revokeObjectURL(attachment.objectUrl);

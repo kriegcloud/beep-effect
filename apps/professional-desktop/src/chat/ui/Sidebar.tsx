@@ -16,6 +16,7 @@
 
 import { createThreadAtom, editTargetAtom, selectedThreadAtom, threadsAtoms } from "@beep/agents-client/Chat.atoms";
 import { Button } from "@beep/ui/components/button";
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@beep/ui/components/empty";
 import { A, DateTime, O } from "@beep/utils";
 import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { Order } from "effect";
@@ -53,9 +54,13 @@ export function Sidebar({ workspaceId }: { readonly workspaceId: WorkspaceId }):
   useAtomMount(createThreadAtom);
 
   const sorted = AsyncResult.isSuccess(threads) ? A.sort(threads.value, byUpdatedDesc) : [];
+  // Once the load settles with nothing to show — an empty workspace or a failed
+  // load — present a calm empty state rather than an error. `Initial` (still
+  // loading) renders nothing.
+  const isEmpty = !AsyncResult.isInitial(threads) && sorted.length === 0;
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r bg-background" data-testid="sidebar">
+    <aside className="flex w-64 shrink-0 flex-col border-r bg-background/80 backdrop-blur" data-testid="sidebar">
       <div className="border-b p-3">
         <Button
           type="button"
@@ -68,8 +73,27 @@ export function Sidebar({ workspaceId }: { readonly workspaceId: WorkspaceId }):
         </Button>
       </div>
       <nav className="flex-1 overflow-y-auto p-2" data-testid="sidebar-list">
-        {AsyncResult.isFailure(threads) ? (
-          <p className="px-2 py-1 text-xs text-destructive">Failed to load threads.</p>
+        {isEmpty ? (
+          <Empty className="h-full border-none" data-testid="sidebar-empty">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
+                </svg>
+              </EmptyMedia>
+              <EmptyTitle>No threads yet</EmptyTitle>
+              <EmptyDescription>Start a conversation with “+ New thread”.</EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : null}
         {A.map(sorted, (thread) => {
           const isActive = O.exists(selected, (id) => id === thread.id);

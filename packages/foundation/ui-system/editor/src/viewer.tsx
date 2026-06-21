@@ -7,7 +7,8 @@
  */
 "use client";
 
-import { EditorStateFromJson } from "@beep/lexical-schema";
+import { $EditorId } from "@beep/identity";
+import { EditorStateFromJson, SerializedEditorState } from "@beep/lexical-schema";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
@@ -17,19 +18,27 @@ import * as S from "effect/Schema";
 import { MermaidCodeDecoratorPlugin } from "./mermaid-code-decorator-plugin.tsx";
 import { editorNodes } from "./nodes.ts";
 import { editorTheme } from "./theme.ts";
-import type { SerializedEditorState } from "@beep/lexical-schema";
 import type { JSX } from "react";
 
-const onError = (error: Error) => {
-  Effect.runSync(Effect.logError(error));
-};
+const $I = $EditorId.create("viewer");
 
-interface EditorViewerProps {
-  /** Optional class for the read-only content container. */
-  readonly className?: string;
-  /** The schema-decoded editor state to render. */
-  readonly state: SerializedEditorState.Type;
-}
+const onError = (error: Error) => Effect.runSync(Effect.logError(error));
+
+class EditorViewerProps extends S.Class<EditorViewerProps>($I`EditorViewerProps`)(
+  {
+    /** Optional class for the read-only content container. */
+    className: S.optionalKey(S.String).annotateKey({
+      description: "Optional class for the read-only content container.",
+    }),
+    /** The schema-decoded editor state to render. */
+    state: SerializedEditorState.annotateKey({
+      description: "The schema-decoded editor state to render.",
+    }),
+  },
+  $I.annote("EditorViewerProps", {
+    description: "Props for the EditorViewer component.",
+  })
+) {}
 
 /**
  * Read-only Lexical viewer over the `@beep/lexical-schema` v1 node

@@ -25,7 +25,7 @@ export const Empty: Story = {
   args: { placeholder: "Message the workspace…" },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Message the workspace…")).toBeVisible();
+    void expect(canvas.getByText("Message the workspace…")).toBeVisible();
   },
 };
 
@@ -33,6 +33,6 @@ export const WithInitialState: Story = {
   args: { initialState },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Draft a reply…")).toBeVisible();
+    void expect(canvas.getByText("Draft a reply…")).toBeVisible();
   },
 };

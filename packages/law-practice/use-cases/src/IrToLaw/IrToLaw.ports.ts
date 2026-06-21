@@ -20,7 +20,7 @@ import { Context } from "effect";
 import type { GroundedExtraction } from "@beep/langextract/Extraction";
 import type { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
 import type { Effect } from "effect";
-import type { IrToLawExtractionError } from "./IrToLaw.errors.js";
+import type { IrToLawExtractionError } from "./IrToLaw.errors.ts";
 
 const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.ports");
 

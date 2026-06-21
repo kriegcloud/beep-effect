@@ -32,14 +32,13 @@ import type { ElementNode, LexicalEditor } from "lexical";
 
 const ICON_CLASS = "size-4 shrink-0";
 
-const setBlock = (editor: LexicalEditor, create: () => ElementNode): void => {
+const setBlock = (editor: LexicalEditor, create: () => ElementNode): void =>
   editor.update(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {
       $setBlocksType(selection, create);
     }
   });
-};
 
 const heading = (editor: LexicalEditor, tag: HeadingTagType): void => setBlock(editor, () => $createHeadingNode(tag));
 

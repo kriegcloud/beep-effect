@@ -114,9 +114,8 @@ export function EditorComposer({
             const exit = Effect.runSyncExit(S.decodeUnknownEffect(SerializedEditorState)(nextEditorState.toJSON()));
             Exit.match(exit, {
               onSuccess: onSerializedChange,
-              onFailure: (cause) => {
-                Effect.runSync(Effect.logError("EditorComposer produced out-of-schema state", cause));
-              },
+              onFailure: (cause) =>
+                Effect.runSync(Effect.logError("EditorComposer produced out-of-schema state", cause)),
             });
           }}
         />

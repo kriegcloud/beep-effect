@@ -398,12 +398,12 @@ function ComposerFeaturePlugins({
       {onSerializedChange === undefined ? null : (
         <OnChangePlugin
           ignoreSelectionChange={true}
-          onChange={(nextEditorState) => {
+          onChange={(nextEditorState) =>
             O.match(decodeSerializedState(nextEditorState.toJSON()), {
               onSome: onSerializedChange,
               onNone: () => undefined,
-            });
-          }}
+            })
+          }
         />
       )}
       {features.slash ? <SlashPlugin items={slashItems} /> : null}

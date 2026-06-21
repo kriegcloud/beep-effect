@@ -1,13 +1,21 @@
+// cspell:words Unlisten
 /**
  * App-local Tauri-IPC transport for the desktop chat sidecar (transport spike).
  *
- * Builds an Effect {@link Socket} whose inbound bytes arrive on the Rust shell's
+ * Builds an Effect {@link Socket} whose inbound frames arrive on the Rust shell's
  * `sidecar://rx` event channel (the sidecar's stdout, bridged in
  * `src-tauri/src/lib.rs`) and whose outbound frames are written to the sidecar's
  * stdin via the `sidecar_send` command. Tunnelling the existing ndjson rpc frames
  * over this socket lets `RpcClient.layerProtocolSocket` drive the same
  * {@link ChatRpcs} contract the HTTP transport uses — with no loopback HTTP, no
  * `:3939`, and no CSP `connect-src` carve-out.
+ *
+ * Inbound frames are modelled as an Effect {@link Stream} fed by the two Tauri
+ * `listen` channels; the listeners are torn down through {@link Scope} finalizers
+ * rather than manual teardown. The Tauri Promise/callback boundary (`invoke`,
+ * `listen`) is lifted into Effect with `Effect.tryPromise`, so the transport
+ * logic itself stays free of bare Promise chains. Inbound payloads and the
+ * sidecar-closed payload are decoded with `effect/Schema` at the boundary.
  *
  * This is the ONLY module that imports `@tauri-apps/api`; keeping the framework
  * wrapper app-local preserves the rule that shared clients/drivers stay
@@ -17,136 +25,303 @@
  * @category transport
  * @since 0.0.0
  */
+
+import { $ProfessionalDesktopId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { Data, Effect, Layer } from "effect";
+import { Effect, Layer, Queue, Ref, Stream } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Socket } from "effect/unstable/socket";
+import type { UnlistenFn } from "@tauri-apps/api/event";
+import type * as Cause from "effect/Cause";
+import type * as Scope from "effect/Scope";
 
-const decoder = new TextDecoder();
-type StopListening = Awaited<ReturnType<typeof listen>>;
-type SidecarClosedPayload = {
-  readonly code: number | null;
-  readonly kind: string;
-  readonly message: string | null;
-  readonly signal: number | null;
-};
+const $I = $ProfessionalDesktopId.create("transport/TauriIpcSocket");
 
-const sidecarClosedMessage = (payload: SidecarClosedPayload): string => {
-  if (payload.message !== null && payload.message.length > 0) {
-    return `sidecar ${payload.kind}: ${payload.message}`;
-  }
-  const code = payload.code === null ? "none" : `${payload.code}`;
-  const signal = payload.signal === null ? "none" : `${payload.signal}`;
-  return `sidecar ${payload.kind}: code=${code} signal=${signal}`;
-};
+const FRAME_SEPARATOR = "\n";
 
-class SidecarClosedError extends Data.TaggedError("SidecarClosedError")<{
-  readonly message: string;
-  readonly payload: SidecarClosedPayload;
-}> {}
+/**
+ * The Tauri event names the Rust shell uses for the IPC stdio bridge: inbound
+ * ndjson rpc frames ride `sidecar://rx`, and a terminal sidecar lifecycle signal
+ * rides `sidecar://closed` (see `src-tauri/src/lib.rs`).
+ */
+const SidecarEvent = {
+  closed: "sidecar://closed",
+  rx: "sidecar://rx",
+} as const;
 
-class SidecarSendError extends Data.TaggedError("SidecarSendError")<{
-  readonly causeMessage: string;
-  readonly message: string;
-}> {}
+/**
+ * A single inbound ndjson rpc frame as delivered on `sidecar://rx`. The Rust
+ * bridge only forwards complete, newline-delimited, non-blank UTF-8 frames, so a
+ * frame is decoded as a non-empty string at the boundary instead of trusting an
+ * `unknown` event payload.
+ */
+const InboundFrame = S.NonEmptyString.pipe(
+  $I.annoteSchema("InboundFrame", {
+    description: "A single complete inbound ndjson rpc frame emitted on `sidecar://rx`.",
+  })
+);
 
-const unknownToMessage = (cause: unknown): string => {
-  if (cause instanceof Error) {
-    return cause.message;
-  }
-  return String(cause);
-};
+type InboundFrame = typeof InboundFrame.Type;
 
-// Inbound stdout frames ride the `sidecar://rx` event onto a web ReadableStream;
-// outbound frames are written to the sidecar's stdin via `sidecar_send`. The
-// frames are ndjson text, so the outgoing Uint8Array chunks are decoded back to
-// strings for the command boundary, and `fromTransformStream`'s ndjson decoder
-// reassembles inbound chunks into lines.
-const makeStream = (): Socket.InputTransformStream => {
-  let readableController: ReadableStreamDefaultController<string> | undefined;
-  let outboundBuffer = "";
-  let listenersReady: Promise<void> = Promise.resolve();
-  let sendFailure: SidecarSendError | undefined;
-  let stopListening: StopListening | undefined;
-  let stopClosedListening: StopListening | undefined;
+const decodeInboundFrame = S.decodeUnknownEffect(InboundFrame);
 
-  const failSend = (cause: unknown): Promise<never> => {
-    const causeMessage = unknownToMessage(cause);
-    const error = new SidecarSendError({
-      causeMessage,
-      message: `sidecar send failed: ${causeMessage}`,
-    });
-    sendFailure = error;
-    outboundBuffer = "";
-    readableController?.error(error);
-    return Promise.reject(error);
-  };
+/**
+ * The `sidecar://closed` payload carrying the sidecar's terminal lifecycle
+ * reason. Nullable wire fields decode to `Option` at the boundary so absence is
+ * explicit downstream (see effect-first EF-17).
+ */
+class SidecarClosedPayload extends S.Class<SidecarClosedPayload>($I`SidecarClosedPayload`)(
+  {
+    code: S.OptionFromNullOr(S.Finite),
+    kind: S.String,
+    message: S.OptionFromNullOr(S.String),
+    signal: S.OptionFromNullOr(S.Finite),
+  },
+  $I.annote("SidecarClosedPayload", {
+    description: "Terminal sidecar lifecycle payload delivered on `sidecar://closed`.",
+  })
+) {}
 
-  const flushCompleteFrames = (): Promise<void> => {
-    if (sendFailure !== undefined) {
-      return Promise.reject(sendFailure);
-    }
+const decodeSidecarClosedPayload = S.decodeUnknownEffect(SidecarClosedPayload);
 
-    const newlineIndex = outboundBuffer.indexOf("\n");
-    if (newlineIndex === -1) {
-      return Promise.resolve();
-    }
+// `none` when an optional lifecycle field is absent, else its string form —
+// hoisted so the message match below is not an option-match nested in a match.
+const optionLabel = (option: O.Option<number | string>): string =>
+  O.match(option, { onNone: () => "none", onSome: (value) => `${value}` });
 
-    const frame = outboundBuffer.slice(0, newlineIndex + 1);
-    outboundBuffer = outboundBuffer.slice(newlineIndex + 1);
-    return invoke<void>("sidecar_send", { frame }).then(flushCompleteFrames, failSend);
-  };
+const sidecarClosedMessage = (payload: SidecarClosedPayload): string =>
+  O.match(O.filter(payload.message, Str.isNonEmpty), {
+    onNone: () => `sidecar ${payload.kind}: code=${optionLabel(payload.code)} signal=${optionLabel(payload.signal)}`,
+    onSome: (message) => `sidecar ${payload.kind}: ${message}`,
+  });
 
-  const readable = new ReadableStream<string>({
-    start(controller) {
-      readableController = controller;
-      listenersReady = Promise.all([
-        listen<string>("sidecar://rx", (event) => controller.enqueue(event.payload)),
-        listen<SidecarClosedPayload>("sidecar://closed", (event) => {
-          controller.error(
-            new SidecarClosedError({ message: sidecarClosedMessage(event.payload), payload: event.payload })
+/**
+ * Raised when the sidecar reports a terminal lifecycle event on
+ * `sidecar://closed`, carrying the decoded payload so callers keep the typed
+ * close reason.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+class SidecarClosedError extends TaggedErrorClass<SidecarClosedError>($I`SidecarClosedError`)(
+  "SidecarClosedError",
+  {
+    message: S.String,
+    payload: SidecarClosedPayload,
+  },
+  $I.annote("SidecarClosedError", {
+    description: "The sidecar emitted a terminal `sidecar://closed` lifecycle event.",
+  })
+) {}
+
+/**
+ * Raised when writing an outbound frame to the sidecar's stdin via the
+ * `sidecar_send` command fails at the Tauri boundary.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+class SidecarSendError extends TaggedErrorClass<SidecarSendError>($I`SidecarSendError`)(
+  "SidecarSendError",
+  {
+    causeMessage: S.String,
+    message: S.String,
+  },
+  $I.annote("SidecarSendError", {
+    description: "Writing an outbound ndjson frame to the sidecar's stdin failed.",
+  })
+) {}
+
+const unknownToMessage = (cause: unknown): string => (cause instanceof Error ? cause.message : `${cause}`);
+
+const toSocketError = (cause: unknown): Socket.SocketError =>
+  Socket.isSocketError(cause) ? cause : Socket.SocketError.make({ reason: Socket.SocketReadError.make({ cause }) });
+
+/**
+ * A raw inbound Tauri event, tagged by its source channel. The event payloads
+ * stay `unknown` here and are decoded downstream in the stream pipeline, so the
+ * synchronous Tauri callbacks only offer onto the queue and never spawn fibers.
+ */
+const InboundEvent = S.TaggedUnion({
+  Closed: { payload: S.Unknown },
+  Rx: { payload: S.Unknown },
+}).annotate(
+  $I.annote("InboundEvent", {
+    description: "A raw inbound sidecar event tagged by its Tauri channel.",
+  })
+);
+
+type InboundEvent = typeof InboundEvent.Type;
+
+/**
+ * Register one Tauri event listener and tie its `UnlistenFn` to the current
+ * scope, so the listener is torn down through scope finalization instead of
+ * manual teardown. The Promise that `listen` returns is the only Promise
+ * boundary, and it is lifted into Effect with `Effect.tryPromise`. The handler
+ * is a pure synchronous offer, so no fiber is spawned from the callback.
+ */
+const scopedListen = (
+  event: (typeof SidecarEvent)[keyof typeof SidecarEvent],
+  toEvent: (payload: unknown) => InboundEvent,
+  queue: Queue.Enqueue<InboundEvent, Socket.SocketError | Cause.Done>
+): Effect.Effect<UnlistenFn, Socket.SocketError, Scope.Scope> =>
+  Effect.acquireRelease(
+    Effect.tryPromise({
+      try: () => listen<unknown>(event, (received) => Queue.offerUnsafe(queue, toEvent(received.payload))),
+      catch: toSocketError,
+    }),
+    (unlisten) => Effect.sync(unlisten)
+  );
+
+/**
+ * Decode one raw inbound event into a downstream effect: an `Rx` event decodes
+ * to its ndjson frame, while a `Closed` event decodes its lifecycle payload and
+ * fails the stream with a typed {@link SidecarClosedError}. Decode failures in
+ * either branch surface as `Socket.SocketError`, matching the read signature.
+ */
+const decodeInboundEvent = (event: InboundEvent): Effect.Effect<InboundFrame, Socket.SocketError> =>
+  InboundEvent.match({
+    Closed: ({ payload }) =>
+      decodeSidecarClosedPayload(payload).pipe(
+        Effect.matchEffect({
+          onFailure: (error) => Effect.fail(toSocketError(error)),
+          onSuccess: (decoded) =>
+            Effect.fail(
+              toSocketError(SidecarClosedError.make({ message: sidecarClosedMessage(decoded), payload: decoded }))
+            ),
+        })
+      ),
+    Rx: ({ payload }) => decodeInboundFrame(payload).pipe(Effect.mapError(toSocketError)),
+  })(event);
+
+/**
+ * Inbound ndjson rpc frames as an Effect {@link Stream}. The two Tauri listeners
+ * (`sidecar://rx`, `sidecar://closed`) are attached inside `Stream.callback` and
+ * offer raw, tagged events onto the backing queue; the events are decoded with
+ * `effect/Schema` downstream. Once both listeners are live the bridge tells Rust
+ * it is ready via `sidecar_ipc_ready`, which replays any frames buffered during
+ * sidecar boot (Tauri events are not durable), and finally runs `onOpen` (the
+ * read handler's open hook) so it fires only after the transport is subscribed.
+ * Listener teardown rides the stream's scope, so no manual unlisten bookkeeping
+ * is needed.
+ */
+const inboundFrames = (onOpen: Effect.Effect<void> | undefined): Stream.Stream<InboundFrame, Socket.SocketError> =>
+  Stream.callback<InboundEvent, Socket.SocketError>(
+    Effect.fnUntraced(function* (queue: Queue.Enqueue<InboundEvent, Socket.SocketError | Cause.Done>) {
+      // `Stream.callback` does not surface the register body's own failure, so a
+      // rejected `listen` or `sidecar_ipc_ready` would otherwise leave the
+      // consumer waiting on a queue that never closes. Push any setup failure
+      // onto the queue so the inbound stream fails (and `runRaw` retries through
+      // RpcClient) instead of hanging.
+      const setup = Effect.gen(function* () {
+        yield* scopedListen(SidecarEvent.rx, (payload) => InboundEvent.cases.Rx.make({ payload }), queue);
+        yield* scopedListen(SidecarEvent.closed, (payload) => InboundEvent.cases.Closed.make({ payload }), queue);
+
+        // Listeners are live; tell Rust to replay any frames buffered during boot.
+        yield* Effect.tryPromise({
+          try: () => invoke<void>("sidecar_ipc_ready"),
+          catch: toSocketError,
+        });
+
+        // The transport is subscribed and Rust has replayed buffered frames; only
+        // now run the read handler's open hook.
+        if (onOpen !== undefined) {
+          yield* onOpen;
+        }
+      });
+      yield* Effect.onError(setup, (cause) => Queue.failCause(queue, cause));
+    })
+  ).pipe(Stream.mapEffect(decodeInboundEvent));
+
+/**
+ * Ship a single complete, newline-terminated outbound frame to the sidecar's
+ * stdin via the `sidecar_send` command. The frame already carries its ndjson
+ * framing, so it is written verbatim.
+ */
+const sendFrame = (frame: string): Effect.Effect<void, SidecarSendError> =>
+  Effect.tryPromise({
+    try: () => invoke<void>("sidecar_send", { frame }),
+    catch: (cause) => {
+      const causeMessage = unknownToMessage(cause);
+      return SidecarSendError.make({ causeMessage, message: `sidecar send failed: ${causeMessage}` });
+    },
+  });
+
+/**
+ * Flush every complete (newline-terminated) frame currently buffered, leaving
+ * any trailing partial frame in the buffer. A partial frame means the producer
+ * was interrupted mid-frame; force-terminating it would corrupt the sidecar's
+ * stdin protocol, so it waits for the rest of its bytes.
+ */
+const flushBufferedFrames = (buffer: Ref.Ref<string>): Effect.Effect<void, SidecarSendError> =>
+  Ref.get(buffer).pipe(
+    Effect.flatMap((pending) =>
+      O.match(Str.indexOf(FRAME_SEPARATOR)(pending), {
+        onNone: () => Effect.void,
+        onSome: (newlineIndex) => {
+          const frame = Str.slice(0, newlineIndex + 1)(pending);
+          return Ref.set(buffer, Str.slice(newlineIndex + 1)(pending)).pipe(
+            Effect.andThen(sendFrame(frame)),
+            Effect.andThen(flushBufferedFrames(buffer))
           );
+        },
+      })
+    )
+  );
+
+/**
+ * The scoped outbound writer the {@link Socket} contract requires. Outgoing
+ * chunks (already UTF-8 ndjson) accumulate in a buffer, and only complete frames
+ * are shipped; a `CloseEvent` is ignored because the sidecar's stdin is closed
+ * by killing the child on the Rust side, not by an in-band close frame. Send
+ * failures are surfaced as `Socket.SocketError` to match the writer signature.
+ */
+const makeWriter: Effect.Effect<
+  (chunk: Uint8Array | string | Socket.CloseEvent) => Effect.Effect<void, Socket.SocketError>,
+  never,
+  Scope.Scope
+> = Effect.gen(function* () {
+  const decoder = new TextDecoder();
+  const buffer = yield* Ref.make("");
+
+  return (chunk) =>
+    Socket.isCloseEvent(chunk)
+      ? Effect.void
+      : Ref.update(
+          buffer,
+          (pending) => pending + (P.isString(chunk) ? chunk : decoder.decode(chunk, { stream: true }))
+        ).pipe(
+          Effect.andThen(flushBufferedFrames(buffer)),
+          Effect.mapError((error) =>
+            Socket.SocketError.make({ reason: Socket.SocketWriteError.make({ cause: error }) })
+          )
+        );
+});
+
+/**
+ * The IPC {@link Socket}, built from the inbound frame {@link Stream} and the
+ * scoped outbound writer. `runRaw` drives the read handler per inbound frame and
+ * fails with a clean `SocketCloseError` (code 1000) when the inbound stream ends,
+ * matching the `RpcClient` socket protocol's end-of-stream contract.
+ */
+const makeSocket: Effect.Effect<Socket.Socket> = Effect.sync(() =>
+  Socket.make({
+    runRaw: (handler, options) =>
+      inboundFrames(options?.onOpen).pipe(
+        Stream.runForEach((frame) => {
+          const result = handler(frame);
+          return Effect.isEffect(result) ? Effect.asVoid(result) : Effect.void;
         }),
-      ]).then(([stopRx, stopClosed]) => {
-        stopListening = stopRx;
-        stopClosedListening = stopClosed;
-        return invoke<void>("sidecar_ipc_ready");
-      });
-      return listenersReady;
-    },
-    cancel() {
-      stopListening?.();
-      stopClosedListening?.();
-      readableController = undefined;
-    },
-  });
-  const writable = new WritableStream<Uint8Array>({
-    write(chunk) {
-      if (sendFailure !== undefined) {
-        return Promise.reject(sendFailure);
-      }
-      outboundBuffer += decoder.decode(chunk, { stream: true });
-      return listenersReady.then(flushCompleteFrames, failSend);
-    },
-    close() {
-      if (sendFailure !== undefined) {
-        return Promise.reject(sendFailure);
-      }
-      // Flush the decoder tail, then ship only complete (newline-terminated) frames
-      // and drop any trailing partial. A partial here means the producer was
-      // interrupted mid-frame; force-terminating it would write a truncated ndjson
-      // frame and corrupt the sidecar's stdin protocol.
-      outboundBuffer += decoder.decode();
-      return listenersReady.then(flushCompleteFrames, failSend).then(() => {
-        outboundBuffer = "";
-      });
-    },
-    abort() {
-      outboundBuffer = "";
-    },
-  });
-  return { readable, writable };
-};
+        Effect.andThen(Effect.fail(Socket.SocketError.make({ reason: Socket.SocketCloseError.make({ code: 1000 }) })))
+      ),
+    writer: makeWriter,
+  })
+);
 
 /**
  * The `Socket` service that backs the IPC rpc client, bridged to the sidecar's
@@ -162,7 +337,4 @@ const makeStream = (): Socket.InputTransformStream => {
  * @category layers
  * @since 0.0.0
  */
-export const TauriIpcSocketLive: Layer.Layer<Socket.Socket> = Layer.effect(
-  Socket.Socket,
-  Socket.fromTransformStream(Effect.sync(makeStream))
-);
+export const TauriIpcSocketLive: Layer.Layer<Socket.Socket> = Layer.effect(Socket.Socket, makeSocket);

@@ -19,10 +19,15 @@ import * as S from "effect/Schema";
 
 const $I = $ProfessionalDesktopId.create("runtime/Migrations");
 
-interface MigrationFile {
-  readonly name: string;
-  readonly sql: string;
-}
+class MigrationFile extends S.Class<MigrationFile>($I`MigrationFile`)(
+  {
+    name: S.String,
+    sql: S.String,
+  },
+  $I.annote("MigrationFile", {
+    description: "A migration file for the Professional Desktop chat sidecar.",
+  })
+) {}
 
 /**
  * Default schema for the Professional Desktop Drizzle migration journal.
@@ -190,7 +195,7 @@ const makeMigrationBundleFolder = Effect.fn("ProfessionalDesktop.Migrations.make
  * ```ts
  * import { ProfessionalDesktopMigrationOptions } from "@/runtime/Migrations"
  *
- * const options = new ProfessionalDesktopMigrationOptions({ migrationsSchema: "drizzle" })
+ * const options = ProfessionalDesktopMigrationOptions.make({ migrationsSchema: "drizzle" })
  * console.log(options)
  * ```
  *

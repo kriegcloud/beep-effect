@@ -163,9 +163,7 @@ export function SlashPlugin({ items }: SlashPluginProps): ReactNode {
     nodeToRemove: ReturnType<typeof $createTextNode> | null,
     closeMenu: () => void
   ): void => {
-    editor.update(() => {
-      nodeToRemove?.remove();
-    });
+    editor.update(() => nodeToRemove?.remove());
     selectedOption.item.onSelect(editor);
     closeMenu();
   };
