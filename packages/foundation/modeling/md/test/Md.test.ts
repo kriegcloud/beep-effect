@@ -137,7 +137,10 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
       const tsPre = Pre.make({ value: "x", language: O.some("ts") });
       expect(yield* S.decodeUnknownEffect(Pre)(yield* S.encodeEffect(Pre)(tsPre))).toEqual(tsPre);
       expect(yield* S.decodeUnknownEffect(CodeFenceLanguage)("ts")).toBe("ts");
-      expect(() => S.decodeUnknownSync(Pre)({ _tag: "pre", language: "ts bad", value: "x" })).toThrow();
+      expect(() => S.decodeUnknownSync(CodeFenceLanguage)("ts bad")).toThrow();
+      expect(yield* S.decodeUnknownEffect(Pre)({ _tag: "pre", language: "ts bad", value: "x" })).toEqual(
+        Pre.make({ value: "x", language: O.some("ts bad") })
+      );
       expect(yield* S.decodeUnknownEffect(Text)(Text.make({ value: "Hello" }))).toEqual(text);
     })
   );
@@ -338,7 +341,7 @@ ${Md.h3("Inside")}
     expect(renderMarkdownBlock(Md.taskList(["one\ntwo"]))).toBe("- [ ] one\n      two");
     expect(renderMarkdownBlock(Md.blockquote`one\rtwo`)).toBe("> one\n> two");
     expect(renderMarkdownBlock(Md.pre("plain"))).toBe("```\nplain\n```");
-    expect(() => Md.pre("plain", { language: "ts bad" })).toThrow();
+    expect(renderMarkdownBlock(Md.pre("plain", { language: "ts bad" }))).toBe("```\nplain\n```");
     expect(renderFencedCode("plain", "ts bad")).toBe("```\nplain\n```");
     expect(renderMarkdownBlock(Md.hr)).toBe("---");
 
@@ -361,7 +364,7 @@ ${Md.h3("Inside")}
     expect(renderHtmlBlock(Md.pre("<x>", { language: "ts" }))).toBe(
       '<pre><code class="language-ts">&lt;x&gt;</code></pre>'
     );
-    expect(() => Md.pre("<x>", { language: "ts bad" })).toThrow();
+    expect(renderHtmlBlock(Md.pre("<x>", { language: "ts bad" }))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.pre("<x>"))).toBe("<pre><code>&lt;x&gt;</code></pre>");
     expect(renderHtmlBlock(Md.hr)).toBe("<hr />");
   });

@@ -1537,9 +1537,9 @@ export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
     // Encoded form must survive a JSON boundary (jsonb columns, rpc/ndjson
     // wire): S.Option(S.String) encodes to a real Option instance that does not
     // round-trip through JSON, so persisted/transported documents fail to
-    // decode. OptionFromNullOr keeps the Type as Option<string> while encoding
-    // to JSON-safe `string | null`.
-    language: S.OptionFromNullOr(CodeFenceLanguage).annotateKey({
+    // decode. Keep persisted AST decoding compatible with legacy free-form code
+    // fence info strings; render helpers sanitize through CodeFenceLanguage.
+    language: S.OptionFromNullOr(S.String).annotateKey({
       description: "Optional language hint for fenced code rendering.",
     }),
     value: S.String.annotateKey({
