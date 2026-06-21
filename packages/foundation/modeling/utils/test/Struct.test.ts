@@ -87,7 +87,6 @@ describe("@beep/utils Struct.dotGet", () => {
     expect(O.isNone(none)).toBe(true);
   });
 });
-// bench
 
 describe("@beep/utils Struct.mapPath", () => {
   it("supports data-first and data-last calls", () => {

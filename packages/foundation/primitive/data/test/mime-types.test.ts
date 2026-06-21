@@ -209,4 +209,3 @@ describe("lookup", () => {
     expect(lookup("data")).toBe("application/octet-stream");
   });
 });
-// bench

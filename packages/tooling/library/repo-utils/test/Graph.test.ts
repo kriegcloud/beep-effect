@@ -326,4 +326,3 @@ describe("computeTransitiveClosure", () => {
     })
   );
 });
-// bench

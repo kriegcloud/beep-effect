@@ -361,4 +361,3 @@ describe("LiteralNotInSetError", () => {
     expect(error).type.toBeAssignableTo<LiteralNotInSetError>();
   });
 });
-// bench

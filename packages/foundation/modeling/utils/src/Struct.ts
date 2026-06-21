@@ -383,7 +383,6 @@ export const getLazy: {
     () =>
       self[key]
 );
-// bench
 
 /**
  * Returns all type-level `Paths` of a struct as a `NonEmptyReadonlyArray` of
