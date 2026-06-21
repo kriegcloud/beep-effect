@@ -135,7 +135,7 @@ const makeStream = (): Socket.InputTransformStream => {
       // Flush the decoder tail, then ship only complete (newline-terminated) frames
       // and drop any trailing partial. A partial here means the producer was
       // interrupted mid-frame; force-terminating it would write a truncated ndjson
-      // frame and desync the sidecar's stdin protocol.
+      // frame and corrupt the sidecar's stdin protocol.
       outboundBuffer += decoder.decode();
       return listenersReady.then(flushCompleteFrames, failSend).then(() => {
         outboundBuffer = "";
