@@ -74,17 +74,25 @@ oxlint rule categories, to avoid overlap with Biome. These 5 stateful/path-aware
 
 The lane runs native oxlint categories **off** (`categories: all off`) so only the custom
 `beep/*` rules fire; `scripts/`, `goals/`, and `explorations/` are excluded (operational
-code, not the rules' target). `bun run lint:oxlint` exits 0 today.
+code, not the rules' target). The plugin source (`src/rules/**`) is itself oxlint-linted
+(no self-exclusion). `bun run lint:oxlint` exits 0 today.
+
+Detection is **binding-based** (post-review hardening): the rules resolve import bindings
+(named / namespace / default / aliased) rather than matching literal identifier names, so
+`import { Effect as E }`, `import * as S from "effect/Schema"`, and `import * as Effect from
+"effect"` (`Effect.Schema.Opaque(...)`) are all handled and cannot bypass the rules.
 
 | Rule | Source | beep violations | Severity |
 | --- | --- | --- | --- |
-| `no-opaque-instance-fields` | effect-smol v4 | 0 | **error** (mandatory) |
+| `no-opaque-instance-fields` | effect-smol v4 | 0 | **error** (mandatory; binding-based — effect-root namespace + default/named/namespace Schema/Opaque imports) |
 | `namespace-node-imports` | t3code | 53 | warn (advisory — `node:` import-style cleanup) |
-| `no-inline-schema-compile` | t3code | 19 | warn (advisory — hot-path hoisting) |
-| `no-manual-effect-runtime-in-tests` | t3code (76 `packages`/`apps` test files baselined) | 9 (`infra/test`, not yet baselined) | warn (advisory — promote to `error` once the baseline covers `infra`) |
-| `no-global-process-runtime` | t3code (host file re-pointed to `chalk/.../SupportsColor.ts`) | 5 | warn (advisory) |
+| `no-inline-schema-compile` | t3code | ~880 | warn (advisory — binding-based Schema detection + non-IIFE in-function compiler bindings; large hot-path-hoisting backlog; exact count tracks the tree) |
+| `no-manual-effect-runtime-in-tests` | t3code (full-tree baseline incl `infra/`) | 0 | warn (advisory — binding-based; 0 net-new, baseline covers `packages`/`apps`/`infra`) |
+| `no-global-process-runtime` | t3code (host file re-pointed to `chalk/.../SupportsColor.ts`) | 5 | warn (advisory — skips lexically-shadowed `process`; distinct `process.x` vs `os.x()` diagnostics) |
 
-oxlint custom JS plugins are stable on Linux (spike confirmed; no alpha breakage), so the
-lane is real — not "complete-with-exception." Promotion of the 4 advisory rules to `error`
-(and adding `lint:oxlint` to a blocking CI lane) is tracked by the SPEC exception ledger's
-**2026-09-20** re-assessment.
+`lint:oxlint` is wired into the **blocking Lint Policy CI lane** via `beep lint policy`
+(`oxlint --quiet` — errors only, so the mandatory `no-opaque-instance-fields` rule is
+enforced on every PR while the advisory backlog stays out of the gate output). oxlint custom
+JS plugins are stable on Linux (spike confirmed; no alpha breakage), so the lane is real —
+not "complete-with-exception." Promotion of the remaining advisory rules to `error` is
+tracked by the SPEC exception ledger's **2026-09-20** re-assessment.
