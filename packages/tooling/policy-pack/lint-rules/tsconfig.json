@@ -7,5 +7,9 @@
     "outDir": "dist",
     "rootDir": "src"
   },
-  "references": [{ "path": "../../../foundation/modeling/utils/tsconfig.json" }]
+  "references": [
+    {
+      "path": "../../../foundation/modeling/utils/tsconfig.json"
+    }
+  ]
 }
