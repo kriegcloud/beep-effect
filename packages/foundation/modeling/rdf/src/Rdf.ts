@@ -735,6 +735,7 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  * @since 0.0.0
  * @category models
  */
+// Runtime key validation in PrefixMapSchema proves every erased S.Record key is a PrefixLabel.
 export const PrefixMap = (
   PrefixMapSchema as unknown as S.Codec<Readonly<Record<PrefixLabel, IRI>>, Readonly<Record<PrefixLabel, IRI>>>
 ).pipe(

@@ -120,6 +120,7 @@ const makeStrictStringKeyRecord = <Value extends S.Top>(
     S.makeFilter<S.Record.Type<typeof S.String, Value>>((record) =>
       pipe(
         R.keys(record),
+        // Report one invalid key per decode; callers use the path as the JSON pointer anchor.
         A.findFirst((key) => !keyGuard(key)),
         O.match({
           onNone: () => undefined,

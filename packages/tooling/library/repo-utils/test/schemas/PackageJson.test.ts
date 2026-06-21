@@ -816,5 +816,59 @@ describe("PackageJson schema", () => {
         ).toEqual(["/name", "/private", "/unexpected"]);
       })
     );
+
+    it.effect(
+      "formats invalid package map keys with field-specific JSON Pointers",
+      Effect.fn("PackageJson.test.formatMapKeyIssues")(function* () {
+        const cases = [
+          {
+            input: {
+              name: "pkg",
+              dependencies: {
+                "Invalid Name": "catalog:",
+              },
+            },
+            pointer: "/dependencies/Invalid Name",
+            message: "Dependency names must be valid repo package names",
+          },
+          {
+            input: {
+              name: "pkg",
+              exports: {
+                "1invalid": "./dist/index.js",
+              },
+            },
+            pointer: "/exports/1invalid",
+            message: "Package exports subpath keys must be . or start with ./",
+          },
+          {
+            input: {
+              name: "pkg",
+              imports: {
+                internal: "./src/internal.ts",
+              },
+            },
+            pointer: "/imports/internal",
+            message: "Package imports keys must start with #",
+          },
+        ] as const;
+
+        for (const testCase of cases) {
+          const issues = yield* S.decodeUnknownEffect(PackageJson)(testCase.input, {
+            onExcessProperty: "error",
+            errors: "all",
+          }).pipe(Effect.flip, Effect.map(getPackageJsonSchemaIssues));
+
+          expect(issues).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({
+                pointer: testCase.pointer,
+                message: expect.stringContaining(testCase.message),
+              }),
+            ])
+          );
+        }
+      })
+    );
   });
 });

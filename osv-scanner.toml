@@ -11,6 +11,11 @@
 # packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts) only
 # mirrors an `--ignore` for entries whose `ignoreUntil` is still in the future,
 # so expired entries stop suppressing the advisory automatically.
+#
+# Retired dependency-refresh ignores are intentionally absent when the lockfile
+# resolves fixed versions. The current lock resolves esbuild 0.25.12, form-data
+# 4.0.6, and protobufjs 7.6.4; form-data and protobufjs are also pinned in root
+# overrides.
 
 [[IgnoredVulns]]
 id = "GHSA-h67p-54hq-rp68"
