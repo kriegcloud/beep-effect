@@ -1181,9 +1181,7 @@
       "@beep/epistemic-domain/values/EvidenceSpan": [
         "./packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
       ],
-      "@beep/epistemic-server": [
-        "./packages/epistemic/server/src/index.ts"
-      ],
+      "@beep/epistemic-server": ["./packages/epistemic/server/src/index.ts"],
       "@beep/epistemic-server/layer": [
         "./packages/epistemic/server/src/Layer.ts"
       ],
@@ -1238,9 +1236,7 @@
       "@beep/provenance": [
         "./packages/foundation/modeling/provenance/src/index.ts"
       ],
-      "@beep/provenance/*": [
-        "./packages/foundation/modeling/provenance/src/*"
-      ],
+      "@beep/provenance/*": ["./packages/foundation/modeling/provenance/src/*"],
       "@beep/schema/UnitInterval": [
         "./packages/foundation/modeling/schema/src/UnitInterval.ts"
       ],
@@ -1253,29 +1249,35 @@
       "@beep/law-practice-server/layer": [
         "./packages/law-practice/server/src/Layer.ts"
       ],
-      "@beep/pglite": [
-        "./packages/drivers/pglite/src/index.ts"
-      ],
-      "@beep/pglite/*": [
-        "./packages/drivers/pglite/src/*"
-      ],
+      "@beep/pglite": ["./packages/drivers/pglite/src/index.ts"],
+      "@beep/pglite/*": ["./packages/drivers/pglite/src/*"],
       "@beep/law-practice-use-cases/test": [
         "./packages/law-practice/use-cases/src/test.ts"
       ],
-      "@beep/m365": [
-        "./packages/drivers/m365/src/index.ts"
-      ],
-      "@beep/m365/*": [
-        "./packages/drivers/m365/src/*"
-      ],
-      "@beep/m365-mcp": [
-        "./packages/drivers/m365-mcp/src/index.ts"
-      ],
-      "@beep/m365-mcp/*": [
-        "./packages/drivers/m365-mcp/src/*"
-      ],
+      "@beep/m365": ["./packages/drivers/m365/src/index.ts"],
+      "@beep/m365/*": ["./packages/drivers/m365/src/*"],
+      "@beep/m365-mcp": ["./packages/drivers/m365-mcp/src/index.ts"],
+      "@beep/m365-mcp/*": ["./packages/drivers/m365-mcp/src/*"],
       "@beep/ui/themes/theme-provider": [
         "./packages/foundation/ui-system/ui/src/themes/theme-provider.tsx"
+      ],
+      "@beep/schema/ContinentCode": [
+        "./packages/foundation/modeling/schema/src/ContinentCode.ts"
+      ],
+      "@beep/schema/ContinentName": [
+        "./packages/foundation/modeling/schema/src/ContinentName.ts"
+      ],
+      "@beep/schema/CountryCode": [
+        "./packages/foundation/modeling/schema/src/CountryCode.ts"
+      ],
+      "@beep/schema/CountryName": [
+        "./packages/foundation/modeling/schema/src/CountryName.ts"
+      ],
+      "@beep/schema/TerritoryCode": [
+        "./packages/foundation/modeling/schema/src/TerritoryCode.ts"
+      ],
+      "@beep/schema/TerritoryName": [
+        "./packages/foundation/modeling/schema/src/TerritoryName.ts"
       ]
     }
   }

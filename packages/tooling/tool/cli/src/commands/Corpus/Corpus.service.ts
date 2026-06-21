@@ -83,6 +83,7 @@ import type {
 } from "@beep/file-processing/Extraction";
 import type { FileProcessingEngineShape, FileProcessingService } from "@beep/file-processing/Service";
 import type { FileFormatFamily, FileProcessingEngineFamily, SelectedStrategy } from "@beep/file-processing/Strategy";
+import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type {
   CorpusCatalogOptions,
@@ -96,7 +97,11 @@ import type {
 
 const $I = $RepoCliId.create("commands/Corpus/Corpus.service");
 
-type CorpusCommandServiceRequirements = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
+type CorpusCommandServiceRequirements =
+  | Crypto.Crypto
+  | FileSystem.FileSystem
+  | Path.Path
+  | ChildProcessSpawner.ChildProcessSpawner;
 
 /**
  * Service contract for corpus curation operations.
@@ -614,7 +619,9 @@ const decodeSourceArtifact = S.decodeUnknownEffect(SourceArtifact);
 const encodeMetadataRecordJson = S.encodeUnknownEffect(S.fromJsonString(S.Record(S.String, S.String)));
 const operationTextEncoder = new TextEncoder();
 
-const deriveCorpusOperationId = Effect.fn("CorpusCommandService.deriveCorpusOperationId")(function* (text: string) {
+const deriveCorpusOperationId = Effect.fn("CorpusCommandService.deriveCorpusOperationId")(function* (
+  text: string
+): Effect.fn.Return<OperationId, CorpusCommandError, Crypto.Crypto> {
   const digest = yield* decodeSha256FromBytes(operationTextEncoder.encode(text)).pipe(
     CorpusCommandError.mapError("Operation id digest derivation failed.")
   );
@@ -828,7 +835,7 @@ const extractCorpusImpl = Effect.fn("CorpusCommandService.extractCorpus")(functi
   ): Effect.fn.Return<
     CorpusExtractOutcome,
     CorpusCommandError,
-    FileProcessingService | FileSystem.FileSystem | Path.Path
+    Crypto.Crypto | FileProcessingService | FileSystem.FileSystem | Path.Path
   > {
     const sanitizedRelative = `${record.sourceLabel}/${record.relativePath}`.replaceAll("\\", "/");
     const artifactId = yield* decodeArtifactId(`artifact:${record.sha256}`).pipe(

@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 
+import * as official from "./generated/iana-media-types.ts";
 import * as internal from "./internal/data/mime-types/index.ts";
 
 // -------------------------------------------------------------------------------------
@@ -31,6 +32,22 @@ import * as internal from "./internal/data/mime-types/index.ts";
  * ```
  */
 export type MimeType = internal.MimeType;
+
+/**
+ * Union of official IANA media type strings from the generated registry data.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type OfficialMimeType = (typeof official.OfficialMimeTypeDataTypeValues)[number];
+
+/**
+ * A single official IANA media type registry entry.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type OfficialMimeTypeData = (typeof official.OfficialMimeTypeDataValues)[number];
 
 /**
  * Union of all known file extension strings (without leading dot) derived
@@ -189,6 +206,78 @@ export const mimes: typeof internal.mimes = internal.mimes;
  * ```
  */
 export const mimeTypes: typeof internal.mimeTypes = internal.mimeTypes;
+
+/**
+ * Stable source metadata for the generated official IANA media type registry.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataMetadata: typeof official.OfficialMimeTypeDataMetadata =
+  official.OfficialMimeTypeDataMetadata;
+
+/**
+ * Last updated date reported by the official IANA media type registry.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataUpdated: typeof official.OfficialMimeTypeDataUpdated =
+  official.OfficialMimeTypeDataUpdated;
+
+/**
+ * Official IANA media type registry source URL.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataSourceUrl: typeof official.OfficialMimeTypeDataSourceUrl =
+  official.OfficialMimeTypeDataSourceUrl;
+
+/**
+ * SHA-256 digest of the official source payload used for the generated dataset.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataSourceSha256: typeof official.OfficialMimeTypeDataSourceSha256 =
+  official.OfficialMimeTypeDataSourceSha256;
+
+/**
+ * Official IANA media type registry entries.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataValues: typeof official.OfficialMimeTypeDataValues =
+  official.OfficialMimeTypeDataValues;
+
+/**
+ * Official IANA media type registry entries keyed by full media type.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataByType: typeof official.OfficialMimeTypeDataByType =
+  official.OfficialMimeTypeDataByType;
+
+/**
+ * Official IANA media type literal values.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataTypeValues: typeof official.OfficialMimeTypeDataTypeValues =
+  official.OfficialMimeTypeDataTypeValues;
+
+/**
+ * Official IANA media type entries grouped for schema category helpers.
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const OfficialMimeTypeDataByTopLevel: typeof official.OfficialMimeTypeDataByTopLevel =
+  official.OfficialMimeTypeDataByTopLevel;
 
 // -------------------------------------------------------------------------------------
 // getters

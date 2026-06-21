@@ -3,8 +3,10 @@ import { Block, Document, Inline, Pre, Table, TableCell, TableRow, Text } from "
 import {
   DocumentToHtmlFragment,
   DocumentToMarkdown,
+  DocumentToPlainText,
   HtmlFragmentAdapter,
   MarkdownAdapter,
+  PlainTextAdapter,
   renderEffectWith,
   renderEffectWithUnsafe,
   renderHtmlBlock,
@@ -14,6 +16,9 @@ import {
   renderMarkdownBlock,
   renderMarkdownBlocks,
   renderMarkdownInline,
+  renderPlainText,
+  renderPlainTextBlocks,
+  renderPlainTextUnsafe,
   renderUnsafe,
   renderWith,
   renderWithUnsafe,
@@ -42,6 +47,8 @@ const BlockArbitrary = S.toArbitrary(Block);
 const DocumentArbitrary = S.toArbitrary(Document);
 
 const markdownHtmlDoc = (): Document => Md.make([Md.h1("Hello"), Md.p("World")]);
+const encodeJsonResult = S.encodeUnknownResult(S.UnknownFromJsonString);
+const decodeDocumentJsonResult = S.decodeUnknownResult(S.fromJsonString(Document));
 
 const expectRenderFailure = <Output>(
   result: Result.Result<Output, RenderError>,
@@ -79,7 +86,7 @@ describe("@beep/md", () => {
         ],
         { headerRow: true }
       ),
-      Md.youtube("dQw4w9WgXcQ"),
+      Result.getOrThrow(Md.youtube("dQw4w9WgXcQ")),
       Md.blockquote`Hello World!`,
     ]);
 
@@ -114,28 +121,37 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
     expect(Md.renderUnsafe(markdown)).toBe(rendered);
   });
 
-  it("builds and validates schema-first AST nodes", () => {
-    const text = Md.text("Hello");
-    const pre = Md.pre("code");
-    const doc = Md.make([Md.p([text]), pre]);
+  it.effect(
+    "builds and validates schema-first AST nodes",
+    Effect.fnUntraced(function* () {
+      const text = Md.text("Hello");
+      const pre = Md.pre("code");
+      const doc = Md.make([Md.p([text]), pre]);
 
-    expect(S.decodeUnknownSync(Inline)(text)).toEqual(text);
-    // Pre.language is a codec field (OptionFromNullOr: Option<string> <-> string
-    // | null), so Pre's encoded form differs from a constructed instance. Decode
-    // through the encoded form rather than feeding a decoded instance back in.
-    expect(S.decodeUnknownSync(Block)(S.encodeSync(Block)(pre))).toEqual(pre);
-    expect(S.decodeUnknownSync(Document)(S.encodeSync(Document)(doc))).toEqual(doc);
-    const tsPre = Pre.make({ value: "x", language: O.some("ts") });
-    expect(S.decodeUnknownSync(Pre)(S.encodeSync(Pre)(tsPre))).toEqual(tsPre);
-    expect(S.decodeUnknownSync(Text)(Text.make({ value: "Hello" }))).toEqual(text);
-  });
+      expect(yield* S.decodeUnknownEffect(Inline)(text)).toEqual(text);
+      // Pre.language is a codec field (OptionFromNullOr: Option<string> <-> string
+      // | null), so Pre's encoded form differs from a constructed instance. Decode
+      // through the encoded form rather than feeding a decoded instance back in.
+      expect(yield* S.decodeUnknownEffect(Block)(yield* S.encodeEffect(Block)(pre))).toEqual(pre);
+      expect(yield* S.decodeUnknownEffect(Document)(yield* S.encodeEffect(Document)(doc))).toEqual(doc);
+      const tsPre = Pre.make({ value: "x", language: O.some("ts") });
+      expect(yield* S.decodeUnknownEffect(Pre)(yield* S.encodeEffect(Pre)(tsPre))).toEqual(tsPre);
+      expect(yield* S.decodeUnknownEffect(Text)(Text.make({ value: "Hello" }))).toEqual(text);
+    })
+  );
 
   it("round-trips schema-derived Markdown AST nodes", () =>
     fc.assert(
       fc.property(InlineArbitrary, BlockArbitrary, DocumentArbitrary, (inline, block, document) => {
-        const decodedInline = S.decodeUnknownSync(Inline)(S.encodeSync(Inline)(inline));
-        const decodedBlock = S.decodeUnknownSync(Block)(S.encodeSync(Block)(block));
-        const decodedDocument = S.decodeUnknownSync(Document)(S.encodeSync(Document)(document));
+        const decodedInline = Result.getOrThrow(
+          S.decodeUnknownResult(Inline)(Result.getOrThrow(S.encodeResult(Inline)(inline)))
+        );
+        const decodedBlock = Result.getOrThrow(
+          S.decodeUnknownResult(Block)(Result.getOrThrow(S.encodeResult(Block)(block)))
+        );
+        const decodedDocument = Result.getOrThrow(
+          S.decodeUnknownResult(Document)(Result.getOrThrow(S.encodeResult(Document)(document)))
+        );
 
         expect(decodedInline).toEqual(inline);
         expect(decodedBlock).toEqual(block);
@@ -148,10 +164,10 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
     ));
 
   it("encoded documents survive a JSON boundary (jsonb columns, rpc/ndjson wire)", () => {
-    // Regression: a real Option in an encoded node does not survive
-    // JSON.stringify/parse. Persisting a Document into a jsonb column or sending
-    // it over the rpc wire must decode back identically. Code blocks carry the
-    // only Option field (Pre.language), so they are the canonical case.
+    // Regression: a real Option in an encoded node must survive a JSON string
+    // boundary. Persisting a Document into a jsonb column or sending it over the
+    // rpc wire must decode back identically. Code blocks carry the only Option
+    // field (Pre.language), so they are the canonical case.
     const doc = Md.make([
       Md.pre("const x = 1", { language: "ts" }),
       Md.pre("flowchart TD\nA-->B", { language: "mermaid" }),
@@ -162,19 +178,23 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
         ],
         { headerRow: true }
       ),
-      Md.youtube("dQw4w9WgXcQ"),
+      Result.getOrThrow(Md.youtube("dQw4w9WgXcQ")),
       Md.pre("no language here"),
       Md.p([Md.text("hello")]),
     ]);
-    const throughJson = JSON.parse(JSON.stringify(S.encodeSync(Document)(doc)));
-    expect(S.decodeUnknownSync(Document)(throughJson)).toEqual(doc);
+    const encoded = Result.getOrThrow(S.encodeResult(Document)(doc));
+    const json = Result.getOrThrow(encodeJsonResult(encoded));
+
+    expect(Result.getOrThrow(decodeDocumentJsonResult(json))).toEqual(doc);
   });
 
   it("every encoded document survives a JSON boundary", () =>
     fc.assert(
       fc.property(DocumentArbitrary, (document) => {
-        const throughJson = JSON.parse(JSON.stringify(S.encodeSync(Document)(document)));
-        expect(S.decodeUnknownSync(Document)(throughJson)).toEqual(document);
+        const encoded = Result.getOrThrow(S.encodeResult(Document)(document));
+        const json = Result.getOrThrow(encodeJsonResult(encoded));
+
+        expect(Result.getOrThrow(decodeDocumentJsonResult(json))).toEqual(document);
       }),
       { numRuns: 50 }
     ));
@@ -206,6 +226,7 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
       "[Example](#)"
     );
     expect(renderMarkdownInline(Md.a("jav&#x61;%73cript:alert(1)", "Example"))).toBe("[Example](#)");
+    expect(renderMarkdownInline(Md.a("%26%23x6a%3Bavascript:alert(1)", "Example"))).toBe("[Example](#)");
     expect(() => renderMarkdownInline(Md.a("jav&#99999999999;ascript:alert(1)", "Example"))).not.toThrow();
     expect(renderMarkdownInline(Md.a("https://example.com", Md.rawMarkdown("](javascript:alert(1))")))).toBe(
       String.raw`[\]\(javascript:alert\(1\)\)](https://example.com)`
@@ -256,6 +277,7 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
       '<a href="#">Example</a>'
     );
     expect(renderHtmlInline(Md.a("jav&#x61;%73cript:alert(1)", "Example"))).toBe('<a href="#">Example</a>');
+    expect(renderHtmlInline(Md.a("%26%23x6a%3Bavascript:alert(1)", "Example"))).toBe('<a href="#">Example</a>');
     expect(renderHtmlInline(Md.a("a%20b", "Example"))).toBe('<a href="a%20b">Example</a>');
     expect(renderHtmlInline(Md.img("/logo.png"))).toBe('<img src="/logo.png" alt="" />');
     expect(renderHtmlInline(Md.img("/logo.png", '"Logo"'))).toBe('<img src="/logo.png" alt="&quot;Logo&quot;" />');
@@ -298,11 +320,15 @@ ${Md.h3("Inside")}
     expect(renderMarkdownBlock(Md.h5("H5"))).toBe("##### H5");
     expect(renderMarkdownBlock(Md.h6("H6"))).toBe("###### H6");
     expect(renderMarkdownBlock(Md.p("Body"))).toBe("Body");
-    expect(renderMarkdownBlock(Md.li("Item"))).toBe("Item");
+    expect(renderMarkdownBlock(Md.ul([Md.li("Item")]))).toBe("- Item");
     expect(renderMarkdownBlock(Md.ul([Md.li("One"), ["Two", Md.code("2")]]))).toBe("- One\n- Two`2`");
+    expect(renderMarkdownBlock(Md.ul([Md.li([Md.p("Parent"), Md.ul(["Child"])])]))).toBe("- Parent\n  - Child");
     expect(renderMarkdownBlock(Md.ol(["One", "Two"]))).toBe("1. One\n2. Two");
     expect(renderMarkdownBlock(Md.taskList(["Todo", { text: "Done", checked: true }, { text: "Maybe" }]))).toBe(
       "- [ ] Todo\n- [x] Done\n- [ ] Maybe"
+    );
+    expect(renderMarkdownBlock(Md.taskList([{ children: [Md.p("Parent"), Md.ul(["Child"])], checked: true }]))).toBe(
+      "- [x] Parent\n      - Child"
     );
     expect(renderMarkdownBlock(Md.ul(["one\n\ntwo"]))).toBe("- one\n  \n  two");
     expect(renderMarkdownBlock(Md.ul(["one\r\rtwo"]))).toBe("- one\n  \n  two");
@@ -320,8 +346,11 @@ ${Md.h3("Inside")}
     expect(renderHtmlBlock(Md.h5("H5"))).toBe("<h5>H5</h5>");
     expect(renderHtmlBlock(Md.h6("H6"))).toBe("<h6>H6</h6>");
     expect(renderHtmlBlock(Md.p("Body"))).toBe("<p>Body</p>");
-    expect(renderHtmlBlock(Md.li("Item"))).toBe("<li>Item</li>");
+    expect(renderHtmlBlock(Md.ul([Md.li("Item")]))).toBe("<ul><li>Item</li></ul>");
     expect(renderHtmlBlock(Md.ul(["One", "Two"]))).toBe("<ul><li>One</li><li>Two</li></ul>");
+    expect(renderHtmlBlock(Md.ul([Md.li([Md.p("Parent"), Md.ul(["Child"])])]))).toBe(
+      "<ul><li><p>Parent</p><ul><li>Child</li></ul></li></ul>"
+    );
     expect(renderHtmlBlock(Md.ol(["One", "Two"]))).toBe("<ol><li>One</li><li>Two</li></ol>");
     expect(renderHtmlBlock(Md.taskList([Md.taskItem("Done", { checked: true }), "Todo"]))).toBe(
       '<ul class="contains-task-list"><li><input type="checkbox" disabled checked /> Done</li><li><input type="checkbox" disabled /> Todo</li></ul>'
@@ -344,7 +373,23 @@ ${Md.h3("Inside")}
     });
 
     expect(renderMarkdownBlock(table)).toContain("| Later |");
+    expect(renderMarkdownBlock(Md.table([["A"], ["B", "C"]], { headerRow: true }))).toBe(
+      "| A |  |\n| --- | --- |\n| B | C |"
+    );
+    expect(renderMarkdownBlock(Md.table([["a\nb\rc"]], { headerRow: true }))).toBe("| a<br/>b<br/>c |\n| --- |");
   });
+
+  it.effect(
+    "constructs YouTube embeds without throwing at validation boundaries",
+    Effect.fnUntraced(function* () {
+      const decoded = Md.youtube("dQw4w9WgXcQ");
+
+      expect(Result.isSuccess(decoded)).toBe(true);
+      expect(Result.isFailure(Md.youtube("https://youtu.be/dQw4w9WgXcQ"))).toBe(true);
+      expect((yield* Md.youtubeEffect("dQw4w9WgXcQ"))._tag).toBe("youtube");
+      expect(Md.youtubeUnsafe("dQw4w9WgXcQ")._tag).toBe("youtube");
+    })
+  );
 
   it.effect(
     "exposes pure adapters for Markdown and HTML",
@@ -355,11 +400,16 @@ ${Md.h3("Inside")}
       expect(renderWithUnsafe(MarkdownAdapter, doc)).toBe("# Hello\n\nWorld");
       expect(renderUnsafe(doc)).toBe("# Hello\n\nWorld");
       expect(renderHtmlUnsafe(doc)).toBe("<h1>Hello</h1>\n<p>World</p>");
+      expect(renderPlainTextUnsafe(doc)).toBe("Hello\nWorld");
+      expect(Result.getOrThrow(renderPlainText(doc))).toBe("Hello\nWorld");
       expect(Result.getOrThrow(Md.renderWith(MarkdownAdapter, doc))).toBe("# Hello\n\nWorld");
       expect(Md.renderWithUnsafe(MarkdownAdapter, doc)).toBe("# Hello\n\nWorld");
       expect(Result.getOrThrow(Md.renderWith(HtmlFragmentAdapter, doc))).toBe("<h1>Hello</h1>\n<p>World</p>");
+      expect(Result.getOrThrow(Md.renderWith(PlainTextAdapter, doc))).toBe("Hello\nWorld");
       expect(Result.getOrThrow(Md.renderHtml(doc))).toBe("<h1>Hello</h1>\n<p>World</p>");
       expect(Md.renderHtmlUnsafe(doc)).toBe("<h1>Hello</h1>\n<p>World</p>");
+      expect(Result.getOrThrow(Md.renderPlainText(doc))).toBe("Hello\nWorld");
+      expect(Md.renderPlainTextUnsafe(doc)).toBe("Hello\nWorld");
 
       const effectAdapter: EffectRenderAdapter<string> = {
         name: "effect",
@@ -397,14 +447,20 @@ ${Md.h3("Inside")}
       expect(yield* S.decodeUnknownEffect(DocumentToHtmlFragment)(doc)).toBe(
         HtmlFragment.make("<h1>Hello</h1>\n<p>World</p>")
       );
+      expect(yield* S.decodeUnknownEffect(DocumentToPlainText)(doc)).toBe("Hello\nWorld");
 
       const markdownEncode = yield* Effect.exit(S.encodeEffect(DocumentToMarkdown)(Markdown.make("# Hello")));
       const htmlEncode = yield* Effect.exit(
         S.encodeEffect(DocumentToHtmlFragment)(HtmlFragment.make("<h1>Hello</h1>"))
       );
+      const plainTextEncode = yield* Effect.exit(S.encodeEffect(DocumentToPlainText)("Hello"));
 
       expectExitCause(markdownEncode, "Encoding Markdown output back into a Markdown document AST is not supported.");
       expectExitCause(htmlEncode, "Encoding HTML fragment output back into a Markdown document AST is not supported.");
+      expectExitCause(
+        plainTextEncode,
+        "Encoding plain text output back into a Markdown document AST is not supported."
+      );
 
       const markdownDecode = yield* Effect.acquireUseRelease(
         Effect.sync(() => {
@@ -535,6 +591,7 @@ ${Md.h3("Inside")}
     expect(joinBlocks(["\nOne\n", "", "\nTwo\n"])).toBe("One\n\nTwo");
     expect(renderMarkdownBlocks([Md.h1("One"), Md.p("Two")])).toBe("# One\n\nTwo");
     expect(renderHtmlBlocks([Md.h1("One"), Md.p("Two")])).toBe("<h1>One</h1>\n<p>Two</p>");
+    expect(renderPlainTextBlocks([Md.h1("One"), Md.p("Two")])).toBe("One\nTwo");
     expect(prefixLines("alpha\nbeta", "> ")).toBe("> alpha\n> beta");
     expect(prefixLines("alpha\rbeta", "> ")).toBe("> alpha\n> beta");
     expect(escapeMarkdownText("a*b")).toBe("a\\*b");
@@ -542,9 +599,11 @@ ${Md.h3("Inside")}
     expect(escapeHtmlUrlAttribute("javascript&#58alert(1)")).toBe("#");
     expect(escapeHtmlUrlAttribute("%6a%61%76%61%73%63%72%69%70%74:alert(1)")).toBe("#");
     expect(escapeHtmlUrlAttribute("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)")).toBe("#");
+    expect(escapeHtmlUrlAttribute("%26%23x6a%3Bavascript:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("\\()")).toBe("%5C\\(\\)");
     expect(escapeMarkdownDestination("%6a%61%76%61%73%63%72%69%70%74:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)")).toBe("#");
+    expect(escapeMarkdownDestination("%26%23x6a%3Bavascript:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("java\tscript:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("\uD800")).toBe("%EF%BF%BD");
     expect(escapeMarkdownDestination("a\uD800b")).toBe("a%EF%BF%BDb");

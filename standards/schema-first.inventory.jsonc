@@ -1,11 +1,7 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-18",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "generatedOn": "2026-06-21",
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -900,6 +896,14 @@
       "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
     },
     {
+      "file": "packages/foundation/modeling/md/src/Md.ts",
+      "symbol": "ListItemContentBuilder",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts",
       "symbol": "CauseTaggedErrorFactory",
       "kind": "exported-interface",
@@ -1364,6 +1368,16 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/foundation/modeling/schema/test/CurrencyCode.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 7,
+      "owner": "@beep/schema",
+      "reason": "Exception: CurrencyCode/CurrencyName are LiteralKit unions over the generated ISO 4217 enumeration; example-based assertions cover representative decode/reject and `.Options` membership, and S.toArbitrary over a finite literal union only re-samples already-enumerated members, so schema-derived property coverage would be vacuous."
+    },
+    {
       "file": "packages/foundation/modeling/schema/test/Fn.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",
@@ -1402,6 +1416,26 @@
       "line": 18,
       "owner": "@beep/schema",
       "reason": "Exception: meta-test of SchemaUtils combinators using test-local illustrative schemas; source symbols are combinator functions, not domain schemas."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/test/TerritoryCode.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 10,
+      "owner": "@beep/schema",
+      "reason": "Exception: TerritoryCode/TerritoryName and their code<->name MappedLiteralKit codecs are finite literal-union schemas over the generated CLDR enumeration; representative decode/encode and reversible-mapping cases are covered by example assertions, and S.toArbitrary over the finite enumeration adds no coverage beyond the enumerated members."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/test/Timezone.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "exception",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 7,
+      "owner": "@beep/schema",
+      "reason": "Exception: Timezone is a LiteralKit union over the generated IANA tzdb enumeration; example-based assertions cover representative decode and rejection, and property sampling over a finite literal union only re-picks already-enumerated members, so schema-derived property coverage would be vacuous."
     },
     {
       "file": "packages/foundation/modeling/schema/test/Transformations.test.ts",
@@ -2146,6 +2180,38 @@
       "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
+      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts",
+      "symbol": "SyncDataTarget",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Models.ts",
+      "symbol": "SyncDataTargetResult",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Internal sync-data-to-ts CLI result aggregate that carries a JsonPatch runtime value (canonicalPatch) produced by effect Differ; used only for command reporting, not a decode/persistence boundary, so it stays tracked as an exception."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/internal/Source.ts",
+      "symbol": "SyncDataFetchedSource",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/targets/CldrTerritories.ts",
+      "symbol": "anonymous@131",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
       "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
       "symbol": "CategorySelectionServiceShape",
       "kind": "exported-type-literal",
@@ -2183,9 +2249,9 @@
       "kind": "schema-policy-advisory",
       "status": "exception",
       "ruleId": "SFV4-arbitrary-tests",
-      "line": 69,
+      "line": 70,
       "owner": "@beep/repo-cli",
-      "reason": "Exception: CLI docgen command-behavior test; Schema codecs are incidental JSON-boundary plumbing for synthetic package.json/docgen.json/tsconfig fixtures and CLI report output, not a domain schema law."
+      "reason": "Exception: docgen CLI tooling regression test; the codec assertions validate fixed docgen tool inputs/outputs rather than a domain schema, so there is no domain schema for S.toArbitrary to generate or round-trip."
     },
     {
       "file": "packages/tooling/tool/cli/test/tsconfig-sync.test.ts",

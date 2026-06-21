@@ -11,6 +11,7 @@ import { extractFile, makeFileProcessingServiceLayer, processFile } from "@beep/
 import { TestFileProcessingEngine } from "@beep/file-processing/test";
 import { NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as S from "effect/Schema";
@@ -68,7 +69,7 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const serviceLayer = makeFileProcessingServiceLayer([TestFileProcessingEngine]);
+const serviceLayer = makeFileProcessingServiceLayer([TestFileProcessingEngine]).pipe(Layer.provide(BunCrypto.layer));
 
 describe("@beep/file-processing", () => {
   it.effect("derives child artifact ids distinct from their source artifact", () =>
@@ -78,7 +79,7 @@ describe("@beep/file-processing", () => {
 
       expect(childId).not.toBe(ids.artifactId);
       expect(childId.startsWith("artifact:")).toBe(true);
-    })
+    }).pipe(provideScopedLayer(BunCrypto.layer))
   );
 
   it("round-trips schema-derived artifact and operation payloads", () =>

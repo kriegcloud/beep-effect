@@ -182,6 +182,7 @@ import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
 import type { FileFormatFamily, FileProcessingSkipReason, SelectedStrategy } from "@beep/file-processing/Strategy";
 import type { PosixPath } from "@beep/schema/PosixPath";
 import type { Terminal } from "effect";
+import type * as Crypto from "effect/Crypto";
 import type { ChildProcessSpawner } from "effect/unstable/process";
 import type {
   ArchivePoorCandidatesOptions,
@@ -209,7 +210,8 @@ type FilesCommandServiceRequirements =
   | FileSystem.FileSystem
   | Path.Path
   | Terminal.Terminal
-  | ChildProcessSpawner.ChildProcessSpawner;
+  | ChildProcessSpawner.ChildProcessSpawner
+  | Crypto.Crypto;
 
 interface ProcessCollectedFile {
   readonly canonicalPath: string;
@@ -3886,7 +3888,7 @@ const processEngineSupportsChildExport = (engine: FileProcessingEngineShape, for
 const processHashBytes = Effect.fn("Files.processHashBytes")(function* (
   bytes: Uint8Array,
   label: string
-): Effect.fn.Return<string, FilesCommandError> {
+): Effect.fn.Return<string, FilesCommandError, Crypto.Crypto> {
   return yield* S.decodeUnknownEffect(Sha256HexFromBytes)(bytes).pipe(
     FilesCommandError.mapError(`Failed to compute SHA-256 for ${label}`)
   );
@@ -3895,7 +3897,7 @@ const processHashBytes = Effect.fn("Files.processHashBytes")(function* (
 const makeContentDigest = Effect.fn("Files.makeContentDigest")(function* (
   bytes: Uint8Array,
   label: string
-): Effect.fn.Return<ContentDigest, FilesCommandError> {
+): Effect.fn.Return<ContentDigest, FilesCommandError, Crypto.Crypto> {
   const hex = yield* processHashBytes(bytes, label);
   return yield* decodeContentDigest(`sha256:${hex}`).pipe(
     FilesCommandError.mapError(`Failed to decode content digest for ${label}`)
@@ -3915,7 +3917,7 @@ const makeArtifactId = Effect.fn("Files.makeArtifactId")(function* (
 const makeOperationIdFromText = Effect.fn("Files.makeOperationIdFromText")(function* (
   text: string,
   label: string
-): Effect.fn.Return<OperationId, FilesCommandError> {
+): Effect.fn.Return<OperationId, FilesCommandError, Crypto.Crypto> {
   const hex = yield* processHashBytes(processUtf8Encoder.encode(text), label);
   return yield* decodeOperationId(`operation:${hex}`).pipe(
     FilesCommandError.mapError(`Failed to decode operation id for ${label}`)
@@ -4161,7 +4163,7 @@ const prepareProcessOutDir = Effect.fn("Files.prepareProcessOutDir")(function* (
 const prepareProcessSource = Effect.fn("Files.prepareProcessSource")(function* (
   sourceFile: ProcessCollectedFile,
   engine: ProcessFilesOptions["engine"]
-): Effect.fn.Return<ProcessPreparedSource, FilesCommandError, FileSystem.FileSystem> {
+): Effect.fn.Return<ProcessPreparedSource, FilesCommandError, Crypto.Crypto | FileSystem.FileSystem> {
   const fs = yield* FileSystem.FileSystem;
   const bytes = yield* fs
     .readFile(sourceFile.sourcePath)
@@ -4448,7 +4450,7 @@ const sourceRecordHasTextPath = (record: SourceProcessingRecord): boolean =>
 const processPreparedSource = Effect.fn("Files.processPreparedSource")(function* (
   prepared: ProcessPreparedSource,
   options: ProcessFilesOptions
-): Effect.fn.Return<ProcessSourceOutcome, never> {
+): Effect.fn.Return<ProcessSourceOutcome, never, Crypto.Crypto> {
   const engine =
     options.engine === "test" && prepared.format === "pst"
       ? syntheticLibpffEngine()
@@ -4614,7 +4616,7 @@ const writeProcessManifestTree = Effect.fn("Files.writeProcessManifestTree")(fun
 ): Effect.fn.Return<
   void,
   FilesCommandError,
-  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+  Crypto.Crypto | FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
 > {
   const path = yield* Path.Path;
   const { failureRecords, sourceRecords } = collectSourceOutcomeRecords(outcomes);

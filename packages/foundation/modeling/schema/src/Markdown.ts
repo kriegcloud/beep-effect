@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, flow, Match, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, flow, Result, SchemaGetter, SchemaIssue } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -86,12 +86,13 @@ const parseMarkdownText = (content: string): MarkdownParseResult =>
     loadMarkdownGfm: loadMarkdownGfmModule,
   })(content);
 
-const decodeMarkdownParseResult = (content: string) =>
-  Match.type<MarkdownParseResult>().pipe(
-    Match.tag("success", () => Effect.succeed(content)),
-    Match.tag("failure", ({ message }) => Effect.fail(invalidMarkdownInput(content, message))),
-    Match.exhaustive
-  );
+const decodeMarkdownParseResult = (
+  content: string
+): ((result: MarkdownParseResult) => Effect.Effect<string, SchemaIssue.InvalidValue>) =>
+  Result.match({
+    onSuccess: () => Effect.succeed(content),
+    onFailure: (message) => Effect.fail(invalidMarkdownInput(content, message)),
+  });
 
 const decodeMarkdownText = Effect.fn("Markdown.decodeMarkdownText")(function* (content: string) {
   yield* decodeMarkdownParseResult(content)(parseMarkdownText(content));

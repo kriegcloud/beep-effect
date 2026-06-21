@@ -5,6 +5,7 @@ import { LawPracticeServerLive } from "@beep/law-practice-server/layer";
 import { IrToLaw, IrToLawExtractionError } from "@beep/law-practice-use-cases/IrToLaw";
 import { OfficeActionReview, officeActionExtractionTargets } from "@beep/law-practice-use-cases/OfficeActionReview";
 import { DocumentId } from "@beep/nlp/Core";
+import * as BunCrypto from "@effect/platform-bun/BunCrypto";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Stream } from "effect";
 import * as S from "effect/Schema";
@@ -37,7 +38,10 @@ const makeLanguageModelLayer = (text: string): Layer.Layer<LanguageModel.Languag
   } as LanguageModel.Service);
 
 const makeLawPracticeServerTestLayer = (modelOutput: string) =>
-  Layer.mergeAll(LawPracticeServerLive, LangExtractLayer).pipe(Layer.provide(makeLanguageModelLayer(modelOutput)));
+  Layer.mergeAll(LawPracticeServerLive, LangExtractLayer).pipe(
+    Layer.provide(makeLanguageModelLayer(modelOutput)),
+    Layer.provide(BunCrypto.layer)
+  );
 
 const expectReviewExtractionError = Effect.fn("law_practice.server.test.expect_review_extraction_error")(function* (
   reason: IrToLawExtractionError["reason"],

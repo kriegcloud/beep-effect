@@ -115,6 +115,18 @@
       "@beep/schema/Cuid": [
         "../../../packages/foundation/modeling/schema/src/Cuid.ts"
       ],
+      "@beep/schema/ContinentCode": [
+        "../../../packages/foundation/modeling/schema/src/ContinentCode.ts"
+      ],
+      "@beep/schema/ContinentName": [
+        "../../../packages/foundation/modeling/schema/src/ContinentName.ts"
+      ],
+      "@beep/schema/CountryCode": [
+        "../../../packages/foundation/modeling/schema/src/CountryCode.ts"
+      ],
+      "@beep/schema/CountryName": [
+        "../../../packages/foundation/modeling/schema/src/CountryName.ts"
+      ],
       "@beep/schema/CurrencyCode": [
         "../../../packages/foundation/modeling/schema/src/CurrencyCode.ts"
       ],
@@ -345,6 +357,12 @@
       ],
       "@beep/schema/Thunk": [
         "../../../packages/foundation/modeling/schema/src/Thunk.ts"
+      ],
+      "@beep/schema/TerritoryCode": [
+        "../../../packages/foundation/modeling/schema/src/TerritoryCode.ts"
+      ],
+      "@beep/schema/TerritoryName": [
+        "../../../packages/foundation/modeling/schema/src/TerritoryName.ts"
       ],
       "@beep/schema/Timestamp": [
         "../../../packages/foundation/modeling/schema/src/Timestamp/index.ts"

@@ -6,9 +6,10 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Fn, LiteralKit } from "@beep/schema";
-import { Effect, Tuple } from "effect";
+import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
+import type { Crypto, Effect, JsonPatch } from "effect";
+import type { HttpClient } from "effect/unstable/http";
 import type { SyncDataToTsError } from "../SyncDataToTs.errors.js";
 
 /**
@@ -21,22 +22,22 @@ export { SyncDataToTsDriftError, SyncDataToTsError } from "../SyncDataToTs.error
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/internal/Models");
 
-const SyncDataSourceFormatKit = LiteralKit(["json", "csv", "xml"]);
+const SyncDataSourceFormatKit = LiteralKit(["json", "csv", "xml", "bytes", "text"]);
 
 /**
- * Supported source formats for sync-data-to-ts targets.
+ * Supported source formats for sync-data-to-ts helpers.
  *
  * @category models
  * @since 0.0.0
  */
 export const SyncDataSourceFormat = SyncDataSourceFormatKit.pipe(
   $I.annoteSchema("SyncDataSourceFormat", {
-    description: "Supported source formats for sync-data-to-ts targets.",
+    description: "Supported source formats for sync-data-to-ts helpers.",
   })
 );
 
 /**
- * Supported source formats for sync-data-to-ts targets.
+ * Supported source formats for sync-data-to-ts helpers.
  *
  * @category models
  * @since 0.0.0
@@ -66,6 +67,41 @@ export const SyncDataRunMode = SyncDataRunModeKit.pipe(
 export type SyncDataRunMode = typeof SyncDataRunMode.Type;
 
 /**
+ * Stable source metadata recorded in generated sidecars and PR reports.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SyncDataSourceMetadata extends S.Class<SyncDataSourceMetadata>($I`SyncDataSourceMetadata`)(
+  {
+    id: S.String,
+    url: S.String,
+    sha256: S.String,
+    version: S.optionalKey(S.String),
+    published: S.optionalKey(S.String),
+  },
+  $I.annote("SyncDataSourceMetadata", {
+    description: "Stable metadata for one upstream source used by a sync target.",
+  })
+) {}
+
+/**
+ * A generated file emitted by a sync target.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class SyncDataOutputFile extends S.Class<SyncDataOutputFile>($I`SyncDataOutputFile`)(
+  {
+    path: S.String,
+    content: S.String,
+  },
+  $I.annote("SyncDataOutputFile", {
+    description: "Generated file content with its repo-relative output path.",
+  })
+) {}
+
+/**
  * Rendered target projection ready to compare or write to disk.
  *
  * @category models
@@ -73,86 +109,54 @@ export type SyncDataRunMode = typeof SyncDataRunMode.Type;
  */
 export class SyncDataTargetProjection extends S.Class<SyncDataTargetProjection>($I`SyncDataTargetProjection`)(
   {
-    content: S.String,
+    files: S.Array(SyncDataOutputFile),
+    canonicalPath: S.String,
+    canonical: S.Json,
     recordCount: S.Finite,
     summary: S.String,
+    sources: S.Array(SyncDataSourceMetadata),
   },
   $I.annote("SyncDataTargetProjection", {
     description: "Rendered target projection ready to compare or write to disk.",
   })
 ) {}
 
-const ProjectSchema = Fn({
-  input: S.Unknown,
-  output: S.declare((u: unknown): u is Effect.Effect<SyncDataTargetProjection, SyncDataToTsError> =>
-    Effect.isEffect(u)
-  ),
-});
+/**
+ * Effect requirements shared by checked-in sync targets.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SyncDataTargetServices = HttpClient.HttpClient | Crypto.Crypto;
 
-class SyncDataTargetJson extends S.Class<SyncDataTargetJson>($I`SyncDataTargetJson`)(
-  {
-    id: S.String,
-    description: S.String,
-    sourceUrl: S.String,
-    outputPath: S.String,
-    project: ProjectSchema,
-    format: S.tag("json"),
-  },
-  $I.annote("SyncDataTargetJson", {
-    description: "Checked-in JSON sync target definition.",
-  })
-) {}
-
-class SyncDataTargetCsv extends S.Class<SyncDataTargetCsv>($I`SyncDataTargetCsv`)(
-  {
-    id: S.String,
-    description: S.String,
-    sourceUrl: S.String,
-    outputPath: S.String,
-    project: ProjectSchema,
-    format: S.tag("csv"),
-  },
-  $I.annote("SyncDataTargetCsv", {
-    description: "Checked-in CSV sync target definition.",
-  })
-) {}
-
-class SyncDataTargetXml extends S.Class<SyncDataTargetXml>($I`SyncDataTargetXml`)(
-  {
-    id: S.String,
-    description: S.String,
-    sourceUrl: S.String,
-    outputPath: S.String,
-    project: ProjectSchema,
-    format: S.tag("xml"),
-  },
-  $I.annote("SyncDataTargetXml", {
-    description: "Checked-in XML sync target definition.",
-  })
-) {}
 /**
  * Checked-in sync target definition.
  *
- * @returns Tagged union schema keyed by `format`.
  * @category models
  * @since 0.0.0
  */
-export const SyncDataTarget = SyncDataSourceFormat.mapMembers(
-  Tuple.evolve([() => SyncDataTargetJson, () => SyncDataTargetCsv, () => SyncDataTargetXml])
-).pipe(
-  $I.annoteSchema("SyncDataTarget", {
-    description: "Checked-in sync target definition.",
-  }),
-  S.toTaggedUnion("format")
-);
+export interface SyncDataTarget {
+  readonly acquire: Effect.Effect<SyncDataTargetProjection, SyncDataToTsError, SyncDataTargetServices>;
+  readonly description: string;
+  readonly id: string;
+  readonly sourceUrls: ReadonlyArray<string>;
+}
 
 /**
- * {@inheritDoc SyncDataTarget}
+ * Per-file command result after diffing or writing.
  *
  * @category models
  * @since 0.0.0
  */
-export type SyncDataTarget = typeof SyncDataTarget.Type;
+export class SyncDataFileResult extends S.Class<SyncDataFileResult>($I`SyncDataFileResult`)(
+  {
+    path: S.String,
+    changed: S.Boolean,
+  },
+  $I.annote("SyncDataFileResult", {
+    description: "Per-file sync result after diffing or writing.",
+  })
+) {}
 
 /**
  * Per-target command result after diffing or writing.
@@ -160,18 +164,16 @@ export type SyncDataTarget = typeof SyncDataTarget.Type;
  * @category models
  * @since 0.0.0
  */
-export class SyncDataTargetResult extends S.Class<SyncDataTargetResult>($I`SyncDataTargetResult`)(
-  {
-    targetId: S.String,
-    outputPath: S.String,
-    changed: S.Boolean,
-    recordCount: S.Finite,
-    summary: S.String,
-    sourceUrl: S.String,
-  },
-  $I.annote("SyncDataTargetResult", {
-    description: "Per-target sync result after diffing or writing.",
-  })
-) {
-  static readonly new = (params: SyncDataTargetResult) => SyncDataTargetResult.make(params);
+export interface SyncDataTargetResult {
+  readonly canonicalPatch: JsonPatch.JsonPatch;
+  readonly canonicalPath: string;
+  readonly changed: boolean;
+  readonly changedFiles: ReadonlyArray<string>;
+  readonly fileResults: ReadonlyArray<SyncDataFileResult>;
+  readonly outputPaths: ReadonlyArray<string>;
+  readonly recordCount: number;
+  readonly sources: ReadonlyArray<SyncDataSourceMetadata>;
+  readonly sourceUrls: ReadonlyArray<string>;
+  readonly summary: string;
+  readonly targetId: string;
 }

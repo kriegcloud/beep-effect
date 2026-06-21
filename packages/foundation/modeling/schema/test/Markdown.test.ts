@@ -1,7 +1,7 @@
 import { decodeMarkdownTextAs, Markdown, MarkdownTextToHtml } from "@beep/schema/Markdown";
 import { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "@beep/schema/test/Markdown";
 import { describe, expect, it } from "@effect/vitest";
-import { Cause, Effect, Exit } from "effect";
+import { Cause, Effect, Exit, Result } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
@@ -63,9 +63,9 @@ describe("Markdown", () => {
     });
     const result = parseWithoutBun("| a | b |\n| - | - |\n| 1 | 2 |");
 
-    expect(result._tag).toBe("success");
-    if (result._tag === "success") {
-      expect(result.html).toContain("<table>");
+    expect(Result.isSuccess(result)).toBe(true);
+    if (Result.isSuccess(result)) {
+      expect(result.success).toContain("<table>");
     }
   });
 
