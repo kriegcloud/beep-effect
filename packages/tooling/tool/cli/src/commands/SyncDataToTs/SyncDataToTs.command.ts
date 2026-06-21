@@ -8,7 +8,7 @@
 import { Md } from "@beep/md";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, P, Str, Struct, thunkEffectVoid, thunkTrue } from "@beep/utils";
-import { Console, Effect, FileSystem, flow, JsonPointer, Match, Path, pipe } from "effect";
+import { Console, Effect, FileSystem, flow, JsonPointer, Match, Path, pipe, Result } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -368,7 +368,10 @@ const patchSummaryRows = (result: SyncDataTargetResult): ReadonlyArray<ReadonlyA
     ])
   );
 
-const renderReportMarkdown = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType): string => {
+const renderReportMarkdown = (
+  results: ReadonlyArray<SyncDataTargetResult>,
+  mode: SyncDataRunModeType
+): Effect.Effect<string, SyncDataToTsError> => {
   const targetRows = pipe(
     results,
     A.map((result) => [
@@ -393,7 +396,14 @@ const renderReportMarkdown = (results: ReadonlyArray<SyncDataTargetResult>, mode
       : Md.p("No canonical data changes."),
   ]);
 
-  return Md.renderUnsafe(document);
+  return pipe(
+    Md.render(document),
+    Result.match({
+      onFailure: () =>
+        Effect.fail(SyncDataToTsError.make({ message: "Failed to render the data-sync markdown report." })),
+      onSuccess: Effect.succeed,
+    })
+  );
 };
 
 const renderReportJson = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType): string =>
@@ -439,7 +449,8 @@ const writeReports = Effect.fn("SyncDataToTs.writeReports")(function* (
     return;
   }
 
-  yield* writeReportFile(reportDir.value, "data-sync-report.md", renderReportMarkdown(results, mode));
+  const markdownReport = yield* renderReportMarkdown(results, mode);
+  yield* writeReportFile(reportDir.value, "data-sync-report.md", markdownReport);
   yield* writeReportFile(reportDir.value, "data-sync-report.json", renderReportJson(results, mode));
 });
 
