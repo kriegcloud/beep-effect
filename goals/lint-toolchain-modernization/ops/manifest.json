@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "lint-toolchain-modernization",
+    "title": "Lint Toolchain Modernization",
+    "status": "active",
+    "created": "2026-06-20",
+    "updated": "2026-06-20",
+    "currentPhase": "P1",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/lint-toolchain-modernization",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "ownership": {
+    "family": "tooling",
+    "primaryPackage": "@beep/lint-rules",
+    "primaryPath": "packages/tooling/policy-pack/lint-rules"
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "standards/ARCHITECTURE.md",
+    "standards/architecture/07-non-slice-families.md",
+    "standards/effect-laws-v1.md",
+    "biome.jsonc",
+    "goals/lint-toolchain-modernization/README.md",
+    "goals/lint-toolchain-modernization/SPEC.md",
+    "goals/lint-toolchain-modernization/PLAN.md",
+    "goals/lint-toolchain-modernization/GOAL.md",
+    "goals/lint-toolchain-modernization/tasks/tasks.jsonc",
+    "goals/lint-toolchain-modernization/research/recon-2026-06-20.md",
+    "goals/lint-toolchain-modernization/research/rule-inventory.md"
+  ],
+  "relatedPackets": [
+    {
+      "path": "goals/lint-advisory-hardening",
+      "relationship": "quality-workflow-precedent"
+    },
+    {
+      "path": "goals/repo-quality-acceleration",
+      "relationship": "reference-only"
+    }
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/lint-toolchain-modernization/GOAL.md"
+    }
+  ],
+  "taskInventory": "tasks/tasks.jsonc",
+  "phases": [
+    {
+      "id": "P0",
+      "name": "Research & Spike",
+      "status": "done",
+      "evidence": "research/p0-spike-result.md"
+    },
+    {
+      "id": "P1",
+      "name": "Configuration",
+      "status": "in-progress"
+    },
+    {
+      "id": "P2",
+      "name": "Remediation",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Oxlint lint-only lane",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "pending"
+    }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/lint-toolchain-modernization/GOAL.md)\" -le 4000",
+    "jq . goals/lint-toolchain-modernization/ops/manifest.json",
+    "rg -n \"lint-toolchain-modernization|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/lint-toolchain-modernization",
+    "git diff --check -- goals/lint-toolchain-modernization",
+    "bun run lint",
+    "bun run beep yeet verify",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Biome GritQL plugin resolution cannot load workspace .grit rules reliably after reasonable investigation.",
+    "A migrated GritQL/oxlint rule cannot reproduce the original CLI check coverage without type information.",
+    "oxlint custom-plugin API is too unstable to gate CI; keep the P3 lane advisory-only.",
+    "The implementation would exceed named scope (formatting changes or type-aware check migration).",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

@@ -276,6 +276,12 @@
         ]
       },
       {
+        "name": "@beep/lint-rules",
+        "patterns": [
+          "packages/tooling/policy-pack/lint-rules/src/**"
+        ]
+      },
+      {
         "name": "@beep/m365",
         "patterns": [
           "packages/drivers/m365/src/**"
@@ -1302,6 +1308,15 @@
           "@beep/libpff",
           "@beep/schema",
           "@beep/test-utils"
+        ]
+      },
+      {
+        "from": "@beep/lint-rules",
+        "allow": [
+          "@beep/lint-rules"
+        ],
+        "allowTypeOnly": [
+          "@beep/lint-rules"
         ]
       },
       {

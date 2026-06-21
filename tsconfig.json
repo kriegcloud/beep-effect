@@ -1281,6 +1281,21 @@
       ],
       "@beep/schema/TerritoryName": [
         "./packages/foundation/modeling/schema/src/TerritoryName.ts"
+      ],
+      "@beep/lint-rules": [
+        "./packages/tooling/policy-pack/lint-rules/src/index.ts"
+      ],
+      "@beep/lint-rules/core": [
+        "./packages/tooling/policy-pack/lint-rules/configs/core.jsonc"
+      ],
+      "@beep/lint-rules/recommended": [
+        "./packages/tooling/policy-pack/lint-rules/configs/core.jsonc"
+      ],
+      "@beep/lint-rules/schema": [
+        "./packages/tooling/policy-pack/lint-rules/configs/schema.jsonc"
+      ],
+      "@beep/lint-rules/services": [
+        "./packages/tooling/policy-pack/lint-rules/configs/services.jsonc"
       ]
     }
   }

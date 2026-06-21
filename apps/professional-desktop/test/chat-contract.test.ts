@@ -197,7 +197,7 @@ describe("@beep/professional-desktop chat contract", () => {
     }).pipe(provideScopedLayer(StackLayer))
   );
 
-  it("projects table cells and youtube embeds into turn-history plain text", () => {
+  it("projects table cells, youtube embeds, blockquotes, and task lists into turn-history plain text", () => {
     const content = Md.Document.make({
       children: [
         Md.Table.make({
@@ -218,14 +218,23 @@ describe("@beep/professional-desktop chat contract", () => {
           ],
         }),
         Md.YouTube.make({ videoId: "dQw4w9WgXcQ" }),
+        Md.BlockQuote.make({ children: [Md.P.make({ children: [Md.Text.make({ value: "Quoted note" })] })] }),
+        Md.TaskList.make({
+          children: [Md.TaskItem.make({ checked: false, children: [Md.Text.make({ value: "Ship docs" })] })],
+        }),
       ],
     });
 
     const text = documentToPlainText(content);
 
+    // Structured nodes are projected by the canonical @beep/md plain-text
+    // renderer (not a bespoke walker): tables stay tab-separated, youtube embeds
+    // surface their watch URL, blockquotes recurse, and task items keep their text.
     expect(text).toContain("Feature\tStatus");
     expect(text).toContain("Rich blocks\tReady");
     expect(text).toContain("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    expect(text).toContain("Quoted note");
+    expect(text).toContain("Ship docs");
   });
 
   it.effect("cancel leaves no partial assistant row and appends no usage record", () =>

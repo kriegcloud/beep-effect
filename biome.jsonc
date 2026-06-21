@@ -6,6 +6,14 @@
     "useIgnoreFile": true
   },
   "root": true,
+  // Repo-local GritQL lint rules from @beep/lint-rules. Biome resolves plugin paths
+  // relative to this config file, so they are listed repo-root-relative. These ship
+  // advisory (severity "warn" inside each .grit) and run inside the single lint pass.
+  // `no-native-error` is registered via `overrides` (tooling source only), not here.
+  "plugins": [
+    "./packages/tooling/policy-pack/lint-rules/rules/no-empty-named-blocks.grit",
+    "./packages/tooling/policy-pack/lint-rules/rules/prefer-array-flat-map.grit"
+  ],
   "files": {
     "includes": [
       "**",
@@ -109,7 +117,8 @@
       },
       "complexity": {
         "noBannedTypes": "off",
-        "noUselessConstructor": "off",
+        // effect-smol alignment (advisory in P1; flips to "error" in P2 after remediation).
+        "noUselessConstructor": "warn",
         "noUselessFragments": "off",
         "noThisInStatic": "off",
         "noForEach": "off",
@@ -146,6 +155,9 @@
       },
       "suspicious": {
         "noDeprecatedImports": "error",
+        // effect-smol alignment (advisory in P1; flips to "error" in P2 after remediation).
+        "noConsole": "warn",
+        "noVar": "warn",
         "noControlCharactersInRegex": "off",
         "noSelfCompare": "off",
         "noUnsafeDeclarationMerging": "off",
@@ -186,5 +198,44 @@
         "noUselessElse": "error"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      // @beep/lint-rules no-native-error: replaces `beep lint tooling-tagged-errors`,
+      // scoped to tooling source roots only (advisory "warn"; flips to error in P2).
+      "includes": ["packages/tooling/**/src/**"],
+      "plugins": [
+        "./packages/tooling/policy-pack/lint-rules/rules/no-native-error.grit"
+      ]
+    },
+    {
+      // no-bigint-literals: scope to source roots only. The repo uses bigint literals
+      // legitimately as test/`LiteralKit` data (P0 counted 446 hits, ~423 in tests);
+      // enforcing in `**/src/**` keeps the advisory signal on real source (~23).
+      "includes": ["**/src/**", "infra/**"],
+      "plugins": [
+        "./packages/tooling/policy-pack/lint-rules/rules/no-bigint-literals.grit"
+      ]
+    },
+    {
+      // noConsole allowlist: tests, examples, stories, scripts, seeds, and CLI bins
+      // legitimately use console. Keeps the advisory signal focused on runtime source.
+      "includes": [
+        "**/test/**",
+        "**/__tests__/**",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "**/examples/**",
+        "**/*.stories.*",
+        "**/stories/**",
+        "**/scripts/**",
+        "**/*.bench.*",
+        "**/seed/**",
+        "**/seeds/**",
+        "**/bin.ts",
+        "**/bin-main.ts"
+      ],
+      "linter": { "rules": { "suspicious": { "noConsole": "off" } } }
+    }
+  ]
 }
