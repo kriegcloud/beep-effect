@@ -440,20 +440,6 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/konva",
-      "generatedRuleFrom": "@beep/konva",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/drivers/konva/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
       "ruleId": "@beep/langextract",
       "generatedRuleFrom": "@beep/langextract",
       "sourceClass": "manifest-derived",
@@ -776,34 +762,6 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/shared-client",
-      "generatedRuleFrom": "@beep/shared-client",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/shared/client/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/shared-config",
-      "generatedRuleFrom": "@beep/shared-config",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/shared/config/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
       "ruleId": "@beep/shared-domain",
       "generatedRuleFrom": "@beep/shared-domain",
       "sourceClass": "manifest-derived",
@@ -818,54 +776,12 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
-      "ruleId": "@beep/shared-server",
-      "generatedRuleFrom": "@beep/shared-server",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/shared/server/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
       "ruleId": "@beep/shared-tables",
       "generatedRuleFrom": "@beep/shared-tables",
       "sourceClass": "manifest-derived",
       "sourceRefs": [
         "package.json",
         "packages/shared/tables/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/shared-ui",
-      "generatedRuleFrom": "@beep/shared-ui",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/shared/ui/package.json",
-        "standards/fallow.boundaries.generated.jsonc"
-      ],
-      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
-      "catalogRefs": [],
-      "promotionEligible": true,
-      "enforcementScope": "declared-dependency-consistency"
-    },
-    {
-      "ruleId": "@beep/shared-use-cases",
-      "generatedRuleFrom": "@beep/shared-use-cases",
-      "sourceClass": "manifest-derived",
-      "sourceRefs": [
-        "package.json",
-        "packages/shared/use-cases/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],

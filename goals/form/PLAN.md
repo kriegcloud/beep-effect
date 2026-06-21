@@ -47,7 +47,7 @@ Setup prerequisites (proofs):
    add `"@beep/form": "workspace:^"` to `apps/storybook/package.json` (mirror the
    `@beep/ui` entry) and `@beep/form`/`@beep/form/*` paths + a `tsconfig.json`
    reference to `apps/storybook/tsconfig.stories.json`. Confirm
-   `tsconfig.quality.packages.json` has `{ "path":
+   `tsconfig.packages.json` has `{ "path":
    "packages/foundation/ui-system/form" }`. Stories live in the package-root
    `stories/` dir (mirror `@beep/editor/stories/`).
 

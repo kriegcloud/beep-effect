@@ -12,7 +12,35 @@ import type * as O from "effect/Option";
 
 const $I = $MdId.create("Md.model");
 
+const codeFenceLanguagePattern = /^[A-Za-z0-9][A-Za-z0-9_+.-]*$/u;
 const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
+
+/**
+ * Single safe Markdown fenced-code info-string token.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const CodeFenceLanguage: S.Codec<string, string> = S.NonEmptyString.check(
+  S.isPattern(codeFenceLanguagePattern, {
+    identifier: $I`CodeFenceLanguageCheck`,
+    title: "Code Fence Language",
+    description: "A single safe Markdown fenced-code info-string token.",
+    message: "Code fence language must be a single alphanumeric token with _, +, ., or - separators",
+  })
+).pipe(
+  $I.annoteSchema("CodeFenceLanguage", {
+    description: "Single safe Markdown fenced-code info-string token.",
+  })
+);
+
+/**
+ * Type for {@link CodeFenceLanguage}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type CodeFenceLanguage = typeof CodeFenceLanguage.Type;
 
 /**
  * Bare 11-character YouTube video id used by {@link YouTube} embeds.
@@ -1509,8 +1537,8 @@ export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
     // Encoded form must survive a JSON boundary (jsonb columns, rpc/ndjson
     // wire): S.Option(S.String) encodes to a real Option instance that does not
     // round-trip through JSON, so persisted/transported documents fail to
-    // decode. OptionFromNullOr keeps the Type as Option<string> while encoding
-    // to JSON-safe `string | null`.
+    // decode. Keep persisted AST decoding compatible with legacy free-form code
+    // fence info strings; render helpers sanitize through CodeFenceLanguage.
     language: S.OptionFromNullOr(S.String).annotateKey({
       description: "Optional language hint for fenced code rendering.",
     }),

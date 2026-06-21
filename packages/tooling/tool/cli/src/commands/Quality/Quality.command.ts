@@ -2161,13 +2161,13 @@ export const runDtslintTsgoChecks = Effect.fn("QualityScriptCommands.runDtslintT
     return;
   }
 
-  yield* Console.log(`[check:dtslint:tsgo] checking ${A.length(discoveredFiles)} file(s) with tsconfig.dtslint.json`);
+  yield* Console.log(`[check:dtslint:tsgo] checking ${A.length(discoveredFiles)} file(s) with tsconfig.json`);
   yield* runTsgoWithSyntheticConfig(
     repoRoot,
     "check:dtslint:tsgo",
     discoveredFiles,
     "dtslint.tsconfig.json",
-    "tsconfig.dtslint.json",
+    "tsconfig.json",
     {},
     extraArgs
   );

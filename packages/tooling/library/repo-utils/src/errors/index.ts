@@ -49,4 +49,3 @@ export {
    */
   OptionInjectionError,
 } from "./OptionInjectionError.js";
-// bench

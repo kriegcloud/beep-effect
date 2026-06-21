@@ -59,9 +59,6 @@
     },
     {
       "path": "../../packages/tooling/policy-pack/repo-configs/tsconfig.json"
-    },
-    {
-      "path": "../../packages/shared/ui/tsconfig.json"
     }
   ]
 }

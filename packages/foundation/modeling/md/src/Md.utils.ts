@@ -13,6 +13,7 @@ import { dual, flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import { CodeFenceLanguage } from "./Md.model.ts";
 
 const $I = $MdId.create("Md.utils");
 const trimBlock = Str.replace(/^\n+|\n+$/g, "");
@@ -24,7 +25,6 @@ const htmlCharacterReferencePattern = /&(?:#(\d+);?|#x([\da-f]+);?|(colon|tab|ne
 const percentEncodedBytePattern = /%([0-9a-f]{2})/gi;
 const percentEncodedOctetPattern = /%25([0-9a-f]{2})/gi;
 const invalidSurrogatePattern = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
-const codeFenceLanguagePattern = /^[A-Za-z0-9][A-Za-z0-9_+.-]*$/;
 const lineSeparatorPattern = /\r\n?|\n/;
 const lineBreakPattern = /[\r\n]/;
 const maxUnicodeCodePoint = 0x10ffff;
@@ -47,19 +47,6 @@ const UnsafeUrlProtocolDestination = S.String.check(
     description: "Normalized URL destination that starts with an active unsafe protocol.",
   })
 );
-const CodeFenceLanguage = S.NonEmptyString.check(
-  S.isPattern(codeFenceLanguagePattern, {
-    identifier: $I`CodeFenceLanguageCheck`,
-    title: "Code Fence Language",
-    description: "A single safe Markdown fenced-code info-string token.",
-    message: "Code fence language must be a single alphanumeric token with _, +, ., or - separators",
-  })
-).pipe(
-  $I.annoteSchema("CodeFenceLanguage", {
-    description: "Single safe Markdown fenced-code info-string token.",
-  })
-);
-
 const isUnsafeUrlProtocolDestination = S.is(UnsafeUrlProtocolDestination);
 const isCodeFenceLanguage = S.is(CodeFenceLanguage);
 

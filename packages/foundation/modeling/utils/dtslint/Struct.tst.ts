@@ -62,7 +62,6 @@ describe("dotGet", () => {
     expect(Struct.dotGetOption(maybeAttributes, "attributes.name")).type.toBe<O.Option<string | undefined>>();
   });
 });
-// bench
 
 describe("mapPath", () => {
   it("resolves path values into function return types", () => {

@@ -70,8 +70,8 @@ browser.
 
 Slice-to-slice direct imports across `domain`, `use-cases`, `server`, `tables`,
 `client`, or `ui` packages of *different* slices are forbidden. Cross-slice
-integration goes through `shared/use-cases` (commands, queries, events,
-contracts) or through emitted events.
+integration goes through emitted events or, after a real promotion, the future
+`shared/use-cases` contract package.
 
 ## Same Concept, Different Lens
 

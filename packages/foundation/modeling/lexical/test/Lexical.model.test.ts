@@ -1,9 +1,12 @@
 import {
   EditorStateFromJson,
   editorStateToPlainText,
+  hasTextFormat,
   LexicalNode,
   nodeToPlainText,
   SerializedEditorState,
+  TextFormatBits,
+  TextFormatMask,
 } from "@beep/lexical-schema";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
@@ -236,6 +239,115 @@ describe("Lexical.model", () => {
       }),
       { numRuns: 50 }
     );
+  });
+
+  it("rejects impossible serialized formatting and structural values", () => {
+    const boldUnderline = S.decodeUnknownSync(TextFormatMask)(TextFormatBits.bold | TextFormatBits.underline);
+    expect(hasTextFormat(boldUnderline, TextFormatBits.bold)).toBe(true);
+    expect(hasTextFormat(boldUnderline, TextFormatBits.underline)).toBe(true);
+
+    expect(() => S.decodeUnknownSync(LexicalNode)({ ...text("bad format"), format: 1 << 11 })).toThrow();
+    expect(() => S.decodeUnknownSync(LexicalNode)({ ...text("bad detail"), detail: 1 << 2 })).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({
+        ...element,
+        type: "list",
+        listType: "number",
+        start: -1,
+        tag: "ol",
+        children: [],
+      })
+    ).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({
+        ...element,
+        type: "tablecell",
+        headerState: 4,
+        children: [],
+      })
+    ).toThrow();
+  });
+
+  it("normalizes legacy serialized list starts and rejects corrupt item zeros", () => {
+    const list = S.decodeUnknownSync(LexicalNode)({
+      ...element,
+      type: "list",
+      listType: "number",
+      start: 0,
+      tag: "ol",
+      children: [
+        {
+          ...element,
+          type: "listitem",
+          value: 1,
+          children: [text("legacy zero")],
+        },
+      ],
+    });
+
+    expect(list).toMatchObject({
+      start: 1,
+      children: [{ value: 1 }],
+    });
+    expect(S.encodeSync(LexicalNode)(list)).toMatchObject({
+      start: 1,
+      children: [{ value: 1 }],
+    });
+
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({
+        ...element,
+        type: "list",
+        listType: "number",
+        start: 1,
+        tag: "ol",
+        children: [
+          {
+            ...element,
+            type: "listitem",
+            value: 0,
+            children: [text("corrupt zero")],
+          },
+          {
+            ...element,
+            type: "listitem",
+            value: 0,
+            children: [text("duplicate corrupt zero")],
+          },
+        ],
+      })
+    ).toThrow();
+  });
+
+  it("normalizes compatible legacy decorator and code metadata", () => {
+    expect(
+      S.decodeUnknownSync(LexicalNode)({
+        type: "youtube",
+        version: 1,
+        videoID: "https://youtu.be/dQw4w9WgXcQ",
+        format: "",
+      })
+    ).toMatchObject({ videoID: "dQw4w9WgXcQ" });
+    expect(
+      S.decodeUnknownSync(LexicalNode)({
+        ...element,
+        type: "code",
+        language: "ts bad",
+        children: [],
+      })
+    ).toMatchObject({ language: O.none() });
+
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({
+        type: "youtube",
+        version: 1,
+        videoID: "https://youtu.be/not-valid",
+        format: "",
+      })
+    ).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({ type: "artifact-ref", version: 1, artifactId: "bad id" })
+    ).toThrow();
   });
 
   it("rejects nodes outside the v1 union", () => {

@@ -280,7 +280,6 @@ export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
  */
 export const TsconfigSyncSection = LiteralKit([
   "root-references",
-  "root-quality-references",
   "root-aliases",
   "root-tstyche",
   "root-syncpack",
@@ -319,17 +318,6 @@ class RootAliasesChange extends S.Class<RootAliasesChange>($I`RootAliasesChange`
   },
   $I.annote("RootAliasesChange", {
     description: "Planned change entry for root tsconfig aliases.",
-  })
-) {}
-
-class RootQualityReferencesChange extends S.Class<RootQualityReferencesChange>($I`RootQualityReferencesChange`)(
-  {
-    filePath: S.String,
-    summary: S.String,
-    section: S.tag("root-quality-references"),
-  },
-  $I.annote("RootQualityReferencesChange", {
-    description: "Planned change entry for root quality tsconfig references.",
   })
 ) {}
 
@@ -392,7 +380,6 @@ class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenC
 export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
   Tuple.evolve([
     () => RootReferencesChange,
-    () => RootQualityReferencesChange,
     () => RootAliasesChange,
     () => RootTstycheChange,
     () => RootSyncpackChange,
@@ -437,20 +424,6 @@ class RootAliasesPlannedFileChange extends S.Class<RootAliasesPlannedFileChange>
   },
   $I.annote("RootAliasesPlannedFileChange", {
     description: "Planned file content change for root tsconfig aliases.",
-  })
-) {}
-
-class RootQualityReferencesPlannedFileChange extends S.Class<RootQualityReferencesPlannedFileChange>(
-  $I`RootQualityReferencesPlannedFileChange`
-)(
-  {
-    filePath: S.String,
-    summary: S.String,
-    section: S.tag("root-quality-references"),
-    content: S.String,
-  },
-  $I.annote("RootQualityReferencesPlannedFileChange", {
-    description: "Planned file content change for root quality tsconfig references.",
   })
 ) {}
 
@@ -521,7 +494,6 @@ class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileCha
 export const PlannedFileChange = TsconfigSyncSection.mapMembers(
   Tuple.evolve([
     () => RootReferencesPlannedFileChange,
-    () => RootQualityReferencesPlannedFileChange,
     () => RootAliasesPlannedFileChange,
     () => RootTstychePlannedFileChange,
     () => RootSyncpackPlannedFileChange,
@@ -1150,43 +1122,6 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
   );
 });
 
-const planRootQualityReferenceSync = Effect.fn(function* (
-  rootDir: string,
-  workspaces: ReadonlyArray<WorkspaceDescriptor>
-) {
-  const path = yield* Path.Path;
-  const filePath = path.join(rootDir, "tsconfig.quality.packages.json");
-
-  const original = yield* readFileString(filePath);
-  const parsed = yield* parseJsonc(original, filePath, TsconfigWithReferences);
-
-  const expected = uniqueSorted(
-    pipe(
-      workspaces,
-      A.flatMap((workspace) =>
-        workspace.hasProjectTsconfig && !Str.equivalence(workspace.relativeDir, "scratchpad")
-          ? A.make(workspace.relativeDir)
-          : A.empty<string>()
-      )
-    )
-  );
-
-  const current = compareReferencePathsInOrder(parsed);
-  if (arraysEqual(current, expected)) {
-    return O.none<PlannedFileChange>();
-  }
-
-  const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
-
-  return O.some(
-    PlannedFileChange.cases["root-quality-references"].make({
-      filePath,
-      summary: summaryCounts(current, expected, "references"),
-      content: nextContent,
-    })
-  );
-});
-
 const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
   P.isObject(value) && !A.isArray(value);
 
@@ -1645,8 +1580,6 @@ const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange =>
   PlannedFileChange.match(change, {
     "root-references": ({ filePath, summary }): TsconfigSyncChange =>
       TsconfigSyncChange.cases["root-references"].make({ filePath, summary }),
-    "root-quality-references": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["root-quality-references"].make({ filePath, summary }),
     "root-aliases": ({ filePath, summary }): TsconfigSyncChange =>
       TsconfigSyncChange.cases["root-aliases"].make({ filePath, summary }),
     "root-tstyche": ({ filePath, summary }): TsconfigSyncChange =>
@@ -1742,11 +1675,6 @@ export const syncTsconfigAtRoot: {
     const rootReferenceChange = yield* planRootReferenceSync(rootDir, workspaces);
     if (O.isSome(rootReferenceChange)) {
       A.appendInPlace(plannedChanges, rootReferenceChange.value);
-    }
-
-    const rootQualityReferenceChange = yield* planRootQualityReferenceSync(rootDir, workspaces);
-    if (O.isSome(rootQualityReferenceChange)) {
-      A.appendInPlace(plannedChanges, rootQualityReferenceChange.value);
     }
 
     const rootAliasChange = yield* planRootAliasSync(rootDir, workspaces);

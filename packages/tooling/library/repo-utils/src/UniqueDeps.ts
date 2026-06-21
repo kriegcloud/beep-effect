@@ -103,4 +103,3 @@ const sortHashSet: (set: MutableHashSet.MutableHashSet<string>) => ReadonlyArray
   A.fromIterable,
   A.sort(Order.String)
 );
-// bench

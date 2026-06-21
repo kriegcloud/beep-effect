@@ -16,16 +16,16 @@ Shared may contain:
 - `shared/domain` entity metadata constructors when they encode shared product
   semantics such as tenant organization scoping, actor provenance, and
   source-kind vocabulary rather than reusable domain-agnostic schema substrate
-- `shared/config` contracts and config vocabulary that multiple slices
+- future `shared/config` contracts and config vocabulary that multiple slices
   deliberately agree on
-- `shared/use-cases` application contracts when multiple slices deliberately
-  share commands, queries, driver-neutral DTOs, driver-neutral boundary
-  contracts, client-safe application errors, facade interfaces, or
-  ultra-high-bar product ports — each export subject to a promotion record per
-  the appendix below
-- `shared/client`, `shared/server`, `shared/tables`, or `shared/ui` packages
-  only when they encode deliberate cross-slice product semantics, and only
-  with a promotion record per the appendix below
+- future `shared/use-cases` application contracts when multiple slices
+  deliberately share commands, queries, driver-neutral DTOs, driver-neutral
+  boundary contracts, client-safe application errors, facade interfaces, or
+  ultra-high-bar product ports, with each export subject to a promotion record
+  per the appendix below
+- `shared/tables`, and future `shared/client`, `shared/server`, or `shared/ui`
+  packages, only when they encode deliberate cross-slice product semantics and
+  only with a promotion record per the appendix below
 
 Shared should feel boring, small, and carefully named.
 
@@ -57,33 +57,31 @@ truly shared and the owning teams/slices accept the coupling.
 ## Shared Is A Cross-Slice Slice
 
 `shared` is not a special horizontal bucket. It is the canonical cross-slice
-slice with a deliberately reduced spine:
+slice with a deliberately reduced spine. The active package directories today
+are `domain/` and `tables/`:
 
 ```txt
 packages/<kernel>/
   domain/
-  config/
-  use-cases/ # promotion record required per appendix
-  client/   # promotion record required per appendix
-  server/   # promotion record required per appendix
-  tables/   # promotion record required per appendix
-  ui/       # promotion record required per appendix
+  tables/ # promotion record required per appendix
 ```
 
-`shared/domain` and `shared/config` are the normal homes. `shared/use-cases`,
-`shared/client`, `shared/server`, `shared/tables`, and `shared/ui` are
-exceptional and require a deliberate cross-slice product contract.
+Reserved role names are `config/`, `use-cases/`, `client/`, `server/`, and
+`ui/`. They are not package directories today. Create one only when real
+exported behavior clears the promotion bar. `shared/use-cases` does not exist
+yet because nothing has met the bar for a durable contract-only cross-slice
+surface.
 
-`shared/use-cases` is contract-only. It may hold cross-slice commands, queries,
-driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
-errors, facade interfaces, and ultra-high-bar product ports. Product ports are
-exceptional even inside this exception: the promotion record must prove why a
-shared command/query/facade contract is insufficient. It does not hold workflows,
-process managers, schedulers, handlers, concrete adapters, driver imports, or
-live Layer values.
+A future `shared/use-cases` package is contract-only. It may hold cross-slice
+commands, queries, driver-neutral DTOs, driver-neutral boundary contracts,
+client-safe application errors, facade interfaces, and ultra-high-bar product
+ports. Product ports are exceptional even inside this exception: the promotion
+record must prove why a shared command/query/facade contract is insufficient. It
+does not hold workflows, process managers, schedulers, handlers, concrete
+adapters, driver imports, or live Layer values.
 
-When `shared/use-cases` exists, it follows the same explicit export contract as
-slice `use-cases`: `/public`, `/server`, and `/test`. `/public` stays
+When that package exists, it follows the same explicit export contract as slice
+`use-cases`: `/public`, `/server`, and `/test`. `/public` stays
 client-safe. `/server` is limited to server-only shared application contracts
 such as server-only facade interfaces and ultra-high-bar product ports. `/test`
 is for test helpers and fixtures.
@@ -95,10 +93,10 @@ suggestion.
 
 Meaningful exports in `shared/*` packages requiring a promotion record must
 include one in the affected package README before or alongside the export, per
-the schema in the appendix below. This applies to `shared/use-cases`,
-`shared/client`, `shared/server`, `shared/tables`, and `shared/ui`. It also
-applies when a normal shared package adds a new durable product concept whose
-coupling is not already obvious from existing README policy.
+the schema in the appendix below. This applies to active `shared/tables` and to
+any future `shared/use-cases`, `shared/client`, `shared/server`, or `shared/ui`
+package. It also applies when a normal shared package adds a new durable product
+concept whose coupling is not already obvious from existing README policy.
 
 The record must state:
 
@@ -107,7 +105,7 @@ The record must state:
 - the exported surface being promoted
 - rejected homes, especially the owning slice and `foundation`
 - runtime, adapter, driver, and Layer limits
-- contract-only proof for `shared/use-cases`
+- contract-only proof for future `shared/use-cases` exports
 - review evidence for the deliberate coupling
 
 `standards/architecture/DECISIONS.md` records architecture-wide policy changes.
@@ -193,7 +191,7 @@ A promotion record is a fillable section in the affected `shared/*` package's `R
   - Owning slice — <why it can't live in the slice that introduced it>
   - Foundation — <why it isn't a domain-agnostic primitive>
 - **Surface:** <list of exported symbols and the canonical subpath(s) they're published from>
-- **Runtime limits:** <one of: "no live Layers", "contract-only" (required for `shared/use-cases`), "live Layers permitted under §X">
+- **Runtime limits:** <one of: "no live Layers", "contract-only" (required for future `shared/use-cases`), "live Layers permitted under §X">
 - **Coupling acceptors:** <PR review sign-off from each consuming slice's owner; PR link>
 - **Removal trigger:** <the condition under which this export should be retired — e.g., "remove when iam owns its own membership ID format">
 

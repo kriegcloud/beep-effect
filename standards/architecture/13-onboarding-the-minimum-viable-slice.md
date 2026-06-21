@@ -67,9 +67,13 @@ The slice's tests run with the slice's `Layer` only — no app-wide composition,
 
 ## 3. Adding the first cross-slice export
 
-A second slice (`tasks`) needs to attach tasks to notes. It needs `NoteId` to reference a note and a `NoteCreated` event to react to new notes. The `notes` slice owner promotes both into `shared/use-cases`. One PR. One promotion record per export. No new package boundary invented.
+A second slice (`tasks`) needs to attach tasks to notes. It needs `NoteId` to
+reference a note and a `NoteCreated` event to react to new notes. The `notes`
+slice owner promotes both into future `shared/use-cases`. One PR. One promotion
+record per export. The package is created only if it does not already exist; it
+does not exist today because nothing has met that bar.
 
-The exports land at canonical paths under `shared/use-cases`:
+After promotion, the exports land at canonical paths under `shared/use-cases`:
 
 ```txt
 packages/shared/use-cases/src/
@@ -79,7 +83,7 @@ packages/shared/use-cases/src/
   public/                    # re-exports: NoteId, NoteCreated
 ```
 
-Both are published from the `@beep/shared-use-cases/public` subpath. The `tasks` slice imports them as:
+Both are published from the future `@beep/shared-use-cases/public` subpath. The `tasks` slice imports them as:
 
 ```txt
 import { NoteId } from "@beep/shared-use-cases/public"
@@ -88,7 +92,7 @@ import { NoteCreated } from "@beep/shared-use-cases/public"
 
 Direct imports into `packages/notes/*` from another slice are forbidden. The canonical subpath is the only legal route.
 
-The promotion record (one per export) is appended to the `shared/use-cases` package README, using the schema in `02-shared-kernel.md` Appendix:
+The promotion record (one per export) is appended to the new or existing `shared/use-cases` package README, using the schema in `02-shared-kernel.md` Appendix:
 
 > ### Promotion record: NoteId
 >

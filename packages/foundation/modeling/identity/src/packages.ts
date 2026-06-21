@@ -85,12 +85,7 @@ const generatedComposers = $I.compose(
 
   // Shared Kernel Slice Packages
   "shared-domain",
-  "shared-use-cases",
-  "shared-server",
-  "shared-client",
   "shared-tables",
-  "shared-ui",
-  "shared-config",
 
   "oip-web",
   "drizzle",
@@ -122,7 +117,6 @@ const generatedComposers = $I.compose(
   "sanity",
   "hubspot",
   "phoenix",
-  "konva",
   "ai-sync",
   "nlp-mcp",
   "wink",
@@ -381,66 +375,6 @@ export const $SharedDomainId = composers.$SharedDomainId;
 export const $SharedTablesId = composers.$SharedTablesId;
 
 /**
- * Identity composer for the `@beep/shared-client` package.
- *
- * @example
- * ```typescript
- * import { $SharedClientId } from "@beep/identity"
- *
- * const id = $SharedClientId.make("HttpClient")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $SharedClientId = composers.$SharedClientId;
-
-/**
- * Identity composer for the `@beep/shared-server` package.
- *
- * @example
- * ```typescript
- * import { $SharedServerId } from "@beep/identity"
- *
- * const id = $SharedServerId.make("Middleware")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $SharedServerId = composers.$SharedServerId;
-
-/**
- * Identity composer for the `@beep/shared-ui` package.
- *
- * @example
- * ```typescript
- * import { $SharedUiId } from "@beep/identity"
- *
- * const id = $SharedUiId.make("ThemeProvider")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $SharedUiId = composers.$SharedUiId;
-
-/**
- * Identity composer for the `@beep/shared-config` package.
- *
- * @example
- * ```typescript
- * import { $SharedConfigId } from "@beep/identity"
- *
- * const id = $SharedConfigId.make("DatabaseUrl")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $SharedConfigId = composers.$SharedConfigId;
-
-/**
  * Identity composer for the `@beep/semantic-web` package.
  *
  * @example
@@ -559,21 +493,6 @@ export const $RepoDocgenId: Identity.IdentityComposer<"@beep/repo-docgen"> = com
  * @category configuration
  */
 export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$InfraId;
-
-/**
- * Identity composer for the `@beep/shared-use-cases` package.
- *
- * @example
- * ```typescript
- * import { $SharedUseCasesId } from "@beep/identity"
- *
- * const id = $SharedUseCasesId.make("Workflow")
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $SharedUseCasesId: Identity.IdentityComposer<"@beep/shared-use-cases"> = composers.$SharedUseCasesId;
 
 // --- p3 professional runtime proof ---
 
@@ -1238,22 +1157,6 @@ export const $HubspotId: Identity.IdentityComposer<"@beep/hubspot"> = composers.
  * @category configuration
  */
 export const $PhoenixId: Identity.IdentityComposer<"@beep/phoenix"> = composers.$PhoenixId;
-
-/**
- * Identity composer for `@beep/konva`.
- *
- * @example
- * ```typescript
- * import { $KonvaId } from "@beep/identity"
- *
- * const id = $KonvaId.make("Konva")
- * console.log(id)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $KonvaId: Identity.IdentityComposer<"@beep/konva"> = composers.$KonvaId;
 
 /**
  * Identity composer for `@beep/ai-sync`.

@@ -1,6 +1,0 @@
-{
-  "$schema": "https://json.schemastore.org/tsconfig",
-  // Repo quality checks intentionally skip the local scratchpad workspace.
-  "extends": "./tsconfig.json",
-  "references": [{ "path": "./tsconfig.quality.packages.json" }]
-}

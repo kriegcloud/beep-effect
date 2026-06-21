@@ -91,9 +91,6 @@
       "path": "packages/drivers/hubspot"
     },
     {
-      "path": "packages/drivers/konva"
-    },
-    {
       "path": "packages/drivers/libpff"
     },
     {
@@ -226,25 +223,10 @@
       "path": "packages/law-practice/use-cases"
     },
     {
-      "path": "packages/shared/client"
-    },
-    {
-      "path": "packages/shared/config"
-    },
-    {
       "path": "packages/shared/domain"
     },
     {
-      "path": "packages/shared/server"
-    },
-    {
       "path": "packages/shared/tables"
-    },
-    {
-      "path": "packages/shared/ui"
-    },
-    {
-      "path": "packages/shared/use-cases"
     },
     {
       "path": "packages/tooling/library/ai-metrics"
@@ -281,6 +263,9 @@
     },
     {
       "path": "packages/workspace/use-cases"
+    },
+    {
+      "path": "scratchpad"
     }
   ]
 }

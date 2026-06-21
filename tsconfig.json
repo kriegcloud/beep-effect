@@ -182,16 +182,6 @@
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
       "@beep/shared-tables": ["./packages/shared/tables/src/index.ts"],
       "@beep/shared-tables/*": ["./packages/shared/tables/src/*"],
-      "@beep/shared-use-cases": ["./packages/shared/use-cases/src/index.ts"],
-      "@beep/shared-use-cases/*": ["./packages/shared/use-cases/src/*"],
-      "@beep/shared-server": ["./packages/shared/server/src/index.ts"],
-      "@beep/shared-server/*": ["./packages/shared/server/src/*"],
-      "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
-      "@beep/shared-client/*": ["./packages/shared/client/src/*"],
-      "@beep/shared-config": ["./packages/shared/config/src/index.ts"],
-      "@beep/shared-config/*": ["./packages/shared/config/src/*"],
-      "@beep/shared-ui": ["./packages/shared/ui/src/index.ts"],
-      "@beep/shared-ui/*": ["./packages/shared/ui/src/*"],
       "@beep/ui/components/blocks/editor-00/editor": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
       ],
@@ -246,12 +236,6 @@
       ],
       "@beep/shared-tables/entities/Organization": [
         "./packages/shared/tables/src/entities/Organization/index.ts"
-      ],
-      "@beep/shared-ui/entities": [
-        "./packages/shared/ui/src/entities/index.ts"
-      ],
-      "@beep/shared-ui/entities/Organization": [
-        "./packages/shared/ui/src/entities/Organization/index.ts"
       ],
       "@beep/agents-domain/entities": [
         "./packages/agents/domain/src/entities/index.ts"
@@ -577,8 +561,6 @@
       "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
       "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
       "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
-      "@beep/konva": ["./packages/drivers/konva/src/index.ts"],
-      "@beep/konva/*": ["./packages/drivers/konva/src/*"],
       "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
       "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
       "@beep/repo-cli/commands/AIMetrics": [

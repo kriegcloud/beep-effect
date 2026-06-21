@@ -48,7 +48,7 @@ describe("NextConfig", () => {
       repoRoot: "/repo",
       allowedDevOrigins: ["oip-web.localhost"],
       env: { ANALYZE: "1", NEXT_DISABLE_PWA: "1" },
-      additionalTranspilePackages: ["@beep/shared-ui"],
+      additionalTranspilePackages: ["@beep/shared-domain"],
       next: {
         reactStrictMode: true,
       },
