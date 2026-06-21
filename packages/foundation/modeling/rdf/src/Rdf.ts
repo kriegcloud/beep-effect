@@ -11,6 +11,7 @@ import * as O from "@beep/utils/Option";
 import { Match, Order, pipe, Result } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { IRI } from "./Iri.ts";
 import { makeSemanticSchemaMetadata } from "./SemanticSchemaMetadata.ts";
@@ -230,6 +231,30 @@ export const PrefixLabel = S.String.check(PrefixLabelChecks).pipe(
     }),
   })
 );
+
+const isPrefixLabel = S.is(PrefixLabel);
+
+const PrefixMapKeyChecks = S.makeFilter<Readonly<Record<string, unknown>>>(
+  (value) =>
+    pipe(
+      A.findFirst(R.keys(value), (key) => !isPrefixLabel(key)),
+      O.match({
+        onNone: () => undefined,
+        onSome: (invalidKey) => ({
+          path: [invalidKey],
+          issue:
+            "Prefix labels must begin with an ASCII letter and then use letters, digits, dot, underscore, or hyphen",
+        }),
+      })
+    ),
+  {
+    identifier: $I`PrefixMapKeyChecks`,
+    title: "Prefix Map Keys",
+    description: "Checks that every prefix map key is an RDF prefix label.",
+  }
+);
+
+const PrefixMapSchema = S.Record(S.String, IRI).check(PrefixMapKeyChecks);
 
 /**
  * Type for {@link PrefixLabel}.
@@ -710,7 +735,9 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  * @since 0.0.0
  * @category models
  */
-export const PrefixMap = S.Record(PrefixLabel, IRI).pipe(
+export const PrefixMap = (
+  PrefixMapSchema as unknown as S.Codec<Readonly<Record<PrefixLabel, IRI>>, Readonly<Record<PrefixLabel, IRI>>>
+).pipe(
   $I.annoteSchema("PrefixMap", {
     description: "Prefix map keyed by RDF prefix labels.",
     semanticSchemaMetadata: makeSemanticSchemaMetadata({

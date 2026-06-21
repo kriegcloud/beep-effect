@@ -11,7 +11,10 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { EmailString, LiteralKit } from "@beep/schema";
-import { Effect, Result, Tuple } from "effect";
+import { Effect, pipe, Result, Tuple } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { jsonStringifyPretty } from "../JsonUtils.js";
 import type { Exit } from "effect";
@@ -101,6 +104,34 @@ const NonEmptyStringValue = S.String.check(S.isMinLength(1)).pipe(
   })
 );
 
+const isNpmPackageName = S.is(NpmPackageName);
+const isRepoPackageName = S.is(RepoPackageName);
+const isExportTopLevelKey = S.is(ExportTopLevelKey);
+const isImportSpecifierKey = S.is(ImportSpecifierKey);
+const isExportConditionKey = S.is(ExportConditionKey);
+const isNonEmptyStringValue = S.is(NonEmptyStringValue);
+
+const makeStrictStringKeyRecord = <Value extends S.Top>(
+  keyGuard: (key: string) => boolean,
+  value: Value,
+  message: string
+) =>
+  S.Record(S.String, value).check(
+    S.makeFilter<S.Record.Type<typeof S.String, Value>>((record) =>
+      pipe(
+        R.keys(record),
+        A.findFirst((key) => !keyGuard(key)),
+        O.match({
+          onNone: () => undefined,
+          onSome: (invalidKey) => ({
+            path: [invalidKey],
+            issue: message,
+          }),
+        })
+      )
+    )
+  );
+
 const StringRecord = S.Record(S.String, S.String).pipe(
   $I.annoteSchema("StringRecord", {
     title: "String Record",
@@ -108,14 +139,22 @@ const StringRecord = S.Record(S.String, S.String).pipe(
   })
 );
 
-const NpmDependencyRecord = S.Record(NpmPackageName, NonEmptyStringValue).pipe(
+const NpmDependencyRecord = makeStrictStringKeyRecord(
+  isNpmPackageName,
+  NonEmptyStringValue,
+  "Dependency names must be valid npm package names"
+).pipe(
   $I.annoteSchema("NpmDependencyRecord", {
     title: "Npm Dependency Record",
     description: "A record of npm package names to non-empty version or protocol specifiers.",
   })
 );
 
-const RepoDependencyRecord = S.Record(RepoPackageName, NonEmptyStringValue).pipe(
+const RepoDependencyRecord = makeStrictStringKeyRecord(
+  isRepoPackageName,
+  NonEmptyStringValue,
+  "Dependency names must be valid repo package names"
+).pipe(
   $I.annoteSchema("RepoDependencyRecord", {
     title: "Repo Dependency Record",
     description:
@@ -123,7 +162,11 @@ const RepoDependencyRecord = S.Record(RepoPackageName, NonEmptyStringValue).pipe
   })
 );
 
-const NonEmptyStringRecord = S.Record(NonEmptyStringValue, NonEmptyStringValue).pipe(
+const NonEmptyStringRecord = makeStrictStringKeyRecord(
+  isNonEmptyStringValue,
+  NonEmptyStringValue,
+  "Record keys must not be empty"
+).pipe(
   $I.annoteSchema("NonEmptyStringRecord", {
     title: "Non Empty String Record",
     description: "A record whose keys and values are non-empty strings.",
@@ -673,7 +716,13 @@ const PackageExportsEntryPath = S.Union([RelativeDotPath, S.Null]).pipe(
 const PackageExportsEntryObject: S.Codec<
   { readonly [key: string]: PackageExportsEntryOrFallback },
   { readonly [key: string]: PackageExportsEntryOrFallback }
-> = S.suspend(() => S.Record(ExportConditionKey, PackageExportsEntryOrFallback)).pipe(
+> = S.suspend(() =>
+  makeStrictStringKeyRecord(
+    isExportConditionKey,
+    PackageExportsEntryOrFallback,
+    "Package exports condition keys must be valid condition names"
+  )
+).pipe(
   $I.annoteSchema("PackageExportsEntryObject", {
     title: "Package Exports Entry Object",
     description:
@@ -706,7 +755,11 @@ const PackageExportsEntryOrFallback: S.Codec<PackageExportsEntryOrFallback, Pack
   })
 );
 
-const PackageExportsSubpathMap = S.Record(ExportTopLevelKey, PackageExportsEntryOrFallback).pipe(
+const PackageExportsSubpathMap = makeStrictStringKeyRecord(
+  isExportTopLevelKey,
+  PackageExportsEntryOrFallback,
+  "Package exports subpath keys must be . or start with ./"
+).pipe(
   $I.annoteSchema("PackageExportsSubpathMap", {
     title: "Package Exports Subpath Map",
     description: "An exports map whose keys are . or ./subpath targets and whose values are exports entries.",
@@ -752,7 +805,13 @@ const PackageImportsEntryPath = S.Union([S.String, S.Null]).pipe(
 const PackageImportsEntryObject: S.Codec<
   { readonly [key: string]: PackageImportsEntryOrFallback },
   { readonly [key: string]: PackageImportsEntryOrFallback }
-> = S.suspend(() => S.Record(ExportConditionKey, PackageImportsEntryOrFallback)).pipe(
+> = S.suspend(() =>
+  makeStrictStringKeyRecord(
+    isExportConditionKey,
+    PackageImportsEntryOrFallback,
+    "Package imports condition keys must be valid condition names"
+  )
+).pipe(
   $I.annoteSchema("PackageImportsEntryObject", {
     title: "Package Imports Entry Object",
     description:
@@ -797,7 +856,11 @@ const PackageImportsEntryOrFallback: S.Codec<PackageImportsEntryOrFallback, Pack
  * @category validation
  * @since 0.0.0
  */
-export const PackageImports = S.Record(ImportSpecifierKey, PackageImportsEntryOrFallback).pipe(
+export const PackageImports = makeStrictStringKeyRecord(
+  isImportSpecifierKey,
+  PackageImportsEntryOrFallback,
+  "Package imports keys must start with #"
+).pipe(
   $I.annoteSchema("PackageImports", {
     title: "Package Imports",
     description: "Private package import mappings keyed by # specifiers.",

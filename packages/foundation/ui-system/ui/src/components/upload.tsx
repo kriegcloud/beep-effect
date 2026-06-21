@@ -42,6 +42,8 @@ type UploadDropzoneOptions = Pick<
   | "validator"
 >;
 
+type OptionalUploadDropzoneOptions = Partial<UploadDropzoneOptions>;
+
 /**
  * Controlled file-array props for {@link UploadBox}.
  *
@@ -86,7 +88,7 @@ export interface UploadBoxProps
       | "onError"
       | keyof UploadDropzoneOptions
     >,
-    UploadDropzoneOptions {
+    OptionalUploadDropzoneOptions {
   readonly accept?: Accept | undefined;
   readonly children?: React.ReactNode | ((props: UploadBoxRenderProps) => React.ReactNode);
   readonly disabled?: boolean | undefined;

@@ -19,7 +19,7 @@ class UploadFormValues extends S.Class<UploadFormValues>("UploadFormValues")(
   }
 ) {}
 
-export const countryOptions = [
+const countryOptions = [
   { value: "a", label: "Alpha" },
   { value: "b", label: "Beta" },
   { value: "c", label: "Gamma" },

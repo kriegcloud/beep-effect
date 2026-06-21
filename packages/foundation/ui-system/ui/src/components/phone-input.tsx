@@ -232,9 +232,10 @@ const PhoneInputInner: React.FC<PhoneInputProps> = ({
           items={[...phoneCountryCodes]}
           value={selectedCountry}
           onValueChange={(nextValue) => {
-            if (P.isString(nextValue) && isCountryCode(nextValue) && isSupportedCountry(nextValue)) {
-              setState((current) => ({ ...current, country: nextValue }));
-              onCountryChange?.(nextValue);
+            const candidate: unknown = nextValue;
+            if (P.isString(candidate) && isCountryCode(candidate) && isSupportedCountry(candidate)) {
+              setState((current) => ({ ...current, country: candidate }));
+              onCountryChange?.(candidate);
             }
           }}
         >
