@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `completed-retained`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -36,24 +36,28 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-**P1 Configuration (near-complete; advisory wired, lint green)** — P0 gate PASSED. The
-`@beep/lint-rules` package ships 4 GritQL rules + presets + a Vitest harness + a parity
-harness; `biome.jsonc` enables `noConsole`/`noVar`/`noUselessConstructor` + the GritQL
-plugins **advisory**; `STYLE.md` records ≥12 deviations; `turbo.json` lint inputs updated.
-Remaining: `/yeet` this additive PR to merged. **P2** then remediates + flips rules
-mandatory + removes the superseded `tooling-tagged-errors` CLI check.
+**Complete (P0–P4 done).** Closeout reflection at
+[`history/reflections/2026-06-21-claude.md`](./history/reflections/2026-06-21-claude.md);
+`bun run beep lint reflection-artifacts` passes.
 
 ## Latest Evidence
 
-`P1 advisory green (2026-06-21)` — `bun run lint`, package `bun test` (13), `bun run beep
-tsconfig-sync --check`, `lint schema-first`, `lint deprecated-apis`, and the jsdoc eslint
-lane all pass. Advisory counts: `noConsole` 128, `noVar` 0, `noUselessConstructor` 4,
-`no-bigint-literals` 446 (23 source-only; rest are test/`LiteralKit` data),
-`no-empty-named-blocks` 1, `prefer-array-flat-map` 4, `no-native-error` 0 (parity ∅⊆∅).
-Two checks proven non-viable as GritQL and kept in `ts-morph` with evidence: `effect-fn`
-(51 false positives + ~98s on `apps` from `within` traversal) and `effect-imports`
-(whole-file consolidation + `--write` needed by yeet). See `research/p0-spike-result.md`
-and `STYLE.md`.
+`Complete (2026-06-21)` — merged PRs: **#270** (`@beep/lint-rules` GritQL package + advisory
+Biome alignment), **#273** (review fixes), **#274** + **#275** (P2: promote clean rules to
+mandatory, remove `tooling-tagged-errors`), and **#276** (P3 oxlint lint-only lane + this
+closeout). Final disposition:
+
+- **Mandatory:** `noVar`, GritQL `no-native-error`/`no-empty-named-blocks`/`prefer-array-flat-map`,
+  and oxlint `no-opaque-instance-fields` (all 0 violations). `tooling-tagged-errors` CLI check removed.
+- **Advisory (documented divergences in `STYLE.md`):** `noConsole`, `noUselessConstructor`,
+  `no-bigint-literals` (intentional domain values), and the oxlint `namespace-node-imports`/
+  `no-inline-schema-compile`/`no-manual-effect-runtime-in-tests`/`no-global-process-runtime`
+  (promotion + a blocking CI lane re-assessed 2026-09-20 per the SPEC ledger).
+- **Kept in `ts-morph` (Stop Conditions, evidenced):** `laws effect-fn` (GritQL = 51 false
+  positives + ~98s) and `laws effect-imports` (whole-file consolidation + `--write` yeet depends on).
+
+oxlint custom plugins are stable on Linux (spike-confirmed), so P3 is a real lane, not
+"complete-with-exception". See `STYLE.md` and `research/p0-spike-result.md`.
 
 ## Notes
 
