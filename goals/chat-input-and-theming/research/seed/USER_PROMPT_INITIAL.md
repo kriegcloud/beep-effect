@@ -76,4 +76,4 @@ Looking at the [storybook](https://storybook.beep.localhost:1355/?path=/docs/edi
 [composer component](packages/foundation/ui-system/editor/src/composer.tsx) there are very few features and also 
 a bug where when clicking into the editor the cursor is bellow the `placeholder` text "Message the workspace..." 
 where upon clicking the cursor is placed where the placeholder text is and the "Message the workspace..." text is 
-replaced (should only be visible on an empty unfocused component state).
+replaced (should only be visible on an empty unfocused component state). see ![EditorComposer_story.png](assets/EditorComposer_story.png)
