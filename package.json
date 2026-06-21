@@ -104,6 +104,7 @@
     "coverage": "VITEST_COVERAGE_REPORT_ONLY=1 bunx turbo run coverage --cache=local:rw",
     "lint": "beep-cli lint",
     "lint:fix": "beep-cli lint --fix",
+    "lint:oxlint": "oxlint",
     "knip": "knip-bun",
     "fallow": "fallow",
     "fallow:migrate:dry-run": "fallow migrate --dry-run",
@@ -219,6 +220,8 @@
     "uuid": "catalog:"
   },
   "catalog": {
+    "@oxlint/plugins": "1.70.0",
+    "oxlint": "1.70.0",
     "@azure/msal-node": "^5.2.5",
     "@azure/msal-node-extensions": "^5.2.5",
     "@microsoft/microsoft-graph-types": "^2.43.1",
