@@ -9,6 +9,9 @@ const run = <A, E>(program: Effect.Effect<A, E, NodeServices.NodeServices>): Pro
 
 const sortedRuleNames = [...RULE_NAMES].sort();
 
+/** Repo root (five levels up from `test/registry.test.ts`). */
+const repoRoot = decodeURIComponent(new URL("../../../../../", import.meta.url).pathname);
+
 describe("rule registry", () => {
   it("RULES keys match RULE_NAMES exactly", () => {
     expect(Object.keys(RULES).sort()).toEqual(sortedRuleNames);
@@ -50,4 +53,21 @@ describe("rule registry", () => {
       expect(RULES[name].summary.length).toBeGreaterThan(0);
     }
   });
+
+  it("every rule is wired into the repo-root biome.jsonc lint pass", () =>
+    run(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        // biome.jsonc is JSONC (comments); assert the plugin path substring is present —
+        // this covers both the top-level `plugins` array and any `overrides[].plugins`.
+        const biomeConfig = yield* fs.readFileString(path.join(repoRoot, "biome.jsonc"));
+        for (const name of RULE_NAMES) {
+          const pluginRef = `rules/${name}.grit`;
+          expect(biomeConfig.includes(pluginRef), `${name} must be registered in biome.jsonc (${pluginRef})`).toBe(
+            true
+          );
+        }
+      })
+    ));
 });

@@ -109,7 +109,7 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = {
     severity: "warn",
     replaces: null,
     summary: "Disallow bigint literals (1n, 0xFFn, ...); use BigInt(value).",
-    scope: null,
+    scope: "**/src/**",
   },
   "no-empty-named-blocks": {
     name: "no-empty-named-blocks",

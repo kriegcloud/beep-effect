@@ -13,7 +13,9 @@
 
 ## Laws
 - GritQL is diagnostics-only — never silent rewrites.
-- New rule = add `.grit` + `src/index.ts` registry entry + `test/fixtures/<rule>/{invalid,valid}.ts`.
+- New rule = add `.grit` + `src/index.ts` registry entry + a `SOURCES[<rule>]` entry
+  (inline `invalid`/`valid` strings) in `test/sources.ts`; the harness writes them to a
+  temp file at test time (no on-disk fixture files).
 - Ship advisory (`severity = "warn"`); flip to `"error"` only when the subsystem is clean.
 - Keep rules fast: avoid `within`/deep-ancestor operators on hot patterns.
 
@@ -28,6 +30,6 @@ import { RULES, rulePath } from "@beep/lint-rules"
 - `bunx turbo run lint --filter=@beep/lint-rules`
 
 ## Contributor Checklist
-- [ ] New rule registered in `src/index.ts` and `biome.jsonc`
-- [ ] Fixture pair + test added
+- [ ] New rule registered in `src/index.ts` and `biome.jsonc` (top-level `plugins` or an `overrides` entry)
+- [ ] `SOURCES[<rule>]` invalid/valid pair added to `test/sources.ts`
 - [ ] `bun run check` / `bun run test` / `bun run lint` pass
