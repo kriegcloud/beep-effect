@@ -253,7 +253,7 @@ describe("Lexical.model", () => {
         ...element,
         type: "list",
         listType: "number",
-        start: 0,
+        start: -1,
         tag: "ol",
         children: [],
       })
@@ -268,25 +268,85 @@ describe("Lexical.model", () => {
     ).toThrow();
   });
 
-  it("rejects invalid package-owned decorator and code metadata", () => {
+  it("normalizes legacy serialized list starts and rejects corrupt item zeros", () => {
+    const list = S.decodeUnknownSync(LexicalNode)({
+      ...element,
+      type: "list",
+      listType: "number",
+      start: 0,
+      tag: "ol",
+      children: [
+        {
+          ...element,
+          type: "listitem",
+          value: 1,
+          children: [text("legacy zero")],
+        },
+      ],
+    });
+
+    expect(list).toMatchObject({
+      start: 1,
+      children: [{ value: 1 }],
+    });
+    expect(S.encodeSync(LexicalNode)(list)).toMatchObject({
+      start: 1,
+      children: [{ value: 1 }],
+    });
+
     expect(() =>
+      S.decodeUnknownSync(LexicalNode)({
+        ...element,
+        type: "list",
+        listType: "number",
+        start: 1,
+        tag: "ol",
+        children: [
+          {
+            ...element,
+            type: "listitem",
+            value: 0,
+            children: [text("corrupt zero")],
+          },
+          {
+            ...element,
+            type: "listitem",
+            value: 0,
+            children: [text("duplicate corrupt zero")],
+          },
+        ],
+      })
+    ).toThrow();
+  });
+
+  it("normalizes compatible legacy decorator and code metadata", () => {
+    expect(
       S.decodeUnknownSync(LexicalNode)({
         type: "youtube",
         version: 1,
         videoID: "https://youtu.be/dQw4w9WgXcQ",
         format: "",
       })
-    ).toThrow();
-    expect(() =>
-      S.decodeUnknownSync(LexicalNode)({ type: "artifact-ref", version: 1, artifactId: "bad id" })
-    ).toThrow();
-    expect(() =>
+    ).toMatchObject({ videoID: "dQw4w9WgXcQ" });
+    expect(
       S.decodeUnknownSync(LexicalNode)({
         ...element,
         type: "code",
         language: "ts bad",
         children: [],
       })
+    ).toMatchObject({ language: O.none() });
+
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({
+        type: "youtube",
+        version: 1,
+        videoID: "https://youtu.be/not-valid",
+        format: "",
+      })
+    ).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(LexicalNode)({ type: "artifact-ref", version: 1, artifactId: "bad id" })
     ).toThrow();
   });
 

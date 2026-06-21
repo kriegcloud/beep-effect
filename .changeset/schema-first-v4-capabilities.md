@@ -9,8 +9,8 @@
 "@beep/architecture-lab-server": patch
 "@beep/libpff": patch
 "@beep/chalk": patch
-"@beep/identity": patch
-"@beep/lexical-schema": patch
+"@beep/identity": major
+"@beep/lexical-schema": minor
 "@beep/md": patch
 "@beep/nlp": patch
 "@beep/observability": patch
@@ -43,7 +43,9 @@ the Serwist Next.js plugin wrapper across nested Next.js type identities.
 Also records the rich-text/identity public-surface tightening in this change
 set: Lexical and Markdown schema guards now reject impossible serialized values
 at the boundary, invalid artifact/code-fence metadata degrades through the
-document projection path, and deleted workspace identity composers are removed
+document projection path, legacy Lexical list starts written as `0` decode to
+the canonical `1` while corrupt list-item `0` ordinals are rejected before they
+can collapse sibling order, and deleted workspace identity composers are removed
 from the generated `@beep/identity` package composer surface.
 
 Also keeps `@beep/chalk`'s proxied constructor type aligned with runtime

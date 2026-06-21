@@ -98,6 +98,7 @@
     "test": "beep-cli test",
     "coverage": "VITEST_COVERAGE_REPORT_ONLY=1 bunx turbo run coverage --cache=local:rw",
     "lint": "beep-cli lint",
+    "lint:deprecated-apis": "beep-cli lint deprecated-apis",
     "lint:fix": "beep-cli lint --fix",
     "lint:oxlint": "oxlint",
     "knip": "knip-bun",

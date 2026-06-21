@@ -3,6 +3,9 @@ import { DocsESLintConfig } from "@beep/repo-configs/eslint/DocsESLintConfig";
 
 const eslintProfile = process.env.BEEP_ESLINT_PROFILE ?? "docs";
 
+// The default profile is the docs/jsdoc lane. The deprecated vendor API gate is
+// selected by `bun run lint:deprecated-apis`, which sets this profile inside the
+// repo CLI before loading the shared config.
 const selectedESLintConfig = (() => {
   if (eslintProfile === "deprecated-apis") {
     return DeprecatedApisESLintConfig;

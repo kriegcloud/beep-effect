@@ -15,19 +15,90 @@
  * @since 0.0.0
  */
 
+// cspell:word youtu
 import { $LexicalSchemaId } from "@beep/identity/packages";
 import * as Md from "@beep/md/Md.model";
 import { LiteralKit, NonNegativeInt, PosInt } from "@beep/schema";
 import { A, O, Str } from "@beep/utils";
-import { SchemaGetter } from "effect";
+import { Effect, SchemaGetter } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import type { CodeFenceLanguage as MdCodeFenceLanguage } from "@beep/md/Md.model";
 import type * as R from "effect/Record";
 
 const $I = $LexicalSchemaId.create("Lexical.model");
+type MdYouTubeVideoId = typeof Md.YouTubeVideoId.Type;
 
 const artifactRefIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]*$/u;
+const decodeCodeFenceLanguageOption = S.decodeUnknownOption(Md.CodeFenceLanguage);
+const decodeYouTubeVideoId = S.decodeUnknownEffect(Md.YouTubeVideoId);
+
+const firstPathSegment = (pathname: string): string => pathname.split("/").find(Str.isNonEmpty) ?? "";
+
+const legacyYouTubeVideoId = (value: string): string => {
+  const trimmed = Str.trim(value);
+
+  if (S.is(Md.YouTubeVideoId)(trimmed)) {
+    return trimmed;
+  }
+
+  try {
+    const url = new URL(trimmed);
+    const hostname = url.hostname.replace(/^www\./u, "");
+
+    if (hostname === "youtu.be") {
+      return firstPathSegment(url.pathname);
+    }
+
+    if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
+      return url.searchParams.get("v") ?? firstPathSegment(url.pathname.replace(/^\/(?:embed|shorts)\//u, ""));
+    }
+  } catch {
+    return trimmed;
+  }
+
+  return trimmed;
+};
+
+const CodeNodeLanguage = S.OptionFromOptionalNullOr(S.String).pipe(
+  S.decodeTo(S.Option(Md.CodeFenceLanguage), {
+    decode: SchemaGetter.transform((language) => O.flatMap(language, decodeCodeFenceLanguageOption)),
+    encode: SchemaGetter.transform((language) => language),
+  }),
+  $I.annoteSchema("CodeNodeLanguage", {
+    description:
+      "Optional serialized Lexical code language; legacy non-conforming strings decode to None while valid languages remain branded.",
+  })
+);
+
+const LexicalListStart = NonNegativeInt.pipe(
+  S.decodeTo(PosInt, {
+    decode: SchemaGetter.transform((value) => PosInt.make(value === 0 ? 1 : value)),
+    encode: SchemaGetter.transform((value) => NonNegativeInt.make(value)),
+  }),
+  $I.annoteSchema("LexicalListStart", {
+    description: "Positive Lexical list start with legacy zero values normalized to one during serialized JSON decode.",
+  })
+);
+
+const LexicalListItemValue = PosInt.pipe(
+  $I.annoteSchema("LexicalListItemValue", {
+    description: "Positive Lexical list-item ordinal; zero values are rejected to preserve sibling ordering.",
+  })
+);
+
+const YouTubeVideoIdFromLegacyInput = S.String.pipe(
+  S.decodeTo(Md.YouTubeVideoId, {
+    decode: SchemaGetter.transformOrFail((value) =>
+      decodeYouTubeVideoId(legacyYouTubeVideoId(value)).pipe(Effect.mapError((error) => error.issue))
+    ),
+    encode: SchemaGetter.transform((value) => value),
+  }),
+  $I.annoteSchema("YouTubeVideoIdFromLegacyInput", {
+    description:
+      "Bare YouTube video id; legacy watch, embed, shorts, and youtu.be URLs decode to their canonical 11-character id.",
+  })
+);
 
 /**
  * Serialized Lexical node version accepted by this package.
@@ -1337,7 +1408,7 @@ export class ListNode extends ElementNode.extend<ListNode>($I`ListNode`)(
   {
     type: S.tag("list"),
     listType: ListType.annotateKey({ description: "List semantics." }),
-    start: PosInt.annotateKey({ description: "Starting number for ordered lists." }),
+    start: LexicalListStart.annotateKey({ description: "Starting number for ordered lists." }),
     tag: ListTag.annotateKey({ description: "HTML list tag." }),
   },
   $I.annote("ListNode", { description: "A serialized Lexical list element node." })
@@ -1405,7 +1476,7 @@ export class ListItemNode extends ElementNode.extend<ListItemNode>($I`ListItemNo
     checked: S.OptionFromOptional(S.Boolean).annotateKey({
       description: "Checkbox state for check lists; absent otherwise.",
     }),
-    value: PosInt.annotateKey({ description: "Ordinal value within the list." }),
+    value: LexicalListItemValue.annotateKey({ description: "Ordinal value within the list." }),
   },
   $I.annote("ListItemNode", { description: "A serialized Lexical list-item element node." })
 ) {
@@ -1535,7 +1606,7 @@ export declare namespace LinkNode {
 export class CodeNode extends ElementNode.extend<CodeNode>($I`CodeNode`)(
   {
     type: S.tag("code"),
-    language: S.OptionFromOptionalNullOr(Md.CodeFenceLanguage).annotateKey({
+    language: CodeNodeLanguage.annotateKey({
       description: "Optional code-fence language identifier.",
     }),
     theme: S.OptionFromOptional(S.String).annotateKey({ description: "Optional code highlight theme." }),
@@ -1676,7 +1747,7 @@ export declare namespace ArtifactRefNode {
 export class YouTubeNode extends BaseNode.extend<YouTubeNode>($I`YouTubeNode`)(
   {
     type: S.tag("youtube"),
-    videoID: Md.YouTubeVideoId.annotateKey({
+    videoID: YouTubeVideoIdFromLegacyInput.annotateKey({
       description: "The bare YouTube video id rendered by the decorator block.",
     }),
     format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the embed." }),
@@ -1708,7 +1779,7 @@ export declare namespace YouTubeNode {
   export interface Type extends BaseNode.Type {
     readonly format: ElementFormat;
     readonly type: "youtube";
-    readonly videoID: string;
+    readonly videoID: MdYouTubeVideoId;
   }
 
   /**
