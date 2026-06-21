@@ -15,7 +15,6 @@ loads. (A later wave adds oxlint plugins here for stateful/scope-aware rules.)
 | `test/harness.ts` | spawns Biome over a fixture and returns plugin diagnostics |
 | `test/rules.test.ts` | data-driven invalid/valid fixture assertions |
 | `test/registry.test.ts` | registry ↔ `rules/` ↔ metadata drift guard |
-| `test/parity/` | old-CLI-vs-new-rule coverage proof on the current tree |
 | `docs/rule-guidance.md` | authoring conventions + rule table |
 
 ## Verifications
