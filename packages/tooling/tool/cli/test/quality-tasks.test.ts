@@ -702,6 +702,7 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:typos",
+      "lint:oxlint",
     ]);
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
   });
@@ -728,6 +729,7 @@ describe("quality task adapter", () => {
       "lint:markdown",
       "lint:circular",
       "lint:typos",
+      "lint:oxlint",
     ]);
     expect(steps.find((step) => step.label === "lint:jsdoc")?.args).toEqual(["eslint", ".", "--max-warnings=0"]);
   });

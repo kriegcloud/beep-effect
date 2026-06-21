@@ -6,6 +6,8 @@ import {
   identifierName,
   isIdentifier,
   literalStringValue,
+  pathMatchesSuffix,
+  toRepoPath,
   unwrapExpression,
   unwrapMemberExpression,
 } from "./utils.ts";
@@ -19,31 +21,18 @@ const RUNTIME_PROPERTIES = HashSet.fromIterable(["platform", "arch"]);
 const HOST_PROCESS_REFERENCE_FILE = "packages/foundation/capability/chalk/src/internal/SupportsColor.ts";
 const NODE_OS_MODULES = HashSet.fromIterable(["node:os", "os"]);
 
-const normalizePath = (path: string) => path.replaceAll("\\", "/");
+const isHostProcessReferenceFile = (filename: string, cwd: string): boolean =>
+  pathMatchesSuffix(toRepoPath(filename, cwd), HOST_PROCESS_REFERENCE_FILE);
 
-const toRepoPath = (filename: string, cwd: string) => {
-  const normalizedFilename = normalizePath(filename);
-  const normalizedCwd = normalizePath(cwd).replace(/\/+$/u, "");
-  const prefix = `${normalizedCwd}/`;
-  return normalizedFilename.startsWith(prefix) ? normalizedFilename.slice(prefix.length) : normalizedFilename;
-};
+const hostProcessTarget = (property: string): string =>
+  property === "arch" ? "HostProcessArchitecture" : "HostProcessPlatform";
 
-const isHostProcessReferenceFile = (filename: string, cwd: string) =>
-  toRepoPath(filename, cwd) === HOST_PROCESS_REFERENCE_FILE;
+// Distinct wording per detection path: a `process.<prop>` member read vs an `os.<prop>()` call.
+const processReadMessage = (property: string): string =>
+  `Use ${hostProcessTarget(property)} instead of process.${property}; inject the runtime reference in Effect code and provide it explicitly in tests.`;
 
-// `globalThis.process` — the namespaced spelling of the global process object.
-const isGlobalThisProcess = (node: MaybeNode): boolean =>
-  O.exists(
-    unwrapMemberExpression(node),
-    (access) =>
-      isIdentifier(access.object, "globalThis") && O.exists(getPropertyName(access.property), (p) => p === "process")
-  );
-
-const isGlobalProcessObject = (node: MaybeNode): boolean =>
-  isIdentifier(unwrapExpression(node), "process") || isGlobalThisProcess(node);
-
-const message = (property: string) =>
-  `Use HostProcess${property === "arch" ? "Architecture" : "Platform"} instead of process.${property}; inject the runtime reference in Effect code and provide it explicitly in tests.`;
+const osCallMessage = (property: string): string =>
+  `Use ${hostProcessTarget(property)} instead of os.${property}(); inject the runtime reference in Effect code and provide it explicitly in tests.`;
 
 export default defineRule({
   meta: {
@@ -56,18 +45,57 @@ export default defineRule({
   createOnce(context) {
     const nodeOsNamespaces = MutableHashSet.empty<string>();
     const nodeOsRuntimeImports = MutableHashMap.empty<string, string>();
+    // Lexical-scope approximation for `process` shadowing: one frame per enclosing function
+    // (plus a module-level frame), flagged when that scope binds a local `process`. This catches
+    // function parameters and simple `var`/`let`/`const process` declarators; it does NOT model
+    // destructured (`const { process } = ...`) or block-scoped bindings precisely.
+    const scopeStack: Array<{ shadowed: boolean }> = [{ shadowed: false }];
 
     const resetBindings = () => {
       MutableHashSet.clear(nodeOsNamespaces);
       MutableHashMap.clear(nodeOsRuntimeImports);
+      scopeStack.length = 0;
+      scopeStack.push({ shadowed: false });
+    };
+
+    const currentScope = (): { shadowed: boolean } => scopeStack[scopeStack.length - 1] ?? { shadowed: false };
+
+    const paramShadowsProcess = (params: ReadonlyArray<ESTree.ParamPattern>): boolean =>
+      params.some((param) => param.type === "Identifier" && param.name === "process");
+
+    const pushScope = (params: ReadonlyArray<ESTree.ParamPattern>) => {
+      scopeStack.push({ shadowed: paramShadowsProcess(params) });
+    };
+
+    const popScope = () => {
+      if (scopeStack.length > 1) scopeStack.pop();
+    };
+
+    const recordDeclarator = (node: ESTree.VariableDeclarator) => {
+      if (node.id.type === "Identifier" && node.id.name === "process") currentScope().shadowed = true;
+    };
+
+    const isProcessShadowed = (): boolean => scopeStack.some((scope) => scope.shadowed);
+
+    // `globalThis.process` — the namespaced spelling, unaffected by a local `process` binding.
+    const isGlobalThisProcess = (node: MaybeNode): boolean =>
+      O.exists(
+        unwrapMemberExpression(node),
+        (access) =>
+          isIdentifier(access.object, "globalThis") &&
+          O.exists(getPropertyName(access.property), (p) => p === "process")
+      );
+
+    // A bare global `process` (skipped when locally shadowed) or the explicit `globalThis.process`.
+    const isGlobalProcessObject = (node: MaybeNode): boolean => {
+      if (isIdentifier(unwrapExpression(node), "process")) return !isProcessShadowed();
+      return isGlobalThisProcess(node);
     };
 
     // Record a destructured `{ platform } from "node:os"` runtime import under its local name.
     const recordRuntimeSpecifier = (specifier: ESTree.ImportSpecifier) => {
       const imported = O.filter(getPropertyName(specifier.imported), (name) => HashSet.has(RUNTIME_PROPERTIES, name));
-      if (O.isSome(imported)) {
-        MutableHashMap.set(nodeOsRuntimeImports, specifier.local.name, imported.value);
-      }
+      if (O.isSome(imported)) MutableHashMap.set(nodeOsRuntimeImports, specifier.local.name, imported.value);
     };
 
     const recordSpecifier = (specifier: ESTree.ImportDeclaration["specifiers"][number]) => {
@@ -79,7 +107,6 @@ export default defineRule({
     const trackImportDeclaration = (node: ESTree.ImportDeclaration) => {
       const source = literalStringValue(node.source);
       if (O.isNone(source) || !HashSet.has(NODE_OS_MODULES, source.value)) return;
-
       for (const specifier of node.specifiers) recordSpecifier(specifier);
     };
 
@@ -112,16 +139,20 @@ export default defineRule({
     return {
       before: resetBindings,
       ImportDeclaration: trackImportDeclaration,
+      FunctionDeclaration: (node) => pushScope(node.params),
+      "FunctionDeclaration:exit": popScope,
+      FunctionExpression: (node) => pushScope(node.params),
+      "FunctionExpression:exit": popScope,
+      ArrowFunctionExpression: (node) => pushScope(node.params),
+      "ArrowFunctionExpression:exit": popScope,
+      VariableDeclarator: recordDeclarator,
       MemberExpression(node) {
         if (isHostProcessReferenceFile(context.filename, context.cwd)) return;
 
         const property = globalProcessProperty(node);
         if (O.isNone(property)) return;
 
-        context.report({
-          node,
-          message: message(property.value),
-        });
+        context.report({ node, message: processReadMessage(property.value) });
       },
       CallExpression(node) {
         if (isHostProcessReferenceFile(context.filename, context.cwd)) return;
@@ -129,10 +160,7 @@ export default defineRule({
         const property = getNodeOsRuntimeCall(node.callee);
         if (O.isNone(property)) return;
 
-        context.report({
-          node,
-          message: message(property.value),
-        });
+        context.report({ node, message: osCallMessage(property.value) });
       },
     };
   },

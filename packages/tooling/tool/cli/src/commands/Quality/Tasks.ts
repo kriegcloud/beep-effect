@@ -1224,6 +1224,9 @@ const rootRepoLintPolicySteps = (repoRoot: string): ReadonlyArray<QualityTaskSte
   bunxStep(repoRoot, "lint:markdown", ["markdownlint-cli2"]),
   repoCliStep(repoRoot, "lint:circular", ["lint", "circular"]),
   bunxStep(repoRoot, "lint:typos", ["typos"]),
+  // Gate on the mandatory (error) oxlint rule only; --quiet suppresses the large advisory
+  // (warn) backlog so the policy lane stays readable. `bun run lint:oxlint` stays verbose.
+  bunxStep(repoRoot, "lint:oxlint", ["oxlint", "--quiet"]),
 ];
 
 /**

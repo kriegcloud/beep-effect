@@ -1,12 +1,15 @@
 import { defineRule } from "@oxlint/plugins";
 import { HashSet, MutableHashSet } from "effect";
 import * as O from "effect/Option";
-import { getPropertyName, unwrapExpression, unwrapMemberExpression } from "./utils.ts";
+import { classifyImportSpecifier, getPropertyName, unwrapExpression, unwrapMemberExpression } from "./utils.ts";
 import type { ESTree } from "@oxlint/plugins";
-import type { AstNode, MaybeNode } from "./utils.ts";
+import type { AstNode, ImportBinding, MaybeNode, MemberAccess } from "./utils.ts";
 
+// `effect` exposes Schema as a named/namespace member; `effect/Schema` exposes it as the
+// module itself (namespace/default) and re-exports `Schema`/`Opaque` as named members.
 const SCHEMA_SOURCES = HashSet.fromIterable(["effect", "effect/Schema"]);
-const SCHEMA_NAMESPACE_SOURCES = HashSet.fromIterable(["effect/Schema"]);
+const SCHEMA_MODULE_SOURCES = HashSet.fromIterable(["effect/Schema"]);
+const EFFECT_ROOT_SOURCE = "effect";
 const INSTANCE_MEMBER_TYPES = HashSet.fromIterable(["PropertyDefinition", "MethodDefinition"]);
 const INSTANCE_MEMBER_MESSAGE = "Classes extending Schema.Opaque must not have instance members";
 
@@ -16,40 +19,57 @@ export default defineRule({
     docs: { description: "Disallow instance members in Schema.Opaque classes" },
   },
   create(context) {
-    // Track identifiers that point to Schema or Opaque imported from Schema.
-    // Local names that refer to the Schema module (Schema or namespace import).
-    // Example: `import { Schema } from "effect"` or `import * as S from "effect/Schema"`.
+    // Local names that refer to the Schema module: `import { Schema } from "effect"`,
+    // `import * as S from "effect/Schema"`, or `import Schema from "effect/Schema"`.
     const schemaIdentifiers = MutableHashSet.empty<string>();
-    // Local names that refer to Opaque imported directly from the Schema module.
-    // Example: `import { Opaque as MyOpaque } from "effect/Schema"`.
+    // Local names that refer to `Opaque` imported directly from the Schema module.
     const opaqueIdentifiers = MutableHashSet.empty<string>();
+    // Local names that refer to the `effect` root namespace: `import * as Effect from "effect"`,
+    // reached as `<effectNs>.Schema.Opaque(...)`.
+    const effectRootNamespaces = MutableHashSet.empty<string>();
 
     const isTrackedIdentifier = (node: O.Option<AstNode>, tracked: MutableHashSet.MutableHashSet<string>): boolean =>
       O.exists(node, (expression) => expression.type === "Identifier" && MutableHashSet.has(tracked, expression.name));
 
-    // Validate the outer `Opaque` call, allowing either `Opaque` or `<SchemaNamespace>.Opaque`
-    // where `<SchemaNamespace>` is an identifier tied to the Schema module via imports.
+    // The unwrapped member access of `object`, when `object` is itself a member expression.
+    const memberOf = (object: O.Option<AstNode>): O.Option<MemberAccess> => O.flatMap(object, unwrapMemberExpression);
+
+    // `<receiver>.<member>` where the member is `name` and the receiver is tracked in `tracked`.
+    const isTrackedAccess = (
+      access: MemberAccess,
+      name: string,
+      tracked: MutableHashSet.MutableHashSet<string>
+    ): boolean =>
+      O.exists(getPropertyName(access.property), (member) => member === name) &&
+      isTrackedIdentifier(access.object, tracked);
+
+    // `<effectNs>.Schema` — the Schema module reached through the `effect` root namespace.
+    const isEffectRootSchema = (object: O.Option<AstNode>): boolean =>
+      O.exists(memberOf(object), (access) => isTrackedAccess(access, "Schema", effectRootNamespaces));
+
+    // The Opaque receiver resolves to the Schema module, directly or via the effect root.
+    const isSchemaReceiver = (object: O.Option<AstNode>): boolean =>
+      isTrackedIdentifier(object, schemaIdentifiers) || isEffectRootSchema(object);
+
+    // Accept `Opaque`, `<schemaId>.Opaque`, or `<effectNs>.Schema.Opaque` as the Opaque callee.
     const isOpaqueCallee = (node: MaybeNode): boolean => {
-      const expression = unwrapExpression(node);
-      if (isTrackedIdentifier(expression, opaqueIdentifiers)) return true;
+      if (isTrackedIdentifier(unwrapExpression(node), opaqueIdentifiers)) return true;
       return O.exists(
         unwrapMemberExpression(node),
         (access) =>
-          O.exists(getPropertyName(access.property), (name) => name === "Opaque") &&
-          isTrackedIdentifier(access.object, schemaIdentifiers)
+          O.exists(getPropertyName(access.property), (member) => member === "Opaque") && isSchemaReceiver(access.object)
       );
     };
 
-    // Match `class X extends Schema.Opaque(...)()` or `class X extends Opaque(...)()` when
-    // the identifiers are tied to the Schema module via imports.
+    const isOpaqueCall = (callee: AstNode): boolean =>
+      callee.type === "CallExpression" && isOpaqueCallee(callee.callee);
+
+    // Match `class X extends <opaqueCallee>(...)()` — the outer curried Opaque application.
     const isSchemaOpaqueExtension = (node: ESTree.Class): boolean =>
       O.exists(
         unwrapExpression(node.superClass),
         (sc) => sc.type === "CallExpression" && O.exists(unwrapExpression(sc.callee), isOpaqueCall)
       );
-
-    const isOpaqueCall = (callee: AstNode): boolean =>
-      callee.type === "CallExpression" && isOpaqueCallee(callee.callee);
 
     const isInstanceMember = (element: ESTree.ClassBody["body"][number]): boolean =>
       HashSet.has(INSTANCE_MEMBER_TYPES, element.type) && "static" in element && !element.static;
@@ -63,37 +83,33 @@ export default defineRule({
       }
     };
 
-    // Record a destructured `{ Schema }` / `{ Opaque }` import under its local name.
-    const recordImportSpecifier = (specifier: ESTree.ImportSpecifier) => {
-      const imported = getPropertyName(specifier.imported);
-      if (O.exists(imported, (name) => name === "Schema")) {
-        MutableHashSet.add(schemaIdentifiers, specifier.local.name);
-      } else if (O.exists(imported, (name) => name === "Opaque")) {
-        MutableHashSet.add(opaqueIdentifiers, specifier.local.name);
-      }
+    // Record a named `{ Schema }` / `{ Opaque }` import under its local name.
+    const recordNamedBinding = (imported: string, local: string) => {
+      if (imported === "Schema") MutableHashSet.add(schemaIdentifiers, local);
+      else if (imported === "Opaque") MutableHashSet.add(opaqueIdentifiers, local);
     };
 
-    // A `* as S` namespace import only aliases the Schema module when it came from `effect/Schema`.
-    const recordNamespaceSpecifier = (source: string, specifier: ESTree.ImportNamespaceSpecifier) => {
-      if (HashSet.has(SCHEMA_NAMESPACE_SOURCES, source)) MutableHashSet.add(schemaIdentifiers, specifier.local.name);
+    // Record a module binding (`* as X` / default `X`): the Schema module from `effect/Schema`,
+    // or the `effect` root namespace from `effect`.
+    const recordModuleBinding = (source: string, local: string) => {
+      if (HashSet.has(SCHEMA_MODULE_SOURCES, source)) MutableHashSet.add(schemaIdentifiers, local);
+      else if (source === EFFECT_ROOT_SOURCE) MutableHashSet.add(effectRootNamespaces, local);
     };
 
-    const isValueImportSpecifier = (
-      specifier: ESTree.ImportDeclaration["specifiers"][number]
-    ): specifier is ESTree.ImportSpecifier => specifier.type === "ImportSpecifier" && specifier.importKind !== "type";
-
-    const recordSpecifier = (source: string, specifier: ESTree.ImportDeclaration["specifiers"][number]) => {
-      if (specifier.type === "ImportNamespaceSpecifier") return recordNamespaceSpecifier(source, specifier);
-      if (isValueImportSpecifier(specifier)) recordImportSpecifier(specifier);
+    const recordBinding = (source: string, binding: ImportBinding) => {
+      if (binding.kind === "named") return recordNamedBinding(binding.imported, binding.local);
+      recordModuleBinding(source, binding.local);
     };
 
     return {
-      // Record identifiers for Schema/Opaque imports so we don't match unrelated modules.
+      // Record identifiers for Schema/Opaque/effect imports so we don't match unrelated modules.
       ImportDeclaration(node) {
         if (node.importKind === "type") return;
         const source = node.source.value;
         if (!HashSet.has(SCHEMA_SOURCES, source)) return;
-        for (const specifier of node.specifiers) recordSpecifier(source, specifier);
+        for (const specifier of node.specifiers) {
+          O.match(classifyImportSpecifier(specifier), { onNone: () => {}, onSome: (b) => recordBinding(source, b) });
+        }
       },
       ClassDeclaration: checkClass,
       ClassExpression: checkClass,
