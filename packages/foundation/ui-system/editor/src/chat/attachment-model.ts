@@ -2,8 +2,8 @@
  * The pure attachment model for the chat composer: the {@link ComposerAttachment}
  * schema class plus its capture-time validation and object-URL helpers. Kept
  * free of any `@effect/atom` or React dependency so the per-editor atom layer
- * ({@link ../atoms.ts}) can depend on it without a circular import back through
- * the attachment plugins/UI in `./attachments.tsx`.
+ * (`atoms.ts`) can depend on it without a circular import back through the
+ * attachment plugins/UI in `attachments.tsx`.
  *
  * Per the repo schema-first law the captured value is modeled as the
  * {@link ComposerAttachment} `S.Class`: its `mimeType` is validated against

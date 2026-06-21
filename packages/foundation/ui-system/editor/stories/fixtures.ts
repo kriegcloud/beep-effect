@@ -1,6 +1,6 @@
 import { documentToEditorState } from "@beep/lexical-schema";
 import * as MdModel from "@beep/md/Md.model";
-import * as Effect from "effect/Effect";
+import { Effect } from "effect";
 
 /**
  * Shared "Draft a reply…" seed editor state for the composer stories (used as
