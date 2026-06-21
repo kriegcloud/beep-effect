@@ -228,17 +228,19 @@ export const ensureCompatibleChatDbDataDir = Effect.fn("ProfessionalDesktop.Pgli
 const toBunFileSystemPath = (path: string): string =>
   path.startsWith(ViteFileSystemPrefix) ? `/${path.slice(ViteFileSystemPrefix.length)}` : path;
 
-const compileWasmFile = (path: string): Promise<WebAssembly.Module> =>
-  Bun.file(toBunFileSystemPath(path)).arrayBuffer().then(WebAssembly.compile);
+const compileWasmFile = (path: string): Effect.Effect<WebAssembly.Module> =>
+  Effect.promise(() => Bun.file(toBunFileSystemPath(path)).arrayBuffer()).pipe(
+    Effect.flatMap((bytes) => Effect.promise(() => WebAssembly.compile(bytes)))
+  );
 
-const PgliteBinaryAssets = Effect.promise(() =>
-  Promise.all([compileWasmFile(pgliteWasmPath), compileWasmFile(initdbWasmPath)]).then(
-    ([pgliteWasmModule, initdbWasmModule]) => ({
-      fsBundle: Bun.file(toBunFileSystemPath(pgliteDataPath)),
-      initdbWasmModule,
-      pgliteWasmModule,
-    })
-  )
+const PgliteBinaryAssets = Effect.all([compileWasmFile(pgliteWasmPath), compileWasmFile(initdbWasmPath)], {
+  concurrency: "unbounded",
+}).pipe(
+  Effect.map(([pgliteWasmModule, initdbWasmModule]) => ({
+    fsBundle: Bun.file(toBunFileSystemPath(pgliteDataPath)),
+    initdbWasmModule,
+    pgliteWasmModule,
+  }))
 );
 
 /**

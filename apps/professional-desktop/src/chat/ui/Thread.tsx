@@ -26,7 +26,7 @@ import { Button } from "@beep/ui/components/button";
 import { A, O, thunkNull } from "@beep/utils";
 import { useAtomMount, useAtomSet, useAtomSubscribe, useAtomValue } from "@effect/atom-react";
 import { AsyncResult, Atom } from "effect/unstable/reactivity";
-import { useCallback, useRef } from "react";
+import { useRef } from "react";
 import { MessageView } from "./MessageView.tsx";
 import { StreamingBlocks } from "./StreamingBlocks.tsx";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
@@ -107,6 +107,14 @@ const TurnRow = ({
   );
 };
 
+// a turn has sibling branches when another turn shares its parent — the marker
+// that an edit forked this point in the thread.
+const turnHasSiblings = (allTurns: ReadonlyArray<TimelineTurn>, turn: TimelineTurn): boolean =>
+  O.match(turn.parentTurnId, {
+    onNone: () => false,
+    onSome: (parentId) => A.filter(allTurns, (t) => O.exists(t.parentTurnId, (p) => p === parentId)).length > 1,
+  });
+
 /**
  * Renders the selected thread's timeline and in-flight streaming turn.
  *
@@ -130,9 +138,7 @@ export function Thread({ threadId }: { readonly threadId: ThreadId }): JSX.Eleme
   useAtomMount(runTurnAtom);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
+  const scrollToBottom = (): void => void bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   useAtomSubscribe(timelineAtom, scrollToBottom);
   useAtomSubscribe(streamingTurnAtom, scrollToBottom);
 
@@ -145,17 +151,6 @@ export function Thread({ threadId }: { readonly threadId: ThreadId }): JSX.Eleme
     O.flatMap((truncateFrom) => A.findFirstIndex(allTurns, (turn) => turn.turnId === truncateFrom)),
     O.map((index) => A.take(allTurns, index)),
     O.getOrElse(() => allTurns)
-  );
-
-  // a turn has sibling branches when another turn shares its parent — the marker
-  // that an edit forked this point in the thread.
-  const hasSiblings = useCallback(
-    (turn: TimelineTurn): boolean =>
-      O.match(turn.parentTurnId, {
-        onNone: () => false,
-        onSome: (parentId) => A.filter(allTurns, (t) => O.exists(t.parentTurnId, (p) => p === parentId)).length > 1,
-      }),
-    [allTurns]
   );
 
   return (
@@ -178,7 +173,7 @@ export function Thread({ threadId }: { readonly threadId: ThreadId }): JSX.Eleme
       ) : null}
 
       {A.map(turns, (turn) => (
-        <TurnRow key={turn.turnId} turn={turn} hasSiblings={hasSiblings(turn)} />
+        <TurnRow key={turn.turnId} turn={turn} hasSiblings={turnHasSiblings(allTurns, turn)} />
       ))}
 
       {O.match(streamingHere, {

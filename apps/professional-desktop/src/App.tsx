@@ -12,38 +12,68 @@
  */
 
 import { chatProtocolLayerAtom, HttpChatProtocolLive } from "@beep/agents-client";
+import { $ProfessionalDesktopId } from "@beep/identity";
 import { Toaster } from "@beep/ui/components/sonner";
-import { useAtomSet } from "@effect/atom-react";
-import { useEffect, useState } from "react";
+import { useAtomMount, useAtomValue } from "@effect/atom-react";
+import { Cause, Effect } from "effect";
+import * as S from "effect/Schema";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { ChatApp } from "./chat/ui/ChatApp.tsx";
 import { ChatTurnErrorToasts } from "./chat/ui/ChatTurnErrorToasts.tsx";
 import { IpcChatProtocolLive } from "./transport/IpcChatClient.ts";
 import { IpcSpikePanel } from "./transport/IpcSpikePanel.tsx";
 import type { JSX } from "react";
 
-type SidecarTransport = {
-  readonly ipc: boolean;
-};
+const $I = $ProfessionalDesktopId.create("App");
 
-type TransportState =
-  | {
-      readonly _tag: "checking";
-    }
-  | {
-      readonly _tag: "failed";
-      readonly message: string;
-    }
-  | {
-      readonly _tag: "ready";
-      readonly ipc: boolean;
-    };
+class SidecarTransport extends S.Class<SidecarTransport>($I`SidecarTransport`)(
+  {
+    ipc: S.Boolean,
+  },
+  $I.annote("SidecarTransport", {
+    description: "The transport used to communicate with the sidecar.",
+  })
+) {}
 
 const hasTauriRuntime = (): boolean => typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 
-const readSidecarTransport = (): Promise<SidecarTransport> =>
+// Decode the Rust `sidecar_transport` command result through the schema.
+const decodeSidecarTransport = S.decodeUnknownEffect(SidecarTransport);
+
+// effect-first: probe which transport the sidecar speaks. In a Tauri webview
+// this invokes the Rust `sidecar_transport` command — bridged through Effect at
+// the Tauri Promise boundary and schema-decoded — and in a plain browser it is
+// HTTP. `Effect.suspend` defers the runtime check to when the atom runs, keeping
+// the original deferred semantics. A rejected invoke or decode failure flows to
+// the atom's `AsyncResult.Failure` and renders the unavailable state.
+const readSidecarTransport = Effect.suspend(() =>
   hasTauriRuntime()
-    ? import("@tauri-apps/api/core").then(({ invoke }) => invoke<SidecarTransport>("sidecar_transport"))
-    : Promise.resolve({ ipc: false });
+    ? Effect.tryPromise(() => import("@tauri-apps/api/core")).pipe(
+        Effect.flatMap(({ invoke }) => Effect.tryPromise(() => invoke("sidecar_transport"))),
+        Effect.flatMap(decodeSidecarTransport)
+      )
+    : Effect.succeed(SidecarTransport.make({ ipc: false }))
+);
+
+// AsyncResult<SidecarTransport>: Initial = checking, Failure = unavailable,
+// Success = ready. Replaces the useState/useEffect transport probe.
+const sidecarTransportAtom = Atom.make(readSidecarTransport);
+
+// atom-first: when the probe resolves, point the rpc client at the matching
+// protocol layer (IPC in the desktop shell, HTTP in the browser). A mounted
+// binding rather than a useEffect; `chatProtocolLayerAtom` already defaults to
+// HTTP, so the layer is only rewritten once the transport is confirmed.
+const protocolLayerBindingAtom = Atom.make((get) => {
+  const apply = (): void => {
+    const result = get.once(sidecarTransportAtom);
+    if (AsyncResult.isSuccess(result)) {
+      get.set(chatProtocolLayerAtom, result.value.ipc ? IpcChatProtocolLive : HttpChatProtocolLive);
+    }
+  };
+  apply();
+  get.subscribe(sidecarTransportAtom, apply);
+  return undefined;
+});
 
 const hasIpcSpikeFlag = (): boolean =>
   typeof window !== "undefined" && new URLSearchParams(window.location.search).has("ipc");
@@ -71,60 +101,37 @@ const TransportLoading = (): JSX.Element => (
  * @since 0.0.0
  */
 export function App(): JSX.Element {
-  const setChatProtocolLayer = useAtomSet(chatProtocolLayerAtom);
-  const [transport, setTransport] = useState<TransportState>({ _tag: "checking" });
+  const transport = useAtomValue(sidecarTransportAtom);
+  // bind the rpc protocol layer to the resolved transport (see binding above).
+  useAtomMount(protocolLayerBindingAtom);
 
-  useEffect(() => {
-    let mounted = true;
-    void readSidecarTransport().then(
-      ({ ipc }) => {
-        if (mounted) {
-          setChatProtocolLayer(ipc ? IpcChatProtocolLive : HttpChatProtocolLive);
-          setTransport({ _tag: "ready", ipc });
-        }
-      },
-      (cause) => {
-        if (mounted) {
-          setTransport({ _tag: "failed", message: String(cause) });
-        }
-      }
-    );
-    return () => {
-      mounted = false;
-    };
-  }, [setChatProtocolLayer]);
-
-  if (transport._tag === "checking") {
-    return (
+  return AsyncResult.match(transport, {
+    onInitial: () => (
       <>
         <TransportLoading />
         <ChatTurnErrorToasts />
         <Toaster richColors />
       </>
-    );
-  }
-
-  if (transport._tag === "failed") {
-    return (
+    ),
+    onFailure: (failure) => (
       <>
         <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
           <div className="max-w-md rounded-md border bg-card p-4 shadow-sm">
             <h1 className="text-base font-semibold">Desktop transport unavailable</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{transport.message}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{Cause.pretty(failure.cause)}</p>
           </div>
         </div>
         <ChatTurnErrorToasts />
         <Toaster richColors />
       </>
-    );
-  }
-
-  return (
-    <>
-      <ChatApp />
-      <ChatTurnErrorToasts />
-      <Toaster richColors />
-      {transport.ipc && hasIpcSpikeFlag() ? <IpcSpikePanel /> : null}
-    </>
-  );
+    ),
+    onSuccess: (success) => (
+      <>
+        <ChatApp />
+        <ChatTurnErrorToasts />
+        <Toaster richColors />
+        {success.value.ipc && hasIpcSpikeFlag() ? <IpcSpikePanel /> : null}
+      </>
+    ),
+  });
 }

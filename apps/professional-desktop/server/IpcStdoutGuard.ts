@@ -13,9 +13,9 @@ export { ipcTransport };
 
 const writeProtocolStdout = (chunk: string | Uint8Array): Effect.Effect<void> =>
   Effect.callback<void>((resume) => {
-    protocolStdout.write(chunk, (error?: Error | null) => {
-      resume(error === undefined || error === null ? Effect.void : Effect.die(error));
-    });
+    protocolStdout.write(chunk, (error?: Error | null) =>
+      resume(error === undefined || error === null ? Effect.void : Effect.die(error))
+    );
   });
 
 const IpcStdioLive: Layer.Layer<Stdio.Stdio> = Layer.effect(
