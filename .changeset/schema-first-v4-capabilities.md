@@ -32,3 +32,8 @@ defaults, HubSpot outbound email precision, and a broad set of
 schema-derived property tests deriving data from source schemas across the
 affected packages. No public wire formats change; the additions are schema
 annotations, derived statics, enforcement tooling, and tests.
+
+Also keeps the schema and shared config surfaces compatible with the current
+Effect 4 and Next 16 dependency stack by restoring strict file-name diagnostics,
+validating record keys before package-json/RDF namespace decoding, and adapting
+the Serwist Next.js plugin wrapper across nested Next.js type identities.

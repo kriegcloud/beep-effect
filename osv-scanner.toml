@@ -11,26 +11,11 @@
 # packages/tooling/tool/cli/src/commands/Quality/Quality.command.ts) only
 # mirrors an `--ignore` for entries whose `ignoreUntil` is still in the future,
 # so expired entries stop suppressing the advisory automatically.
-
-[[IgnoredVulns]]
-id = "GHSA-gv7w-rqvm-qjhr"
-ignoreUntil = 2026-09-12T00:00:00Z
-reason = "esbuild 0.25.x binary-integrity advisory is Deno-module specific (RCE via NPM_CONFIG_REGISTRY when fetched as a Deno module); esbuild here is a build-time transitive dep of drizzle-kit (^0.25.10) and storybook (<=^0.27), neither of which accepts the fixed 0.28.1 yet. Revisit when dependents widen their ranges."
-
-[[IgnoredVulns]]
-id = "GHSA-hmw2-7cc7-3qxx"
-ignoreUntil = 2026-09-13T00:00:00Z
-reason = "form-data <4.0.6 predictable multipart boundary advisory. form-data is an HTTP-client transitive dependency, not a direct dependency of any workspace package; the fixed 4.0.6 is a patch bump pending a repo-wide lockfile remediation. Newly published advisory, not introduced by the current PR (identical versions present on main). Revisit and bump transitive form-data to >=4.0.6."
-
-[[IgnoredVulns]]
-id = "GHSA-wcpc-wj8m-hjx6"
-ignoreUntil = 2026-09-13T00:00:00Z
-reason = "protobufjs 7.5.8 advisory; fixed in 7.6.1. protobufjs is a transitive dependency (gRPC/Google client stack), not a direct workspace dependency. Newly published advisory, not introduced by the current PR (identical versions present on main); tracked for a repo-wide bump to >=7.6.3. Revisit when dependents widen their ranges."
-
-[[IgnoredVulns]]
-id = "GHSA-f38q-mgvj-vph7"
-ignoreUntil = 2026-09-13T00:00:00Z
-reason = "protobufjs 7.5.8 advisory; fixed in 7.6.3. protobufjs is a transitive dependency (gRPC/Google client stack), not a direct workspace dependency. Newly published advisory, not introduced by the current PR (identical versions present on main); tracked for a repo-wide bump to >=7.6.3. Revisit when dependents widen their ranges."
+#
+# Retired dependency-refresh ignores are intentionally absent when the lockfile
+# resolves fixed versions. The current lock resolves esbuild 0.25.12, form-data
+# 4.0.6, and protobufjs 7.6.4; form-data and protobufjs are also pinned in root
+# overrides.
 
 [[IgnoredVulns]]
 id = "GHSA-h67p-54hq-rp68"

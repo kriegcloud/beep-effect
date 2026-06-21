@@ -109,6 +109,8 @@ const decodeAbsoluteUri = S.decodeUnknownSync(AbsoluteURI);
 const decodeUriReference = S.decodeUnknownSync(URIReference);
 const decodeRelativeUriReference = S.decodeUnknownSync(RelativeURIReference);
 const decodePrefixLabel = S.decodeUnknownSync(PrefixLabel);
+const decodePrefixMap = S.decodeUnknownSync(PrefixMap);
+const encodePrefixMap = S.encodeSync(PrefixMap);
 
 const canParseWithNativeUrl = (value: string): boolean => {
   try {
@@ -471,11 +473,17 @@ describe("@beep/rdf RDF term and dataset models", () => {
   });
 
   it("decodes namespace bindings and prefix maps", () => {
+    const prefixMap = {
+      ex: "https://example.com/",
+      schema: "https://schema.org/",
+    };
+
     expect(S.decodeUnknownSync(NamespaceBinding)({ prefix: "schema", namespace: "https://schema.org/" })).toEqual(
       NamespaceBinding.make({ prefix: decodePrefixLabel("schema"), namespace: decodeIri("https://schema.org/") })
     );
-    expect(S.decodeUnknownSync(PrefixMap)({ ex: "https://example.com/" })).toEqual({ ex: "https://example.com/" });
-    expect(() => S.decodeUnknownSync(PrefixMap)({ "bad prefix": "https://example.com/" })).toThrow(
+    expect(decodePrefixMap(prefixMap)).toEqual(prefixMap);
+    expect(encodePrefixMap(decodePrefixMap(prefixMap))).toEqual(prefixMap);
+    expect(() => decodePrefixMap({ "bad prefix": "https://example.com/" })).toThrow(
       "Prefix labels must begin with an ASCII letter"
     );
   });
