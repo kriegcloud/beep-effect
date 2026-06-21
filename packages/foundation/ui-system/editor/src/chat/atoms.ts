@@ -237,7 +237,10 @@ export const sendKeyBindingAtom = Atom.family((editor: LexicalEditor) =>
         (event) => {
           if (event === null) return false;
           if (get.once(anyMenuOpenAtom(editor))) return false;
-          if (event.isComposing || event.keyCode === 229) return false;
+          // IME guard: never send mid-composition (`isComposing` is the modern,
+          // well-supported signal; the legacy `keyCode === 229` fallback is dropped
+          // as deprecated).
+          if (event.isComposing) return false;
           const sendOn = get.once(featuresAtom(editor)).sendOn;
           const hasModifier = event.ctrlKey || event.metaKey;
           const send = sendOn === "enter" ? !event.shiftKey && !event.altKey && !hasModifier : hasModifier;
