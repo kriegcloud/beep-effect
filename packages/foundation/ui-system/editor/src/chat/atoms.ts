@@ -25,11 +25,11 @@ import {
   COMMAND_PRIORITY_LOW,
   KEY_ENTER_COMMAND,
 } from "lexical";
-import { DEFAULT_MAX_ATTACHMENT_BYTES, fileToAttachment, revokeAttachment } from "./attachments.tsx";
+import { DEFAULT_MAX_ATTACHMENT_BYTES, fileToAttachment, revokeAttachment } from "./attachment-model.ts";
 import { SEND_MESSAGE_COMMAND } from "./commands.ts";
 import { ComposerFeatures } from "./config.ts";
 import type { LexicalEditor } from "lexical";
-import type { ComposerAttachment } from "./attachments.tsx";
+import type { ComposerAttachment } from "./attachment-model.ts";
 
 // Sync non-throwing decode of the editor's serialized state at send time;
 // out-of-schema states yield O.none() and the send is skipped (the same degrade

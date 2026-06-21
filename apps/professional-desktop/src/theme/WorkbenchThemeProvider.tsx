@@ -10,24 +10,11 @@ import { AppThemeProvider, createAppTheme, ThemeMode } from "@beep/ui/themes";
 import type { ThemeOptions } from "@beep/ui/themes";
 import type { ReactNode } from "react";
 
-/**
- * Green-workbench MUI color schemes layered over the shared `@beep/ui` base.
- *
- * Dark is the near-black "workbench" surface (trustgraph aesthetic); light is
- * green-on-parchment (the oip-web parchment values). These overrides are
- * app-local — the `@beep/ui` defaults are untouched.
- *
- * @example
- * ```tsx
- * import { greenWorkbenchThemeOptions } from "@/theme/WorkbenchThemeProvider"
- *
- * console.log(greenWorkbenchThemeOptions.colorSchemes.dark.palette.primary.main)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const greenWorkbenchThemeOptions = {
+// Green-workbench MUI color schemes layered over the shared `@beep/ui` base.
+// Dark is the near-black "workbench" surface (trustgraph aesthetic); light is
+// green-on-parchment (the oip-web parchment values). App-local overrides — the
+// `@beep/ui` defaults are untouched. Internal to this provider (not public API).
+const greenWorkbenchThemeOptions = {
   colorSchemes: {
     light: {
       palette: {
@@ -68,20 +55,9 @@ export const greenWorkbenchThemeOptions = {
   },
 } satisfies ThemeOptions;
 
-/**
- * The green-workbench theme built from {@link greenWorkbenchThemeOptions}.
- *
- * @example
- * ```tsx
- * import { workbenchTheme } from "@/theme/WorkbenchThemeProvider"
- *
- * console.log(typeof workbenchTheme)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const workbenchTheme = createAppTheme(greenWorkbenchThemeOptions);
+// The green-workbench theme built from the options above. Internal to this
+// provider (not public API).
+const workbenchTheme = createAppTheme(greenWorkbenchThemeOptions);
 
 /**
  * Provides the green-workbench theme while reusing the shared `@beep/ui` theme

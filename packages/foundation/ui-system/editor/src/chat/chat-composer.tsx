@@ -54,7 +54,8 @@ import {
   removeAttachmentFn,
   sendCommandBindingAtom,
 } from "./atoms.ts";
-import { AttachmentChips, AttachmentPlugin, DEFAULT_MAX_ATTACHMENT_BYTES, revokeAttachment } from "./attachments.tsx";
+import { DEFAULT_MAX_ATTACHMENT_BYTES, revokeAttachment } from "./attachment-model.ts";
+import { AttachmentChips, AttachmentPlugin } from "./attachments.tsx";
 import { SEND_MESSAGE_COMMAND, STOP_MESSAGE_COMMAND } from "./commands.ts";
 import { ComposerFeatures } from "./config.ts";
 import { SendPlugin, useCharacterCount } from "./send.tsx";

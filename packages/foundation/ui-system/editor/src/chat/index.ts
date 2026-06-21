@@ -23,7 +23,8 @@
  */
 export * from "./atoms.ts";
 /**
- * Attachment capture types, helpers, and components.
+ * The pure attachment model: `ComposerAttachment`, capture validation, and
+ * object-URL helpers (no atom/React deps).
  *
  * @example
  * ```ts
@@ -34,6 +35,20 @@ export * from "./atoms.ts";
  *
  * @since 0.0.0
  * @category configuration
+ */
+export * from "./attachment-model.ts";
+/**
+ * Attachment capture binding + components (drag-drop, plugin, chip strip).
+ *
+ * @example
+ * ```ts
+ * import { AttachmentChips } from "@beep/editor/chat"
+ *
+ * console.log(AttachmentChips.name) // "AttachmentChips"
+ * ```
+ *
+ * @since 0.0.0
+ * @category components
  */
 export * from "./attachments.tsx";
 /**
