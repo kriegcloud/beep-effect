@@ -241,6 +241,57 @@ function ComposerFooter({
   );
 }
 
+interface ComposerSurfaceProps {
+  readonly features: ComposerFeatures;
+  readonly onStop?: () => void;
+  readonly placeholder: string;
+  readonly sendDisabled: boolean;
+  readonly sendLabel: string;
+  readonly streaming: boolean;
+}
+
+// The visible composer surface: optional toolbar, attachment chips, the editable
+// region, and the footer. Split from ComposerBody so the JSX nesting + toolbar
+// gate live here and ComposerBody stays a thin assembler.
+function ComposerSurface({
+  features,
+  onStop,
+  placeholder,
+  sendDisabled,
+  sendLabel,
+  streaming,
+}: ComposerSurfaceProps): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+  const attachments = useAtomValue(attachmentsAtom(editor));
+  const remove = useAtomSet(removeAttachmentFn);
+  return (
+    <>
+      {features.toolbar ? <FixedToolbarPlugin /> : null}
+      <AttachmentChips attachments={attachments} onRemove={(id) => remove({ editor, id })} />
+      <div className="relative">
+        <RichTextPlugin
+          contentEditable={
+            <ContentEditable
+              className={EDITABLE_CLASS_NAME}
+              placeholderClassName={PLACEHOLDER_CLASS_NAME}
+              placeholder={placeholder}
+            />
+          }
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+      </div>
+      <ComposerFooter
+        characterCount={features.characterCount}
+        attachments={features.attachments}
+        streaming={streaming}
+        sendDisabled={sendDisabled}
+        sendLabel={sendLabel}
+        {...O.getSomesStruct({ onStop: O.fromUndefinedOr(onStop) })}
+      />
+    </>
+  );
+}
+
 interface ComposerBodyProps extends Omit<ChatComposerProps, "initialState"> {
   readonly features: ComposerFeatures;
   readonly maxAttachmentBytes: number;
@@ -281,9 +332,6 @@ function ComposerBody({
     [maxAttachmentBytesAtom(editor), maxAttachmentBytes],
   ]);
 
-  const attachments = useAtomValue(attachmentsAtom(editor));
-  const remove = useAtomSet(removeAttachmentFn);
-
   return (
     <div
       data-slot="chat-composer"
@@ -292,23 +340,9 @@ function ComposerBody({
         className
       )}
     >
-      {features.toolbar ? <FixedToolbarPlugin /> : null}
-      <AttachmentChips attachments={attachments} onRemove={(id) => remove({ editor, id })} />
-      <div className="relative">
-        <RichTextPlugin
-          contentEditable={
-            <ContentEditable
-              className={EDITABLE_CLASS_NAME}
-              placeholderClassName={PLACEHOLDER_CLASS_NAME}
-              placeholder={placeholder}
-            />
-          }
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-      </div>
-      <ComposerFooter
-        characterCount={features.characterCount}
-        attachments={features.attachments}
+      <ComposerSurface
+        features={features}
+        placeholder={placeholder}
         streaming={streaming}
         sendDisabled={sendDisabled}
         sendLabel={sendLabel}
@@ -320,6 +354,47 @@ function ComposerBody({
       <CheckListPlugin />
       <LinkPlugin />
       <MarkdownShortcutPlugin transformers={[...TRANSFORMERS]} />
+      <SendPlugin />
+      <ComposerFeaturePlugins
+        editor={editor}
+        features={features}
+        slashItems={slashItems}
+        {...O.getSomesStruct({
+          mentionSource: O.fromUndefinedOr(mentionSource),
+          onSend: O.fromUndefinedOr(onSend),
+          onSerializedChange: O.fromUndefinedOr(onSerializedChange),
+        })}
+      />
+      <AttachmentSweep editor={editor} />
+      {children}
+    </div>
+  );
+}
+
+interface ComposerFeaturePluginsProps {
+  readonly editor: LexicalEditor;
+  readonly features: ComposerFeatures;
+  readonly mentionSource?: MentionSource;
+  readonly onSend?: (state: SerializedEditorState.Type) => boolean | void;
+  readonly onSerializedChange?: (state: SerializedEditorState.Type) => void;
+  readonly slashItems: ReadonlyArray<SlashItem>;
+}
+
+// The feature-gated plugins, split out of ComposerBody so the conditional
+// mounting lives in one place (and ComposerBody stays simple): the change sink,
+// slash / mention typeahead, attachment capture, combobox ARIA, and the send
+// command binding. Always-on plugins (history, lists, links, markdown, send key)
+// stay in ComposerBody.
+function ComposerFeaturePlugins({
+  editor,
+  features,
+  mentionSource,
+  onSend,
+  onSerializedChange,
+  slashItems,
+}: ComposerFeaturePluginsProps): JSX.Element {
+  return (
+    <>
       {onSerializedChange === undefined ? null : (
         <OnChangePlugin
           ignoreSelectionChange={true}
@@ -331,16 +406,12 @@ function ComposerBody({
           }}
         />
       )}
-
       {features.slash ? <SlashPlugin items={slashItems} /> : null}
       {features.mentions && mentionSource !== undefined ? <MentionPlugin source={mentionSource} /> : null}
       {features.attachments ? <AttachmentPlugin /> : null}
-      <SendPlugin />
       {features.slash || features.mentions ? <ComboboxAriaPlugin /> : null}
       {onSend === undefined ? null : <SendCommandBinding editor={editor} />}
-      <AttachmentSweep editor={editor} />
-      {children}
-    </div>
+    </>
   );
 }
 

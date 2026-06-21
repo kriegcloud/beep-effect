@@ -1,18 +1,8 @@
 import { ChatComposer, EditorComposer } from "@beep/editor";
-import { documentToEditorState } from "@beep/lexical-schema";
-import * as MdModel from "@beep/md/Md.model";
-import * as Effect from "effect/Effect";
 import { expect, fn, userEvent, within } from "storybook/test";
+import { draftReplyInitialState as initialState } from "./fixtures.ts";
 import type { MentionOption } from "@beep/editor";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
-const initialState = Effect.runSync(
-  documentToEditorState(
-    MdModel.Document.make({
-      children: [MdModel.P.make({ children: [MdModel.Text.make({ value: "Draft a reply…" })] })],
-    })
-  )
-);
 
 // Sample app-injected `@` mention source (ephemeral; serializes to plain text).
 const MENTIONS: ReadonlyArray<MentionOption> = [
