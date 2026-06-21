@@ -88,7 +88,7 @@ export const DEFAULT_MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
  * @category schemas
  * @since 0.0.0
  */
-const FileFromSelf = S.declare<File>((u): u is File => typeof File !== "undefined" && u instanceof File).pipe(
+const FileFromSelf = S.declare<File>((u): u is File => "File" in globalThis && u instanceof File).pipe(
   $I.annoteSchema("FileFromSelf", {
     description: "A captured DOM File instance.",
   })

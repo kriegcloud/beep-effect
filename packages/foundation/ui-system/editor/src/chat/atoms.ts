@@ -111,7 +111,9 @@ export const onAttachAtom = Atom.family((_editor: LexicalEditor) =>
  * @category utilities
  * @since 0.0.0
  */
-export const captureFiles = (files: ReadonlyArray<File>, maxBytes: number): ReadonlyArray<ComposerAttachment> =>
+// Internal capture helper (not exported — keeps it off the public dual-arity
+// surface; the runtime `captureAttachmentsFn` is the public capture entry).
+const captureFiles = (files: ReadonlyArray<File>, maxBytes: number): ReadonlyArray<ComposerAttachment> =>
   A.getSomes(A.map(files, (file) => fileToAttachment(file, maxBytes)));
 
 /**

@@ -24,7 +24,7 @@ import { EditorStateFromJson, SerializedEditorState } from "@beep/lexical-schema
 import { Button } from "@beep/ui/components/button";
 import { ContentEditable } from "@beep/ui/components/editor/editor-ui/content-editable";
 import { cn } from "@beep/ui/lib/utils";
-import { O } from "@beep/utils";
+import { A, O } from "@beep/utils";
 import { useAtomInitialValues, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { TRANSFORMERS } from "@lexical/markdown";
 import { CheckListPlugin } from "@lexical/react/LexicalCheckListPlugin";
@@ -180,7 +180,7 @@ function ComposerFooter({
               className="hidden"
               onChange={(event) => {
                 const picked = event.target.files;
-                if (picked !== null) capture({ editor, files: Array.from(picked) });
+                if (picked !== null) capture({ editor, files: A.fromIterable(picked) });
                 event.target.value = "";
               }}
             />

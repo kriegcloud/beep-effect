@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-06-21",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -1469,6 +1473,22 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/utils",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/ui-system/editor/src/chat/atoms.ts",
+      "symbol": "SendHandlerBox",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/editor",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/ui-system/editor/src/chat/chat-composer.tsx",
+      "symbol": "ChatComposerProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/editor",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
