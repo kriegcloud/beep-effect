@@ -701,7 +701,6 @@ describe("quality task adapter", () => {
       "lint:spell",
       "lint:markdown",
       "lint:circular",
-      "lint:tooling-tagged-errors",
       "lint:typos",
     ]);
     expect(steps[0]?.args).toEqual(expectedRootTurboArgs("lint", []));
@@ -728,7 +727,6 @@ describe("quality task adapter", () => {
       "lint:spell",
       "lint:markdown",
       "lint:circular",
-      "lint:tooling-tagged-errors",
       "lint:typos",
     ]);
     expect(steps.find((step) => step.label === "lint:jsdoc")?.args).toEqual(["eslint", ".", "--max-warnings=0"]);

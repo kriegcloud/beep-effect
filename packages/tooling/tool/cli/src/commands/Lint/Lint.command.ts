@@ -12,7 +12,6 @@ import { isExcludedTypeScriptSourcePath } from "@beep/repo-utils/schemas/TypeScr
 import { normalizePath } from "@beep/schema";
 import { A, Str, thunkEmptyStr } from "@beep/utils";
 import { Console, Effect, FileSystem, HashSet, Inspectable, MutableHashSet, Order, Path, pipe } from "effect";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import { ChildProcess } from "effect/unstable/process";
@@ -209,99 +208,12 @@ export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(f
   return A.sort(yield* walk(root), Order.String);
 });
 
-const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(function* (): Effect.fn.Return<
-  ReadonlyArray<string>,
-  LintFileDiscoveryError,
-  FileSystem.FileSystem | Path.Path
-> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const toolingRoot = path.join("packages", "tooling");
-  const exists = yield* fs
-    .exists(toolingRoot)
-    .pipe(LintFileDiscoveryError.mapError(toolingRoot, toolingRoot, "Failed to check directory"));
-
-  if (!exists) {
-    return A.empty<string>();
-  }
-
-  const kindEntries = yield* fs
-    .readDirectory(toolingRoot)
-    .pipe(LintFileDiscoveryError.mapError(toolingRoot, toolingRoot, "Failed to read directory"));
-
-  let roots = A.empty<string>();
-
-  for (const kindEntry of kindEntries) {
-    const kindRoot = path.join(toolingRoot, kindEntry);
-    const packageEntries = yield* fs
-      .readDirectory(kindRoot)
-      .pipe(LintFileDiscoveryError.mapError(toolingRoot, kindRoot, "Failed to read directory"));
-
-    for (const packageEntry of packageEntries) {
-      const sourceRoot = path.join(kindRoot, packageEntry, "src");
-      const sourceRootExists = yield* fs
-        .exists(sourceRoot)
-        .pipe(LintFileDiscoveryError.mapError(toolingRoot, sourceRoot, "Failed to check directory"));
-
-      if (sourceRootExists) {
-        roots = A.append(roots, sourceRoot);
-      }
-    }
-  }
-
-  return A.sort(roots, Order.String);
-});
-
 const recoverLintFileDiscovery = <A>(checkName: string, fallback: A) =>
   Effect.fn(function* (error: LintFileDiscoveryError) {
     void fallback;
     yield* Console.error(`[${checkName}] ${error.message}`);
     return yield* failWithReportedExit(`[${checkName}] ${error.message}`, 2);
   });
-
-const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const sourceRoots = yield* collectToolingSourceRoots().pipe(
-    Effect.catchTag(
-      "LintFileDiscoveryError",
-      recoverLintFileDiscovery("check-tooling-tagged-errors", A.empty<string>())
-    )
-  );
-
-  const filesByRoot = yield* Effect.forEach(sourceRoots, collectTypeScriptFiles, { concurrency: "unbounded" }).pipe(
-    Effect.catchTag(
-      "LintFileDiscoveryError",
-      recoverLintFileDiscovery("check-tooling-tagged-errors", A.empty<ReadonlyArray<string>>())
-    )
-  );
-
-  let violations = A.empty<string>();
-
-  for (const file of pipe(filesByRoot, A.flatten, A.sort(Order.String))) {
-    const content = yield* fs
-      .readFileString(file)
-      .pipe(
-        LintFileDiscoveryError.mapError(file, file, "Failed to read file"),
-        Effect.catchTag("LintFileDiscoveryError", recoverLintFileDiscovery("check-tooling-tagged-errors", ""))
-      );
-
-    for (const match of Str.matchAll(/\bnew Error\(/g)(content)) {
-      const line = lineNumberAt(content, match.index ?? 0);
-      const lineText = pipe(Str.split("\n")(content), A.get(line - 1), O.getOrElse(thunkEmptyStr), Str.trim);
-      violations = A.append(violations, `${file}:${line}:${lineText}`);
-    }
-  }
-
-  if (A.isReadonlyArrayNonEmpty(violations)) {
-    yield* Console.error(
-      "[check-tooling-tagged-errors] native Error usage detected in packages/tooling/*/*/src. Use TaggedErrorClass from @beep/schema."
-    );
-    yield* Console.error(A.join(violations, "\n"));
-    return yield* failWithReportedExit("check-tooling-tagged-errors: native Error usage detected.");
-  }
-
-  yield* Console.log("[check-tooling-tagged-errors] OK: no native Error usage found in packages/tooling/*/*/src.");
-});
 
 const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -620,20 +532,6 @@ const lintPolicyCommand = Command.make("policy", {}, () => runRootLintPolicyTask
 );
 
 /**
- * Lint command for enforcing tagged error usage.
- *
- * @example
- * ```ts
- * console.log("docgen metadata")
- * ```
- * @category utilities
- * @since 0.0.0
- */
-const lintToolingTaggedErrorsCommand = Command.make("tooling-tagged-errors", {}, runLintToolingTaggedErrors).pipe(
-  Command.withDescription("Check tooling source for native Error usage")
-);
-
-/**
  * Lint command for schema-first CLI conventions.
  *
  * @example
@@ -667,7 +565,6 @@ export const lintCommand = Command.make("lint", {}, () =>
     "- bun run beep lint reflection-artifacts",
     "- bun run beep lint schema-first",
     "- bun run beep lint schema-topology",
-    "- bun run beep lint tooling-tagged-errors",
     "- bun run beep lint tooling-schema-first",
   ])
 ).pipe(
@@ -680,7 +577,6 @@ export const lintCommand = Command.make("lint", {}, () =>
     lintReflectionArtifactsCommand,
     lintSchemaFirstCommand,
     lintSchemaTopologyCommand,
-    lintToolingTaggedErrorsCommand,
     lintToolingSchemaFirstCommand,
   ])
 );

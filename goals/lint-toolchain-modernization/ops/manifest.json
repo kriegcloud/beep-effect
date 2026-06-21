@@ -5,8 +5,8 @@
     "title": "Lint Toolchain Modernization",
     "status": "active",
     "created": "2026-06-20",
-    "updated": "2026-06-20",
-    "currentPhase": "P1",
+    "updated": "2026-06-21",
+    "currentPhase": "P2",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/lint-toolchain-modernization",
@@ -63,12 +63,14 @@
     {
       "id": "P1",
       "name": "Configuration",
-      "status": "in-progress"
+      "status": "done",
+      "evidence": "PR #270 merged (d89b30f76e); review fixes PR #273 merged"
     },
     {
       "id": "P2",
       "name": "Remediation",
-      "status": "pending"
+      "status": "in-progress",
+      "evidence": "noVar/no-native-error/no-empty-named-blocks/prefer-array-flat-map flipped to error (0 violations); no-bigint-literals/noConsole/noUselessConstructor kept advisory (documented); tooling-tagged-errors removed"
     },
     {
       "id": "P3",

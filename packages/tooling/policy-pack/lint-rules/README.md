@@ -14,8 +14,7 @@ loads. (A later wave adds oxlint plugins here for stateful/scope-aware rules.)
 | `configs/*.jsonc` | `core` / `services` / `schema` presets (documented groupings) |
 | `test/harness.ts` | spawns Biome over a fixture and returns plugin diagnostics |
 | `test/rules.test.ts` | data-driven invalid/valid fixture assertions |
-| `test/registry.test.ts` | registry ↔ `rules/` ↔ metadata drift guard |
-| `test/parity/` | old-CLI-vs-new-rule coverage proof on the current tree |
+| `test/registry.test.ts` | registry ↔ `rules/` ↔ `biome.jsonc` registration drift guard |
 | `docs/rule-guidance.md` | authoring conventions + rule table |
 
 ## Verifications
