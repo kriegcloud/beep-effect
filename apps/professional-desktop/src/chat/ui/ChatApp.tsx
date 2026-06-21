@@ -14,14 +14,14 @@
  */
 "use client";
 
-import { selectedThreadAtom, threadsAtoms } from "@beep/agents-client/Chat.atoms";
+import { createThreadAtom, selectedThreadAtom, threadsAtoms } from "@beep/agents-client/Chat.atoms";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { OrbBackground } from "@beep/ui/components/orb-background";
 import { A, DateTime, O } from "@beep/utils";
-import { useAtomValue } from "@effect/atom-react";
+import { useAtomMount, useAtomValue } from "@effect/atom-react";
 import { Order } from "effect";
 import * as S from "effect/Schema";
-import { AsyncResult } from "effect/unstable/reactivity";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
 import { Composer } from "./Composer.tsx";
 import { Sidebar } from "./Sidebar.tsx";
 import { ThemeToggle } from "./ThemeToggle.tsx";
@@ -42,6 +42,28 @@ const byUpdatedDesc = Order.mapInput(
   (thread: { readonly updatedAt: DateTime.DateTime }) => -DateTime.toEpochMillis(thread.updatedAt)
 );
 
+// When the workspace loads with no threads, auto-enter the "+ New thread" state
+// (create + focus one) so the user lands in the composer instead of an empty
+// "no thread selected" screen — non-empty workspaces fall back to the most
+// recent thread (below). Fires once per mount; a non-empty list (including the
+// freshly created thread) or an existing selection keeps it from re-firing.
+const autoNewThreadBinding = Atom.family((workspaceId: WorkspaceIdentity.WorkspaceId) =>
+  Atom.make((get) => {
+    let created = false;
+    const ensureThread = (): void => {
+      if (created) return;
+      const threads = get.once(threadsAtoms(workspaceId));
+      if (!AsyncResult.isSuccess(threads) || threads.value.length > 0) return;
+      if (O.isSome(get.once(selectedThreadAtom))) return;
+      created = true;
+      get.set(createThreadAtom, { workspaceId, title: "New thread" });
+    };
+    ensureThread();
+    get.subscribe(threadsAtoms(workspaceId), ensureThread);
+    return undefined;
+  })
+);
+
 /**
  * The composed desktop chat application.
  *
@@ -58,6 +80,8 @@ const byUpdatedDesc = Order.mapInput(
 export function ChatApp(): JSX.Element {
   const selected = useAtomValue(selectedThreadAtom);
   const threads = useAtomValue(threadsAtoms(DEFAULT_WORKSPACE_ID));
+  // auto-create a thread when the workspace is empty (see binding above).
+  useAtomMount(autoNewThreadBinding(DEFAULT_WORKSPACE_ID));
 
   // active thread: the explicit selection, else the most recent thread.
   const active = O.orElse(selected, () =>

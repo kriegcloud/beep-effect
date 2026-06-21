@@ -94,22 +94,6 @@ export class ComposerFeatures extends S.Class<ComposerFeatures>($I`ComposerFeatu
 ) {}
 
 /**
- * The chat-surface default: every feature on, plain-Enter sends. Equivalent to
- * {@link ComposerFeatures.make} with no overrides.
- *
- * @example
- * ```ts
- * import { defaultChatFeatures } from "@beep/editor/chat"
- *
- * console.log(defaultChatFeatures.sendOn) // "enter"
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const defaultChatFeatures: ComposerFeatures = ComposerFeatures.make({});
-
-/**
  * Typed callback applied to the editor when a slash/mention option is selected.
  *
  * @category models

@@ -84,9 +84,9 @@ export * from "./commands.ts";
  *
  * @example
  * ```ts
- * import { defaultChatFeatures } from "@beep/editor/chat"
+ * import { ComposerFeatures } from "@beep/editor/chat"
  *
- * console.log(defaultChatFeatures.sendOn) // "enter"
+ * console.log(ComposerFeatures.make({}).sendOn) // "enter"
  * ```
  *
  * @since 0.0.0

@@ -73,11 +73,11 @@ export const AssistantTurn: Story = {
   args: { state: fixtureState, className: "relative block max-w-2xl px-4 py-2 focus:outline-none" },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByRole("heading", { name: "Rollout plan" })).toBeVisible();
-    expect(canvas.getByRole("link", { name: "the design doc" })).toBeVisible();
-    expect(canvas.getByText("ready to review")).toBeVisible();
+    void expect(canvas.getByRole("heading", { name: "Rollout plan" })).toBeVisible();
+    void expect(canvas.getByRole("link", { name: "the design doc" })).toBeVisible();
+    void expect(canvas.getByText("ready to review")).toBeVisible();
     // The artifact-ref block renders as the decorator chip, not a link.
-    expect(canvas.getByText("Quarterly report")).toBeVisible();
-    expect(canvas.queryByRole("link", { name: "Quarterly report" })).toBeNull();
+    void expect(canvas.getByText("Quarterly report")).toBeVisible();
+    void expect(canvas.queryByRole("link", { name: "Quarterly report" })).toBeNull();
   },
 };

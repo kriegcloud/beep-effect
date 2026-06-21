@@ -1,5 +1,15 @@
 @import "@beep/ui/styles/globals.css";
 
+/* Tailwind v4 auto content-detection roots at this file and skips node_modules,
+   so the @beep/ui + @beep/editor sources (workspace symlinks under node_modules)
+   are NOT scanned by default. Without these, package-only utilities like
+   `text-primary-foreground`, `text-card-foreground`, and `focus-within:border-ring`
+   are tree-shaken away — leaving e.g. the chat composer's Send label inheriting
+   the wrapper's dark `text-card-foreground` (unreadable green-on-green in light
+   mode). Point @source at the real package src so every themed class generates. */
+@source "../../../../packages/foundation/ui-system/ui/src";
+@source "../../../../packages/foundation/ui-system/editor/src";
+
 /* Green-workbench theme — app-local override of the shadcn/Tailwind tokens.
    Light = green-on-parchment (oip-web parchment bg); dark = near-black green
    "workbench" (trustgraph aesthetic). @beep/ui defaults are untouched. */

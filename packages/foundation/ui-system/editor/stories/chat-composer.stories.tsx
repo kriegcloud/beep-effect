@@ -36,12 +36,12 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Message…")).toBeVisible();
-    expect(canvas.getByLabelText("Bold")).toBeInTheDocument();
-    expect(canvas.getByLabelText("Bulleted list")).toBeInTheDocument();
-    expect(canvas.getByLabelText("Attach files")).toBeInTheDocument();
-    expect(canvas.getByText("0 characters")).toBeVisible();
-    expect(canvas.getByLabelText("Send")).toBeInTheDocument();
+    void expect(canvas.getByText("Message…")).toBeVisible();
+    void expect(canvas.getByLabelText("Bold")).toBeInTheDocument();
+    void expect(canvas.getByLabelText("Bulleted list")).toBeInTheDocument();
+    void expect(canvas.getByLabelText("Attach files")).toBeInTheDocument();
+    void expect(canvas.getByText("0 characters")).toBeVisible();
+    void expect(canvas.getByLabelText("Send")).toBeInTheDocument();
   },
 };
 
@@ -52,11 +52,11 @@ export const MinimalSubset: Story = {
   },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Message…")).toBeVisible();
-    expect(canvas.queryByLabelText("Bold")).toBeNull();
-    expect(canvas.queryByLabelText("Attach files")).toBeNull();
-    expect(canvas.queryByText("0 characters")).toBeNull();
-    expect(canvas.getByLabelText("Send")).toBeInTheDocument();
+    void expect(canvas.getByText("Message…")).toBeVisible();
+    void expect(canvas.queryByLabelText("Bold")).toBeNull();
+    void expect(canvas.queryByLabelText("Attach files")).toBeNull();
+    void expect(canvas.queryByText("0 characters")).toBeNull();
+    void expect(canvas.getByLabelText("Send")).toBeInTheDocument();
   },
 };
 
@@ -65,8 +65,8 @@ export const Streaming: Story = {
   args: { streaming: true, onStop: fn() },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByLabelText("Stop generating")).toBeInTheDocument();
-    expect(canvas.queryByLabelText("Send")).toBeNull();
+    void expect(canvas.getByLabelText("Stop generating")).toBeInTheDocument();
+    void expect(canvas.queryByLabelText("Send")).toBeNull();
   },
 };
 
@@ -75,8 +75,8 @@ export const WithContent: Story = {
   args: { initialState },
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByText("Draft a reply…")).toBeVisible();
-    expect(canvas.queryByText("Message…")).toBeNull();
+    void void expect(canvas.getByText("Draft a reply…")).toBeVisible();
+    void void expect(canvas.queryByText("Message…")).toBeNull();
   },
 };
 
@@ -89,10 +89,10 @@ export const WithContent: Story = {
 export const EmptyEnterIsNoOp: Story = {
   play: async ({ canvasElement, args }) => {
     const editable = canvasElement.querySelector('[contenteditable="true"]');
-    expect(editable).not.toBeNull();
+    void expect(editable).not.toBeNull();
     (editable as HTMLElement).focus();
     await userEvent.keyboard("{Enter}");
-    expect(args.onSend).not.toHaveBeenCalled();
+    void expect(args.onSend).not.toHaveBeenCalled();
   },
 };
 
@@ -107,12 +107,12 @@ export const PlaceholderAlignment: Story = {
   play: ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const placeholder = canvas.getByText("Message…");
-    expect(placeholder).toBeVisible();
+    void expect(placeholder).toBeVisible();
     const editable = canvasElement.querySelector('[contenteditable="true"]');
-    expect(editable).not.toBeNull();
+    void expect(editable).not.toBeNull();
     for (const padding of ["px-3", "py-2.5"]) {
-      expect((editable as HTMLElement).className).toContain(padding);
-      expect(placeholder.className).toContain(padding);
+      void expect((editable as HTMLElement).className).toContain(padding);
+      void expect(placeholder.className).toContain(padding);
     }
   },
 };
@@ -128,10 +128,10 @@ export const EditorComposerPlaceholderAlignment: Story = {
     const placeholder = canvas.getByText("Message the workspace…");
     expect(placeholder).toBeVisible();
     const editable = canvasElement.querySelector('[contenteditable="true"]');
-    expect(editable).not.toBeNull();
+    void expect(editable).not.toBeNull();
     for (const padding of ["px-8", "py-4"]) {
-      expect((editable as HTMLElement).className).toContain(padding);
-      expect(placeholder.className).toContain(padding);
+      void expect((editable as HTMLElement).className).toContain(padding);
+      void expect(placeholder.className).toContain(padding);
     }
   },
 };
