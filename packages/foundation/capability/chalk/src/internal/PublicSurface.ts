@@ -185,7 +185,11 @@ export type ChalkConstructorOptions = typeof ChalkConstructorOptions.Encoded;
  * @category models
  * @since 0.0.0
  */
-export type ChalkConstructorBase = new (options?: ChalkConstructorOptions) => object;
+export type ChalkConstructorBase = new () => object;
+
+type ChalkConstructorFor<Base extends ChalkConstructorBase> = new (
+  options?: ChalkConstructorOptions
+) => InstanceType<Base>;
 
 /**
  * Function that creates a Chalk instance from constructor options.
@@ -219,14 +223,14 @@ export type ChalkCreator = (options?: ChalkConstructorOptions) => object;
  * @since 0.0.0
  */
 export const makeChalkConstructor: {
-  <Base extends ChalkConstructorBase>(ConstructorBase: Base, create: ChalkCreator): Base;
-  (create: ChalkCreator): <Base extends ChalkConstructorBase>(ConstructorBase: Base) => Base;
+  <Base extends ChalkConstructorBase>(ConstructorBase: Base, create: ChalkCreator): ChalkConstructorFor<Base>;
+  (create: ChalkCreator): <Base extends ChalkConstructorBase>(ConstructorBase: Base) => ChalkConstructorFor<Base>;
 } = dual(
   2,
-  <Base extends ChalkConstructorBase>(ConstructorBase: Base, create: ChalkCreator): Base =>
+  <Base extends ChalkConstructorBase>(ConstructorBase: Base, create: ChalkCreator): ChalkConstructorFor<Base> =>
     new Proxy(ConstructorBase, {
       construct(_target, [options]: ReadonlyArray<ChalkConstructorOptions | undefined>) {
         return create(options);
       },
-    })
+    }) as unknown as ChalkConstructorFor<Base>
 );

@@ -8,6 +8,7 @@
 "@beep/acp": patch
 "@beep/architecture-lab-server": patch
 "@beep/libpff": patch
+"@beep/chalk": patch
 "@beep/identity": patch
 "@beep/lexical-schema": patch
 "@beep/md": patch
@@ -44,3 +45,7 @@ set: Lexical and Markdown schema guards now reject impossible serialized values
 at the boundary, invalid artifact/code-fence metadata degrades through the
 document projection path, and deleted workspace identity composers are removed
 from the generated `@beep/identity` package composer surface.
+
+Also keeps `@beep/chalk`'s proxied constructor type aligned with runtime
+behavior so isolated instances continue accepting validated
+`new Chalk({ level })` options in source, tests, and generated examples.
