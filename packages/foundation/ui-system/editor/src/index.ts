@@ -37,6 +37,21 @@ export const VERSION = "0.0.0" as const;
  */
 export * from "./artifact-ref-node.tsx";
 /**
+ * Feature-flagged chat composer surface (toolbar, slash, mentions, attachments,
+ * send/character-count) over the same v1 vocabulary as {@link EditorComposer}.
+ *
+ * @example
+ * ```ts
+ * import { ChatComposer } from "@beep/editor"
+ *
+ * console.log(ChatComposer.name) // "ChatComposer"
+ * ```
+ *
+ * @since 0.0.0
+ * @category components
+ */
+export * from "./chat/index.ts";
+/**
  * Editable composer with markdown shortcuts.
  *
  * @example

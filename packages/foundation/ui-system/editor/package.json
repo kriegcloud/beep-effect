@@ -38,6 +38,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./artifact-ref-node": "./src/artifact-ref-node.tsx",
+    "./chat": "./src/chat/index.ts",
     "./composer": "./src/composer.tsx",
     "./mermaid-code-decorator-plugin": "./src/mermaid-code-decorator-plugin.tsx",
     "./mermaid-view": "./src/mermaid-view.tsx",
@@ -64,6 +65,7 @@
     "exports": {
       ".": "./dist/index.js",
       "./artifact-ref-node": "./dist/artifact-ref-node.js",
+      "./chat": "./dist/chat/index.js",
       "./composer": "./dist/composer.js",
       "./mermaid-code-decorator-plugin": "./dist/mermaid-code-decorator-plugin.js",
       "./mermaid-view": "./dist/mermaid-view.js",
@@ -77,16 +79,22 @@
     }
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
     "@beep/lexical-schema": "workspace:^",
+    "@beep/schema": "workspace:^",
     "@beep/ui": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@effect/atom-react": "catalog:",
     "@lexical/code": "catalog:",
     "@lexical/link": "catalog:",
     "@lexical/list": "catalog:",
     "@lexical/markdown": "catalog:",
     "@lexical/react": "catalog:",
     "@lexical/rich-text": "catalog:",
+    "@lexical/selection": "catalog:",
     "@lexical/table": "catalog:",
+    "@lexical/utils": "catalog:",
+    "@phosphor-icons/react": "catalog:",
     "effect": "catalog:",
     "lexical": "catalog:",
     "mermaid": "catalog:"

@@ -1,19 +1,21 @@
 /**
- * Chat composer: an editable rich-text surface that sends or edit-regenerates
- * an assistant turn.
+ * Chat composer: a feature-flagged rich-text surface that sends or
+ * edit-regenerates an assistant turn.
  *
- * Wraps `@beep/editor/composer`'s {@link EditorComposer}. Because the composer only
- * surfaces its content via `onSerializedChange` (it exposes no imperative editor
- * handle), the latest serialized state is held in a ref and the persisted draft
- * is mirrored into {@link draftAtoms} on every change. Loading a draft or an
- * {@link editTargetAtom} content into the editor is done by recomputing the
- * `initialState` and remounting the composer via a changing `key`.
+ * Wraps `@beep/editor`'s {@link ChatComposer} (toolbar, `/` slash, `@` mentions,
+ * attachment capture, plain-Enter-to-send, character count, send/stop) and
+ * injects the product meaning: the formatting/insert slash items, a workspace
+ * mention source, and the send/attachment wiring. The foundation owns the
+ * mechanism; this file owns the meaning.
  *
- * On submit the serialized state is projected to a `@beep/md` document via
+ * The composer surfaces content via `onSerializedChange`; the latest serialized
+ * state is held in a per-thread atom and the persisted draft is mirrored into
+ * {@link draftAtoms} on every change. Loading a draft or an {@link editTargetAtom}
+ * content is done by recomputing `initialState` and remounting via a changing
+ * `key`. On submit the state is projected to a `@beep/md` document via
  * {@link editorStateToDocument} and dispatched through {@link runTurnAtom} as a
- * {@link SendTurnRequest} (new message) or {@link EditTurnRequest} (when an edit
- * target is set). Ctrl/Cmd+Enter sends; the send control is disabled while a
- * turn is streaming.
+ * {@link SendTurnRequest} (new message) or {@link EditTurnRequest} (edit target).
+ * Plain Enter sends (the foundation `SendPlugin`); Stop interrupts the turn fiber.
  *
  * @packageDocumentation
  * @category components
@@ -30,25 +32,45 @@ import {
   SendTurnRequest,
   streamingTurnAtom,
 } from "@beep/agents-client/Chat.atoms";
-import { EditorComposer } from "@beep/editor/composer";
-import { documentToEditorState, editorStateToDocument } from "@beep/lexical-schema";
+import { ChatComposer, defaultChatSlashItems } from "@beep/editor";
+import { editorStateToDocument } from "@beep/lexical-schema";
 import { Button } from "@beep/ui/components/button";
-import { A, O } from "@beep/utils";
-import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
-import { Effect, Exit } from "effect";
-import { useCallback, useMemo, useRef } from "react";
+import { toast } from "@beep/ui/components/sonner";
+import { A, O, Str } from "@beep/utils";
+import { RegistryContext, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { AsyncResult, Atom } from "effect/unstable/reactivity";
+import { useContext } from "react";
+import { documentEditorStateAtom } from "./editor-state.atoms.ts";
+import type { EditTarget } from "@beep/agents-client/Chat.atoms";
+import type { MentionOption, MentionSource } from "@beep/editor";
 import type { SerializedEditorState } from "@beep/lexical-schema";
 import type * as Md from "@beep/md/Md.model";
 import type * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
-import type { JSX, KeyboardEvent } from "react";
+import type { JSX } from "react";
 
 type ThreadId = WorkspaceIdentity.ThreadId;
 
-const documentToState = (document: Md.Document): O.Option<SerializedEditorState> =>
-  Exit.match(Effect.runSyncExit(documentToEditorState(document)), {
-    onSuccess: O.some,
-    onFailure: O.none,
+// Derives the content to seed the editor with, hoisted out of a useMemo. Editing
+// wins over the draft; the draft seeds only on thread / edit-target switches.
+const contentToLoadFor = (editTarget: O.Option<EditTarget>, draft: O.Option<Md.Document>): O.Option<Md.Document> =>
+  O.match(editTarget, {
+    onNone: () => draft,
+    onSome: (t) => O.some(t.content),
   });
+
+// v1 mention source — a small app-injected set demonstrating ephemeral `@`
+// mentions. Real entity / prior-art / persona sources land with the knowledge
+// graph; mentions serialize to plain text, so swapping the source is additive.
+const MENTION_CANDIDATES: ReadonlyArray<MentionOption> = [
+  { id: "assistant", label: "assistant", hint: "the workspace agent" },
+  { id: "workspace", label: "workspace", hint: "the active workspace" },
+  { id: "thread", label: "thread", hint: "this conversation" },
+];
+
+const mentionSource: MentionSource = (query) => {
+  const q = query.toLowerCase();
+  return A.filter(MENTION_CANDIDATES, (candidate) => Str.includes(q)(candidate.label.toLowerCase()));
+};
 
 /**
  * The thread composer. Persists drafts, loads edit targets, and dispatches
@@ -65,86 +87,97 @@ const documentToState = (document: Md.Document): O.Option<SerializedEditorState>
  * @since 0.0.0
  */
 export function Composer({ threadId }: { readonly threadId: ThreadId }): JSX.Element {
+  // Registry handle so `submit` reads every reactive value (streaming, latest
+  // state, edit target) FRESH at fire time, and so the draft is read UNTRACKED for
+  // seeding. The foundation seeds the send handler ONCE per mount (stable per
+  // `key`) and the composer does not remount on streaming / draft change, so a
+  // `submit` closed over a render snapshot would go stale — blocking the send, or
+  // double-sending mid-stream.
+  const registry = useContext(RegistryContext);
   const draftAtom = draftAtoms(threadId);
-  const draft = useAtomValue(draftAtom);
   const setDraft = useAtomSet(draftAtom);
   const editTarget = useAtomValue(editTargetAtom);
   const setEditTarget = useAtomSet(editTargetAtom);
   const runTurn = useAtomSet(runTurnAtom);
   const streaming = O.isSome(useAtomValue(streamingTurnAtom));
 
+  // The draft is read UNTRACKED: the seed only needs the draft value at (re)mount
+  // time. Subscribing would re-render + re-project on every keystroke even though
+  // the editor (not this component) owns its content after mount and mirrors edits
+  // back into the draft. Reads stay current because every remount trigger (thread
+  // or edit-target switch) re-renders the composer.
+  const draft = registry.get(draftAtom);
+
   // keep the report + turn fibers subscribed — unobserved fn atoms get
-  // interrupted by the registry (POC lesson, ported verbatim). EditorComposer
+  // interrupted by the registry (POC lesson, ported verbatim). ChatComposer
   // already drops out-of-schema states internally, so onSerializedChange only
   // ever sees valid content; the decode-failure fiber stays mounted as the
   // contracted observability sink for that path.
   useAtomMount(reportDecodeFailureAtom);
   useAtomMount(runTurnAtom);
 
-  // latest serialized state from the editor — EditorComposer exposes no editor
-  // handle, so we mirror its content through onSerializedChange.
-  const latest = useRef<O.Option<SerializedEditorState>>(O.none());
-
   const isEditing = O.isSome(editTarget);
 
-  // initial content + a key so switching thread / edit-target remounts the
-  // composer with the right state loaded. Editing wins over the draft.
-  const initial = useMemo<O.Option<SerializedEditorState>>(
-    () =>
-      O.match(editTarget, {
-        onNone: () => O.flatMap(draft, documentToState),
-        onSome: (t) => documentToState(t.content),
-      }),
-    // draft intentionally excluded: re-keying on every keystroke would reset the
-    // editor. The draft seeds the editor only on thread/edit-target switches.
-    [threadId, editTarget]
-  );
+  // initial content + a remount `key` so switching thread / edit-target remounts
+  // the composer with the right state loaded. Editing wins over the draft (derived
+  // by the module-level contentToLoadFor, not a useMemo).
+  const contentToLoad = contentToLoadFor(editTarget, draft);
 
   const composerKey = O.match(editTarget, {
     onNone: () => `thread:${threadId}`,
     onSome: (t) => `edit:${t.turnId}`,
   });
 
-  const onSerializedChange = useCallback(
-    (state: SerializedEditorState) => {
-      latest.current = O.some(state);
-      // mirror unsent content as a draft (only while composing a fresh message;
-      // edit-target content is not persisted as a draft).
-      if (!isEditing) {
-        const document = editorStateToDocument(state);
-        const isEmpty = A.isReadonlyArrayEmpty(document.children);
-        setDraft(isEmpty ? O.none() : O.some(document));
-      }
-    },
-    [isEditing, setDraft]
-  );
+  // mirror unsent content as a draft (only while composing a fresh message;
+  // edit-target content is not persisted as a draft) so it can re-seed the editor
+  // on thread switch.
+  const onSerializedChange = (state: SerializedEditorState): void => {
+    if (isEditing) return;
+    const document = editorStateToDocument(state);
+    const isEmpty = A.isReadonlyArrayEmpty(document.children);
+    setDraft(isEmpty ? O.none() : O.some(document));
+  };
 
-  const submit = useCallback(() => {
-    if (streaming) return;
-    // no content captured yet, or an empty document — nothing to send.
-    if (O.isNone(latest.current)) return;
-    const content = editorStateToDocument(latest.current.value);
-    if (A.isReadonlyArrayEmpty(content.children)) return;
+  // Receives the editor's CURRENT serialized state from the foundation send
+  // binding (read live at send time — no mirror to go stale or miss content).
+  // Returns true when a turn was dispatched, so the foundation clears the editor
+  // in place (keeping focus); false on a no-op (streaming or empty). `streaming`
+  // and `editTarget` are read FRESH from the registry because the send handler is
+  // seeded once per mount and a closed-over `streaming` could double-send.
+  const submit = (state: SerializedEditorState): boolean => {
+    if (O.isSome(registry.get(streamingTurnAtom))) return false;
+    const content = editorStateToDocument(state);
+    if (A.isReadonlyArrayEmpty(content.children)) return false;
     runTurn(
-      O.match(editTarget, {
+      O.match(registry.get(editTargetAtom), {
         onNone: () => SendTurnRequest.make({ threadId, content }),
         onSome: (t) => EditTurnRequest.make({ threadId, turnId: t.turnId, content }),
       })
     );
-    latest.current = O.none();
     setDraft(O.none());
     setEditTarget(O.none());
-  }, [streaming, editTarget, runTurn, setDraft, setEditTarget, threadId]);
+    return true;
+  };
 
-  const onKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
-        event.preventDefault();
-        submit();
-      }
-    },
-    [submit]
-  );
+  const stop = (): void => runTurn(Atom.Interrupt);
+
+  // Attachment send-on-payload is the gated cross-slice extension (SendTurnRequest
+  // + Anthropic vision); v1 captures and previews but does not transport — the
+  // recorded stubbed-send degrade.
+  const onAttach = (files: ReadonlyArray<File>): void => {
+    toast.info(
+      `Captured ${files.length} attachment${files.length === 1 ? "" : "s"} — sending attachments to the model isn't wired yet.`
+    );
+  };
+
+  const composerProps: ThreadComposerProps = {
+    onSerializedChange,
+    onSend: submit,
+    onStop: stop,
+    streaming,
+    sendLabel: isEditing ? "Rewrite" : "Send",
+    onAttach,
+  };
 
   return (
     <div className="border-t bg-background p-3" data-testid="composer">
@@ -156,20 +189,58 @@ export function Composer({ threadId }: { readonly threadId: ThreadId }): JSX.Ele
           </Button>
         </div>
       ) : null}
-      <div className="rounded-md border bg-background px-3 py-2" onKeyDown={onKeyDown} data-testid="composer-input">
-        <EditorComposer
-          key={composerKey}
-          {...O.map(initial, (initialState) => ({ initialState })).pipe(O.getOrElse(() => ({})))}
-          placeholder="Message… (Ctrl+Enter to send)"
-          className="relative block min-h-12 focus:outline-none"
-          onSerializedChange={onSerializedChange}
-        />
-      </div>
-      <div className="mt-2 flex justify-end">
-        <Button type="button" onClick={submit} disabled={streaming} data-testid="composer-send">
-          {streaming ? "…" : isEditing ? "Rewrite" : "Send"}
-        </Button>
-      </div>
+      {O.match(contentToLoad, {
+        onNone: () => <ThreadComposer key={composerKey} {...composerProps} />,
+        onSome: (content) => <ThreadComposer key={composerKey} content={content} {...composerProps} />,
+      })}
     </div>
   );
 }
+
+interface ThreadComposerProps {
+  readonly content?: Md.Document;
+  readonly onAttach: (files: ReadonlyArray<File>) => void;
+  readonly onSend: (state: SerializedEditorState) => boolean;
+  readonly onSerializedChange: (state: SerializedEditorState) => void;
+  readonly onStop: () => void;
+  readonly sendLabel: string;
+  readonly streaming: boolean;
+}
+
+// Resolves the optional seed document to a serialized editor state through the
+// shared documentEditorStateAtom family (no runSyncExit). documentToEditorState is
+// a pure codec, so the runtime atom resolves to Success synchronously on first
+// read — the editor mounts WITH the seed (no empty frame); a codec failure
+// degrades to an empty editor. The send handler receives the editor's live state
+// at send time, so there is no latest-state mirror to seed here.
+function ThreadComposer({
+  content,
+  onAttach,
+  onSend,
+  onSerializedChange,
+  onStop,
+  sendLabel,
+  streaming,
+}: ThreadComposerProps): JSX.Element {
+  const initialState = useAtomValue(content === undefined ? emptyEditorStateAtom : documentEditorStateAtom(content));
+  const seedState = content === undefined ? O.none<SerializedEditorState>() : AsyncResult.value(initialState);
+
+  return (
+    <ChatComposer
+      {...O.getSomesStruct({ initialState: seedState })}
+      placeholder="Message… (Enter to send, Shift+Enter for a newline)"
+      onSerializedChange={onSerializedChange}
+      onSend={onSend}
+      onStop={onStop}
+      streaming={streaming}
+      sendLabel={sendLabel}
+      slashItems={defaultChatSlashItems}
+      mentionSource={mentionSource}
+      onAttach={onAttach}
+    />
+  );
+}
+
+// A stable initial AsyncResult for the no-seed branch, so the hook in
+// ThreadComposer stays unconditional.
+const emptyEditorStateAtom = Atom.make(AsyncResult.initial<SerializedEditorState>());

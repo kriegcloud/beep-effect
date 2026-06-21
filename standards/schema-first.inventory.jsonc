@@ -1476,6 +1476,22 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/foundation/ui-system/editor/src/chat/atoms.ts",
+      "symbol": "SendHandlerBox",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/editor",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/ui-system/editor/src/chat/chat-composer.tsx",
+      "symbol": "ChatComposerProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/editor",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/foundation/ui-system/form/src/components/Form.tsx",
       "symbol": "FormProps",
       "kind": "exported-interface",

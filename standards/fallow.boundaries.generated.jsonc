@@ -963,15 +963,19 @@
         "from": "@beep/editor",
         "allow": [
           "@beep/editor",
+          "@beep/identity",
           "@beep/lexical-schema",
           "@beep/md",
+          "@beep/schema",
           "@beep/ui",
           "@beep/utils"
         ],
         "allowTypeOnly": [
           "@beep/editor",
+          "@beep/identity",
           "@beep/lexical-schema",
           "@beep/md",
+          "@beep/schema",
           "@beep/ui",
           "@beep/utils"
         ]

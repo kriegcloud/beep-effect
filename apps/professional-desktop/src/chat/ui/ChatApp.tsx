@@ -16,6 +16,7 @@
 
 import { selectedThreadAtom, threadsAtoms } from "@beep/agents-client/Chat.atoms";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { OrbBackground } from "@beep/ui/components/orb-background";
 import { A, DateTime, O } from "@beep/utils";
 import { useAtomValue } from "@effect/atom-react";
 import { Order } from "effect";
@@ -23,6 +24,7 @@ import * as S from "effect/Schema";
 import { AsyncResult } from "effect/unstable/reactivity";
 import { Composer } from "./Composer.tsx";
 import { Sidebar } from "./Sidebar.tsx";
+import { ThemeToggle } from "./ThemeToggle.tsx";
 import { Thread } from "./Thread.tsx";
 import type { JSX } from "react";
 
@@ -65,9 +67,14 @@ export function ChatApp(): JSX.Element {
   );
 
   return (
-    <div className="flex h-screen w-full flex-col bg-muted/30 text-foreground" data-testid="chat-app">
-      <header className="flex items-center gap-2 border-b bg-background px-4 py-3">
+    <div
+      className="relative isolate flex h-screen w-full flex-col overflow-hidden bg-background text-foreground"
+      data-testid="chat-app"
+    >
+      <OrbBackground tone="green" intensity="vivid" />
+      <header className="relative flex items-center justify-between gap-2 border-b bg-background/80 px-4 py-3 backdrop-blur">
         <span className="text-sm font-semibold">Professional Desktop — Chat</span>
+        <ThemeToggle />
       </header>
       <div className="flex min-h-0 flex-1">
         <Sidebar workspaceId={DEFAULT_WORKSPACE_ID} />

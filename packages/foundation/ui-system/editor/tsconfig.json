@@ -5,9 +5,14 @@
   "compilerOptions": {
     "types": ["node"],
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "src",
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "references": [
+    {
+      "path": "../../modeling/identity/tsconfig.json"
+    },
     {
       "path": "../../modeling/lexical/tsconfig.json"
     },
@@ -15,13 +20,13 @@
       "path": "../../modeling/md/tsconfig.json"
     },
     {
+      "path": "../../modeling/schema/tsconfig.json"
+    },
+    {
       "path": "../../modeling/utils/tsconfig.json"
     },
     {
       "path": "../ui/tsconfig.json"
-    },
-    {
-      "path": "../../modeling/identity/tsconfig.json"
     }
   ]
 }

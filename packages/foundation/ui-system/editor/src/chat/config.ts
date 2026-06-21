@@ -1,0 +1,227 @@
+/**
+ * Schema-first UI configuration for the feature-flagged {@link ChatComposer}.
+ *
+ * Per the repo schema-first law, the composer's config surface, slash items,
+ * mention candidates, and the mention source are all modeled as `effect/Schema`:
+ * {@link ComposerFeatures}, {@link SlashItem}, and {@link MentionOption} are
+ * `S.Class` models (so `.make()` applies the per-field defaults declared on the
+ * schema), and {@link MentionSource} is a typed function schema. Callbacks are
+ * kept as typed `S.declare` functions and JSX as {@link DOMReactNode}, so the
+ * app still passes plain objects/functions while the composer schematizes
+ * internally. Wire/persisted/domain payloads remain in the relevant domain
+ * slice, not here.
+ *
+ * @packageDocumentation \@beep/editor/chat/config
+ * @since 0.0.0
+ */
+
+import { $EditorId } from "@beep/identity";
+import { DOMReactNode } from "@beep/schema/DomReactNode";
+import { LiteralKit } from "@beep/schema/LiteralKit";
+import { P } from "@beep/utils";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+import type { LexicalEditor } from "lexical";
+
+const $I = $EditorId.create("chat/config");
+
+/**
+ * Which keystroke submits the message. `"enter"` sends on plain Enter (a modifier
+ * inserts a newline); `"modifierEnter"` sends on Cmd/Ctrl+Enter (plain Enter
+ * inserts a newline). Enter-to-send is always suppressed during IME composition.
+ *
+ * @example
+ * ```ts
+ * import { SendOn } from "@beep/editor/chat"
+ *
+ * console.log(SendOn.is.enter("enter")) // true
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const SendOn = LiteralKit(["enter", "modifierEnter"]).pipe(
+  $I.annoteSchema("SendOn", {
+    description: "Which keystroke submits the message: plain Enter or Cmd/Ctrl+Enter.",
+  })
+);
+
+/**
+ * The keystroke that submits the message.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SendOn = typeof SendOn.Type;
+
+/**
+ * Which composer plugins mount. Every flag defaults to `true` on the schema, so
+ * {@link ComposerFeatures.make} with a partial input fills the omitted flags;
+ * the {@link ChatComposer} passes the consumer's partial `features` object
+ * straight through `ComposerFeatures.make` to resolve defaults.
+ *
+ * @example
+ * ```ts
+ * import { ComposerFeatures } from "@beep/editor/chat"
+ *
+ * const chat = ComposerFeatures.make({ toolbar: false })
+ * console.log(chat.slash) // true
+ * console.log(chat.sendOn) // "enter"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export class ComposerFeatures extends S.Class<ComposerFeatures>($I`ComposerFeatures`)(
+  {
+    /** Mount the fixed formatting toolbar (bold/italic/lists/quote/link/code). */
+    toolbar: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    /** Mount the `/` slash command typeahead. */
+    slash: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    /** Mount the `@` mention typeahead. */
+    mentions: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    /** Mount the attachment capture surface (drag-drop + picker + chips). */
+    attachments: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    /** Show the live character count in the footer. */
+    characterCount: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(true))),
+    /** Which keystroke submits the message. @defaultValue "enter" */
+    sendOn: SendOn.pipe(S.withConstructorDefault(Effect.succeed("enter" as const))),
+  },
+  $I.annote("ComposerFeatures", {
+    description:
+      "Which composer plugins mount and which keystroke sends; every field defaults to its chat-surface default.",
+  })
+) {}
+
+/**
+ * The chat-surface default: every feature on, plain-Enter sends. Equivalent to
+ * {@link ComposerFeatures.make} with no overrides.
+ *
+ * @example
+ * ```ts
+ * import { defaultChatFeatures } from "@beep/editor/chat"
+ *
+ * console.log(defaultChatFeatures.sendOn) // "enter"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const defaultChatFeatures: ComposerFeatures = ComposerFeatures.make({});
+
+/**
+ * Typed callback applied to the editor when a slash/mention option is selected.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type EditorEffect = (editor: LexicalEditor) => void;
+
+const isEditorEffect = (u: unknown): u is EditorEffect => P.isFunction(u);
+
+const EditorEffectSchema = S.declare<EditorEffect>(isEditorEffect).pipe(
+  $I.annoteSchema("EditorEffect", {
+    description: "A side effect applied to the LexicalEditor when an option is selected.",
+  })
+);
+
+/**
+ * A single `/` command. The foundation owns the menu mechanism; the app injects
+ * the items via {@link SlashItem.make}. `onSelect` runs after the typed `/query`
+ * text has been removed and receives the editor so the item can mutate the
+ * current selection (e.g. set a heading or insert a list).
+ *
+ * @example
+ * ```ts
+ * import { SlashItem } from "@beep/editor/chat"
+ *
+ * const item = SlashItem.make({ key: "h1", label: "Heading 1", onSelect: () => {} })
+ * console.log(item.label) // "Heading 1"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export class SlashItem extends S.Class<SlashItem>($I`SlashItem`)(
+  {
+    /** Stable identity used as the menu option key. */
+    key: S.String,
+    /** Display label. */
+    label: S.String,
+    /** Optional right-aligned hint / shortcut keyword shown in the menu. */
+    hint: S.optionalKey(S.String),
+    /** Extra search terms used for fuzzy filtering beyond the label. */
+    keywords: S.Array(S.String).pipe(S.optionalKey),
+    /** Optional leading icon. */
+    icon: S.optionalKey(DOMReactNode),
+    /** Apply the command to the editor (runs inside the menu selection flow). */
+    onSelect: EditorEffectSchema,
+  },
+  $I.annote("SlashItem", {
+    description: "A single `/` command: identity, label, optional hint/keywords/icon, and an editor side effect.",
+  })
+) {}
+
+/**
+ * A single `@` mention candidate. Mentions are ephemeral composer affordances:
+ * on select they serialize to plain text (`@label`), never a persisted node.
+ *
+ * @example
+ * ```ts
+ * import { MentionOption } from "@beep/editor/chat"
+ *
+ * const option = MentionOption.make({ id: "u1", label: "Ada Lovelace" })
+ * console.log(option.label) // "Ada Lovelace"
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export class MentionOption extends S.Class<MentionOption>($I`MentionOption`)(
+  {
+    /** Stable identity used as the menu option key. */
+    id: S.String,
+    /** Display label, also the inserted text (`@label`). */
+    label: S.String,
+    /** Optional secondary line (e.g. a role or handle). */
+    hint: S.optionalKey(S.String),
+    /** Optional leading icon/avatar. */
+    icon: S.optionalKey(DOMReactNode),
+  },
+  $I.annote("MentionOption", {
+    description: "A single `@` mention candidate: identity, label, and optional hint/icon.",
+  })
+) {}
+
+/**
+ * App-injected source of `@` mention candidates for a query. May be sync or
+ * async; the composer races stale responses out by request order. Modeled as a
+ * typed function schema so the composer can hold it as schema-backed config.
+ *
+ * @example
+ * ```ts
+ * import { MentionSource } from "@beep/editor/chat"
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(MentionSource)((q: string) => [])) // true
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export type MentionSource = (query: string) => ReadonlyArray<MentionOption> | Promise<ReadonlyArray<MentionOption>>;
+
+// Type guard backing the {@link MentionSource} schema's `S.declare`.
+const isMentionSource = (u: unknown): u is MentionSource => P.isFunction(u);
+
+/**
+ * Schema for {@link MentionSource}.
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const MentionSource = S.declare<MentionSource>(isMentionSource).pipe(
+  $I.annoteSchema("MentionSource", {
+    description: "App-injected source of `@` mention candidates for a query.",
+  })
+);
