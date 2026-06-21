@@ -20,7 +20,7 @@
 
 import { cn } from "@beep/ui/lib/utils";
 import { A } from "@beep/utils";
-import { useAtom, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { RegistryContext, useAtom, useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   LexicalTypeaheadMenuPlugin,
@@ -29,6 +29,7 @@ import {
 } from "@lexical/react/LexicalTypeaheadMenuPlugin";
 import { Atom } from "effect/unstable/reactivity";
 import { $createTextNode, $getSelection, $isRangeSelection } from "lexical";
+import { useContext } from "react";
 import { createPortal } from "react-dom";
 import { anyMenuOpenAtom, menusOpenAtom } from "./atoms.ts";
 import type { MenuRenderFn } from "@lexical/react/LexicalTypeaheadMenuPlugin";
@@ -52,16 +53,18 @@ class MentionMenuOption extends MenuOption {
   }
 }
 
+// Whether a slash item matches the (already trimmed + lowercased) query across
+// its label, hint, or keywords. Extracted so the filter predicate reads as one
+// named match rather than an inline conditional chain.
+const slashItemMatchesQuery = (item: SlashItem, q: string): boolean =>
+  item.label.toLowerCase().includes(q) ||
+  (item.hint?.toLowerCase().includes(q) ?? false) ||
+  A.some(item.keywords ?? [], (keyword) => keyword.toLowerCase().includes(q));
+
 const filterSlashItems = (items: ReadonlyArray<SlashItem>, query: string): ReadonlyArray<SlashItem> => {
   const q = query.trim().toLowerCase();
   if (q === "") return items;
-  return A.filter(
-    items,
-    (item) =>
-      item.label.toLowerCase().includes(q) ||
-      (item.hint?.toLowerCase().includes(q) ?? false) ||
-      A.some(item.keywords ?? [], (keyword) => keyword.toLowerCase().includes(q))
-  );
+  return A.filter(items, (item) => slashItemMatchesQuery(item, q));
 };
 
 // Per-editor `/` query text. Writable; the typeahead writes the live query.
@@ -101,7 +104,10 @@ function TypeaheadMenuList<TOption extends MenuOption>({
     return null;
   }
   return createPortal(
-    <div className="bg-popover text-popover-foreground z-50 mt-1 max-h-72 w-64 overflow-auto rounded-md border p-1 shadow-md">
+    <div
+      role="listbox"
+      className="bg-popover text-popover-foreground z-50 mt-1 max-h-72 w-64 overflow-auto rounded-md border p-1 shadow-md"
+    >
       {A.map(options, (option, index) => (
         <div
           key={option.key}
@@ -218,6 +224,7 @@ interface MentionPluginProps {
  */
 export function MentionPlugin({ source }: MentionPluginProps): ReactNode {
   const [editor] = useLexicalComposerContext();
+  const registry = useContext(RegistryContext);
   const options = useAtomValue(mentionOptionsAtom(editor));
   const setOptions = useAtomSet(mentionOptionsAtom(editor));
   const setRequestId = useAtomSet(mentionRequestIdAtom(editor));
@@ -225,27 +232,23 @@ export function MentionPlugin({ source }: MentionPluginProps): ReactNode {
   const triggerFn = useBasicTypeaheadTriggerMatch("@", { minLength: 0 });
 
   const onQueryChange = (matching: string | null): void => {
-    // Allocate the next request id atomically through the setter's updater so
-    // rapid keystrokes never reuse an id (replaces the original `useRef`
-    // counter). The stale-response guard re-reads the latest id the same way.
-    let id = 0;
-    setRequestId((current) => {
-      id = current + 1;
-      return id;
-    });
-    Promise.resolve(source(matching ?? ""))
+    // Allocate the next request id off the latest committed value (read via the
+    // registry) so rapid keystrokes never reuse an id (replaces the original
+    // `useRef` counter). Neither the allocation nor the staleness check is a side
+    // effect inside an atom updater.
+    const id = registry.get(mentionRequestIdAtom(editor)) + 1;
+    setRequestId(id);
+    const isLatest = (): boolean => id === registry.get(mentionRequestIdAtom(editor));
+    // Invoke `source` *inside* the chain so a synchronous throw rejects the
+    // promise (and hits `.catch`) instead of escaping the interaction path.
+    Promise.resolve()
+      .then(() => source(matching ?? ""))
       .then((results) => {
         // Drop a stale response: only the most-recent request wins.
-        setRequestId((current) => {
-          if (id === current) setOptions(A.map(results, (option) => new MentionMenuOption(option)));
-          return current;
-        });
+        if (isLatest()) setOptions(A.map(results, (option) => new MentionMenuOption(option)));
       })
       .catch(() => {
-        setRequestId((current) => {
-          if (id === current) setOptions([]);
-          return current;
-        });
+        if (isLatest()) setOptions([]);
       });
   };
 

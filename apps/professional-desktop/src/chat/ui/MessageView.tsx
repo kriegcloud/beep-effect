@@ -15,20 +15,11 @@
 "use client";
 
 import { EditorViewer } from "@beep/editor/viewer";
-import { documentToEditorState } from "@beep/lexical-schema";
 import { useAtomValue } from "@effect/atom-react";
-import { Layer } from "effect";
-import { AsyncResult, Atom } from "effect/unstable/reactivity";
+import { AsyncResult } from "effect/unstable/reactivity";
+import { documentEditorStateAtom } from "./editor-state.atoms.ts";
 import type * as Md from "@beep/md/Md.model";
 import type { JSX } from "react";
-
-// Projects an md document to a serialized editor state through an Atom.runtime
-// family, keyed by the document. The codec is pure so the AsyncResult resolves
-// synchronously; failures surface as an AsyncResult.Failure matched below.
-const messageStateRuntime = Atom.runtime(Layer.empty);
-const messageStateAtom = Atom.family((content: Md.Document) =>
-  messageStateRuntime.atom(documentToEditorState(content))
-);
 
 /**
  * Renders one persisted message's md-aligned content as read-only rich text.
@@ -44,7 +35,7 @@ const messageStateAtom = Atom.family((content: Md.Document) =>
  * @since 0.0.0
  */
 export function MessageView({ content }: { readonly content: Md.Document }): JSX.Element {
-  const result = useAtomValue(messageStateAtom(content));
+  const result = useAtomValue(documentEditorStateAtom(content));
 
   return AsyncResult.match(result, {
     onInitial: () => <div className="text-sm text-muted-foreground italic" data-testid="message-decode-pending" />,

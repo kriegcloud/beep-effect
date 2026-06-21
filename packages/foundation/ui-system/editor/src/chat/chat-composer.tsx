@@ -80,6 +80,14 @@ const decodeSerializedState = S.decodeUnknownOption(SerializedEditorState);
  * Props for {@link ChatComposer}. Additive to (not a replacement for) the bare
  * `EditorComposerProps`.
  *
+ * Mount-time config: `features`, `onSend`, `onAttach`, and `maxAttachmentBytes`
+ * are seeded into the per-editor atom state ONCE at mount (the per-mount config is
+ * intentionally stable, like an uncontrolled input's `defaultValue`). To apply new
+ * values, change the React `key` to remount — the desktop app remounts per
+ * thread/edit-target. A consumer that keeps these props live should either remount
+ * on change or, for `onSend`, read any mutable state freshly inside the handler
+ * (the seeded handler is invoked by reference at send time).
+ *
  * @example
  * ```ts
  * import type { ChatComposerProps } from "@beep/editor/chat"
@@ -107,15 +115,23 @@ export interface ChatComposerProps {
   readonly maxAttachmentBytes?: number;
   /** App-injected `@` mention source. Mentions are skipped if omitted. */
   readonly mentionSource?: MentionSource;
+  /**
+   * Lexical editor namespace. Give each composer a unique namespace so multiple
+   * composers on one page don't collide on `data-lexical-editor` / clipboard.
+   * @defaultValue "beep-chat-editor"
+   */
+  readonly namespace?: string;
   /** Upload-port callback invoked with captured files (drag-drop / paste / picker). */
   readonly onAttach?: (files: ReadonlyArray<File>) => void;
   /**
    * Convenience send handler (registered at low priority for the send command).
-   * Return `true` to signal a turn was dispatched — the composer then clears the
-   * editor in place (keeping focus) so the user can keep typing. Return `false`/
-   * `void` (e.g. empty content or already streaming) to leave the content alone.
+   * Receives the editor's CURRENT serialized state (read live at send time, so it
+   * never misses content). Return `true` to signal a turn was dispatched — the
+   * composer then clears the editor in place (keeping focus) so the user can keep
+   * typing. Return `false`/`void` (e.g. empty content or already streaming) to
+   * leave the content alone.
    */
-  readonly onSend?: () => boolean | void;
+  readonly onSend?: (state: SerializedEditorState.Type) => boolean | void;
   /** Called with the schema-decoded state on every content change. */
   readonly onSerializedChange?: (state: SerializedEditorState.Type) => void;
   /** Stop handler invoked while `streaming`. */
@@ -373,6 +389,7 @@ export function ChatComposer({
   initialState,
   placeholder,
   className,
+  namespace = "beep-chat-editor",
   onSerializedChange,
   slashItems = defaultChatSlashItems,
   mentionSource,
@@ -392,7 +409,7 @@ export function ChatComposer({
   return (
     <LexicalComposer
       initialConfig={{
-        namespace: "beep-chat-editor",
+        namespace,
         theme: editorTheme,
         nodes: [...editorNodes],
         ...O.getSomesStruct({

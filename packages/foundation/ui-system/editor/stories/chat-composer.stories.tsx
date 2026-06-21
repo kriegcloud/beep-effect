@@ -2,7 +2,7 @@ import { ChatComposer, EditorComposer } from "@beep/editor";
 import { documentToEditorState } from "@beep/lexical-schema";
 import * as MdModel from "@beep/md/Md.model";
 import * as Effect from "effect/Effect";
-import { expect, fn, within } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 import type { MentionOption } from "@beep/editor";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
@@ -87,6 +87,22 @@ export const WithContent: Story = {
     const canvas = within(canvasElement);
     expect(canvas.getByText("Draft a reply…")).toBeVisible();
     expect(canvas.queryByText("Message…")).toBeNull();
+  },
+};
+
+/**
+ * Empty-composer send guard (regression): plain Enter on an empty editor must NOT
+ * dispatch a send. An empty Lexical editor is a single empty paragraph, so without
+ * a text-content guard the consumer would receive an empty turn — the send binding
+ * skips dispatch when the editor has no text.
+ */
+export const EmptyEnterIsNoOp: Story = {
+  play: async ({ canvasElement, args }) => {
+    const editable = canvasElement.querySelector('[contenteditable="true"]');
+    expect(editable).not.toBeNull();
+    (editable as HTMLElement).focus();
+    await userEvent.keyboard("{Enter}");
+    expect(args.onSend).not.toHaveBeenCalled();
   },
 };
 

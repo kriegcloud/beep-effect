@@ -13,7 +13,7 @@
 "use client";
 
 import { Button } from "@beep/ui/components/button";
-import { useThemeMode } from "@beep/ui/themes";
+import { ThemeMode, useThemeMode } from "@beep/ui/themes";
 import type { JSX } from "react";
 
 /**
@@ -31,7 +31,7 @@ import type { JSX } from "react";
  */
 export function ThemeToggle(): JSX.Element {
   const { resolvedMode, toggleMode } = useThemeMode();
-  const isDark = resolvedMode === "dark";
+  const isDark = ThemeMode.is.dark(resolvedMode);
   const label = isDark ? "Switch to light mode" : "Switch to dark mode";
 
   return (

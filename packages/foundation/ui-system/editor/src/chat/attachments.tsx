@@ -11,8 +11,10 @@
  * `@beep/schema`'s {@link MimeType}, its `size` is bounded by
  * {@link DEFAULT_MAX_ATTACHMENT_BYTES}, its `objectUrl` is a string (never
  * base64), and its `file` is a real `File` instance. Capture-time validation is
- * a static method on the class returning `O.Option`, and the drag-drop binding
- * is an `@effect/atom` mounted atom (no `useEffect`).
+ * a static method on the class returning `Result.Result` — a {@link Success}
+ * attachment or a tagged {@link AttachmentRejection} carrying *why* the file was
+ * dropped (over budget vs unrecognized MIME type) — and the drag-drop binding is
+ * an `@effect/atom` mounted atom (no `useEffect`).
  *
  * @packageDocumentation \@beep/editor/chat/attachments
  * @since 0.0.0
@@ -21,11 +23,12 @@
 import { $EditorId } from "@beep/identity";
 import { ImageMimeType, MimeType } from "@beep/schema/MimeType";
 import { cn } from "@beep/ui/lib/utils";
-import { A, O } from "@beep/utils";
+import { A } from "@beep/utils";
 import { useAtomMount, useAtomSet } from "@effect/atom-react";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { DRAG_DROP_PASTE } from "@lexical/rich-text";
 import { FileIcon, XIcon } from "@phosphor-icons/react";
+import { Data, Result } from "effect";
 import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";
 import { COMMAND_PRIORITY_LOW } from "lexical";
@@ -34,6 +37,11 @@ import type { LexicalEditor } from "lexical";
 import type { JSX } from "react";
 
 const $I = $EditorId.create("chat/attachments");
+
+// Non-throwing MIME decode: an empty or unrecognized `file.type` becomes a
+// `Result.Failure` (mapped to {@link AttachmentInvalidMimeType}) instead of a
+// thrown `ParseError` escaping the capture pipeline.
+const decodeMimeType = S.decodeUnknownResult(MimeType);
 
 /**
  * Image MIME types eligible for vision (the rest are captured as generic files).
@@ -107,6 +115,55 @@ const AttachmentSizeBytes = S.Int.pipe(
   )
 );
 
+/**
+ * A captured file rejected because it exceeds the (clamped) byte budget.
+ *
+ * @example
+ * ```ts
+ * import { AttachmentTooLarge } from "@beep/editor/chat"
+ *
+ * console.log(typeof AttachmentTooLarge) // "function"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class AttachmentTooLarge extends Data.TaggedError("AttachmentTooLarge")<{
+  readonly filename: string;
+  readonly size: number;
+  readonly maxBytes: number;
+}> {}
+
+/**
+ * A captured file rejected because its `file.type` is empty or not a recognized
+ * {@link MimeType}.
+ *
+ * @example
+ * ```ts
+ * import { AttachmentInvalidMimeType } from "@beep/editor/chat"
+ *
+ * console.log(typeof AttachmentInvalidMimeType) // "function"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class AttachmentInvalidMimeType extends Data.TaggedError("AttachmentInvalidMimeType")<{
+  readonly filename: string;
+  readonly mimeType: string;
+}> {}
+
+/**
+ * Why {@link ComposerAttachment.fromFile} declined to capture a file. A tagged
+ * union so the capture pipeline can distinguish — and surface — an over-budget
+ * file from one with an unrecognized MIME type, rather than collapsing both into
+ * an opaque `O.none()`.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type AttachmentRejection = AttachmentTooLarge | AttachmentInvalidMimeType;
+
 // Monotonic id source for captured attachments — ephemeral UI identity only, so
 // a simple counter suffices (no persistence, no cross-session stability needed).
 let attachmentSequence = 0;
@@ -179,8 +236,15 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
 
   /**
    * Read a captured `File` into a {@link ComposerAttachment} synchronously (via
-   * an object URL for the thumbnail), or `O.none()` when it exceeds `maxBytes`.
-   * Release the returned `objectUrl` with {@link revokeAttachment} once removed.
+   * an object URL for the thumbnail), or a tagged {@link AttachmentRejection}
+   * describing why it was declined. Never throws: both reachable
+   * `ComposerAttachment.make` failure modes are pre-validated into the failure
+   * channel — an over-budget file ({@link AttachmentTooLarge}, with `maxBytes`
+   * clamped to the schema's hard {@link DEFAULT_MAX_ATTACHMENT_BYTES} so an
+   * oversized budget can never admit a file the `size` field check would reject)
+   * and an empty/unrecognized `file.type` ({@link AttachmentInvalidMimeType}).
+   * Release the `objectUrl` of a {@link Success} with {@link revokeAttachment}
+   * once removed.
    *
    * @example
    * ```ts
@@ -195,19 +259,27 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
   static readonly fromFile = (
     file: File,
     maxBytes: number = DEFAULT_MAX_ATTACHMENT_BYTES
-  ): O.Option<ComposerAttachment> => {
-    if (!ComposerAttachment.isWithinSize(file, maxBytes)) return O.none();
-    attachmentSequence += 1;
-    return O.some(
-      ComposerAttachment.make({
-        id: `attachment-${attachmentSequence}-${file.name}`,
-        filename: file.name,
-        mimeType: file.type as MimeType,
-        size: file.size,
-        objectUrl: URL.createObjectURL(file),
-        file,
-      })
-    );
+  ): Result.Result<ComposerAttachment, AttachmentRejection> => {
+    const effectiveMaxBytes = Math.min(maxBytes, DEFAULT_MAX_ATTACHMENT_BYTES);
+    if (!ComposerAttachment.isWithinSize(file, effectiveMaxBytes)) {
+      return Result.fail(new AttachmentTooLarge({ filename: file.name, size: file.size, maxBytes: effectiveMaxBytes }));
+    }
+    return Result.match(decodeMimeType(file.type), {
+      onFailure: () => Result.fail(new AttachmentInvalidMimeType({ filename: file.name, mimeType: file.type })),
+      onSuccess: (mimeType) => {
+        attachmentSequence += 1;
+        return Result.succeed(
+          ComposerAttachment.make({
+            id: `attachment-${attachmentSequence}-${file.name}`,
+            filename: file.name,
+            mimeType,
+            size: file.size,
+            objectUrl: URL.createObjectURL(file),
+            file,
+          })
+        );
+      },
+    });
   };
 }
 
@@ -236,10 +308,11 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
 export const isImageAttachment = (attachment: ComposerAttachment): boolean => isImageMimeType(attachment.mimeType);
 
 /**
- * Read a captured `File` into a {@link ComposerAttachment} synchronously, or
- * `O.none()` when it exceeds `maxBytes`. Internal helper (not a boundary) that
- * delegates to {@link ComposerAttachment.fromFile}; release the returned
- * `objectUrl` with {@link revokeAttachment} once it is removed.
+ * Read a captured `File` into a {@link ComposerAttachment} synchronously, or a
+ * tagged {@link AttachmentRejection} describing why it was declined. Internal
+ * helper (not a boundary) that delegates to {@link ComposerAttachment.fromFile};
+ * release the `objectUrl` of a {@link Success} with {@link revokeAttachment} once
+ * it is removed.
  *
  * @example
  * ```ts
@@ -254,7 +327,7 @@ export const isImageAttachment = (attachment: ComposerAttachment): boolean => is
 export const fileToAttachment = (
   file: File,
   maxBytes: number = DEFAULT_MAX_ATTACHMENT_BYTES
-): O.Option<ComposerAttachment> => ComposerAttachment.fromFile(file, maxBytes);
+): Result.Result<ComposerAttachment, AttachmentRejection> => ComposerAttachment.fromFile(file, maxBytes);
 
 /**
  * Release the object URL backing an attachment thumbnail.

@@ -90,6 +90,11 @@ const INITIAL_STATE: SelectionState = {
   blockType: "paragraph",
 };
 
+// Maps a Lexical list type onto the toolbar's {@link BlockType}. Shared by the
+// direct-list and ancestor-list branches so the mapping lives in one place.
+const blockTypeFromListType = (listType: "number" | "bullet" | "check"): BlockType =>
+  listType === "number" ? "number" : listType === "check" ? "check" : "bullet";
+
 // Reads the current selection's marks + block type. Must run inside an
 // editorState.read (a Lexical lexical-scope), where the `$`-prefixed helpers are
 // valid.
@@ -101,13 +106,11 @@ const computeSelectionState = (): SelectionState => {
 
   let blockType: BlockType = "paragraph";
   if ($isListNode(element)) {
-    const listType = element.getListType();
-    blockType = listType === "number" ? "number" : listType === "check" ? "check" : "bullet";
+    blockType = blockTypeFromListType(element.getListType());
   } else {
     const parentList = $getNearestNodeOfType(anchorNode, ListNode);
     if (parentList !== null) {
-      const listType = parentList.getListType();
-      blockType = listType === "number" ? "number" : listType === "check" ? "check" : "bullet";
+      blockType = blockTypeFromListType(parentList.getListType());
     } else if ($isHeadingNode(element)) {
       blockType = element.getTag();
     } else if ($isQuoteNode(element)) {

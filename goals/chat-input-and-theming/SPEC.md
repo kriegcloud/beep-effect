@@ -80,11 +80,15 @@ Higher sources outrank lower sources when they conflict.
 - Effect-first throughout. `@beep/editor` is `foundation/ui-system`: it owns the
   mechanism only; product slash items + mention sources are injected by the app.
 - Schema-first applies to **wire/persisted/domain payloads** (e.g. any
-  `SendTurnRequest` attachment extension is schema-first). The editor
-  **feature-flag config and the attachment value passed to the composer are UI
-  config — plain TypeScript types**, not `effect/Schema`, per the
-  `standards/ARCHITECTURE.md` rule that type-level utility/config surfaces may stay
-  TypeScript types. See the Feature-flag config contract below.
+  `SendTurnRequest` attachment extension is schema-first). This SPEC originally
+  carved out the editor feature-flag config and attachment value as "UI config —
+  plain TypeScript types", but **that carve-out was superseded during
+  implementation**: the repo's schema-first + atom-first laws (which the Source
+  Hierarchy ranks above this packet) require `S.Class` + Effect Atom even here, so
+  `ComposerFeatures`/`SlashItem`/`MentionOption`/`ComposerAttachment` ship as
+  schema classes and all per-composer state is an `Atom.family` keyed by
+  `LexicalEditor`. The Feature-flag config contract below describes the shape; read
+  its "plain TS" framing as superseded by the schema-first delivery.
 - `@beep/editor` feature additions are opt-in (config-gated) so the minimal
   composer behavior and existing `EditorComposerProps` / stories / consumers are
   unchanged by default (additive only).
