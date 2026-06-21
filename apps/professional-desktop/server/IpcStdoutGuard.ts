@@ -7,6 +7,10 @@ import * as BunStdio from "@effect/platform-bun/BunStdio";
 import { Effect, Layer, Sink, Stdio } from "effect";
 import { ipcTransport, protocolStdout } from "./IpcStdoutGuard.prelude.ts";
 
+// Re-export the single transport flag so main.ts selects the transport from the
+// same value the stdout guard keys off, never a second CHAT_TRANSPORT read.
+export { ipcTransport };
+
 const writeProtocolStdout = (chunk: string | Uint8Array): Effect.Effect<void> =>
   Effect.callback<void>((resume) => {
     protocolStdout.write(chunk, (error?: Error | null) => {

@@ -63,12 +63,13 @@ type SharedPendingClosed = Arc<Mutex<Option<SidecarClosed>>>;
 type SharedPendingStdoutFrames = Arc<Mutex<Vec<String>>>;
 type SharedSidecarChild = Arc<Mutex<Option<CommandChild>>>;
 
-/// Upper bound on un-terminated IPC stdout bytes. A well-behaved sidecar emits
-/// newline-delimited ndjson rpc frames, so the buffer only ever holds one
-/// in-flight frame. A malformed or chatty child that floods stdout without a
-/// terminator would otherwise grow this buffer without bound and stall frame
-/// delivery; past this ceiling we fail closed (see `bridge_sidecar_events`).
-const MAX_IPC_STDOUT_BUFFER_BYTES: usize = 8 * 1024 * 1024;
+/// Upper bound on a single IPC ndjson rpc frame, enforced in both directions: the
+/// inbound stdout bridge buffer (which only ever holds one in-flight frame, see
+/// `bridge_sidecar_events`) and outbound `sidecar_send` writes. A malformed/chatty
+/// child that floods stdout without a terminator, or a webview that sends an
+/// oversized frame, fails closed rather than growing memory without bound or
+/// stalling the transport.
+const MAX_IPC_FRAME_BYTES: usize = 8 * 1024 * 1024;
 
 /// Packaged secrets story: prefer an exported AI_ANTHROPIC_API_KEY, fall back
 /// to asking the 1Password CLI for the same secret reference `op run` resolves
@@ -223,9 +224,9 @@ fn bridge_sidecar_events(
                         // Fail closed if the sidecar floods stdout without a frame
                         // terminator so a malformed/chatty child can never grow the
                         // buffer without bound or stall delivery of later frames.
-                        if stdout_buffer.len() > MAX_IPC_STDOUT_BUFFER_BYTES {
+                        if stdout_buffer.len() > MAX_IPC_FRAME_BYTES {
                             let message = format!(
-                                "sidecar stdout exceeded {MAX_IPC_STDOUT_BUFFER_BYTES} bytes without a complete frame; closing transport"
+                                "sidecar stdout exceeded {MAX_IPC_FRAME_BYTES} bytes without a complete frame; closing transport"
                             );
                             log::error!("{message}");
                             closed_emitted = true;
@@ -332,6 +333,14 @@ fn bridge_sidecar_events(
 /// blocks on a full stdin pipe, which must never stall the webview.
 #[tauri::command]
 async fn sidecar_send(state: tauri::State<'_, Sidecar>, frame: String) -> Result<(), String> {
+    // Reject oversized frames before touching stdin, mirroring the inbound stdout
+    // cap, so a buggy or hostile webview cannot block/kill the IPC transport.
+    if frame.len() > MAX_IPC_FRAME_BYTES {
+        return Err(format!(
+            "outbound ipc frame of {} bytes exceeds the {MAX_IPC_FRAME_BYTES}-byte limit",
+            frame.len()
+        ));
+    }
     let mut guard = recover_lock(&state.child);
     match guard.as_mut() {
         Some(child) => child.write(frame.as_bytes()).map_err(|err| err.to_string()),

@@ -57,9 +57,6 @@ const unknownToMessage = (cause: unknown): string => {
   return String(cause);
 };
 
-const closeOutboundBuffer = (buffer: string): string =>
-  buffer.length > 0 && !buffer.endsWith("\n") ? `${buffer}\n` : buffer;
-
 // Inbound stdout frames ride the `sidecar://rx` event onto a web ReadableStream;
 // outbound frames are written to the sidecar's stdin via `sidecar_send`. The
 // frames are ndjson text, so the outgoing Uint8Array chunks are decoded back to
@@ -135,8 +132,14 @@ const makeStream = (): Socket.InputTransformStream => {
       if (sendFailure !== undefined) {
         return Promise.reject(sendFailure);
       }
-      outboundBuffer = closeOutboundBuffer(outboundBuffer + decoder.decode());
-      return listenersReady.then(flushCompleteFrames, failSend);
+      // Flush the decoder tail, then ship only complete (newline-terminated) frames
+      // and drop any trailing partial. A partial here means the producer was
+      // interrupted mid-frame; force-terminating it would write a truncated ndjson
+      // frame and desync the sidecar's stdin protocol.
+      outboundBuffer += decoder.decode();
+      return listenersReady.then(flushCompleteFrames, failSend).then(() => {
+        outboundBuffer = "";
+      });
     },
     abort() {
       outboundBuffer = "";

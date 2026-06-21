@@ -34,14 +34,11 @@ import { Config, Effect, Layer, Logger } from "effect";
 import { HttpRouter } from "effect/unstable/http";
 import { RpcSerialization, RpcServer } from "effect/unstable/rpc";
 import { RuntimeLive } from "@/runtime/Layer";
-import { SidecarStdioLive } from "./IpcStdoutGuard.ts";
+import { ipcTransport, SidecarStdioLive } from "./IpcStdoutGuard.ts";
 
 // Loopback rpc port; defaults to 3939 (the desktop chat surface's sidecar
 // port). Configurable via CHAT_SIDECAR_PORT for tests/dev that need a free port.
 const PORT = Effect.runSync(Config.port("CHAT_SIDECAR_PORT").pipe(Config.withDefault(3939)));
-
-// Transport selector; mirrored by the Rust shell's `CHAT_TRANSPORT` switch.
-const TRANSPORT = Effect.runSync(Config.string("CHAT_TRANSPORT").pipe(Config.withDefault("http")));
 
 // The ChatRpcs handler group backed by the app-local runtime. RuntimeLive fully
 // provides the group (AgentTurnKernel | ThreadStore | UsageRecordSink), so each
@@ -83,6 +80,6 @@ const ipcMain = (): Layer.Layer<never> =>
     Layer.provide(Logger.layer([Logger.withConsoleError(Logger.formatLogFmt)], { mergeWithExisting: false }))
   );
 
-const Main = TRANSPORT === "ipc" ? ipcMain() : httpMain();
+const Main = ipcTransport ? ipcMain() : httpMain();
 
 BunRuntime.runMain(Layer.launch(Main));

@@ -380,6 +380,11 @@ jobs:
       EXPECTED_RELEASE_TARGETS: darwin-aarch64,darwin-x86_64,linux-x86_64,windows-x86_64
       RELEASE_DESKTOP_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Verify every desktop target completed
         shell: bash
         env:
