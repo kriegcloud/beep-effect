@@ -7,10 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { A, Str } from "@beep/utils";
-import { Effect, Order, pipe } from "effect";
+import { Effect, HashSet, Order, pipe } from "effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
 import {
   fetchSource,
   formatJson,
@@ -19,7 +20,6 @@ import {
   parseXmlSource,
   sourceMetadata,
 } from "../internal/Source.js";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
 import type { SyncDataTarget } from "../internal/Models.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/IanaMediaTypes");
@@ -100,25 +100,19 @@ class IanaMediaTypeEntry extends S.Class<IanaMediaTypeEntry>($I`IanaMediaTypeEnt
 
 type IanaMediaTypeEntryType = IanaMediaTypeEntry;
 const isTextNode = S.is(IanaMediaTypeTextNode);
-const primaryTopLevels = new Set(["application", "audio", "image", "text", "video"]);
+const primaryTopLevels = HashSet.make("application", "audio", "image", "text", "video");
 
 const extractName = (name: string | IanaMediaTypeTextNode): string => (isTextNode(name) ? name.text : name);
 
-const recordsArray = (
-  record: IanaMediaTypeRegistry["record"]
-): ReadonlyArray<IanaMediaTypeRecord> => {
+const recordsArray = (record: IanaMediaTypeRegistry["record"]): ReadonlyArray<IanaMediaTypeRecord> => {
   if (record === undefined) {
     return [];
   }
-  return Array.isArray(record) ? (record as ReadonlyArray<IanaMediaTypeRecord>) : [record as IanaMediaTypeRecord];
+  return A.isArray(record) ? (record as ReadonlyArray<IanaMediaTypeRecord>) : [record as IanaMediaTypeRecord];
 };
 
 const byType = (values: ReadonlyArray<IanaMediaTypeEntryType>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.type, entry] as const),
-    R.fromEntries
-  );
+  R.fromEntries(A.map(values, (entry) => [entry.type, entry] as const));
 
 const byTopLevel = (values: ReadonlyArray<IanaMediaTypeEntryType>) => {
   const grouped: Record<string, Record<string, IanaMediaTypeEntryType>> = {
@@ -131,7 +125,7 @@ const byTopLevel = (values: ReadonlyArray<IanaMediaTypeEntryType>) => {
   };
 
   for (const entry of values) {
-    const bucket = primaryTopLevels.has(entry.topLevel) ? entry.topLevel : "misc";
+    const bucket = HashSet.has(primaryTopLevels, entry.topLevel) ? entry.topLevel : "misc";
     grouped[bucket] = {
       ...grouped[bucket],
       [entry.type]: entry,
@@ -159,6 +153,7 @@ const renderIanaMediaTypesModule = (
 /**
  * Stable source metadata for the official IANA media type registry.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataMetadata = ${formatTsLiteral({
@@ -170,6 +165,7 @@ export const OfficialMimeTypeDataMetadata = ${formatTsLiteral({
 /**
  * Last updated date reported by the official IANA media type registry.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataUpdated = ${formatTsLiteral(updated)} as const;
@@ -177,6 +173,7 @@ export const OfficialMimeTypeDataUpdated = ${formatTsLiteral(updated)} as const;
 /**
  * Official IANA media type registry source URL.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataSourceUrl = ${formatTsLiteral(IANA_MEDIA_TYPES_SOURCE_URL)} as const;
@@ -184,6 +181,7 @@ export const OfficialMimeTypeDataSourceUrl = ${formatTsLiteral(IANA_MEDIA_TYPES_
 /**
  * SHA-256 digest of the official source payload used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataSourceSha256 = ${formatTsLiteral(sha256)} as const;
@@ -191,6 +189,7 @@ export const OfficialMimeTypeDataSourceSha256 = ${formatTsLiteral(sha256)} as co
 /**
  * Normalized IANA media type entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataValues = ${formatTsLiteral(values)} as const;
@@ -198,6 +197,7 @@ export const OfficialMimeTypeDataValues = ${formatTsLiteral(values)} as const;
 /**
  * Normalized IANA media type entries keyed by full media type.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataByType = ${formatTsLiteral(byType(values))} as const;
@@ -205,6 +205,7 @@ export const OfficialMimeTypeDataByType = ${formatTsLiteral(byType(values))} as 
 /**
  * IANA media type literal values.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataTypeValues = ${formatTsLiteral(A.map(values, (entry) => entry.type))} as const;
@@ -212,6 +213,7 @@ export const OfficialMimeTypeDataTypeValues = ${formatTsLiteral(A.map(values, (e
 /**
  * IANA media type entries grouped for schema category helpers.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataByTopLevel = ${formatTsLiteral(byTopLevel(values))} as const;

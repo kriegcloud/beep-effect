@@ -12,8 +12,7 @@ import { ParserOptions } from "@beep/schema/ParserOptions";
 import { XmlTextToUnknown } from "@beep/schema/Xml";
 import { A, Str } from "@beep/utils";
 import { cast } from "@beep/utils/Function";
-import { Effect, Encoding, pipe, Result } from "effect";
-import * as Crypto from "effect/Crypto";
+import { Crypto, Effect, Encoding, pipe, Result } from "effect";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -36,6 +35,12 @@ const ParsedCsvRecord = S.Record(S.String, S.String).pipe(
 );
 type ParsedCsvRecord = typeof ParsedCsvRecord.Type;
 
+/**
+ * Parsed CSV rows with the source header columns attached as a stable property.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ParsedCsvRecords = Array<ParsedCsvRecord> & {
   readonly columns: ReadonlyArray<string>;
 };
@@ -47,11 +52,11 @@ export type ParsedCsvRecords = Array<ParsedCsvRecord> & {
  * @since 0.0.0
  */
 export interface SyncDataFetchedSource {
-  readonly id: string;
-  readonly url: string;
   readonly bytes: Uint8Array;
-  readonly text: string;
+  readonly id: string;
   readonly sha256: string;
+  readonly text: string;
+  readonly url: string;
 }
 
 const attachCsvColumns = (rows: ReadonlyArray<ParsedCsvRecord>, columns: ReadonlyArray<string>): ParsedCsvRecords => {
@@ -70,6 +75,8 @@ const attachCsvColumns = (rows: ReadonlyArray<ParsedCsvRecord>, columns: Readonl
 /**
  * Pretty-print a JSON value as canonical JSON with a trailing newline.
  *
+ * @param value - The JSON-compatible value to format.
+ * @returns Canonical JSON text with a trailing newline.
  * @category formatting
  * @since 0.0.0
  */
@@ -85,6 +92,8 @@ export const formatJson = (value: unknown): string => {
 /**
  * Pretty-print a JSON-compatible value as a TypeScript literal.
  *
+ * @param value - The JSON-compatible value to render.
+ * @returns The value rendered as a TypeScript object literal.
  * @category formatting
  * @since 0.0.0
  */
@@ -94,6 +103,9 @@ export const formatTsLiteral = (value: unknown): string =>
 /**
  * Create a generated output file value.
  *
+ * @param path - The repo-relative output path for the generated file.
+ * @param content - The generated file content.
+ * @returns The generated output file value.
  * @category constructors
  * @since 0.0.0
  */
@@ -103,6 +115,9 @@ export const outputFile = (path: string, content: string): SyncDataOutputFile =>
 /**
  * Create stable source metadata.
  *
+ * @param source - The fetched source to describe.
+ * @param extras - Optional version and published-date metadata.
+ * @returns Stable source metadata for the fetched source.
  * @category constructors
  * @since 0.0.0
  */
@@ -133,9 +148,9 @@ const readResponseBytes = Effect.fn("SyncDataToTs.readResponseBytes")(function* 
 
 const sha256Hex = Effect.fn("SyncDataToTs.sha256Hex")(function* (bytes: Uint8Array, targetId: string, url: string) {
   const crypto = yield* Crypto.Crypto;
-  const digest = yield* crypto.digest("SHA-256", bytes).pipe(
-    SyncDataToTsError.mapError(`Failed to compute SHA-256 digest for ${url}`, targetId)
-  );
+  const digest = yield* crypto
+    .digest("SHA-256", bytes)
+    .pipe(SyncDataToTsError.mapError(`Failed to compute SHA-256 digest for ${url}`, targetId));
   return Encoding.encodeHex(digest);
 });
 
@@ -170,19 +185,33 @@ export const fetchSource = Effect.fn("SyncDataToTs.fetchSource")(function* (
 /**
  * Parse a fetched source as JSON.
  *
+ * @param targetId - The sync target identifier used in error messages.
+ * @param source - The fetched source to parse.
+ * @returns The decoded JSON value.
  * @category parsing
  * @since 0.0.0
  */
-export const parseJsonSource = (targetId: string, source: SyncDataFetchedSource): Effect.Effect<unknown, SyncDataToTsError> =>
-  decodeJsonText(source.text).pipe(SyncDataToTsError.mapError(`Failed to parse JSON payload for ${targetId}`, targetId));
+export const parseJsonSource = (
+  targetId: string,
+  source: SyncDataFetchedSource
+): Effect.Effect<unknown, SyncDataToTsError> =>
+  decodeJsonText(source.text).pipe(
+    SyncDataToTsError.mapError(`Failed to parse JSON payload for ${targetId}`, targetId)
+  );
 
 /**
  * Parse a fetched source as XML.
  *
+ * @param targetId - The sync target identifier used in error messages.
+ * @param source - The fetched source to parse.
+ * @returns The decoded XML value.
  * @category parsing
  * @since 0.0.0
  */
-export const parseXmlSource = (targetId: string, source: SyncDataFetchedSource): Effect.Effect<unknown, SyncDataToTsError> =>
+export const parseXmlSource = (
+  targetId: string,
+  source: SyncDataFetchedSource
+): Effect.Effect<unknown, SyncDataToTsError> =>
   decodeXmlText(source.text).pipe(SyncDataToTsError.mapError(`Failed to parse XML payload for ${targetId}`, targetId));
 
 const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content: string) {
@@ -214,6 +243,9 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
 /**
  * Parse a fetched source as CSV.
  *
+ * @param targetId - The sync target identifier used in error messages.
+ * @param source - The fetched source to parse.
+ * @returns The parsed CSV records with their header columns attached.
  * @category parsing
  * @since 0.0.0
  */

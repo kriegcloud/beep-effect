@@ -6,8 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, Encoding, Option, SchemaGetter, SchemaIssue } from "effect";
-import * as Crypto from "effect/Crypto";
+import { Crypto, Effect, Encoding, Option, SchemaGetter, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Sha256");
@@ -27,20 +26,21 @@ const Sha256HexChecks = S.makeFilterGroup([
   }),
 ]);
 
-const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.Issue, Crypto.Crypto> =>
-  Effect.gen(function* () {
-    const crypto = yield* Crypto.Crypto;
-    const digest = yield* crypto.digest("SHA-256", Uint8Array.from(input)).pipe(
-      Effect.mapError(
-        (cause) =>
-          new SchemaIssue.InvalidValue(Option.some(input), {
-            message: cause.message,
-          })
-      )
-    );
+const computeSha256Hex = Effect.fn("computeSha256Hex")(function* (
+  input: Uint8Array
+): Effect.fn.Return<string, SchemaIssue.Issue, Crypto.Crypto> {
+  const crypto = yield* Crypto.Crypto;
+  const digest = yield* crypto.digest("SHA-256", Uint8Array.from(input)).pipe(
+    Effect.mapError(
+      (cause) =>
+        new SchemaIssue.InvalidValue(Option.some(input), {
+          message: cause.message,
+        })
+    )
+  );
 
-    return Encoding.encodeHex(digest);
-  });
+  return Encoding.encodeHex(digest);
+});
 
 /**
  * Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters).

@@ -91,8 +91,7 @@ export const TimezoneDataSourceUrl: typeof internal.TimezoneDataSourceUrl = inte
  * @since 0.0.0
  * @category constants
  */
-export const TimezoneDataSourceSha256: typeof internal.TimezoneDataSourceSha256 =
-  internal.TimezoneDataSourceSha256;
+export const TimezoneDataSourceSha256: typeof internal.TimezoneDataSourceSha256 = internal.TimezoneDataSourceSha256;
 
 /**
  * Generated IANA timezone entries.

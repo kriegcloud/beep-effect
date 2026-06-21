@@ -312,7 +312,6 @@ export type BeepNextConfigOptionsInput = Omit<typeof BeepNextConfigOptions.Encod
  * @since 0.0.0
  */
 export type NextConfigPlugin = (config: NextConfigFromNext) => NextConfigFromNext;
-type ForeignNextConfigPlugin = (config?: unknown) => unknown;
 
 const decodeBeepNextConfigEnvResult = S.decodeUnknownResult(BeepNextConfigEnv);
 const decodeBeepNextConfigOptionsResult = S.decodeUnknownResult(BeepNextConfigOptions);

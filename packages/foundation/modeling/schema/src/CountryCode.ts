@@ -6,8 +6,8 @@
  */
 
 import {
-  TerritoryCode as TerritoryCodeSchema,
   TerritoryCodeFromName as TerritoryCodeFromNameSchema,
+  TerritoryCode as TerritoryCodeSchema,
   TerritoryNameFromCode as TerritoryNameFromCodeSchema,
 } from "./TerritoryCode.ts";
 

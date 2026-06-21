@@ -7,10 +7,11 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { A } from "@beep/utils";
-import { Effect, Order, pipe } from "effect";
+import { Effect, MutableHashMap, Order, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
 import {
   fetchSource,
   formatJson,
@@ -19,7 +20,6 @@ import {
   parseJsonSource,
   sourceMetadata,
 } from "../internal/Source.js";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
 import type { SyncDataSourceMetadata, SyncDataTarget } from "../internal/Models.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/CldrTerritories");
@@ -33,7 +33,8 @@ const canonicalPath = "packages/foundation/primitive/data/src/generated/cldr-ter
  * @category configuration
  * @since 0.0.0
  */
-export const CLDR_JSON_LATEST_RELEASE_URL = "https://api.github.com/repos/unicode-org/cldr-json/releases/latest" as const;
+export const CLDR_JSON_LATEST_RELEASE_URL =
+  "https://api.github.com/repos/unicode-org/cldr-json/releases/latest" as const;
 
 class CldrGithubRelease extends S.Class<CldrGithubRelease>($I`CldrGithubRelease`)(
   {
@@ -88,9 +89,7 @@ class CldrTerritoryContainmentDocument extends S.Class<CldrTerritoryContainmentD
   })
 ) {}
 
-class CldrTerritoryInfoSupplemental extends S.Class<CldrTerritoryInfoSupplemental>(
-  $I`CldrTerritoryInfoSupplemental`
-)(
+class CldrTerritoryInfoSupplemental extends S.Class<CldrTerritoryInfoSupplemental>($I`CldrTerritoryInfoSupplemental`)(
   {
     version: CldrVersion,
     territoryInfo: S.Record(S.String, S.Unknown),
@@ -206,20 +205,18 @@ const assignContinentDescendants = (
   containment: CldrContainmentMap,
   continentCode: string,
   code: string,
-  out: Map<string, string>
+  out: MutableHashMap.MutableHashMap<string, string>
 ): void => {
   for (const child of childrenOf(containment, code)) {
     if (isAlpha2TerritoryCode(child)) {
-      out.set(child, continentCode);
+      MutableHashMap.set(out, child, continentCode);
     }
     assignContinentDescendants(containment, continentCode, child, out);
   }
 };
 
-const continentByTerritoryCode = (
-  containment: CldrContainmentMap
-): Map<string, string> => {
-  const out = new Map<string, string>();
+const continentByTerritoryCode = (containment: CldrContainmentMap): MutableHashMap.MutableHashMap<string, string> => {
+  const out = MutableHashMap.empty<string, string>();
   for (const continentCode of childrenOf(containment, "001")) {
     assignContinentDescendants(containment, continentCode, continentCode, out);
   }
@@ -227,24 +224,13 @@ const continentByTerritoryCode = (
 };
 
 const byCode = <Entry extends { readonly code: string }>(values: ReadonlyArray<Entry>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.code, entry] as const),
-    R.fromEntries
-  );
+  R.fromEntries(A.map(values, (entry) => [entry.code, entry] as const));
 
 const nameByCode = <Entry extends { readonly code: string; readonly name: string }>(values: ReadonlyArray<Entry>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.code, entry.name] as const),
-    R.fromEntries
-  );
+  R.fromEntries(A.map(values, (entry) => [entry.code, entry.name] as const));
 
 const codeNamePairs = <Entry extends { readonly code: string; readonly name: string }>(values: ReadonlyArray<Entry>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.code, entry.name] as const)
-  );
+  A.map(values, (entry) => [entry.code, entry.name] as const);
 
 const renderCldrTerritoriesModule = (
   releaseTag: string,
@@ -266,6 +252,7 @@ const renderCldrTerritoriesModule = (
 /**
  * Stable source metadata for the Unicode CLDR territory data release.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataMetadata = ${formatTsLiteral({
@@ -278,6 +265,7 @@ export const TerritoryDataMetadata = ${formatTsLiteral({
 /**
  * CLDR JSON release tag used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataReleaseTag = ${formatTsLiteral(releaseTag)} as const;
@@ -285,6 +273,7 @@ export const TerritoryDataReleaseTag = ${formatTsLiteral(releaseTag)} as const;
 /**
  * Normalized CLDR territory entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataValues = ${formatTsLiteral(territories)} as const;
@@ -292,6 +281,7 @@ export const TerritoryDataValues = ${formatTsLiteral(territories)} as const;
 /**
  * Normalized CLDR territory entries keyed by territory code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataByCode = ${formatTsLiteral(byCode(territories))} as const;
@@ -299,6 +289,7 @@ export const TerritoryDataByCode = ${formatTsLiteral(byCode(territories))} as co
 /**
  * CLDR territory code literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryCodeValues = ${formatTsLiteral(A.map(territories, (entry) => entry.code))} as const;
@@ -306,6 +297,7 @@ export const TerritoryCodeValues = ${formatTsLiteral(A.map(territories, (entry) 
 /**
  * CLDR territory names keyed by territory code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataNameByCode = ${formatTsLiteral(nameByCode(territories))} as const;
@@ -313,6 +305,7 @@ export const TerritoryDataNameByCode = ${formatTsLiteral(nameByCode(territories)
 /**
  * CLDR territory code to English display-name literal pairs.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataCodeNamePairs = ${formatTsLiteral(codeNamePairs(territories))} as const;
@@ -320,6 +313,7 @@ export const TerritoryDataCodeNamePairs = ${formatTsLiteral(codeNamePairs(territ
 /**
  * Normalized CLDR continent entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataValues = ${formatTsLiteral(continents)} as const;
@@ -327,6 +321,7 @@ export const ContinentDataValues = ${formatTsLiteral(continents)} as const;
 /**
  * Normalized CLDR continent entries keyed by CLDR region code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataByCode = ${formatTsLiteral(byCode(continents))} as const;
@@ -334,6 +329,7 @@ export const ContinentDataByCode = ${formatTsLiteral(byCode(continents))} as con
 /**
  * CLDR continent code literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentCodeValues = ${formatTsLiteral(A.map(continents, (entry) => entry.code))} as const;
@@ -341,6 +337,7 @@ export const ContinentCodeValues = ${formatTsLiteral(A.map(continents, (entry) =
 /**
  * CLDR continent names keyed by CLDR region code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataNameByCode = ${formatTsLiteral(nameByCode(continents))} as const;
@@ -348,6 +345,7 @@ export const ContinentDataNameByCode = ${formatTsLiteral(nameByCode(continents))
 /**
  * CLDR continent code to English display-name literal pairs.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataCodeNamePairs = ${formatTsLiteral(codeNamePairs(continents))} as const;
@@ -400,7 +398,10 @@ const normalizeCldrTerritories = (
     A.filter(isAlpha2TerritoryCode),
     A.filter((code) => R.has(code)(names)),
     A.map((code) => {
-      const continentCode = territoryContinent.get(code) ?? "001";
+      const continentCode = pipe(
+        MutableHashMap.get(territoryContinent, code),
+        O.getOrElse(() => "001")
+      );
       return CldrTerritoryEntry.make({
         code,
         name: pipe(

@@ -12,6 +12,7 @@
 /**
  * Stable source metadata for the official IANA tzdb data-only distribution.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataMetadata = {
@@ -23,6 +24,7 @@ export const TimezoneDataMetadata = {
 /**
  * IANA tzdb version.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataVersion = "2026b" as const;
@@ -30,6 +32,7 @@ export const TimezoneDataVersion = "2026b" as const;
 /**
  * IANA tzdb data-only source URL.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataSourceUrl = "https://data.iana.org/time-zones/tzdata-latest.tar.gz" as const;
@@ -37,6 +40,7 @@ export const TimezoneDataSourceUrl = "https://data.iana.org/time-zones/tzdata-la
 /**
  * SHA-256 digest of the official source payload used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataSourceSha256 = "114543d9f19a6bfeb5bca43686aea173d38755a3db1f2eec112647ae92c6f544" as const;
@@ -44,6 +48,7 @@ export const TimezoneDataSourceSha256 = "114543d9f19a6bfeb5bca43686aea173d38755a
 /**
  * Normalized IANA timezone entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataValues = [
@@ -1846,6 +1851,7 @@ export const TimezoneDataValues = [
 /**
  * Normalized IANA timezone entries keyed by timezone identifier.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataByName = {
@@ -3648,6 +3654,7 @@ export const TimezoneDataByName = {
 /**
  * IANA timezone identifier literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneNameValues = [

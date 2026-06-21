@@ -440,42 +440,41 @@ const mdInlinesToPandocPlain = (
     value: Plain.make({ children: value }),
   }));
 
-const mdListItemChildrenToPandocBlocks = (
+const mdListItemChildrenToPandocBlocks = Effect.fn("mdListItemChildrenToPandocBlocks")(function* (
   children: ReadonlyArray<Md.ListItemChild>,
   path: JsonPath
-): Effect.Effect<Projection<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> =>
-  Effect.gen(function* () {
-    const blocks: Array<Projection<PandocBlock.Type>> = [];
-    let pendingInlines: Array<Md.Inline> = [];
-    let pendingStartIndex = 0;
-    const flushInlines = Effect.fnUntraced(function* () {
-      if (pendingInlines.length > 0) {
-        A.appendInPlace(
-          blocks,
-          yield* mdInlinesToPandocPlain(pendingInlines, appendIndex(path, "children", pendingStartIndex))
-        );
-        pendingInlines = [];
-      }
-    });
-    for (const [index, child] of children.entries()) {
-      if (isMdInline(child)) {
-        if (pendingInlines.length === 0) {
-          pendingStartIndex = index;
-        }
-        A.appendInPlace(pendingInlines, child);
-      } else {
-        yield* flushInlines();
-        A.appendInPlace(blocks, yield* mdBlockToPandoc(child, appendIndex(path, "children", index)));
-      }
+): Effect.fn.Return<Projection<ReadonlyArray<PandocBlock.Type>>, S.SchemaError> {
+  const blocks: Array<Projection<PandocBlock.Type>> = [];
+  let pendingInlines: Array<Md.Inline> = [];
+  let pendingStartIndex = 0;
+  const flushInlines = Effect.fnUntraced(function* () {
+    if (pendingInlines.length > 0) {
+      A.appendInPlace(
+        blocks,
+        yield* mdInlinesToPandocPlain(pendingInlines, appendIndex(path, "children", pendingStartIndex))
+      );
+      pendingInlines = [];
     }
-
-    yield* flushInlines();
-
-    return {
-      issues: mergeIssues(blocks),
-      value: A.map(blocks, (block) => block.value),
-    };
   });
+  for (const [index, child] of children.entries()) {
+    if (isMdInline(child)) {
+      if (pendingInlines.length === 0) {
+        pendingStartIndex = index;
+      }
+      A.appendInPlace(pendingInlines, child);
+    } else {
+      yield* flushInlines();
+      A.appendInPlace(blocks, yield* mdBlockToPandoc(child, appendIndex(path, "children", index)));
+    }
+  }
+
+  yield* flushInlines();
+
+  return {
+    issues: mergeIssues(blocks),
+    value: A.map(blocks, (block) => block.value),
+  };
+});
 
 const pandocListItemToMd = (
   item: ReadonlyArray<PandocBlock.Type>,

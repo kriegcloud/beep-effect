@@ -21,4 +21,9 @@ import { iso4217Target } from "./Iso4217.js";
  * @category configuration
  * @since 0.0.0
  */
-export const syncDataTargets = [iso4217Target, ianaMediaTypesTarget, ianaTimezonesTarget, cldrTerritoriesTarget] as const;
+export const syncDataTargets = [
+  iso4217Target,
+  ianaMediaTypesTarget,
+  ianaTimezonesTarget,
+  cldrTerritoriesTarget,
+] as const;

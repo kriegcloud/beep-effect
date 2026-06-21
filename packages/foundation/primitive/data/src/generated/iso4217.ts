@@ -12,6 +12,7 @@
 /**
  * Stable source metadata for the official ISO 4217 List One feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataMetadata = {
@@ -23,6 +24,7 @@ export const CurrencyCodeDataMetadata = {
 /**
  * Published date reported by the official ISO 4217 List One feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataPublished = "2026-01-01" as const;
@@ -30,6 +32,7 @@ export const CurrencyCodeDataPublished = "2026-01-01" as const;
 /**
  * Official source URL for the ISO 4217 List One feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataSourceUrl = "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml" as const;
@@ -37,6 +40,7 @@ export const CurrencyCodeDataSourceUrl = "https://www.six-group.com/dam/download
 /**
  * SHA-256 digest of the official source payload used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataSourceSha256 = "838dfb991648cf36df939edd5fe3811737962b75a32252847d239cedd1e291c9" as const;
@@ -44,6 +48,7 @@ export const CurrencyCodeDataSourceSha256 = "838dfb991648cf36df939edd5fe38117379
 /**
  * Normalized ISO 4217 currency entries emitted from the official feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataValues = [
@@ -1753,6 +1758,7 @@ export const CurrencyCodeDataValues = [
 /**
  * ISO 4217 currency entries keyed by alphabetic code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataByCode = {
@@ -3462,6 +3468,7 @@ export const CurrencyCodeDataByCode = {
 /**
  * ISO 4217 alphabetic code literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataCodeValues = [
@@ -3648,6 +3655,7 @@ export const CurrencyCodeDataCodeValues = [
 /**
  * ISO 4217 currency names keyed by alphabetic code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataNameByCode = {
@@ -3834,6 +3842,7 @@ export const CurrencyCodeDataNameByCode = {
 /**
  * ISO 4217 alphabetic code to currency-name literal pairs.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataCodeNamePairs = [

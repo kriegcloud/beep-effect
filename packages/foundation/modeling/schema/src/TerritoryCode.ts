@@ -41,7 +41,9 @@ const territoryNameByCodeEntries = Struct.entriesNonEmpty(TerritoriesData.Territ
  * @since 0.0.0
  * @category schemas
  */
-export const TerritoryName = LiteralKit(Struct.keysNonEmpty(Struct.reverse(TerritoriesData.TerritoryDataNameByCode))).pipe(
+export const TerritoryName = LiteralKit(
+  Struct.keysNonEmpty(Struct.reverse(TerritoriesData.TerritoryDataNameByCode))
+).pipe(
   $I.annoteSchema("TerritoryName", {
     description: "A CLDR English territory display name.",
   })

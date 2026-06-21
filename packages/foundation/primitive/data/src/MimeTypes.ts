@@ -9,8 +9,8 @@
  * @since 0.0.0
  */
 
-import * as internal from "./internal/data/mime-types/index.ts";
 import * as official from "./generated/iana-media-types.ts";
+import * as internal from "./internal/data/mime-types/index.ts";
 
 // -------------------------------------------------------------------------------------
 // types

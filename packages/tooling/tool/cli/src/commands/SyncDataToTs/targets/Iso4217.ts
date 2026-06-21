@@ -13,6 +13,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
 import {
   fetchSource,
   formatJson,
@@ -21,7 +22,6 @@ import {
   parseXmlSource,
   sourceMetadata,
 } from "../internal/Source.js";
-import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
 import type { SyncDataTarget } from "../internal/Models.js";
 
 const $I = $RepoCliId.create("commands/SyncDataToTs/targets/Iso4217");
@@ -147,24 +147,13 @@ const parseMinorUnits = (value: string, code: string): Effect.Effect<number, Syn
       })();
 
 const byCode = (values: ReadonlyArray<Iso4217CurrencyEntryType>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.code, entry] as const),
-    R.fromEntries
-  );
+  R.fromEntries(A.map(values, (entry) => [entry.code, entry] as const));
 
 const nameByCode = (values: ReadonlyArray<Iso4217CurrencyEntryType>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.code, entry.currency] as const),
-    R.fromEntries
-  );
+  R.fromEntries(A.map(values, (entry) => [entry.code, entry.currency] as const));
 
 const codeNamePairs = (values: ReadonlyArray<Iso4217CurrencyEntryType>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.code, entry.currency] as const)
-  );
+  A.map(values, (entry) => [entry.code, entry.currency] as const);
 
 const renderIso4217Module = (
   published: string,
@@ -184,6 +173,7 @@ const renderIso4217Module = (
 /**
  * Stable source metadata for the official ISO 4217 List One feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataMetadata = ${formatTsLiteral({
@@ -195,6 +185,7 @@ export const CurrencyCodeDataMetadata = ${formatTsLiteral({
 /**
  * Published date reported by the official ISO 4217 List One feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataPublished = ${formatTsLiteral(published)} as const;
@@ -202,6 +193,7 @@ export const CurrencyCodeDataPublished = ${formatTsLiteral(published)} as const;
 /**
  * Official source URL for the ISO 4217 List One feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataSourceUrl = ${formatTsLiteral(ISO4217_SOURCE_URL)} as const;
@@ -209,6 +201,7 @@ export const CurrencyCodeDataSourceUrl = ${formatTsLiteral(ISO4217_SOURCE_URL)} 
 /**
  * SHA-256 digest of the official source payload used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataSourceSha256 = ${formatTsLiteral(sha256)} as const;
@@ -216,6 +209,7 @@ export const CurrencyCodeDataSourceSha256 = ${formatTsLiteral(sha256)} as const;
 /**
  * Normalized ISO 4217 currency entries emitted from the official feed.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataValues = ${formatTsLiteral(values)} as const;
@@ -223,6 +217,7 @@ export const CurrencyCodeDataValues = ${formatTsLiteral(values)} as const;
 /**
  * ISO 4217 currency entries keyed by alphabetic code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataByCode = ${formatTsLiteral(byCode(values))} as const;
@@ -230,6 +225,7 @@ export const CurrencyCodeDataByCode = ${formatTsLiteral(byCode(values))} as cons
 /**
  * ISO 4217 alphabetic code literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataCodeValues = ${formatTsLiteral(A.map(values, (entry) => entry.code))} as const;
@@ -237,6 +233,7 @@ export const CurrencyCodeDataCodeValues = ${formatTsLiteral(A.map(values, (entry
 /**
  * ISO 4217 currency names keyed by alphabetic code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataNameByCode = ${formatTsLiteral(nameByCode(values))} as const;
@@ -244,6 +241,7 @@ export const CurrencyCodeDataNameByCode = ${formatTsLiteral(nameByCode(values))}
 /**
  * ISO 4217 alphabetic code to currency-name literal pairs.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataCodeNamePairs = ${formatTsLiteral(codeNamePairs(values))} as const;
@@ -291,7 +289,11 @@ const normalizeIso4217Document = Effect.fn("SyncDataToTs.Iso4217.normalizeIso421
       continue;
     }
 
-    if (existing.value.number !== row.CcyNbr || existing.value.digits !== digits || existing.value.currency !== currency) {
+    if (
+      existing.value.number !== row.CcyNbr ||
+      existing.value.digits !== digits ||
+      existing.value.currency !== currency
+    ) {
       return yield* SyncDataToTsError.make({
         message: `Encountered inconsistent ISO 4217 currency data for ${row.Ccy}.`,
         targetId,

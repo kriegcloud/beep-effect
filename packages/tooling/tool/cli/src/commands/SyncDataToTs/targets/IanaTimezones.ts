@@ -6,19 +6,13 @@
  */
 
 import { A } from "@beep/utils";
-import { Effect, Order, pipe } from "effect";
+import { Effect, HashSet, Order, pipe } from "effect";
 import * as R from "effect/Record";
 import { Parser } from "tar";
-import {
-  fetchSource,
-  formatJson,
-  formatTsLiteral,
-  outputFile,
-  sourceMetadata,
-} from "../internal/Source.js";
 import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
-import type { SyncDataTarget } from "../internal/Models.js";
+import { fetchSource, formatJson, formatTsLiteral, outputFile, sourceMetadata } from "../internal/Source.js";
 import type { ReadEntry } from "tar";
+import type { SyncDataTarget } from "../internal/Models.js";
 
 const targetId = "iana-timezones" as const;
 const outputPath = "packages/foundation/primitive/data/src/generated/iana-timezones.ts" as const;
@@ -42,7 +36,7 @@ class IanaTimezoneEntry {
 
 type TzdbTextEntries = Readonly<Record<string, string>>;
 
-const TZDB_TEXT_FILES = new Set([
+const TZDB_TEXT_FILES = HashSet.make(
   "africa",
   "antarctica",
   "asia",
@@ -54,8 +48,8 @@ const TZDB_TEXT_FILES = new Set([
   "northamerica",
   "southamerica",
   "version",
-  "zone1970.tab",
-]);
+  "zone1970.tab"
+);
 
 const extractTzdbTextEntries = (bytes: Uint8Array): Effect.Effect<TzdbTextEntries, SyncDataToTsError> =>
   Effect.callback<TzdbTextEntries, SyncDataToTsError>((resume) => {
@@ -65,7 +59,7 @@ const extractTzdbTextEntries = (bytes: Uint8Array): Effect.Effect<TzdbTextEntrie
     let completed = false;
     const parser = new Parser({
       strict: true,
-      filter: (path) => TZDB_TEXT_FILES.has(path),
+      filter: (path) => HashSet.has(TZDB_TEXT_FILES, path),
     });
     const fail = (cause: unknown) => {
       if (completed) {
@@ -161,11 +155,7 @@ const extractTimezoneNames = (entries: TzdbTextEntries): ReadonlyArray<string> =
 };
 
 const byName = (values: ReadonlyArray<IanaTimezoneEntry>) =>
-  pipe(
-    values,
-    A.map((entry) => [entry.name, entry] as const),
-    R.fromEntries
-  );
+  R.fromEntries(A.map(values, (entry) => [entry.name, entry] as const));
 
 const renderIanaTimezonesModule = (
   version: string,
@@ -185,6 +175,7 @@ const renderIanaTimezonesModule = (
 /**
  * Stable source metadata for the official IANA tzdb data-only distribution.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataMetadata = ${formatTsLiteral({
@@ -196,6 +187,7 @@ export const TimezoneDataMetadata = ${formatTsLiteral({
 /**
  * IANA tzdb version.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataVersion = ${formatTsLiteral(version)} as const;
@@ -203,6 +195,7 @@ export const TimezoneDataVersion = ${formatTsLiteral(version)} as const;
 /**
  * IANA tzdb data-only source URL.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataSourceUrl = ${formatTsLiteral(IANA_TZDATA_SOURCE_URL)} as const;
@@ -210,6 +203,7 @@ export const TimezoneDataSourceUrl = ${formatTsLiteral(IANA_TZDATA_SOURCE_URL)} 
 /**
  * SHA-256 digest of the official source payload used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataSourceSha256 = ${formatTsLiteral(sha256)} as const;
@@ -217,6 +211,7 @@ export const TimezoneDataSourceSha256 = ${formatTsLiteral(sha256)} as const;
 /**
  * Normalized IANA timezone entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataValues = ${formatTsLiteral(values)} as const;
@@ -224,6 +219,7 @@ export const TimezoneDataValues = ${formatTsLiteral(values)} as const;
 /**
  * Normalized IANA timezone entries keyed by timezone identifier.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneDataByName = ${formatTsLiteral(byName(values))} as const;
@@ -231,6 +227,7 @@ export const TimezoneDataByName = ${formatTsLiteral(byName(values))} as const;
 /**
  * IANA timezone identifier literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TimezoneNameValues = ${formatTsLiteral(A.map(values, (entry) => entry.name))} as const;

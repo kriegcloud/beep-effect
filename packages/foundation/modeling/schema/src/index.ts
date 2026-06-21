@@ -74,11 +74,6 @@ export * from "./CommonTextSchemas.ts";
  * @since 0.0.0
  * @category validation
  */
-export { CSV, Csv, type CsvDocument, type CsvText, type RowSchemaWithFields } from "./Csv/index.ts";
-/**
- * @since 0.0.0
- * @category validation
- */
 export * from "./ContinentCode.ts";
 /**
  * @since 0.0.0
@@ -90,6 +85,11 @@ export * from "./CountryCode.ts";
  * @category validation
  */
 export * from "./CountryName.ts";
+/**
+ * @since 0.0.0
+ * @category validation
+ */
+export { CSV, Csv, type CsvDocument, type CsvText, type RowSchemaWithFields } from "./Csv/index.ts";
 /**
  * @since 0.0.0
  * @category validation

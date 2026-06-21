@@ -12,6 +12,7 @@
 /**
  * Stable source metadata for the official IANA media type registry.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataMetadata = {
@@ -23,6 +24,7 @@ export const OfficialMimeTypeDataMetadata = {
 /**
  * Last updated date reported by the official IANA media type registry.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataUpdated = "2026-06-12" as const;
@@ -30,6 +32,7 @@ export const OfficialMimeTypeDataUpdated = "2026-06-12" as const;
 /**
  * Official IANA media type registry source URL.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataSourceUrl = "https://www.iana.org/assignments/media-types/media-types.xml" as const;
@@ -37,6 +40,7 @@ export const OfficialMimeTypeDataSourceUrl = "https://www.iana.org/assignments/m
 /**
  * SHA-256 digest of the official source payload used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataSourceSha256 = "08ccc35c87a54045f7c09146778cddd473de3857e031fb30fa51ad9ad2267e5c" as const;
@@ -44,6 +48,7 @@ export const OfficialMimeTypeDataSourceSha256 = "08ccc35c87a54045f7c09146778cddd
 /**
  * Normalized IANA media type entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataValues = [
@@ -14729,6 +14734,7 @@ export const OfficialMimeTypeDataValues = [
 /**
  * Normalized IANA media type entries keyed by full media type.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataByType = {
@@ -29414,6 +29420,7 @@ export const OfficialMimeTypeDataByType = {
 /**
  * IANA media type literal values.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataTypeValues = [
@@ -31724,6 +31731,7 @@ export const OfficialMimeTypeDataTypeValues = [
 /**
  * IANA media type entries grouped for schema category helpers.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const OfficialMimeTypeDataByTopLevel = {

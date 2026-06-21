@@ -291,14 +291,14 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
       for(let j=i+1;j<act.length;j++){
         const b=act[j];
         let dx=a.x-b.x, dy=a.y-b.y, d2=dx*dx+dy*dy; if(d2<0.01)d2=0.01;
-        let d=Math.sqrt(d2), f=2800/d2, fx=f*dx/d, fy=f*dy/d;
+        const d=Math.sqrt(d2), f=2800/d2, fx=f*dx/d, fy=f*dy/d;
         a.vx+=fx; a.vy+=fy; b.vx-=fx; b.vy-=fy;
       }
     }
     for(const l of links){
       if(visibleIds && (!visibleIds.has(l.source.id)||!visibleIds.has(l.target.id))) continue;
-      let dx=l.target.x-l.source.x, dy=l.target.y-l.source.y, d=Math.hypot(dx,dy)||0.01;
-      let f=0.045*(d-78), fx=f*dx/d, fy=f*dy/d;
+      const dx=l.target.x-l.source.x, dy=l.target.y-l.source.y, d=Math.hypot(dx,dy)||0.01;
+      const f=0.045*(d-78), fx=f*dx/d, fy=f*dy/d;
       l.source.vx+=fx; l.source.vy+=fy; l.target.vx-=fx; l.target.vy-=fy;
     }
     for(const n of act){
@@ -369,8 +369,8 @@ function ForceGraph(canvas, rawNodes, rawLinks, opts={}){
       const st=stateOf(n); if(st==='dim'&&!hover) {/*draw faint*/}
       const r=radius(n)*(n===hover||n===selected?1.32:1);
       const [x,y]=[n.x,n.y];
-      let fill = n.type==='matter'?COL.matter : COL[n.type]||COL.entity;
-      let alphaN = st==='dim'?0.18 : st==='near'?0.7 : 1;
+      const fill = n.type==='matter'?COL.matter : COL[n.type]||COL.entity;
+      const alphaN = st==='dim'?0.18 : st==='near'?0.7 : 1;
       ctx.globalAlpha=alphaN;
       // halo for focal / selected / matches
       if(n===selected||n===hover|| (focusSet&&focusSet.has(n.id)) || (query&&st==='match')){

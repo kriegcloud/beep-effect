@@ -336,6 +336,7 @@ export const makeFileProcessingServiceLayer = (
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -363,7 +364,7 @@ export const makeFileProcessingServiceLayer = (
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.format)) // "markdown"
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.format)) // "markdown"
  * ```
  *
  * @effects Requires {@link FileProcessingService}; delegates detection to the configured engine and fails through the operation error channel.
@@ -388,6 +389,7 @@ export const detectFile = Effect.fn("FileProcessing.detectFile")(function* (
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -416,7 +418,7 @@ export const detectFile = Effect.fn("FileProcessing.detectFile")(function* (
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.text)) // "hello"
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.text)) // "hello"
  * ```
  *
  * @effects Requires {@link FileProcessingService}; delegates extraction to the configured engine and fails through the operation error channel.
@@ -441,6 +443,7 @@ export const extractFile = Effect.fn("FileProcessing.extractFile")(function* (
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -468,7 +471,7 @@ export const extractFile = Effect.fn("FileProcessing.extractFile")(function* (
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.children.length)) // 1
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.children.length)) // 1
  * ```
  *
  * @effects Requires {@link FileProcessingService}; delegates archive export to the configured engine and fails through the operation error channel.
@@ -493,6 +496,7 @@ export const exportArchive = Effect.fn("FileProcessing.exportArchive")(function*
  * import { TestFileProcessingEngine } from "@beep/file-processing/test"
  * import { NonNegativeInt } from "@beep/schema"
  * import { PosixPath } from "@beep/schema/PosixPath"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -521,7 +525,7 @@ export const exportArchive = Effect.fn("FileProcessing.exportArchive")(function*
  *   })).pipe(Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])))
  * })
  *
- * Effect.runPromise(program).then((result) => console.log(result.resultKind)) // "extracted"
+ * Effect.runPromise(program.pipe(Effect.provide(BunCrypto.layer))).then((result) => console.log(result.resultKind)) // "extracted"
  * ```
  *
  * @effects Requires {@link FileProcessingService}; detects the source and then delegates extraction or archive export to configured engines.

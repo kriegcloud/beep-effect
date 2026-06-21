@@ -7,11 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect } from "effect";
-import * as Crypto from "effect/Crypto";
 import * as S from "effect/Schema";
-import { HttpClient } from "effect/unstable/http";
-import type { JsonPatch } from "effect";
+import type { Crypto, Effect, JsonPatch } from "effect";
+import type { HttpClient } from "effect/unstable/http";
 import type { SyncDataToTsError } from "../SyncDataToTs.errors.js";
 
 /**
@@ -138,10 +136,10 @@ export type SyncDataTargetServices = HttpClient.HttpClient | Crypto.Crypto;
  * @since 0.0.0
  */
 export interface SyncDataTarget {
-  readonly id: string;
-  readonly description: string;
-  readonly sourceUrls: ReadonlyArray<string>;
   readonly acquire: Effect.Effect<SyncDataTargetProjection, SyncDataToTsError, SyncDataTargetServices>;
+  readonly description: string;
+  readonly id: string;
+  readonly sourceUrls: ReadonlyArray<string>;
 }
 
 /**
@@ -167,15 +165,15 @@ export class SyncDataFileResult extends S.Class<SyncDataFileResult>($I`SyncDataF
  * @since 0.0.0
  */
 export interface SyncDataTargetResult {
-  readonly targetId: string;
-  readonly outputPaths: ReadonlyArray<string>;
+  readonly canonicalPatch: JsonPatch.JsonPatch;
+  readonly canonicalPath: string;
   readonly changed: boolean;
   readonly changedFiles: ReadonlyArray<string>;
   readonly fileResults: ReadonlyArray<SyncDataFileResult>;
+  readonly outputPaths: ReadonlyArray<string>;
   readonly recordCount: number;
-  readonly summary: string;
-  readonly sourceUrls: ReadonlyArray<string>;
   readonly sources: ReadonlyArray<SyncDataSourceMetadata>;
-  readonly canonicalPath: string;
-  readonly canonicalPatch: JsonPatch.JsonPatch;
+  readonly sourceUrls: ReadonlyArray<string>;
+  readonly summary: string;
+  readonly targetId: string;
 }

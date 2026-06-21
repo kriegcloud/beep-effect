@@ -94,7 +94,9 @@ const hasRootCliGlobalFlag = (argv: ReadonlyArray<string>): boolean => argv.some
 const canUseQualityTaskFastPath = (argv: ReadonlyArray<string>): boolean =>
   isQualityTaskName(argv[0]) && !hasRootCliGlobalFlag(argv) && !(argv[0] === "lint" && isLintPolicySubcommand(argv[1]));
 
-const { BunChildProcessSpawner, BunCrypto, BunHttpClient, BunRuntime, BunServices } = await import("@effect/platform-bun");
+const { BunChildProcessSpawner, BunCrypto, BunHttpClient, BunRuntime, BunServices } = await import(
+  "@effect/platform-bun"
+);
 const { Cause, Effect, Exit, Layer, Runtime } = await import("effect");
 const O = await import("effect/Option");
 const P = await import("effect/Predicate");

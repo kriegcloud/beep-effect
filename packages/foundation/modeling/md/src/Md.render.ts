@@ -171,17 +171,18 @@ const renderListItemChildSegments = (
   return out;
 };
 
-const renderMarkdownListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
-  pipe(
-    children,
-    (items) => renderListItemChildSegments(items, renderMarkdownInlines, renderMarkdownBlock),
-    A.join("\n")
-  );
+const renderMarkdownListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
+  (items: ReadonlyArray<ListItemChild>) =>
+    renderListItemChildSegments(items, renderMarkdownInlines, renderMarkdownBlock),
+  A.join("\n")
+);
 
 const renderMarkdownListItem = (item: Li): string => renderMarkdownListItemChildren(item.children);
 
-const renderHtmlListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
-  pipe(children, (items) => renderListItemChildSegments(items, renderHtmlInlines, renderHtmlBlock), joinEmpty);
+const renderHtmlListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
+  (items: ReadonlyArray<ListItemChild>) => renderListItemChildSegments(items, renderHtmlInlines, renderHtmlBlock),
+  joinEmpty
+);
 
 const renderHtmlListItem = (item: Li): string => `<li>${renderHtmlListItemChildren(item.children)}</li>`;
 
@@ -470,12 +471,11 @@ const renderPlainTextInlines: (children: ReadonlyArray<Inline>) => string = flow
   joinEmpty
 );
 
-const renderPlainTextListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
-  pipe(
-    children,
-    (items) => renderListItemChildSegments(items, renderPlainTextInlines, renderPlainTextBlock),
-    A.join("\n")
-  );
+const renderPlainTextListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
+  (items: ReadonlyArray<ListItemChild>) =>
+    renderListItemChildSegments(items, renderPlainTextInlines, renderPlainTextBlock),
+  A.join("\n")
+);
 
 const renderPlainTextListItem = (item: Li): string => renderPlainTextListItemChildren(item.children);
 

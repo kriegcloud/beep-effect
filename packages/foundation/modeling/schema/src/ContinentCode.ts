@@ -41,7 +41,9 @@ const continentNameByCodeEntries = Struct.entriesNonEmpty(TerritoriesData.Contin
  * @since 0.0.0
  * @category schemas
  */
-export const ContinentName = LiteralKit(Struct.keysNonEmpty(Struct.reverse(TerritoriesData.ContinentDataNameByCode))).pipe(
+export const ContinentName = LiteralKit(
+  Struct.keysNonEmpty(Struct.reverse(TerritoriesData.ContinentDataNameByCode))
+).pipe(
   $I.annoteSchema("ContinentName", {
     description: "A CLDR top-level territory containment display name.",
   })

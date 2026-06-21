@@ -11,6 +11,7 @@
 /**
  * Stable source metadata for the Unicode CLDR territory data release.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataMetadata = {
@@ -49,6 +50,7 @@ export const TerritoryDataMetadata = {
 /**
  * CLDR JSON release tag used for this generated module.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataReleaseTag = "48.2.0" as const;
@@ -56,6 +58,7 @@ export const TerritoryDataReleaseTag = "48.2.0" as const;
 /**
  * Normalized CLDR territory entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataValues = [
@@ -1612,6 +1615,7 @@ export const TerritoryDataValues = [
 /**
  * Normalized CLDR territory entries keyed by territory code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataByCode = {
@@ -3168,6 +3172,7 @@ export const TerritoryDataByCode = {
 /**
  * CLDR territory code literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryCodeValues = [
@@ -3434,6 +3439,7 @@ export const TerritoryCodeValues = [
 /**
  * CLDR territory names keyed by territory code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataNameByCode = {
@@ -3700,6 +3706,7 @@ export const TerritoryDataNameByCode = {
 /**
  * CLDR territory code to English display-name literal pairs.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const TerritoryDataCodeNamePairs = [
@@ -4740,6 +4747,7 @@ export const TerritoryDataCodeNamePairs = [
 /**
  * Normalized CLDR continent entries.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataValues = [
@@ -4768,6 +4776,7 @@ export const ContinentDataValues = [
 /**
  * Normalized CLDR continent entries keyed by CLDR region code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataByCode = {
@@ -4796,6 +4805,7 @@ export const ContinentDataByCode = {
 /**
  * CLDR continent code literals.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentCodeValues = [
@@ -4809,6 +4819,7 @@ export const ContinentCodeValues = [
 /**
  * CLDR continent names keyed by CLDR region code.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataNameByCode = {
@@ -4822,6 +4833,7 @@ export const ContinentDataNameByCode = {
 /**
  * CLDR continent code to English display-name literal pairs.
  *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentDataCodeNamePairs = [

@@ -8,21 +8,16 @@
 import { Md } from "@beep/md";
 import { findRepoRoot } from "@beep/repo-utils";
 import { A, P, Str, Struct, thunkEffectVoid, thunkTrue } from "@beep/utils";
-import { Console, Effect, FileSystem, JsonPointer, Match, Path, pipe } from "effect";
-import * as Crypto from "effect/Crypto";
-import type { JsonPatch } from "effect";
+import { Console, Effect, FileSystem, flow, JsonPointer, Match, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
-import { HttpClient } from "effect/unstable/http";
 import { failWithReportedExit } from "../../internal/cli/ExitCodeError.js";
+import { SyncDataRunMode, SyncDataToTsDriftError, SyncDataToTsError } from "./internal/Models.js";
 import { formatJson } from "./internal/Source.js";
-import {
-  SyncDataRunMode,
-  SyncDataToTsDriftError,
-  SyncDataToTsError,
-} from "./internal/Models.js";
 import { syncDataTargets } from "./targets/index.js";
+import type { Crypto, JsonPatch } from "effect";
+import type { HttpClient } from "effect/unstable/http";
 import type {
   SyncDataFileResult,
   SyncDataRunMode as SyncDataRunModeType,
@@ -65,8 +60,7 @@ const makeRunModeFlags = (check: boolean, dryRun: boolean): SyncDataRunModeFlags
 
 const isRunModeFlagConflict = P.Tuple([P.isTruthy, P.isTruthy]);
 
-const runModeFlag = <Mode extends SyncDataRunModeType>(mode: Mode) => (value: boolean) =>
-  pipe(value, O.liftPredicate(P.isTruthy), O.as(mode));
+const runModeFlag = <Mode extends SyncDataRunModeType>(mode: Mode) => flow(O.liftPredicate(P.isTruthy), O.as(mode));
 
 const resolveEnabledRunMode = ([check, dryRun]: SyncDataRunModeFlags): SyncDataRunModeType =>
   pipe(
@@ -120,12 +114,10 @@ const resolveTargetById = (targetId: string): Effect.Effect<ReadonlyArray<SyncDa
     Effect.mapError(() => unknownTargetError(targetId))
   );
 
-const resolveSelectedTarget = (targetId: O.Option<string>) =>
-  pipe(
-    targetId,
-    O.map(resolveTargetById),
-    O.getOrElse(() => Effect.fail(targetSelectionRequiredError()))
-  );
+const resolveSelectedTarget = flow(
+  O.map(resolveTargetById),
+  O.getOrElse(() => Effect.fail(targetSelectionRequiredError()))
+);
 
 const resolveTargetSelection: (
   selection: SyncDataTargetSelection
@@ -363,14 +355,7 @@ const reportSummary = Effect.fn("SyncDataToTs.reportSummary")(function* (
 });
 
 const humanizeJsonPointer = (path: string): string =>
-  path === ""
-    ? "/"
-    : pipe(
-        Str.split(path, "/"),
-        A.drop(1),
-        A.map(JsonPointer.unescapeToken),
-        A.join(".")
-      );
+  path === "" ? "/" : pipe(Str.split(path, "/"), A.drop(1), A.map(JsonPointer.unescapeToken), A.join("."));
 
 const patchSummaryRows = (result: SyncDataTargetResult): ReadonlyArray<ReadonlyArray<string>> =>
   pipe(
@@ -383,10 +368,7 @@ const patchSummaryRows = (result: SyncDataTargetResult): ReadonlyArray<ReadonlyA
     ])
   );
 
-const renderReportMarkdown = (
-  results: ReadonlyArray<SyncDataTargetResult>,
-  mode: SyncDataRunModeType
-): string => {
+const renderReportMarkdown = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType): string => {
   const targetRows = pipe(
     results,
     A.map((result) => [
@@ -440,12 +422,12 @@ const writeReportFile = Effect.fn("SyncDataToTs.writeReportFile")(function* (
 ): Effect.fn.Return<void, SyncDataToTsError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  yield* fs.makeDirectory(reportDir, { recursive: true }).pipe(
-    SyncDataToTsError.mapError(`Failed to create report directory ${reportDir}`)
-  );
-  yield* fs.writeFileString(path.join(reportDir, filename), content).pipe(
-    SyncDataToTsError.mapError(`Failed to write report file ${filename}`)
-  );
+  yield* fs
+    .makeDirectory(reportDir, { recursive: true })
+    .pipe(SyncDataToTsError.mapError(`Failed to create report directory ${reportDir}`));
+  yield* fs
+    .writeFileString(path.join(reportDir, filename), content)
+    .pipe(SyncDataToTsError.mapError(`Failed to write report file ${filename}`));
 });
 
 const writeReports = Effect.fn("SyncDataToTs.writeReports")(function* (

@@ -3,6 +3,9 @@ Accum
 agentic
 annote
 autodocs
+cldr
+tzdata
+tzdb
 BACKCOMPAT
 backcurve
 backpressure
