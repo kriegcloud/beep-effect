@@ -99,7 +99,7 @@ type RuleMetadata = {
 export const RULES: { readonly [K in RuleName]: RuleMetadata } = {
   "no-native-error": {
     name: "no-native-error",
-    severity: "warn",
+    severity: "error",
     replaces: "lint tooling-tagged-errors",
     summary: "Disallow native Error construction in tooling source; use TaggedErrorClass.",
     scope: "packages/tooling/**/src/**",
@@ -113,14 +113,14 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = {
   },
   "no-empty-named-blocks": {
     name: "no-empty-named-blocks",
-    severity: "warn",
+    severity: "error",
     replaces: null,
     summary: 'Disallow empty named import blocks: `import {} from "..."`.',
     scope: null,
   },
   "prefer-array-flat-map": {
     name: "prefer-array-flat-map",
-    severity: "warn",
+    severity: "error",
     replaces: null,
     summary: "Prefer `.flatMap(f)` over `.map(f).flat()`.",
     scope: null,

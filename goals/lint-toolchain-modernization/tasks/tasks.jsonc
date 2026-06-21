@@ -83,9 +83,9 @@
     },
     {
       "id": "ltm-011",
-      "title": "P2 remediation per subsystem; flip rules warn->error; /yeet each chunk green",
+      "title": "P2: flip clean rules to error (noVar/no-native-error/no-empty-named-blocks/prefer-array-flat-map; 0 violations); keep no-bigint/noConsole/noUselessConstructor advisory (documented divergences); remove tooling-tagged-errors",
       "lane": "remediation",
-      "status": "pending",
+      "status": "in-progress",
       "proof": ["bun run lint", "bun run beep yeet verify"]
     },
     {

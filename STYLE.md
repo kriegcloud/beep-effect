@@ -31,7 +31,9 @@ exactly, and a whole-repo reformat is out of scope.
 | `jsdocs` | effect-smol JSDoc shape rule | not ported | skipped | beep has its own JSDoc tooling (`quality jsdoc-inventory`, jsdoc skills). |
 | `no-opaque-instance-fields` | no instance members on `Schema.Opaque` classes | deferred to P3 oxlint | deferred | needs import-binding + static-vs-instance member scope; GritQL cannot express it cleanly. effect-smol's own implementation is an oxlint ESTree rule — beep ports it faithfully in the P3 oxlint lane. |
 | `import/no-duplicates`, `import/no-self-import` | one import per module / no self-import | deferred to P3 oxlint | deferred | no Biome builtin; need multi-import / current-package scope (oxlint `import` plugin). |
-| `no-bigint-literals` | forbid bigint literals | advisory only (P1); P2 scopes to source | advisory | 446 in-tree occurrences are **dominated by legitimate test/domain data** (e.g. `LiteralKit([1, 20n, ...])`); forcing `BigInt(n)` reduces readability in those contexts. P2 scopes to source (excluding tests/fixtures) before any mandatory flip, or keeps it advisory. |
+| `no-bigint-literals` | forbid bigint literals | enabled, **advisory only** (src-scoped) | advisory (kept) | P2 verdict: the in-tree bigint literals are **intentional domain values** — `Match.when(1n, ...)` version discriminators, `1n << 32n` id seeds — not just test data. Forcing `BigInt(1)` is more verbose and less readable. Scoped to `**/src/**` (excludes test/`LiteralKit` data); kept `warn` (not mandatory) like `no-js-extension-imports`, because the literals beep writes are correct. |
+| `noConsole` | disallow `console` | enabled, **advisory only** | advisory (kept) | P2 verdict: enforcing repo-wide as `error` is a large, separate effort (~118 sites) and much `console` use is legitimate (CLI output, scripts, diagnostics already allowlisted). Kept `warn` pending a dedicated logging-migration initiative. |
+| `noUselessConstructor` | no useless constructors | enabled, **advisory only** | advisory (kept) | P2 verdict: the flagged constructors carry typed parameters / DI shape (e.g. `chalk` `ChalkValue(_options?: ...)`) that are not safely removable without changing call-site types. Kept `warn`. |
 
 ## beep checks kept in `ts-morph` (not migrated to GritQL)
 
@@ -47,12 +49,17 @@ GritQL patterns without coverage loss (SPEC Parity Gate / Stop Conditions):
 
 ## Lint rules — alignments (enabled by this initiative)
 
-| Concern | Mechanism | Status |
+P1 shipped every rule advisory (`warn`). P2 flipped to **mandatory (`error`)** only the
+rules that fit beep with zero violations; the rest stay advisory (see the divergence
+table above for why).
+
+| Concern | Mechanism | Status (post-P2) |
 | --- | --- | --- |
-| `no-console` | Biome `suspicious/noConsole` | enabled (advisory P1 → mandatory P2 with test/example overrides) |
-| `no-var` | Biome `suspicious/noVar` | enabled (0 violations) |
-| `no-useless-constructor` | Biome `complexity/noUselessConstructor` | re-enabled (was `off`) |
-| tagged errors in tooling | GritQL `no-native-error` (`@beep/lint-rules`) | replaces `lint tooling-tagged-errors` (parity-proven) |
-| empty named imports | GritQL `no-empty-named-blocks` | enabled |
-| `.map().flat()` | GritQL `prefer-array-flat-map` | enabled |
-| PascalCase tooling filenames | Biome `style/useFilenamingConvention` (scoped) | replaces the filename portion of `lint tooling-schema-first` (P2) |
+| `no-var` | Biome `suspicious/noVar` | **mandatory** (0 violations) |
+| tagged errors in tooling | GritQL `no-native-error` (`@beep/lint-rules`, tooling-src override) | **mandatory**; the superseded `lint tooling-tagged-errors` CLI check is **removed** (no dangling refs) |
+| empty named imports | GritQL `no-empty-named-blocks` | **mandatory** (0 violations) |
+| `.map().flat()` | GritQL `prefer-array-flat-map` | **mandatory** (0 violations) |
+| `no-console` | Biome `suspicious/noConsole` | enabled, advisory (kept — see divergences) |
+| `no-useless-constructor` | Biome `complexity/noUselessConstructor` | enabled, advisory (kept — see divergences) |
+| bigint literals | GritQL `no-bigint-literals` (src-scoped) | enabled, advisory (kept — intentional domain values) |
+| PascalCase tooling filenames | Biome `style/useFilenamingConvention` (scoped) | not migrated — the current `lint tooling-schema-first` filename check flags compound-extension files (`X.command.ts`) which `useFilenamingConvention` cannot reproduce without rewriting the convention; kept in ts-morph |
