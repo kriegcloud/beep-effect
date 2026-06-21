@@ -173,7 +173,7 @@ const NonEmptyDurationObject = DurationObject.check(DurationObjectHasValue);
 export const DurationInput = S.Union([
   S.Duration,
   S.Int.check(S.isGreaterThanOrEqualTo(0)),
-  S.BigInt.check(S.isGreaterThanOrEqualToBigInt(0n)),
+  S.BigInt.check(S.isGreaterThanOrEqualToBigInt(BigInt(0))),
   S.Tuple([S.Finite.pipe(S.brand("seconds")), S.Finite.pipe(S.brand("nanos"))]),
   S.TemplateLiteral([S.Finite, " ", DurationUnit]),
   NonEmptyDurationObject,

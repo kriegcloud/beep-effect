@@ -87,6 +87,9 @@
     name = "shadcn"
     enabled = true
   [[skills.config]]
+    name = "teach"
+    enabled = true
+  [[skills.config]]
     name = "turborepo"
     enabled = true
 

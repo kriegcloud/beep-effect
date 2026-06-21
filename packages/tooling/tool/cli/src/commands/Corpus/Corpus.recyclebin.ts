@@ -17,9 +17,9 @@ const headerBytes = 24;
 const v1PathBytes = 520;
 const v2PathLengthOffset = 24;
 const v2PathOffset = 28;
-const filetimeUnixEpochDiff = 116_444_736_000_000_000n;
-const filetimeTicksPerMillisecond = 10_000n;
-const maxDateMilliseconds = 8_640_000_000_000_000n;
+const filetimeUnixEpochDiff = BigInt("116444736000000000");
+const filetimeTicksPerMillisecond = BigInt(10_000);
+const maxDateMilliseconds = BigInt(8_640_000_000_000_000);
 const recycleBinNamePattern = /^\$([IR])([^.]+.*)$/u;
 const utf16Decoder = new TextDecoder("utf-16le");
 
@@ -108,8 +108,8 @@ export const parseRecycleBinMetadata = Effect.fn("Corpus.parseRecycleBinMetadata
   }
 
   const versionAndPath = yield* Match.value(rawVersion).pipe(
-    Match.when(1n, () => v1Path(bytes).pipe(Effect.map((path) => ({ path, version: "v1" as const })))),
-    Match.when(2n, () => v2Path(bytes, view).pipe(Effect.map((path) => ({ path, version: "v2" as const })))),
+    Match.when(BigInt(1), () => v1Path(bytes).pipe(Effect.map((path) => ({ path, version: "v1" as const })))),
+    Match.when(BigInt(2), () => v2Path(bytes, view).pipe(Effect.map((path) => ({ path, version: "v2" as const })))),
     Match.orElse(() => Effect.fail(metadataParseError(`unsupported format version ${rawVersion}`)))
   );
 

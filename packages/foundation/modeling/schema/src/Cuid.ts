@@ -198,9 +198,9 @@ function createEntropy(length: number, random: Uint8Array): string {
 function hash(input: string): Effect.Effect<string, PlatformError.PlatformError, Crypto.Crypto> {
   return Effect.map(sha512(encoder.encode(input)), (buffer) => {
     const view = new Uint8Array(buffer);
-    let value = 0n;
+    let value = BigInt(0);
     for (const byte of view) {
-      value = (value << 8n) + BigInt(byte);
+      value = (value << BigInt(8)) + BigInt(byte);
     }
     // Drop the first character because it will bias the histogram to the left
     return Str.slice(1)(value.toString(36));

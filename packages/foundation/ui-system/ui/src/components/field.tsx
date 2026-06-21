@@ -11,7 +11,7 @@ import type { VariantProps } from "class-variance-authority";
 import type React from "react";
 
 const hasRenderableNode = (node: React.ReactNode): boolean =>
-  node !== undefined && node !== null && node !== false && node !== "" && node !== 0 && node !== 0n;
+  node !== undefined && node !== null && node !== false && node !== "" && node !== 0 && node !== BigInt(0);
 
 /**
  * Field set component.

@@ -310,7 +310,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   const notificationQueue = yield* Queue.bounded<AcpIncomingNotification>(ACP_PROTOCOL_QUEUE_CAPACITY);
   const disconnects = yield* Queue.bounded<number>(ACP_PROTOCOL_DISCONNECT_QUEUE_CAPACITY);
   const outgoing = yield* Queue.bounded<string | Uint8Array, Cause.Done>(ACP_PROTOCOL_QUEUE_CAPACITY);
-  const nextRequestId = yield* Ref.make(1n);
+  const nextRequestId = yield* Ref.make(BigInt(1));
   const terminationHandled = yield* Ref.make(false);
   const extPending = yield* Ref.make(HashMap.empty<string, Deferred.Deferred<unknown, AcpError.AcpError>>());
 
@@ -710,7 +710,7 @@ export const makeAcpPatchedProtocol = Effect.fn($I`makeAcpPatchedProtocol`)(func
   }
 
   const sendRequestEffect = Effect.fn($I`sendRequest`)(function* (method: string, payload: unknown) {
-    const requestId = yield* Ref.modify(nextRequestId, (current) => [current, current + 1n] as const);
+    const requestId = yield* Ref.modify(nextRequestId, (current) => [current, current + BigInt(1)] as const);
     const requestIdString = String(requestId);
     const deferred = yield* Deferred.make<unknown, AcpError.AcpError>();
     yield* Ref.update(extPending, (pending) => HashMap.set(pending, requestIdString, deferred));
