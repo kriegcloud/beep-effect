@@ -1497,6 +1497,18 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/tooling/policy-pack/lint-rules": {
+      "name": "@beep/lint-rules",
+      "version": "0.1.0",
+      "devDependencies": {
+        "@biomejs/biome": "catalog:",
+        "@effect/platform-node": "catalog:",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "@typescript/native-preview": "catalog:",
+        "effect": "catalog:",
+      },
+    },
     "packages/tooling/policy-pack/repo-configs": {
       "name": "@beep/repo-configs",
       "version": "0.1.1",
@@ -2151,6 +2163,8 @@
     "@beep/lexical-schema": ["@beep/lexical-schema@workspace:packages/foundation/modeling/lexical"],
 
     "@beep/libpff": ["@beep/libpff@workspace:packages/drivers/libpff"],
+
+    "@beep/lint-rules": ["@beep/lint-rules@workspace:packages/tooling/policy-pack/lint-rules"],
 
     "@beep/m365": ["@beep/m365@workspace:packages/drivers/m365"],
 

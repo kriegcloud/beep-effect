@@ -67,6 +67,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/lint-rules/rules/**",
+        "$TURBO_ROOT$/packages/tooling/policy-pack/lint-rules/configs/**",
         "$TURBO_ROOT$/packages/foundation/ui-system/*/stories/**",
         "!.beep/**"
       ]

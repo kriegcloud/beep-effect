@@ -10,7 +10,6 @@
     "packages/shared/server/dtslint/**/*.tst.*",
     "packages/shared/tables/dtslint/**/*.tst.*",
     "packages/shared/ui/dtslint/**/*.tst.*",
-    "packages/tooling/policy-pack/*/dtslint/**/*.tst.*",
     "packages/tooling/test-kit/*/dtslint/**/*.tst.*",
     "packages/tooling/tool/*/dtslint/**/*.tst.*",
     "packages/agents/domain/dtslint/**/*.tst.*",
@@ -70,7 +69,8 @@
     "packages/foundation/modeling/schema/dtslint/**/*.tst.*",
     "packages/foundation/modeling/utils/dtslint/**/*.tst.*",
     "packages/tooling/library/ai-sync/dtslint/**/*.tst.*",
-    "packages/tooling/library/repo-utils/dtslint/**/*.tst.*"
+    "packages/tooling/library/repo-utils/dtslint/**/*.tst.*",
+    "packages/tooling/policy-pack/repo-configs/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }
