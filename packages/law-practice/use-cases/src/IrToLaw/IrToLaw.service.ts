@@ -22,10 +22,10 @@ import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { spikeEntityInput } from "../internal/spikeEntity.js";
-import { IrToLawExtractionError } from "./IrToLaw.errors.js";
+import { spikeEntityInput } from "../internal/spikeEntity.ts";
+import { IrToLawExtractionError } from "./IrToLaw.errors.ts";
 import type { GroundedExtraction } from "@beep/langextract/Extraction";
-import type { IrToLawShape, LawEntities } from "./IrToLaw.ports.js";
+import type { IrToLawShape, LawEntities } from "./IrToLaw.ports.ts";
 
 // Module-scope sync decoders: the spike builds these entities from statically
 // known-good shapes (fixed fixture keys/literals + unconstrained extraction

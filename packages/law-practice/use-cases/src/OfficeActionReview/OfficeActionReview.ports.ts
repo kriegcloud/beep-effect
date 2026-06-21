@@ -16,7 +16,7 @@ import { $LawPracticeUseCasesId } from "@beep/identity/packages";
 import { LangExtractError } from "@beep/langextract/Extraction";
 import { Context } from "effect";
 import * as S from "effect/Schema";
-import { IrToLawExtractionError } from "../IrToLaw/IrToLaw.errors.js";
+import { IrToLawExtractionError } from "../IrToLaw/index.ts";
 import type { ClaimProjectionView } from "@beep/epistemic-domain/values";
 import type { Effect } from "effect";
 

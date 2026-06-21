@@ -18,4 +18,4 @@
  * @category entities
  * @since 0.0.0
  */
-export * from "./entities/index.js";
+export * from "./entities/index.ts";

@@ -21,14 +21,14 @@ import { DocumentId } from "@beep/nlp/Core";
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { spikeEntityInput } from "../internal/spikeEntity.js";
+import { spikeEntityInput } from "../internal/spikeEntity.ts";
 import type { ClaimGateShape } from "@beep/epistemic-use-cases/ClaimGate";
 import type { ClaimTransitionShape } from "@beep/epistemic-use-cases/ClaimLifecycle";
 import type { ProcessFileResult } from "@beep/file-processing/Extraction";
 import type { FileProcessingServiceShape } from "@beep/file-processing/Service";
 import type { LangExtractError, LangExtractResult } from "@beep/langextract/Extraction";
-import type { IrToLawShape, LawEntities } from "../IrToLaw/IrToLaw.ports.js";
-import type { OfficeActionReviewInput, OfficeActionReviewShape } from "./OfficeActionReview.ports.js";
+import type { IrToLawShape, LawEntities } from "../IrToLaw/index.ts";
+import type { OfficeActionReviewInput, OfficeActionReviewShape } from "./OfficeActionReview.ports.ts";
 
 const decodeCandidateClaim = S.decodeUnknownSync(CandidateClaim);
 const decodeEvidence = S.decodeUnknownSync(Evidence);
