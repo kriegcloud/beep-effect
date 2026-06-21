@@ -1,7 +1,6 @@
 import { defineRule } from "@oxlint/plugins";
-import * as HashMap from "effect/HashMap";
-import * as HashSet from "effect/HashSet";
-import * as Option from "effect/Option";
+import { HashMap, HashSet } from "effect";
+import * as O from "effect/Option";
 import { getPropertyName, isIdentifier, unwrapMemberExpression } from "./utils.ts";
 import type { AstNode, MaybeNode } from "./utils.ts";
 
@@ -116,22 +115,22 @@ const baselineFor = (filename: string): number => {
   return 0;
 };
 
-const effectRunner = (object: Option.Option<AstNode>, property: string): Option.Option<string> =>
+const effectRunner = (object: O.Option<AstNode>, property: string): O.Option<string> =>
   isIdentifier(object, "Effect") && HashSet.has(EFFECT_RUNTIME_METHODS, property)
-    ? Option.some(`Effect.${property}`)
-    : Option.none();
+    ? O.some(`Effect.${property}`)
+    : O.none();
 
-const managedRuntimeRunner = (object: Option.Option<AstNode>, property: string): Option.Option<string> =>
-  isIdentifier(object, "ManagedRuntime") && property === "make" ? Option.some("ManagedRuntime.make") : Option.none();
+const managedRuntimeRunner = (object: O.Option<AstNode>, property: string): O.Option<string> =>
+  isIdentifier(object, "ManagedRuntime") && property === "make" ? O.some("ManagedRuntime.make") : O.none();
 
-/** Resolve a `<object>.<property>` access to the manual-runner label it represents, if any. */
-const runnerLabel = (object: Option.Option<AstNode>, property: string): Option.Option<string> =>
-  Option.orElse(effectRunner(object, property), () => managedRuntimeRunner(object, property));
+// Resolve a `<object>.<property>` access to the manual-runner label it represents, if any.
+const runnerLabel = (object: O.Option<AstNode>, property: string): O.Option<string> =>
+  O.orElse(effectRunner(object, property), () => managedRuntimeRunner(object, property));
 
-const manualRunnerName = (callee: MaybeNode): Option.Option<string> =>
+const manualRunnerName = (callee: MaybeNode): O.Option<string> =>
   unwrapMemberExpression(callee).pipe(
-    Option.flatMap((access) =>
-      Option.flatMap(getPropertyName(access.property), (property) => runnerLabel(access.object, property))
+    O.flatMap((access) =>
+      O.flatMap(getPropertyName(access.property), (property) => runnerLabel(access.object, property))
     )
   );
 
@@ -151,7 +150,7 @@ export default defineRule({
     return {
       CallExpression(node) {
         const runner = manualRunnerName(node.callee);
-        if (Option.isNone(runner)) return;
+        if (O.isNone(runner)) return;
 
         occurrenceCount++;
         if (occurrenceCount <= allowedCount) return;

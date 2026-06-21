@@ -1,7 +1,6 @@
 import { defineRule } from "@oxlint/plugins";
-import * as HashSet from "effect/HashSet";
-import * as MutableHashSet from "effect/MutableHashSet";
-import * as Option from "effect/Option";
+import { HashSet, MutableHashSet } from "effect";
+import * as O from "effect/Option";
 import { getPropertyName, unwrapExpression, unwrapMemberExpression } from "./utils.ts";
 import type { ESTree } from "@oxlint/plugins";
 import type { AstNode, MaybeNode } from "./utils.ts";
@@ -25,18 +24,18 @@ export default defineRule({
     // Example: `import { Opaque as MyOpaque } from "effect/Schema"`.
     const opaqueIdentifiers = MutableHashSet.empty<string>();
 
-    const isTrackedIdentifier = (node: Option.Option<AstNode>, tracked: MutableHashSet.MutableHashSet<string>): boolean =>
-      Option.exists(node, (expression) => expression.type === "Identifier" && MutableHashSet.has(tracked, expression.name));
+    const isTrackedIdentifier = (node: O.Option<AstNode>, tracked: MutableHashSet.MutableHashSet<string>): boolean =>
+      O.exists(node, (expression) => expression.type === "Identifier" && MutableHashSet.has(tracked, expression.name));
 
     // Validate the outer `Opaque` call, allowing either `Opaque` or `<SchemaNamespace>.Opaque`
     // where `<SchemaNamespace>` is an identifier tied to the Schema module via imports.
     const isOpaqueCallee = (node: MaybeNode): boolean => {
       const expression = unwrapExpression(node);
       if (isTrackedIdentifier(expression, opaqueIdentifiers)) return true;
-      return Option.exists(
+      return O.exists(
         unwrapMemberExpression(node),
         (access) =>
-          Option.exists(getPropertyName(access.property), (name) => name === "Opaque") &&
+          O.exists(getPropertyName(access.property), (name) => name === "Opaque") &&
           isTrackedIdentifier(access.object, schemaIdentifiers)
       );
     };
@@ -44,12 +43,13 @@ export default defineRule({
     // Match `class X extends Schema.Opaque(...)()` or `class X extends Opaque(...)()` when
     // the identifiers are tied to the Schema module via imports.
     const isSchemaOpaqueExtension = (node: ESTree.Class): boolean =>
-      Option.exists(
+      O.exists(
         unwrapExpression(node.superClass),
-        (sc) => sc.type === "CallExpression" && Option.exists(unwrapExpression(sc.callee), isOpaqueCall)
+        (sc) => sc.type === "CallExpression" && O.exists(unwrapExpression(sc.callee), isOpaqueCall)
       );
 
-    const isOpaqueCall = (callee: AstNode): boolean => callee.type === "CallExpression" && isOpaqueCallee(callee.callee);
+    const isOpaqueCall = (callee: AstNode): boolean =>
+      callee.type === "CallExpression" && isOpaqueCallee(callee.callee);
 
     const isInstanceMember = (element: ESTree.ClassBody["body"][number]): boolean =>
       HashSet.has(INSTANCE_MEMBER_TYPES, element.type) && "static" in element && !element.static;
@@ -66,9 +66,9 @@ export default defineRule({
     // Record a destructured `{ Schema }` / `{ Opaque }` import under its local name.
     const recordImportSpecifier = (specifier: ESTree.ImportSpecifier) => {
       const imported = getPropertyName(specifier.imported);
-      if (Option.exists(imported, (name) => name === "Schema")) {
+      if (O.exists(imported, (name) => name === "Schema")) {
         MutableHashSet.add(schemaIdentifiers, specifier.local.name);
-      } else if (Option.exists(imported, (name) => name === "Opaque")) {
+      } else if (O.exists(imported, (name) => name === "Opaque")) {
         MutableHashSet.add(opaqueIdentifiers, specifier.local.name);
       }
     };

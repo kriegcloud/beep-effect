@@ -30,7 +30,7 @@ exactly, and a whole-repo reformat is out of scope.
 | `no-js-extension-imports` | mandate `.ts` extension in relative imports | not ported | skipped | beep's `tsconfig.base.json` uses `module/moduleResolution: NodeNext`, which **requires** `.js` extensions on relative imports (~838 in-tree, all `.js`); porting would flag correct, required imports. |
 | `jsdocs` | effect-smol JSDoc shape rule | not ported | skipped | beep has its own JSDoc tooling (`quality jsdoc-inventory`, jsdoc skills). |
 | `no-opaque-instance-fields` | no instance members on `Schema.Opaque` classes | **implemented (P3 oxlint, mandatory)** | done | Ported to the P3 oxlint lane as `beep/no-opaque-instance-fields` (needs import-binding + static-vs-instance member scope that GritQL can't express). 0 violations across beep's 114 `S.Opaque` classes → `error`. See "oxlint lane" below. |
-| `import/no-duplicates`, `import/no-self-import` | one import per module / no self-import | not enabled | skipped | These are oxlint's **native `import`-plugin** rules, not custom; enabling native oxlint rule categories would overlap/conflict with Biome (the primary linter). The P3 oxlint lane runs ONLY beep's custom plugin, so these stay unenabled. |
+| `import/no-duplicates`, `import/no-self-import` | one import per module / no self-import | not enabled | skipped | These are oxlint's **native `import`-plugin** rules, not custom; enabling native oxlint rule categories would overlap/conflict with Biome (the primary linter). The P3 oxlint lane runs ONLY beep's custom plugin, so these stay disabled. |
 | `no-bigint-literals` | forbid bigint literals | enabled, **advisory only** (src-scoped) | advisory (kept) | P2 verdict: the in-tree bigint literals are **intentional domain values** — `Match.when(1n, ...)` version discriminators, `1n << 32n` id seeds — not just test data. Forcing `BigInt(1)` is more verbose and less readable. Scoped to `**/src/**` (excludes test/`LiteralKit` data); kept `warn` (not mandatory) like `no-js-extension-imports`, because the literals beep writes are correct. |
 | `noConsole` | disallow `console` | enabled, **advisory only** | advisory (kept) | P2 verdict: enforcing repo-wide as `error` is a large, separate effort (~118 sites) and much `console` use is legitimate (CLI output, scripts, diagnostics already allowlisted). Kept `warn` pending a dedicated logging-migration initiative. |
 | `noUselessConstructor` | no useless constructors | enabled, **advisory only** | advisory (kept) | P2 verdict: the flagged constructors carry typed parameters / DI shape (e.g. `chalk` `ChalkValue(_options?: ...)`) that are not safely removable without changing call-site types. Kept `warn`. |
@@ -82,7 +82,7 @@ code, not the rules' target). `bun run lint:oxlint` exits 0 today.
 | `namespace-node-imports` | t3code | 53 | warn (advisory — `node:` import-style cleanup) |
 | `no-inline-schema-compile` | t3code | 19 | warn (advisory — hot-path hoisting) |
 | `no-manual-effect-runtime-in-tests` | t3code (76 `packages`/`apps` test files baselined) | 9 (`infra/test`, not yet baselined) | warn (advisory — promote to `error` once the baseline covers `infra`) |
-| `no-global-process-runtime` | t3code (host file repointed to `chalk/.../SupportsColor.ts`) | 5 | warn (advisory) |
+| `no-global-process-runtime` | t3code (host file re-pointed to `chalk/.../SupportsColor.ts`) | 5 | warn (advisory) |
 
 oxlint custom JS plugins are stable on Linux (spike confirmed; no alpha breakage), so the
 lane is real — not "complete-with-exception." Promotion of the 4 advisory rules to `error`

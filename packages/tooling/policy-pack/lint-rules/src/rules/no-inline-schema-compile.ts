@@ -1,6 +1,6 @@
 import { defineRule } from "@oxlint/plugins";
-import * as HashSet from "effect/HashSet";
-import * as Option from "effect/Option";
+import { HashSet } from "effect";
+import * as O from "effect/Option";
 import { asExpression, getPropertyName, isIdentifier, unwrapExpression, unwrapMemberExpression } from "./utils.ts";
 import type { ESTree } from "@oxlint/plugins";
 import type { MaybeNode } from "./utils.ts";
@@ -37,16 +37,16 @@ const COMPILER_METHODS = HashSet.fromIterable([
   "encodeUnknownSync",
 ]);
 
-const getSchemaCompilerMethod = (callee: MaybeNode): Option.Option<string> =>
+const getSchemaCompilerMethod = (callee: MaybeNode): O.Option<string> =>
   unwrapMemberExpression(callee).pipe(
-    Option.filter((access) => isIdentifier(access.object, "Schema")),
-    Option.flatMap((access) => getPropertyName(access.property)),
-    Option.filter((method) => HashSet.has(COMPILER_METHODS, method))
+    O.filter((access) => isIdentifier(access.object, "Schema")),
+    O.flatMap((access) => getPropertyName(access.property)),
+    O.filter((method) => HashSet.has(COMPILER_METHODS, method))
   );
 
 const isStaticSchemaReference = (node: MaybeNode): boolean => {
   const expression = unwrapExpression(node);
-  if (Option.isNone(expression)) return false;
+  if (O.isNone(expression)) return false;
 
   if (expression.value.type === "Identifier") {
     const [firstChar] = expression.value.name;
@@ -56,36 +56,36 @@ const isStaticSchemaReference = (node: MaybeNode): boolean => {
   return expression.value.type === "MemberExpression";
 };
 
-/** Narrow `node` to a `Schema.<method>(...)` call, yielding its method name and arguments. */
+// Narrow `node` to a `Schema.<method>(...)` call, yielding its method name and arguments.
 const asSchemaMethodCall = (
   node: MaybeNode
-): Option.Option<{ readonly method: Option.Option<string>; readonly args: ReadonlyArray<ESTree.Argument> }> =>
+): O.Option<{ readonly method: O.Option<string>; readonly args: ReadonlyArray<ESTree.Argument> }> =>
   unwrapExpression(node).pipe(
-    Option.filter((expression) => expression.type === "CallExpression"),
-    Option.flatMap((call) =>
+    O.filter((expression) => expression.type === "CallExpression"),
+    O.flatMap((call) =>
       unwrapMemberExpression(call.callee).pipe(
-        Option.filter((access) => isIdentifier(access.object, "Schema")),
-        Option.map((access) => ({ method: getPropertyName(access.property), args: call.arguments }))
+        O.filter((access) => isIdentifier(access.object, "Schema")),
+        O.map((access) => ({ method: getPropertyName(access.property), args: call.arguments }))
       )
     )
   );
 
 const isNestedStaticSchemaCall = (node: MaybeNode): boolean =>
-  Option.match(asSchemaMethodCall(node), {
+  O.match(asSchemaMethodCall(node), {
     onNone: () => false,
     onSome: ({ method, args }) => {
-      if (!Option.exists(method, (name) => name === "fromJsonString")) return true;
+      if (!O.exists(method, (name) => name === "fromJsonString")) return true;
       const [firstArg] = args;
       return isStaticSchemaReference(firstArg) || isNestedStaticSchemaCall(firstArg);
     },
   });
 
 const isImmediatelyInvoked = (node: ESTree.CallExpression): boolean => {
-  const parent = asExpression(node.parent) ? unwrapExpression(node.parent) : Option.none();
+  const parent = asExpression(node.parent) ? unwrapExpression(node.parent) : O.none();
   return (
-    Option.isSome(parent) &&
+    O.isSome(parent) &&
     parent.value.type === "CallExpression" &&
-    unwrapExpression(parent.value.callee).pipe(Option.exists((callee) => callee === node))
+    unwrapExpression(parent.value.callee).pipe(O.exists((callee) => callee === node))
   );
 };
 
@@ -95,15 +95,13 @@ const messageHigh = (method: string) =>
 const messageMedium = (method: string) =>
   `Hoist Schema.${method}(...) to module scope: the compiled function is rebuilt on every call. Move it to a module-level const.`;
 
-/**
- * Decide whether an immediately-invoked `Schema.<method>(...)` call should be
- * reported, and at which severity: `high` when its first argument is itself a
- * nested static schema call, `medium` when it is a plain static schema reference.
- */
-const reportMessage = (method: string, firstArg: MaybeNode): Option.Option<string> => {
+// Decide whether an immediately-invoked `Schema.<method>(...)` call should be reported, and at
+// which severity: `high` when its first argument is itself a nested static schema call, `medium`
+// when it is a plain static schema reference.
+const reportMessage = (method: string, firstArg: MaybeNode): O.Option<string> => {
   const high = firstArg !== undefined && isNestedStaticSchemaCall(firstArg);
-  if (high) return Option.some(messageHigh(method));
-  return isStaticSchemaReference(firstArg) ? Option.some(messageMedium(method)) : Option.none();
+  if (high) return O.some(messageHigh(method));
+  return isStaticSchemaReference(firstArg) ? O.some(messageMedium(method)) : O.none();
 };
 
 export default defineRule({
@@ -140,10 +138,10 @@ export default defineRule({
         if (functionDepth === 0) return;
 
         const message = getSchemaCompilerMethod(node.callee).pipe(
-          Option.filter(() => isImmediatelyInvoked(node)),
-          Option.flatMap((method) => reportMessage(method, node.arguments[0]))
+          O.filter(() => isImmediatelyInvoked(node)),
+          O.flatMap((method) => reportMessage(method, node.arguments[0]))
         );
-        if (Option.isNone(message)) return;
+        if (O.isNone(message)) return;
 
         context.report({ node: node.callee, message: message.value });
       },

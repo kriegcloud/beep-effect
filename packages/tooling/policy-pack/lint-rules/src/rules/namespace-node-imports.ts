@@ -1,7 +1,7 @@
 import { Str } from "@beep/utils";
 import { defineRule } from "@oxlint/plugins";
-import * as HashMap from "effect/HashMap";
-import * as Option from "effect/Option";
+import { HashMap } from "effect";
+import * as O from "effect/Option";
 import { identifierName, literalStringValue } from "./utils.ts";
 import type { ESTree } from "@oxlint/plugins";
 
@@ -18,26 +18,26 @@ const NODE_SEGMENT_ALIASES = HashMap.fromIterable([
 ]);
 
 const segmentAlias = (segment: string): string =>
-  Option.getOrElse(HashMap.get(NODE_SEGMENT_ALIASES, segment), () => Str.pascalCase(segment));
+  O.getOrElse(HashMap.get(NODE_SEGMENT_ALIASES, segment), () => Str.pascalCase(segment));
 
 const expectedNamespaceAlias = (source: string): string => {
   const moduleName = source.slice("node:".length);
 
-  return Option.match(HashMap.get(NODE_MODULE_ALIASES, moduleName), {
+  return O.match(HashMap.get(NODE_MODULE_ALIASES, moduleName), {
     onSome: (knownAlias) => `Node${knownAlias}`,
     onNone: () => `Node${moduleName.split("/").map(segmentAlias).join("")}`,
   });
 };
 
-/** The `node:`-prefixed string source of an import, or `None` for any other module. */
-const nodeBuiltinSource = (node: ESTree.ImportDeclaration): Option.Option<string> =>
-  Option.filter(literalStringValue(node.source), (value) => value.startsWith("node:"));
+// The `node:`-prefixed string source of an import, or `None` for any other module.
+const nodeBuiltinSource = (node: ESTree.ImportDeclaration): O.Option<string> =>
+  O.filter(literalStringValue(node.source), (value) => value.startsWith("node:"));
 
-/** The sole specifier when the import is exactly one `* as <name>` namespace specifier. */
-const soleNamespaceImport = (node: ESTree.ImportDeclaration): Option.Option<ESTree.ImportNamespaceSpecifier> => {
-  if (node.specifiers.length !== 1) return Option.none();
+// The sole specifier when the import is exactly one `* as <name>` namespace specifier.
+const soleNamespaceImport = (node: ESTree.ImportDeclaration): O.Option<ESTree.ImportNamespaceSpecifier> => {
+  if (node.specifiers.length !== 1) return O.none();
   const [specifier] = node.specifiers;
-  return specifier?.type === "ImportNamespaceSpecifier" ? Option.some(specifier) : Option.none();
+  return specifier?.type === "ImportNamespaceSpecifier" ? O.some(specifier) : O.none();
 };
 
 export default defineRule({
@@ -51,11 +51,11 @@ export default defineRule({
     return {
       ImportDeclaration(node) {
         const source = nodeBuiltinSource(node);
-        if (Option.isNone(source)) return;
+        if (O.isNone(source)) return;
 
         const expectedAlias = expectedNamespaceAlias(source.value);
-        const actualAlias = Option.flatMap(soleNamespaceImport(node), (specifier) => identifierName(specifier.local));
-        if (Option.exists(actualAlias, (alias) => alias === expectedAlias)) return;
+        const actualAlias = O.flatMap(soleNamespaceImport(node), (specifier) => identifierName(specifier.local));
+        if (O.exists(actualAlias, (alias) => alias === expectedAlias)) return;
 
         context.report({
           node,

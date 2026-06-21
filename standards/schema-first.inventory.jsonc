@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-06-21",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -2042,6 +2046,14 @@
       "status": "exception",
       "owner": "@beep/repo-utils",
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/tooling/policy-pack/lint-rules/src/rules/utils.ts",
+      "symbol": "MemberAccess",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/lint-rules",
+      "reason": "Type alias holds non-schema runtime handles (Option<AstNode> plus the raw ESTree property node from oxlint member-access traversal); it is an internal AST-visitor return shape, not decodable domain data."
     },
     {
       "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",

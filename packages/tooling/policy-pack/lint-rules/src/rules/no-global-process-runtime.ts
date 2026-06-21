@@ -1,8 +1,6 @@
 import { defineRule } from "@oxlint/plugins";
-import * as HashSet from "effect/HashSet";
-import * as MutableHashMap from "effect/MutableHashMap";
-import * as MutableHashSet from "effect/MutableHashSet";
-import * as Option from "effect/Option";
+import { HashSet, MutableHashMap, MutableHashSet } from "effect";
+import * as O from "effect/Option";
 import {
   getPropertyName,
   identifierName,
@@ -33,12 +31,12 @@ const toRepoPath = (filename: string, cwd: string) => {
 const isHostProcessReferenceFile = (filename: string, cwd: string) =>
   toRepoPath(filename, cwd) === HOST_PROCESS_REFERENCE_FILE;
 
-/** `globalThis.process` — the namespaced spelling of the global process object. */
+// `globalThis.process` — the namespaced spelling of the global process object.
 const isGlobalThisProcess = (node: MaybeNode): boolean =>
-  Option.exists(
+  O.exists(
     unwrapMemberExpression(node),
     (access) =>
-      isIdentifier(access.object, "globalThis") && Option.exists(getPropertyName(access.property), (p) => p === "process")
+      isIdentifier(access.object, "globalThis") && O.exists(getPropertyName(access.property), (p) => p === "process")
   );
 
 const isGlobalProcessObject = (node: MaybeNode): boolean =>
@@ -66,10 +64,8 @@ export default defineRule({
 
     // Record a destructured `{ platform } from "node:os"` runtime import under its local name.
     const recordRuntimeSpecifier = (specifier: ESTree.ImportSpecifier) => {
-      const imported = Option.filter(getPropertyName(specifier.imported), (name) =>
-        HashSet.has(RUNTIME_PROPERTIES, name)
-      );
-      if (Option.isSome(imported)) {
+      const imported = O.filter(getPropertyName(specifier.imported), (name) => HashSet.has(RUNTIME_PROPERTIES, name));
+      if (O.isSome(imported)) {
         MutableHashMap.set(nodeOsRuntimeImports, specifier.local.name, imported.value);
       }
     };
@@ -82,37 +78,35 @@ export default defineRule({
 
     const trackImportDeclaration = (node: ESTree.ImportDeclaration) => {
       const source = literalStringValue(node.source);
-      if (Option.isNone(source) || !HashSet.has(NODE_OS_MODULES, source.value)) return;
+      if (O.isNone(source) || !HashSet.has(NODE_OS_MODULES, source.value)) return;
 
       for (const specifier of node.specifiers) recordSpecifier(specifier);
     };
 
     // `os.platform()` / `nodeOs.arch()` — a runtime call through a tracked `node:os` namespace.
-    const namespacedRuntimeCall = (access: MemberAccess): Option.Option<string> =>
-      Option.filter(
+    const namespacedRuntimeCall = (access: MemberAccess): O.Option<string> =>
+      O.filter(
         access.object,
         (object) => object.type === "Identifier" && MutableHashSet.has(nodeOsNamespaces, object.name)
       ).pipe(
-        Option.flatMap(() => getPropertyName(access.property)),
-        Option.filter((property) => HashSet.has(RUNTIME_PROPERTIES, property))
+        O.flatMap(() => getPropertyName(access.property)),
+        O.filter((property) => HashSet.has(RUNTIME_PROPERTIES, property))
       );
 
     // `platform()` / `arch()` — a runtime call through a destructured `node:os` import.
-    const importedRuntimeCall = (callee: MaybeNode): Option.Option<string> =>
-      Option.flatMap(unwrapExpression(callee), identifierName).pipe(
-        Option.flatMap((name) => MutableHashMap.get(nodeOsRuntimeImports, name))
+    const importedRuntimeCall = (callee: MaybeNode): O.Option<string> =>
+      O.flatMap(unwrapExpression(callee), identifierName).pipe(
+        O.flatMap((name) => MutableHashMap.get(nodeOsRuntimeImports, name))
       );
 
-    const getNodeOsRuntimeCall = (callee: MaybeNode): Option.Option<string> =>
-      Option.orElse(importedRuntimeCall(callee), () =>
-        Option.flatMap(unwrapMemberExpression(callee), namespacedRuntimeCall)
-      );
+    const getNodeOsRuntimeCall = (callee: MaybeNode): O.Option<string> =>
+      O.orElse(importedRuntimeCall(callee), () => O.flatMap(unwrapMemberExpression(callee), namespacedRuntimeCall));
 
     // `process.platform` / `globalThis.process.arch` — a flagged global-process property read.
-    const globalProcessProperty = (node: ESTree.MemberExpression): Option.Option<string> =>
+    const globalProcessProperty = (node: ESTree.MemberExpression): O.Option<string> =>
       getPropertyName(node.property).pipe(
-        Option.filter((property) => HashSet.has(RUNTIME_PROPERTIES, property)),
-        Option.filter(() => isGlobalProcessObject(node.object))
+        O.filter((property) => HashSet.has(RUNTIME_PROPERTIES, property)),
+        O.filter(() => isGlobalProcessObject(node.object))
       );
 
     return {
@@ -122,7 +116,7 @@ export default defineRule({
         if (isHostProcessReferenceFile(context.filename, context.cwd)) return;
 
         const property = globalProcessProperty(node);
-        if (Option.isNone(property)) return;
+        if (O.isNone(property)) return;
 
         context.report({
           node,
@@ -133,7 +127,7 @@ export default defineRule({
         if (isHostProcessReferenceFile(context.filename, context.cwd)) return;
 
         const property = getNodeOsRuntimeCall(node.callee);
-        if (Option.isNone(property)) return;
+        if (O.isNone(property)) return;
 
         context.report({
           node,
