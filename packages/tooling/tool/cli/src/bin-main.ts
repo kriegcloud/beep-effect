@@ -16,7 +16,6 @@ const LINT_POLICY_SUBCOMMANDS: ReadonlyArray<string> = [
   "reflection-artifacts",
   "schema-first",
   "schema-topology",
-  "tooling-tagged-errors",
   "tooling-schema-first",
 ];
 const ROOT_CLI_GLOBAL_FLAG_NAMES: ReadonlyArray<string> = [
