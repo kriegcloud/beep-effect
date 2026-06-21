@@ -3,9 +3,16 @@ import * as HashSet from "effect/HashSet";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
 import * as Option from "effect/Option";
-import { getPropertyName, isIdentifier, literalStringValue, unwrapExpression } from "./utils.ts";
+import {
+  getPropertyName,
+  identifierName,
+  isIdentifier,
+  literalStringValue,
+  unwrapExpression,
+  unwrapMemberExpression,
+} from "./utils.ts";
 import type { ESTree } from "@oxlint/plugins";
-import type { MaybeNode } from "./utils.ts";
+import type { MaybeNode, MemberAccess } from "./utils.ts";
 
 const RUNTIME_PROPERTIES = HashSet.fromIterable(["platform", "arch"]);
 // The sole beep file allowed to read host runtime platform/architecture directly.
@@ -26,15 +33,16 @@ const toRepoPath = (filename: string, cwd: string) => {
 const isHostProcessReferenceFile = (filename: string, cwd: string) =>
   toRepoPath(filename, cwd) === HOST_PROCESS_REFERENCE_FILE;
 
-const isGlobalProcessObject = (node: MaybeNode): boolean => {
-  const expression = unwrapExpression(node);
-  if (isIdentifier(expression, "process")) return true;
-  if (Option.isNone(expression) || expression.value.type !== "MemberExpression") return false;
+/** `globalThis.process` — the namespaced spelling of the global process object. */
+const isGlobalThisProcess = (node: MaybeNode): boolean =>
+  Option.exists(
+    unwrapMemberExpression(node),
+    (access) =>
+      isIdentifier(access.object, "globalThis") && Option.exists(getPropertyName(access.property), (p) => p === "process")
+  );
 
-  const object = unwrapExpression(expression.value.object);
-  const property = getPropertyName(expression.value.property);
-  return isIdentifier(object, "globalThis") && Option.isSome(property) && property.value === "process";
-};
+const isGlobalProcessObject = (node: MaybeNode): boolean =>
+  isIdentifier(unwrapExpression(node), "process") || isGlobalThisProcess(node);
 
 const message = (property: string) =>
   `Use HostProcess${property === "arch" ? "Architecture" : "Platform"} instead of process.${property}; inject the runtime reference in Effect code and provide it explicitly in tests.`;
@@ -56,45 +64,56 @@ export default defineRule({
       MutableHashMap.clear(nodeOsRuntimeImports);
     };
 
+    // Record a destructured `{ platform } from "node:os"` runtime import under its local name.
+    const recordRuntimeSpecifier = (specifier: ESTree.ImportSpecifier) => {
+      const imported = Option.filter(getPropertyName(specifier.imported), (name) =>
+        HashSet.has(RUNTIME_PROPERTIES, name)
+      );
+      if (Option.isSome(imported)) {
+        MutableHashMap.set(nodeOsRuntimeImports, specifier.local.name, imported.value);
+      }
+    };
+
+    const recordSpecifier = (specifier: ESTree.ImportDeclaration["specifiers"][number]) => {
+      if (specifier.type === "ImportSpecifier") return recordRuntimeSpecifier(specifier);
+      // Namespace / default imports expose the whole `node:os` module under one local name.
+      MutableHashSet.add(nodeOsNamespaces, specifier.local.name);
+    };
+
     const trackImportDeclaration = (node: ESTree.ImportDeclaration) => {
       const source = literalStringValue(node.source);
       if (Option.isNone(source) || !HashSet.has(NODE_OS_MODULES, source.value)) return;
 
-      for (const specifier of node.specifiers) {
-        const localName = specifier.local.name;
-
-        if (specifier.type === "ImportNamespaceSpecifier" || specifier.type === "ImportDefaultSpecifier") {
-          MutableHashSet.add(nodeOsNamespaces, localName);
-          continue;
-        }
-
-        if (specifier.type !== "ImportSpecifier") continue;
-
-        const imported = getPropertyName(specifier.imported);
-        if (Option.isSome(imported) && HashSet.has(RUNTIME_PROPERTIES, imported.value)) {
-          MutableHashMap.set(nodeOsRuntimeImports, localName, imported.value);
-        }
-      }
+      for (const specifier of node.specifiers) recordSpecifier(specifier);
     };
 
-    const getNodeOsRuntimeCall = (callee: MaybeNode): Option.Option<string> => {
-      const expression = unwrapExpression(callee);
-      if (Option.isNone(expression)) return Option.none();
-
-      if (expression.value.type === "Identifier") {
-        return MutableHashMap.get(nodeOsRuntimeImports, expression.value.name);
-      }
-
-      if (expression.value.type !== "MemberExpression") return Option.none();
-
-      const object = unwrapExpression(expression.value.object);
-      if (Option.isNone(object) || object.value.type !== "Identifier") return Option.none();
-      if (!MutableHashSet.has(nodeOsNamespaces, object.value.name)) return Option.none();
-
-      return Option.filter(getPropertyName(expression.value.property), (property) =>
-        HashSet.has(RUNTIME_PROPERTIES, property)
+    // `os.platform()` / `nodeOs.arch()` — a runtime call through a tracked `node:os` namespace.
+    const namespacedRuntimeCall = (access: MemberAccess): Option.Option<string> =>
+      Option.filter(
+        access.object,
+        (object) => object.type === "Identifier" && MutableHashSet.has(nodeOsNamespaces, object.name)
+      ).pipe(
+        Option.flatMap(() => getPropertyName(access.property)),
+        Option.filter((property) => HashSet.has(RUNTIME_PROPERTIES, property))
       );
-    };
+
+    // `platform()` / `arch()` — a runtime call through a destructured `node:os` import.
+    const importedRuntimeCall = (callee: MaybeNode): Option.Option<string> =>
+      Option.flatMap(unwrapExpression(callee), identifierName).pipe(
+        Option.flatMap((name) => MutableHashMap.get(nodeOsRuntimeImports, name))
+      );
+
+    const getNodeOsRuntimeCall = (callee: MaybeNode): Option.Option<string> =>
+      Option.orElse(importedRuntimeCall(callee), () =>
+        Option.flatMap(unwrapMemberExpression(callee), namespacedRuntimeCall)
+      );
+
+    // `process.platform` / `globalThis.process.arch` — a flagged global-process property read.
+    const globalProcessProperty = (node: ESTree.MemberExpression): Option.Option<string> =>
+      getPropertyName(node.property).pipe(
+        Option.filter((property) => HashSet.has(RUNTIME_PROPERTIES, property)),
+        Option.filter(() => isGlobalProcessObject(node.object))
+      );
 
     return {
       before: resetBindings,
@@ -102,9 +121,8 @@ export default defineRule({
       MemberExpression(node) {
         if (isHostProcessReferenceFile(context.filename, context.cwd)) return;
 
-        const property = getPropertyName(node.property);
-        if (Option.isNone(property) || !HashSet.has(RUNTIME_PROPERTIES, property.value)) return;
-        if (!isGlobalProcessObject(node.object)) return;
+        const property = globalProcessProperty(node);
+        if (Option.isNone(property)) return;
 
         context.report({
           node,

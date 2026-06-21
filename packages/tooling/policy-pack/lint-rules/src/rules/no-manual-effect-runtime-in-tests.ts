@@ -2,8 +2,8 @@ import { defineRule } from "@oxlint/plugins";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
 import * as Option from "effect/Option";
-import { getPropertyName, isIdentifier, unwrapExpression } from "./utils.ts";
-import type { MaybeNode } from "./utils.ts";
+import { getPropertyName, isIdentifier, unwrapMemberExpression } from "./utils.ts";
+import type { AstNode, MaybeNode } from "./utils.ts";
 
 const TEST_FILE_PATTERN = /\.(?:test|spec)\.[cm]?[jt]sx?$/u;
 const EFFECT_RUNTIME_METHODS = HashSet.fromIterable([
@@ -116,26 +116,24 @@ const baselineFor = (filename: string): number => {
   return 0;
 };
 
-const manualRunnerName = (callee: MaybeNode): Option.Option<string> => {
-  const expression = unwrapExpression(callee);
-  if (Option.isNone(expression) || expression.value.type !== "MemberExpression") {
-    return Option.none();
-  }
+const effectRunner = (object: Option.Option<AstNode>, property: string): Option.Option<string> =>
+  isIdentifier(object, "Effect") && HashSet.has(EFFECT_RUNTIME_METHODS, property)
+    ? Option.some(`Effect.${property}`)
+    : Option.none();
 
-  const object = unwrapExpression(expression.value.object);
-  const property = getPropertyName(expression.value.property);
-  if (Option.isNone(property)) return Option.none();
+const managedRuntimeRunner = (object: Option.Option<AstNode>, property: string): Option.Option<string> =>
+  isIdentifier(object, "ManagedRuntime") && property === "make" ? Option.some("ManagedRuntime.make") : Option.none();
 
-  if (isIdentifier(object, "Effect") && HashSet.has(EFFECT_RUNTIME_METHODS, property.value)) {
-    return Option.some(`Effect.${property.value}`);
-  }
+/** Resolve a `<object>.<property>` access to the manual-runner label it represents, if any. */
+const runnerLabel = (object: Option.Option<AstNode>, property: string): Option.Option<string> =>
+  Option.orElse(effectRunner(object, property), () => managedRuntimeRunner(object, property));
 
-  if (isIdentifier(object, "ManagedRuntime") && property.value === "make") {
-    return Option.some("ManagedRuntime.make");
-  }
-
-  return Option.none();
-};
+const manualRunnerName = (callee: MaybeNode): Option.Option<string> =>
+  unwrapMemberExpression(callee).pipe(
+    Option.flatMap((access) =>
+      Option.flatMap(getPropertyName(access.property), (property) => runnerLabel(access.object, property))
+    )
+  );
 
 export default defineRule({
   meta: {

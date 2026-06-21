@@ -1,3 +1,4 @@
+import * as HashSet from "effect/HashSet";
 import * as Option from "effect/Option";
 import * as P from "effect/Predicate";
 import type { ESTree } from "@oxlint/plugins";
@@ -7,7 +8,7 @@ import type { ESTree } from "@oxlint/plugins";
  * arguments, identifier slots, binding targets, and import-export names. All
  * carry a `type` discriminant, so they narrow without `unknown` or `as`.
  */
-type AstNode =
+export type AstNode =
   | ESTree.Expression
   | ESTree.Argument
   | ESTree.IdentifierName
@@ -36,12 +37,16 @@ type ExpressionWrapper =
 const asAstNode = (node: MaybeNode): Option.Option<AstNode> =>
   P.isNotNullish(node) ? Option.some(node) : Option.none();
 
+const EXPRESSION_WRAPPER_TYPES = HashSet.fromIterable([
+  "ChainExpression",
+  "ParenthesizedExpression",
+  "TSNonNullExpression",
+  "TSAsExpression",
+  "TSTypeAssertion",
+]);
+
 const isExpressionWrapper = (node: AstNode): node is ExpressionWrapper =>
-  node.type === "ChainExpression" ||
-  node.type === "ParenthesizedExpression" ||
-  node.type === "TSNonNullExpression" ||
-  node.type === "TSAsExpression" ||
-  node.type === "TSTypeAssertion";
+  HashSet.has(EXPRESSION_WRAPPER_TYPES, node.type);
 
 /** Peel expression wrappers (chains, parens, TS assertions) to the inner node. */
 export const unwrapExpression = (node: MaybeNode): Option.Option<AstNode> => {
@@ -54,29 +59,49 @@ export const unwrapExpression = (node: MaybeNode): Option.Option<AstNode> => {
   return current;
 };
 
+/**
+ * A peeled member access: the unwrapped receiver (`object`) and the raw property
+ * slot, ready to feed to `getPropertyName` / `isIdentifier`.
+ */
+export type MemberAccess = {
+  readonly object: Option.Option<AstNode>;
+  readonly property: MaybeNode;
+};
+
+/**
+ * Peel wrappers off `node`, confirm it is a `MemberExpression`, and expose its
+ * unwrapped `object` plus raw `property`. Shared prologue for every rule that
+ * inspects `<receiver>.<member>` access.
+ */
+export const unwrapMemberExpression = (node: MaybeNode): Option.Option<MemberAccess> =>
+  Option.flatMap(unwrapExpression(node), (expression) =>
+    expression.type === "MemberExpression"
+      ? Option.some({ object: unwrapExpression(expression.object), property: expression.property })
+      : Option.none()
+  );
+
+/** Identifier-shaped nodes whose textual name lives on the `.name` field. */
+const NAME_BEARING_TYPES = HashSet.fromIterable(["Identifier", "PrivateIdentifier"]);
+
+/** Lift the carried slot of an identifier (`.name`) or literal (`.value`), when it is a string. */
+const carriedSlot = (expression: AstNode): unknown =>
+  HashSet.has(NAME_BEARING_TYPES, expression.type) && "name" in expression
+    ? expression.name
+    : expression.type === "Literal"
+      ? expression.value
+      : undefined;
+
 /** Resolve the textual name of an identifier / private identifier / string literal node. */
 export const getPropertyName = (node: MaybeNode): Option.Option<string> =>
-  Option.flatMap(asAstNode(node), (expression) => {
-    if (expression.type === "Identifier" && P.isString(expression.name)) {
-      return Option.some(expression.name);
-    }
-    if (expression.type === "PrivateIdentifier" && P.isString(expression.name)) {
-      return Option.some(expression.name);
-    }
-    if (expression.type === "Literal" && P.isString(expression.value)) {
-      return Option.some(expression.value);
-    }
-    return Option.none();
-  });
+  asAstNode(node).pipe(Option.map(carriedSlot), Option.filter(P.isString));
 
 /** Test whether an already-unwrapped node is an identifier (optionally with a given name). */
-export const isIdentifier = (node: Option.Option<AstNode>, name?: string): boolean => {
-  if (Option.isNone(node)) return false;
-  const expression = node.value;
-  return (
-    expression.type === "Identifier" && P.isString(expression.name) && (name === undefined || expression.name === name)
+export const isIdentifier = (node: Option.Option<AstNode>, name?: string): boolean =>
+  Option.exists(
+    node,
+    (expression) =>
+      expression.type === "Identifier" && P.isString(expression.name) && (name === undefined || expression.name === name)
   );
-};
 
 /** Resolve the string value of a string-literal node. */
 export const literalStringValue = (node: MaybeNode): Option.Option<string> =>
