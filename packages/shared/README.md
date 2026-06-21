@@ -5,24 +5,24 @@ It holds product language that multiple slices deliberately agree to share.
 It is not a home for generic helpers, technical wrappers, or slice-local code
 that has not found its owner yet.
 
-The shared kernel is intentionally small. The active leaves are `domain/`,
-`tables/`, and `ui/`: they currently prove the shared entity kernel, the
-Organization domain/table/UI contracts, and the `LocalDate` value object.
-`config/`, `use-cases/`, `client/`, and `server/` are still scaffolded leaves;
-their docs describe the boundary they may grow into, not a large live surface
-that already exists.
+The shared kernel is intentionally small. The active leaves are `domain/` and
+`tables/`: they currently prove the shared entity kernel, the shared table
+metadata boundary, and the `LocalDate` value object.
+
+`config/`, `use-cases/`, `client/`, `server/`, and `ui/` are reserved roles, not
+package directories today. In particular, `shared/use-cases` does not exist yet:
+nothing has met the bar for a durable cross-slice contract that deserves that
+coupling.
 
 ## Package Map
 
 | Path | Package | Status | Role |
 | --- | --- | --- | --- |
 | `domain/` | `@beep/shared-domain` | Active | Cross-slice domain concepts, values, schemas, domain events, and pure behavior. |
-| `config/` | `@beep/shared-config` | Scaffolded | Cross-slice typed config contracts and config vocabulary. |
-| `use-cases/` | `@beep/shared-use-cases` | Scaffolded | Contract-only commands, queries, DTOs, protocols, product ports, and actionable application errors. |
-| `client/` | `@beep/shared-client` | Scaffolded | Browser-safe shared client boundary for cross-slice product semantics. |
-| `server/` | `@beep/shared-server` | Scaffolded | Server-only shared-kernel boundary for cross-slice product semantics that must stay driver-neutral. |
 | `tables/` | `@beep/shared-tables` | Active | Shared persistence/read-model metadata only when it encodes shared product language. |
-| `ui/` | `@beep/shared-ui` | Active | Shared-kernel UI boundary for cross-slice product concepts, not product-agnostic primitives. |
+
+Reserved future roles: `config/`, `use-cases/`, `client/`, `server/`, and `ui/`.
+Create one only when the promotion bar below is met by real exported behavior.
 
 ## Promotion Bar
 
@@ -38,11 +38,15 @@ foundation family. If it belongs to one product area, keep it in that slice.
 
 ## Boundary Rules
 
-- `shared/domain` and `shared/config` are the normal shared-kernel homes.
-- `shared/use-cases`, `shared/client`, `shared/server`, `shared/tables`, and
-  `shared/ui` are exceptional and need a clear cross-slice product contract.
-- `shared/use-cases` is contract-only. Do not add workflows, handlers, concrete
-  adapters, driver imports, persistence, clients, transports, or live Layers.
+- `shared/domain` is the normal shared-kernel home today. `shared/config` is a
+  reserved normal role; create it only for real cross-slice typed config
+  contracts.
+- `shared/use-cases`, `shared/client`, `shared/server`, and `shared/ui` are
+  reserved exceptional roles. `shared/tables` is active but still requires a
+  clear cross-slice product contract.
+- A future `shared/use-cases` package would be contract-only. Do not create one
+  for workflows, handlers, concrete adapters, driver imports, persistence,
+  clients, transports, or live Layers.
 - `shared/tables` has one narrow Drizzle exception: it may build metadata-only
   `pgTable` definitions and indexes from shared-domain descriptors. It must not
   open connections, execute queries, own migrations, expose repositories, or

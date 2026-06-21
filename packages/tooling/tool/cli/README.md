@@ -174,7 +174,7 @@ run. Codex packets are ranked and capped at 25 per run by default; use
 `--packet-limit` to widen the work queue or `--packet-limit 0` to suppress it.
 
 ```bash
-bun run beep docgen quality -p packages/shared/config -o /tmp/jsdoc-quality.md
+bun run beep docgen quality -p packages/shared/domain -o /tmp/jsdoc-quality.md
 bun run beep docgen quality --changed-files --json
 bun run beep docgen quality --all --score codex --packet-limit 25 -o /tmp/jsdoc-quality.json
 ```

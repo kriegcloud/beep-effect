@@ -252,4 +252,3 @@ describe("@beep/identity", () => {
     expect($LawPracticeDomainId.make("Matter")).toBe("@beep/law-practice-domain/Matter");
   });
 });
-// bench

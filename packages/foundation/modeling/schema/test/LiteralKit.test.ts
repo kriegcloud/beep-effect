@@ -341,4 +341,3 @@ describe("LiteralKit toTaggedUnion (number keys)", () => {
     expect(NumberEvent.guards[2]({ kind: 1, value: "one" })).toBe(false);
   });
 });
-// bench

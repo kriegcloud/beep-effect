@@ -161,6 +161,12 @@
         // use is legitimate (see STYLE.md).
         "noConsole": "warn",
         "noVar": "error",
+        "noUndeclaredEnvVars": {
+          "level": "warn",
+          "options": {
+            "allowedEnvVars": ["BEEP_ESLINT_PROFILE"]
+          }
+        },
         "noControlCharactersInRegex": "off",
         "noSelfCompare": "off",
         "noUnsafeDeclarationMerging": "off",

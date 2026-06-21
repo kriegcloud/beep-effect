@@ -74,4 +74,3 @@ export const collectTsConfigPaths: (
     return result;
   }
 );
-// bench

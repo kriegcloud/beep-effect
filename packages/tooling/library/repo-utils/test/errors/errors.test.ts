@@ -101,4 +101,3 @@ describe("Error types", () => {
     );
   });
 });
-// bench

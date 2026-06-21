@@ -1,6 +1,9 @@
 # 10 — Cross-slice coordination
 
-A process touching one slice's events belongs in that slice. A process touching multiple slices' events doesn't belong in any of them — its event contracts go through `shared/use-cases`, and the process either decomposes per-slice or earns its own dedicated slice.
+A process touching one slice's events belongs in that slice. A process touching
+multiple slices' events doesn't belong in any of them. It either uses emitted
+events, promotes a durable contract into a future `shared/use-cases` package, or
+decomposes until a dedicated slice owns the coordination.
 
 ## 1. Where a process belongs
 
@@ -18,29 +21,31 @@ Diagnostic: if `packages/iam/server/src/Membership/Membership.processes.ts` impo
 
 ## 2. Cross-slice promotion of event contracts
 
-Cross-slice event flow goes through shared contracts. Concretely:
+Cross-slice event flow goes through shared contracts only after promotion. There
+is no `shared/use-cases` package today; a promotion PR creates it when a real
+contract clears the bar. Concretely:
 
-- The **event contract** (tag, payload schema, error schema, primary-key derivation, metadata) lives in `shared/use-cases/<owning-slice>/events/`.
+- The **event contract** (tag, payload schema, error schema, primary-key derivation, metadata) lives in `shared/use-cases/<owning-slice>/events/` after that package exists.
 - The owning slice (`iam`) emits using the shared contract.
-- Consuming slices (`billing`) import the same contract from `@beep/shared-use-cases/public` and never from `@beep/iam-use-cases`.
+- Consuming slices (`billing`) import the same contract from the future `@beep/shared-use-cases/public` subpath and never from `@beep/iam-use-cases`.
 
 Promotion bar is the same as any other `shared/*` export: a promotion record per `02-shared-kernel.md` Appendix. The record lists known consumers — `billing` shows up as a consumer of `MembershipRevoked`, not as a dependency of `iam`.
 
-Naming: `shared/use-cases/iam/events/MembershipRevoked.ts` exports the event contract; ownership stays with the producing slice's team, but the file lives under shared so consumers can import without breaching the slice boundary.
+Naming after promotion: `shared/use-cases/iam/events/MembershipRevoked.ts` exports the event contract; ownership stays with the producing slice's team, but the file lives under shared so consumers can import without breaching the slice boundary.
 
 ## 3. Forbidden direct event reads
 
-- A slice's `*.processes.ts` or `*.event-handlers.ts` MUST NOT import another slice's `*.events.ts` from anywhere except `shared/use-cases`.
-- A slice MUST NOT subscribe to another slice's internal event bus, in-process queue, or PubSub directly. Cross-slice flow goes through the shared event log / shared bus, with contracts published in `shared/use-cases`.
+- A slice's `*.processes.ts` or `*.event-handlers.ts` MUST NOT import another slice's `*.events.ts` from anywhere except promoted `shared/use-cases` contracts.
+- A slice MUST NOT subscribe to another slice's internal event bus, in-process queue, or PubSub directly. Cross-slice flow goes through the shared event log / shared bus, with contracts published in future `shared/use-cases` only after promotion.
 - A slice MUST NOT read another slice's tables, projections, or read models to recover an event it could have subscribed to. Reading another slice's tables is a slice-to-slice coupling per `01-hexagonal-vertical-slices.md`.
 
-If a needed event isn't yet promoted to `shared/use-cases`, the right move is to promote it in a PR that adds the promotion record. It is not "reach across the boundary now and promote later" — that PR never gets opened.
+If a needed event isn't yet promoted to future `shared/use-cases`, the right move is to promote it in a PR that creates the package if needed and adds the promotion record. It is not "reach across the boundary now and promote later" — that PR never gets opened.
 
 Lint expectation: a repo check should reject imports of `@beep/<other-slice>-use-cases/*/events/*` from any non-shared package. Until that check exists, treat it as a review-blocking convention.
 
 ## 4. Event contract versioning
 
-Event contracts in `shared/use-cases` follow the same evolution rules as commands and queries — see `11-evolution-and-deprecation.md`. In short:
+Event contracts in future `shared/use-cases` follow the same evolution rules as commands and queries — see `11-evolution-and-deprecation.md`. In short:
 
 - Additive changes (new optional payload field, new optional metadata) are free; consumers that ignore the new field keep working.
 - Breaking changes (renamed/removed field, narrowed type, changed semantics) require a new tagged variant alongside the old one, plus a deprecation window long enough for every listed consumer to migrate.
@@ -53,7 +58,7 @@ The promotion record's consumer list is what makes the deprecation window enforc
 A process is becoming a God Process Manager when:
 
 - It listens to events from `>=3` slices it doesn't own
-- Its `*.processes.ts` file is the only consumer of multiple `shared/use-cases/*/events/` modules
+- Its `*.processes.ts` file is the only consumer of multiple future `shared/use-cases/*/events/` modules
 - It owns business logic that more naturally belongs in one of the consuming slices
 - Removing it would orphan `>=3` slices that no longer coordinate
 
@@ -77,11 +82,11 @@ Setup:
 
 `packages/iam/server/src/Membership/Membership.processes.ts` imports `cancelInvoicesFor` from `@beep/billing-use-cases/server` and calls it after a successful `RevokeMembership`. This is a slice-to-slice direct import. It is forbidden by `01-hexagonal-vertical-slices.md` and it puts billing logic on iam's deploy path.
 
-### Right shape (three changes)
+### Right shape after promotion (three changes)
 
 **1. Promote the `MembershipRevoked` event contract to shared.**
 
-New file: `packages/shared/use-cases/src/iam/events/MembershipRevoked.ts`. The event contract is defined here using the v4 EventLog `Event.make` constructor (see `effect/unstable/eventlog/Event`), with a payload schema annotated per the repo's schema-annotation rules:
+The promotion PR creates `packages/shared/use-cases/src/iam/events/MembershipRevoked.ts`. The event contract is defined there using the v4 EventLog `Event.make` constructor (see `effect/unstable/eventlog/Event`), with a payload schema annotated per the repo's schema-annotation rules. The package and identity composer are generated as part of that promotion, because they do not exist today:
 
 ````ts
 import { $SharedUseCasesId } from "@beep/identity"
@@ -92,8 +97,9 @@ const $I = $SharedUseCasesId.create("iam.events.MembershipRevoked")
 
 /**
  * Cross-slice event contract emitted when an iam `Membership` transitions to
- * revoked. Lives under `shared/use-cases` so consuming slices (e.g. billing)
- * can import the contract without breaching the iam slice boundary.
+ * revoked. After promotion, this lives under `shared/use-cases` so consuming
+ * slices (e.g. billing) can import the contract without breaching the iam slice
+ * boundary.
  *
  * @category schemas
  * @since 0.0.0
@@ -129,17 +135,17 @@ export const MembershipRevoked = Event.make({
 })
 ````
 
-Add a promotion record to `packages/shared/use-cases/README.md` listing `iam` as the producer and `billing` as a known consumer, per `02-shared-kernel.md` Appendix.
+Add a promotion record to the newly created `packages/shared/use-cases/README.md` listing `iam` as the producer and `billing` as a known consumer, per `02-shared-kernel.md` Appendix.
 
 **2. `iam/server` emits using the shared contract.**
 
-The `RevokeMembership` command handler in `iam/server` writes `MembershipRevoked` to the event log using the contract imported from `@beep/shared-use-cases/public`. The event group it registers under (via `EventGroup` + `EventLog.group` from `effect/unstable/eventlog`) lives in `iam/server` because iam owns the write side. The contract is shared; the *writing* of it is not.
+The `RevokeMembership` command handler in `iam/server` writes `MembershipRevoked` to the event log using the promoted contract imported from the future `@beep/shared-use-cases/public` subpath. The event group it registers under (via `EventGroup` + `EventLog.group` from `effect/unstable/eventlog`) lives in `iam/server` because iam owns the write side. The contract is shared; the *writing* of it is not.
 
 (Exact handler/group wiring is left to the slice's server package — `EventGroup` accumulates event handlers and `EventLog.group` binds them; refer to `effect/unstable/eventlog/EventLog` for current shapes. Code shape elided here to avoid drift against in-flight v4 EventLog APIs.)
 
 **3. `billing/server` subscribes via a thin handler.**
 
-New file: `packages/billing/server/src/Subscription/Subscription.event-handlers.ts`. It imports `MembershipRevoked` from `@beep/shared-use-cases/public`, registers a handler that decodes the payload, and calls billing's own internal `cancelInvoicesFor` use-case. The handler returns an `Effect.Effect<A, E, R>` and is built with `Effect.fn` per repo convention; failures decode into a `TaggedErrorClass` (from `@beep/schema`) defined in `billing/use-cases`.
+New file: `packages/billing/server/src/Subscription/Subscription.event-handlers.ts`. It imports `MembershipRevoked` from the future `@beep/shared-use-cases/public` subpath after promotion, registers a handler that decodes the payload, and calls billing's own internal `cancelInvoicesFor` use-case. The handler returns an `Effect.Effect<A, E, R>` and is built with `Effect.fn` per repo convention; failures decode into a `TaggedErrorClass` (from `@beep/schema`) defined in `billing/use-cases`.
 
 Result:
 

@@ -40,7 +40,7 @@ const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
   "packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
 ]);
 const ALLOWED_NON_PASCAL_FILENAMES = HashSet.fromIterable(["index", "bin"]);
-const DEPRECATED_API_LINT_CACHE_LOCATION = "node_modules/.cache/eslint-deprecated/.eslintcache";
+const DEPRECATED_API_LINT_CACHE_LOCATION = "node_modules/.cache/eslint-deprecated-apis/.eslintcache";
 const DEPRECATED_API_LINT_ESLINT_BIN = "node_modules/.bin/eslint";
 const DEPRECATED_API_LINT_NODE_OPTIONS = "--max-old-space-size=8192";
 const DEPRECATED_API_LINT_SHARDS = [
@@ -454,7 +454,7 @@ const runDeprecatedApiLintShard = Effect.fn("runDeprecatedApiLintShard")(functio
     "--cache-location",
     DEPRECATED_API_LINT_CACHE_LOCATION,
     "--config",
-    "eslint.deprecated.config.mjs",
+    "eslint.config.mjs",
     shard,
   ] as const;
   const args = hasLocalEslint ? eslintArgs : (["eslint", ...eslintArgs] as const);
@@ -465,6 +465,7 @@ const runDeprecatedApiLintShard = Effect.fn("runDeprecatedApiLintShard")(functio
       const handle = yield* ChildProcess.make(command, [...args], {
         cwd: process.cwd(),
         env: {
+          BEEP_ESLINT_PROFILE: "deprecated-apis",
           NODE_OPTIONS: DEPRECATED_API_LINT_NODE_OPTIONS,
         },
         extendEnv: true,

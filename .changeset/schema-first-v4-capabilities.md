@@ -8,6 +8,9 @@
 "@beep/acp": patch
 "@beep/architecture-lab-server": patch
 "@beep/libpff": patch
+"@beep/chalk": patch
+"@beep/identity": major
+"@beep/lexical-schema": minor
 "@beep/md": patch
 "@beep/nlp": patch
 "@beep/observability": patch
@@ -15,7 +18,6 @@
 "@beep/runpod": patch
 "@beep/semantic-web": patch
 "@beep/shared-domain": patch
-"@beep/shared-ui": patch
 "@beep/tika": patch
 "@beep/venice-ai": patch
 "@beep/wink": patch
@@ -37,3 +39,15 @@ Also keeps the schema and shared config surfaces compatible with the current
 Effect 4 and Next 16 dependency stack by restoring strict file-name diagnostics,
 validating record keys before package-json/RDF namespace decoding, and adapting
 the Serwist Next.js plugin wrapper across nested Next.js type identities.
+
+Also records the rich-text/identity public-surface tightening in this change
+set: Lexical and Markdown schema guards now reject impossible serialized values
+at the boundary, invalid artifact/code-fence metadata degrades through the
+document projection path, legacy Lexical list starts written as `0` decode to
+the canonical `1` while corrupt list-item `0` ordinals are rejected before they
+can collapse sibling order, and deleted workspace identity composers are removed
+from the generated `@beep/identity` package composer surface.
+
+Also keeps `@beep/chalk`'s proxied constructor type aligned with runtime
+behavior so isolated instances continue accepting validated
+`new Chalk({ level })` options in source, tests, and generated examples.

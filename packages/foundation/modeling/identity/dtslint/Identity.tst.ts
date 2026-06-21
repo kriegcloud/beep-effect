@@ -193,4 +193,3 @@ describe("Identity", () => {
     expect($I`1bad`).type.toBe<IdentityString<`@beep/module/${string}`>>();
   });
 });
-// bench

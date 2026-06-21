@@ -33,11 +33,11 @@
     // Story files are tool-loaded roots: the Storybook host discovers them via
     // the stories glob in apps/storybook/.storybook/main.ts.
     "packages/foundation/ui-system/*/stories/**/*.stories.tsx",
-    // Tool-loaded roots: syncpack auto-loads its config, the deprecated eslint
-    // config is consumed by the Lint command, and global-cleanup.ts is the
+    // Tool-loaded roots: syncpack auto-loads its config, eslint.config.mjs is
+    // profile-selected by the Lint command, and global-cleanup.ts is the
     // vitest globalSetup for @beep/repo-cli.
     "syncpack.config.ts",
-    "eslint.deprecated.config.mjs",
+    "eslint.config.mjs",
     "packages/tooling/tool/cli/test/global-cleanup.ts"
   ],
   // Approximates dead-code path suppression; Knip remains authoritative for unmigrated workspace/binary policy.
@@ -50,11 +50,6 @@
     "**/postcss.config.*",
     "packages/canvas/client/**",
     "packages/canvas/ui/**",
-    "packages/drivers/konva/**",
-    "packages/shared/client/**",
-    "packages/shared/config/**",
-    "packages/shared/server/**",
-    "packages/shared/use-cases/**",
     "**/test/fixtures/mock-monorepo/**",
     // @beep/html: generated AST (one TaggedClass per HTML element) is intentionally
     // repetitive; the codegen script and vendored spec data are tooling, not

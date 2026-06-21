@@ -7,7 +7,6 @@
 
 import { $AiSyncId } from "@beep/identity/packages";
 import { UnknownRecord } from "@beep/schema";
-import { Effect } from "effect";
 import * as S from "effect/Schema";
 import {
   ClaudeMcpJson,
@@ -154,58 +153,3 @@ export class AgentPluginManifestMetadata extends S.Class<AgentPluginManifestMeta
  * @since 0.0.0
  */
 export { ClaudeMcpJson, ClaudeSettings, CodexConfig, CodexMcpServer, CodexSkillEntry, CodexSkills, McpJsonServer };
-
-/**
- * Decoder for Codex TOML config values after TOML parsing.
- *
- * @example
- * ```ts
- * import { decodeCodexConfigObject } from "@beep/ai-sync"
- * console.log(decodeCodexConfigObject)
- * ```
- * @category validation
- * @since 0.0.0
- */
-export const decodeCodexConfigObject = S.decodeUnknownEffect(CodexConfig);
-
-/**
- * Decoder for Claude-style MCP JSON values after JSON parsing.
- *
- * @example
- * ```ts
- * import { decodeClaudeMcpJsonObject } from "@beep/ai-sync"
- * console.log(decodeClaudeMcpJsonObject)
- * ```
- * @category validation
- * @since 0.0.0
- */
-export const decodeClaudeMcpJsonObject = S.decodeUnknownEffect(ClaudeMcpJson);
-
-/**
- * Decoder for Claude settings JSON values after JSON parsing.
- *
- * @example
- * ```ts
- * import { decodeClaudeSettingsObject } from "@beep/ai-sync"
- * console.log(decodeClaudeSettingsObject)
- * ```
- * @category validation
- * @since 0.0.0
- */
-export const decodeClaudeSettingsObject = S.decodeUnknownEffect(ClaudeSettings);
-
-/**
- * Helper that turns schema issues into a bounded message.
- *
- * @param cause - Schema parse cause to render for human output.
- * @returns A bounded validation issue message.
- * @example
- * ```ts
- * import { renderSchemaIssueMessage } from "@beep/ai-sync"
- * console.log(renderSchemaIssueMessage)
- * ```
- * @category validation
- * @since 0.0.0
- */
-export const renderSchemaIssueMessage = (cause: unknown): Effect.Effect<string> =>
-  Effect.sync(() => (cause instanceof Error ? cause.message : "Schema validation failed."));

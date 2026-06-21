@@ -77,17 +77,10 @@
   // op = 1Password CLI, beep-cli = repo CLI bin, portless = dev proxy invoked from app scripts —
   // binaries not provided as a resolvable dependency import.
   "ignoreBinaries": ["op", "beep-cli", "portless"],
-  // Scaffolded stub packages (only `export const VERSION`): their architectural deps are
-  // pre-provisioned to encode intended slice wiring and are deliberately unused until built out.
-  // Excluded wholesale so that intentional scaffolding doesn't read as dependency drift.
-  "ignoreWorkspaces": [
-    "packages/drivers/konva",
-    "packages/shared/client",
-    "packages/shared/config",
-    "packages/shared/server",
-    "packages/shared/use-cases",
-    "**/test/fixtures/mock-monorepo"
-  ],
+  // Scratchpad is a private experiment workspace kept in the root install graph
+  // for dependency/TS trials but excluded from Knip's package graph. Scaffolded
+  // test fixtures are likewise deliberately outside dependency-drift review.
+  "ignoreWorkspaces": ["scratchpad", "**/test/fixtures/mock-monorepo"],
   "rules": {
     // Duplicate exports here are intentional conventions: Schema/<DomainName> dual-naming on
     // schema modules, Overridable/Overrideable upstream-compat aliases, and named/default React

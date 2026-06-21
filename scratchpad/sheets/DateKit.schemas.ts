@@ -1,7 +1,12 @@
 import {$ScratchpadId} from "@beep/identity";
 import * as S from "effect/Schema";
-import {LiteralKit} from "@beep/schema";
+import {createInvalidDateTime, LiteralKit} from "@beep/schema";
+import * as DateTime from "effect/DateTime";
+import {pipe} from "effect/Function";
+import * as O from "effect/Option";
 import type * as R from "effect/Record";
+import * as Str from "effect/String";
+import { P } from "@beep/utils";
 
 const $I = $ScratchpadId.create("sheets/DateKit.schemas");
 
@@ -131,6 +136,7 @@ const MINUTE = 60 * SECOND;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 const WEEK_START_DAY = 0; // Sunday
+const LOCAL_TIMEZONE = DateTime.zoneMakeLocal();
 
 const LOCALIZED_FORMAT_MAP: Record<string, string> = {
 	L: 'MM/DD/YYYY',
@@ -197,29 +203,33 @@ export class DateParts extends S.Class<DateParts>($I`DateParts`)({
 		maximum: 999,
 	})),
 	dayOfWeek: S.Finite.check(S.isBetween({
-		minimum: 1,
-		maximum: 7,
+		minimum: 0,
+		maximum: 6,
 	})),
 }, $I.annote("DateParts", {
 	description: "A class for representing date parts",
 })) {
 }
 
+const DateKitDateTime = S.Union([
+	S.DateTimeUtc,
+	S.DateTimeZoned,
+]).pipe($I.annoteSchema("DateKitDateTime", {
+	description: "Effect DateTime value used by DateKit",
+}));
 
 export class DateKit extends S.Class<DateKit>($I`DateKit`)({
-	_date: S.Date,
+	_date: DateKitDateTime,
 	_isUTC: S.Boolean,
 }, $I.annote("DateKit", {
 	description: "A class for representing date parts",
 })) {
-	static readonly new = (_date: Date, _isUTC: boolean) => DateKit.make({
-		_date,
+	static readonly new = (_date: DateTime.DateTime, _isUTC: boolean) => DateKit.make({
+		_date: applyDateKitZone(_date, _isUTC),
 		_isUTC,
 	})
 
-	readonly isValid = () => {
-		return !Number.isNaN(this._date.getTime())
-	}
+	readonly isValid = () => isDateTimeValid(this._date)
 
 	format(template = 'YYYY-MM-DDTHH:mm:ssZ') {
 		if (!this.isValid()) {
@@ -228,16 +238,16 @@ export class DateKit extends S.Class<DateKit>($I`DateKit`)({
 		return formatDate(this._date, template, this._isUTC);
 	}
 
-	valueOf() {
-		return this._date.getTime();
+	override valueOf() {
+		return DateTime.toEpochMillis(this._date);
 	}
 
 	toDate() {
-		return new Date(this.valueOf());
+		return DateTime.toDateUtc(this._date);
 	}
 
 	private _clone() {
-		return new DateKit({
+		return DateKit.make({
 			_date: this._date,
 			_isUTC: this._isUTC,
 		});
@@ -245,7 +255,7 @@ export class DateKit extends S.Class<DateKit>($I`DateKit`)({
 
 	add(value: number, unit: DateKitUnitType = 'millisecond') {
 		const normalizedUnit = normalizeUnit(unit);
-		if (!this.isValid() || !normalizedUnit || !Number.isFinite(value)) {
+		if (!this.isValid() || !P.isTruthy(normalizedUnit) || !Number.isFinite(value)) {
 			return this._clone();
 		}
 		return DateKit.new(addDate(this._date, value, normalizedUnit, this._isUTC), this._isUTC);
@@ -257,7 +267,7 @@ export class DateKit extends S.Class<DateKit>($I`DateKit`)({
 
 	startOf(unit: DateKitUnitType) {
 		const normalizedUnit = normalizeUnit(unit);
-		if (!normalizedUnit || !this.isValid()) {
+		if (!P.isTruthy(normalizedUnit) || !this.isValid()) {
 			return this._clone();
 		}
 		return DateKit.new(startOf(this._date, normalizedUnit, this._isUTC), this._isUTC);
@@ -265,7 +275,7 @@ export class DateKit extends S.Class<DateKit>($I`DateKit`)({
 
 	endOf(unit: DateKitUnitType) {
 		const normalizedUnit = normalizeUnit(unit);
-		if (!normalizedUnit || !this.isValid()) {
+		if (!P.isTruthy(normalizedUnit) || !this.isValid()) {
 			return this._clone();
 		}
 		if (normalizedUnit === 'millisecond') {
@@ -275,15 +285,15 @@ export class DateKit extends S.Class<DateKit>($I`DateKit`)({
 	}
 
 	utc() {
-		return new DateKit({
-			_date: this.toDate(),
+		return DateKit.make({
+			_date: applyDateKitZone(this._date, true),
 			_isUTC: true,
 		});
 	}
 
 	local() {
-		return new DateKit({
-			_date: this.toDate(),
+		return DateKit.make({
+			_date: applyDateKitZone(this._date, false),
 			_isUTC: false,
 		});
 	}
@@ -312,6 +322,7 @@ export class DateKit extends S.Class<DateKit>($I`DateKit`)({
 
 export const DateKitInput = S.Union([
 	S.Date,
+	DateKitDateTime,
 	S.Finite,
 	S.String,
 	S.Null,
@@ -325,50 +336,84 @@ function pad(value: number, length = 2) {
 	return String(Math.abs(value)).padStart(length, '0');
 }
 
-function getDateParts(date: Date, isUTC: boolean): DateParts {
-	return isUTC
-		? {
-			year: date.getUTCFullYear(),
-			month: date.getUTCMonth() + 1,
-			day: date.getUTCDate(),
-			hour: date.getUTCHours(),
-			minute: date.getUTCMinutes(),
-			second: date.getUTCSeconds(),
-			millisecond: date.getUTCMilliseconds(),
-			dayOfWeek: date.getUTCDay(),
-		}
-		: {
-			year: date.getFullYear(),
-			month: date.getMonth() + 1,
-			day: date.getDate(),
-			hour: date.getHours(),
-			minute: date.getMinutes(),
-			second: date.getSeconds(),
-			millisecond: date.getMilliseconds(),
-			dayOfWeek: date.getDay(),
-		};
+function isDateTimeValid(dateTime: DateTime.DateTime) {
+	return !Number.isNaN(DateTime.toEpochMillis(dateTime));
 }
 
-function toDate(input: DateKitInput, isUTC: boolean) {
+function applyDateKitZone(dateTime: DateTime.DateTime, isUTC: boolean) {
+	if (!isDateTimeValid(dateTime)) {
+		return dateTime;
+	}
+	return isUTC
+		? DateTime.toUtc(dateTime)
+		: DateTime.setZone(dateTime, LOCAL_TIMEZONE);
+}
+
+function fromDateTimeInput(input: DateTime.DateTime.Input, isUTC: boolean) {
+	return pipe(
+		DateTime.make(input),
+		O.map((dateTime) => applyDateKitZone(dateTime, isUTC)),
+		O.getOrElse(createInvalidDateTime),
+	);
+}
+
+function fromEpochMilliseconds(epochMilliseconds: number, isUTC: boolean) {
+	return Number.isFinite(epochMilliseconds)
+		? fromDateTimeInput({ epochMilliseconds }, isUTC)
+		: createInvalidDateTime();
+}
+
+function getDateParts(date: DateTime.DateTime, isUTC: boolean): DateParts {
+	if (!isDateTimeValid(date)) {
+		return {
+			year: Number.NaN,
+			month: Number.NaN,
+			day: Number.NaN,
+			hour: Number.NaN,
+			minute: Number.NaN,
+			second: Number.NaN,
+			millisecond: Number.NaN,
+			dayOfWeek: Number.NaN,
+		};
+	}
+	const parts = isUTC
+		? DateTime.toPartsUtc(date)
+		: DateTime.toParts(applyDateKitZone(date, false));
+	return {
+		year: parts.year,
+		month: parts.month,
+		day: parts.day,
+		hour: parts.hour,
+		minute: parts.minute,
+		second: parts.second,
+		millisecond: parts.millisecond,
+		dayOfWeek: parts.weekDay,
+	};
+}
+
+function toDateTime(input: DateKitInput, isUTC: boolean) {
 	if (S.is(DateKit)(input)) {
-		return input.toDate();
+		return applyDateKitZone(input._date, isUTC);
 	}
 	if (input === undefined) {
-		return new Date();
+		return applyDateKitZone(DateTime.nowUnsafe(), isUTC);
 	}
 	if (input === null) {
-		return new Date(Number.NaN);
+		return createInvalidDateTime();
+	}
+	if (DateTime.isDateTime(input)) {
+		return applyDateKitZone(input, isUTC);
 	}
 	if (input instanceof Date) {
-		return new Date(input.getTime());
+		return fromDateTimeInput(input, isUTC);
 	}
 	if (typeof input === 'number') {
-		return new Date(input);
+		return fromEpochMilliseconds(input, isUTC);
 	}
 	if (typeof input === 'string') {
 		return parseDateString(input, isUTC);
 	}
-	return new Date(Number.NaN);
+	return createInvalidDateTime();
 }
 
 function createDateWithParts(
@@ -381,226 +426,105 @@ function createDateWithParts(
 	millisecond: number,
 	isUTC: boolean,
 ) {
-	const parsed = isUTC
-		? new Date(Date.UTC(year, month - 1, day, hour, minute, second, millisecond))
-		: new Date(year, month - 1, day, hour, minute, second, millisecond);
-	const parts = getDateParts(parsed, isUTC);
-	if (parts.year !== year || parts.month !== month || parts.day !== day || parts.hour !== hour || parts.minute !== minute || parts.second !== second) {
-		return new Date(Number.NaN);
+	const input = { year, month, day, hour, minute, second, millisecond };
+	const matchesInputParts = (parsed: DateTime.DateTime) => {
+		const parts = getDateParts(parsed, isUTC);
+		return parts.year === year
+			&& parts.month === month
+			&& parts.day === day
+			&& parts.hour === hour
+			&& parts.minute === minute
+			&& parts.second === second
+			&& parts.millisecond === millisecond;
 	}
-	return parsed;
+	if (isUTC) {
+		return pipe(
+			DateTime.make(input),
+			O.filter(matchesInputParts),
+			O.getOrElse(createInvalidDateTime),
+		);
+	}
+	return pipe(
+		DateTime.makeZoned(input, {
+			timeZone: LOCAL_TIMEZONE,
+			adjustForTimeZone: true,
+		}),
+		O.filter(matchesInputParts),
+		O.getOrElse(createInvalidDateTime),
+	);
 }
 
 function parseDateString(input: string, isUTC: boolean) {
 	const text = input.trim();
-	if (!text) {
-		return new Date(Number.NaN);
+	if (Str.isEmpty(text)) {
+		return createInvalidDateTime();
 	}
 
 	const cjkMatch = text.match(/^(\d{4})年(\d{1,2})月(\d{1,2})日(?:\s+(\d{1,2})(?::(\d{1,2})(?::(\d{1,2}))?)?)?$/);
-	if (cjkMatch) {
+	if (cjkMatch !== null) {
 		const [, y, m, d, hh = '0', mm = '0', ss = '0'] = cjkMatch;
 		return createDateWithParts(Number(y), Number(m), Number(d), Number(hh), Number(mm), Number(ss), 0, isUTC);
 	}
 
 	const standardMatch = text.match(
 		/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2})(?::(\d{1,2})(?::(\d{1,2})(?:\.(\d{1,3}))?)?)?)?$/);
-	if (standardMatch) {
+	if (standardMatch !== null) {
 		const [, y, m, d, hh = '0', mm = '0', ss = '0', mss = '0'] = standardMatch;
 		return createDateWithParts(Number(y), Number(m), Number(d), Number(hh), Number(mm), Number(ss), Number(mss), isUTC);
 	}
 
 	if (/^-?\d+(\.\d+)?$/.test(text)) {
-		return new Date(Number(text));
+		return fromEpochMilliseconds(Number(text), isUTC);
 	}
 
-	return new Date(text);
+	return fromDateTimeInput(text, isUTC);
 }
 
 function normalizeUnit(unit: DateKitUnitType) {
 	return UNIT_ALIASES[unit] ?? UNIT_ALIASES[String(unit).toLowerCase()];
 }
 
-function daysInMonth(year: number, month: number, isUTC: boolean) {
-	return isUTC
-		? new Date(Date.UTC(year, month, 0)).getUTCDate()
-		: new Date(year, month, 0).getDate();
+const DATE_TIME_MATH_PARTS: R.ReadonlyRecord<DateKitCoreUnit, (value: number) => Partial<DateTime.DateTime.PartsForMath>> = {
+	millisecond: (value) => ({ milliseconds: value }),
+	second: (value) => ({ seconds: value }),
+	minute: (value) => ({ minutes: value }),
+	hour: (value) => ({ hours: value }),
+	day: (value) => ({ days: value }),
+	week: (value) => ({ weeks: value }),
+	month: (value) => ({ months: value }),
+	year: (value) => ({ years: value }),
 }
 
-function setDatePart(
-	date: Date,
-	isUTC: boolean,
-	part: 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond',
-	value: number,
-) {
-	const next = new Date(date.getTime());
-	if (isUTC) {
-		switch (part) {
-			case 'year':
-				next.setUTCFullYear(value);
-				break;
-			case 'month':
-				next.setUTCMonth(value);
-				break;
-			case 'day':
-				next.setUTCDate(value);
-				break;
-			case 'hour':
-				next.setUTCHours(value);
-				break;
-			case 'minute':
-				next.setUTCMinutes(value);
-				break;
-			case 'second':
-				next.setUTCSeconds(value);
-				break;
-			case 'millisecond':
-				next.setUTCMilliseconds(value);
-				break;
-		}
-		return next;
-	}
-
-	switch (part) {
-		case 'year':
-			next.setFullYear(value);
-			break;
-		case 'month':
-			next.setMonth(value);
-			break;
-		case 'day':
-			next.setDate(value);
-			break;
-		case 'hour':
-			next.setHours(value);
-			break;
-		case 'minute':
-			next.setMinutes(value);
-			break;
-		case 'second':
-			next.setSeconds(value);
-			break;
-		case 'millisecond':
-			next.setMilliseconds(value);
-			break;
-	}
-	return next;
+function addDate(date: DateTime.DateTime, value: number, unit: DateKitCoreUnit, isUTC: boolean) {
+	return DateTime.add(applyDateKitZone(date, isUTC), DATE_TIME_MATH_PARTS[unit](value));
 }
 
-function addDate(date: Date, value: number, unit: DateKitCoreUnit, isUTC: boolean) {
-	switch (unit) {
-		case 'millisecond':
-			return new Date(date.getTime() + value);
-		case 'second':
-			return new Date(date.getTime() + value * SECOND);
-		case 'minute':
-			return new Date(date.getTime() + value * MINUTE);
-		case 'hour':
-			return new Date(date.getTime() + value * HOUR);
-		case 'day':
-			return setDatePart(
-				date,
-				isUTC,
-				'day',
-				(isUTC
-					? date.getUTCDate()
-					: date.getDate()) + value,
-			);
-		case 'week':
-			return setDatePart(
-				date,
-				isUTC,
-				'day',
-				(isUTC
-					? date.getUTCDate()
-					: date.getDate()) + value * 7,
-			);
-		case 'month': {
-			const current = getDateParts(date, isUTC);
-			const anchor = createDateWithParts(
-				current.year,
-				current.month,
-				1,
-				current.hour,
-				current.minute,
-				current.second,
-				current.millisecond,
-				isUTC,
-			);
-			const moved = setDatePart(
-				anchor,
-				isUTC,
-				'month',
-				(isUTC
-					? anchor.getUTCMonth()
-					: anchor.getMonth()) + value,
-			);
-			const movedParts = getDateParts(moved, isUTC);
-			const maxDay = daysInMonth(movedParts.year, movedParts.month, isUTC);
-			return setDatePart(moved, isUTC, 'day', Math.min(current.day, maxDay));
-		}
-		case 'year':
-			return addDate(date, value * 12, 'month', isUTC);
-	}
+function startOf(date: DateTime.DateTime, unit: DateKitCoreUnit, isUTC: boolean) {
+	return DateTime.startOf(applyDateKitZone(date, isUTC), unit, {
+		weekStartsOn: WEEK_START_DAY,
+	});
 }
 
-function startOf(date: Date, unit: DateKitCoreUnit, isUTC: boolean) {
-	const parts = getDateParts(date, isUTC);
-	switch (unit) {
-		case 'year':
-			return createDateWithParts(parts.year, 1, 1, 0, 0, 0, 0, isUTC);
-		case 'month':
-			return createDateWithParts(parts.year, parts.month, 1, 0, 0, 0, 0, isUTC);
-		case 'week': {
-			const day = parts.dayOfWeek;
-			const diff = (day - WEEK_START_DAY + 7) % 7;
-			const anchor = createDateWithParts(parts.year, parts.month, parts.day, 0, 0, 0, 0, isUTC);
-			return setDatePart(
-				anchor,
-				isUTC,
-				'day',
-				(isUTC
-					? anchor.getUTCDate()
-					: anchor.getDate()) - diff,
-			);
-		}
-		case 'day':
-			return createDateWithParts(parts.year, parts.month, parts.day, 0, 0, 0, 0, isUTC);
-		case 'hour':
-			return createDateWithParts(parts.year, parts.month, parts.day, parts.hour, 0, 0, 0, isUTC);
-		case 'minute':
-			return createDateWithParts(parts.year, parts.month, parts.day, parts.hour, parts.minute, 0, 0, isUTC);
-		case 'second':
-			return createDateWithParts(parts.year, parts.month, parts.day, parts.hour, parts.minute, parts.second, 0, isUTC);
-		case 'millisecond':
-		default:
-			return new Date(date.getTime());
+function getWeekOfYear(date: DateTime.DateTime, isUTC: boolean) {
+	if (!isDateTimeValid(date)) {
+		return Number.NaN;
 	}
-}
-
-function getWeekOfYear(date: Date, isUTC: boolean) {
 	const currentWeekStart = startOf(date, 'week', isUTC);
 	const yearStart = startOf(date, 'year', isUTC);
 	const firstWeekStart = startOf(yearStart, 'week', isUTC);
-	return Math.floor((currentWeekStart.getTime() - firstWeekStart.getTime()) / DAY / 7) + 1;
+	return Math.floor((DateTime.toEpochMillis(currentWeekStart) - DateTime.toEpochMillis(firstWeekStart)) / DAY / 7) + 1;
 }
 
-function getTimezoneString(date: Date, isUTC: boolean, compact = false) {
+function getTimezoneString(date: DateTime.DateTime, isUTC: boolean, compact = false) {
 	if (isUTC) {
 		return compact
 			? '+0000'
 			: '+00:00';
 	}
-	const offsetMinutes = -date.getTimezoneOffset();
-	const sign = offsetMinutes >= 0
-		? '+'
-		: '-';
-	const abs = Math.abs(offsetMinutes);
-	const hours = pad(Math.floor(abs / 60), 2);
-	const minutes = pad(abs % 60, 2);
+	const offset = DateTime.zonedOffsetIso(DateTime.setZone(date, LOCAL_TIMEZONE));
 	return compact
-		? `${sign}${hours}${minutes}`
-		: `${sign}${hours}:${minutes}`;
+		? offset.replace(':', '')
+		: offset;
 }
 
 function ordinal(value: number) {
@@ -624,7 +548,7 @@ function replaceLocalizedTokens(template: string) {
 	return template.replace(/LLLL|LLL|LL|L|llll|lll|ll|l/g, (token) => LOCALIZED_FORMAT_MAP[token] ?? token);
 }
 
-function formatDate(date: Date, template: string, isUTC: boolean) {
+function formatDate(date: DateTime.DateTime, template: string, isUTC: boolean) {
 	const parts = getDateParts(date, isUTC);
 	const hour12Raw = parts.hour % 12;
 	const hour12 = hour12Raw === 0
@@ -663,8 +587,8 @@ function formatDate(date: Date, template: string, isUTC: boolean) {
 			: 'am',
 		Q: String(quarter),
 		Qo: ordinal(quarter),
-		X: String(Math.floor(date.getTime() / 1000)),
-		x: String(date.getTime()),
+		X: String(Math.floor(DateTime.toEpochMillis(date) / 1000)),
+		x: String(DateTime.toEpochMillis(date)),
 		Z: getTimezoneString(date, isUTC, false),
 		ZZ: getTimezoneString(date, isUTC, true),
 	};
@@ -693,11 +617,11 @@ interface DateKitStatic {
 }
 
 function createDateKit(input?: DateKitInput) {
-	return DateKit.new(toDate(input, false), false);
+	return DateKit.new(toDateTime(input, false), false);
 }
 
 export const dateKit: DateKitStatic = Object.assign(createDateKit, {
-	utc: (input?: DateKitInput) => DateKit.new(toDate(input, true), true),
+	utc: (input?: DateKitInput) => DateKit.new(toDateTime(input, true), true),
 	isDateKit: (value: unknown): value is DateKit => S.is(DateKit)(value),
 	unix: (timestamp: number) => createDateKit(timestamp * 1000),
 });

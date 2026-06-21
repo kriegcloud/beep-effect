@@ -566,17 +566,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/drivers/konva": {
-      "name": "@beep/konva",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/drivers/libpff": {
       "name": "@beep/libpff",
       "version": "0.0.0",
@@ -1363,28 +1352,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/shared/client": {
-      "name": "@beep/shared-client",
-      "version": "0.0.1",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/shared/config": {
-      "name": "@beep/shared-config",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/shared/domain": {
       "name": "@beep/shared-domain",
       "version": "0.0.2",
@@ -1392,17 +1359,6 @@
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/shared/server": {
-      "name": "@beep/shared-server",
-      "version": "0.0.1",
-      "dependencies": {
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1421,31 +1377,6 @@
       },
       "devDependencies": {
         "@beep/utils": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/shared/ui": {
-      "name": "@beep/shared-ui",
-      "version": "0.0.2",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/shared-domain": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/shared/use-cases": {
-      "name": "@beep/shared-use-cases",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1715,6 +1646,24 @@
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+      },
+    },
+    "scratchpad": {
+      "name": "@beep/scratchpad",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/md": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+        "lexical": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
       },
     },
   },
@@ -2161,8 +2110,6 @@
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
-    "@beep/konva": ["@beep/konva@workspace:packages/drivers/konva"],
-
     "@beep/langextract": ["@beep/langextract@workspace:packages/foundation/capability/langextract"],
 
     "@beep/law-practice-domain": ["@beep/law-practice-domain@workspace:packages/law-practice/domain"],
@@ -2225,21 +2172,13 @@
 
     "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 
+    "@beep/scratchpad": ["@beep/scratchpad@workspace:scratchpad"],
+
     "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/foundation/capability/semantic-web"],
-
-    "@beep/shared-client": ["@beep/shared-client@workspace:packages/shared/client"],
-
-    "@beep/shared-config": ["@beep/shared-config@workspace:packages/shared/config"],
 
     "@beep/shared-domain": ["@beep/shared-domain@workspace:packages/shared/domain"],
 
-    "@beep/shared-server": ["@beep/shared-server@workspace:packages/shared/server"],
-
     "@beep/shared-tables": ["@beep/shared-tables@workspace:packages/shared/tables"],
-
-    "@beep/shared-ui": ["@beep/shared-ui@workspace:packages/shared/ui"],
-
-    "@beep/shared-use-cases": ["@beep/shared-use-cases@workspace:packages/shared/use-cases"],
 
     "@beep/storybook": ["@beep/storybook@workspace:apps/storybook"],
 

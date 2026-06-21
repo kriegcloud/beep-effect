@@ -82,8 +82,7 @@ one, **stop and surface it** for sign-off rather than diverging.
 - `packages/foundation/modeling/identity` — `$FormId` registration (auto-written
   by the scaffolder).
 - Root `package.json` `catalog` (new exact-pin deps), root `tsconfig.json` +
-  `tsconfig.packages.json` + `tsconfig.quality.packages.json` (auto-synced by the
-  scaffolder; verify).
+  `tsconfig.packages.json` (auto-synced by the scaffolder; verify).
 - `apps/storybook` — `package.json` dependency + `tsconfig.stories.json`
   paths/references (**manual**); stories auto-discovered from the package-root
   `stories/` dir.
