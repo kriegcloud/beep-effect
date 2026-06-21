@@ -1,0 +1,107 @@
+/**
+ * Professional desktop theme provider.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+"use client";
+
+import { AppThemeProvider, createAppTheme, ThemeMode } from "@beep/ui/themes";
+import type { ThemeOptions } from "@beep/ui/themes";
+import type { ReactNode } from "react";
+
+/**
+ * Green-workbench MUI color schemes layered over the shared `@beep/ui` base.
+ *
+ * Dark is the near-black "workbench" surface (trustgraph aesthetic); light is
+ * green-on-parchment (the oip-web parchment values). These overrides are
+ * app-local — the `@beep/ui` defaults are untouched.
+ *
+ * @example
+ * ```tsx
+ * import { greenWorkbenchThemeOptions } from "@/theme/WorkbenchThemeProvider"
+ *
+ * console.log(greenWorkbenchThemeOptions.colorSchemes.dark.palette.primary.main)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const greenWorkbenchThemeOptions = {
+  colorSchemes: {
+    light: {
+      palette: {
+        primary: {
+          main: "#2d632d",
+        },
+        secondary: {
+          main: "#c9a24b",
+        },
+        background: {
+          default: "#f4ede0",
+          paper: "#fffaf0",
+        },
+        text: {
+          primary: "#1a3a1a",
+          secondary: "#52525b",
+        },
+      },
+    },
+    dark: {
+      palette: {
+        primary: {
+          main: "#5c9a5c",
+        },
+        secondary: {
+          main: "#eab308",
+        },
+        background: {
+          default: "#09090b",
+          paper: "#18181b",
+        },
+        text: {
+          primary: "#fafafa",
+          secondary: "#a1a1aa",
+        },
+      },
+    },
+  },
+} satisfies ThemeOptions;
+
+/**
+ * The green-workbench theme built from {@link greenWorkbenchThemeOptions}.
+ *
+ * @example
+ * ```tsx
+ * import { workbenchTheme } from "@/theme/WorkbenchThemeProvider"
+ *
+ * console.log(typeof workbenchTheme)
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
+export const workbenchTheme = createAppTheme(greenWorkbenchThemeOptions);
+
+/**
+ * Provides the green-workbench theme while reusing the shared `@beep/ui` theme
+ * base. Defaults to the OS light/dark preference (`system`).
+ *
+ * @example
+ * ```tsx
+ * import { WorkbenchThemeProvider } from "@/theme/WorkbenchThemeProvider"
+ *
+ * const provider = <WorkbenchThemeProvider><main /></WorkbenchThemeProvider>
+ * console.log(provider.type)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
+export function WorkbenchThemeProvider({ children }: { readonly children: ReactNode }) {
+  return (
+    <AppThemeProvider defaultMode={ThemeMode.Enum.system} theme={workbenchTheme}>
+      {children}
+    </AppThemeProvider>
+  );
+}

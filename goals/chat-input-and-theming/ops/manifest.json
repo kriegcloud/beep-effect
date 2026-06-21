@@ -5,7 +5,7 @@
     "title": "Chat Input & Green Workbench Theming",
     "status": "active",
     "created": "2026-06-20",
-    "updated": "2026-06-20",
+    "updated": "2026-06-21",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/chat-input-and-theming",
@@ -38,17 +38,17 @@
     {
       "id": "P1",
       "name": "Implement",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P2",
       "name": "Verify",
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "P3",
       "name": "Close",
-      "status": "pending"
+      "status": "in_progress"
     }
   ],
   "verificationCommands": [

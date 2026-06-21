@@ -36,18 +36,28 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P0 Research **complete** — `research/` holds the reference reports
-(`references/`), the green-workbench `palette.md`, the live `chrome-feature-map.md`,
-and the adversarially-verified `deep-research-lexical-chat-composer.md`. Next
-concrete action: begin P1 implementation per `PLAN.md` (run via the `/goal`
-launcher).
+P1 Implement + P2 Verify **complete** — both capabilities shipped and verified;
+P3 Close in progress (reflection written, PR pending). The green workbench theme
+(app-local `createAppTheme` + Tailwind var layer, `system` default + persisted
+toggle, `OrbBackground tone="green"`) and the feature-flagged `@beep/editor`
+`ChatComposer` (toolbar, `/` slash, `@` mentions, attachment capture,
+plain-Enter send, character count, send/stop, combobox a11y) are in, with the
+placeholder/cursor bug fixed.
 
 ## Latest Evidence
 
-P0 research corpus under [`research/`](./research/) — notably
-[`deep-research-lexical-chat-composer.md`](./research/deep-research-lexical-chat-composer.md)
-(24/25 claims verified) and [`palette.md`](./research/palette.md). Implementation
-evidence: `Not started`.
+Implementation: `@beep/editor/chat` (config, commands, slash-items, typeahead,
+toolbar, send, attachments, `ChatComposer`), placeholder fix in `@beep/ui`
+`content-editable.tsx`, Lane A theming in `apps/professional-desktop`
+(`styles/globals.css`, `theme/WorkbenchThemeProvider.tsx`, `chat/ui/ThemeToggle.tsx`,
+`ChatApp.tsx`, `main.tsx`), app assembly in `chat/ui/Composer.tsx`. Verification:
+`bun run check` green (29/29); Storybook editor interaction tests 9/9 (new
+`chat-composer.stories.tsx` incl. placeholder regression); claude-in-chrome QA
+confirmed both theme modes + slash/mention/keyboard/a11y (`role=combobox` +
+`aria-activedescendant`) + Enter behaviors. Closeout reflection:
+[`history/reflections/2026-06-21-claude.md`](./history/reflections/2026-06-21-claude.md).
+Attachment send-transport is the recorded **stubbed-send degrade** (Exception
+Ledger).
 
 ## Notes
 

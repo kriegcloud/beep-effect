@@ -5,6 +5,23 @@ import type { JSX } from "react";
 
 const $I = $UiId.create("components/editor/content-editable");
 
+/**
+ * The padding shared by the editable surface and its placeholder overlay. The
+ * placeholder is an `absolute top-0 left-0` sibling of the editable, so the
+ * empty-state cursor (which sits at the editable's content-box origin) only
+ * lines up with the placeholder text when both boxes use the *same* padding.
+ * Keeping one constant for both prevents the cursor-above-placeholder drift the
+ * previous `py-[18px]` placeholder (vs `py-4` editable) produced.
+ *
+ * Consumers passing a custom `className` should pass a `placeholderClassName`
+ * whose padding matches, for the same reason.
+ */
+const DEFAULT_EDITABLE_CLASS_NAME =
+  "ContentEditable__root relative block min-h-72 min-h-full overflow-auto px-8 py-4 focus:outline-none";
+
+const DEFAULT_PLACEHOLDER_CLASS_NAME =
+  "text-muted-foreground pointer-events-none absolute top-0 left-0 overflow-hidden px-8 py-4 text-ellipsis select-none";
+
 class Props extends S.Class<Props>($I`Props`)({
   placeholder: S.String,
   className: S.optionalKey(S.String),
@@ -13,6 +30,10 @@ class Props extends S.Class<Props>($I`Props`)({
 
 /**
  * Content editable component.
+ *
+ * The placeholder overlay shares the editable's padding so the empty-state
+ * cursor aligns with the placeholder text (when a custom `className` changes the
+ * editable padding, pass a matching `placeholderClassName`).
  *
  * @example
  * ```tsx
@@ -27,21 +48,9 @@ class Props extends S.Class<Props>($I`Props`)({
 export function ContentEditable({ placeholder, className, placeholderClassName }: Props): JSX.Element {
   return (
     <LexicalContentEditable
-      className={
-        className ??
-        "ContentEditable__root relative block min-h-72 min-h-full overflow-auto px-8 py-4 focus:outline-none"
-      }
+      className={className ?? DEFAULT_EDITABLE_CLASS_NAME}
       aria-placeholder={placeholder}
-      placeholder={
-        <div
-          className={
-            placeholderClassName ??
-            "text-muted-foreground pointer-events-none absolute top-0 left-0 overflow-hidden px-8 py-[18px] text-ellipsis select-none"
-          }
-        >
-          {placeholder}
-        </div>
-      }
+      placeholder={<div className={placeholderClassName ?? DEFAULT_PLACEHOLDER_CLASS_NAME}>{placeholder}</div>}
     />
   );
 }

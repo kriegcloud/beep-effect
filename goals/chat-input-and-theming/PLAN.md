@@ -2,16 +2,16 @@
 
 ## Status
 
-Status: `in_progress` (P0 complete → P1 Implement next)
+Status: `in_progress` (P0–P2 complete → P3 Close in progress)
 
 ## Phases
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
 | P0 Research | completed | Build the research corpus and confirm scope: reference reports, deep-research, Chrome feature-map, green-workbench palette. | `research/` populated; SPEC decisions confirmed; blockers recorded. |
-| P1 Implement | pending | Smallest changes satisfying `SPEC.md` across the two lanes. | Acceptance criteria met. |
-| P2 Verify | pending | Storybook + app run + claude-in-chrome QA (both modes) + affected checks. | Verification green or blockers documented. |
-| P3 Close | pending | PR, review response, closeout reflection, readiness. | Status/evidence updated; reflection exists. |
+| P1 Implement | completed | Smallest changes satisfying `SPEC.md` across the two lanes. | Acceptance criteria met. |
+| P2 Verify | completed | Storybook + app run + claude-in-chrome QA (both modes) + affected checks. | Verification green or blockers documented. |
+| P3 Close | in_progress | PR, review response, closeout reflection, readiness. | Status/evidence updated; reflection exists. |
 
 ## P0 Research — deliverables (`research/`)
 
