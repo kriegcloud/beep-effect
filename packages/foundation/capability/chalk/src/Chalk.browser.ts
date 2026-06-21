@@ -70,7 +70,9 @@ export interface ChalkInstance extends ChalkInstanceSurface {
   (...text: ReadonlyArray<unknown>): string;
 }
 
-class ChalkValue {}
+class ChalkValue {
+  constructor(_options?: ChalkConstructorOptionsType) {}
+}
 
 interface ChalkValue extends ChalkInstance {}
 
@@ -338,7 +340,9 @@ export const supportsColor = detectedSupportsColorBrowser.stdout;
  */
 export const supportsColorStderr = detectedSupportsColorBrowser.stderr;
 
-class ChalkStderrValue {}
+class ChalkStderrValue {
+  constructor(_options?: ChalkConstructorOptionsType) {}
+}
 
 interface ChalkStderrValue extends ChalkInstance {}
 

@@ -94,7 +94,9 @@ export interface ChalkInstance extends ChalkInstanceSurface {
  * @since 0.0.0
  * @category models
  */
-class ChalkValue {}
+class ChalkValue {
+  constructor(_options?: ChalkConstructorOptionsType) {}
+}
 
 interface ChalkValue extends ChalkInstance {}
 
@@ -674,7 +676,9 @@ export const supportsColor = detectedSupportsColor.stdout;
  */
 export const supportsColorStderr = detectedSupportsColor.stderr;
 
-class ChalkStderrValue {}
+class ChalkStderrValue {
+  constructor(_options?: ChalkConstructorOptionsType) {}
+}
 
 interface ChalkStderrValue extends ChalkInstance {}
 
