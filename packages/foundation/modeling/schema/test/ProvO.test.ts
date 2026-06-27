@@ -26,7 +26,8 @@ import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const decodeActivity = decodeUnknownSync(Activity);
 const decodeAssociation = decodeUnknownSync(Association);
@@ -57,21 +58,21 @@ const rawBundle = {
   },
   records: [
     {
-      provType: "Entity",
       id: "thing:alice",
+      provType: "Entity",
       value: "Alice",
     },
     {
-      provType: "Activity",
-      id: "activity:ingest",
-      used: ["thing:alice"],
-      startedAtTime: "2026-03-08T11:00:00Z",
       endedAtTime: "2026-03-08T12:00:00Z",
+      id: "activity:ingest",
+      provType: "Activity",
+      startedAtTime: "2026-03-08T11:00:00Z",
+      used: ["thing:alice"],
     },
     {
-      provType: "SoftwareAgent",
       id: "agent:semantic-web",
       name: "semantic-web",
+      provType: "SoftwareAgent",
     },
   ],
 } as const;
@@ -90,19 +91,19 @@ describe("ProvO", () => {
   it("decodes stable record variants and timestamp adjuncts", () => {
     expect(
       decodeEntity({
-        provType: "Entity",
-        id: "thing:alice",
-        wasGeneratedBy: ["activity:ingest"],
         generatedAtTime: "2026-03-08T12:00:00Z",
+        id: "thing:alice",
+        provType: "Entity",
+        wasGeneratedBy: ["activity:ingest"],
       })
     ).toBeDefined();
 
     const activity = decodeActivity({
-      provType: "Activity",
-      id: "activity:ingest",
-      used: ["thing:alice"],
-      startedAtTime: "2026-03-08T11:00:00Z",
       endedAtTime: "2026-03-08T12:00:00Z",
+      id: "activity:ingest",
+      provType: "Activity",
+      startedAtTime: "2026-03-08T11:00:00Z",
+      used: ["thing:alice"],
     });
 
     expect(O.isSome(activity.startedAtTime)).toBe(true);
@@ -111,27 +112,27 @@ describe("ProvO", () => {
   });
 
   it("decodes extension-tier records that remain on the public semantic-web surface", () => {
-    expect(decodePlan({ provType: "Plan", id: "plan:1", name: "Normalize bundle" })).toBeDefined();
-    expect(decodeCollection({ provType: "Collection", id: "collection:1", hadMember: ["thing:alice"] })).toBeDefined();
-    expect(decodePerson({ provType: "Person", id: "person:ada", name: "Ada" })).toBeDefined();
-    expect(decodeOrganization({ provType: "Organization", id: "org:beep", name: "Beep" })).toBeDefined();
-    expect(decodeSoftwareAgent({ provType: "SoftwareAgent", id: "agent:bot", name: "Bot" })).toBeDefined();
+    expect(decodePlan({ id: "plan:1", name: "Normalize bundle", provType: "Plan" })).toBeDefined();
+    expect(decodeCollection({ hadMember: ["thing:alice"], id: "collection:1", provType: "Collection" })).toBeDefined();
+    expect(decodePerson({ id: "person:ada", name: "Ada", provType: "Person" })).toBeDefined();
+    expect(decodeOrganization({ id: "org:beep", name: "Beep", provType: "Organization" })).toBeDefined();
+    expect(decodeSoftwareAgent({ id: "agent:bot", name: "Bot", provType: "SoftwareAgent" })).toBeDefined();
   });
 
   it("decodes stable and extension-tier relations with object references", () => {
     expect(
       decodeUsage({
         activity: "activity:ingest",
-        entity: "thing:alice",
         atTime: "2026-03-08T11:30:00Z",
+        entity: "thing:alice",
       })
     ).toBeDefined();
 
     expect(
       decodeGeneration({
         activity: "activity:ingest",
-        entity: "thing:alice",
         atTime: "2026-03-08T12:00:00Z",
+        entity: "thing:alice",
       })
     ).toBeDefined();
 
@@ -143,7 +144,7 @@ describe("ProvO", () => {
       })
     ).toBeDefined();
 
-    expect(decodeAttribution({ entity: "thing:alice", agent: "agent:semantic-web" })).toBeDefined();
+    expect(decodeAttribution({ agent: "agent:semantic-web", entity: "thing:alice" })).toBeDefined();
     expect(decodeDelegation({ delegate: "agent:bot", responsible: "agent:semantic-web" })).toBeDefined();
     expect(decodeDerivation({ generatedEntity: "thing:alice:v2", usedEntity: "thing:alice:v1" })).toBeDefined();
     expect(decodePrimarySource({ entity: "thing:alice", source: "source:1" })).toBeDefined();
@@ -155,7 +156,7 @@ describe("ProvO", () => {
 
   it("rejects invalid provenance values for the current schema surface", () => {
     expect(() => decodeProvO({ provType: "Bundle" })).toThrow();
-    expect(() => decodeCollection({ provType: "Collection", id: "collection:1" })).toThrow();
+    expect(() => decodeCollection({ id: "collection:1", provType: "Collection" })).toThrow();
     expect(() => decodeUsage({ activity: "activity:ingest" })).toThrow();
     expect(() => decodeObjectRef("not valid whitespace ref")).toThrow();
   });

@@ -13,53 +13,54 @@ import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const auditModules = [
   {
-    name: "jsonld",
-    exports: JsonLdModule,
     exclude: new Set(["JsonLdKeyword", "JsonLdPropertyValue", "JsonLdScalar"]),
+    exports: JsonLdModule,
+    name: "jsonld",
   },
   {
-    name: "evidence",
-    exports: EvidenceModule,
     exclude: new Set(["EvidenceSelector", "EvidenceSelectorKind"]),
+    exports: EvidenceModule,
+    name: "evidence",
   },
   {
-    name: "prov",
-    exports: ProvModule,
     exclude: new Set(["ProvO", "ProvRecord"]),
+    exports: ProvModule,
+    name: "prov",
   },
   {
-    name: "services/jsonld-document",
-    exports: JsonLdDocumentServiceModule,
     exclude: new Set(["JsonLdDocumentErrorReason", "JsonLdDocumentNormalizationProfile"]),
+    exports: JsonLdDocumentServiceModule,
+    name: "services/jsonld-document",
   },
   {
-    name: "services/canonicalization",
-    exports: CanonicalizationServiceModule,
     exclude: new Set(["CanonicalizationAlgorithm"]),
+    exports: CanonicalizationServiceModule,
+    name: "services/canonicalization",
   },
   {
-    name: "services/shacl-validation",
-    exports: ShaclValidationServiceModule,
     exclude: new Set(["ShaclSeverity"]),
+    exports: ShaclValidationServiceModule,
+    name: "services/shacl-validation",
   },
   {
-    name: "services/jsonld-stream-parse",
-    exports: JsonLdStreamParseServiceModule,
     exclude: new Set(["JsonLdStreamMode", "JsonLdStreamParseErrorReason", "JsonLdStreamParseInput"]),
+    exports: JsonLdStreamParseServiceModule,
+    name: "services/jsonld-stream-parse",
   },
   {
-    name: "services/jsonld-stream-serialize",
-    exports: JsonLdStreamSerializeServiceModule,
     exclude: new Set(["JsonLdStreamSerializeErrorReason"]),
+    exports: JsonLdStreamSerializeServiceModule,
+    name: "services/jsonld-stream-serialize",
   },
   {
-    name: "adapters/web-annotation",
-    exports: WebAnnotationAdapters,
     exclude: new Set(["WebAnnotationSelector"]),
+    exports: WebAnnotationAdapters,
+    name: "adapters/web-annotation",
   },
 ] as const;
 
@@ -69,12 +70,12 @@ describe("Interop and Metadata", () => {
       id: "https://example.com/annotations/position-1",
       note: "Selected code span",
       target: {
-        source: "https://example.com/documents/1",
         selector: {
+          end: 8,
           kind: "text-position",
           start: 2,
-          end: 8,
         },
+        source: "https://example.com/documents/1",
       },
     });
 

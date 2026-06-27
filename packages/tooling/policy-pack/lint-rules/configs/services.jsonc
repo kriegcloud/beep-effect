@@ -5,7 +5,7 @@
   // entry (`packages/tooling/**/src/**`), not a flat `plugins` array — a preset cannot
   // express that scope. Service-authoring discipline (`laws effect-fn`) stays in
   // ts-morph (see STYLE.md). Biome resolves the paths below relative to this file.
-  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
   "plugins": [
     "../rules/no-bigint-literals.grit",
     "../rules/no-empty-named-blocks.grit",

@@ -30,8 +30,8 @@ export type BoxRunSdkCall = <Payload, Success>(
   manager: string,
   method: string,
   methodName: M.BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
-  successSchema: S.Decoder<Success>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
+  successSchema: S.ConstraintDecoder<Success>,
   payload: Payload,
   invoke: (decoded: Payload, signal: AbortSignal | undefined) => Promise<unknown>
 ) => Effect.Effect<Success, BoxError>;

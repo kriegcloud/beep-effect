@@ -12,7 +12,7 @@ import type { BoxMethodName } from "../_generated/Box.models.gen.ts";
  */
 export const decodeWith = <A>(
   method: BoxMethodName,
-  schema: S.Decoder<A>,
+  schema: S.ConstraintDecoder<A>,
   value: unknown,
   reason: "request encoding" | "response decoding"
 ): Effect.Effect<A, BoxError> =>

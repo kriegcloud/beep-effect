@@ -24,7 +24,8 @@ vi.mock("rdf-canonize", (importOriginal) =>
   }))
 );
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const dataset = makeDataset([
   makeQuad(
@@ -49,15 +50,15 @@ const expectSemanticBudgetFailure = (error: Error) => {
         const service = yield* CanonicalizationService;
         return yield* service.canonicalize(
           decodeUnknownSync(CanonicalizeDatasetRequest)({
-            dataset: yield* S.encodeEffect(Dataset)(dataset),
             algorithm: "rdfc-1.0",
+            dataset: yield* S.encodeEffect(Dataset)(dataset),
           })
         );
       })
     )
   ).rejects.toMatchObject({
-    reason: "workLimitExceeded",
     message: expect.stringContaining("configured resource budget"),
+    reason: "workLimitExceeded",
   });
 };
 
@@ -80,8 +81,8 @@ describe("Canonicalization security hardening", () => {
               const service = yield* CanonicalizationService;
               return yield* service.canonicalize(
                 decodeUnknownSync(CanonicalizeDatasetRequest)({
-                  dataset: yield* S.encodeEffect(Dataset)(dataset),
                   algorithm: "rdfc-1.0",
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
                 })
               );
             })

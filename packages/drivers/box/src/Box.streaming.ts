@@ -110,8 +110,8 @@ class BoxCreateUserAvatarRequestBody extends S.Class<BoxCreateUserAvatarRequestB
 )(
   {
     pic: BoxByteInputValue,
-    picFileName: S.String.pipe(S.optionalKey),
     picContentType: S.String.pipe(S.optionalKey),
+    picFileName: S.String.pipe(S.optionalKey),
   },
   $I.annote("BoxCreateUserAvatarRequestBody", {
     description: "Create-user-avatar request body with a runtime byte input.",
@@ -124,8 +124,8 @@ class BoxUploadFileVersionRequestBody extends S.Class<BoxUploadFileVersionReques
   {
     attributes: M.UploadFileVersionRequestBodyAttributesField,
     file: BoxByteInputValue,
-    fileFileName: S.String.pipe(S.optionalKey),
     fileContentType: S.String.pipe(S.optionalKey),
+    fileFileName: S.String.pipe(S.optionalKey),
   },
   $I.annote("BoxUploadFileVersionRequestBody", {
     description: "Upload-file-version request body with a runtime byte input.",
@@ -136,8 +136,8 @@ class BoxUploadFileRequestBody extends S.Class<BoxUploadFileRequestBody>($I`BoxU
   {
     attributes: M.UploadFileRequestBodyAttributesField,
     file: BoxByteInputValue,
-    fileFileName: S.String.pipe(S.optionalKey),
     fileContentType: S.String.pipe(S.optionalKey),
+    fileFileName: S.String.pipe(S.optionalKey),
   },
   $I.annote("BoxUploadFileRequestBody", {
     description: "Upload-file request body with a runtime byte input.",
@@ -150,8 +150,8 @@ class BoxUploadWithPreflightCheckRequestBody extends S.Class<BoxUploadWithPrefli
   {
     attributes: M.UploadWithPreflightCheckRequestBodyAttributesField,
     file: BoxByteInputValue,
-    fileFileName: S.String.pipe(S.optionalKey),
     fileContentType: S.String.pipe(S.optionalKey),
+    fileFileName: S.String.pipe(S.optionalKey),
   },
   $I.annote("BoxUploadWithPreflightCheckRequestBody", {
     description: "Upload-with-preflight-check request body with a runtime byte input.",
@@ -572,6 +572,7 @@ const invokeSdkPromise = (
   args: ReadonlyArray<unknown>
 ): Effect.Effect<unknown, BoxError> =>
   Effect.tryPromise({
+    catch: (cause) => BoxError.fromUnknown(methodName, cause),
     try: () => {
       const managerValue = readProperty(client, manager);
       const methodValue = readProperty(managerValue, method);
@@ -586,7 +587,6 @@ const invokeSdkPromise = (
         onSuccess: (value) => Promise.resolve(value),
       });
     },
-    catch: (cause) => BoxError.fromUnknown(methodName, cause),
   });
 
 const invokeSdkSync = (
@@ -604,8 +604,8 @@ const invokeSdkSync = (
   }
 
   return Effect.try({
-    try: () => Reflect.apply(methodValue, managerValue, args),
     catch: (cause) => BoxError.fromUnknown(methodName, cause),
+    try: () => Reflect.apply(methodValue, managerValue, args),
   });
 };
 
@@ -641,14 +641,14 @@ const mergeCancellation = <A>(
  */
 const resolveRemoteHost = (hostname: string): Effect.Effect<ReadonlyArray<string>, BlockedHostError> =>
   Effect.tryPromise({
-    try: () => dns.promises.lookup(hostname, { all: true }),
     catch: (cause) =>
       BlockedHostError.make({
-        host: hostname,
-        url: O.none(),
-        message: `Refusing to reach ${hostname}: DNS resolution failed`,
         cause: O.some(cause),
+        host: hostname,
+        message: `Refusing to reach ${hostname}: DNS resolution failed`,
+        url: O.none(),
       }),
+    try: () => dns.promises.lookup(hostname, { all: true }),
   }).pipe(Effect.map((records) => A.map(records, (record) => record.address)));
 
 /**
@@ -755,8 +755,8 @@ const byteStreamFromSdkValue = (method: BoxMethodName, value: unknown, controlle
 
 const runJsonSdkCall = <Payload, Success>(
   methodName: BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
-  successSchema: S.Decoder<Success>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
+  successSchema: S.ConstraintDecoder<Success>,
   payload: unknown,
   invoke: (decoded: Payload, signal: AbortSignal) => Effect.Effect<unknown, BoxError>
 ): Effect.Effect<Success, BoxError> =>
@@ -779,7 +779,7 @@ const runJsonSdkCall = <Payload, Success>(
 
 const runByteStreamSdkCall = <Payload>(
   methodName: BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
   payload: unknown,
   invoke: (decoded: Payload, signal: AbortSignal) => Effect.Effect<unknown, BoxError>
 ): BoxByteStream =>
@@ -898,7 +898,7 @@ const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.
 
 const runEventStreamSdkCall = <Payload>(
   methodName: BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
   payload: unknown,
   invoke: (decoded: Payload) => Effect.Effect<unknown, BoxError>
 ): Stream.Stream<M.Event, BoxError> =>

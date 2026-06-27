@@ -27,7 +27,7 @@ import { FastCheck as fc } from "effect/testing";
  * @category schema
  * @since 0.0.0
  */
-export const assertSchemaArbitraryDecodesToSelf = <Schema extends S.Decoder<unknown>>(
+export const assertSchemaArbitraryDecodesToSelf = <Schema extends S.Codec<unknown>>(
   schema: Schema,
   options?: {
     readonly numRuns?: number;
