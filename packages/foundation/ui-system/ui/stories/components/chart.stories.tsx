@@ -68,7 +68,7 @@ const pieSectorFill = (index: number): string =>
     O.getOrElse(() => fallbackPieFill)
   );
 
-const renderPieSector = (props: PieSectorShapeProps, index?: string | number) => {
+const renderPieSector = (props: PieSectorShapeProps) => {
   const cornerRadiusProps = props.cornerRadius === undefined ? {} : { cornerRadius: props.cornerRadius };
 
   return (
@@ -80,7 +80,7 @@ const renderPieSector = (props: PieSectorShapeProps, index?: string | number) =>
       startAngle={props.startAngle}
       endAngle={props.endAngle}
       {...cornerRadiusProps}
-      fill={pieSectorFill(Number(index))}
+      fill={pieSectorFill(props.index)}
     />
   );
 };
