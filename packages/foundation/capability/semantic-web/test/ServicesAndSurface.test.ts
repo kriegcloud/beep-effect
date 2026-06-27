@@ -27,7 +27,8 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const dataset = makeDataset([
   makeQuad(

@@ -24,7 +24,8 @@ vi.mock("rdf-canonize", (importOriginal) =>
   }))
 );
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const dataset = makeDataset([
   makeQuad(

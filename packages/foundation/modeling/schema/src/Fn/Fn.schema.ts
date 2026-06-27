@@ -41,13 +41,13 @@ const validateErrorEffect = <Error extends S.Top>(
 
 const decodeInputSync = <Input extends S.Top>(inputSchema: Input, input: unknown): Input["Type"] =>
   Result.getOrThrowWith(
-    SchemaParser.decodeUnknownResult(S.make<S.Decoder<Input["Type"]>>(inputSchema.ast))(input),
+    SchemaParser.decodeUnknownResult(S.make<S.ConstraintDecoder<Input["Type"]>>(inputSchema.ast))(input),
     schemaIssueToError
   );
 
 const validateOutputSync = <Output extends S.Top>(outputSchema: Output, output: Output["Type"]): Output["Type"] =>
   Result.getOrThrowWith(
-    SchemaParser.decodeUnknownResult(S.make<S.Decoder<Output["Type"]>>(S.toType(outputSchema).ast))(output),
+    SchemaParser.decodeUnknownResult(S.make<S.ConstraintDecoder<Output["Type"]>>(S.toType(outputSchema).ast))(output),
     schemaIssueToError
   );
 

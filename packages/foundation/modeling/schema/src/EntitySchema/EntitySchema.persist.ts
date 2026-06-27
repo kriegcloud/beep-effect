@@ -391,7 +391,7 @@ const PersistDescriptorCases = {
 const PersistDescriptorStorageBase = StorageKind.toTaggedUnion("storageKind")(PersistDescriptorCases);
 type PersistDescriptorStatics = Pick<typeof PersistDescriptorStorageBase, "cases" | "guards" | "isAnyOf" | "match">;
 
-const attachPersistDescriptorStatics = <Schema extends S.Decoder<PersistDescriptor.Any>>(
+const attachPersistDescriptorStatics = <Schema extends S.ConstraintDecoder<PersistDescriptor.Any>>(
   schema: Schema
 ): Schema & PersistDescriptorStatics =>
   SchemaUtils.withStatics(schema, () =>
@@ -411,7 +411,7 @@ const attachPersistDescriptorStatics = <Schema extends S.Decoder<PersistDescript
  * @since 0.0.0
  * @category schemas
  */
-export const PersistDescriptor: S.Decoder<PersistDescriptor.Any> & PersistDescriptorStatics =
+export const PersistDescriptor: S.ConstraintDecoder<PersistDescriptor.Any> & PersistDescriptorStatics =
   attachPersistDescriptorStatics(
     PersistDescriptorStorageBase.pipe(
       $I.annoteSchema("PersistDescriptor", {

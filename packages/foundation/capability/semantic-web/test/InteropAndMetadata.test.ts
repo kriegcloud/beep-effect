@@ -13,7 +13,8 @@ import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const auditModules = [
   {

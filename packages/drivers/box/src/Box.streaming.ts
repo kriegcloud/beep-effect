@@ -755,8 +755,8 @@ const byteStreamFromSdkValue = (method: BoxMethodName, value: unknown, controlle
 
 const runJsonSdkCall = <Payload, Success>(
   methodName: BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
-  successSchema: S.Decoder<Success>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
+  successSchema: S.ConstraintDecoder<Success>,
   payload: unknown,
   invoke: (decoded: Payload, signal: AbortSignal) => Effect.Effect<unknown, BoxError>
 ): Effect.Effect<Success, BoxError> =>
@@ -779,7 +779,7 @@ const runJsonSdkCall = <Payload, Success>(
 
 const runByteStreamSdkCall = <Payload>(
   methodName: BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
   payload: unknown,
   invoke: (decoded: Payload, signal: AbortSignal) => Effect.Effect<unknown, BoxError>
 ): BoxByteStream =>
@@ -898,7 +898,7 @@ const eventStreamFromSdkValue = (method: BoxMethodName, value: unknown): Stream.
 
 const runEventStreamSdkCall = <Payload>(
   methodName: BoxMethodName,
-  payloadSchema: S.Decoder<Payload>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
   payload: unknown,
   invoke: (decoded: Payload) => Effect.Effect<unknown, BoxError>
 ): Stream.Stream<M.Event, BoxError> =>

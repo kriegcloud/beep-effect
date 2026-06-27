@@ -196,7 +196,7 @@ class PackageJsonSchema extends S.Class<PackageJsonSchema>($I`PackageJsonSchema`
   homepage: S.String,
 }) {}
 
-const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
+const readJsoncFile = <Schema extends S.ConstraintDecoder<unknown, never>>(
   filePath: string,
   schema: Schema
 ): Effect.Effect<S.Schema.Type<Schema>, Domain.DocgenError, FileSystem.FileSystem> =>

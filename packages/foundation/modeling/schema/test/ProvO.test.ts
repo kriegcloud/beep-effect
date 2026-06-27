@@ -26,7 +26,8 @@ import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const decodeActivity = decodeUnknownSync(Activity);
 const decodeAssociation = decodeUnknownSync(Association);

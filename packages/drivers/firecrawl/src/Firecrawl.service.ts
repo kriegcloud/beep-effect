@@ -275,7 +275,7 @@ const optionOrUndefined = <A>(option: O.Option<A>): A | undefined => O.getOrUnde
 
 const decodeWith = <A>(
   method: FirecrawlMethodName,
-  schema: S.Decoder<A>,
+  schema: S.ConstraintDecoder<A>,
   value: unknown,
   reason: "request encoding" | "response decoding"
 ): Effect.Effect<A, FirecrawlError> =>
@@ -307,8 +307,8 @@ const logDriverFailure =
 
 const runSdkCall = <Payload, Success>(
   method: FirecrawlMethodName,
-  payloadSchema: S.Decoder<Payload>,
-  successSchema: S.Decoder<Success>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
+  successSchema: S.ConstraintDecoder<Success>,
   payload: Payload,
   invoke: (payload: Payload) => Promise<unknown>
 ): Effect.Effect<Success, FirecrawlError> =>
@@ -347,10 +347,10 @@ const watcherErrorText = (payload: unknown): string =>
     O.getOrElse(() => (P.isString(payload) ? payload : "watcher error"))
   );
 
-const emitWatcherEvent = <Event extends M.FirecrawlWatcherEvent>(
+const emitWatcherEvent = (
   queue: Queue.Queue<M.FirecrawlWatcherEvent, FirecrawlError | Cause.Done>,
   method: FirecrawlMethodName,
-  schema: S.Decoder<Event>,
+  schema: S.ConstraintDecoder<M.FirecrawlWatcherEvent>,
   value: unknown
 ): boolean => {
   const result = S.decodeUnknownResult(schema)(value);
