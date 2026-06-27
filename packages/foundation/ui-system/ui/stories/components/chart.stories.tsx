@@ -40,24 +40,24 @@ import type { PieSectorShapeProps } from "recharts";
  * Imported from `@beep/ui/components/chart`.
  */
 const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+  { desktop: 186, mobile: 80, month: "January" },
+  { desktop: 305, mobile: 200, month: "February" },
+  { desktop: 237, mobile: 120, month: "March" },
+  { desktop: 73, mobile: 190, month: "April" },
+  { desktop: 209, mobile: 130, month: "May" },
+  { desktop: 214, mobile: 140, month: "June" },
 ] as const;
 
 const chartConfig = {
-  desktop: { label: "Desktop", color: "#2563eb" },
-  mobile: { label: "Mobile", color: "#60a5fa" },
+  desktop: { color: "#2563eb", label: "Desktop" },
+  mobile: { color: "#60a5fa", label: "Mobile" },
 } satisfies ChartConfig;
 
 const browserData = [
-  { browser: "chrome", visitors: 275, fill: "#2563eb" },
-  { browser: "safari", visitors: 200, fill: "#60a5fa" },
-  { browser: "firefox", visitors: 187, fill: "#93c5fd" },
-  { browser: "edge", visitors: 173, fill: "#1d4ed8" },
+  { browser: "chrome", fill: "#2563eb", visitors: 275 },
+  { browser: "safari", fill: "#60a5fa", visitors: 200 },
+  { browser: "firefox", fill: "#93c5fd", visitors: 187 },
+  { browser: "edge", fill: "#1d4ed8", visitors: 173 },
 ] as const;
 
 const fallbackPieFill = "var(--color-chrome)";
@@ -68,7 +68,7 @@ const pieSectorFill = (index: number): string =>
     O.getOrElse(() => fallbackPieFill)
   );
 
-const renderPieSector = (props: PieSectorShapeProps, index: number) => {
+const renderPieSector = (props: PieSectorShapeProps, index?: string | number) => {
   const cornerRadiusProps = props.cornerRadius === undefined ? {} : { cornerRadius: props.cornerRadius };
 
   return (
@@ -80,17 +80,17 @@ const renderPieSector = (props: PieSectorShapeProps, index: number) => {
       startAngle={props.startAngle}
       endAngle={props.endAngle}
       {...cornerRadiusProps}
-      fill={pieSectorFill(index)}
+      fill={pieSectorFill(Number(index))}
     />
   );
 };
 
 const pieConfig = {
+  chrome: { color: "#2563eb", label: "Chrome" },
+  edge: { color: "#1d4ed8", label: "Edge" },
+  firefox: { color: "#93c5fd", label: "Firefox" },
+  safari: { color: "#60a5fa", label: "Safari" },
   visitors: { label: "Visitors" },
-  chrome: { label: "Chrome", color: "#2563eb" },
-  safari: { label: "Safari", color: "#60a5fa" },
-  firefox: { label: "Firefox", color: "#93c5fd" },
-  edge: { label: "Edge", color: "#1d4ed8" },
 } satisfies ChartConfig;
 
 const monthTickFormatter = (value: string): string => Str.slice(0, 3)(value);
@@ -106,34 +106,34 @@ const defaultChartChildren = (
 );
 
 const meta = {
-  title: "Components/Data Display/Chart",
-  component: ChartContainer,
-  tags: ["autodocs"],
+  args: {
+    children: defaultChartChildren,
+    className: "min-h-[200px] w-full max-w-xl",
+    config: chartConfig,
+    style: { height: 324, width: 576 },
+  },
   argTypes: {
-    config: {
+    children: {
       control: false,
-      description: "Maps each series key to its label, optional icon, and color (or per-theme colors).",
+      description: "A single Recharts chart element (e.g. `BarChart`, `LineChart`, `PieChart`).",
     },
     className: {
       control: "text",
       description: "Additional classes merged onto the chart wrapper (e.g. sizing constraints).",
+    },
+    config: {
+      control: false,
+      description: "Maps each series key to its label, optional icon, and color (or per-theme colors).",
     },
     initialDimension: {
       control: false,
       description: "Starting width/height for the responsive container before layout is measured.",
       table: { defaultValue: { summary: "{ width: 320, height: 200 }" } },
     },
-    children: {
-      control: false,
-      description: "A single Recharts chart element (e.g. `BarChart`, `LineChart`, `PieChart`).",
-    },
   },
-  args: {
-    config: chartConfig,
-    className: "min-h-[200px] w-full max-w-xl",
-    children: defaultChartChildren,
-    style: { width: 576, height: 324 },
-  },
+  component: ChartContainer,
+  tags: ["autodocs"],
+  title: "Components/Data Display/Chart",
 } satisfies Meta<typeof ChartContainer>;
 
 export default meta;
@@ -144,6 +144,11 @@ type Story = StoryObj<typeof meta>;
  * its `var(--color-<key>)` variable injected by the container.
  */
 export const Default: Story = {
+  play: ({ canvasElement }) => {
+    const chart = canvasElement.querySelector('[data-slot="chart"]');
+    expect(chart).not.toBeNull();
+    expect(chart).toHaveAttribute("data-chart");
+  },
   render: (args) => (
     <ChartContainer {...args}>
       <BarChart accessibilityLayer data={[...chartData]}>
@@ -152,11 +157,6 @@ export const Default: Story = {
       </BarChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) => {
-    const chart = canvasElement.querySelector('[data-slot="chart"]');
-    expect(chart).not.toBeNull();
-    expect(chart).toHaveAttribute("data-chart");
-  },
 };
 
 /**
@@ -199,6 +199,16 @@ export const WithTooltip: Story = {
  * label for each configured series below the plot.
  */
 export const WithLegend: Story = {
+  play: ({ canvasElement }) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const canvas = within(canvasElement);
+        const desktop = yield* Effect.promise(() => canvas.findByText("Desktop"));
+        expect(desktop).toBeVisible();
+        const mobile = yield* Effect.promise(() => canvas.findByText("Mobile"));
+        expect(mobile).toBeVisible();
+      })
+    ),
   render: (args) => (
     <ChartContainer {...args}>
       <BarChart accessibilityLayer data={[...chartData]}>
@@ -211,16 +221,6 @@ export const WithLegend: Story = {
       </BarChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const canvas = within(canvasElement);
-        const desktop = yield* Effect.promise(() => canvas.findByText("Desktop"));
-        expect(desktop).toBeVisible();
-        const mobile = yield* Effect.promise(() => canvas.findByText("Mobile"));
-        expect(mobile).toBeVisible();
-      })
-    ),
 };
 
 /** A line chart driven by the same config, ideal for showing trends over time. */
@@ -286,7 +286,17 @@ export const Area: Story = {
  * mapping slices to their configured labels via `nameKey`.
  */
 export const Pie: Story = {
-  args: { config: pieConfig, className: "mx-auto", style: { width: 260, height: 260 } },
+  args: { className: "mx-auto", config: pieConfig, style: { height: 260, width: 260 } },
+  play: ({ canvasElement }) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const canvas = within(canvasElement);
+        const chrome = yield* Effect.promise(() => canvas.findByText("Chrome"));
+        expect(chrome).toBeVisible();
+        const safari = yield* Effect.promise(() => canvas.findByText("Safari"));
+        expect(safari).toBeVisible();
+      })
+    ),
   render: (args) => (
     <ChartContainer {...args}>
       <PieChart>
@@ -302,16 +312,6 @@ export const Pie: Story = {
       </PieChart>
     </ChartContainer>
   ),
-  play: ({ canvasElement }) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const canvas = within(canvasElement);
-        const chrome = yield* Effect.promise(() => canvas.findByText("Chrome"));
-        expect(chrome).toBeVisible();
-        const safari = yield* Effect.promise(() => canvas.findByText("Safari"));
-        expect(safari).toBeVisible();
-      })
-    ),
 };
 
 /**

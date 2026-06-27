@@ -41,13 +41,13 @@ const validateErrorEffect = <Error extends S.Top>(
 
 const decodeInputSync = <Input extends S.Top>(inputSchema: Input, input: unknown): Input["Type"] =>
   Result.getOrThrowWith(
-    SchemaParser.decodeUnknownResult(S.make<S.Decoder<Input["Type"]>>(inputSchema.ast))(input),
+    SchemaParser.decodeUnknownResult(S.make<S.ConstraintDecoder<Input["Type"]>>(inputSchema.ast))(input),
     schemaIssueToError
   );
 
 const validateOutputSync = <Output extends S.Top>(outputSchema: Output, output: Output["Type"]): Output["Type"] =>
   Result.getOrThrowWith(
-    SchemaParser.decodeUnknownResult(S.make<S.Decoder<Output["Type"]>>(S.toType(outputSchema).ast))(output),
+    SchemaParser.decodeUnknownResult(S.make<S.ConstraintDecoder<Output["Type"]>>(S.toType(outputSchema).ast))(output),
     schemaIssueToError
   );
 
@@ -74,39 +74,39 @@ const validateErrorCauseEffect = <Error extends S.Top>(
   );
 
 const fnDeclarationAnnotations = {
+  description: "Schema for runtime function values with schema-backed input, output, and error contracts.",
+  expected: "Function",
+  generation: {
+    importDeclaration: 'import { Fn, type FnType } from "@beep/schema"',
+    runtime: "Fn({ input: ?, output: ?, error: ? })",
+    Type: "FnType<?, ?>",
+  },
+  toEquivalence:
+    () =>
+    <A extends Function>(self: A, that: A): boolean =>
+      self === that,
+  toFormatter: () => (): string => "[Function]",
   typeConstructor: {
     _tag: "@beep/schema/Fn",
   },
-  generation: {
-    runtime: "Fn({ input: ?, output: ?, error: ? })",
-    Type: "FnType<?, ?>",
-    importDeclaration: 'import { Fn, type FnType } from "@beep/schema"',
-  },
-  expected: "Function",
-  description: "Schema for runtime function values with schema-backed input, output, and error contracts.",
-  toEquivalence:
-    () =>
-    <A extends Function>(self: A, that: A): boolean =>
-      self === that,
-  toFormatter: () => (): string => "[Function]",
 };
 
 const anyFnAnnotations = {
-  typeConstructor: {
-    _tag: "@beep/schema/AnyFn",
-  },
+  description: "Schema for any runtime function value.",
+  expected: "Function",
   generation: {
+    importDeclaration: 'import { AnyFn } from "@beep/schema"',
     runtime: "AnyFn",
     Type: "Function",
-    importDeclaration: 'import { AnyFn } from "@beep/schema"',
   },
-  expected: "Function",
-  description: "Schema for any runtime function value.",
   toEquivalence:
     () =>
     <A extends Function>(self: A, that: A): boolean =>
       self === that,
   toFormatter: () => (): string => "[Function]",
+  typeConstructor: {
+    _tag: "@beep/schema/AnyFn",
+  },
 };
 
 /**
@@ -333,12 +333,12 @@ const makeNoArgStatics = <Input extends NoArgInputSchema, Output extends S.Top, 
     validateOutputSync(outputSchema, handler());
 
   return {
+    errorSchema,
     implement,
     implementEffect: implementEffect as FnSchemaNoArg<Input, Output, Error>["implementEffect"],
     implementSync,
     inputSchema,
     outputSchema,
-    errorSchema,
   };
 };
 
@@ -401,12 +401,12 @@ const makeUnaryStatics = <Input extends S.Top, Output extends S.Top, Error exten
     validateOutputSync(outputSchema, handler(decodeInputSync(inputSchema, input)));
 
   return {
+    errorSchema,
     implement,
     implementEffect: implementEffect as FnSchemaUnary<Input, Output, Error>["implementEffect"],
     implementSync,
     inputSchema,
     outputSchema,
-    errorSchema,
   };
 };
 

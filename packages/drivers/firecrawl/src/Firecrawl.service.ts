@@ -275,7 +275,7 @@ const optionOrUndefined = <A>(option: O.Option<A>): A | undefined => O.getOrUnde
 
 const decodeWith = <A>(
   method: FirecrawlMethodName,
-  schema: S.Decoder<A>,
+  schema: S.ConstraintDecoder<A>,
   value: unknown,
   reason: "request encoding" | "response decoding"
 ): Effect.Effect<A, FirecrawlError> =>
@@ -307,16 +307,16 @@ const logDriverFailure =
 
 const runSdkCall = <Payload, Success>(
   method: FirecrawlMethodName,
-  payloadSchema: S.Decoder<Payload>,
-  successSchema: S.Decoder<Success>,
+  payloadSchema: S.ConstraintDecoder<Payload>,
+  successSchema: S.ConstraintDecoder<Success>,
   payload: Payload,
   invoke: (payload: Payload) => Promise<unknown>
 ): Effect.Effect<Success, FirecrawlError> =>
   decodeWith(method, payloadSchema, payload, "request encoding").pipe(
     Effect.flatMap((decoded) =>
       Effect.tryPromise({
-        try: () => invoke(decoded),
         catch: (cause) => FirecrawlError.fromUnknown(method, cause),
+        try: () => invoke(decoded),
       })
     ),
     Effect.flatMap((result) => decodeWith(method, successSchema, result, "response decoding")),
@@ -350,7 +350,7 @@ const watcherErrorText = (payload: unknown): string =>
 const emitWatcherEvent = <Event extends M.FirecrawlWatcherEvent>(
   queue: Queue.Queue<M.FirecrawlWatcherEvent, FirecrawlError | Cause.Done>,
   method: FirecrawlMethodName,
-  schema: S.Decoder<Event>,
+  schema: S.ConstraintDecoder<Event>,
   value: unknown
 ): boolean => {
   const result = S.decodeUnknownResult(schema)(value);
@@ -437,8 +437,8 @@ const makeWatcherStream = (
     ).pipe(
       Effect.flatMap(() =>
         Effect.tryPromise({
-          try: () => watcher.start(),
           catch: (cause) => FirecrawlError.fromUnknown(method, cause),
+          try: () => watcher.start(),
         })
       )
     )
@@ -705,8 +705,8 @@ const makeService = (client: FirecrawlSdkClient): FirecrawlShape => ({
       decodeWith("watcher", M.FirecrawlWatcherPayload, payload, "request encoding").pipe(
         Effect.flatMap((decoded) =>
           Effect.try({
-            try: () => client.watcher(decoded.jobId, optionOrUndefined(decoded.options)),
             catch: (cause) => FirecrawlError.fromUnknown("watcher", cause),
+            try: () => client.watcher(decoded.jobId, optionOrUndefined(decoded.options)),
           })
         ),
         Effect.map((watcher) => makeWatcherStream("watcher", watcher)),

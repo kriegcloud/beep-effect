@@ -206,13 +206,13 @@ type RunpodUrlParams = typeof RunpodUrlParams.Type;
 
 interface JsonOperationSpec<Request, Response> {
   readonly descriptor: G.RunpodOperationDescriptor;
-  readonly request: S.Decoder<Request>;
-  readonly response: S.Decoder<Response>;
+  readonly request: S.ConstraintDecoder<Request>;
+  readonly response: S.ConstraintDecoder<Response>;
 }
 
 interface VoidOperationSpec<Request> {
   readonly descriptor: G.RunpodOperationDescriptor;
-  readonly request: S.Decoder<Request>;
+  readonly request: S.ConstraintDecoder<Request>;
 }
 
 const normalizeBaseUrl = Str.replace(/\/+$/, "");
@@ -301,7 +301,7 @@ const applyPathParams = Effect.fn("Runpod.applyPathParams")(function* (
 
 const decodeRequest = Effect.fnUntraced(function* <Request>(
   descriptor: G.RunpodOperationDescriptor,
-  requestSchema: S.Decoder<Request>,
+  requestSchema: S.ConstraintDecoder<Request>,
   request: Request
 ): Effect.fn.Return<Request, RunpodError> {
   return yield* pipe(
@@ -409,7 +409,7 @@ const addJsonBody = Effect.fnUntraced(function* (
 const buildRequest = Effect.fn("Runpod.buildRequest")(function* <Request>(
   config: ResolvedRunpodConfig,
   descriptor: G.RunpodOperationDescriptor,
-  requestSchema: S.Decoder<Request>,
+  requestSchema: S.ConstraintDecoder<Request>,
   request: Request
 ) {
   const decodedRequest = yield* decodeRequest(descriptor, requestSchema, request);
@@ -454,7 +454,7 @@ const ensureSuccessStatus = Effect.fnUntraced(function* (
 
 const decodeJsonResponse = Effect.fnUntraced(function* <Response>(
   descriptor: G.RunpodOperationDescriptor,
-  responseSchema: S.Decoder<Response>,
+  responseSchema: S.ConstraintDecoder<Response>,
   response: HttpClientResponse.HttpClientResponse
 ): Effect.fn.Return<Response, RunpodError> {
   const body = yield* response.json.pipe(
