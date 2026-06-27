@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -85,6 +85,11 @@
       "source": {
         "useSortedInterfaceMembers": "on",
         "useSortedKeys": {
+          // biome 2.5.1 made `level` a required field on assist actions. This action was
+          // previously configured with options only (no level), which biome <=2.5.0 treated
+          // as disabled — repo JSON files are unsorted and lint was green. Keep it explicitly
+          // off to preserve that behavior; enabling key-sort enforcement is a separate change.
+          "level": "off",
           "options": {
             "sortOrder": "natural"
           }

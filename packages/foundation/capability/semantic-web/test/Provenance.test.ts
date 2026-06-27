@@ -17,16 +17,17 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const rawAnchor = {
   id: "https://example.com/evidence/1",
   target: {
-    source: "https://example.com/documents/1",
     selector: {
-      kind: "text-quote",
       exact: "Alice",
+      kind: "text-quote",
     },
+    source: "https://example.com/documents/1",
   },
 } as const;
 
@@ -36,16 +37,16 @@ const rawBundle = {
   },
   records: [
     {
-      provType: "Entity",
       id: "thing:alice",
+      provType: "Entity",
     },
     {
-      provType: "Activity",
       id: "activity:ingest",
+      provType: "Activity",
     },
     {
-      provType: "SoftwareAgent",
       id: "agent:semantic-web",
+      provType: "SoftwareAgent",
     },
   ],
 } as const;
@@ -73,8 +74,8 @@ describe("Provenance", () => {
               const service = yield* ProvenanceService;
               return yield* service.project(
                 decodeUnknownSync(ProjectProvenanceRequest)({
-                  bundle: rawBundle,
                   anchors: [],
+                  bundle: rawBundle,
                   maxItems: 2,
                 })
               );
@@ -93,8 +94,8 @@ describe("Provenance", () => {
               const service = yield* ProvenanceService;
               return yield* service.summarize(
                 decodeUnknownSync(SummarizeProvenanceRequest)({
-                  bundle: rawBundle,
                   anchors: [rawAnchor],
+                  bundle: rawBundle,
                 })
               );
             })
@@ -115,8 +116,8 @@ describe("Provenance", () => {
               const service = yield* ProvenanceService;
               return yield* service.project(
                 decodeUnknownSync(ProjectProvenanceRequest)({
-                  bundle: rawBundle,
                   anchors: [rawAnchor],
+                  bundle: rawBundle,
                   maxItems: 1,
                 })
               );
@@ -140,17 +141,17 @@ describe("Provenance", () => {
               const service = yield* ProvenanceService;
               return yield* service.exportBundle(
                 decodeUnknownSync(ExportProvenanceRequest)({
+                  anchors: [rawAnchor],
                   bundle: {
                     records: [
                       {
-                        provType: "Plan",
                         id: "plan:1",
+                        provType: "Plan",
                       },
                     ],
                   },
-                  anchors: [rawAnchor],
-                  profile: "prov-core-v1",
                   maxItems: 5,
+                  profile: "prov-core-v1",
                 })
               );
             })
@@ -168,17 +169,17 @@ describe("Provenance", () => {
               const service = yield* ProvenanceService;
               return yield* service.exportBundle(
                 decodeUnknownSync(ExportProvenanceRequest)({
+                  anchors: [rawAnchor],
                   bundle: {
                     records: [
                       {
-                        entity: "thing:alice",
                         agent: "agent:semantic-web",
+                        entity: "thing:alice",
                       },
                     ],
                   },
-                  anchors: [rawAnchor],
-                  profile: "prov-core-v1",
                   maxItems: 5,
+                  profile: "prov-core-v1",
                 })
               );
             })

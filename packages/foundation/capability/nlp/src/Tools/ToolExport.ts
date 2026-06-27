@@ -200,7 +200,7 @@ const decodeToolParameters = <T extends NlpTool>(
   parameterNames: ReadonlyArray<string>,
   args: ReadonlyArray<unknown>
 ): Effect.Effect<Tool.Parameters<T>, ExportedToolError> =>
-  SchemaParser.decodeUnknownEffect(S.make<S.Decoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
+  SchemaParser.decodeUnknownEffect(S.make<S.ConstraintDecoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
     buildArgsObject(parameterNames, args)
   ).pipe(
     Obs.trackNlpDuration("nlp.tool.decode_parameters", {

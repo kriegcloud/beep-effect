@@ -58,7 +58,7 @@ import type {
 
 const $I = $FirecrawlId.create("Firecrawl.models");
 
-const typedUnknown = <A>(name: string, description: string): S.Decoder<A> =>
+const typedUnknown = <A>(name: string, description: string): S.Codec<A> =>
   S.declare<A>((value: unknown): value is A => P.isUnknown(value), {
     description,
     expected: "FirecrawlSdkShape",
