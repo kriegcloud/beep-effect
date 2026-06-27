@@ -12,6 +12,7 @@
  * @since 0.0.0
  */
 import { $HtmlId } from "@beep/identity";
+import { LiteralKit, OptionalStr } from "@beep/schema";
 import * as S from "effect/Schema";
 import { GlobalAttributes } from "./Html.attributes.ts";
 import { Comment, Doctype, Text } from "./Html.nodes.ts";
@@ -118,17 +119,17 @@ export class A extends S.TaggedClass<A>($I`A`)(
   "a",
   {
     ...GlobalAttributes,
-    charset: S.optionalKey(S.String),
-    coords: S.optionalKey(S.String),
-    download: S.optionalKey(S.String),
-    href: S.optionalKey(S.String),
-    hreflang: S.optionalKey(S.String),
-    methods: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
-    ping: S.optionalKey(S.String),
-    referrerpolicy: S.optionalKey(S.String),
+    charset: OptionalStr,
+    coords: OptionalStr,
+    download: OptionalStr,
+    href: OptionalStr,
+    hreflang: OptionalStr,
+    methods: OptionalStr,
+    name: OptionalStr,
+    ping: OptionalStr,
+    referrerpolicy: OptionalStr,
     rel: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "alternate",
         "author",
         "bookmark",
@@ -147,11 +148,11 @@ export class A extends S.TaggedClass<A>($I`A`)(
         "prev",
       ])
     ),
-    rev: S.optionalKey(S.String),
-    shape: S.optionalKey(S.String),
-    target: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
-    urn: S.optionalKey(S.String),
+    rev: OptionalStr,
+    shape: OptionalStr,
+    target: OptionalStr,
+    type: OptionalStr,
+    urn: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("A", { description: "The <a> element." })
@@ -379,16 +380,16 @@ export class Area extends S.TaggedClass<Area>($I`Area`)(
   "area",
   {
     ...GlobalAttributes,
-    alt: S.optionalKey(S.String),
-    coords: S.optionalKey(S.String),
-    download: S.optionalKey(S.String),
-    href: S.optionalKey(S.String),
-    hreflang: S.optionalKey(S.String),
-    nohref: S.optionalKey(S.String),
-    ping: S.optionalKey(S.String),
-    referrerpolicy: S.optionalKey(S.String),
+    alt: OptionalStr,
+    coords: OptionalStr,
+    download: OptionalStr,
+    href: OptionalStr,
+    hreflang: OptionalStr,
+    nohref: OptionalStr,
+    ping: OptionalStr,
+    referrerpolicy: OptionalStr,
     rel: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "alternate",
         "author",
         "bookmark",
@@ -407,9 +408,9 @@ export class Area extends S.TaggedClass<Area>($I`Area`)(
         "prev",
       ])
     ),
-    shape: S.optionalKey(S.Literals(["circle state", "default state", "polygon state", "rectangle state"])),
-    target: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
+    shape: S.optionalKey(LiteralKit(["circle state", "default state", "polygon state", "rectangle state"])),
+    target: OptionalStr,
+    type: OptionalStr,
   },
   $I.annote("Area", { description: "The <area> element." })
 ) {}
@@ -564,12 +565,12 @@ export class Audio extends S.TaggedClass<Audio>($I`Audio`)(
     ...GlobalAttributes,
     autoplay: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     controls: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
-    loading: S.optionalKey(S.Literals(["lazy", "eager"])),
+    crossorigin: S.optionalKey(LiteralKit(["anonymous", "use-credentials"])),
+    loading: S.optionalKey(LiteralKit(["lazy", "eager"])),
     loop: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     muted: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    preload: S.optionalKey(S.Literals(["auto", "none", "metadata"])),
-    src: S.optionalKey(S.String),
+    preload: S.optionalKey(LiteralKit(["auto", "none", "metadata"])),
+    src: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Audio", { description: "The <audio> element." })
@@ -652,8 +653,8 @@ export class Base extends S.TaggedClass<Base>($I`Base`)(
   "base",
   {
     ...GlobalAttributes,
-    href: S.optionalKey(S.String),
-    target: S.optionalKey(S.String),
+    href: OptionalStr,
+    target: OptionalStr,
   },
   $I.annote("Base", { description: "The <base> element." })
 ) {}
@@ -880,7 +881,7 @@ export class Blockquote extends S.TaggedClass<Blockquote>($I`Blockquote`)(
   "blockquote",
   {
     ...GlobalAttributes,
-    cite: S.optionalKey(S.String),
+    cite: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Blockquote", { description: "The <blockquote> element." })
@@ -916,17 +917,17 @@ export class Body extends S.TaggedClass<Body>($I`Body`)(
   "body",
   {
     ...GlobalAttributes,
-    alink: S.optionalKey(S.String),
-    bgcolor: S.optionalKey(S.String),
-    bottommargin: S.optionalKey(S.String),
-    leftmargin: S.optionalKey(S.String),
-    link: S.optionalKey(S.String),
-    marginheight: S.optionalKey(S.String),
-    marginwidth: S.optionalKey(S.String),
-    rightmargin: S.optionalKey(S.String),
-    text: S.optionalKey(S.String),
-    topmargin: S.optionalKey(S.String),
-    vlink: S.optionalKey(S.String),
+    alink: OptionalStr,
+    bgcolor: OptionalStr,
+    bottommargin: OptionalStr,
+    leftmargin: OptionalStr,
+    link: OptionalStr,
+    marginheight: OptionalStr,
+    marginwidth: OptionalStr,
+    rightmargin: OptionalStr,
+    text: OptionalStr,
+    topmargin: OptionalStr,
+    vlink: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Body", { description: "The <body> element." })
@@ -982,7 +983,7 @@ export class Br extends S.TaggedClass<Br>($I`Br`)(
   "br",
   {
     ...GlobalAttributes,
-    clear: S.optionalKey(S.String),
+    clear: OptionalStr,
   },
   $I.annote("Br", { description: "The <br> element." })
 ) {}
@@ -1015,9 +1016,9 @@ export class Button extends S.TaggedClass<Button>($I`Button`)(
   "button",
   {
     ...GlobalAttributes,
-    action: S.optionalKey(S.String),
+    action: OptionalStr,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -1084,22 +1085,22 @@ export class Button extends S.TaggedClass<Button>($I`Button`)(
         "impp",
       ])
     ),
-    command: S.optionalKey(S.String),
-    commandfor: S.optionalKey(S.String),
+    command: OptionalStr,
+    commandfor: OptionalStr,
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    enctype: S.optionalKey(S.Literals(["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"])),
-    form: S.optionalKey(S.String),
-    formaction: S.optionalKey(S.String),
-    formenctype: S.optionalKey(S.String),
-    formmethod: S.optionalKey(S.Literals(["get", "post", "dialog"])),
+    enctype: S.optionalKey(LiteralKit(["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"])),
+    form: OptionalStr,
+    formaction: OptionalStr,
+    formenctype: OptionalStr,
+    formmethod: S.optionalKey(LiteralKit(["get", "post", "dialog"])),
     formnovalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    formtarget: S.optionalKey(S.String),
-    method: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
+    formtarget: OptionalStr,
+    method: OptionalStr,
+    name: OptionalStr,
     novalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    target: S.optionalKey(S.String),
-    type: S.optionalKey(S.Literals(["submit", "reset", "button"])),
-    value: S.optionalKey(S.String),
+    target: OptionalStr,
+    type: S.optionalKey(LiteralKit(["submit", "reset", "button"])),
+    value: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Button", { description: "The <button> element." })
@@ -1336,7 +1337,7 @@ export class Caption extends S.TaggedClass<Caption>($I`Caption`)(
   "caption",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Caption", { description: "The <caption> element." })
@@ -1471,11 +1472,11 @@ export class Col extends S.TaggedClass<Col>($I`Col`)(
   "col",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    char: S.optionalKey(S.String),
-    charoff: S.optionalKey(S.String),
+    align: OptionalStr,
+    char: OptionalStr,
+    charoff: OptionalStr,
     span: S.optionalKey(S.Int),
-    valign: S.optionalKey(S.String),
+    valign: OptionalStr,
     width: S.optionalKey(S.Int),
   },
   $I.annote("Col", { description: "The <col> element." })
@@ -1555,7 +1556,7 @@ export class Data extends S.TaggedClass<Data>($I`Data`)(
   "data",
   {
     ...GlobalAttributes,
-    value: S.optionalKey(S.String),
+    value: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Data", { description: "The <data> element." })
@@ -1657,8 +1658,8 @@ export class Del extends S.TaggedClass<Del>($I`Del`)(
   "del",
   {
     ...GlobalAttributes,
-    cite: S.optionalKey(S.String),
-    datetime: S.optionalKey(S.String),
+    cite: OptionalStr,
+    datetime: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Del", { description: "The <del> element." })
@@ -1696,7 +1697,7 @@ export class Details extends S.TaggedClass<Details>($I`Details`)(
   "details",
   {
     ...GlobalAttributes,
-    name: S.optionalKey(S.String),
+    name: OptionalStr,
     open: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
   },
@@ -1768,7 +1769,7 @@ export class Dialog extends S.TaggedClass<Dialog>($I`Dialog`)(
   "dialog",
   {
     ...GlobalAttributes,
-    closedby: S.optionalKey(S.Literals(["any", "closerequest", "none"])),
+    closedby: S.optionalKey(LiteralKit(["any", "closerequest", "none"])),
     open: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
   },
@@ -1840,7 +1841,7 @@ export class Div extends S.TaggedClass<Div>($I`Div`)(
   "div",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Div", { description: "The <div> element." })
@@ -1978,13 +1979,13 @@ export class Embed extends S.TaggedClass<Embed>($I`Embed`)(
   "embed",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     height: S.optionalKey(S.Int),
-    hspace: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
-    src: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
-    vspace: S.optionalKey(S.String),
+    hspace: OptionalStr,
+    name: OptionalStr,
+    src: OptionalStr,
+    type: OptionalStr,
+    vspace: OptionalStr,
     width: S.optionalKey(S.Int),
   },
   $I.annote("Embed", { description: "The <embed> element." })
@@ -2033,7 +2034,7 @@ export class Fieldset extends S.TaggedClass<Fieldset>($I`Fieldset`)(
   {
     ...GlobalAttributes,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -2101,8 +2102,8 @@ export class Fieldset extends S.TaggedClass<Fieldset>($I`Fieldset`)(
       ])
     ),
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    form: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
+    form: OptionalStr,
+    name: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Fieldset", { description: "The <fieldset> element." })
@@ -2404,21 +2405,21 @@ export class Form extends S.TaggedClass<Form>($I`Form`)(
   "form",
   {
     ...GlobalAttributes,
-    accept: S.optionalKey(S.String),
-    "accept-charset": S.optionalKey(S.String),
-    action: S.optionalKey(S.String),
-    autocomplete: S.optionalKey(S.Literals(["on", "off"])),
-    enctype: S.optionalKey(S.Literals(["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"])),
-    formaction: S.optionalKey(S.String),
-    formenctype: S.optionalKey(S.String),
-    formmethod: S.optionalKey(S.String),
+    accept: OptionalStr,
+    "accept-charset": OptionalStr,
+    action: OptionalStr,
+    autocomplete: S.optionalKey(LiteralKit(["on", "off"])),
+    enctype: S.optionalKey(LiteralKit(["application/x-www-form-urlencoded", "multipart/form-data", "text/plain"])),
+    formaction: OptionalStr,
+    formenctype: OptionalStr,
+    formmethod: OptionalStr,
     formnovalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    formtarget: S.optionalKey(S.String),
-    method: S.optionalKey(S.Literals(["get", "post", "dialog"])),
-    name: S.optionalKey(S.String),
+    formtarget: OptionalStr,
+    method: S.optionalKey(LiteralKit(["get", "post", "dialog"])),
+    name: OptionalStr,
     novalidate: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rel: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "external",
         "help",
         "license",
@@ -2431,7 +2432,7 @@ export class Form extends S.TaggedClass<Form>($I`Form`)(
         "prev",
       ])
     ),
-    target: S.optionalKey(S.String),
+    target: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Form", { description: "The <form> element." })
@@ -2578,7 +2579,7 @@ export class H1 extends S.TaggedClass<H1>($I`H1`)(
   "h1",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("H1", { description: "The <h1> element." })
@@ -2614,7 +2615,7 @@ export class H2 extends S.TaggedClass<H2>($I`H2`)(
   "h2",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("H2", { description: "The <h2> element." })
@@ -2650,7 +2651,7 @@ export class H3 extends S.TaggedClass<H3>($I`H3`)(
   "h3",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("H3", { description: "The <h3> element." })
@@ -2686,7 +2687,7 @@ export class H4 extends S.TaggedClass<H4>($I`H4`)(
   "h4",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("H4", { description: "The <h4> element." })
@@ -2722,7 +2723,7 @@ export class H5 extends S.TaggedClass<H5>($I`H5`)(
   "h5",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("H5", { description: "The <h5> element." })
@@ -2758,7 +2759,7 @@ export class H6 extends S.TaggedClass<H6>($I`H6`)(
   "h6",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("H6", { description: "The <h6> element." })
@@ -2794,7 +2795,7 @@ export class Head extends S.TaggedClass<Head>($I`Head`)(
   "head",
   {
     ...GlobalAttributes,
-    profile: S.optionalKey(S.String),
+    profile: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Head", { description: "The <head> element." })
@@ -2896,8 +2897,8 @@ export class Hr extends S.TaggedClass<Hr>($I`Hr`)(
   "hr",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    color: S.optionalKey(S.String),
+    align: OptionalStr,
+    color: OptionalStr,
     noshade: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     size: S.optionalKey(S.Int),
     width: S.optionalKey(S.Int),
@@ -2941,8 +2942,8 @@ export class Html extends S.TaggedClass<Html>($I`Html`)(
   "html",
   {
     ...GlobalAttributes,
-    manifest: S.optionalKey(S.String),
-    version: S.optionalKey(S.String),
+    manifest: OptionalStr,
+    version: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Html", { description: "The <html> element." })
@@ -3013,22 +3014,22 @@ export class Iframe extends S.TaggedClass<Iframe>($I`Iframe`)(
   "iframe",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    allow: S.optionalKey(S.String),
+    align: OptionalStr,
+    allow: OptionalStr,
     allowfullscreen: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    allowtransparency: S.optionalKey(S.String),
-    frameborder: S.optionalKey(S.String),
-    framespacing: S.optionalKey(S.String),
+    allowtransparency: OptionalStr,
+    frameborder: OptionalStr,
+    framespacing: OptionalStr,
     height: S.optionalKey(S.Int),
-    hspace: S.optionalKey(S.String),
-    loading: S.optionalKey(S.Literals(["lazy", "eager"])),
-    longdesc: S.optionalKey(S.String),
-    marginheight: S.optionalKey(S.String),
-    marginwidth: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
-    referrerpolicy: S.optionalKey(S.String),
+    hspace: OptionalStr,
+    loading: S.optionalKey(LiteralKit(["lazy", "eager"])),
+    longdesc: OptionalStr,
+    marginheight: OptionalStr,
+    marginwidth: OptionalStr,
+    name: OptionalStr,
+    referrerpolicy: OptionalStr,
     sandbox: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "allow-popups",
         "allow-top-navigation",
         "allow-top-navigation-by-user-activation",
@@ -3044,10 +3045,10 @@ export class Iframe extends S.TaggedClass<Iframe>($I`Iframe`)(
         "allow-top-navigation-to-custom-protocols",
       ])
     ),
-    scrolling: S.optionalKey(S.String),
-    src: S.optionalKey(S.String),
-    srcdoc: S.optionalKey(S.String),
-    vspace: S.optionalKey(S.String),
+    scrolling: OptionalStr,
+    src: OptionalStr,
+    srcdoc: OptionalStr,
+    vspace: OptionalStr,
     width: S.optionalKey(S.Int),
     children: HtmlChildren,
   },
@@ -3148,26 +3149,26 @@ export class Img extends S.TaggedClass<Img>($I`Img`)(
   "img",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    alt: S.optionalKey(S.String),
-    border: S.optionalKey(S.String),
+    align: OptionalStr,
+    alt: OptionalStr,
+    border: OptionalStr,
     controls: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
-    decoding: S.optionalKey(S.Literals(["sync", "async", "auto"])),
-    fetchpriority: S.optionalKey(S.Literals(["high", "low", "auto"])),
+    crossorigin: S.optionalKey(LiteralKit(["anonymous", "use-credentials"])),
+    decoding: S.optionalKey(LiteralKit(["sync", "async", "auto"])),
+    fetchpriority: S.optionalKey(LiteralKit(["high", "low", "auto"])),
     height: S.optionalKey(S.Int),
-    hspace: S.optionalKey(S.String),
+    hspace: OptionalStr,
     ismap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    loading: S.optionalKey(S.Literals(["lazy", "eager"])),
-    longdesc: S.optionalKey(S.String),
-    lowsrc: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
-    referrerpolicy: S.optionalKey(S.String),
-    sizes: S.optionalKey(S.String),
-    src: S.optionalKey(S.String),
-    srcset: S.optionalKey(S.String),
-    usemap: S.optionalKey(S.String),
-    vspace: S.optionalKey(S.String),
+    loading: S.optionalKey(LiteralKit(["lazy", "eager"])),
+    longdesc: OptionalStr,
+    lowsrc: OptionalStr,
+    name: OptionalStr,
+    referrerpolicy: OptionalStr,
+    sizes: OptionalStr,
+    src: OptionalStr,
+    srcset: OptionalStr,
+    usemap: OptionalStr,
+    vspace: OptionalStr,
     width: S.optionalKey(S.Int),
   },
   $I.annote("Img", { description: "The <img> element." })
@@ -3241,12 +3242,12 @@ export class Input extends S.TaggedClass<Input>($I`Input`)(
   "input",
   {
     ...GlobalAttributes,
-    accept: S.optionalKey(S.String),
-    align: S.optionalKey(S.String),
+    accept: OptionalStr,
+    align: OptionalStr,
     alpha: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    alt: S.optionalKey(S.String),
+    alt: OptionalStr,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -3313,30 +3314,30 @@ export class Input extends S.TaggedClass<Input>($I`Input`)(
         "impp",
       ])
     ),
-    border: S.optionalKey(S.String),
+    border: OptionalStr,
     checked: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    colorspace: S.optionalKey(S.Literals(["limited-srgb", "display-p3"])),
-    dirname: S.optionalKey(S.String),
+    colorspace: S.optionalKey(LiteralKit(["limited-srgb", "display-p3"])),
+    dirname: OptionalStr,
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    form: S.optionalKey(S.String),
-    hspace: S.optionalKey(S.String),
+    form: OptionalStr,
+    hspace: OptionalStr,
     ismap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    list: S.optionalKey(S.String),
-    max: S.optionalKey(S.String),
+    list: OptionalStr,
+    max: OptionalStr,
     maxlength: S.optionalKey(S.Int),
-    min: S.optionalKey(S.String),
+    min: OptionalStr,
     minlength: S.optionalKey(S.Int),
     multiple: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    name: S.optionalKey(S.String),
-    pattern: S.optionalKey(S.String),
-    placeholder: S.optionalKey(S.String),
+    name: OptionalStr,
+    pattern: OptionalStr,
+    placeholder: OptionalStr,
     readonly: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     required: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     size: S.optionalKey(S.Int),
-    src: S.optionalKey(S.String),
-    step: S.optionalKey(S.String),
+    src: OptionalStr,
+    step: OptionalStr,
     type: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "hidden",
         "text",
         "search",
@@ -3361,9 +3362,9 @@ export class Input extends S.TaggedClass<Input>($I`Input`)(
         "button",
       ])
     ),
-    usemap: S.optionalKey(S.String),
-    value: S.optionalKey(S.String),
-    vspace: S.optionalKey(S.String),
+    usemap: OptionalStr,
+    value: OptionalStr,
+    vspace: OptionalStr,
   },
   $I.annote("Input", { description: "The <input> element." })
 ) {}
@@ -3628,8 +3629,8 @@ export class Ins extends S.TaggedClass<Ins>($I`Ins`)(
   "ins",
   {
     ...GlobalAttributes,
-    cite: S.optionalKey(S.String),
-    datetime: S.optionalKey(S.String),
+    cite: OptionalStr,
+    datetime: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Ins", { description: "The <ins> element." })
@@ -3760,7 +3761,7 @@ export class Label extends S.TaggedClass<Label>($I`Label`)(
   "label",
   {
     ...GlobalAttributes,
-    for: S.optionalKey(S.String),
+    for: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Label", { description: "The <label> element." })
@@ -3796,7 +3797,7 @@ export class Legend extends S.TaggedClass<Legend>($I`Legend`)(
   "legend",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Legend", { description: "The <legend> element." })
@@ -3832,8 +3833,8 @@ export class Li extends S.TaggedClass<Li>($I`Li`)(
   "li",
   {
     ...GlobalAttributes,
-    type: S.optionalKey(S.String),
-    value: S.optionalKey(S.String),
+    type: OptionalStr,
+    value: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Li", { description: "The <li> element." })
@@ -3871,23 +3872,23 @@ export class Link extends S.TaggedClass<Link>($I`Link`)(
   "link",
   {
     ...GlobalAttributes,
-    as: S.optionalKey(S.String),
-    blocking: S.optionalKey(S.String),
-    charset: S.optionalKey(S.String),
-    color: S.optionalKey(S.String),
-    crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
+    as: OptionalStr,
+    blocking: OptionalStr,
+    charset: OptionalStr,
+    color: OptionalStr,
+    crossorigin: S.optionalKey(LiteralKit(["anonymous", "use-credentials"])),
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    fetchpriority: S.optionalKey(S.Literals(["high", "low", "auto"])),
-    href: S.optionalKey(S.String),
-    hreflang: S.optionalKey(S.String),
-    imagesizes: S.optionalKey(S.String),
-    imagesrcset: S.optionalKey(S.String),
-    integrity: S.optionalKey(S.String),
-    media: S.optionalKey(S.String),
-    methods: S.optionalKey(S.String),
-    referrerpolicy: S.optionalKey(S.String),
+    fetchpriority: S.optionalKey(LiteralKit(["high", "low", "auto"])),
+    href: OptionalStr,
+    hreflang: OptionalStr,
+    imagesizes: OptionalStr,
+    imagesrcset: OptionalStr,
+    integrity: OptionalStr,
+    media: OptionalStr,
+    methods: OptionalStr,
+    referrerpolicy: OptionalStr,
     rel: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "alternate",
         "author",
         "canonical",
@@ -3910,11 +3911,11 @@ export class Link extends S.TaggedClass<Link>($I`Link`)(
         "prev",
       ])
     ),
-    rev: S.optionalKey(S.String),
-    sizes: S.optionalKey(S.String),
-    target: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
-    urn: S.optionalKey(S.String),
+    rev: OptionalStr,
+    sizes: OptionalStr,
+    target: OptionalStr,
+    type: OptionalStr,
+    urn: OptionalStr,
   },
   $I.annote("Link", { description: "The <link> element." })
 ) {}
@@ -4093,7 +4094,7 @@ export class MapElement extends S.TaggedClass<MapElement>($I`MapElement`)(
   "map",
   {
     ...GlobalAttributes,
-    name: S.optionalKey(S.String),
+    name: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("MapElement", { description: "The <map> element." })
@@ -4162,8 +4163,8 @@ export class Marquee extends S.TaggedClass<Marquee>($I`Marquee`)(
   "marquee",
   {
     ...GlobalAttributes,
-    behavior: S.optionalKey(S.String),
-    direction: S.optionalKey(S.String),
+    behavior: OptionalStr,
+    direction: OptionalStr,
     loop: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     truespeed: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     children: HtmlChildren,
@@ -4208,8 +4209,8 @@ export class Menu extends S.TaggedClass<Menu>($I`Menu`)(
   {
     ...GlobalAttributes,
     compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    label: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
+    label: OptionalStr,
+    type: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Menu", { description: "The <menu> element." })
@@ -4282,10 +4283,10 @@ export class Meta extends S.TaggedClass<Meta>($I`Meta`)(
   "meta",
   {
     ...GlobalAttributes,
-    charset: S.optionalKey(S.String),
-    content: S.optionalKey(S.String),
+    charset: OptionalStr,
+    content: OptionalStr,
     "http-equiv": S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "content-language",
         "content-type",
         "default-style",
@@ -4295,9 +4296,9 @@ export class Meta extends S.TaggedClass<Meta>($I`Meta`)(
         "content-security-policy",
       ])
     ),
-    media: S.optionalKey(S.String),
+    media: OptionalStr,
     name: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "application-name",
         "author",
         "description",
@@ -4308,7 +4309,7 @@ export class Meta extends S.TaggedClass<Meta>($I`Meta`)(
         "color-scheme",
       ])
     ),
-    scheme: S.optionalKey(S.String),
+    scheme: OptionalStr,
   },
   $I.annote("Meta", { description: "The <meta> element." })
 ) {}
@@ -4381,12 +4382,12 @@ export class Meter extends S.TaggedClass<Meter>($I`Meter`)(
   "meter",
   {
     ...GlobalAttributes,
-    high: S.optionalKey(S.String),
-    low: S.optionalKey(S.String),
-    max: S.optionalKey(S.String),
-    min: S.optionalKey(S.String),
-    optimum: S.optionalKey(S.String),
-    value: S.optionalKey(S.String),
+    high: OptionalStr,
+    low: OptionalStr,
+    max: OptionalStr,
+    min: OptionalStr,
+    optimum: OptionalStr,
+    value: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Meter", { description: "The <meter> element." })
@@ -4660,10 +4661,10 @@ export class ObjectElement extends S.TaggedClass<ObjectElement>($I`ObjectElement
   "object",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    archive: S.optionalKey(S.String),
+    align: OptionalStr,
+    archive: OptionalStr,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -4730,23 +4731,23 @@ export class ObjectElement extends S.TaggedClass<ObjectElement>($I`ObjectElement
         "impp",
       ])
     ),
-    border: S.optionalKey(S.String),
-    classid: S.optionalKey(S.String),
-    code: S.optionalKey(S.String),
-    codebase: S.optionalKey(S.String),
-    codetype: S.optionalKey(S.String),
-    data: S.optionalKey(S.String),
+    border: OptionalStr,
+    classid: OptionalStr,
+    code: OptionalStr,
+    codebase: OptionalStr,
+    codetype: OptionalStr,
+    data: OptionalStr,
     declare: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    form: S.optionalKey(S.String),
+    form: OptionalStr,
     height: S.optionalKey(S.Int),
-    hspace: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
-    standby: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
-    typemustmatch: S.optionalKey(S.String),
-    usemap: S.optionalKey(S.String),
-    vspace: S.optionalKey(S.String),
+    hspace: OptionalStr,
+    name: OptionalStr,
+    standby: OptionalStr,
+    type: OptionalStr,
+    typemustmatch: OptionalStr,
+    usemap: OptionalStr,
+    vspace: OptionalStr,
     width: S.optionalKey(S.Int),
     children: HtmlChildren,
   },
@@ -4954,7 +4955,7 @@ export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
     compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     reversed: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     start: S.optionalKey(S.Int),
-    type: S.optionalKey(S.Literals(["1", "a", "A", "i", "I"])),
+    type: S.optionalKey(LiteralKit(["1", "a", "A", "i", "I"])),
     children: HtmlChildren,
   },
   $I.annote("Ol", { description: "The <ol> element." })
@@ -4997,7 +4998,7 @@ export class Optgroup extends S.TaggedClass<Optgroup>($I`Optgroup`)(
   {
     ...GlobalAttributes,
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    label: S.optionalKey(S.String),
+    label: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Optgroup", { description: "The <optgroup> element." })
@@ -5036,10 +5037,10 @@ export class Option extends S.TaggedClass<Option>($I`Option`)(
   {
     ...GlobalAttributes,
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    label: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
+    label: OptionalStr,
+    name: OptionalStr,
     selected: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    value: S.optionalKey(S.String),
+    value: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Option", { description: "The <option> element." })
@@ -5084,7 +5085,7 @@ export class Output extends S.TaggedClass<Output>($I`Output`)(
   {
     ...GlobalAttributes,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -5152,9 +5153,9 @@ export class Output extends S.TaggedClass<Output>($I`Output`)(
       ])
     ),
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    for: S.optionalKey(S.String),
-    form: S.optionalKey(S.String),
-    name: S.optionalKey(S.String),
+    for: OptionalStr,
+    form: OptionalStr,
+    name: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Output", { description: "The <output> element." })
@@ -5326,7 +5327,7 @@ export class P extends S.TaggedClass<P>($I`P`)(
   "p",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
+    align: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("P", { description: "The <p> element." })
@@ -5494,8 +5495,8 @@ export class Progress extends S.TaggedClass<Progress>($I`Progress`)(
   "progress",
   {
     ...GlobalAttributes,
-    max: S.optionalKey(S.String),
-    value: S.optionalKey(S.String),
+    max: OptionalStr,
+    value: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Progress", { description: "The <progress> element." })
@@ -5533,7 +5534,7 @@ export class Q extends S.TaggedClass<Q>($I`Q`)(
   "q",
   {
     ...GlobalAttributes,
-    cite: S.optionalKey(S.String),
+    cite: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Q", { description: "The <q> element." })
@@ -5801,19 +5802,19 @@ export class Script extends S.TaggedClass<Script>($I`Script`)(
   {
     ...GlobalAttributes,
     async: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    blocking: S.optionalKey(S.String),
-    charset: S.optionalKey(S.String),
-    crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
+    blocking: OptionalStr,
+    charset: OptionalStr,
+    crossorigin: S.optionalKey(LiteralKit(["anonymous", "use-credentials"])),
     defer: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    event: S.optionalKey(S.String),
-    fetchpriority: S.optionalKey(S.Literals(["high", "low", "auto"])),
-    for: S.optionalKey(S.String),
-    integrity: S.optionalKey(S.String),
-    language: S.optionalKey(S.String),
+    event: OptionalStr,
+    fetchpriority: S.optionalKey(LiteralKit(["high", "low", "auto"])),
+    for: OptionalStr,
+    integrity: OptionalStr,
+    language: OptionalStr,
     nomodule: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    referrerpolicy: S.optionalKey(S.String),
-    src: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
+    referrerpolicy: OptionalStr,
+    src: OptionalStr,
+    type: OptionalStr,
     content: S.String,
   },
   $I.annote("Script", { description: "The <script> element." })
@@ -5942,7 +5943,7 @@ export class Select extends S.TaggedClass<Select>($I`Select`)(
   {
     ...GlobalAttributes,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -6010,9 +6011,9 @@ export class Select extends S.TaggedClass<Select>($I`Select`)(
       ])
     ),
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    form: S.optionalKey(S.String),
+    form: OptionalStr,
     multiple: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    name: S.optionalKey(S.String),
+    name: OptionalStr,
     required: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     size: S.optionalKey(S.Int),
     children: HtmlChildren,
@@ -6223,7 +6224,7 @@ export class Slot extends S.TaggedClass<Slot>($I`Slot`)(
   "slot",
   {
     ...GlobalAttributes,
-    name: S.optionalKey(S.String),
+    name: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Slot", { description: "The <slot> element." })
@@ -6293,11 +6294,11 @@ export class Source extends S.TaggedClass<Source>($I`Source`)(
   {
     ...GlobalAttributes,
     height: S.optionalKey(S.Int),
-    media: S.optionalKey(S.String),
-    sizes: S.optionalKey(S.String),
-    src: S.optionalKey(S.String),
-    srcset: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
+    media: OptionalStr,
+    sizes: OptionalStr,
+    src: OptionalStr,
+    srcset: OptionalStr,
+    type: OptionalStr,
     width: S.optionalKey(S.Int),
   },
   $I.annote("Source", { description: "The <source> element." })
@@ -6472,9 +6473,9 @@ export class Style extends S.TaggedClass<Style>($I`Style`)(
   "style",
   {
     ...GlobalAttributes,
-    blocking: S.optionalKey(S.String),
-    media: S.optionalKey(S.String),
-    type: S.optionalKey(S.String),
+    blocking: OptionalStr,
+    media: OptionalStr,
+    type: OptionalStr,
     content: S.String,
   },
   $I.annote("Style", { description: "The <style> element." })
@@ -6613,17 +6614,17 @@ export class Table extends S.TaggedClass<Table>($I`Table`)(
   "table",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    bgcolor: S.optionalKey(S.String),
-    border: S.optionalKey(S.String),
-    bordercolor: S.optionalKey(S.String),
-    cellpadding: S.optionalKey(S.String),
-    cellspacing: S.optionalKey(S.String),
-    datapagesize: S.optionalKey(S.String),
-    frame: S.optionalKey(S.String),
+    align: OptionalStr,
+    bgcolor: OptionalStr,
+    border: OptionalStr,
+    bordercolor: OptionalStr,
+    cellpadding: OptionalStr,
+    cellspacing: OptionalStr,
+    datapagesize: OptionalStr,
+    frame: OptionalStr,
     height: S.optionalKey(S.Int),
-    rules: S.optionalKey(S.String),
-    summary: S.optionalKey(S.String),
+    rules: OptionalStr,
+    summary: OptionalStr,
     width: S.optionalKey(S.Int),
     children: HtmlChildren,
   },
@@ -6682,11 +6683,11 @@ export class Tbody extends S.TaggedClass<Tbody>($I`Tbody`)(
   "tbody",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    char: S.optionalKey(S.String),
-    charoff: S.optionalKey(S.String),
+    align: OptionalStr,
+    char: OptionalStr,
+    charoff: OptionalStr,
     height: S.optionalKey(S.Int),
-    valign: S.optionalKey(S.String),
+    valign: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Tbody", { description: "The <tbody> element." })
@@ -6730,19 +6731,19 @@ export class Td extends S.TaggedClass<Td>($I`Td`)(
   "td",
   {
     ...GlobalAttributes,
-    abbr: S.optionalKey(S.String),
-    align: S.optionalKey(S.String),
-    axis: S.optionalKey(S.String),
-    bgcolor: S.optionalKey(S.String),
-    char: S.optionalKey(S.String),
-    charoff: S.optionalKey(S.String),
+    abbr: OptionalStr,
+    align: OptionalStr,
+    axis: OptionalStr,
+    bgcolor: OptionalStr,
+    char: OptionalStr,
+    charoff: OptionalStr,
     colspan: S.optionalKey(S.Int),
-    headers: S.optionalKey(S.String),
+    headers: OptionalStr,
     height: S.optionalKey(S.Int),
     nowrap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rowspan: S.optionalKey(S.Int),
-    scope: S.optionalKey(S.String),
-    valign: S.optionalKey(S.String),
+    scope: OptionalStr,
+    valign: OptionalStr,
     width: S.optionalKey(S.Int),
     children: HtmlChildren,
   },
@@ -6806,11 +6807,11 @@ export class Template extends S.TaggedClass<Template>($I`Template`)(
   {
     ...GlobalAttributes,
     shadowrootclonable: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    shadowrootcustomelementregistry: S.optionalKey(S.String),
+    shadowrootcustomelementregistry: OptionalStr,
     shadowrootdelegatesfocus: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    shadowrootmode: S.optionalKey(S.Literals(["open", "closed"])),
+    shadowrootmode: S.optionalKey(LiteralKit(["open", "closed"])),
     shadowrootserializable: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    shadowrootslotassignment: S.optionalKey(S.Literals(["named", "manual"])),
+    shadowrootslotassignment: S.optionalKey(LiteralKit(["named", "manual"])),
     children: HtmlChildren,
   },
   $I.annote("Template", { description: "The <template> element." })
@@ -6857,7 +6858,7 @@ export class Textarea extends S.TaggedClass<Textarea>($I`Textarea`)(
   {
     ...GlobalAttributes,
     autocomplete: S.optionalKey(
-      S.Literals([
+      LiteralKit([
         "section-",
         "shipping",
         "billing",
@@ -6925,17 +6926,17 @@ export class Textarea extends S.TaggedClass<Textarea>($I`Textarea`)(
       ])
     ),
     cols: S.optionalKey(S.Int),
-    dirname: S.optionalKey(S.String),
+    dirname: OptionalStr,
     disabled: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    form: S.optionalKey(S.String),
+    form: OptionalStr,
     maxlength: S.optionalKey(S.Int),
     minlength: S.optionalKey(S.Int),
-    name: S.optionalKey(S.String),
-    placeholder: S.optionalKey(S.String),
+    name: OptionalStr,
+    placeholder: OptionalStr,
     readonly: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     required: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rows: S.optionalKey(S.Int),
-    wrap: S.optionalKey(S.Literals(["soft", "hard"])),
+    wrap: S.optionalKey(LiteralKit(["soft", "hard"])),
     content: S.String,
   },
   $I.annote("Textarea", { description: "The <textarea> element." })
@@ -7156,19 +7157,19 @@ export class Th extends S.TaggedClass<Th>($I`Th`)(
   "th",
   {
     ...GlobalAttributes,
-    abbr: S.optionalKey(S.String),
-    align: S.optionalKey(S.String),
-    axis: S.optionalKey(S.String),
-    bgcolor: S.optionalKey(S.String),
-    char: S.optionalKey(S.String),
-    charoff: S.optionalKey(S.String),
+    abbr: OptionalStr,
+    align: OptionalStr,
+    axis: OptionalStr,
+    bgcolor: OptionalStr,
+    char: OptionalStr,
+    charoff: OptionalStr,
     colspan: S.optionalKey(S.Int),
-    headers: S.optionalKey(S.String),
+    headers: OptionalStr,
     height: S.optionalKey(S.Int),
     nowrap: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     rowspan: S.optionalKey(S.Int),
-    scope: S.optionalKey(S.Literals(["row", "col", "rowgroup", "colgroup"])),
-    valign: S.optionalKey(S.String),
+    scope: S.optionalKey(LiteralKit(["row", "col", "rowgroup", "colgroup"])),
+    valign: OptionalStr,
     width: S.optionalKey(S.Int),
     children: HtmlChildren,
   },
@@ -7264,7 +7265,7 @@ export class Time extends S.TaggedClass<Time>($I`Time`)(
   "time",
   {
     ...GlobalAttributes,
-    datetime: S.optionalKey(S.String),
+    datetime: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Time", { description: "The <time> element." })
@@ -7333,12 +7334,12 @@ export class Tr extends S.TaggedClass<Tr>($I`Tr`)(
   "tr",
   {
     ...GlobalAttributes,
-    align: S.optionalKey(S.String),
-    bgcolor: S.optionalKey(S.String),
-    char: S.optionalKey(S.String),
-    charoff: S.optionalKey(S.String),
+    align: OptionalStr,
+    bgcolor: OptionalStr,
+    char: OptionalStr,
+    charoff: OptionalStr,
     height: S.optionalKey(S.Int),
-    valign: S.optionalKey(S.String),
+    valign: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Tr", { description: "The <tr> element." })
@@ -7385,10 +7386,10 @@ export class Track extends S.TaggedClass<Track>($I`Track`)(
   {
     ...GlobalAttributes,
     default: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    kind: S.optionalKey(S.Literals(["subtitles", "captions", "descriptions", "chapters", "metadata"])),
-    label: S.optionalKey(S.String),
-    src: S.optionalKey(S.String),
-    srclang: S.optionalKey(S.String),
+    kind: S.optionalKey(LiteralKit(["subtitles", "captions", "descriptions", "chapters", "metadata"])),
+    label: OptionalStr,
+    src: OptionalStr,
+    srclang: OptionalStr,
   },
   $I.annote("Track", { description: "The <track> element." })
 ) {}
@@ -7496,7 +7497,7 @@ export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
   {
     ...GlobalAttributes,
     compact: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    type: S.optionalKey(S.String),
+    type: OptionalStr,
     children: HtmlChildren,
   },
   $I.annote("Ul", { description: "The <ul> element." })
@@ -7569,15 +7570,15 @@ export class Video extends S.TaggedClass<Video>($I`Video`)(
     ...GlobalAttributes,
     autoplay: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     controls: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    crossorigin: S.optionalKey(S.Literals(["anonymous", "use-credentials"])),
+    crossorigin: S.optionalKey(LiteralKit(["anonymous", "use-credentials"])),
     height: S.optionalKey(S.Int),
-    loading: S.optionalKey(S.Literals(["lazy", "eager"])),
+    loading: S.optionalKey(LiteralKit(["lazy", "eager"])),
     loop: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     muted: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
     playsinline: S.optionalKey(S.Union([S.Boolean, S.Literal("")])),
-    poster: S.optionalKey(S.String),
-    preload: S.optionalKey(S.Literals(["auto", "none", "metadata"])),
-    src: S.optionalKey(S.String),
+    poster: OptionalStr,
+    preload: S.optionalKey(LiteralKit(["auto", "none", "metadata"])),
+    src: OptionalStr,
     width: S.optionalKey(S.Int),
     children: HtmlChildren,
   },

@@ -44,11 +44,3 @@ export * from "./M365Tools.ts";
  * @since 0.1.0
  */
 export * from "./Server.ts";
-
-/**
- * Package version.
- *
- * @category constants
- * @since 0.1.0
- */
-export const VERSION = "0.1.0";

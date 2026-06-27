@@ -5,23 +5,6 @@
  * @since 0.0.0
  */
 
-export * from "./Number.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/schema"
- *
- * console.log(VERSION)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = "0.0.0" as const;
-
 /**
  * @since 0.0.0
  * @category validation
@@ -244,6 +227,7 @@ export * from "./MutableHashMap.ts";
  * @category validation
  */
 export * from "./MutableHashSet.ts";
+export * from "./Number.ts";
 /**
  * @since 0.0.0
  * @category validation

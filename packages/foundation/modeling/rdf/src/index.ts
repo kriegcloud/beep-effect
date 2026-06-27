@@ -6,14 +6,6 @@
  */
 
 /**
- * Package version.
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * IRI schema and branded IRI helpers.
  *
  * @category validation

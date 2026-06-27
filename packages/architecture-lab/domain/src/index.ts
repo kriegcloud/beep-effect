@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version for the architecture lab domain role.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-domain"
- *
- * console.log(VERSION)
- * ```
- *
- * @category aggregates
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Aggregate namespace exports for the architecture lab domain package.
  *
  * @category aggregates

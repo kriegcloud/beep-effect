@@ -40,18 +40,3 @@ export * from "./M365.schemas.ts";
  * @since 0.0.0
  */
 export * from "./M365.service.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/m365"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

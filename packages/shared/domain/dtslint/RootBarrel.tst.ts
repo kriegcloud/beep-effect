@@ -10,7 +10,6 @@ import type * as LocalDate from "@beep/shared-domain/values/LocalDate";
 
 describe("@beep/shared-domain root barrel", () => {
   it("keeps root namespaces wired to their public modules", () => {
-    expect(Domain.VERSION).type.toBe<"0.0.0">();
     expect(Domain.Entities.Organization.Model).type.toBe<typeof Organization.Model>();
     expect(Domain.Values.LocalDate.Model).type.toBe<typeof LocalDate.Model>();
     expect(Domain.BaseEntity.BaseEntity).type.toBe<typeof BaseEntity.BaseEntity>();

@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version for the architecture lab config role.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-config"
- *
- * console.log(VERSION)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Browser-safe WorkItem public configuration exports.
  *
  * @example

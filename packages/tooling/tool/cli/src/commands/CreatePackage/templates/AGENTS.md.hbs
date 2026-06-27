@@ -6,7 +6,7 @@
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | package-specific public exports | package entry point |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -16,9 +16,7 @@
 - Keep package guidance concise and avoid duplicating long policy prose.
 
 ## Quick Recipes
-```ts
-import { VERSION } from "{{scopedName}}"
-```
+Add package-level exports in `src/index.ts` and import through `{{scopedName}}` from tests and dtslint.
 
 ## Verifications
 - `bunx turbo run test --filter={{scopedName}}`

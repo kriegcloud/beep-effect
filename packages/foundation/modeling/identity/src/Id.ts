@@ -41,11 +41,8 @@ type BeepNamespace = typeof BeepNamespace.Type;
 const BeepBase = S.Literal("beep");
 type BeepBase = typeof BeepBase.Type;
 
-const IdentityVersion = S.Literal("0.0.0");
-
 const decodeBeepNamespace = S.decodeUnknownResult(BeepNamespace);
 const decodeBeepBase = S.decodeUnknownResult(BeepBase);
-const decodeIdentityVersion = S.decodeUnknownResult(IdentityVersion);
 const schemaIssueToError = (cause: S.SchemaError | S.SchemaError["issue"]): S.SchemaError =>
   cause instanceof S.SchemaError ? cause : new S.SchemaError(cause);
 
@@ -164,21 +161,6 @@ export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmen
     return "Identity template tags must use a single literal segment.";
   }
 }
-
-/**
- * Current version of the `@beep/identity` package.
- *
- * @example
- * ```typescript
- * import { VERSION } from "@beep/identity"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = Result.getOrThrowWith(decodeIdentityVersion("0.0.0"), schemaIssueToError);
 
 /**
  * Type-level constraint ensuring an identity segment does not start or end with a slash.

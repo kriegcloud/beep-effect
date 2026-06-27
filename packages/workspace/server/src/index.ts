@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version for the workspace server role.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/workspace-server"
- *
- * console.log(VERSION)
- * ```
- *
- * @category handlers
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Direct Thread server namespace export.
  *
  * @category handlers

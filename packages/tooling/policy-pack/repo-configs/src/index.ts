@@ -11,19 +11,6 @@ import type { DeprecatedApisESLintConfigShape as DeprecatedApisESLintConfigShape
 import type { DocsESLintConfigShape as DocsESLintConfigShapeInternal } from "./eslint/DocsESLintConfig.ts";
 
 /**
- * Package version for `@beep/repo-configs`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/repo-configs"
- * console.log(VERSION)
- * ```
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Flat docs-only ESLint config array shape exported by this package.
  *
  * @example

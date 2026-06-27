@@ -6,21 +6,6 @@
  */
 
 /**
- * Package version for `@beep/xai`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/xai"
- *
- * console.log(VERSION)
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Runtime configuration exports for the xAI driver.
  *
  * @example

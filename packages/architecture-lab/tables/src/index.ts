@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version for the architecture lab tables role.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/architecture-lab-tables"
- *
- * console.log(VERSION)
- * ```
- *
- * @category tables
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Direct WorkItem table namespace export.
  *
  * @category tables

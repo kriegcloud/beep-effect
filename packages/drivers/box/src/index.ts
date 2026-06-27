@@ -75,18 +75,3 @@ export * from "./Box.service.ts";
  * @since 0.0.0
  */
 export * from "./Box.streaming.ts";
-
-/**
- * Package version for `@beep/box`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/box"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0";

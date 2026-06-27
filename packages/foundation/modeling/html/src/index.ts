@@ -10,21 +10,6 @@
  */
 
 /**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/html"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Global-attribute overlay: the shared `GlobalAttributes` field bundle and its
  * reusable enumerated value schemas.
  *

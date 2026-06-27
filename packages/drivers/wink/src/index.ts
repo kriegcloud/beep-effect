@@ -6,21 +6,6 @@
  */
 
 /**
- * Package version constant.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/wink"
- *
- * console.log(VERSION)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * @since 0.0.0
  * @category errors
  */

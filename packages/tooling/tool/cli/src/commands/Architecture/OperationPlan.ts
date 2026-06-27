@@ -1924,6 +1924,7 @@ const packageShellIndexContent = (target: ArchitecturePlanTarget, role: Architec
   const packageName = packageNameForRole(target, role);
   const category = categoryForRole(role);
   const extraExport = extraExportForRole(role);
+  const moduleBody = extraExport === "" ? "\nexport {};\n" : extraExport;
 
   return `/**
  * Package entry point for \`${packageName}\`.
@@ -1932,15 +1933,7 @@ const packageShellIndexContent = (target: ArchitecturePlanTarget, role: Architec
  * @category ${category}
  * @since 0.0.0
  */
-
-/**
- * Package version for \`${packageName}\`.
- *
- * @category ${category}
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-${extraExport}`;
+${moduleBody}`;
 };
 
 const packageShellEmptyModuleContent = (title: string, category: string): string => `/**

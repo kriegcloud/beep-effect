@@ -7,19 +7,6 @@
  */
 
 /**
- * Current package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/ai-sync"
- * console.log(VERSION)
- * ```
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Drift-check helpers.
  *
  * @example

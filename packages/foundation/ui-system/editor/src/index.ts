@@ -8,21 +8,6 @@
  */
 
 /**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/editor"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Runtime artifact-ref decorator node.
  *
  * @example

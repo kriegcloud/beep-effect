@@ -5,7 +5,6 @@ import {
   LibpffFileProcessingEngineOptions,
   makeLibpffError,
   makeLibpffFileProcessingEngine,
-  VERSION,
 } from "@beep/libpff";
 import { describe, expect, it } from "tstyche";
 import type { FileProcessingEngineShape } from "@beep/file-processing/Service";
@@ -17,7 +16,6 @@ describe("@beep/libpff", () => {
     const reason: LibpffErrorReason = "engine-unavailable";
     const options = LibpffFileProcessingEngineOptions.make({ syntheticExport: true });
 
-    expect(VERSION).type.toBe<"0.0.0">();
     expect(LibpffFileProcessingEngineDescriptor).type.toBe<FileProcessingEngineDescriptor>();
     expect(LibpffFileProcessingEngine).type.toBe<FileProcessingEngineShape>();
     expect(options).type.toBe<LibpffFileProcessingEngineOptions>();

@@ -6,21 +6,6 @@
  */
 
 /**
- * Shared domain package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/shared-domain"
- *
- * console.log(VERSION)
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Shared-kernel aggregate concepts.
  *
  * @example

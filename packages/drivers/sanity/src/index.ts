@@ -26,18 +26,3 @@ export * from "./Sanity.errors.ts";
  * @since 0.0.0
  */
 export * from "./Sanity.service.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/sanity"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

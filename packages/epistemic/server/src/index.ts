@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version for the epistemic server role.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/epistemic-server"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Epistemic server layer exports.
  *
  * @category layers

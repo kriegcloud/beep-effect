@@ -7,21 +7,6 @@
  */
 
 /**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/lexical-schema"
- *
- * console.log(VERSION) // "0.0.0"
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Md ↔ Lexical codecs over the canonical `@beep/md` AST.
  *
  * @example

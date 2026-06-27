@@ -6,21 +6,6 @@
  */
 
 /**
- * Package version for `@beep/anthropic`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/anthropic"
- *
- * console.log(VERSION)
- * ```
- *
- * @category configuration
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;
-
-/**
  * Runtime configuration exports for the Anthropic driver.
  *
  * @example

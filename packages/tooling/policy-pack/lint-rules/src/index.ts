@@ -12,22 +12,6 @@
  */
 
 /**
- * Package version for `@beep/lint-rules`.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/lint-rules"
- *
- * if (VERSION.length > 0) {
- *   // version is a non-empty semver string
- * }
- * ```
- * @category configuration
- * @since 0.1.0
- */
-export const VERSION = "0.1.0" as const;
-
-/**
  * Slugs of the GritQL rules shipped by this package (one `.grit` file each).
  *
  * @example

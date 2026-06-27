@@ -385,24 +385,40 @@ import type { GlobalAttributesEncoded, GlobalAttributesType } from "./Html.attri
 
 const $I = $HtmlId.create("Html.model");
 
-/** Union members carrying a literal \`_tag\` (the shape \`toTaggedUnion\` requires). */
-type Tagged = S.Top & { readonly Type: { readonly _tag: PropertyKey } };
+/** Runtime values accepted by \`_tag\`-discriminated schema unions. */
+type Tagged = { readonly _tag: PropertyKey };
+
+/** Schema member carrying a \`_tag\` in both decoded and encoded representations. */
+type TaggedSchema<A extends Tagged, E extends Tagged> = S.Codec<A, E> & {
+  readonly Type: A;
+  readonly Encoded: E;
+};
+
+/** Non-empty member list so generated unions cannot silently collapse to \`never\`. */
+type TaggedMembers<A extends Tagged, E extends Tagged> = readonly [
+  TaggedSchema<A, E>,
+  ...ReadonlyArray<TaggedSchema<A, E>>,
+];
 
 /**
  * Build a \`_tag\`-discriminated union at runtime via \`S.toTaggedUnion\`, typed
- * explicitly. \`toTaggedUnion\`'s type-level discriminant map does not scale to the
- * ~150 HTML node kinds (TS2589), so members are erased to a \`ReadonlyArray\` and
- * the result is cast to its declared codec type — the runtime is the real tagged
- * union.
+ * explicitly. \`toTaggedUnion\`'s precise utility type does not scale to the
+ * ~150 HTML node kinds (TS2589), so this helper keeps the public schema as a
+ * plain codec while requiring every member to statically carry \`_tag\`.
  *
  * @category models
  * @since 0.0.0
  */
-const taggedUnion = <A, E>(id: string, description: string, members: ReadonlyArray<S.Top>): S.Codec<A, E> =>
-  S.Union(members as ReadonlyArray<Tagged>).pipe(
+const taggedUnion = <A extends Tagged, E extends Tagged>(
+  id: string,
+  description: string,
+  members: TaggedMembers<A, E>
+): S.Codec<A, E> =>
+  S.Union(members).pipe(
     S.toTaggedUnion("_tag"),
-    $I.annoteSchema(id, { description })
-  ) as unknown as S.Codec<A, E>;
+    $I.annoteSchema(id, { description }),
+    S.revealCodec
+  );
 
 /**
  * Recursive list of HTML AST child nodes (any {@link HtmlNode}).

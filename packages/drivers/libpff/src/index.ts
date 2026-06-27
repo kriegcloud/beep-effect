@@ -26,18 +26,3 @@ export * from "./Libpff.pffexport.ts";
  * @since 0.0.0
  */
 export * from "./Libpff.service.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/libpff"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0" as const;

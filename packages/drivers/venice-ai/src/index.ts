@@ -35,18 +35,3 @@ export * from "./VeniceAI.service.ts";
  * @since 0.0.0
  */
 export * as VeniceAiLanguageModel from "./VeniceAiLanguageModel.service.ts";
-
-/**
- * Current version of the `@beep/venice-ai` package.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/venice-ai"
- *
- * console.log(VERSION)
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const VERSION = "0.0.0";

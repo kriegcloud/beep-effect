@@ -40,18 +40,3 @@ export * from "./Runpod.service.ts";
  * @since 0.1.0
  */
 export * from "./RunpodDocs.service.ts";
-
-/**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/runpod"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.1.0
- */
-export const VERSION = "0.0.0" as const;

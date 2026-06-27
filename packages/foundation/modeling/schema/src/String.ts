@@ -152,3 +152,32 @@ export const OptionFromNullableStr = S.String.pipe(
  * @since 0.0.0
  */
 export type OptionFromNullableStr = typeof OptionFromNullableStr.Type;
+
+/**
+ * A string property which is optional and potentially undefined, meant to be used as a property in a {@link S.Struct}, {@link S.Class}, {@link S.TaggedStruct}, {@link S.TaggedClass}, {@link S.TaggedErrorClass} schema
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { OptionalStr } from "@beep/schema/String"
+ *
+ * const result = S.decodeUnknownOption(S.Struct({prop: OptionalStr}))({}) // same as `S.optionalKey(S.String)`
+ * console.log(result) // { prop: { _tag: "None" } }
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const OptionalStr = S.optionalKey(S.String)
+
+/**
+ * Companion type for {@link OptionalStr}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OptionalStr = typeof OptionalStr.Type;
+
+export declare namespace OptionalStr {
+	export type Schema = typeof OptionalStr;
+}

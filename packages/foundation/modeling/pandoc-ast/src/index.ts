@@ -6,21 +6,6 @@
  */
 
 /**
- * Package version.
- *
- * @example
- * ```ts
- * import { VERSION } from "@beep/pandoc-ast"
- *
- * console.log(VERSION)
- * ```
- *
- * @category constants
- * @since 0.0.0
- */
-export const VERSION = "0.0.0";
-
-/**
  * Pandoc JSON wire codecs.
  *
  * @example

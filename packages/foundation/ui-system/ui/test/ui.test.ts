@@ -1,12 +1,7 @@
-import { VERSION } from "@beep/ui";
 import { cn } from "@beep/ui/lib/utils";
 import { describe, expect, it } from "vitest";
 
 describe("@beep/ui", () => {
-  it("exports the package version constant", () => {
-    expect(VERSION).toBe("0.0.0");
-  });
-
   it("merges tailwind classes with conflict resolution", () => {
     const optionalHiddenClass: false | string = false;
 

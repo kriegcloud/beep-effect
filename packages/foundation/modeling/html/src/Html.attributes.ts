@@ -21,6 +21,7 @@ import { $HtmlId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A, Struct } from "@beep/utils";
 import * as S from "effect/Schema";
+import type { OptionalStr } from "@beep/schema";
 
 const $I = $HtmlId.create("Html.attributes");
 
@@ -285,7 +286,7 @@ const ariaAttributeNames = [
 export const AriaAttributes = {
   role: S.optionalKey(S.String),
   ...(Struct.fromEntries(A.map(ariaAttributeNames, (n) => [n, Str])) as {
-    readonly [K in (typeof ariaAttributeNames)[number]]: Str;
+    readonly [K in (typeof ariaAttributeNames)[number]]: OptionalStr.Schema;
   }),
 } as const;
 
@@ -372,7 +373,7 @@ const eventHandlerNames = [
  * @since 0.0.0
  */
 export const EventHandlerAttributes = Struct.fromEntries(A.map(eventHandlerNames, (n) => [n, Str])) as {
-  readonly [K in (typeof eventHandlerNames)[number]]: Str;
+  readonly [K in (typeof eventHandlerNames)[number]]: OptionalStr.Schema;
 };
 
 /**
