@@ -20,7 +20,6 @@ import type { Crypto, JsonPatch } from "effect";
 import type { HttpClient } from "effect/unstable/http";
 import type {
   SyncDataFileResult,
-  SyncDataRunMode as SyncDataRunModeType,
   SyncDataTarget,
   SyncDataTargetResult,
 } from "./internal/Models.js";
@@ -60,15 +59,15 @@ const makeRunModeFlags = (check: boolean, dryRun: boolean): SyncDataRunModeFlags
 
 const isRunModeFlagConflict = P.Tuple([P.isTruthy, P.isTruthy]);
 
-const runModeFlag = <Mode extends SyncDataRunModeType>(mode: Mode) => flow(O.liftPredicate(P.isTruthy), O.as(mode));
+const runModeFlag = <Mode extends SyncDataRunMode>(mode: Mode) => flow(O.liftPredicate(P.isTruthy), O.as(mode));
 
-const resolveEnabledRunMode = ([check, dryRun]: SyncDataRunModeFlags): SyncDataRunModeType =>
+const resolveEnabledRunMode = ([check, dryRun]: SyncDataRunModeFlags): SyncDataRunMode =>
   pipe(
     [runModeFlag("check")(check), runModeFlag("dry-run")(dryRun)] satisfies ReadonlyArray<
-      O.Option<SyncDataRunModeType>
+      O.Option<SyncDataRunMode>
     >,
     O.firstSomeOf,
-    O.getOrElse((): SyncDataRunModeType => "write")
+    O.getOrElse(SyncDataRunMode.thunk.write)
   );
 
 const runModeFlagConflictError = () =>
@@ -76,13 +75,13 @@ const runModeFlagConflictError = () =>
     message: "The --check and --dry-run flags are mutually exclusive.",
   });
 
-const resolveRunModeFlags: (flags: SyncDataRunModeFlags) => Effect.Effect<SyncDataRunModeType, SyncDataToTsError> =
+const resolveRunModeFlags: (flags: SyncDataRunModeFlags) => Effect.Effect<SyncDataRunMode, SyncDataToTsError> =
   Match.type<SyncDataRunModeFlags>().pipe(
     Match.when(isRunModeFlagConflict, () => Effect.fail(runModeFlagConflictError())),
     Match.orElse((flags) => Effect.succeed(resolveEnabledRunMode(flags)))
   );
 
-const resolveRunMode = (check: boolean, dryRun: boolean): Effect.Effect<SyncDataRunModeType, SyncDataToTsError> =>
+const resolveRunMode = (check: boolean, dryRun: boolean): Effect.Effect<SyncDataRunMode, SyncDataToTsError> =>
   resolveRunModeFlags(makeRunModeFlags(check, dryRun));
 
 const targetSelectionConflictError = () =>
@@ -233,7 +232,7 @@ const diffCanonical = Effect.fn("SyncDataToTs.diffCanonical")(function* (
 
 const syncOutputFile = Effect.fn("SyncDataToTs.syncOutputFile")(function* (
   repoRoot: string,
-  mode: SyncDataRunModeType,
+  mode: SyncDataRunMode,
   targetId: string,
   file: { readonly path: string; readonly content: string }
 ): Effect.fn.Return<SyncDataFileResult, SyncDataToTsError, FileSystem.FileSystem | Path.Path> {
@@ -259,7 +258,7 @@ const syncOutputFile = Effect.fn("SyncDataToTs.syncOutputFile")(function* (
 
 const syncTarget = Effect.fn("syncTarget")(function* (
   repoRoot: string,
-  mode: SyncDataRunModeType,
+  mode: SyncDataRunMode,
   target: SyncDataTarget
 ): Effect.fn.Return<
   SyncDataTargetResult,
@@ -299,7 +298,7 @@ const primaryOutputPath = (result: SyncDataTargetResult): string =>
     O.getOrElse(() => result.canonicalPath)
   );
 
-const renderChangedTargetMessage = (result: SyncDataTargetResult, mode: SyncDataRunModeType): string =>
+const renderChangedTargetMessage = (result: SyncDataTargetResult, mode: SyncDataRunMode): string =>
   SyncDataRunMode.$match(mode, {
     write: () => `sync-data-to-ts: updated ${result.targetId} -> ${primaryOutputPath(result)} (${result.summary})`,
     "dry-run": () =>
@@ -310,7 +309,7 @@ const renderChangedTargetMessage = (result: SyncDataTargetResult, mode: SyncData
 const renderUnchangedTargetMessage = (result: SyncDataTargetResult): string =>
   `sync-data-to-ts: up to date ${result.targetId} -> ${primaryOutputPath(result)}`;
 
-const targetResultMessage = (mode: SyncDataRunModeType, verbose: boolean) =>
+const targetResultMessage = (mode: SyncDataRunMode, verbose: boolean) =>
   Match.type<SyncDataTargetResult>().pipe(
     Match.when(
       (result) => result.changed,
@@ -326,7 +325,7 @@ const targetResultMessage = (mode: SyncDataRunModeType, verbose: boolean) =>
 
 const reportTargetResult = Effect.fn("SyncDataToTs.reportTargetResult")(function* (
   result: SyncDataTargetResult,
-  mode: SyncDataRunModeType,
+  mode: SyncDataRunMode,
   verbose: boolean
 ) {
   yield* pipe(
@@ -336,7 +335,7 @@ const reportTargetResult = Effect.fn("SyncDataToTs.reportTargetResult")(function
   );
 });
 
-const renderSummaryMessage = (mode: SyncDataRunModeType, changedCount: number, totalCount: number): string =>
+const renderSummaryMessage = (mode: SyncDataRunMode, changedCount: number, totalCount: number): string =>
   SyncDataRunMode.$match(mode, {
     write: () => `sync-data-to-ts: wrote ${changedCount} of ${totalCount} target(s)`,
     "dry-run": () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) would change`,
@@ -345,7 +344,7 @@ const renderSummaryMessage = (mode: SyncDataRunModeType, changedCount: number, t
 
 const reportSummary = Effect.fn("SyncDataToTs.reportSummary")(function* (
   results: ReadonlyArray<SyncDataTargetResult>,
-  mode: SyncDataRunModeType
+  mode: SyncDataRunMode
 ) {
   const changedCount = pipe(results, A.filter(Struct.get("changed")), A.length);
 
@@ -370,7 +369,7 @@ const patchSummaryRows = (result: SyncDataTargetResult): ReadonlyArray<ReadonlyA
 
 const renderReportMarkdown = (
   results: ReadonlyArray<SyncDataTargetResult>,
-  mode: SyncDataRunModeType
+  mode: SyncDataRunMode
 ): Effect.Effect<string, SyncDataToTsError> => {
   const targetRows = pipe(
     results,
@@ -406,7 +405,7 @@ const renderReportMarkdown = (
   );
 };
 
-const renderReportJson = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType): string =>
+const renderReportJson = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunMode): string =>
   formatJson({
     schemaVersion: "data-sync-report/v1",
     mode,
@@ -443,7 +442,7 @@ const writeReportFile = Effect.fn("SyncDataToTs.writeReportFile")(function* (
 const writeReports = Effect.fn("SyncDataToTs.writeReports")(function* (
   reportDir: O.Option<string>,
   results: ReadonlyArray<SyncDataTargetResult>,
-  mode: SyncDataRunModeType
+  mode: SyncDataRunMode
 ) {
   if (O.isNone(reportDir)) {
     return;
@@ -476,7 +475,7 @@ const failOnChangedTargets = (results: ReadonlyArray<SyncDataTargetResult>) => {
   });
 };
 
-const failOnCheckDrift = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType) =>
+const failOnCheckDrift = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunMode) =>
   failOnChangedTargets(results).pipe(Effect.when(Effect.succeed(SyncDataRunMode.is.check(mode))), Effect.asVoid);
 
 const renderSyncDataErrorContext = (error: SyncDataToTsError): string =>

@@ -31,3 +31,7 @@ especially when comparing APIs, behavior, examples, and upstream conventions.
 
 - `effect-v4`: Effect v4 source reference from
   `git@github.com:Effect-TS/effect-smol.git`.
+- `effect-ai-chat-example`: Effect v4 AI chat reference app (domain/server/client
+  layered architecture, RPC contracts, streaming, tool-calling, drizzle/pglite
+  persistence, effect-atom frontend, plus `RULES.md` + `knowledge/skills/*` Effect
+  v4 guides) from `git@github.com:lucas-barake/effect-ai-chat-example.git`.

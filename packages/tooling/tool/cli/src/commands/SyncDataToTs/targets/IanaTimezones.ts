@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { A } from "@beep/utils";
-import { Effect, HashSet, Order, pipe } from "effect";
+import { A, dual, O, P, Str } from "@beep/utils";
+import { Effect, flow, HashSet, Order, pipe } from "effect";
 import * as R from "effect/Record";
 import { Parser } from "tar";
 import { SyncDataTargetProjection, SyncDataToTsError } from "../internal/Models.js";
@@ -53,7 +53,7 @@ const TZDB_TEXT_FILES = HashSet.make(
 
 const extractTzdbTextEntries = (bytes: Uint8Array): Effect.Effect<TzdbTextEntries, SyncDataToTsError> =>
   Effect.callback<TzdbTextEntries, SyncDataToTsError>((resume) => {
-    const entries: Record<string, string> = {};
+    const entries = R.empty<string, string>();
     let openEntries = 0;
     let parserEnded = false;
     let completed = false;
@@ -85,7 +85,7 @@ const extractTzdbTextEntries = (bytes: Uint8Array): Effect.Effect<TzdbTextEntrie
     };
     const collectEntry = (entry: ReadEntry) => {
       openEntries += 1;
-      const chunks: Array<Buffer> = [];
+      const chunks = A.empty<Buffer>();
 
       entry.on("data", (chunk: Buffer) => {
         chunks.push(chunk);
@@ -107,25 +107,29 @@ const extractTzdbTextEntries = (bytes: Uint8Array): Effect.Effect<TzdbTextEntrie
     parser.end(Buffer.from(bytes));
   });
 
-const extractPatternMatches = (content: string, pattern: RegExp): ReadonlyArray<string> => {
-  const matches: Array<string> = [];
+const extractPatternMatches: {
+	(content: string, pattern: RegExp): ReadonlyArray<string>,
+	(pattern: RegExp): (content: string) => ReadonlyArray<string>
+} = dual(2, (content: string, pattern: RegExp): ReadonlyArray<string> => {
+  const matches = A.empty<string>();
 
-  for (const match of content.matchAll(pattern)) {
-    const value = match[1];
-    if (value !== undefined) {
-      matches.push(value);
+  for (const match of Str.matchAll(pattern)(content)) {
+    const valueOpt = A.get(match, 1);
+
+    if (O.isSome(valueOpt)) {
+      matches.push(valueOpt.value);
     }
   }
 
   return matches;
-};
+});
 
 const parseZone1970Tab = (content: string): ReadonlyArray<string> =>
   pipe(
-    content.split(/\r?\n/u),
-    A.filter((line) => line !== "" && !line.startsWith("#")),
-    A.map((line) => line.split("\t")[2]),
-    A.filter((value): value is string => value !== undefined && value !== "")
+    Str.split(/\r?\n/u)(content),
+    A.filter(P.and(Str.isNonEmpty, P.not(Str.startsWith("#")))),
+    A.map(flow(Str.split("\t"), A.get(2), O.getOrUndefined)),
+    A.filter(P.isString)
   );
 
 const isTimezoneName = (name: string): boolean => name !== "posixrules" && !name.startsWith("posix/");
