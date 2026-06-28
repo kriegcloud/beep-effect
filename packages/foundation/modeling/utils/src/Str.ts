@@ -463,7 +463,7 @@ export const camelToSnake = <const TStr extends string>(str: TF.CamelCase<TStr>)
  * @category combinators
  * @since 0.0.0
  */
-export const snakeToPascal = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.PascalCase<TStr> =>
+export const snakeToPascal = <const TStr extends TF.SnakeCase<string>>(str: TStr): TF.PascalCase<TStr> =>
   cast(Str.snakeToPascal(str));
 
 /**
