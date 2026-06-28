@@ -74,7 +74,10 @@ export class YouTubeNode extends DecoratorBlockNode {
     };
   }
 
-  static override importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
+  // Lexical 0.46 widened the base `importJSON` parameter to
+  // `SerializedLexicalNode & Record<string, unknown>`; mirror the intersection so
+  // the narrowed (schema-pinned, interface-backed) wire shape stays bivariant.
+  static override importJSON(serializedNode: SerializedYouTubeNode & Record<string, unknown>): YouTubeNode {
     return $createYouTubeNode(serializedNode.videoID).updateFromJSON(
       serializedNode as LexicalUpdateJSON<SerializedYouTubeNode>
     );

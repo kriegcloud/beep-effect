@@ -53,7 +53,10 @@ export class ArtifactRefNode extends DecoratorNode<JSX.Element> {
     return new ArtifactRefNode(node.__artifactId, node.__label, node.__key);
   }
 
-  static override importJSON(serializedNode: SerializedArtifactRefNode): ArtifactRefNode {
+  // Lexical 0.46 widened the base `importJSON` parameter to
+  // `SerializedLexicalNode & Record<string, unknown>`; mirror the intersection so
+  // the narrowed (schema-pinned, interface-backed) wire shape stays bivariant.
+  static override importJSON(serializedNode: SerializedArtifactRefNode & Record<string, unknown>): ArtifactRefNode {
     return $createArtifactRefNode({
       artifactId: serializedNode.artifactId,
       ...O.getSomesStruct({ label: O.fromUndefinedOr(serializedNode.label) }),
