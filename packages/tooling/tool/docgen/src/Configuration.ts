@@ -53,21 +53,21 @@ const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
  */
 export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`ConfigurationSchema`)({
   $schema: S.optionalKey(S.String),
-  projectHomepage: S.optionalKey(S.String),
-  srcLink: S.optionalKey(S.String),
-  srcDir: S.optionalKey(S.String),
-  outDir: S.optionalKey(S.String),
-  theme: S.optionalKey(S.String),
   enableSearch: S.optionalKey(S.Boolean),
   enforceDescriptions: S.optionalKey(S.Boolean),
   enforceExamples: S.optionalKey(S.Boolean),
   enforceVersion: S.optionalKey(S.Boolean),
-  tscExecutable: S.optionalKey(S.String),
-  runExamples: S.optionalKey(S.Boolean),
-  include: S.Array(S.String).pipe(S.optionalKey),
-  exclude: S.Array(S.String).pipe(S.optionalKey),
-  parseCompilerOptions: S.optionalKey(CompilerOptionsSchema),
   examplesCompilerOptions: S.optionalKey(CompilerOptionsSchema),
+  exclude: S.Array(S.String).pipe(S.optionalKey),
+  include: S.Array(S.String).pipe(S.optionalKey),
+  outDir: S.optionalKey(S.String),
+  parseCompilerOptions: S.optionalKey(CompilerOptionsSchema),
+  projectHomepage: S.optionalKey(S.String),
+  runExamples: S.optionalKey(S.Boolean),
+  srcDir: S.optionalKey(S.String),
+  srcLink: S.optionalKey(S.String),
+  theme: S.optionalKey(S.String),
+  tscExecutable: S.optionalKey(S.String),
 }) {}
 
 /**
@@ -183,20 +183,20 @@ type LoadArgs = {
  * @since 0.0.0
  */
 export const defaultCompilerOptions = {
-  noEmit: true,
-  strict: true,
-  skipLibCheck: true,
-  moduleResolution: "bundler",
-  target: "es2022",
   lib: ["ES2022", "DOM"],
+  moduleResolution: "bundler",
+  noEmit: true,
+  skipLibCheck: true,
+  strict: true,
+  target: "es2022",
 } as const satisfies S.Schema.Type<typeof CompilerOptionsShape>;
 
 class PackageJsonSchema extends S.Class<PackageJsonSchema>($I`PackageJsonSchema`)({
-  name: S.String,
   homepage: S.String,
+  name: S.String,
 }) {}
 
-const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
+const readJsoncFile = <Schema extends S.ConstraintDecoder<unknown, never>>(
   filePath: string,
   schema: Schema
 ): Effect.Effect<S.Schema.Type<Schema>, Domain.DocgenError, FileSystem.FileSystem> =>
@@ -211,11 +211,11 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
     );
 
     const parsed = yield* Effect.try({
-      try: () => jsonc.parse(content),
       catch: (cause) =>
         Domain.DocgenError.make({
           message: `[Configuration.readJsoncFile] Failed to parse '${filePath}'\n${String(cause)}`,
         }),
+      try: () => jsonc.parse(content),
     });
 
     return yield* S.decodeUnknownEffect(schema)(parsed).pipe(
@@ -389,22 +389,22 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
   };
 
   return Configuration.of({
-    projectName,
-    projectHomepage,
-    srcLink,
-    srcDir,
-    outDir,
-    theme,
     enableSearch,
     enforceDescriptions,
     enforceExamples,
     enforceVersion,
-    tscExecutable,
-    runExamples,
-    include,
-    exclude,
-    parseCompilerOptions,
     examplesCompilerOptions,
+    exclude,
+    include,
+    outDir,
+    parseCompilerOptions,
+    projectHomepage,
+    projectName,
+    runExamples,
+    srcDir,
+    srcLink,
+    theme,
+    tscExecutable,
   });
 });
 

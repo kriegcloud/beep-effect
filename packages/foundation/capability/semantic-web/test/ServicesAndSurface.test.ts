@@ -27,7 +27,8 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const dataset = makeDataset([
   makeQuad(
@@ -43,8 +44,8 @@ const boundDataset = (value: Dataset): Dataset => Dataset.make({ quads: pipe(val
 const DatasetArbitrary = S.toArbitrary(Dataset).map(boundDataset);
 const CanonicalizeDatasetRequestArbitrary = S.toArbitrary(CanonicalizeDatasetRequest).map((request) =>
   CanonicalizeDatasetRequest.make({
-    dataset: boundDataset(request.dataset),
     algorithm: request.algorithm,
+    dataset: boundDataset(request.dataset),
     workLimit: request.workLimit,
   })
 );
@@ -104,8 +105,8 @@ describe("Services and Surface", () => {
               const service = yield* CanonicalizationService;
               return yield* service.canonicalize(
                 decodeUnknownSync(CanonicalizeDatasetRequest)({
-                  dataset: yield* S.encodeEffect(Dataset)(dataset),
                   algorithm: "rdfc-1.0",
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
                 })
               );
             })
@@ -122,8 +123,8 @@ describe("Services and Surface", () => {
               const service = yield* CanonicalizationService;
               return yield* service.fingerprint(
                 decodeUnknownSync(FingerprintDatasetRequest)({
-                  dataset: yield* S.encodeEffect(Dataset)(dataset),
                   algorithm: "rdfc-1.0",
+                  dataset: yield* S.encodeEffect(Dataset)(dataset),
                 })
               );
             })
@@ -160,8 +161,8 @@ describe("Services and Surface", () => {
                 const service = yield* CanonicalizationService;
                 return yield* service.fingerprint(
                   decodeUnknownSync(FingerprintDatasetRequest)({
-                    dataset: yield* S.encodeEffect(Dataset)(left),
                     algorithm: "rdfc-1.0",
+                    dataset: yield* S.encodeEffect(Dataset)(left),
                   })
                 );
               })
@@ -171,8 +172,8 @@ describe("Services and Surface", () => {
                 const service = yield* CanonicalizationService;
                 return yield* service.fingerprint(
                   decodeUnknownSync(FingerprintDatasetRequest)({
-                    dataset: yield* S.encodeEffect(Dataset)(right),
                     algorithm: "rdfc-1.0",
+                    dataset: yield* S.encodeEffect(Dataset)(right),
                   })
                 );
               })
@@ -195,22 +196,22 @@ describe("Services and Surface", () => {
               return yield* service.validate(
                 decodeUnknownSync(ShaclValidationRequest)({
                   dataset: yield* S.encodeEffect(Dataset)(dataset),
+                  maxResults: 1,
                   shapes: [
                     {
-                      targetClass: makeNamedNode("https://schema.org/Person"),
                       properties: [
                         {
-                          path: makeNamedNode("https://schema.org/knows"),
                           minCount: 1,
+                          path: makeNamedNode("https://schema.org/knows"),
                         },
                         {
-                          path: makeNamedNode("https://schema.org/name"),
                           datatype: makeNamedNode(XSD_STRING.value),
+                          path: makeNamedNode("https://schema.org/name"),
                         },
                       ],
+                      targetClass: makeNamedNode("https://schema.org/Person"),
                     },
                   ],
-                  maxResults: 1,
                 })
               );
             })
@@ -233,9 +234,9 @@ describe("Services and Surface", () => {
                 const service = yield* SparqlQueryService;
                 return yield* service.execute(
                   decodeUnknownSync(SparqlQueryRequest)({
-                    query: "SELECT * WHERE { ?s ?p ?o }",
-                    profile: "select",
                     dataset: yield* S.encodeEffect(Dataset)(dataset),
+                    profile: "select",
+                    query: "SELECT * WHERE { ?s ?p ?o }",
                   })
                 );
               })
@@ -246,14 +247,14 @@ describe("Services and Surface", () => {
 
       const annotation = decodeUnknownSync(WebAnnotation)({
         id: "https://example.com/annotations/1",
-        type: "Annotation",
         target: {
-          source: "https://example.com/documents/1",
           selector: {
-            type: "TextQuoteSelector",
             exact: "Alice",
+            type: "TextQuoteSelector",
           },
+          source: "https://example.com/documents/1",
         },
+        type: "Annotation",
       });
 
       expect(annotation.type).toBe("Annotation");

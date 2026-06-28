@@ -5,7 +5,7 @@
   // are stateful/scope-aware and land in the P3 oxlint lane, not GritQL — see
   // `goals/lint-toolchain-modernization/research/rule-inventory.md`. Biome resolves the
   // paths below relative to this file (`configs/`), pointing at the sibling `rules/`.
-  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.1/schema.json",
   "plugins": [
     "../rules/no-bigint-literals.grit",
     "../rules/no-empty-named-blocks.grit",

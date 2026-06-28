@@ -37,7 +37,8 @@ const provideScopedLayer =
   <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
     Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
 
-const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
+const decodeUnknownSync = <Schema extends S.ConstraintDecoder<unknown, never>>(schema: Schema) =>
+  S.decodeUnknownSync(schema);
 
 const isJsonLdLiteralValue = S.is(JsonLdLiteralValue);
 const JsonLdContextArbitrary = S.toArbitrary(JsonLdContext);
@@ -70,9 +71,9 @@ const rawDocument = {
 
 const rawCompactedContext = {
   terms: {
-    Person: "https://schema.org/Person",
     birthDate: "https://schema.org/birthDate",
     dateType: "https://example.com/types/Date",
+    Person: "https://schema.org/Person",
     person: "https://example.com/people/",
   },
 } as const;
@@ -84,7 +85,7 @@ const rawTypedLiteralDocument = {
       "@id": "https://example.com/people/alice",
       "@type": ["https://schema.org/Person"],
       properties: {
-        "https://schema.org/birthDate": [{ "@value": "2026-03-08", "@type": "https://example.com/types/Date" }],
+        "https://schema.org/birthDate": [{ "@type": "https://example.com/types/Date", "@value": "2026-03-08" }],
       },
     },
   ],
@@ -92,9 +93,9 @@ const rawTypedLiteralDocument = {
 
 const rawBlankNodeContext = {
   terms: {
-    Person: "https://schema.org/Person",
     knows: "https://schema.org/knows",
     name: "https://schema.org/name",
+    Person: "https://schema.org/Person",
   },
 } as const;
 
@@ -253,8 +254,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdDocumentService;
               return yield* service.compact(
                 decodeUnknownSync(CompactJsonLdDocumentRequest)({
-                  document: rawDocument,
                   context: rawContext,
+                  document: rawDocument,
                 })
               );
             })
@@ -312,8 +313,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdDocumentService;
               return yield* service.fromRdf(
                 JsonLdFromRdfRequest.make({
-                  dataset: bridged.dataset,
                   context: O.some(decodeUnknownSync(JsonLdContext)(rawContext)),
+                  dataset: bridged.dataset,
                 })
               );
             })
@@ -335,8 +336,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdDocumentService;
               return yield* service.compact(
                 decodeUnknownSync(CompactJsonLdDocumentRequest)({
-                  document: rawTypedLiteralDocument,
                   context: rawCompactedContext,
+                  document: rawTypedLiteralDocument,
                 })
               );
             })
@@ -378,8 +379,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdDocumentService;
               return yield* service.fromRdf(
                 JsonLdFromRdfRequest.make({
-                  dataset: bridged.dataset,
                   context: O.some(decodeUnknownSync(JsonLdContext)(rawCompactedContext)),
+                  dataset: bridged.dataset,
                 })
               );
             })
@@ -422,8 +423,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdDocumentService;
               return yield* service.fromRdf(
                 JsonLdFromRdfRequest.make({
-                  dataset: bridged.dataset,
                   context: O.some(decodeUnknownSync(JsonLdContext)(rawBlankNodeContext)),
+                  dataset: bridged.dataset,
                 })
               );
             })
@@ -467,8 +468,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdDocumentService;
               return yield* service.compact(
                 decodeUnknownSync(CompactJsonLdDocumentRequest)({
-                  document: rawDocument,
                   context: rawContext,
+                  document: rawDocument,
                 })
               );
             })
@@ -508,11 +509,11 @@ describe("JSON-LD", () => {
               return yield* service.normalize(
                 decodeUnknownSync(NormalizeJsonLdDocumentRequest)({
                   document: yield* S.encodeEffect(JsonLdDocument)(compacted.document),
-                  profile: "bounded-v1",
-                  safeMode: true,
                   loaderPolicy: {
                     allowRemoteDocuments: false,
                   },
+                  profile: "bounded-v1",
+                  safeMode: true,
                 })
               );
             })
@@ -563,8 +564,8 @@ describe("JSON-LD", () => {
               const service = yield* JsonLdStreamSerializeService;
               return yield* service.serialize(
                 decodeUnknownSync(JsonLdStreamSerializeRequest)({
-                  dataset: yield* S.encodeEffect(Dataset)(bridged.dataset),
                   context: rawContext,
+                  dataset: yield* S.encodeEffect(Dataset)(bridged.dataset),
                   maxChunkCharacters: 32,
                 })
               );
@@ -584,9 +585,9 @@ describe("JSON-LD", () => {
               return yield* service.parse(
                 decodeUnknownSync(JsonLdStreamParseRequest)({
                   input: {
-                    kind: "text",
-                    encoding: "utf-8",
                     chunks: serialized.chunks,
+                    encoding: "utf-8",
+                    kind: "text",
                   },
                   loaderPolicy: {
                     allowRemoteDocuments: false,
