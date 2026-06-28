@@ -331,3 +331,15 @@ shadowrootserializable
 bday
 impp
 plaintext
+ECONNREFUSED
+ENOTFOUND
+Finalizer
+getaddrinfo
+gsub
+nobrowse
+nsslmode
+OPFS
+sprintf
+sslmode
+TOTP
+tsvector

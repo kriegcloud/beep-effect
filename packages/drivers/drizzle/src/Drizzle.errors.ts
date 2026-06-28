@@ -242,7 +242,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
     operation: S.String,
     cause: S.OptionFromOptionalKey(S.Defect({ includeStack: true })),
     query: S.OptionFromOptionalKey(S.String),
-    params: S.OptionFromOptionalKey(S.Unknown.pipe(S.Array)),
+    params: S.Unknown.pipe(S.Array, S.OptionFromOptionalKey),
   },
   $I.annote("DrizzleError", {
     description: "Technical Drizzle driver failure scoped to a driver operation.",

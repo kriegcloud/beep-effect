@@ -18,11 +18,7 @@ import { formatJson } from "./internal/Source.js";
 import { syncDataTargets } from "./targets/index.js";
 import type { Crypto, JsonPatch } from "effect";
 import type { HttpClient } from "effect/unstable/http";
-import type {
-  SyncDataFileResult,
-  SyncDataTarget,
-  SyncDataTargetResult,
-} from "./internal/Models.js";
+import type { SyncDataFileResult, SyncDataTarget, SyncDataTargetResult } from "./internal/Models.js";
 
 const targetFlag = Flag.string("target").pipe(
   Flag.withAlias("t"),
@@ -63,9 +59,7 @@ const runModeFlag = <Mode extends SyncDataRunMode>(mode: Mode) => flow(O.liftPre
 
 const resolveEnabledRunMode = ([check, dryRun]: SyncDataRunModeFlags): SyncDataRunMode =>
   pipe(
-    [runModeFlag("check")(check), runModeFlag("dry-run")(dryRun)] satisfies ReadonlyArray<
-      O.Option<SyncDataRunMode>
-    >,
+    [runModeFlag("check")(check), runModeFlag("dry-run")(dryRun)] satisfies ReadonlyArray<O.Option<SyncDataRunMode>>,
     O.firstSomeOf,
     O.getOrElse(SyncDataRunMode.thunk.write)
   );

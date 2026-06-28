@@ -108,8 +108,8 @@ const extractTzdbTextEntries = (bytes: Uint8Array): Effect.Effect<TzdbTextEntrie
   });
 
 const extractPatternMatches: {
-	(content: string, pattern: RegExp): ReadonlyArray<string>,
-	(pattern: RegExp): (content: string) => ReadonlyArray<string>
+  (content: string, pattern: RegExp): ReadonlyArray<string>;
+  (pattern: RegExp): (content: string) => ReadonlyArray<string>;
 } = dual(2, (content: string, pattern: RegExp): ReadonlyArray<string> => {
   const matches = A.empty<string>();
 

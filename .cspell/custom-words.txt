@@ -299,3 +299,8 @@ SPOF
 TSDR
 TTAB
 wkcbdgqqo
+achievability
+myapp
+okrs
+reqs
+tulpn
