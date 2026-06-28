@@ -174,7 +174,7 @@
     "jsonld": "^9.0.0",
     "jsonld-streaming-parser": "^5.0.1",
     "jsonld-streaming-serializer": "^4.0.0",
-    "knip": "^6.21.0",
+    "knip": "^6.22.0",
     "konva": "^10.3.0",
     "lefthook": "^2.1.9",
     "lexical": "^0.46.0",
