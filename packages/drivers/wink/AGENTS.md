@@ -9,8 +9,8 @@
 | Surface | Key exports | Notes |
 | --- | --- | --- |
 | entry module | `WinkEngine`, `WinkLayerLive`, `WinkLayerAllLive` | Runtime entry point and layer bundles. |
-| backend | `WinkBackendLive` | Implements `@beep/nlp/Backend/NLPBackend`. |
-| tools | `WinkNlpToolkitLive` | Implements `@beep/nlp/Tools/NlpToolkit`. |
+| backend | `WinkBackendLive` | Implements `@beep/nlp-processing/Backend/NLPBackend`. |
+| tools | `WinkNlpToolkitLive` | Implements `@beep/nlp-processing/Tools/NlpToolkit`. |
 | retrieval | `WinkCorpusManager`, `WinkVectorizer`, `WinkSimilarity` | Uses core vectorization/similarity schemas from `@beep/nlp/Core`. |
 | observability | `observeWinkWorkflow`, `observeWinkTool`, `mapWinkToolError` | Wraps spans, workflow metrics, and structured AI-tool failures. |
 

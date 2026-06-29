@@ -58,8 +58,7 @@
     "@beep/rdf": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "effect": "catalog:",
-    "rdf-canonize": "catalog:"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@beep/test-utils": "workspace:^",

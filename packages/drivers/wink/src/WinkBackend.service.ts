@@ -22,14 +22,14 @@
  * @packageDocumentation
  */
 
-import { NLPBackend, notSupported, operationError } from "@beep/nlp/Backend/NLPBackend";
 import * as Schema from "@beep/nlp/Graph/Schema";
+import { NLPBackend, notSupported, operationError } from "@beep/nlp-processing/Backend/NLPBackend";
 import { A } from "@beep/utils";
 import { Clock, Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { WinkEngine } from "./Wink.service.ts";
-import type { BackendCapabilities } from "@beep/nlp/Backend/NLPBackend";
+import type { BackendCapabilities } from "@beep/nlp-processing/Backend/NLPBackend";
 import type { Detail, ItsFunction } from "wink-nlp";
 
 const BACKEND_NAME = "wink-nlp";

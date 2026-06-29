@@ -13,7 +13,7 @@
  */
 
 import { $NlpMcpId } from "@beep/identity";
-import { AiToolError } from "@beep/nlp/Tools";
+import { AiToolError } from "@beep/nlp-processing/Tools";
 import * as S from "effect/Schema";
 import { Tool, Toolkit } from "effect/unstable/ai";
 import { DatasetMeta } from "./Streaming/DatasetLoader.ts";

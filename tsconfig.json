@@ -37,31 +37,51 @@
     "resolveJsonModule": true,
     "types": ["node", "bun"],
     "paths": {
-      // Path aliases allow loading internal modules in tests and using workspace packages
-      // These will be populated as packages are created
-      "@beep/repo-cli": ["./packages/tooling/tool/cli/src/index.ts"],
+      "@beep/repo-cli": [
+        "./packages/tooling/tool/cli/src/index.ts"
+      ],
       "@beep/repo-utils": [
         "./packages/tooling/library/repo-utils/src/index.ts"
       ],
-      "@beep/repo-utils/*": ["./packages/tooling/library/repo-utils/src/*"],
-      "@beep/types": ["./packages/foundation/primitive/types/src/index.ts"],
-      "@beep/types/*": ["./packages/foundation/primitive/types/src/*"],
-      "@beep/utils": ["./packages/foundation/modeling/utils/src/index.ts"],
-      "@beep/utils/*": ["./packages/foundation/modeling/utils/src/*"],
+      "@beep/repo-utils/*": [
+        "./packages/tooling/library/repo-utils/src/*"
+      ],
+      "@beep/types": [
+        "./packages/foundation/primitive/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "./packages/foundation/primitive/types/src/*"
+      ],
+      "@beep/utils": [
+        "./packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": [
+        "./packages/foundation/modeling/utils/src/*"
+      ],
       "@beep/identity": [
         "./packages/foundation/modeling/identity/src/index.ts"
       ],
-      "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
-      "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
+      "@beep/identity/*": [
+        "./packages/foundation/modeling/identity/src/*"
+      ],
+      "@beep/schema": [
+        "./packages/foundation/modeling/schema/src/index.ts"
+      ],
       "@beep/schema/Duration": [
         "./packages/foundation/modeling/schema/src/Duration/index.ts"
       ],
       "@beep/schema/Glob": [
         "./packages/foundation/modeling/schema/src/Glob/index.ts"
       ],
-      "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
-      "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
-      "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/data": [
+        "./packages/foundation/primitive/data/src/index.ts"
+      ],
+      "@beep/data/*": [
+        "./packages/foundation/primitive/data/src/*"
+      ],
+      "@beep/ui": [
+        "./packages/foundation/ui-system/ui/src/index.ts"
+      ],
       "@beep/repo-configs": [
         "./packages/tooling/policy-pack/repo-configs/src/index.ts"
       ],
@@ -71,16 +91,24 @@
       "@beep/test-utils": [
         "./packages/tooling/test-kit/test-utils/src/index.ts"
       ],
-      "@beep/test-utils/*": ["./packages/tooling/test-kit/test-utils/src/*"],
-      "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
-      "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
+      "@beep/test-utils/*": [
+        "./packages/tooling/test-kit/test-utils/src/*"
+      ],
+      "@beep/db-admin": [
+        "./packages/_internal/db-admin/src/index.ts"
+      ],
+      "@beep/db-admin/*": [
+        "./packages/_internal/db-admin/src/*"
+      ],
       "@beep/semantic-web": [
         "./packages/foundation/capability/semantic-web/src/index.ts"
       ],
       "@beep/semantic-web/*": [
         "./packages/foundation/capability/semantic-web/src/*"
       ],
-      "@beep/nlp": ["./packages/foundation/capability/nlp/src/index.ts"],
+      "@beep/nlp": [
+        "./packages/foundation/modeling/nlp/src/index.ts"
+      ],
       "@beep/langextract": [
         "./packages/foundation/capability/langextract/src/index.ts"
       ],
@@ -90,26 +118,48 @@
       "@beep/observability": [
         "./packages/foundation/capability/observability/src/index.ts"
       ],
-      "@beep/colors": ["./packages/foundation/capability/colors/src/index.ts"],
-      "@beep/colors/*": ["./packages/foundation/capability/colors/src/*"],
-      "@beep/chalk": ["./packages/foundation/capability/chalk/src/index.ts"],
-      "@beep/chalk/*": ["./packages/foundation/capability/chalk/src/*"],
-      "@beep/repo-docgen": ["./packages/tooling/tool/docgen/src/index.ts"],
-      "@beep/repo-docgen/*": ["./packages/tooling/tool/docgen/src/*"],
-      "@beep/infra": ["./infra/src/index.ts"],
-      "@beep/md": ["./packages/foundation/modeling/md/src/index.ts"],
-      "@beep/agents-domain": ["./packages/agents/domain/src/index.ts"],
+      "@beep/colors": [
+        "./packages/foundation/capability/colors/src/index.ts"
+      ],
+      "@beep/colors/*": [
+        "./packages/foundation/capability/colors/src/*"
+      ],
+      "@beep/chalk": [
+        "./packages/foundation/capability/chalk/src/index.ts"
+      ],
+      "@beep/chalk/*": [
+        "./packages/foundation/capability/chalk/src/*"
+      ],
+      "@beep/repo-docgen": [
+        "./packages/tooling/tool/docgen/src/index.ts"
+      ],
+      "@beep/repo-docgen/*": [
+        "./packages/tooling/tool/docgen/src/*"
+      ],
+      "@beep/infra": [
+        "./infra/src/index.ts"
+      ],
+      "@beep/md": [
+        "./packages/foundation/modeling/md/src/index.ts"
+      ],
+      "@beep/agents-domain": [
+        "./packages/agents/domain/src/index.ts"
+      ],
       "@beep/agents-domain/values": [
         "./packages/agents/domain/src/values/index.ts"
       ],
       "@beep/agents-domain/values/AssistantContent": [
         "./packages/agents/domain/src/values/AssistantContent/index.ts"
       ],
-      "@beep/agents-client": ["./packages/agents/client/src/index.ts"],
+      "@beep/agents-client": [
+        "./packages/agents/client/src/index.ts"
+      ],
       "@beep/agents-client/Chat.atoms": [
         "./packages/agents/client/src/Chat.atoms.ts"
       ],
-      "@beep/agents-use-cases": ["./packages/agents/use-cases/src/index.ts"],
+      "@beep/agents-use-cases": [
+        "./packages/agents/use-cases/src/index.ts"
+      ],
       "@beep/agents-use-cases/public": [
         "./packages/agents/use-cases/src/public.ts"
       ],
@@ -119,8 +169,12 @@
       "@beep/agents-use-cases/test": [
         "./packages/agents/use-cases/src/test.ts"
       ],
-      "@beep/agents-server": ["./packages/agents/server/src/index.ts"],
-      "@beep/agents-server/test": ["./packages/agents/server/src/test.ts"],
+      "@beep/agents-server": [
+        "./packages/agents/server/src/index.ts"
+      ],
+      "@beep/agents-server/test": [
+        "./packages/agents/server/src/test.ts"
+      ],
       "@beep/agents-server/AssistantTurn": [
         "./packages/agents/server/src/AssistantTurn/index.ts"
       ],
@@ -130,18 +184,24 @@
       "@beep/agents-server/AnthropicTurnKernel": [
         "./packages/agents/server/src/AssistantTurn/AnthropicTurnKernel.ts"
       ],
-      "@beep/epistemic-domain": ["./packages/epistemic/domain/src/index.ts"],
+      "@beep/epistemic-domain": [
+        "./packages/epistemic/domain/src/index.ts"
+      ],
       "@beep/law-practice-domain": [
         "./packages/law-practice/domain/src/index.ts"
       ],
-      "@beep/workspace-domain": ["./packages/workspace/domain/src/index.ts"],
+      "@beep/workspace-domain": [
+        "./packages/workspace/domain/src/index.ts"
+      ],
       "@beep/repo-docgen/schema.json": [
         "./packages/tooling/tool/docgen/schema.json"
       ],
       "@beep/identity/packages": [
         "./packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/md/Md": ["./packages/foundation/modeling/md/src/Md.ts"],
+      "@beep/md/Md": [
+        "./packages/foundation/modeling/md/src/Md.ts"
+      ],
       "@beep/md/Md.model": [
         "./packages/foundation/modeling/md/src/Md.model.ts"
       ],
@@ -152,22 +212,19 @@
         "./packages/foundation/modeling/md/src/Md.utils.ts"
       ],
       "@beep/nlp/Core": [
-        "./packages/foundation/capability/nlp/src/Core/index.ts"
+        "./packages/foundation/modeling/nlp/src/Core/index.ts"
       ],
       "@beep/nlp/IdentifierText": [
-        "./packages/foundation/capability/nlp/src/IdentifierText.ts"
+        "./packages/foundation/modeling/nlp/src/IdentifierText.ts"
       ],
       "@beep/nlp/PathText": [
-        "./packages/foundation/capability/nlp/src/PathText.ts"
+        "./packages/foundation/modeling/nlp/src/PathText.ts"
       ],
       "@beep/nlp/QueryText": [
-        "./packages/foundation/capability/nlp/src/QueryText.ts"
-      ],
-      "@beep/nlp/Tools": [
-        "./packages/foundation/capability/nlp/src/Tools/index.ts"
+        "./packages/foundation/modeling/nlp/src/QueryText.ts"
       ],
       "@beep/nlp/VariantText": [
-        "./packages/foundation/capability/nlp/src/VariantText.ts"
+        "./packages/foundation/modeling/nlp/src/VariantText.ts"
       ],
       "@beep/observability/experimental/server": [
         "./packages/foundation/capability/observability/src/experimental/server/index.ts"
@@ -178,10 +235,18 @@
       "@beep/observability/web": [
         "./packages/foundation/capability/observability/src/web/index.ts"
       ],
-      "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
-      "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
-      "@beep/shared-tables": ["./packages/shared/tables/src/index.ts"],
-      "@beep/shared-tables/*": ["./packages/shared/tables/src/*"],
+      "@beep/shared-domain": [
+        "./packages/shared/domain/src/index.ts"
+      ],
+      "@beep/shared-domain/*": [
+        "./packages/shared/domain/src/*"
+      ],
+      "@beep/shared-tables": [
+        "./packages/shared/tables/src/index.ts"
+      ],
+      "@beep/shared-tables/*": [
+        "./packages/shared/tables/src/*"
+      ],
       "@beep/ui/components/blocks/editor-00/editor": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
       ],
@@ -200,14 +265,24 @@
       "@beep/ui/themes": [
         "./packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
-      "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
+      "@beep/drizzle": [
+        "./packages/drivers/drizzle/src/index.ts"
+      ],
       "@beep/face-detection": [
         "./packages/drivers/face-detection/src/index.ts"
       ],
-      "@beep/face-detection/*": ["./packages/drivers/face-detection/src/*"],
-      "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
-      "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
-      "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
+      "@beep/face-detection/*": [
+        "./packages/drivers/face-detection/src/*"
+      ],
+      "@beep/ffmpeg": [
+        "./packages/drivers/ffmpeg/src/index.ts"
+      ],
+      "@beep/ffmpeg/*": [
+        "./packages/drivers/ffmpeg/src/*"
+      ],
+      "@beep/postgres": [
+        "./packages/drivers/postgres/src/index.ts"
+      ],
       "@beep/shared-domain/aggregates": [
         "./packages/shared/domain/src/aggregates.ts"
       ],
@@ -223,11 +298,15 @@
       "@beep/shared-domain/entities/User": [
         "./packages/shared/domain/src/entities/User/index.ts"
       ],
-      "@beep/shared-domain/entity": ["./packages/shared/domain/src/entity.ts"],
+      "@beep/shared-domain/entity": [
+        "./packages/shared/domain/src/entity.ts"
+      ],
       "@beep/shared-domain/identity": [
         "./packages/shared/domain/src/identity.ts"
       ],
-      "@beep/shared-domain/values": ["./packages/shared/domain/src/values.ts"],
+      "@beep/shared-domain/values": [
+        "./packages/shared/domain/src/values.ts"
+      ],
       "@beep/shared-domain/values/LocalDate": [
         "./packages/shared/domain/src/values/LocalDate/index.ts"
       ],
@@ -267,7 +346,9 @@
       "@beep/epistemic-domain/values/ClaimLifecycle": [
         "./packages/epistemic/domain/src/values/ClaimLifecycle/index.ts"
       ],
-      "@beep/epistemic-tables": ["./packages/epistemic/tables/src/index.ts"],
+      "@beep/epistemic-tables": [
+        "./packages/epistemic/tables/src/index.ts"
+      ],
       "@beep/epistemic-tables/entities": [
         "./packages/epistemic/tables/src/entities/index.ts"
       ],
@@ -370,9 +451,15 @@
       "@beep/repo-utils/JSDoc/models/tag-values": [
         "./packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/index.ts"
       ],
-      "@beep/openai-compat": ["./packages/drivers/openai-compat/src/index.ts"],
-      "@beep/venice-ai": ["./packages/drivers/venice-ai/src/index.ts"],
-      "@beep/xai": ["./packages/drivers/xai/src/index.ts"],
+      "@beep/openai-compat": [
+        "./packages/drivers/openai-compat/src/index.ts"
+      ],
+      "@beep/venice-ai": [
+        "./packages/drivers/venice-ai/src/index.ts"
+      ],
+      "@beep/xai": [
+        "./packages/drivers/xai/src/index.ts"
+      ],
       "@beep/repo-ai-metrics": [
         "./packages/tooling/library/ai-metrics/src/index.ts"
       ],
@@ -382,10 +469,18 @@
       "@beep/repo-configs/next": [
         "./packages/tooling/policy-pack/repo-configs/src/next/index.ts"
       ],
-      "@beep/acp": ["./packages/drivers/acp/src/index.ts"],
-      "@beep/duckdb": ["./packages/drivers/duckdb/src/index.ts"],
-      "@beep/anthropic": ["./packages/drivers/anthropic/src/index.ts"],
-      "@beep/workspace-tables": ["./packages/workspace/tables/src/index.ts"],
+      "@beep/acp": [
+        "./packages/drivers/acp/src/index.ts"
+      ],
+      "@beep/duckdb": [
+        "./packages/drivers/duckdb/src/index.ts"
+      ],
+      "@beep/anthropic": [
+        "./packages/drivers/anthropic/src/index.ts"
+      ],
+      "@beep/workspace-tables": [
+        "./packages/workspace/tables/src/index.ts"
+      ],
       "@beep/workspace-tables/entities": [
         "./packages/workspace/tables/src/entities/index.ts"
       ],
@@ -419,7 +514,9 @@
       "@beep/workspace-use-cases/aggregates/Thread/server": [
         "./packages/workspace/use-cases/src/aggregates/Thread/server.ts"
       ],
-      "@beep/workspace-server": ["./packages/workspace/server/src/index.ts"],
+      "@beep/workspace-server": [
+        "./packages/workspace/server/src/index.ts"
+      ],
       "@beep/workspace-server/layer": [
         "./packages/workspace/server/src/Layer.ts"
       ],
@@ -540,29 +637,51 @@
       "@beep/architecture-lab-use-cases/entities/Worker/server": [
         "./packages/architecture-lab/use-cases/src/entities/Worker/server.ts"
       ],
-      "@beep/runpod": ["./packages/drivers/runpod/src/index.ts"],
+      "@beep/runpod": [
+        "./packages/drivers/runpod/src/index.ts"
+      ],
       "@beep/shared-domain/values/OnePasswordReference": [
         "./packages/shared/domain/src/values/OnePasswordReference/index.ts"
       ],
       "@beep/onepassword-cli": [
         "./packages/drivers/onepassword-cli/src/index.ts"
       ],
-      "@beep/onepassword-cli/*": ["./packages/drivers/onepassword-cli/src/*"],
-      "@beep/discord": ["./packages/drivers/discord/src/index.ts"],
-      "@beep/discord/*": ["./packages/drivers/discord/src/*"],
+      "@beep/onepassword-cli/*": [
+        "./packages/drivers/onepassword-cli/src/*"
+      ],
+      "@beep/discord": [
+        "./packages/drivers/discord/src/index.ts"
+      ],
+      "@beep/discord/*": [
+        "./packages/drivers/discord/src/*"
+      ],
       "@beep/ai-provider-cli": [
         "./packages/drivers/ai-provider-cli/src/index.ts"
       ],
-      "@beep/ai-provider-cli/*": ["./packages/drivers/ai-provider-cli/src/*"],
+      "@beep/ai-provider-cli/*": [
+        "./packages/drivers/ai-provider-cli/src/*"
+      ],
       "@beep/ui/themes/theme-init-script": [
         "./packages/foundation/ui-system/ui/src/themes/theme-init-script.tsx"
       ],
-      "@beep/hubspot": ["./packages/drivers/hubspot/src/index.ts"],
-      "@beep/hubspot/*": ["./packages/drivers/hubspot/src/*"],
-      "@beep/sanity": ["./packages/drivers/sanity/src/index.ts"],
-      "@beep/sanity/*": ["./packages/drivers/sanity/src/*"],
-      "@beep/phoenix": ["./packages/drivers/phoenix/src/index.ts"],
-      "@beep/phoenix/*": ["./packages/drivers/phoenix/src/*"],
+      "@beep/hubspot": [
+        "./packages/drivers/hubspot/src/index.ts"
+      ],
+      "@beep/hubspot/*": [
+        "./packages/drivers/hubspot/src/*"
+      ],
+      "@beep/sanity": [
+        "./packages/drivers/sanity/src/index.ts"
+      ],
+      "@beep/sanity/*": [
+        "./packages/drivers/sanity/src/*"
+      ],
+      "@beep/phoenix": [
+        "./packages/drivers/phoenix/src/index.ts"
+      ],
+      "@beep/phoenix/*": [
+        "./packages/drivers/phoenix/src/*"
+      ],
       "@beep/repo-cli/commands/AIMetrics": [
         "./packages/tooling/tool/cli/src/commands/AIMetrics/index.ts"
       ],
@@ -803,14 +922,24 @@
       "@beep/schema/VariantSchema": [
         "./packages/foundation/modeling/schema/src/VariantSchema/index.ts"
       ],
-      "@beep/acp/agent": ["./packages/drivers/acp/src/AcpAgent.service.ts"],
-      "@beep/acp/client": ["./packages/drivers/acp/src/AcpClient.service.ts"],
-      "@beep/acp/errors": ["./packages/drivers/acp/src/Acp.errors.ts"],
+      "@beep/acp/agent": [
+        "./packages/drivers/acp/src/AcpAgent.service.ts"
+      ],
+      "@beep/acp/client": [
+        "./packages/drivers/acp/src/AcpClient.service.ts"
+      ],
+      "@beep/acp/errors": [
+        "./packages/drivers/acp/src/Acp.errors.ts"
+      ],
       "@beep/acp/protocol": [
         "./packages/drivers/acp/src/AcpProtocol.service.ts"
       ],
-      "@beep/acp/rpc": ["./packages/drivers/acp/src/AcpRpc.models.ts"],
-      "@beep/acp/schema": ["./packages/drivers/acp/src/Acp.models.ts"],
+      "@beep/acp/rpc": [
+        "./packages/drivers/acp/src/AcpRpc.models.ts"
+      ],
+      "@beep/acp/schema": [
+        "./packages/drivers/acp/src/Acp.models.ts"
+      ],
       "@beep/acp/terminal": [
         "./packages/drivers/acp/src/AcpTerminal.models.ts"
       ],
@@ -889,7 +1018,9 @@
       "@beep/schema/Html": [
         "./packages/foundation/modeling/schema/src/Html.ts"
       ],
-      "@beep/schema/Int": ["./packages/foundation/modeling/schema/src/Int.ts"],
+      "@beep/schema/Int": [
+        "./packages/foundation/modeling/schema/src/Int.ts"
+      ],
       "@beep/schema/Json": [
         "./packages/foundation/modeling/schema/src/Json.ts"
       ],
@@ -992,13 +1123,21 @@
       "@beep/schema/Transformations": [
         "./packages/foundation/modeling/schema/src/Transformations.ts"
       ],
-      "@beep/schema/URL": ["./packages/foundation/modeling/schema/src/URL.ts"],
-      "@beep/schema/Xml": ["./packages/foundation/modeling/schema/src/Xml.ts"],
+      "@beep/schema/URL": [
+        "./packages/foundation/modeling/schema/src/URL.ts"
+      ],
+      "@beep/schema/Xml": [
+        "./packages/foundation/modeling/schema/src/Xml.ts"
+      ],
       "@beep/schema/Yaml": [
         "./packages/foundation/modeling/schema/src/Yaml.ts"
       ],
-      "@beep/ai-sync": ["./packages/tooling/library/ai-sync/src/index.ts"],
-      "@beep/ai-sync/*": ["./packages/tooling/library/ai-sync/src/*"],
+      "@beep/ai-sync": [
+        "./packages/tooling/library/ai-sync/src/index.ts"
+      ],
+      "@beep/ai-sync/*": [
+        "./packages/tooling/library/ai-sync/src/*"
+      ],
       "@beep/schema/test/Markdown": [
         "./packages/foundation/modeling/schema/src/internal/test/Markdown.test-kit.ts"
       ],
@@ -1006,28 +1145,19 @@
         "./packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
       ],
       "@beep/nlp/Algebra": [
-        "./packages/foundation/capability/nlp/src/Algebra/index.ts"
+        "./packages/foundation/modeling/nlp/src/Algebra/index.ts"
       ],
       "@beep/nlp/Ontology": [
-        "./packages/foundation/capability/nlp/src/Ontology/index.ts"
+        "./packages/foundation/modeling/nlp/src/Ontology/index.ts"
       ],
       "@beep/nlp/Graph": [
-        "./packages/foundation/capability/nlp/src/Graph/index.ts"
-      ],
-      "@beep/nlp/Backend": [
-        "./packages/foundation/capability/nlp/src/Backend/index.ts"
-      ],
-      "@beep/nlp/Graph/GraphOperations": [
-        "./packages/foundation/capability/nlp/src/Graph/GraphOperations/index.ts"
-      ],
-      "@beep/nlp/NLPService": [
-        "./packages/foundation/capability/nlp/src/NLPService.ts"
+        "./packages/foundation/modeling/nlp/src/Graph/index.ts"
       ],
       "@beep/nlp/Operations": [
-        "./packages/foundation/capability/nlp/src/Operations/index.ts"
+        "./packages/foundation/modeling/nlp/src/Operations/index.ts"
       ],
       "@beep/nlp/Handoff": [
-        "./packages/foundation/capability/nlp/src/Handoff/index.ts"
+        "./packages/foundation/modeling/nlp/src/Handoff/index.ts"
       ],
       "@beep/langextract/Alignment": [
         "./packages/foundation/capability/langextract/src/Alignment/index.ts"
@@ -1044,15 +1174,27 @@
       "@beep/langextract/Target": [
         "./packages/foundation/capability/langextract/src/Target/index.ts"
       ],
-      "@beep/nlp-mcp": ["./packages/drivers/nlp-mcp/src/index.ts"],
-      "@beep/nlp-mcp/*": ["./packages/drivers/nlp-mcp/src/*"],
+      "@beep/nlp-mcp": [
+        "./packages/drivers/nlp-mcp/src/index.ts"
+      ],
+      "@beep/nlp-mcp/*": [
+        "./packages/drivers/nlp-mcp/src/*"
+      ],
       "@beep/ui/components/blocks/editor-00/nodes": [
         "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/nodes.ts"
       ],
-      "@beep/box": ["./packages/drivers/box/src/index.ts"],
-      "@beep/box/*": ["./packages/drivers/box/src/*"],
-      "@beep/wink": ["./packages/drivers/wink/src/index.ts"],
-      "@beep/wink/*": ["./packages/drivers/wink/src/*"],
+      "@beep/box": [
+        "./packages/drivers/box/src/index.ts"
+      ],
+      "@beep/box/*": [
+        "./packages/drivers/box/src/*"
+      ],
+      "@beep/wink": [
+        "./packages/drivers/wink/src/index.ts"
+      ],
+      "@beep/wink/*": [
+        "./packages/drivers/wink/src/*"
+      ],
       "@beep/file-processing": [
         "./packages/foundation/capability/file-processing/src/index.ts"
       ],
@@ -1077,32 +1219,54 @@
       "@beep/file-processing/*": [
         "./packages/foundation/capability/file-processing/src/*"
       ],
-      "@beep/tika": ["./packages/drivers/tika/src/index.ts"],
-      "@beep/tika/*": ["./packages/drivers/tika/src/*"],
-      "@beep/libpff": ["./packages/drivers/libpff/src/index.ts"],
-      "@beep/libpff/*": ["./packages/drivers/libpff/src/*"],
+      "@beep/tika": [
+        "./packages/drivers/tika/src/index.ts"
+      ],
+      "@beep/tika/*": [
+        "./packages/drivers/tika/src/*"
+      ],
+      "@beep/libpff": [
+        "./packages/drivers/libpff/src/index.ts"
+      ],
+      "@beep/libpff/*": [
+        "./packages/drivers/libpff/src/*"
+      ],
       "@beep/repo-cli/commands/Yeet": [
         "./packages/tooling/tool/cli/src/commands/Yeet/index.ts"
       ],
-      "@beep/firecrawl": ["./packages/drivers/firecrawl/src/index.ts"],
-      "@beep/firecrawl/*": ["./packages/drivers/firecrawl/src/*"],
-      "@beep/rdf": ["./packages/foundation/modeling/rdf/src/index.ts"],
-      "@beep/rdf/*": ["./packages/foundation/modeling/rdf/src/*"],
+      "@beep/firecrawl": [
+        "./packages/drivers/firecrawl/src/index.ts"
+      ],
+      "@beep/firecrawl/*": [
+        "./packages/drivers/firecrawl/src/*"
+      ],
+      "@beep/rdf": [
+        "./packages/foundation/modeling/rdf/src/index.ts"
+      ],
+      "@beep/rdf/*": [
+        "./packages/foundation/modeling/rdf/src/*"
+      ],
       "@beep/repo-cli/commands/Fallow": [
         "./packages/tooling/tool/cli/src/commands/Fallow/index.ts"
       ],
       "@beep/repo-cli/commands/Corpus": [
         "./packages/tooling/tool/cli/src/commands/Corpus/index.ts"
       ],
-      "@beep/uspto": ["./packages/drivers/uspto/src/index.ts"],
-      "@beep/uspto/*": ["./packages/drivers/uspto/src/*"],
+      "@beep/uspto": [
+        "./packages/drivers/uspto/src/index.ts"
+      ],
+      "@beep/uspto/*": [
+        "./packages/drivers/uspto/src/*"
+      ],
       "@beep/lexical-schema": [
         "./packages/foundation/modeling/lexical/src/index.ts"
       ],
       "@beep/lexical-schema/*": [
         "./packages/foundation/modeling/lexical/src/*"
       ],
-      "@beep/editor": ["./packages/foundation/ui-system/editor/src/index.ts"],
+      "@beep/editor": [
+        "./packages/foundation/ui-system/editor/src/index.ts"
+      ],
       "@beep/editor/artifact-ref-node": [
         "./packages/foundation/ui-system/editor/src/artifact-ref-node.tsx"
       ],
@@ -1121,8 +1285,12 @@
       "@beep/agents-client/ClientObservability": [
         "./packages/agents/client/src/ClientObservability.ts"
       ],
-      "@beep/html": ["./packages/foundation/modeling/html/src/index.ts"],
-      "@beep/html/*": ["./packages/foundation/modeling/html/src/*"],
+      "@beep/html": [
+        "./packages/foundation/modeling/html/src/index.ts"
+      ],
+      "@beep/html/*": [
+        "./packages/foundation/modeling/html/src/*"
+      ],
       "@beep/editor/mermaid-code-decorator-plugin": [
         "./packages/foundation/ui-system/editor/src/mermaid-code-decorator-plugin.tsx"
       ],
@@ -1156,7 +1324,9 @@
       "@beep/file-processing/PathSafety": [
         "./packages/foundation/capability/file-processing/src/PathSafety/index.ts"
       ],
-      "@beep/form": ["./packages/foundation/ui-system/form/src/index.ts"],
+      "@beep/form": [
+        "./packages/foundation/ui-system/form/src/index.ts"
+      ],
       "@beep/epistemic-domain/values/ClaimGate": [
         "./packages/epistemic/domain/src/values/ClaimGate/index.ts"
       ],
@@ -1166,7 +1336,9 @@
       "@beep/epistemic-domain/values/EvidenceSpan": [
         "./packages/epistemic/domain/src/values/EvidenceSpan/index.ts"
       ],
-      "@beep/epistemic-server": ["./packages/epistemic/server/src/index.ts"],
+      "@beep/epistemic-server": [
+        "./packages/epistemic/server/src/index.ts"
+      ],
       "@beep/epistemic-server/layer": [
         "./packages/epistemic/server/src/Layer.ts"
       ],
@@ -1221,7 +1393,9 @@
       "@beep/provenance": [
         "./packages/foundation/modeling/provenance/src/index.ts"
       ],
-      "@beep/provenance/*": ["./packages/foundation/modeling/provenance/src/*"],
+      "@beep/provenance/*": [
+        "./packages/foundation/modeling/provenance/src/*"
+      ],
       "@beep/schema/UnitInterval": [
         "./packages/foundation/modeling/schema/src/UnitInterval.ts"
       ],
@@ -1234,15 +1408,27 @@
       "@beep/law-practice-server/layer": [
         "./packages/law-practice/server/src/Layer.ts"
       ],
-      "@beep/pglite": ["./packages/drivers/pglite/src/index.ts"],
-      "@beep/pglite/*": ["./packages/drivers/pglite/src/*"],
+      "@beep/pglite": [
+        "./packages/drivers/pglite/src/index.ts"
+      ],
+      "@beep/pglite/*": [
+        "./packages/drivers/pglite/src/*"
+      ],
       "@beep/law-practice-use-cases/test": [
         "./packages/law-practice/use-cases/src/test.ts"
       ],
-      "@beep/m365": ["./packages/drivers/m365/src/index.ts"],
-      "@beep/m365/*": ["./packages/drivers/m365/src/*"],
-      "@beep/m365-mcp": ["./packages/drivers/m365-mcp/src/index.ts"],
-      "@beep/m365-mcp/*": ["./packages/drivers/m365-mcp/src/*"],
+      "@beep/m365": [
+        "./packages/drivers/m365/src/index.ts"
+      ],
+      "@beep/m365/*": [
+        "./packages/drivers/m365/src/*"
+      ],
+      "@beep/m365-mcp": [
+        "./packages/drivers/m365-mcp/src/index.ts"
+      ],
+      "@beep/m365-mcp/*": [
+        "./packages/drivers/m365-mcp/src/*"
+      ],
       "@beep/ui/themes/theme-provider": [
         "./packages/foundation/ui-system/ui/src/themes/theme-provider.tsx"
       ],
@@ -1315,11 +1501,41 @@
       "@beep/courtlistener/*": [
         "./packages/drivers/courtlistener/src/*"
       ],
-      "@beep/onotology": [
-        "./packages/foundation/modeling/onotology/src/index.ts"
+      "@beep/nlp-processing": [
+        "./packages/foundation/capability/nlp-processing/src/index.ts"
       ],
-      "@beep/onotology/*": [
-        "./packages/foundation/modeling/onotology/src/*"
+      "@beep/nlp-processing/*": [
+        "./packages/foundation/capability/nlp-processing/src/*"
+      ],
+      "@beep/nlp-processing/Backend": [
+        "./packages/foundation/capability/nlp-processing/src/Backend/index.ts"
+      ],
+      "@beep/nlp-processing/Core": [
+        "./packages/foundation/capability/nlp-processing/src/Core/index.ts"
+      ],
+      "@beep/nlp-processing/Graph": [
+        "./packages/foundation/capability/nlp-processing/src/Graph/index.ts"
+      ],
+      "@beep/nlp-processing/Graph/GraphOperations": [
+        "./packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/index.ts"
+      ],
+      "@beep/nlp-processing/NLPService": [
+        "./packages/foundation/capability/nlp-processing/src/NLPService.ts"
+      ],
+      "@beep/nlp-processing/Tools": [
+        "./packages/foundation/capability/nlp-processing/src/Tools/index.ts"
+      ],
+      "@beep/ontology": [
+        "./packages/foundation/modeling/ontology/src/index.ts"
+      ],
+      "@beep/ontology/*": [
+        "./packages/foundation/modeling/ontology/src/*"
+      ],
+      "@beep/rdf-canonize": [
+        "./packages/drivers/rdf-canonize/src/index.ts"
+      ],
+      "@beep/rdf-canonize/*": [
+        "./packages/drivers/rdf-canonize/src/*"
       ]
     }
   }

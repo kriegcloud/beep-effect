@@ -1,8 +1,9 @@
+import { Dataset, makeBlankNode, makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf";
+import { XSD_STRING } from "@beep/rdf/Vocab/Xsd";
+import { CanonicalizationServiceLive } from "@beep/rdf-canonize/adapters/canonicalization";
 import * as SemanticWeb from "@beep/semantic-web";
-import { CanonicalizationServiceLive } from "@beep/semantic-web/adapters/canonicalization";
 import { ShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine";
 import { WebAnnotation } from "@beep/semantic-web/adapters/web-annotation";
-import { Dataset, makeBlankNode, makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semantic-web/rdf";
 import {
   CanonicalizationService,
   CanonicalizeDatasetRequest,
@@ -15,7 +16,6 @@ import {
   UnsupportedSparqlQueryServiceLive,
 } from "@beep/semantic-web/services/sparql-query";
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
-import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
 import { A, Str } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Order, pipe } from "effect";

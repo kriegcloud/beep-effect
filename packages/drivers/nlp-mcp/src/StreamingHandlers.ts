@@ -15,7 +15,7 @@
  * @packageDocumentation
  */
 
-import { AiToolError } from "@beep/nlp/Tools";
+import { AiToolError } from "@beep/nlp-processing/Tools";
 import { Data, Effect, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";

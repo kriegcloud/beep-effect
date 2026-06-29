@@ -51,7 +51,9 @@ const generatedComposers = $I.compose(
   "langextract",
   "md",
   "nlp",
+  "nlp-processing",
   "observability",
+  "ontology",
   "provenance",
   "rdf",
   "schema",
@@ -119,6 +121,7 @@ const generatedComposers = $I.compose(
   "phoenix",
   "ai-sync",
   "nlp-mcp",
+  "rdf-canonize",
   "wink",
   "file-processing",
   "tika",
@@ -138,8 +141,7 @@ const generatedComposers = $I.compose(
   "federal-register",
   "ecfr",
   "dol",
-  "courtlistener",
-  "onotology"
+  "courtlistener"
 );
 
 const composers = {
@@ -223,6 +225,21 @@ export const $ProvenanceId: Identity.IdentityComposer<"@beep/provenance"> = comp
  * @category configuration
  */
 export const $RdfId: Identity.IdentityComposer<"@beep/rdf"> = composers.$RdfId;
+
+/**
+ * Identity composer for the `@beep/ontology` package.
+ *
+ * @example
+ * ```typescript
+ * import { $OntologyId } from "@beep/identity/packages"
+ *
+ * const id = $OntologyId.make("Ontology")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OntologyId: Identity.IdentityComposer<"@beep/ontology"> = composers.$OntologyId;
 
 /**
  * Identity composer for the `@beep/types` package.
@@ -409,6 +426,21 @@ export const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web"> = c
  * @category configuration
  */
 export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
+
+/**
+ * Identity composer for the `@beep/nlp-processing` package.
+ *
+ * @example
+ * ```typescript
+ * import { $NlpProcessingId } from "@beep/identity/packages"
+ *
+ * const id = $NlpProcessingId.make("Tokenizer")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $NlpProcessingId: Identity.IdentityComposer<"@beep/nlp-processing"> = composers.$NlpProcessingId;
 
 /**
  * Identity composer for the `@beep/langextract` package.
@@ -1213,6 +1245,22 @@ export const $BoxId: Identity.IdentityComposer<"@beep/box"> = composers.$BoxId;
 export const $NlpMcpId: Identity.IdentityComposer<"@beep/nlp-mcp"> = composers.$NlpMcpId;
 
 /**
+ * Identity composer for `@beep/rdf-canonize`.
+ *
+ * @example
+ * ```typescript
+ * import { $RdfCanonizeId } from "@beep/identity/packages"
+ *
+ * const id = $RdfCanonizeId.make("Canonicalization")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $RdfCanonizeId: Identity.IdentityComposer<"@beep/rdf-canonize"> = composers.$RdfCanonizeId;
+
+/**
  * Identity composer for `@beep/wink`.
  *
  * @example
@@ -1531,19 +1579,3 @@ export const $DolId: Identity.IdentityComposer<"@beep/dol"> = composers.$DolId;
  * @category configuration
  */
 export const $CourtlistenerId: Identity.IdentityComposer<"@beep/courtlistener"> = composers.$CourtlistenerId;
-
-/**
- * Identity composer for `@beep/onotology`.
- *
- * @example
- * ```typescript
- * import { $OnotologyId } from "@beep/identity"
- *
- * const id = $OnotologyId.make("Onotology")
- * void id
- * ```
- *
- * @since 0.0.0
- * @category configuration
- */
-export const $OnotologyId: Identity.IdentityComposer<"@beep/onotology"> = composers.$OnotologyId;

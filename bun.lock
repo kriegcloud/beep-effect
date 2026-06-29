@@ -677,6 +677,7 @@
         "@beep/file-processing": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/nlp": "workspace:^",
+        "@beep/nlp-processing": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/wink": "workspace:^",
         "@effect/platform-node": "catalog:",
@@ -766,6 +767,24 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/rdf-canonize": {
+      "name": "@beep/rdf-canonize",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/rdf": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/semantic-web": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+        "rdf-canonize": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/runpod": {
       "name": "@beep/runpod",
       "version": "0.0.2",
@@ -848,6 +867,7 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/nlp": "workspace:^",
+        "@beep/nlp-processing": "workspace:^",
         "@beep/observability": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
@@ -997,11 +1017,12 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/foundation/capability/nlp": {
-      "name": "@beep/nlp",
-      "version": "0.0.2",
+    "packages/foundation/capability/nlp-processing": {
+      "name": "@beep/nlp-processing",
+      "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
+        "@beep/nlp": "workspace:^",
         "@beep/observability": "workspace:^",
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
@@ -1048,7 +1069,6 @@
         "@beep/schema": "workspace:^",
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
-        "rdf-canonize": "catalog:",
       },
       "devDependencies": {
         "@beep/test-utils": "workspace:^",
@@ -1118,10 +1138,29 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/foundation/modeling/onotology": {
-      "name": "@beep/onotology",
+    "packages/foundation/modeling/nlp": {
+      "name": "@beep/nlp",
+      "version": "0.0.2",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/ontology": {
+      "name": "@beep/ontology",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/rdf": "workspace:^",
+        "@beep/schema": "workspace:^",
         "effect": "catalog:",
         "n3": "catalog:",
       },
@@ -2210,9 +2249,11 @@
 
     "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
 
-    "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
+    "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/modeling/nlp"],
 
     "@beep/nlp-mcp": ["@beep/nlp-mcp@workspace:packages/drivers/nlp-mcp"],
+
+    "@beep/nlp-processing": ["@beep/nlp-processing@workspace:packages/foundation/capability/nlp-processing"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
@@ -2220,7 +2261,7 @@
 
     "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
 
-    "@beep/onotology": ["@beep/onotology@workspace:packages/foundation/modeling/onotology"],
+    "@beep/ontology": ["@beep/ontology@workspace:packages/foundation/modeling/ontology"],
 
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
 
@@ -2237,6 +2278,8 @@
     "@beep/provenance": ["@beep/provenance@workspace:packages/foundation/modeling/provenance"],
 
     "@beep/rdf": ["@beep/rdf@workspace:packages/foundation/modeling/rdf"],
+
+    "@beep/rdf-canonize": ["@beep/rdf-canonize@workspace:packages/drivers/rdf-canonize"],
 
     "@beep/repo-ai-metrics": ["@beep/repo-ai-metrics@workspace:packages/tooling/library/ai-metrics"],
 

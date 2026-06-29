@@ -1,10 +1,10 @@
-import { BowCosineSimilarity } from "@beep/nlp/Tools/BowCosineSimilarity";
-import { ChunkBySentences } from "@beep/nlp/Tools/ChunkBySentences";
-import { CreateCorpus } from "@beep/nlp/Tools/CreateCorpus";
-import { ExtractKeywords } from "@beep/nlp/Tools/ExtractKeywords";
-import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit";
-import { TextSimilarity } from "@beep/nlp/Tools/TextSimilarity";
-import { TverskySimilarity } from "@beep/nlp/Tools/TverskySimilarity";
+import { BowCosineSimilarity } from "@beep/nlp-processing/Tools/BowCosineSimilarity";
+import { ChunkBySentences } from "@beep/nlp-processing/Tools/ChunkBySentences";
+import { CreateCorpus } from "@beep/nlp-processing/Tools/CreateCorpus";
+import { ExtractKeywords } from "@beep/nlp-processing/Tools/ExtractKeywords";
+import { NlpToolkit } from "@beep/nlp-processing/Tools/NlpToolkit";
+import { TextSimilarity } from "@beep/nlp-processing/Tools/TextSimilarity";
+import { TverskySimilarity } from "@beep/nlp-processing/Tools/TverskySimilarity";
 import {
   CustomEntityExample,
   EntityGroupName,

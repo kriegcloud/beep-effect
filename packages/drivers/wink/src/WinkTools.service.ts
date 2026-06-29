@@ -6,11 +6,12 @@
  */
 
 import { $WinkId } from "@beep/identity";
-import { BracketStringToPatternElement, Tokenization } from "@beep/nlp/Core";
+import { BracketStringToPatternElement } from "@beep/nlp/Core";
 import { DocumentId } from "@beep/nlp/Core/Document";
 import { DocumentTermSet, TverskyParams } from "@beep/nlp/Core/Similarity";
 import { BagOfWords } from "@beep/nlp/Core/Vectorization";
-import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit";
+import { Tokenization } from "@beep/nlp-processing/Core";
+import { NlpToolkit } from "@beep/nlp-processing/Tools/NlpToolkit";
 import { LiteralKit } from "@beep/schema";
 import { A, Str, thunk0, thunkEmptyReadonlyArray, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Chunk, Clock, Effect, flow, Inspectable, identity, Layer, Match, Order, pipe } from "effect";
@@ -29,7 +30,7 @@ import { SimilarityError, WinkSimilarity } from "./WinkSimilarity.service.ts";
 import { WinkUtils, WinkUtilsError } from "./WinkUtils.service.ts";
 import { VectorizerError, WinkVectorizer } from "./WinkVectorizer.service.ts";
 import type { Token } from "@beep/nlp/Core/Token";
-import type { AiToolError } from "@beep/nlp/Tools";
+import type { AiToolError } from "@beep/nlp-processing/Tools";
 import type { Tool } from "effect/unstable/ai";
 
 const $I = $WinkId.create("Tools/NlpToolkit");
@@ -328,7 +329,7 @@ type WinkNlpToolkitLiveError = typeof WinkNlpToolkitLiveError.Type;
  * ```ts
  * import { Effect } from "effect"
  * import { WinkNlpToolkitLive } from "@beep/wink"
- * import { exportTools } from "@beep/nlp/Tools/ToolExport"
+ * import { exportTools } from "@beep/nlp-processing/Tools/ToolExport"
  *
  * const exported = await Effect.runPromise(
  *   exportTools.pipe(Effect.provide(WinkNlpToolkitLive))

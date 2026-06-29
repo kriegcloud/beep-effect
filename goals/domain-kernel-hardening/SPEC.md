@@ -3,22 +3,25 @@
 ## Objective
 
 The shared-kernel persisted-entity base carries soft-delete and is the single
-canonical audit base, with reusable conventions in place for the rest of the
+canonical audit base, with the typed-error convention in place for the rest of the
 domain-layer hardening:
 
 1. `BaseEntity` gains `deletedAt` and `deletedByPrincipal` (rich `Principal`
    actor, not `String`), modeled with normal Effect Schema optional/nullish codecs
    (e.g. `S.OptionFromNullOr`) and an `EntitySchema.persist.*` descriptor; SQL row
-   absence encodes as `null`.
+   absence encodes as `null`. (These are fields on the already-shared `BaseEntity`
+   export, not a new shared export — no new promotion record is required.)
 2. `@beep/schema/DomainModel` is retired (or reduced to a deprecated alias with a
    migration note), so there is one audit base, not two. `rowVersion` already
    covers `DomainModel.version` — no second version field is introduced.
 3. A `.errors.ts` convention exists, demonstrated by extracting/keeping at least
    the kernel's own tagged error in the canonical `TaggedErrorClass` shape with a
    smart constructor + error union (the epistemic `ClaimInvalidTransition` pattern).
-4. Opt-in shared value objects are defined (not yet applied to slice entities):
-   a `TemporalValidity` VO (open-interval `validFrom`/`validTo`) and a `DomainEvent`
-   envelope VO — provided as foundation/shared-kernel building blocks for later packets.
+
+The `TemporalValidity` and `DomainEvent` value objects are deliberately **out of
+this packet** (review finding): a shared-kernel export needs >=2 *current*
+consumers per `02-shared-kernel.md`, and these have zero. They are introduced by
+the first packet that actually consumes them (see the exploration MAP).
 
 ## Non-Goals
 

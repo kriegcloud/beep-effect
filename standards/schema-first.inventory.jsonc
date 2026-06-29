@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-06-29",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -552,219 +556,123 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Algebra/Monoid.ts",
-      "symbol": "Monoid",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Backend/NLPBackend.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Backend/NLPBackend.ts",
       "symbol": "NLPBackendShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/EffectGraph.ts",
       "symbol": "EffectGraph",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/EffectGraph.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/EffectGraph.ts",
       "symbol": "GraphNode",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Executor.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/Executor.ts",
       "symbol": "GraphExecutorShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Operation.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/Operation.ts",
       "symbol": "GraphOperation",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/ResultStore.ts",
       "symbol": "ResultStoreShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/ResultStore.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/ResultStore.ts",
       "symbol": "StoredResult",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOperations/Types.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/Types.ts",
       "symbol": "OperationResult",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/GraphOps.ts",
-      "symbol": "SearchIndex",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@292",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@345",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@346",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@372",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@375",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@377",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@380",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/TypeClass.ts",
       "symbol": "Composable",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/TypeClass.ts",
       "symbol": "Foldable",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/TypeClass.ts",
       "symbol": "ForgetfulOperation",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/TypeClass.ts",
       "symbol": "Functor",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Graph/TypeClass.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Graph/TypeClass.ts",
       "symbol": "TextOperation",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/NLPService.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/NLPService.ts",
       "symbol": "NLPServiceShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
-      "symbol": "TypedText",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Ontology/Kind.ts",
-      "symbol": "TypedTextSchema",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Generic schema factory returns a parameterized S.Struct and stays tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Operations/Definition.ts",
-      "symbol": "OperationDefinition",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",
+      "file": "packages/foundation/capability/nlp-processing/src/Tools/ToolExport.ts",
       "symbol": "ExportedTool",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/nlp",
+      "owner": "@beep/nlp-processing",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
@@ -902,6 +810,102 @@
       "status": "exception",
       "owner": "@beep/md",
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Algebra/Monoid.ts",
+      "symbol": "Monoid",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/GraphOps.ts",
+      "symbol": "SearchIndex",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@292",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@345",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@346",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@372",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@375",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@377",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@380",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Ontology/Kind.ts",
+      "symbol": "TypedText",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Ontology/Kind.ts",
+      "symbol": "TypedTextSchema",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Function-local S.Struct wrappers used for transient decode envelopes stay tracked as exceptions."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Operations/Definition.ts",
+      "symbol": "OperationDefinition",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/foundation/modeling/schema/src/CauseTaggedError/CauseTaggedError.errors.ts",
@@ -1386,6 +1390,16 @@
       "line": 33,
       "owner": "@beep/schema",
       "reason": "Exception: meta-test of the Fn/ThunkOf/AnyFn schema combinator over function values (declareConstructor with self-identity equivalence); no structural data for S.toArbitrary to generate or round-trip."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/test/Int.test.ts",
+      "symbol": "schema-codec-tests",
+      "kind": "schema-policy-advisory",
+      "status": "advisory",
+      "ruleId": "SFV4-arbitrary-tests",
+      "line": 10,
+      "owner": "@beep/schema",
+      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
     },
     {
       "file": "packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts",

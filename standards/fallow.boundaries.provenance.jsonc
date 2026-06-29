@@ -1,7 +1,7 @@
 {
   "$schema": "./fallow.boundaries.provenance.schema.json",
   "schemaVersion": "fallow-quality-enforcement/boundary-provenance/v1",
-  "updated": "2026-06-15",
+  "updated": "2026-06-29",
   "validatorVersion": "fallow-quality-enforcement-validator/v1",
   "generatedConfigRef": "standards/fallow.boundaries.generated.jsonc",
   "rules": [
@@ -501,7 +501,7 @@
       "sourceClass": "manifest-derived",
       "sourceRefs": [
         "package.json",
-        "packages/foundation/capability/nlp/package.json",
+        "packages/foundation/modeling/nlp/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
@@ -524,12 +524,40 @@
       "enforcementScope": "declared-dependency-consistency"
     },
     {
+      "ruleId": "@beep/nlp-processing",
+      "generatedRuleFrom": "@beep/nlp-processing",
+      "sourceClass": "manifest-derived",
+      "sourceRefs": [
+        "package.json",
+        "packages/foundation/capability/nlp-processing/package.json",
+        "standards/fallow.boundaries.generated.jsonc"
+      ],
+      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
+      "catalogRefs": [],
+      "promotionEligible": true,
+      "enforcementScope": "declared-dependency-consistency"
+    },
+    {
       "ruleId": "@beep/observability",
       "generatedRuleFrom": "@beep/observability",
       "sourceClass": "manifest-derived",
       "sourceRefs": [
         "package.json",
         "packages/foundation/capability/observability/package.json",
+        "standards/fallow.boundaries.generated.jsonc"
+      ],
+      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
+      "catalogRefs": [],
+      "promotionEligible": true,
+      "enforcementScope": "declared-dependency-consistency"
+    },
+    {
+      "ruleId": "@beep/ontology",
+      "generatedRuleFrom": "@beep/ontology",
+      "sourceClass": "manifest-derived",
+      "sourceRefs": [
+        "package.json",
+        "packages/foundation/modeling/ontology/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
@@ -628,6 +656,20 @@
       "sourceRefs": [
         "package.json",
         "packages/foundation/modeling/rdf/package.json",
+        "standards/fallow.boundaries.generated.jsonc"
+      ],
+      "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],
+      "catalogRefs": [],
+      "promotionEligible": true,
+      "enforcementScope": "declared-dependency-consistency"
+    },
+    {
+      "ruleId": "@beep/rdf-canonize",
+      "generatedRuleFrom": "@beep/rdf-canonize",
+      "sourceClass": "manifest-derived",
+      "sourceRefs": [
+        "package.json",
+        "packages/drivers/rdf-canonize/package.json",
         "standards/fallow.boundaries.generated.jsonc"
       ],
       "doctrineRefs": ["standards/ARCHITECTURE.md#package-dependency-graph"],

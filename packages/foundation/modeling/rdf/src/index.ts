@@ -14,6 +14,20 @@
 export const VERSION = "0.0.0" as const;
 
 /**
+ * Web Annotation value models.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * as WebAnnotation from "./Adapters/WebAnnotation.ts";
+/**
+ * RDF-facing evidence selector and target models.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./Evidence.ts";
+/**
  * IRI schema and branded IRI helpers.
  *
  * @category validation
@@ -27,6 +41,13 @@ export * from "./Iri.ts";
  * @since 0.0.0
  */
 export * from "./JsonLd.ts";
+/**
+ * PROV value models.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export * from "./Prov.ts";
 /**
  * RDF/JS schema models.
  *

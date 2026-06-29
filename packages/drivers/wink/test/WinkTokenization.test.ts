@@ -1,4 +1,4 @@
-import { sentences, tokenCount, tokenize, tokenizeToDocument } from "@beep/nlp/Core/Tokenization";
+import { sentences, tokenCount, tokenize, tokenizeToDocument } from "@beep/nlp-processing/Core/Tokenization";
 import { WinkTokenizationLive } from "@beep/wink";
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";

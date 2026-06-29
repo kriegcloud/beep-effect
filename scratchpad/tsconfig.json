@@ -29,7 +29,10 @@
       "path": "../packages/foundation/primitive/data/tsconfig.json"
     },
     {
-      "path": "../packages/foundation/capability/nlp/tsconfig.json"
+      "path": "../packages/foundation/modeling/nlp/tsconfig.json"
+    },
+    {
+      "path": "../packages/foundation/capability/nlp-processing/tsconfig.json"
     },
     {
       "path": "../packages/foundation/modeling/rdf/tsconfig.json"

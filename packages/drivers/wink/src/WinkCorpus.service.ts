@@ -10,6 +10,7 @@ import { $WinkId } from "@beep/identity";
 import { Document, DocumentId } from "@beep/nlp/Core/Document";
 import { BM25Config, BM25Norm, DefaultBM25Config, DocumentVector } from "@beep/nlp/Core/Vectorization";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
+import { UnitInterval } from "@beep/schema/UnitInterval";
 import { A, thunk0, thunkEffectVoid } from "@beep/utils";
 import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
 import * as Bool from "effect/Boolean";
@@ -526,7 +527,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       });
       const nowMs = yield* Clock.currentTimeMillis;
       const config = BM25Config.make({
-        b: request?.bm25Config?.b ?? DefaultBM25Config.b,
+        b: UnitInterval.make(request?.bm25Config?.b ?? DefaultBM25Config.b),
         k: request?.bm25Config?.k ?? DefaultBM25Config.k,
         k1: request?.bm25Config?.k1 ?? DefaultBM25Config.k1,
         norm: request?.bm25Config?.norm ?? DefaultBM25Config.norm,

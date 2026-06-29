@@ -446,6 +446,7 @@
     "packages/drivers/hubspot",
     "packages/drivers/phoenix",
     "packages/drivers/nlp-mcp",
+    "packages/drivers/rdf-canonize",
     "packages/drivers/wink",
     "packages/drivers/tika",
     "packages/drivers/libpff",

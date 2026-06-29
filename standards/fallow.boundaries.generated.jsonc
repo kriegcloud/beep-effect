@@ -120,6 +120,12 @@
         ]
       },
       {
+        "name": "@beep/courtlistener",
+        "patterns": [
+          "packages/drivers/courtlistener/src/**"
+        ]
+      },
+      {
         "name": "@beep/data",
         "patterns": [
           "packages/foundation/primitive/data/src/**"
@@ -138,6 +144,12 @@
         ]
       },
       {
+        "name": "@beep/dol",
+        "patterns": [
+          "packages/drivers/dol/src/**"
+        ]
+      },
+      {
         "name": "@beep/drizzle",
         "patterns": [
           "packages/drivers/drizzle/src/**"
@@ -147,6 +159,12 @@
         "name": "@beep/duckdb",
         "patterns": [
           "packages/drivers/duckdb/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ecfr",
+        "patterns": [
+          "packages/drivers/ecfr/src/**"
         ]
       },
       {
@@ -186,6 +204,12 @@
         ]
       },
       {
+        "name": "@beep/federal-register",
+        "patterns": [
+          "packages/drivers/federal-register/src/**"
+        ]
+      },
+      {
         "name": "@beep/ffmpeg",
         "patterns": [
           "packages/drivers/ffmpeg/src/**"
@@ -207,6 +231,12 @@
         "name": "@beep/form",
         "patterns": [
           "packages/foundation/ui-system/form/src/**"
+        ]
+      },
+      {
+        "name": "@beep/govinfo",
+        "patterns": [
+          "packages/drivers/govinfo/src/**"
         ]
       },
       {
@@ -296,13 +326,19 @@
       {
         "name": "@beep/nlp",
         "patterns": [
-          "packages/foundation/capability/nlp/src/**"
+          "packages/foundation/modeling/nlp/src/**"
         ]
       },
       {
         "name": "@beep/nlp-mcp",
         "patterns": [
           "packages/drivers/nlp-mcp/src/**"
+        ]
+      },
+      {
+        "name": "@beep/nlp-processing",
+        "patterns": [
+          "packages/foundation/capability/nlp-processing/src/**"
         ]
       },
       {
@@ -321,6 +357,12 @@
         "name": "@beep/onepassword-cli",
         "patterns": [
           "packages/drivers/onepassword-cli/src/**"
+        ]
+      },
+      {
+        "name": "@beep/ontology",
+        "patterns": [
+          "packages/foundation/modeling/ontology/src/**"
         ]
       },
       {
@@ -369,6 +411,12 @@
         "name": "@beep/rdf",
         "patterns": [
           "packages/foundation/modeling/rdf/src/**"
+        ]
+      },
+      {
+        "name": "@beep/rdf-canonize",
+        "patterns": [
+          "packages/drivers/rdf-canonize/src/**"
         ]
       },
       {
@@ -853,6 +901,15 @@
         ]
       },
       {
+        "from": "@beep/courtlistener",
+        "allow": [
+          "@beep/courtlistener"
+        ],
+        "allowTypeOnly": [
+          "@beep/courtlistener"
+        ]
+      },
+      {
         "from": "@beep/data",
         "allow": [
           "@beep/data",
@@ -898,6 +955,15 @@
         ]
       },
       {
+        "from": "@beep/dol",
+        "allow": [
+          "@beep/dol"
+        ],
+        "allowTypeOnly": [
+          "@beep/dol"
+        ]
+      },
+      {
         "from": "@beep/drizzle",
         "allow": [
           "@beep/drizzle",
@@ -927,6 +993,15 @@
           "@beep/identity",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/ecfr",
+        "allow": [
+          "@beep/ecfr"
+        ],
+        "allowTypeOnly": [
+          "@beep/ecfr"
         ]
       },
       {
@@ -1034,6 +1109,15 @@
         ]
       },
       {
+        "from": "@beep/federal-register",
+        "allow": [
+          "@beep/federal-register"
+        ],
+        "allowTypeOnly": [
+          "@beep/federal-register"
+        ]
+      },
+      {
         "from": "@beep/ffmpeg",
         "allow": [
           "@beep/ffmpeg",
@@ -1091,6 +1175,15 @@
           "@beep/form",
           "@beep/schema",
           "@beep/ui"
+        ]
+      },
+      {
+        "from": "@beep/govinfo",
+        "allow": [
+          "@beep/govinfo"
+        ],
+        "allowTypeOnly": [
+          "@beep/govinfo"
         ]
       },
       {
@@ -1330,7 +1423,6 @@
         "allow": [
           "@beep/identity",
           "@beep/nlp",
-          "@beep/observability",
           "@beep/schema",
           "@beep/test-utils",
           "@beep/utils"
@@ -1338,7 +1430,6 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/nlp",
-          "@beep/observability",
           "@beep/schema",
           "@beep/test-utils",
           "@beep/utils"
@@ -1351,6 +1442,7 @@
           "@beep/identity",
           "@beep/nlp",
           "@beep/nlp-mcp",
+          "@beep/nlp-processing",
           "@beep/schema",
           "@beep/wink"
         ],
@@ -1359,8 +1451,30 @@
           "@beep/identity",
           "@beep/nlp",
           "@beep/nlp-mcp",
+          "@beep/nlp-processing",
           "@beep/schema",
           "@beep/wink"
+        ]
+      },
+      {
+        "from": "@beep/nlp-processing",
+        "allow": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/nlp-processing",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/nlp",
+          "@beep/nlp-processing",
+          "@beep/observability",
+          "@beep/schema",
+          "@beep/test-utils",
+          "@beep/utils"
         ]
       },
       {
@@ -1418,6 +1532,21 @@
           "@beep/onepassword-cli",
           "@beep/schema",
           "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/ontology",
+        "allow": [
+          "@beep/identity",
+          "@beep/ontology",
+          "@beep/rdf",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/ontology",
+          "@beep/rdf",
+          "@beep/schema"
         ]
       },
       {
@@ -1571,6 +1700,27 @@
           "@beep/identity",
           "@beep/rdf",
           "@beep/schema",
+          "@beep/utils"
+        ]
+      },
+      {
+        "from": "@beep/rdf-canonize",
+        "allow": [
+          "@beep/identity",
+          "@beep/rdf",
+          "@beep/rdf-canonize",
+          "@beep/schema",
+          "@beep/semantic-web",
+          "@beep/test-utils",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/rdf",
+          "@beep/rdf-canonize",
+          "@beep/schema",
+          "@beep/semantic-web",
+          "@beep/test-utils",
           "@beep/utils"
         ]
       },
@@ -1933,6 +2083,7 @@
         "allow": [
           "@beep/identity",
           "@beep/nlp",
+          "@beep/nlp-processing",
           "@beep/observability",
           "@beep/schema",
           "@beep/utils",
@@ -1941,6 +2092,7 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/nlp",
+          "@beep/nlp-processing",
           "@beep/observability",
           "@beep/schema",
           "@beep/utils",

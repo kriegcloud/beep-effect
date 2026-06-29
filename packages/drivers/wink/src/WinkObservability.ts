@@ -6,7 +6,7 @@
  */
 
 import { $WinkId } from "@beep/identity";
-import { AiToolError } from "@beep/nlp/Tools";
+import { AiToolError } from "@beep/nlp-processing/Tools";
 import { observeWorkflow, summarizeCause } from "@beep/observability";
 import { Str } from "@beep/utils";
 import { Effect, Inspectable, Metric } from "effect";

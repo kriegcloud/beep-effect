@@ -6,10 +6,10 @@
  */
 
 import { $WinkId } from "@beep/identity";
-import { Tokenization, TokenizationError } from "@beep/nlp/Core";
 import { Document, DocumentId } from "@beep/nlp/Core/Document";
 import { Sentence, SentenceIndex } from "@beep/nlp/Core/Sentence";
 import { CharPosition, Token, TokenIndex } from "@beep/nlp/Core/Token";
+import { Tokenization, TokenizationError } from "@beep/nlp-processing/Core";
 import { A, thunkEmptyStr, thunkUndefined } from "@beep/utils";
 import { Chunk, Clock, Effect, Layer, pipe, Ref, Result } from "effect";
 import * as O from "effect/Option";
@@ -354,7 +354,7 @@ const makeWinkTokenization = Effect.gen(function* () {
  * @example
  * ```ts
  * import { Effect, Layer } from "effect"
- * import { Tokenization } from "@beep/nlp/Core"
+ * import { Tokenization } from "@beep/nlp-processing/Core"
  * import { WinkEngineLive } from "@beep/wink"
  * import { WinkTokenization } from "@beep/wink"
  *
@@ -379,7 +379,7 @@ export const WinkTokenization = Layer.effect(Tokenization, makeWinkTokenization)
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { Tokenization } from "@beep/nlp/Core"
+ * import { Tokenization } from "@beep/nlp-processing/Core"
  * import { WinkTokenizationLive } from "@beep/wink"
  *
  * const program = Effect.gen(function* () {

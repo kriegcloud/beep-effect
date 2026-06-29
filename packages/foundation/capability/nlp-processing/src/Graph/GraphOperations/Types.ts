@@ -1,0 +1,795 @@
+/**
+ * GraphOperations/Types - core value types for the graph-operations engine.
+ *
+ * Execution strategies, metrics, cost estimation, validation results, options,
+ * execution ids, and operation results. {@link ExecutionMetrics} forms a monoid
+ * (its {@link ExecutionMetrics.combine} is associative with {@link ExecutionMetrics.empty}
+ * as identity), which is how per-node results aggregate into a run total.
+ *
+ * Effect v4 `@beep/nlp` implementation notes:
+ * - `ExecutionId` is a `Brand.nominal` branded string with an EFFECTFUL
+ *   {@link generateExecutionId} (reads `Clock` + `effect/Random`) instead of an
+ *   inline `crypto.randomUUID()`.
+ * - {@link makeOperationResult} reads `Clock` for its timestamp instead of
+ *   `Date.now()`.
+ * - `timeout` is an `Option<Duration>` (no `null`); native array spreads become
+ *   `effect/Array`.
+ *
+ * @since 0.0.0
+ * @packageDocumentation
+ */
+
+import { $NlpProcessingId } from "@beep/identity";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { A } from "@beep/utils";
+import { Brand, Clock, Duration, Effect, Random, Tuple } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import type { GraphNode } from "../EffectGraph.ts";
+
+const $I = $NlpProcessingId.create("Graph/GraphOperations/Types");
+
+// =============================================================================
+// Execution Strategy
+// =============================================================================
+
+/**
+ * Conservative upper bound the executor enforces on parallel concurrency.
+ *
+ * @remarks
+ * `ExecutionStrategy.Parallel(concurrency)` accepts any finite number, but an
+ * untrusted or buggy caller could request excessive parallelism and exhaust
+ * CPU, memory, fibers, or downstream resources. The executor clamps the
+ * requested concurrency into `[1, MAX_PARALLEL_CONCURRENCY]` (flooring fractional
+ * values and falling back to `1` for non-finite or non-positive input) before
+ * scheduling work, so this constant is the documented source of truth for that
+ * cap. Trusted operators that genuinely need more parallelism should raise this
+ * bound deliberately rather than passing larger values from request input.
+ *
+ * @example
+ * ```ts
+ * import { MAX_PARALLEL_CONCURRENCY } from "./Types.ts"
+ *
+ * console.log(MAX_PARALLEL_CONCURRENCY) // 64
+ * ```
+ *
+ * @since 0.0.0
+ * @category constants
+ */
+export const MAX_PARALLEL_CONCURRENCY = 64;
+
+/**
+ * Strategy describing how an operation is scheduled across the current leaf set.
+ *
+ * @remarks
+ * The executor currently honors sequential execution and parallel execution with
+ * bounded concurrency: the requested `Parallel(concurrency)` value is clamped to
+ * `[1, MAX_PARALLEL_CONCURRENCY]` before scheduling, so callers cannot request
+ * unbounded parallelism. Batch and streaming variants are part of the public
+ * model so callers can persist intent, but execution falls back to the sequential
+ * behavior until dedicated schedulers are introduced.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionStrategy } from "./Types.ts"
+ *
+ * const strategy = ExecutionStrategy.Parallel(4)
+ * console.log(strategy.concurrency) // 4
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ExecutionStrategy = S.TaggedUnion({
+  Sequential: {},
+  Parallel: { concurrency: S.Finite },
+  Batch: { batchSize: S.Finite },
+  Streaming: {},
+}).pipe(
+  SchemaUtils.withStatics((schema) => ({
+    Sequential: schema.cases.Sequential.make({}),
+    Parallel: (concurrency: number) =>
+      schema.cases.Parallel.make({
+        concurrency,
+      }),
+    Batch: (batchSize: number) =>
+      schema.cases.Batch.make({
+        batchSize,
+      }),
+    Streaming: schema.cases.Streaming.make({}),
+  })),
+  $I.annoteSchema("ExecutionStrategy", {
+    description: "Strategy determining how an operation is executed across the graph's nodes.",
+  })
+);
+
+/**
+ * Runtime type represented by {@link ExecutionStrategy}.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionStrategy } from "./Types.ts"
+ *
+ * const strategy: ExecutionStrategy = ExecutionStrategy.Sequential
+ * console.log(strategy._tag) // "Sequential"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ExecutionStrategy = typeof ExecutionStrategy.Type;
+
+// =============================================================================
+// Execution Metrics (Monoid)
+// =============================================================================
+
+/**
+ * Metrics accumulated while applying an operation to graph leaves.
+ *
+ * @remarks
+ * Metrics form a monoid: `empty` is the identity and `combine` adds counters
+ * and durations. Executors use this to aggregate per-leaf applications into one
+ * run summary.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionMetrics } from "./Types.ts"
+ *
+ * const combined = ExecutionMetrics.combine(
+ *   ExecutionMetrics.empty(),
+ *   ExecutionMetrics.make({ ...ExecutionMetrics.empty(), nodesProcessed: 2 })
+ * )
+ *
+ * console.log(combined.nodesProcessed) // 2
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class ExecutionMetrics extends S.Class<ExecutionMetrics>($I`ExecutionMetrics`)({
+  cacheHits: S.Finite,
+  cacheMisses: S.Finite,
+  duration: S.Duration,
+  nodesCreated: S.Finite,
+  nodesProcessed: S.Finite,
+  /** Tokens consumed by LLM-backed operations. */
+  tokensConsumed: S.Finite.annotateKey({
+    description: "Tokens consumed by LLM-backed operations.",
+  }),
+}) {
+  static readonly empty = () =>
+    ExecutionMetrics.make({
+      cacheHits: 0,
+      cacheMisses: 0,
+      duration: Duration.zero,
+      nodesCreated: 0,
+      nodesProcessed: 0,
+      tokensConsumed: 0,
+    });
+
+  static readonly combine: {
+    (m1: ExecutionMetrics, m2: ExecutionMetrics): ExecutionMetrics;
+    (m2: ExecutionMetrics): (m1: ExecutionMetrics) => ExecutionMetrics;
+  } = dual(
+    2,
+    (m1: ExecutionMetrics, m2: ExecutionMetrics): ExecutionMetrics => ({
+      cacheHits: m1.cacheHits + m2.cacheHits,
+      cacheMisses: m1.cacheMisses + m2.cacheMisses,
+      duration: Duration.sum(m1.duration, m2.duration),
+      nodesCreated: m1.nodesCreated + m2.nodesCreated,
+      nodesProcessed: m1.nodesProcessed + m2.nodesProcessed,
+      tokensConsumed: m1.tokensConsumed + m2.tokensConsumed,
+    })
+  );
+}
+
+// =============================================================================
+// Operation Cost Estimation
+// =============================================================================
+
+/**
+ * Asymptotic complexity vocabulary used when scaling operation cost estimates.
+ *
+ * @example
+ * ```ts
+ * import { Complexity } from "./Types.ts"
+ *
+ * console.log(Complexity.is["O(n)"]("O(n)")) // true
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const Complexity = LiteralKit(["O(1)", "O(n)", "O(n log n)", "O(n^2)"]).pipe(
+  $I.annoteSchema("Complexity", {
+    description: "Asymptotic complexity class used to scale an OperationCost.",
+  })
+);
+
+/**
+ * Runtime type represented by {@link Complexity}.
+ *
+ * @example
+ * ```ts
+ * import type { Complexity } from "./Types.ts"
+ *
+ * const complexity: Complexity = "O(n log n)"
+ * console.log(complexity)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type Complexity = typeof Complexity.Type;
+
+/**
+ * Cost estimate for an operation whose time does not grow with leaf count.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { ConstantOperationCost } from "./Types.ts"
+ *
+ * const cost = ConstantOperationCost.make({
+ *   complexity: "O(1)",
+ *   estimatedTime: Duration.millis(1),
+ *   memoryCost: 0,
+ *   tokenCost: 0
+ * })
+ *
+ * console.log(cost.complexity) // "O(1)"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`ConstantOperationCost`)(
+  {
+    complexity: S.tag("O(1)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Finite.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Finite.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("ConstantOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is constant.",
+  })
+) {}
+
+/**
+ * Cost estimate for work that grows linearly with leaf count.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { LinearOperationCost } from "./Types.ts"
+ *
+ * const cost = LinearOperationCost.make({
+ *   complexity: "O(n)",
+ *   estimatedTime: Duration.millis(2),
+ *   memoryCost: 128,
+ *   tokenCost: 4
+ * })
+ *
+ * console.log(cost.tokenCost) // 4
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearOperationCost`)(
+  {
+    complexity: S.tag("O(n)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Finite.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Finite.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("LinearOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is linear.",
+  })
+) {}
+
+/**
+ * Cost estimate for work that grows at `n log n`.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { LinearithmicOperationCost } from "./Types.ts"
+ *
+ * const cost = LinearithmicOperationCost.make({
+ *   complexity: "O(n log n)",
+ *   estimatedTime: Duration.millis(3),
+ *   memoryCost: 256,
+ *   tokenCost: 0
+ * })
+ *
+ * console.log(cost.memoryCost) // 256
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost>($I`LinearithmicOperationCost`)(
+  {
+    complexity: S.tag("O(n log n)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Finite.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Finite.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("LinearithmicOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is linearithmic.",
+  })
+) {}
+
+/**
+ * Cost estimate for pairwise or otherwise quadratic graph work.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { QuadraticOperationCost } from "./Types.ts"
+ *
+ * const cost = QuadraticOperationCost.make({
+ *   complexity: "O(n^2)",
+ *   estimatedTime: Duration.millis(5),
+ *   memoryCost: 512,
+ *   tokenCost: 0
+ * })
+ *
+ * console.log(cost.complexity) // "O(n^2)"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class QuadraticOperationCost extends S.Class<QuadraticOperationCost>($I`QuadraticOperationCost`)(
+  {
+    complexity: S.tag("O(n^2)"),
+    estimatedTime: S.Duration,
+    /** Memory cost in bytes. */
+    memoryCost: S.Finite.annotateKey({
+      description: "Memory cost in bytes.",
+    }),
+    /** LLM token cost. */
+    tokenCost: S.Finite.annotateKey({
+      description: "LLM token cost in tokens.",
+    }),
+  },
+  $I.annote("QuadraticOperationCost", {
+    description: "Cost estimate for an operation whose time complexity is quadratic.",
+  })
+) {}
+
+/**
+ * Tagged union of operation cost estimates with scaling helpers.
+ *
+ * @remarks
+ * `scale` multiplies the estimate for the number of leaves the executor will
+ * process. Time uses the selected complexity class, while memory and token costs
+ * are currently scaled linearly by leaf count.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { OperationCost } from "./Types.ts"
+ *
+ * const cost = OperationCost.cases["O(n)"].make({
+ *   estimatedTime: Duration.millis(2),
+ *   memoryCost: 10,
+ *   tokenCost: 1
+ * })
+ *
+ * console.log(OperationCost.scale(cost, 3).memoryCost) // 30
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const OperationCost = Complexity.mapMembers(
+  Tuple.evolve([
+    () => ConstantOperationCost,
+    () => LinearOperationCost,
+    () => LinearithmicOperationCost,
+    () => QuadraticOperationCost,
+  ])
+).pipe(
+  S.toTaggedUnion("complexity"),
+  SchemaUtils.withStatics(() => {
+    const scale: {
+      (cost: OperationCost, nodeCount: number): OperationCost;
+      (nodeCount: number): (cost: OperationCost) => OperationCost;
+    } = dual(2, (cost: OperationCost, nodeCount: number): OperationCost => {
+      const timeMultiplier =
+        cost.complexity === "O(1)"
+          ? 1
+          : cost.complexity === "O(n)"
+            ? nodeCount
+            : cost.complexity === "O(n log n)"
+              ? nodeCount * Math.log2(nodeCount)
+              : nodeCount * nodeCount;
+      return {
+        complexity: cost.complexity,
+        estimatedTime: Duration.times(cost.estimatedTime, timeMultiplier),
+        memoryCost: cost.memoryCost * nodeCount,
+        tokenCost: cost.tokenCost * nodeCount,
+      };
+    });
+
+    return {
+      zero: () =>
+        OperationCost.cases["O(1)"].make({
+          estimatedTime: Duration.zero,
+          memoryCost: 0,
+          tokenCost: 0,
+        }),
+      scale,
+    };
+  }),
+  $I.annoteSchema("OperationCost", {
+    description: "Cost of a graph operation",
+  })
+);
+
+/**
+ * Companion type for {@link OperationCost}.
+ *
+ * @example
+ * ```ts
+ * import { Duration } from "effect"
+ * import { OperationCost } from "./Types.ts"
+ *
+ * const cost: OperationCost = OperationCost.cases["O(1)"].make({
+ *   estimatedTime: Duration.millis(1),
+ *   memoryCost: 0,
+ *   tokenCost: 0,
+ * })
+ *
+ * console.log(cost.complexity) // "O(1)"
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export type OperationCost = typeof OperationCost.Type;
+
+// =============================================================================
+// Validation Result
+// =============================================================================
+
+/**
+ * Result of checking whether an operation may run against graph leaves.
+ *
+ * @remarks
+ * `valid` is false when any errors are present. Warnings preserve non-blocking
+ * diagnostics, such as running against a graph with no leaves.
+ *
+ * @example
+ * ```ts
+ * import { ValidationResult } from "./Types.ts"
+ *
+ * const result = ValidationResult.withWarnings(
+ *   ValidationResult.valid(),
+ *   ["No leaf nodes to process"]
+ * )
+ *
+ * console.log(result.warnings.length) // 1
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class ValidationResult extends S.Class<ValidationResult>($I`ValidationResult`)(
+  {
+    errors: S.Array(S.String),
+    valid: S.Boolean,
+    warnings: S.Array(S.String),
+  },
+  $I.annote("ValidationResult", {
+    description: "Result of validating that an operation can be applied",
+  })
+) {
+  static readonly valid = () => ({
+    errors: A.empty<string>(),
+    valid: true,
+    warnings: A.empty<string>(),
+  });
+
+  static invalid = (errors: ReadonlyArray<string>): ValidationResult => ({
+    errors,
+    valid: false,
+    warnings: A.empty<string>(),
+  });
+  static readonly withWarnings: {
+    (result: ValidationResult, warnings: ReadonlyArray<string>): ValidationResult;
+    (warnings: ReadonlyArray<string>): (result: ValidationResult) => ValidationResult;
+  } = dual(
+    2,
+    (result: ValidationResult, warnings: ReadonlyArray<string>): ValidationResult => ({
+      ...result,
+      warnings: A.appendAll(result.warnings, warnings),
+    })
+  );
+}
+
+// =============================================================================
+// Operation Category
+// =============================================================================
+
+/**
+ * Operation category vocabulary describing a graph morphism's shape.
+ *
+ * @example
+ * ```ts
+ * import { OperationCategory } from "./Types.ts"
+ *
+ * console.log(OperationCategory.is.expansion("expansion")) // true
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const OperationCategory = LiteralKit([
+  "transformation",
+  "expansion",
+  "aggregation",
+  "filtering",
+  "composition",
+  "llm",
+]);
+
+/**
+ * Runtime type represented by {@link OperationCategory}.
+ *
+ * @example
+ * ```ts
+ * import type { OperationCategory } from "./Types.ts"
+ *
+ * const category: OperationCategory = "transformation"
+ * console.log(category)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type OperationCategory = typeof OperationCategory.Type;
+
+// =============================================================================
+// Execution Options
+// =============================================================================
+
+/**
+ * Options controlling one executor run.
+ *
+ * @remarks
+ * `cache` toggles result-store lookup and write-through. `strategy` controls
+ * scheduling over the current leaf set. When `timeout` is set, the executor
+ * bounds each per-leaf `operation.apply` invocation by that duration and records
+ * a `TimeoutError` as that leaf's result error on expiry instead of letting the
+ * operation run unbounded. `trace` is retained for orchestration layers that emit
+ * diagnostics around execution.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionOptions } from "./Types.ts"
+ *
+ * const options = ExecutionOptions.parallel(8)
+ * console.log(options.strategy._tag) // "Parallel"
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export class ExecutionOptions extends S.Class<ExecutionOptions>($I`ExecutionOptions`)(
+  {
+    cache: S.Boolean,
+    strategy: ExecutionStrategy,
+    timeout: S.Option(S.Duration),
+    trace: S.Boolean,
+  },
+  $I.annote("ExecutionOptions", {
+    description: "Options controlling a single execution.",
+  })
+) {
+  static readonly default = () =>
+    ExecutionOptions.make({
+      cache: true,
+      strategy: ExecutionStrategy.Sequential,
+      timeout: O.none(),
+      trace: false,
+    });
+  static readonly sequential = () =>
+    ExecutionOptions.make({
+      ...ExecutionOptions.default(),
+      strategy: ExecutionStrategy.cases.Sequential.make({}),
+    });
+  static readonly parallel = (concurrency = 4) => ({
+    ...ExecutionOptions.default(),
+    strategy: ExecutionStrategy.Parallel(concurrency),
+  });
+}
+
+// =============================================================================
+// Execution ID
+// =============================================================================
+
+/**
+ * Branded identifier for one graph-operation execution.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionId } from "./Types.ts"
+ *
+ * const id: ExecutionId = ExecutionId.make("exec-1")
+ * console.log(id)
+ * ```
+ * @since 0.0.0
+ * @category models
+ */
+export const ExecutionId = S.String.pipe(
+  S.brand("ExecutionId"),
+  $I.annoteSchema("ExecutionId", {
+    description: "Unique identifier for one execution.",
+  })
+);
+
+/**
+ * Runtime type represented by {@link ExecutionId}.
+ *
+ * @example
+ * ```ts
+ * import { ExecutionId } from "./Types.ts"
+ *
+ * const id: ExecutionId = ExecutionId.make("exec-1")
+ * console.log(id)
+ * ```
+ * @since 0.0.0
+ * @category models
+ */
+export type ExecutionId = typeof ExecutionId.Type;
+
+/**
+ * Constructor for {@link ExecutionId}.
+ *
+ * @example
+ * ```ts
+ * import { makeExecutionId } from "./Types.ts"
+ *
+ * console.log(makeExecutionId("exec-1"))
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const makeExecutionId: Brand.Constructor<ExecutionId> = Brand.nominal<ExecutionId>();
+
+/**
+ * Generate a fresh execution id from the Effect clock and random service.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { generateExecutionId } from "./Types.ts"
+ *
+ * const program = Effect.map(generateExecutionId, (id) => id.startsWith("exec-"))
+ * console.log(Effect.runSync(program)) // true
+ * ```
+ *
+ * @effects Reads the Effect `Clock` and random service to include timestamp and entropy in the generated id.
+ * @category constructors
+ * @since 0.0.0
+ */
+export const generateExecutionId: Effect.Effect<ExecutionId> = Effect.gen(function* () {
+  const ms = yield* Clock.currentTimeMillis;
+  const rand = yield* Random.nextInt;
+  return makeExecutionId(`exec-${ms}-${rand}`);
+});
+
+// =============================================================================
+// Operation Result
+// =============================================================================
+
+/**
+ * Result of applying one operation to the sampled graph leaves.
+ *
+ * @remarks
+ * `newNodes` contains only nodes emitted by the operation, not a rewritten graph.
+ * `errors` contains per-leaf operation failures captured during application.
+ * `originalGraph` is intentionally opaque so callers can carry provenance
+ * without forcing this type to know the graph's payload type.
+ *
+ * @example
+ * ```ts
+ * import type { OperationResult } from "./Types.ts"
+ *
+ * const createdCount = <A, E>(result: OperationResult<A, E>) => result.newNodes.length
+ * console.log(createdCount)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface OperationResult<B, E> {
+  readonly errors: ReadonlyArray<E>;
+  readonly executionId: ExecutionId;
+  readonly metrics: ExecutionMetrics;
+  readonly newNodes: ReadonlyArray<GraphNode<B>>;
+  /** Opaque reference to the originating graph. */
+  readonly originalGraph: unknown;
+  readonly timestamp: number;
+}
+
+/**
+ * Build an operation result and stamp it with the current Effect clock time.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ExecutionMetrics, makeOperationResult, makeExecutionId } from "./Types.ts"
+ *
+ * const program = makeOperationResult(
+ *   makeExecutionId("exec-example"),
+ *   "source graph",
+ *   [],
+ *   [],
+ *   ExecutionMetrics.empty()
+ * )
+ *
+ * console.log(Effect.runSync(program).newNodes.length) // 0
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const makeOperationResult: {
+  <B, E>(
+    executionId: ExecutionId,
+    originalGraph: unknown,
+    newNodes: ReadonlyArray<GraphNode<B>>,
+    errors: ReadonlyArray<E>,
+    metrics: ExecutionMetrics
+  ): Effect.Effect<OperationResult<B, E>>;
+  <B, E>(
+    originalGraph: unknown,
+    newNodes: ReadonlyArray<GraphNode<B>>,
+    errors: ReadonlyArray<E>,
+    metrics: ExecutionMetrics
+  ): (executionId: ExecutionId) => Effect.Effect<OperationResult<B, E>>;
+} = dual(
+  5,
+  <B, E>(
+    executionId: ExecutionId,
+    originalGraph: unknown,
+    newNodes: ReadonlyArray<GraphNode<B>>,
+    errors: ReadonlyArray<E>,
+    metrics: ExecutionMetrics
+  ): Effect.Effect<OperationResult<B, E>> =>
+    Effect.map(
+      Clock.currentTimeMillis,
+      (timestamp): OperationResult<B, E> => ({
+        errors,
+        executionId,
+        metrics,
+        newNodes,
+        originalGraph,
+        timestamp,
+      })
+    )
+);

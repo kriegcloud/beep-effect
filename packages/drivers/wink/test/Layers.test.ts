@@ -1,4 +1,4 @@
-import { tokenCount } from "@beep/nlp/Core/Tokenization";
+import { tokenCount } from "@beep/nlp-processing/Core/Tokenization";
 import { WinkEngine, WinkLayerAllLive } from "@beep/wink";
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";

@@ -7,7 +7,7 @@
  */
 
 import { TextNode } from "@beep/nlp/Graph/Schema";
-import * as TG from "@beep/nlp/Graph/TextGraph";
+import * as TG from "@beep/nlp-processing/Graph/TextGraph";
 import { provideScopedLayer } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import { WinkTokenizationLive } from "@beep/wink";

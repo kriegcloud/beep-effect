@@ -9,6 +9,7 @@ import { createRequire } from "node:module";
 import { $WinkId } from "@beep/identity";
 import { SimilarityScore } from "@beep/nlp/Core/Similarity";
 import { TaggedErrorClass } from "@beep/schema";
+import { UnitInterval } from "@beep/schema/UnitInterval";
 import { Context, Effect, Inspectable, Layer } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -96,23 +97,23 @@ export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`Simila
   );
 }
 
-const sanitizeScore = (score: number): number => {
+const sanitizeScore = (score: number): UnitInterval => {
   if (!Number.isFinite(score)) {
-    return 0;
+    return UnitInterval.make(0);
   }
 
   if (score < 0) {
-    return 0;
+    return UnitInterval.make(0);
   }
 
   if (score > 1) {
-    return 1;
+    return UnitInterval.make(1);
   }
 
-  return score;
+  return UnitInterval.make(score);
 };
 
-const sanitizeScoreEffect = (score: number, operation: string): Effect.Effect<number> => {
+const sanitizeScoreEffect = (score: number, operation: string): Effect.Effect<UnitInterval> => {
   const sanitized = sanitizeScore(score);
 
   if (Object.is(score, sanitized)) {

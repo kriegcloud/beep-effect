@@ -1,5 +1,5 @@
-import { NlpToolkit, NlpTools } from "@beep/nlp/Tools/NlpToolkit";
 import { StreamingToolkit } from "@beep/nlp-mcp/StreamingTools";
+import { NlpToolkit, NlpTools } from "@beep/nlp-processing/Tools/NlpToolkit";
 import { WinkNlpToolkitLive } from "@beep/wink";
 import { assert, describe, it, layer } from "@effect/vitest";
 import * as Effect from "effect/Effect";

@@ -6,7 +6,7 @@
  * Runs against the real wink-nlp model via WinkEngineLive.
  */
 
-import * as Backend from "@beep/nlp/Backend/NLPBackend";
+import * as Backend from "@beep/nlp-processing/Backend/NLPBackend";
 import { provideScopedLayer } from "@beep/test-utils";
 import * as WinkEngine from "@beep/wink";
 import { WinkBackendLive } from "@beep/wink";

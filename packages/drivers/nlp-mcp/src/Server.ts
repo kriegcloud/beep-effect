@@ -19,7 +19,7 @@
  */
 
 import { $NlpMcpId } from "@beep/identity";
-import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit";
+import { NlpToolkit } from "@beep/nlp-processing/Tools/NlpToolkit";
 import { WinkNlpToolkitLive } from "@beep/wink";
 import { Layer } from "effect";
 import * as S from "effect/Schema";

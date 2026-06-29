@@ -5,8 +5,8 @@
  * transform node data. Backend-backed ops run against the real wink-nlp model.
  */
 
-import * as EG from "@beep/nlp/Graph/EffectGraph";
-import { Catalog } from "@beep/nlp/Graph/GraphOperations";
+import * as EG from "@beep/nlp-processing/Graph/EffectGraph";
+import { Catalog } from "@beep/nlp-processing/Graph/GraphOperations";
 import { provideScopedLayer } from "@beep/test-utils";
 import * as WinkEngine from "@beep/wink";
 import { WinkBackendLive } from "@beep/wink";

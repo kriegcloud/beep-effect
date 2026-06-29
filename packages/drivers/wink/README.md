@@ -12,8 +12,8 @@ bun add @beep/wink
 
 - `WinkEngine` and `WinkEngineLive` wrap `wink-nlp` with the English lite web model.
 - `WinkTokenizationLive` implements `@beep/nlp/Core` tokenization.
-- `WinkBackendLive` implements `@beep/nlp/Backend/NLPBackend`.
-- `WinkNlpToolkitLive` implements `@beep/nlp/Tools/NlpToolkit`.
+- `WinkBackendLive` implements `@beep/nlp-processing/Backend/NLPBackend`.
+- `WinkNlpToolkitLive` implements `@beep/nlp-processing/Tools/NlpToolkit`.
 - `WinkCorpusManager`, `WinkVectorizer`, `WinkSimilarity`, and `WinkUtils` expose wink-backed retrieval and utility services.
 - `observeWinkWorkflow`, `observeWinkTool`, and `mapWinkToolError` provide package-standard tracing, metrics, and AI-tool failure mapping.
 
@@ -43,7 +43,7 @@ console.log(document.tokenCount)
 
 ```ts
 import { Effect } from "effect"
-import { exportTools } from "@beep/nlp/Tools"
+import { exportTools } from "@beep/nlp-processing/Tools"
 import { WinkNlpToolkitLive } from "@beep/wink"
 
 const tools = await Effect.runPromise(

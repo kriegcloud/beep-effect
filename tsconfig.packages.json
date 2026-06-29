@@ -133,6 +133,9 @@
       "path": "packages/drivers/postgres"
     },
     {
+      "path": "packages/drivers/rdf-canonize"
+    },
+    {
       "path": "packages/drivers/runpod"
     },
     {
@@ -178,7 +181,7 @@
       "path": "packages/foundation/capability/langextract"
     },
     {
-      "path": "packages/foundation/capability/nlp"
+      "path": "packages/foundation/capability/nlp-processing"
     },
     {
       "path": "packages/foundation/capability/observability"
@@ -199,7 +202,10 @@
       "path": "packages/foundation/modeling/md"
     },
     {
-      "path": "packages/foundation/modeling/onotology"
+      "path": "packages/foundation/modeling/nlp"
+    },
+    {
+      "path": "packages/foundation/modeling/ontology"
     },
     {
       "path": "packages/foundation/modeling/pandoc-ast"

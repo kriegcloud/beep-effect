@@ -1,6 +1,6 @@
 # JSDoc Documentation Compliance Inventory
 
-Generated: 2026-06-18T05:46:42.277Z
+Generated: 2026-06-29T19:35:30.399Z
 
 ## Scope
 
@@ -10,22 +10,22 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Metric | Count |
 |---|---:|
-| packages | 88 |
-| cleanPackages | 18 |
-| packagesWithoutPublicSrcSurface | 2 |
-| packagesNeedingRemediation | 64 |
-| publicModules | 1243 |
-| publicExports | 12806 |
-| openModules | 113 |
-| openExports | 2017 |
-| missingExportExamples | 1678 |
-| missingExportCategories | 62 |
-| missingExportSince | 62 |
+| packages | 100 |
+| cleanPackages | 11 |
+| packagesWithoutPublicSrcSurface | 3 |
+| packagesNeedingRemediation | 82 |
+| publicModules | 1509 |
+| publicExports | 13644 |
+| openModules | 134 |
+| openExports | 2287 |
+| missingExportExamples | 2003 |
+| missingExportCategories | 143 |
+| missingExportSince | 93 |
 | forbiddenTagFindings | 7 |
 | malformedConditionalTagFindings | 0 |
-| exampleImportFindings | 25 |
-| unsafeExampleFindings | 171 |
-| schemaAnnotationFindings | 184 |
+| exampleImportFindings | 24 |
+| unsafeExampleFindings | 115 |
+| schemaAnnotationFindings | 199 |
 | rootPolicyOpen | 0 |
 
 ## Root Policy
@@ -45,92 +45,114 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 2 | `peerDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 3 | `dependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
 | 4 | `optionalDependencies` | `<unresolved>` | missing-workspace-metadata | 0 | 0 | 0 | 0 |
-| 5 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
-| 6 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 12 | 39 | 0 | 3 |
-| 7 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
-| 8 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 9 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
-| 10 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 6 | 9 | 0 | 3 |
-| 11 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 35 | 192 | 0 | 11 |
-| 12 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
-| 13 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
-| 14 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
-| 15 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 88 | 525 | 0 | 123 |
-| 16 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 70 | 0 | 0 |
-| 17 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 7 | 17 | 0 | 3 |
-| 18 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 24 | 0 | 15 |
-| 19 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 10 | 26 | 0 | 2 |
-| 20 | `@beep/shared-server` | `packages/shared/server` | clean | 1 | 1 | 0 | 0 |
-| 21 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 86 | 0 | 12 |
-| 22 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 14 | 25 | 0 | 0 |
-| 23 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 9 | 80 | 0 | 30 |
-| 24 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 8 | 94 | 0 | 26 |
-| 25 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
-| 26 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
-| 27 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 23 | 70 | 0 | 13 |
-| 28 | `@beep/shared-config` | `packages/shared/config` | clean | 1 | 1 | 0 | 0 |
-| 29 | `@beep/workspace-server` | `packages/workspace/server` | needs-remediation | 6 | 14 | 0 | 4 |
-| 30 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
-| 31 | `@beep/uspto` | `packages/drivers/uspto` | needs-remediation | 5 | 22 | 0 | 7 |
-| 32 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
-| 33 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
-| 34 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 5 | 28 | 0 | 9 |
-| 35 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
-| 36 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 30 | 78 | 0 | 10 |
-| 37 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 38 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 68 | 0 | 25 |
-| 39 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
-| 40 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
-| 41 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 156 | 0 | 44 |
-| 42 | `@beep/workspace-domain` | `packages/workspace/domain` | needs-remediation | 27 | 60 | 0 | 8 |
-| 43 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 155 | 0 | 20 |
-| 44 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 23 | 178 | 0 | 17 |
-| 45 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 256 | 0 | 4 |
-| 46 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
-| 47 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 4 | 13 | 0 | 3 |
-| 48 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
-| 49 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
-| 50 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 15 | 84 | 0 | 14 |
-| 51 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 104 | 0 | 4 |
-| 52 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
-| 53 | `@beep/box` | `packages/drivers/box` | needs-remediation | 8 | 4343 | 0 | 5 |
-| 54 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
-| 55 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 5 | 26 | 0 | 0 |
-| 56 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 15 | 23 | 0 | 12 |
-| 57 | `@beep/epistemic-domain` | `packages/epistemic/domain` | clean | 13 | 20 | 0 | 0 |
-| 58 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
-| 59 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
-| 60 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
-| 61 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 73 | 615 | 0 | 39 |
-| 62 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
-| 63 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
-| 64 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 63 | 635 | 2 | 82 |
-| 65 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 224 | 1476 | 0 | 705 |
-| 66 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 13 | 139 | 0 | 26 |
-| 67 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
-| 68 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
-| 69 | `@beep/data` | `packages/foundation/primitive/data` | clean | 8 | 66 | 0 | 0 |
-| 70 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
-| 71 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
-| 72 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
-| 73 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
-| 74 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 20 | 0 | 4 |
-| 75 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
-| 76 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 24 | 149 | 3 | 25 |
-| 77 | `@beep/konva` | `packages/drivers/konva` | needs-remediation | 1 | 1 | 0 | 1 |
-| 78 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
-| 79 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 5 | 337 | 0 | 333 |
-| 80 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 119 | 506 | 108 | 64 |
-| 81 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 5 | 119 | 0 | 92 |
-| 82 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
-| 83 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
-| 84 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
-| 85 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
-| 86 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 6 | 12 | 0 | 4 |
-| 87 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
-| 88 | `@beep/shared-ui` | `packages/shared/ui` | clean | 4 | 7 | 0 | 0 |
+| 5 | `@beep/dol` | `packages/drivers/dol` | needs-remediation | 1 | 1 | 1 | 1 |
+| 6 | `@beep/hubspot` | `packages/drivers/hubspot` | needs-remediation | 4 | 19 | 0 | 3 |
+| 7 | `@beep/agents-domain` | `packages/agents/domain` | needs-remediation | 12 | 39 | 0 | 3 |
+| 8 | `@beep/ontology` | `packages/foundation/modeling/ontology` | needs-remediation | 1 | 1 | 1 | 1 |
+| 9 | `@beep/rdf-canonize` | `packages/drivers/rdf-canonize` | needs-remediation | 2 | 2 | 0 | 1 |
+| 10 | `@beep/architecture-lab-ui` | `packages/architecture-lab/ui` | needs-remediation | 3 | 7 | 0 | 3 |
+| 11 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 12 | `@beep/workspace-tables` | `packages/workspace/tables` | needs-remediation | 16 | 34 | 0 | 8 |
+| 13 | `@beep/law-practice-server` | `packages/law-practice/server` | needs-remediation | 2 | 3 | 0 | 1 |
+| 14 | `@beep/db-admin` | `packages/_internal/db-admin` | needs-remediation | 7 | 13 | 0 | 4 |
+| 15 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 39 | 219 | 0 | 16 |
+| 16 | `@beep/discord` | `packages/drivers/discord` | needs-remediation | 4 | 12 | 0 | 4 |
+| 17 | `@beep/face-detection` | `packages/drivers/face-detection` | needs-remediation | 4 | 27 | 0 | 9 |
+| 18 | `@beep/architecture-lab-client` | `packages/architecture-lab/client` | needs-remediation | 3 | 7 | 0 | 4 |
+| 19 | `@beep/repo-cli` | `packages/tooling/tool/cli` | needs-remediation | 88 | 525 | 0 | 123 |
+| 20 | `@beep/pglite` | `packages/drivers/pglite` | needs-remediation | 4 | 11 | 0 | 3 |
+| 21 | `@beep/ai-sync` | `packages/tooling/library/ai-sync` | clean | 10 | 66 | 0 | 0 |
+| 22 | `@beep/agents-server` | `packages/agents/server` | needs-remediation | 7 | 17 | 0 | 3 |
+| 23 | `@beep/courtlistener` | `packages/drivers/courtlistener` | needs-remediation | 1 | 1 | 1 | 1 |
+| 24 | `@beep/workspace-use-cases` | `packages/workspace/use-cases` | needs-remediation | 8 | 24 | 0 | 15 |
+| 25 | `@beep/editor` | `packages/foundation/ui-system/editor` | needs-remediation | 21 | 82 | 0 | 21 |
+| 26 | `@beep/nlp-mcp` | `packages/drivers/nlp-mcp` | needs-remediation | 9 | 86 | 0 | 12 |
+| 27 | `@beep/law-practice-domain` | `packages/law-practice/domain` | clean | 26 | 46 | 0 | 0 |
+| 28 | `@beep/repo-docgen` | `packages/tooling/tool/docgen` | needs-remediation | 9 | 81 | 0 | 30 |
+| 29 | `@beep/file-processing` | `packages/foundation/capability/file-processing` | needs-remediation | 8 | 94 | 0 | 26 |
+| 30 | `@beep/ai-provider-cli` | `packages/drivers/ai-provider-cli` | needs-remediation | 4 | 12 | 0 | 6 |
+| 31 | `@beep/lint-rules` | `packages/tooling/policy-pack/lint-rules` | needs-remediation | 8 | 27 | 7 | 22 |
+| 32 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
+| 33 | `@beep/agents-use-cases` | `packages/agents/use-cases` | needs-remediation | 23 | 70 | 0 | 13 |
+| 34 | `@beep/m365-mcp` | `packages/drivers/m365-mcp` | needs-remediation | 4 | 21 | 0 | 20 |
+| 35 | `@beep/workspace-server` | `packages/workspace/server` | needs-remediation | 6 | 14 | 0 | 4 |
+| 36 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
+| 37 | `@beep/uspto` | `packages/drivers/uspto` | needs-remediation | 5 | 22 | 0 | 7 |
+| 38 | `@beep/phoenix` | `packages/drivers/phoenix` | needs-remediation | 5 | 50 | 0 | 10 |
+| 39 | `@beep/test-utils` | `packages/tooling/test-kit/test-utils` | needs-remediation | 5 | 29 | 0 | 9 |
+| 40 | `@beep/types` | `packages/foundation/primitive/types` | clean | 5 | 10 | 0 | 0 |
+| 41 | `@beep/oip-web` | `apps/oip-web` | needs-remediation | 30 | 78 | 0 | 10 |
+| 42 | `@beep/storybook` | `apps/storybook` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 43 | `@beep/lexical-schema` | `packages/foundation/modeling/lexical` | needs-remediation | 3 | 94 | 0 | 51 |
+| 44 | `@beep/langextract` | `packages/foundation/capability/langextract` | needs-remediation | 6 | 30 | 0 | 8 |
+| 45 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 11 | 14 | 0 | 10 |
+| 46 | `@beep/scratchpad` | `scratchpad` | no-public-src-surface | 0 | 0 | 0 | 0 |
+| 47 | `@beep/md` | `packages/foundation/modeling/md` | needs-remediation | 5 | 176 | 0 | 51 |
+| 48 | `@beep/law-practice-use-cases` | `packages/law-practice/use-cases` | needs-remediation | 11 | 26 | 0 | 3 |
+| 49 | `@beep/workspace-domain` | `packages/workspace/domain` | needs-remediation | 27 | 60 | 0 | 8 |
+| 50 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 28 | 103 | 0 | 23 |
+| 51 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 25 | 207 | 1 | 20 |
+| 52 | `@beep/repo-ai-metrics` | `packages/tooling/library/ai-metrics` | needs-remediation | 17 | 257 | 0 | 4 |
+| 53 | `@beep/architecture-lab-tables` | `packages/architecture-lab/tables` | needs-remediation | 7 | 21 | 0 | 11 |
+| 54 | `@beep/tika` | `packages/drivers/tika` | needs-remediation | 4 | 13 | 0 | 3 |
+| 55 | `@beep/libpff` | `packages/drivers/libpff` | needs-remediation | 4 | 18 | 0 | 5 |
+| 56 | `@beep/venice-ai` | `packages/drivers/venice-ai` | clean | 3 | 35 | 0 | 0 |
+| 57 | `@beep/form` | `packages/foundation/ui-system/form` | needs-remediation | 42 | 113 | 0 | 3 |
+| 58 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 113 | 0 | 4 |
+| 59 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 4 | 15 | 0 | 3 |
+| 60 | `@beep/box` | `packages/drivers/box` | needs-remediation | 103 | 4495 | 0 | 54 |
+| 61 | `@beep/openai-compat` | `packages/drivers/openai-compat` | clean | 4 | 50 | 0 | 0 |
+| 62 | `@beep/nlp-processing` | `packages/foundation/capability/nlp-processing` | needs-remediation | 48 | 309 | 0 | 19 |
+| 63 | `@beep/anthropic` | `packages/drivers/anthropic` | clean | 5 | 26 | 0 | 0 |
+| 64 | `@beep/professional-desktop` | `apps/professional-desktop` | needs-remediation | 23 | 42 | 2 | 23 |
+| 65 | `@beep/epistemic-domain` | `packages/epistemic/domain` | needs-remediation | 20 | 39 | 0 | 1 |
+| 66 | `@beep/architecture-lab-use-cases` | `packages/architecture-lab/use-cases` | needs-remediation | 18 | 62 | 0 | 28 |
+| 67 | `@beep/firecrawl` | `packages/drivers/firecrawl` | needs-remediation | 5 | 263 | 0 | 3 |
+| 68 | `@beep/ecfr` | `packages/drivers/ecfr` | needs-remediation | 1 | 1 | 1 | 1 |
+| 69 | `@beep/acp` | `packages/drivers/acp` | needs-remediation | 10 | 406 | 0 | 1 |
+| 70 | `@beep/nlp` | `packages/foundation/modeling/nlp` | needs-remediation | 28 | 310 | 0 | 36 |
+| 71 | `@beep/infra` | `infra` | clean | 4 | 31 | 0 | 0 |
+| 72 | `@beep/runpod` | `packages/drivers/runpod` | needs-remediation | 6 | 174 | 0 | 10 |
+| 73 | `@beep/repo-utils` | `packages/tooling/library/repo-utils` | needs-remediation | 63 | 635 | 2 | 82 |
+| 74 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 233 | 1532 | 0 | 653 |
+| 75 | `@beep/epistemic-server` | `packages/epistemic/server` | needs-remediation | 2 | 3 | 0 | 1 |
+| 76 | `@beep/rdf` | `packages/foundation/modeling/rdf` | needs-remediation | 16 | 196 | 0 | 29 |
+| 77 | `@beep/onepassword-cli` | `packages/drivers/onepassword-cli` | needs-remediation | 4 | 12 | 0 | 5 |
+| 78 | `@beep/architecture-lab-config` | `packages/architecture-lab/config` | needs-remediation | 9 | 21 | 0 | 8 |
+| 79 | `@beep/govinfo` | `packages/drivers/govinfo` | needs-remediation | 27 | 61 | 5 | 34 |
+| 80 | `@beep/data` | `packages/foundation/primitive/data` | needs-remediation | 12 | 144 | 0 | 80 |
+| 81 | `@beep/xai` | `packages/drivers/xai` | clean | 7 | 62 | 0 | 0 |
+| 82 | `@beep/architecture-lab-server` | `packages/architecture-lab/server` | needs-remediation | 13 | 34 | 0 | 13 |
+| 83 | `@beep/duckdb` | `packages/drivers/duckdb` | needs-remediation | 4 | 15 | 0 | 3 |
+| 84 | `@beep/ffmpeg` | `packages/drivers/ffmpeg` | needs-remediation | 4 | 38 | 0 | 6 |
+| 85 | `@beep/agents-client` | `packages/agents/client` | needs-remediation | 3 | 22 | 0 | 4 |
+| 86 | `@beep/architecture-lab-proof` | `apps/architecture-lab-proof` | clean | 1 | 2 | 0 | 0 |
+| 87 | `@beep/epistemic-use-cases` | `packages/epistemic/use-cases` | needs-remediation | 10 | 18 | 0 | 1 |
+| 88 | `@beep/m365` | `packages/drivers/m365` | needs-remediation | 6 | 74 | 0 | 6 |
+| 89 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 24 | 149 | 3 | 25 |
+| 90 | `@beep/html` | `packages/foundation/modeling/html` | needs-remediation | 5 | 337 | 0 | 333 |
+| 91 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 126 | 545 | 109 | 74 |
+| 92 | `@beep/pandoc-ast` | `packages/foundation/modeling/pandoc-ast` | needs-remediation | 5 | 119 | 0 | 92 |
+| 93 | `@beep/repo-configs` | `packages/tooling/policy-pack/repo-configs` | needs-remediation | 25 | 135 | 0 | 5 |
+| 94 | `@beep/wink` | `packages/drivers/wink` | needs-remediation | 14 | 71 | 0 | 13 |
+| 95 | `@beep/postgres` | `packages/drivers/postgres` | needs-remediation | 7 | 36 | 0 | 6 |
+| 96 | `@beep/architecture-lab-domain` | `packages/architecture-lab/domain` | needs-remediation | 15 | 52 | 0 | 27 |
+| 97 | `@beep/provenance` | `packages/foundation/modeling/provenance` | needs-remediation | 2 | 5 | 0 | 3 |
+| 98 | `@beep/epistemic-tables` | `packages/epistemic/tables` | needs-remediation | 6 | 12 | 0 | 4 |
+| 99 | `@beep/federal-register` | `packages/drivers/federal-register` | needs-remediation | 1 | 1 | 1 | 1 |
+| 100 | `@beep/sanity` | `packages/drivers/sanity` | needs-remediation | 4 | 16 | 0 | 3 |
 
 ## Open Findings
+
+### @beep/dol
+
+Path: `packages/drivers/dol`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example; 1 category casing violation(s)
 
 ### @beep/hubspot
 
@@ -149,6 +171,23 @@ Export findings:
 - `src/values/AssistantContent/AssistantContent.behavior.ts:78` `blockToMd` (const) - 2 schema annotation/type-alias gap(s)
 - `src/values/AssistantContent/AssistantContent.model.ts:118` `InlineNode` (type) - missing @example
 - `src/values/AssistantContent/AssistantContent.model.ts:469` `AssistantBlock` (type) - missing @example
+
+### @beep/ontology
+
+Path: `packages/foundation/modeling/ontology`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example; 1 category casing violation(s)
+
+### @beep/rdf-canonize
+
+Path: `packages/drivers/rdf-canonize`
+
+Export findings:
+- `src/index.ts:14` `export * as canonicalization from "./adapters/canonicalization.ts";` (re-export) - missing @example
 
 ### @beep/architecture-lab-ui
 
@@ -173,12 +212,20 @@ Export findings:
 - `src/entities/Turn/Turn.converters.ts:43` `TurnInsert` (type) - 1 unsafe example violation(s)
 - `src/index.ts:28` `export { DbSchema } from "./Schema.ts";` (re-export) - missing @example
 
+### @beep/law-practice-server
+
+Path: `packages/law-practice/server`
+
+Export findings:
+- `src/index.ts:30` `export * from "./Layer.ts";` (re-export) - missing @example
+
 ### @beep/db-admin
 
 Path: `packages/_internal/db-admin`
 
 Export findings:
-- `src/index.ts:14` `export * from "./targets.js";` (re-export) - missing @example
+- `src/index.ts:14` `export * from "./migrate.js";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./targets.js";` (re-export) - missing @example
 - `src/schema.ts:15` `export { DbSchema as ArchitectureLabDbSchema } from "@beep/architecture-lab-tables/tables";` (re-export) - missing @example
 - `src/schema.ts:22` `export { DbSchema as WorkspaceDbSchema } from "@beep/workspace-tables";` (re-export) - missing @example
 
@@ -198,6 +245,11 @@ Export findings:
 - `src/entity/Principal.ts:140` `ConnectorAccountPrincipal` (class) - 1 unsafe example violation(s)
 - `src/values/OnePasswordReference/OnePasswordReference.model.ts:57` `OnePasswordReference` (type) - missing @example
 - `src/values/OnePasswordReference/index.ts:9` `export * from "./OnePasswordReference.model.ts";` (re-export) - missing @example
+- `src/values/Rule/Rule.model.ts:25` `Effect` (const) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
+- `src/values/Rule/Rule.model.ts:46` `Effect` (namespace) - missing @example, @category
+- `src/values/Rule/Rule.model.ts:181` `Rule` (type) - missing @example
+- `src/values/Rule/Rule.model.ts:192` `Ruleset` (const) - missing summary
+- `src/values/Rule/Rule.model.ts:199` `Ruleset` (type) - missing summary; missing @example, @category, @since
 
 ### @beep/discord
 
@@ -262,7 +314,7 @@ Export findings:
 - `src/commands/Corpus/Corpus.schemas.ts:290` `encodeCorpusDuplicateSetReportJson` (const) - 2 schema annotation/type-alias gap(s)
 - `src/commands/Corpus/Corpus.schemas.ts:317` `RecycleBinEntryKind` (type) - missing @example
 - `src/commands/Corpus/Corpus.schemas.ts:569` `CorpusOrganizeCategory` (type) - missing @example
-- `src/commands/Corpus/Corpus.service.ts:114` `CorpusCommandServiceShape` (interface) - 1 unsafe example violation(s)
+- `src/commands/Corpus/Corpus.service.ts:119` `CorpusCommandServiceShape` (interface) - 1 unsafe example violation(s)
 - `src/commands/Corpus/index.ts:15` `export * from "./Corpus.command.js";` (re-export) - missing @example
 - `src/commands/Corpus/index.ts:22` `export * from "./Corpus.errors.js";` (re-export) - missing @example
 - `src/commands/Corpus/index.ts:29` `export * from "./Corpus.recyclebin.js";` (re-export) - missing @example
@@ -298,7 +350,7 @@ Export findings:
 - `src/commands/Files/Files.schemas.ts:923` `SafeFilePrefix` (type) - missing @example
 - `src/commands/Files/Files.schemas.ts:2256` `ProcessFilesFailurePolicy` (type) - missing @example
 - `src/commands/Files/Files.schemas.ts:2345` `decodeRotationNumber` (const) - 2 schema annotation/type-alias gap(s)
-- `src/commands/Files/Files.service.ts:343` `FilesCommandServiceShape` (interface) - 1 unsafe example violation(s)
+- `src/commands/Files/Files.service.ts:345` `FilesCommandServiceShape` (interface) - 1 unsafe example violation(s)
 - `src/commands/Files/index.ts:15` `export * from "./Files.command.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:22` `export * from "./Files.errors.js";` (re-export) - missing @example
 - `src/commands/Files/index.ts:29` `export * from "./Files.media.js";` (re-export) - missing @example
@@ -351,10 +403,10 @@ Export findings:
   resolveRootExportTarget,
 } from "@beep/repo-utils/schemas/TsconfigAliasTargets";` (re-export) - missing @example
 - `src/commands/TsconfigSync/TsconfigSync.command.ts:268` `TsconfigSyncRunOptions` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:301` `TsconfigSyncSection` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:415` `TsconfigSyncChange` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:544` `PlannedFileChange` (type) - missing @example
-- `src/commands/TsconfigSync/TsconfigSync.command.ts:606` `TsconfigSyncResult` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:300` `TsconfigSyncSection` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:402` `TsconfigSyncChange` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:516` `PlannedFileChange` (type) - missing @example
+- `src/commands/TsconfigSync/TsconfigSync.command.ts:578` `TsconfigSyncResult` (type) - missing @example
 - `src/commands/TsconfigSync/index.ts:13` `export * from "./TsconfigSync.command.js";` (re-export) - missing @example
 - `src/commands/TsconfigSync/index.ts:20` `export * from "./TsconfigSync.errors.js";` (re-export) - missing @example
 - `src/commands/VersionSync/index.ts:13` `export * from "./VersionSync.command.js";` (re-export) - missing @example
@@ -539,6 +591,15 @@ Export findings:
   yeetCommand,
 } from "./commands/Yeet/index.js";` (re-export) - missing @example
 
+### @beep/pglite
+
+Path: `packages/drivers/pglite`
+
+Export findings:
+- `src/index.ts:33` `export * from "./Pglite.errors.ts";` (re-export) - missing @example
+- `src/index.ts:40` `export * from "./Pglite.test-layer.ts";` (re-export) - missing @example
+- `src/index.ts:47` `export * from "./PgliteClient.service.ts";` (re-export) - missing @example
+
 ### @beep/agents-server
 
 Path: `packages/agents/server`
@@ -547,6 +608,16 @@ Export findings:
 - `src/AssistantTurn/BlockRepair.ts:110` `BlockRepairCall` (type) - missing @example
 - `src/AssistantTurn/BlockRepair.ts:121` `RepairInvalidBlocks` (type) - missing @example
 - `src/index.ts:15` `export * as AssistantTurn from "./AssistantTurn/index.js";` (re-export) - missing @example
+
+### @beep/courtlistener
+
+Path: `packages/drivers/courtlistener`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example; 1 category casing violation(s)
 
 ### @beep/workspace-use-cases
 
@@ -575,6 +646,25 @@ Path: `packages/foundation/ui-system/editor`
 
 Export findings:
 - `src/artifact-ref-node.tsx:23` `SerializedArtifactRefNode` (type) - missing @example
+- `src/chat/atoms.ts:47` `featuresAtom` (const) - missing @example
+- `src/chat/atoms.ts:59` `menusOpenAtom` (const) - missing @example
+- `src/chat/atoms.ts:70` `anyMenuOpenAtom` (const) - missing @example
+- `src/chat/atoms.ts:84` `attachmentsAtom` (const) - missing @example
+- `src/chat/atoms.ts:97` `maxAttachmentBytesAtom` (const) - missing @example
+- `src/chat/atoms.ts:110` `onAttachAtom` (const) - missing @example
+- `src/chat/atoms.ts:124` `composerRuntime` (const) - missing @example
+- `src/chat/atoms.ts:139` `captureAttachmentsFn` (const) - missing @example
+- `src/chat/atoms.ts:170` `removeAttachmentFn` (const) - missing @example
+- `src/chat/atoms.ts:197` `logEditorErrorFn` (const) - missing @example
+- `src/chat/atoms.ts:209` `characterCountAtom` (const) - missing @example
+- `src/chat/atoms.ts:236` `sendKeyBindingAtom` (const) - missing @example
+- `src/chat/atoms.ts:271` `SendHandlerBox` (interface) - missing @example
+- `src/chat/atoms.ts:285` `onSendAtom` (const) - missing @example
+- `src/chat/atoms.ts:299` `sendCommandBindingAtom` (const) - missing @example
+- `src/chat/attachment-model.ts:152` `AttachmentRejection` (type) - missing @example
+- `src/chat/config.ts:55` `SendOn` (type) - missing @example
+- `src/chat/config.ts:102` `EditorEffect` (type) - missing @example
+- `src/chat/config.ts:207` `MentionSource` (const) - missing @example
 - `src/youtube-node.tsx:32` `SerializedYouTubeNode` (type) - missing @example
 
 ### @beep/nlp-mcp
@@ -601,7 +691,7 @@ Path: `packages/tooling/tool/docgen`
 
 Export findings:
 - `src/Configuration.ts:54` `ConfigurationSchema` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Configuration.ts:96` `ConfigurationShape` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Configuration.ts:97` `ConfigurationShape` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Domain.ts:78` `Position` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Domain.ts:122` `Doc` (class) - 1 schema annotation/type-alias gap(s)
 - `src/Domain.ts:200` `DocEntry` (class) - 1 unsafe example violation(s); 1 schema annotation/type-alias gap(s)
@@ -636,10 +726,10 @@ Export findings:
 Path: `packages/foundation/capability/file-processing`
 
 Export findings:
-- `src/Artifact/index.ts:95` `ArtifactId` (type) - missing @example
-- `src/Artifact/index.ts:127` `OperationId` (type) - missing @example
-- `src/Artifact/index.ts:159` `ContentDigest` (type) - missing @example
-- `src/Artifact/index.ts:214` `ArtifactLocatorKind` (type) - missing @example
+- `src/Artifact/index.ts:96` `ArtifactId` (type) - missing @example
+- `src/Artifact/index.ts:128` `OperationId` (type) - missing @example
+- `src/Artifact/index.ts:160` `ContentDigest` (type) - missing @example
+- `src/Artifact/index.ts:218` `ArtifactLocatorKind` (type) - missing @example
 - `src/Extraction/index.ts:43` `SourceProcessingStatus` (type) - missing @example
 - `src/Extraction/index.ts:352` `ProcessFileResult` (type) - missing @example
 - `src/Extraction/index.ts:569` `SourceProcessingRecord` (type) - missing @example
@@ -647,8 +737,8 @@ Export findings:
 - `src/Extraction/index.ts:713` `FileProcessingFailureRecord` (type) - missing @example
 - `src/Operation/index.ts:51` `FileProcessingOperationErrorReason` (type) - missing @example
 - `src/PathSafety/index.ts:69` `PathSafetyViolationReason` (type) - missing @example
-- `src/Service/index.ts:57` `FileProcessingEngineShape` (type) - 1 unsafe example violation(s)
-- `src/Service/index.ts:80` `FileProcessingServiceShape` (type) - 1 unsafe example violation(s)
+- `src/Service/index.ts:58` `FileProcessingEngineShape` (type) - 1 unsafe example violation(s)
+- `src/Service/index.ts:81` `FileProcessingServiceShape` (type) - 1 unsafe example violation(s)
 - `src/Strategy/index.ts:40` `FileProcessingOperationKind` (type) - missing @example
 - `src/Strategy/index.ts:67` `FileProcessingEngineFamily` (type) - missing @example
 - `src/Strategy/index.ts:109` `FileFormatFamily` (type) - missing @example
@@ -675,6 +765,43 @@ Export findings:
 - `src/index.ts:21` `export * from "./AiProviderCli.models.ts";` (re-export) - missing @example
 - `src/index.ts:28` `export * from "./AiProviderCli.service.ts";` (re-export) - missing @example
 
+### @beep/lint-rules
+
+Path: `packages/tooling/policy-pack/lint-rules`
+
+Module findings:
+- `src/rules/index.ts:1` (none) - missing summary; missing @since
+- `src/rules/namespace-node-imports.ts:1` (none) - missing summary; missing @since
+- `src/rules/no-global-process-runtime.ts:1` (none) - missing summary; missing @since
+- `src/rules/no-inline-schema-compile.ts:1` (none) - missing summary; missing @since
+- `src/rules/no-manual-effect-runtime-in-tests.ts:1` (none) - missing summary; missing @since
+- `src/rules/no-opaque-instance-fields.ts:1` (none) - missing summary; missing @since
+- `src/rules/utils.ts:1` (none) - missing summary; missing @since
+
+Export findings:
+- `src/index.ts:55` `RuleName` (type) - missing @example
+- `src/index.ts:65` `RuleSeverity` (type) - missing @example
+- `src/rules/index.ts:8` `default` (CallExpression) - missing summary; missing @example, @category, @since
+- `src/rules/namespace-node-imports.ts:43` `default` (CallExpression) - missing summary; missing @example, @category, @since
+- `src/rules/no-global-process-runtime.ts:37` `default` (CallExpression) - missing summary; missing @example, @category, @since
+- `src/rules/no-inline-schema-compile.ts:63` `default` (CallExpression) - missing summary; missing @example, @category, @since
+- `src/rules/no-manual-effect-runtime-in-tests.ts:134` `default` (CallExpression) - missing summary; missing @example, @category, @since
+- `src/rules/no-opaque-instance-fields.ts:16` `default` (CallExpression) - missing summary; missing @example, @category, @since
+- `src/rules/utils.ts:15` `AstNode` (type) - missing @example
+- `src/rules/utils.ts:29` `MaybeNode` (type) - missing @example
+- `src/rules/utils.ts:41` `asExpression` (const) - missing @example
+- `src/rules/utils.ts:72` `unwrapExpression` (const) - missing @example
+- `src/rules/utils.ts:89` `MemberAccess` (type) - missing @example
+- `src/rules/utils.ts:104` `unwrapMemberExpression` (const) - missing @example
+- `src/rules/utils.ts:130` `getPropertyName` (const) - missing @example
+- `src/rules/utils.ts:142` `isIdentifier` (const) - missing @example
+- `src/rules/utils.ts:159` `literalStringValue` (const) - missing @example
+- `src/rules/utils.ts:172` `identifierName` (const) - missing @example
+- `src/rules/utils.ts:184` `ImportBinding` (type) - missing @example
+- `src/rules/utils.ts:214` `classifyImportSpecifier` (const) - missing @example
+- `src/rules/utils.ts:242` `toRepoPath` (const) - missing @example
+- `src/rules/utils.ts:262` `pathMatchesSuffix` (const) - missing @example
+
 ### @beep/agents-use-cases
 
 Path: `packages/agents/use-cases`
@@ -693,6 +820,32 @@ Export findings:
 - `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:120` `RuntimeActivityType` (const) - 1 schema annotation/type-alias gap(s)
 - `src/processes/ProfessionalRuntime/ProfessionalRuntime.values.ts:139` `RuntimeUsageMode` (const) - 1 schema annotation/type-alias gap(s)
 - `src/public.ts:121` `export type { ProfessionalRuntimeSdk } from "./processes/ProfessionalRuntime/ProfessionalRuntime.service.js";` (re-export) - 1 unsafe example violation(s)
+
+### @beep/m365-mcp
+
+Path: `packages/drivers/m365-mcp`
+
+Export findings:
+- `src/M365Handlers.ts:88` `M365ToolkitHandlersLive` (const) - missing @example
+- `src/M365Tools.ts:93` `M365ListDrivesTool` (const) - missing @example
+- `src/M365Tools.ts:111` `M365ListSitesTool` (const) - missing @example
+- `src/M365Tools.ts:129` `M365GetSiteTool` (const) - missing @example
+- `src/M365Tools.ts:147` `M365DeltaDriveItemsTool` (const) - missing @example
+- `src/M365Tools.ts:165` `M365DownloadDriveItemContentTool` (const) - missing @example
+- `src/M365Tools.ts:183` `M365GetListItemTool` (const) - missing @example
+- `src/M365Tools.ts:201` `M365ListDriveItemVersionsTool` (const) - missing @example
+- `src/M365Tools.ts:219` `M365ListMessagesTool` (const) - missing @example
+- `src/M365Tools.ts:237` `M365GetMessageTool` (const) - missing @example
+- `src/M365Tools.ts:255` `M365ListEventsTool` (const) - missing @example
+- `src/M365Tools.ts:273` `M365GetEventTool` (const) - missing @example
+- `src/M365Tools.ts:291` `M365Toolkit` (const) - missing @example
+- `src/M365Tools.ts:311` `M365Toolkit` (type) - missing @example
+- `src/Server.ts:25` `M365McpServerConfig` (class) - missing @example
+- `src/Server.ts:45` `makeServerLayer` (const) - missing @example
+- `src/index.ts:32` `export * from "./M365Handlers.ts";` (re-export) - missing @example
+- `src/index.ts:39` `export * from "./M365Tools.ts";` (re-export) - missing @example
+- `src/index.ts:46` `export * from "./Server.ts";` (re-export) - missing @example
+- `src/index.ts:54` `VERSION` (const) - missing @example
 
 ### @beep/workspace-server
 
@@ -738,11 +891,11 @@ Export findings:
 Path: `packages/tooling/test-kit/test-utils`
 
 Export findings:
-- `src/SqlTest.ts:197` `PgliteTestcontainersTestDriverConfigInput` (type) - 1 unsafe example violation(s)
-- `src/SqlTest.ts:255` `PgExternalTestDriverConfigInput` (type) - 1 unsafe example violation(s)
-- `src/SqlTest.ts:270` `PgliteSqlTestLayerMode` (type) - 1 unsafe example violation(s)
-- `src/SqlTest.ts:284` `PgliteSqlTestLayerOptions` (interface) - 1 unsafe example violation(s)
-- `src/SqlTest.ts:465` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:203` `PgliteTestcontainersTestDriverConfigInput` (type) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:261` `PgExternalTestDriverConfigInput` (type) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:276` `PgliteSqlTestLayerMode` (type) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:290` `PgliteSqlTestLayerOptions` (interface) - 1 unsafe example violation(s)
+- `src/SqlTest.ts:484` `PgliteTestcontainerResource` (interface) - 1 unsafe example violation(s)
 - `src/index.ts:16` `export * from "./Entity.js";` (re-export) - missing @example
 - `src/index.ts:23` `export * from "./Layer.js";` (re-export) - missing @example
 - `src/index.ts:30` `export * from "./Schema.js";` (re-export) - missing @example
@@ -769,31 +922,57 @@ Export findings:
 Path: `packages/foundation/modeling/lexical`
 
 Export findings:
-- `src/Lexical.codec.ts:663` `nodeToBlocks` (const) - 2 schema annotation/type-alias gap(s)
-- `src/Lexical.model.ts:305` `SafeInlineStyle` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Lexical.model.ts:350` `SafeStyleValue` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Lexical.model.ts:402` `BaseNode` (namespace) - missing @example
-- `src/Lexical.model.ts:491` `ElementNode` (namespace) - missing @example
-- `src/Lexical.model.ts:560` `TextBase` (namespace) - missing @example
-- `src/Lexical.model.ts:628` `TextNode` (namespace) - missing @example
-- `src/Lexical.model.ts:688` `TabNode` (namespace) - missing @example
-- `src/Lexical.model.ts:746` `LineBreakNode` (namespace) - missing @example
-- `src/Lexical.model.ts:802` `RootNode` (namespace) - missing @example
-- `src/Lexical.model.ts:858` `ParagraphNode` (namespace) - missing @example
-- `src/Lexical.model.ts:915` `HeadingNode` (namespace) - missing @example
-- `src/Lexical.model.ts:973` `QuoteNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1032` `ListNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1099` `ListItemNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1163` `LinkNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1232` `CodeNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1302` `ArtifactRefNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1371` `YouTubeNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1458` `TableCellNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1530` `TableRowNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1604` `TableNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1650` `LexicalNode` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Lexical.model.ts:1693` `LexicalNode` (namespace) - missing @example
-- `src/Lexical.model.ts:1775` `SerializedEditorState` (namespace) - missing @example
+- `src/Lexical.codec.ts:718` `nodeToBlocks` (const) - 2 schema annotation/type-alias gap(s)
+- `src/Lexical.model.ts:109` `LexicalNodeVersion` (const) - missing @example
+- `src/Lexical.model.ts:121` `LexicalNodeVersion` (type) - missing @example
+- `src/Lexical.model.ts:129` `TextFormatBits` (const) - missing @example
+- `src/Lexical.model.ts:149` `TextFormatBit` (const) - missing @example
+- `src/Lexical.model.ts:173` `TextFormatBit` (type) - missing @example
+- `src/Lexical.model.ts:181` `TEXT_FORMAT_MASK_ALL` (const) - missing @example
+- `src/Lexical.model.ts:214` `TextFormatMask` (const) - missing @example
+- `src/Lexical.model.ts:222` `TextFormatMask` (type) - missing @example
+- `src/Lexical.model.ts:230` `hasTextFormat` (const) - missing @example
+- `src/Lexical.model.ts:241` `withTextFormat` (const) - missing @example
+- `src/Lexical.model.ts:252` `TextDetailBits` (const) - missing @example
+- `src/Lexical.model.ts:263` `TextDetailBit` (const) - missing @example
+- `src/Lexical.model.ts:275` `TextDetailBit` (type) - missing @example
+- `src/Lexical.model.ts:283` `TEXT_DETAIL_MASK_ALL` (const) - missing @example
+- `src/Lexical.model.ts:305` `TextDetailMask` (const) - missing @example
+- `src/Lexical.model.ts:313` `TextDetailMask` (type) - missing @example
+- `src/Lexical.model.ts:321` `LexicalIndentDepth` (const) - missing @example
+- `src/Lexical.model.ts:334` `LexicalIndentDepth` (type) - missing @example
+- `src/Lexical.model.ts:342` `TableCellHeaderState` (const) - missing @example
+- `src/Lexical.model.ts:354` `TableCellHeaderState` (type) - missing @example
+- `src/Lexical.model.ts:362` `TableCellSpan` (const) - missing @example
+- `src/Lexical.model.ts:375` `TableCellSpan` (type) - missing @example
+- `src/Lexical.model.ts:383` `TableDimension` (const) - missing @example
+- `src/Lexical.model.ts:396` `TableDimension` (type) - missing @example
+- `src/Lexical.model.ts:404` `ArtifactRefId` (const) - missing @example
+- `src/Lexical.model.ts:424` `ArtifactRefId` (type) - missing @example
+- `src/Lexical.model.ts:704` `SafeInlineStyle` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Lexical.model.ts:749` `SafeStyleValue` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Lexical.model.ts:801` `BaseNode` (namespace) - missing @example
+- `src/Lexical.model.ts:890` `ElementNode` (namespace) - missing @example
+- `src/Lexical.model.ts:959` `TextBase` (namespace) - missing @example
+- `src/Lexical.model.ts:1027` `TextNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1087` `TabNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1145` `LineBreakNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1201` `RootNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1257` `ParagraphNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1314` `HeadingNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1372` `QuoteNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1431` `ListNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1498` `ListItemNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1562` `LinkNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1631` `CodeNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1701` `ArtifactRefNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1772` `YouTubeNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1859` `TableCellNode` (namespace) - missing @example
+- `src/Lexical.model.ts:1931` `TableRowNode` (namespace) - missing @example
+- `src/Lexical.model.ts:2005` `TableNode` (namespace) - missing @example
+- `src/Lexical.model.ts:2051` `LexicalNode` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Lexical.model.ts:2094` `LexicalNode` (namespace) - missing @example
+- `src/Lexical.model.ts:2176` `SerializedEditorState` (namespace) - missing @example
 
 ### @beep/langextract
 
@@ -830,50 +1009,66 @@ Export findings:
 Path: `packages/foundation/modeling/md`
 
 Export findings:
-- `src/Md.model.ts:27` `YouTubeVideoId` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Md.model.ts:47` `InlineChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Md.model.ts:59` `InlineChildren` (namespace) - missing @example
-- `src/Md.model.ts:105` `Text` (namespace) - missing @example
-- `src/Md.model.ts:154` `RawMarkdown` (namespace) - missing @example
-- `src/Md.model.ts:206` `RawHtml` (namespace) - missing @example
-- `src/Md.model.ts:255` `Strong` (namespace) - missing @example
-- `src/Md.model.ts:307` `Em` (namespace) - missing @example
-- `src/Md.model.ts:359` `Del` (namespace) - missing @example
-- `src/Md.model.ts:411` `Code` (namespace) - missing @example
-- `src/Md.model.ts:466` `A` (namespace) - missing @example
-- `src/Md.model.ts:526` `Img` (namespace) - missing @example
-- `src/Md.model.ts:570` `Br` (namespace) - missing @example
-- `src/Md.model.ts:613` `Inline` (type) - missing @example
-- `src/Md.model.ts:621` `Inline` (namespace) - missing @example
-- `src/Md.model.ts:659` `BlockChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Md.model.ts:671` `BlockChildren` (namespace) - missing @example
-- `src/Md.model.ts:717` `P` (namespace) - missing @example
-- `src/Md.model.ts:769` `H1` (namespace) - missing @example
-- `src/Md.model.ts:821` `H2` (namespace) - missing @example
-- `src/Md.model.ts:873` `H3` (namespace) - missing @example
-- `src/Md.model.ts:925` `H4` (namespace) - missing @example
-- `src/Md.model.ts:977` `H5` (namespace) - missing @example
-- `src/Md.model.ts:1029` `H6` (namespace) - missing @example
-- `src/Md.model.ts:1081` `Li` (namespace) - missing @example
-- `src/Md.model.ts:1105` `ListItemChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Md.model.ts:1117` `ListItemChildren` (namespace) - missing @example
-- `src/Md.model.ts:1163` `Ul` (namespace) - missing @example
-- `src/Md.model.ts:1215` `Ol` (namespace) - missing @example
-- `src/Md.model.ts:1268` `TaskItem` (namespace) - missing @example
-- `src/Md.model.ts:1294` `TaskItemChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Md.model.ts:1306` `TaskItemChildren` (namespace) - missing @example
-- `src/Md.model.ts:1350` `TaskList` (namespace) - missing @example
-- `src/Md.model.ts:1400` `BlockQuote` (namespace) - missing @example
-- `src/Md.model.ts:1459` `Pre` (namespace) - missing @example
-- `src/Md.model.ts:1515` `TableCell` (namespace) - missing @example
-- `src/Md.model.ts:1565` `TableRow` (namespace) - missing @example
-- `src/Md.model.ts:1621` `Table` (namespace) - missing @example
-- `src/Md.model.ts:1673` `YouTube` (namespace) - missing @example
-- `src/Md.model.ts:1716` `Hr` (namespace) - missing @example
-- `src/Md.model.ts:1776` `Block` (type) - missing @example
-- `src/Md.model.ts:1784` `Block` (namespace) - missing @example
-- `src/Md.model.ts:1860` `Document` (namespace) - missing @example
-- `src/Md.ts:852` `table` (const) - 2 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:24` `CodeFenceLanguage` (const) - missing @example
+- `src/Md.model.ts:43` `CodeFenceLanguage` (type) - missing @example
+- `src/Md.model.ts:55` `YouTubeVideoId` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:75` `InlineChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:87` `InlineChildren` (namespace) - missing @example
+- `src/Md.model.ts:133` `Text` (namespace) - missing @example
+- `src/Md.model.ts:182` `RawMarkdown` (namespace) - missing @example
+- `src/Md.model.ts:234` `RawHtml` (namespace) - missing @example
+- `src/Md.model.ts:283` `Strong` (namespace) - missing @example
+- `src/Md.model.ts:335` `Em` (namespace) - missing @example
+- `src/Md.model.ts:387` `Del` (namespace) - missing @example
+- `src/Md.model.ts:439` `Code` (namespace) - missing @example
+- `src/Md.model.ts:494` `A` (namespace) - missing @example
+- `src/Md.model.ts:554` `Img` (namespace) - missing @example
+- `src/Md.model.ts:598` `Br` (namespace) - missing @example
+- `src/Md.model.ts:642` `Inline` (type) - missing @example
+- `src/Md.model.ts:650` `Inline` (namespace) - missing @example
+- `src/Md.model.ts:688` `BlockChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:700` `BlockChildren` (namespace) - missing @example
+- `src/Md.model.ts:720` `ListItemChild` (const) - missing @example
+- `src/Md.model.ts:734` `ListItemChild` (type) - missing @example
+- `src/Md.model.ts:742` `ListItemChild` (namespace) - missing @example
+- `src/Md.model.ts:760` `ListItemChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:772` `ListItemChildren` (namespace) - missing @example
+- `src/Md.model.ts:818` `P` (namespace) - missing @example
+- `src/Md.model.ts:870` `H1` (namespace) - missing @example
+- `src/Md.model.ts:922` `H2` (namespace) - missing @example
+- `src/Md.model.ts:974` `H3` (namespace) - missing @example
+- `src/Md.model.ts:1026` `H4` (namespace) - missing @example
+- `src/Md.model.ts:1078` `H5` (namespace) - missing @example
+- `src/Md.model.ts:1130` `H6` (namespace) - missing @example
+- `src/Md.model.ts:1182` `Li` (namespace) - missing @example
+- `src/Md.model.ts:1206` `ListChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:1218` `ListChildren` (namespace) - missing @example
+- `src/Md.model.ts:1264` `Ul` (namespace) - missing @example
+- `src/Md.model.ts:1316` `Ol` (namespace) - missing @example
+- `src/Md.model.ts:1369` `TaskItem` (namespace) - missing @example
+- `src/Md.model.ts:1395` `TaskItemChildren` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Md.model.ts:1407` `TaskItemChildren` (namespace) - missing @example
+- `src/Md.model.ts:1451` `TaskList` (namespace) - missing @example
+- `src/Md.model.ts:1501` `BlockQuote` (namespace) - missing @example
+- `src/Md.model.ts:1560` `Pre` (namespace) - missing @example
+- `src/Md.model.ts:1616` `TableCell` (namespace) - missing @example
+- `src/Md.model.ts:1666` `TableRow` (namespace) - missing @example
+- `src/Md.model.ts:1722` `Table` (namespace) - missing @example
+- `src/Md.model.ts:1774` `YouTube` (namespace) - missing @example
+- `src/Md.model.ts:1817` `Hr` (namespace) - missing @example
+- `src/Md.model.ts:1861` `Block` (type) - missing @example
+- `src/Md.model.ts:1869` `Block` (namespace) - missing @example
+- `src/Md.model.ts:1943` `Document` (namespace) - missing @example
+- `src/Md.ts:976` `table` (const) - 2 schema annotation/type-alias gap(s)
+
+### @beep/law-practice-use-cases
+
+Path: `packages/law-practice/use-cases`
+
+Export findings:
+- `src/IrToLaw/IrToLaw.errors.ts:44` `IrToLawExtractionErrorReason` (type) - missing @example
+- `src/OfficeActionReview/OfficeActionReview.ports.ts:82` `OfficeActionReviewError` (type) - missing @example
+- `src/index.ts:30` `export * from "./public.js";` (re-export) - missing @example
 
 ### @beep/workspace-domain
 
@@ -894,9 +1089,12 @@ Export findings:
 Path: `packages/foundation/capability/semantic-web`
 
 Export findings:
+- `src/adapters/web-annotation.ts:8` `export * from "@beep/rdf/Adapters/WebAnnotation";` (re-export) - missing @example, @category
+- `src/evidence.ts:8` `export * from "@beep/rdf/Evidence";` (re-export) - missing @example, @category
 - `src/index.ts:14` `export * from "./iri.ts";` (re-export) - missing @example
 - `src/iri.ts:9` `export * from "@beep/rdf/Iri";` (re-export) - missing @example
 - `src/jsonld.ts:9` `export * from "@beep/rdf/JsonLd";` (re-export) - missing @example
+- `src/prov.ts:8` `export * from "@beep/rdf/Prov";` (re-export) - missing @example, @category
 - `src/rdf.ts:9` `export * from "@beep/rdf/Rdf";` (re-export) - missing @example
 - `src/semantic-schema-metadata.ts:9` `export * from "@beep/rdf/SemanticSchemaMetadata";` (re-export) - missing @example
 - `src/services/canonicalization.ts:48` `CanonicalizationAlgorithm` (const) - 1 schema annotation/type-alias gap(s)
@@ -919,9 +1117,14 @@ Export findings:
 
 Path: `packages/foundation/modeling/utils`
 
+Module findings:
+- `src/DrainableWorker.ts:1` (none) - missing summary; missing @since
+
 Export findings:
 - `src/Errors.ts:163` `mapToError` (function) - missing summary; missing @example, @category, @since
 - `src/Errors.ts:166` `mapToError` (function) - missing summary; missing @example, @category, @since
+- `src/FileSystem.ts:353` `readdirSync` (function) - missing summary; missing @example, @category, @since
+- `src/FileSystem.ts:357` `readdirSync` (function) - missing summary; missing @example, @category, @since
 - `src/Predicate.ts:206` `chainRefinements` (function) - missing summary; missing @example, @category, @since
 - `src/Predicate.ts:209` `chainRefinements` (function) - missing summary; missing @example, @category, @since
 - `src/Predicate.ts:212` `chainRefinements` (function) - missing summary; missing @example, @category, @since
@@ -934,9 +1137,10 @@ Export findings:
 - `src/Predicate.ts:334` `chainRefinements` (function) - missing summary; missing @example, @category, @since
 - `src/Predicate.ts:335` `chainRefinements` (function) - missing summary; missing @example, @category, @since
 - `src/Utils.ts:64` `export * from "effect/Utils";` (re-export) - missing @example
-- `src/index.ts:14` `export { dual } from "effect/Function";` (re-export) - missing @example
-- `src/index.ts:119` `export * from "./GlobalValue.ts";` (re-export) - missing @example
-- `src/index.ts:274` `export * as Utils from "./Utils.ts";` (re-export) - missing @example
+- `src/index.ts:14` `export { dual, flow, identity, pipe } from "effect/Function";` (re-export) - missing @example
+- `src/index.ts:69` `export * from "./DrainableWorker.ts";` (re-export) - missing @example
+- `src/index.ts:134` `export * from "./GlobalValue.ts";` (re-export) - missing @example
+- `src/index.ts:303` `export * as Utils from "./Utils.ts";` (re-export) - missing @example
 
 ### @beep/repo-ai-metrics
 
@@ -979,8 +1183,8 @@ Export findings:
 Path: `packages/drivers/libpff`
 
 Export findings:
-- `src/Libpff.pffexport.ts:55` `PffexportMode` (type) - missing @example
-- `src/Libpff.pffexport.ts:81` `PffexportFormat` (type) - missing @example
+- `src/Libpff.pffexport.ts:56` `PffexportMode` (type) - missing @example
+- `src/Libpff.pffexport.ts:82` `PffexportFormat` (type) - missing @example
 - `src/index.ts:14` `export * from "./Libpff.errors.ts";` (re-export) - missing @example
 - `src/index.ts:21` `export * from "./Libpff.pffexport.ts";` (re-export) - missing @example
 - `src/index.ts:28` `export * from "./Libpff.service.ts";` (re-export) - missing @example
@@ -990,20 +1194,9 @@ Export findings:
 Path: `packages/foundation/ui-system/form`
 
 Export findings:
-- `src/core.ts:13` `export * from "./core/index.ts";` (re-export) - missing @example
-- `src/core/FormAtoms.ts:305` `make` (const) - 2 schema annotation/type-alias gap(s)
-- `src/core/FormBuilder.ts:444` `buildSchema` (const) - 2 schema annotation/type-alias gap(s)
-- `src/core/index.ts:7` `export * as Field from "./Field.ts";` (re-export) - missing @example
-- `src/core/index.ts:14` `export * as FieldState from "./FieldState.ts";` (re-export) - missing @example
-- `src/core/index.ts:21` `export * as FormAtoms from "./FormAtoms.ts";` (re-export) - missing @example
-- `src/core/index.ts:28` `export * as FormBuilder from "./FormBuilder.ts";` (re-export) - missing @example
-- `src/core/index.ts:35` `export * as Mode from "./Mode.ts";` (re-export) - missing @example
-- `src/core/index.ts:42` `export * as Path from "./Path.ts";` (re-export) - missing @example
-- `src/core/index.ts:49` `export * as Validation from "./Validation.ts";` (re-export) - missing @example
-- `src/index.ts:15` `export * from "./core.ts";` (re-export) - missing @example
-- `src/react.ts:13` `export * from "./react/index.ts";` (re-export) - missing @example
-- `src/react/index.ts:7` `export * from "../core.ts";` (re-export) - missing @example
-- `src/react/index.ts:14` `export * as FormReact from "./FormReact.tsx";` (re-export) - missing @example
+- `src/components/Form.tsx:21` `FormProps` (interface) - missing @example
+- `src/components/SubmitButton.tsx:23` `SubmitButtonProps` (interface) - missing @example
+- `src/fields/TimeField.tsx:35` `TimeFieldProps` (interface) - 1 unsafe example violation(s)
 
 ### @beep/identity
 
@@ -1034,24 +1227,120 @@ Export findings:
 - `src/experimental/Box.schemas.ts:197` `SerializedDataMap` (type) - missing @example
 - `src/experimental/Box.schemas.ts:290` `BoxSdkError` (type) - missing @example
 - `src/experimental/Box.schemas.ts:319` `BoxApiError` (type) - missing @example
+- `src/experimental/domain/entities/AiTaxonomy/AiTaxonomy.model.ts:38` `AiTaxonomy` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/AiTextGen/AiTextGen.model.ts:38` `AiTextGen` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/AppItem/AppItem.model.ts:38` `AppItem` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Collaboration/Collaboration.model.ts:38` `Collaboration` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Comment/Comment.model.ts:38` `Comment` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/DevicePinner/DevicePinner.ts:38` `DevicePinner` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/EmailAlias/EmailAlias.model.ts:38` `EmailAlias` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Event/Event.model.ts:38` `Event` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/File/File.model.ts:38` `File` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/FileVersion/FileVersion.model.ts:38` `FileVersion` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Folder/Folder.model.ts:38` `Folder` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/FolderReference/FolderReference.model.ts:38` `FolderReference` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Group/Group.model.ts:38` `Group` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/GroupMembership/GroupMembership.model.ts:38` `GroupMembership` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model.ts:38` `IntegrationMapping` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Invite/Invite.model.ts:38` `Invite` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Item/Item.model.ts:38` `Item` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Outcome/Outcome.model.ts:38` `Outcome` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.model.ts:38` `PLACEHOLDER` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/RetentionPolicy/RetentionPolicy.model.ts:38` `RetentionPolicy` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/RetentionPolicyAssignment/RetentionPolicyAssignment.model.ts:38` `RetentionPolicyAssignment` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/SignRequest/SignRequest.model.ts:38` `SignRequest` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/SignTemplate/SignTemplate.model.ts:38` `SignTemplate` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/StoragePolicy/StoragePolicy.model.ts:38` `StoragePolicy` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model.ts:38` `StoragePolicyAssignment` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Task/Task.model.ts:38` `Task` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TaskAssignment/TaskAssignment.model.ts:38` `TaskAssignment` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TrashFile/TrashFile.model.ts:38` `TrashFile` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TrashFileRestored/TrashFileRestored.model.ts:38` `TrashFileRestored` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TrashFolder/TrashFolder.model.ts:38` `TrashFolder` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TrashFolderRestored/TrashFolderRestored.model.ts:38` `TrashFolderRestored` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TrashWebLink/TrashWebLink.model.ts:38` `TrashWebLink` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model.ts:38` `TrashWebLinkRestored` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/UploadSession/UploadSession.model.ts:38` `UploadSession` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/User/User.model.ts:38` `User` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/WebLink/WebLink.model.ts:38` `WebLink` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Webhook/Webhook.model.ts:38` `Webhook` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/Workflow/Workflow.model.ts:38` `Workflow` (namespace) - missing @example, @category
+- `src/experimental/domain/entities/ZipDownload/ZipDownload.model.ts:38` `ZipDownload` (namespace) - missing @example, @category
+- `src/experimental/domain/errors/ClientError.errors.ts:38` `PLACEHOLDER` (namespace) - missing @example, @category
+- `src/experimental/domain/values/Classification/Classification.model.ts:38` `Classification` (namespace) - missing @example, @category
+- `src/experimental/domain/values/Metadata/Metadata.model.ts:39` `Metadata` (namespace) - missing @example, @category
+- `src/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model.ts:38` `PLACEHOLDER` (namespace) - missing @example, @category
+- `src/experimental/domain/values/Resource/Resource.model.ts:38` `Resource` (namespace) - missing @example, @category
+- `src/experimental/domain/values/SearchResult/PLACEHOLDER.model.ts:41` `PLACEHOLDER` (namespace) - missing @example, @category
+- `src/experimental/domain/values/SerializedData/SerializedData.model.ts:80` `SerializedData` (type) - missing @example
+- `src/experimental/domain/values/SerializedData/SerializedData.model.ts:134` `SerializedDataList` (type) - missing @example
+- `src/experimental/domain/values/SerializedData/SerializedData.model.ts:193` `SerializedDataMap` (type) - missing @example
+- `src/experimental/domain/values/UploadPart/UploadPart.model.ts:38` `UploadPart` (namespace) - missing @example, @category
+
+### @beep/nlp-processing
+
+Path: `packages/foundation/capability/nlp-processing`
+
+Export findings:
+- `src/Core/index.ts:13` `export * from "./Tokenization.ts";` (re-export) - missing @example
+- `src/Graph/GraphOperations/Types.ts:150` `ExecutionMetrics` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Graph/GraphOperations/Types.ts:549` `OperationCategory` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Graph/GraphOperations/index.ts:14` `export * as Catalog from "./Catalog.ts";` (re-export) - missing @example
+- `src/Graph/GraphOperations/index.ts:21` `export * as Executor from "./Executor.ts";` (re-export) - missing @example
+- `src/Graph/GraphOperations/index.ts:28` `export * as ResultStore from "./ResultStore.ts";` (re-export) - missing @example
+- `src/Graph/GraphOperations/index.ts:35` `export * as Errors from "./Errors.ts";` (re-export) - missing @example
+- `src/Graph/GraphOperations/index.ts:42` `export * as Operation from "./Operation.ts";` (re-export) - missing @example
+- `src/Graph/GraphOperations/index.ts:49` `export * as Types from "./Types.ts";` (re-export) - missing @example
+- `src/Graph/index.ts:14` `export * as AnnotatedTextGraph from "./AnnotatedTextGraph.ts";` (re-export) - missing @example
+- `src/Graph/index.ts:21` `export * as EffectGraph from "./EffectGraph.ts";` (re-export) - missing @example
+- `src/Graph/index.ts:28` `export * as GraphOperations from "./GraphOperations/index.ts";` (re-export) - missing @example
+- `src/Graph/index.ts:35` `export * as TextGraph from "./TextGraph.ts";` (re-export) - missing @example
+- `src/Graph/index.ts:42` `export * as TypeClass from "./TypeClass.ts";` (re-export) - missing @example
+- `src/index.ts:14` `export * as Backend from "./Backend/index.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * as Core from "./Core/index.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * as Graph from "./Graph/index.ts";` (re-export) - missing @example
+- `src/index.ts:35` `export * as NLPService from "./NLPService.ts";` (re-export) - missing @example
+- `src/index.ts:42` `export * as Tools from "./Tools/index.ts";` (re-export) - missing @example
 
 ### @beep/professional-desktop
 
 Path: `apps/professional-desktop`
 
+Module findings:
+- `src/runtime/Pglite.ts:1` (none) - missing summary; missing @since
+- `src/transport/TauriIpcSocket.ts:1` (none) - missing summary; missing @since
+
 Export findings:
-- `src/chat/ChatOrchestrator.ts:112` `documentToPlainText` (const) - missing @example
-- `src/chat/ChatOrchestrator.ts:422` `makeChatOperations` (const) - missing @example
+- `src/chat/ChatFixtures.ts:15` `decodeWorkspaceId` (const) - missing summary; missing @example, @category, @since
+- `src/chat/ChatFixtures.ts:17` `userDocument` (const) - missing summary; missing @example, @category, @since
+- `src/chat/ChatFixtures.ts:20` `userParagraphDocument` (const) - missing summary; missing @example, @category, @since
+- `src/chat/ChatOrchestrator.ts:50` `documentToPlainText` (const) - missing @example
+- `src/chat/ChatOrchestrator.ts:359` `makeChatOperations` (const) - missing @example
 - `src/chat/UsageRecordSink.ts:27` `UsageRecordSinkShape` (interface) - missing @example
 - `src/chat/UsageRecordSink.ts:38` `UsageRecordSink` (class) - missing @example
 - `src/chat/UsageRecordSink.ts:51` `makeInMemoryUsageRecordSink` (const) - missing @example
 - `src/chat/UsageRecordSink.ts:72` `UsageRecordSinkInMemory` (const) - missing @example
 - `src/chat/UsageRecordSink.ts:125` `UsageRecordSinkDrizzle` (const) - missing @example
+- `src/chat/ui/StreamingBlocks.tsx:40` `boundedKey` (const) - missing @example, @category, @since
+- `src/chat/ui/StreamingBlocks.tsx:51` `stableOccurrenceKeys` (const) - missing @example, @category, @since
+- `src/chat/ui/StreamingBlocks.tsx:79` `blockRenderKey` (const) - missing summary; missing @example, @category, @since
 - `src/runtime/Layer.ts:50` `ChatHandlersLayer` (type) - missing @example
 - `src/runtime/Layer.ts:82` `RuntimeLive` (const) - missing @example
 - `src/runtime/Layer.ts:97` `RuntimeTest` (const) - missing @example
-- `src/runtime/Observability.ts:94` `ObservabilityLive` (const) - missing @example
-- `src/runtime/Pglite.ts:168` `PgliteDrizzleLive` (const) - missing @example
+- `src/runtime/Migrations.ts:254` `SidecarReadyMarker` (const) - missing @example
+- `src/runtime/Observability.ts:97` `ObservabilityLive` (const) - missing @example
+- `src/runtime/Pglite.ts:72` `ChatDbCompatibilityMarker` (const) - missing @example
+- `src/runtime/Pglite.ts:112` `markCompatibleChatDbDataDir` (const) - missing @example
+- `src/runtime/Pglite.ts:172` `ensureCompatibleChatDbDataDir` (const) - missing @example
+- `src/runtime/Pglite.ts:252` `makeBundledPgliteLayer` (const) - missing @example
+- `src/runtime/Pglite.ts:266` `PgliteDrizzleLive` (const) - missing @example
+
+### @beep/epistemic-domain
+
+Path: `packages/epistemic/domain`
+
+Export findings:
+- `src/values/EvidenceSpan/EvidenceSpan.model.ts:50` `Confidence` (type) - 1 unsafe example violation(s)
 
 ### @beep/architecture-lab-use-cases
 
@@ -1096,6 +1385,16 @@ Export findings:
 - `src/Firecrawl.models.ts:438` `FirecrawlParseFile` (const) - missing @example
 - `src/Firecrawl.models.ts:464` `FirecrawlParseOptions` (const) - missing @example
 
+### @beep/ecfr
+
+Path: `packages/drivers/ecfr`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example; 1 category casing violation(s)
+
 ### @beep/acp
 
 Path: `packages/drivers/acp`
@@ -1105,7 +1404,7 @@ Export findings:
 
 ### @beep/nlp
 
-Path: `packages/foundation/capability/nlp`
+Path: `packages/foundation/modeling/nlp`
 
 Export findings:
 - `src/Core/PatternBuilders.ts:93` `pos` (function) - missing summary; missing @example, @category, @since
@@ -1124,7 +1423,8 @@ Export findings:
 - `src/Core/PatternParsers.ts:133` `BracketStringToEntityPatternElement` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Core/PatternParsers.ts:164` `BracketStringToLiteralPatternElement` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Core/Similarity.ts:48` `SimilarityMethod` (type) - missing @example
-- `src/Core/Vectorization.ts:50` `BM25Norm` (type) - missing @example
+- `src/Core/Vectorization.ts:16` `export { PositiveNumber } from "../internal/numbers.ts";` (re-export) - missing @example, @category, @since
+- `src/Core/Vectorization.ts:52` `BM25Norm` (type) - missing @example
 - `src/Core/index.ts:11` `export * from "./Document.ts";` (re-export) - missing @example
 - `src/Core/index.ts:16` `export * from "./Pattern.ts";` (re-export) - missing @example
 - `src/Core/index.ts:21` `export * from "./PatternBuilders.ts";` (re-export) - missing @example
@@ -1133,20 +1433,16 @@ Export findings:
 - `src/Core/index.ts:36` `export * from "./Sentence.ts";` (re-export) - missing @example
 - `src/Core/index.ts:41` `export * from "./Similarity.ts";` (re-export) - missing @example
 - `src/Core/index.ts:46` `export * from "./Token.ts";` (re-export) - missing @example
-- `src/Core/index.ts:51` `export * from "./Tokenization.ts";` (re-export) - missing @example
-- `src/Core/index.ts:56` `export * from "./Vectorization.ts";` (re-export) - missing @example
-- `src/Graph/GraphOperations/Types.ts:150` `ExecutionMetrics` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Graph/GraphOperations/Types.ts:549` `OperationCategory` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Core/index.ts:51` `export * from "./Vectorization.ts";` (re-export) - missing @example
 - `src/Graph/Schema.ts:41` `TextNodeType` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Graph/Schema.ts:60` `TextEdgeRelation` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Handoff/Contract.ts:55` `ChunkId` (type) - missing @example
-- `src/Handoff/Contract.ts:81` `MentionId` (type) - missing @example
-- `src/Handoff/Contract.ts:107` `EntityId` (type) - missing @example
-- `src/Handoff/Contract.ts:133` `RelationId` (type) - missing @example
-- `src/Handoff/Contract.ts:148` `ChunkKind` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Handoff/Contract.ts:207` `Span` (type) - missing @example
+- `src/Handoff/Contract.ts:54` `ChunkId` (type) - missing @example
+- `src/Handoff/Contract.ts:80` `MentionId` (type) - missing @example
+- `src/Handoff/Contract.ts:106` `EntityId` (type) - missing @example
+- `src/Handoff/Contract.ts:132` `RelationId` (type) - missing @example
+- `src/Handoff/Contract.ts:147` `ChunkKind` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Handoff/Contract.ts:206` `Span` (type) - missing @example
 - `src/Ontology/Kind.ts:151` `TypedTextSchema` (const) - 1 schema annotation/type-alias gap(s)
-- `src/index.ts:102` `export * as NLPService from "./NLPService.ts";` (re-export) - missing @example
 
 ### @beep/runpod
 
@@ -1219,12 +1515,12 @@ Export findings:
 - `src/JSDoc/models/tag-values/index.ts:532` `TagName` (const) - 1 schema annotation/type-alias gap(s)
 - `src/ProcessArgs.ts:46` `export { OptionInjectionError } from "./errors/OptionInjectionError.js";` (re-export) - missing @example
 - `src/ProcessArgs.ts:238` `LiteralArg` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:399` `SymbolKind` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:425` `SymbolCategory` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:696` `TsMorphScopeMode` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:722` `TsMorphReferencePolicy` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.model.ts:1727` `TsMorphDiagnosticCategory` (const) - 1 schema annotation/type-alias gap(s)
-- `src/TSMorph/TSMorph.service.ts:271` `TSMorphServiceError` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:400` `SymbolKind` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:426` `SymbolCategory` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:697` `TsMorphScopeMode` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:723` `TsMorphReferencePolicy` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.model.ts:1728` `TsMorphDiagnosticCategory` (const) - 1 schema annotation/type-alias gap(s)
+- `src/TSMorph/TSMorph.service.ts:272` `TSMorphServiceError` (const) - 1 schema annotation/type-alias gap(s)
 - `src/TSMorph/index.ts:7` `export * from "./TSMorph.model.js";` (re-export) - missing @example
 - `src/TSMorph/index.ts:14` `export * from "./TSMorph.service.js";` (re-export) - missing @example
 - `src/TypeScript/index.ts:5` `export * from "./models/index.js";` (re-export) - missing @example
@@ -1654,8 +1950,6 @@ Export findings:
 } from "./Color.scale.ts";` (re-export) - missing @example
 - `src/Color/Color.ts:70` `export { HexToOklch, HexToRgb, OklchToHex, OklchToRgb, RgbToHex, RgbToOklch } from "./Color.transforms.ts";` (re-export) - missing @example
 - `src/Color/index.ts:7` `export * from "./Color.ts";` (re-export) - missing @example
-- `src/CommonTextSchemas.ts:62` `TrimmedNonEmptyText` (type) - 1 unsafe example violation(s)
-- `src/CommonTextSchemas.ts:105` `CommaSeparatedList` (type) - 1 unsafe example violation(s)
 - `src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:53` `CoepValue` (type) - missing @example
 - `src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:84` `CrossOriginEmbedderPolicyOption` (type) - missing @example
 - `src/CrossOriginEmbedderPolicy/CrossOriginEmbedderPolicy.schema.ts:212` `CrossOriginEmbedderPolicyHeader` (type) - missing @example
@@ -1666,9 +1960,9 @@ Export findings:
 - `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:52` `CoopValue` (type) - missing @example
 - `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:84` `CrossOriginOpenerPolicyOption` (type) - missing @example
 - `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:104` `CrossOriginOpenerPolicyResponseHeader` (class) - 1 example import violation(s)
-- `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:193` `CrossOriginOpenerPolicyHeader` (type) - missing @example
-- `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:133` `Header` (const) - 1 schema annotation/type-alias gap(s)
-- `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:193` `Header` (type) - missing @example
+- `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:194` `CrossOriginOpenerPolicyHeader` (type) - missing @example
+- `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:134` `Header` (const) - 1 schema annotation/type-alias gap(s)
+- `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:194` `Header` (type) - missing @example
 - `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:84` `Option` (type) - missing @example
 - `src/CrossOriginOpenerPolicy/CrossOriginOpenerPolicy.schema.ts:104` `ResponseHeader` (class) - 1 example import violation(s)
 - `src/CrossOriginOpenerPolicy/index.ts:20` `export * from "./CrossOriginOpenerPolicy.schema.ts";` (re-export) - missing @example
@@ -1689,26 +1983,20 @@ Export findings:
 - `src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:203` `Schema` (type) - missing @example
 - `src/CryptoWalletAddress/CryptoWalletAddress.schema.ts:235` `Redacted` (type) - missing @example
 - `src/CryptoWalletAddress/index.ts:22` `export * from "./CryptoWalletAddress.schema.ts";` (re-export) - missing @example
-- `src/Csp/Csp.schema.ts:513` `ReportURI` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Csp/Csp.schema.ts:578` `CspDirectives` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Csp/Csp.schema.ts:857` `ContentSecurityPolicyHeader` (type) - 1 unsafe example violation(s)
-- `src/Csp/Csp.schema.ts:783` `Header` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Csp/Csp.schema.ts:857` `Header` (type) - 1 unsafe example violation(s)
-- `src/Csp/Csp.schema.ts:643` `Option` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Csp/Csp.schema.ts:523` `ReportURI` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Csp/Csp.schema.ts:590` `CspDirectives` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Csp/Csp.schema.ts:810` `Header` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Csp/Csp.schema.ts:661` `Option` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Csp/index.ts:20` `export * from "./Csp.schema.ts";` (re-export) - missing @example
-- `src/Csv/Csv.schema.ts:67` `CsvDocument` (type) - 1 unsafe example violation(s)
-- `src/Csv/Csv.schema.ts:336` `CsvText` (type) - missing @example
-- `src/Csv/Csv.schema.ts:362` `CSV` (type) - 1 unsafe example violation(s)
-- `src/Csv/Csv.schema.ts:380` `Schema` (type) - 1 unsafe example violation(s)
+- `src/Csv/Csv.schema.ts:339` `CsvText` (type) - missing @example
 - `src/Csv/index.ts:12` `export * from "./Csv.schema.ts";` (re-export) - missing @example
 - `src/CsvCodecOptions/index.ts:21` `export * from "./CsvCodecOptions.schema.ts";` (re-export) - missing @example
 - `src/CsvError/index.ts:21` `export * from "./CsvError.errors.ts";` (re-export) - missing @example
 - `src/CsvFormatter/index.ts:20` `export * from "./CsvFormatter.formatter.ts";` (re-export) - missing @example
 - `src/CsvParser/index.ts:20` `export * from "./CsvParser.parser.ts";` (re-export) - missing @example
-- `src/Cuid.ts:52` `Cuid` (const) - 1 example import violation(s)
-- `src/Cuid.ts:71` `Cuid` (type) - 1 unsafe example violation(s)
-- `src/CurrencyCode.ts:51` `CurrencyCode` (type) - 1 unsafe example violation(s)
-- `src/DateTimeUtcFromValid/index.ts:12` `export * from "./DateTimeUtcFromValid.schema.ts";` (re-export) - missing @example
+- `src/Cuid.ts:59` `Cuid` (const) - 1 schema annotation/type-alias gap(s)
+- `src/DateTimeUtcFromValid/index.ts:12` `export * from "./DateTimeUtcFromValid.adapter.ts";` (re-export) - missing @example
+- `src/DateTimeUtcFromValid/index.ts:17` `export * from "./DateTimeUtcFromValid.schema.ts";` (re-export) - missing @example
 - `src/DomCssProperties/index.ts:20` `export * from "./DomCssProperties.schema.ts";` (re-export) - missing @example
 - `src/DomDragEvent/DomDragEvent.schema.ts:54` `DOMDragEvent` (type) - missing @example
 - `src/DomDragEvent/DomDragEvent.schema.ts:54` `DomDragEvent` (type) - missing @example
@@ -1740,25 +2028,13 @@ Export findings:
 - `src/Duration/index.ts:20` `export * from "./Duration.input.ts";` (re-export) - missing @example
 - `src/Duration/index.ts:25` `export * from "./Duration.schema.ts";` (re-export) - missing @example
 - `src/Duration/index.ts:30` `export * from "./Duration.transforms.ts";` (re-export) - missing @example
-- `src/Email.ts:46` `EmailString` (type) - 1 unsafe example violation(s)
 - `src/EntitySchema/EntitySchema.constructors.ts:113` `literal` (const) - 2 schema annotation/type-alias gap(s)
-- `src/EntitySchema/EntitySchema.definition.ts:42` `Definition` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:180` `ColumnNameFor` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:251` `VariantFieldFor` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:289` `VariantFieldForInput` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:309` `VariantFieldsFor` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:329` `EntityClass` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:355` `EntityClass` (namespace) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.definition.ts:428` `AssignedEntityParts` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.factory.ts:58` `ClassFactory` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.fields.ts:41` `EntityVariantFieldInput` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:358` `PersistDescriptor` (namespace) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:440` `PersistDescriptorByValueStrategy` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:465` `EntityIdLike` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:517` `PersistDescriptorFor` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:539` `PersistDescriptorForInput` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:555` `PersistedFor` (type) - 1 unsafe example violation(s)
-- `src/EntitySchema/EntitySchema.persist.ts:600` `CheckedPersistedFor` (type) - 1 unsafe example violation(s)
+- `src/EntitySchema/EntitySchema.persist.ts:452` `PersistDescriptorByValueStrategy` (type) - 1 unsafe example violation(s)
+- `src/EntitySchema/EntitySchema.persist.ts:477` `EntityIdLike` (type) - 1 unsafe example violation(s)
+- `src/EntitySchema/EntitySchema.persist.ts:529` `PersistDescriptorFor` (type) - 1 unsafe example violation(s)
+- `src/EntitySchema/EntitySchema.persist.ts:551` `PersistDescriptorForInput` (type) - 1 unsafe example violation(s)
+- `src/EntitySchema/EntitySchema.persist.ts:567` `PersistedFor` (type) - 1 unsafe example violation(s)
+- `src/EntitySchema/EntitySchema.persist.ts:612` `CheckedPersistedFor` (type) - 1 unsafe example violation(s)
 - `src/EntitySchema/EntitySchema.shape.ts:54` `EntityFieldInputError` (class) - missing @example
 - `src/EntitySchema/EntitySchema.shape.ts:72` `EntitySchemaAttachmentError` (class) - missing @example
 - `src/EntitySchema/EntitySchema.shape.ts:189` `EncodedFieldShape` (type) - missing @example
@@ -1799,14 +2075,6 @@ Export findings:
 - `src/ExpectCt/ExpectCt.schema.ts:92` `Option` (const) - 1 schema annotation/type-alias gap(s)
 - `src/ExpectCt/ExpectCt.schema.ts:104` `Option` (type) - missing @example
 - `src/ExpectCt/index.ts:20` `export * from "./ExpectCt.schema.ts";` (re-export) - missing @example
-- `src/FileExtension.ts:117` `ApplicationFileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileExtension.ts:156` `VideoFileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileExtension.ts:195` `TextFileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileExtension.ts:234` `ImageFileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileExtension.ts:273` `AudioFileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileExtension.ts:311` `MiscFileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileExtension.ts:354` `FileExtension` (type) - 1 unsafe example violation(s)
-- `src/FileName.ts:136` `FileName` (type) - 1 unsafe example violation(s)
 - `src/FilePath/FilePath.guards.ts:49` `HasNullByte` (type) - missing @example
 - `src/FilePath/FilePath.guards.ts:87` `SupportedWindowsNamespace` (type) - missing @example
 - `src/FilePath/FilePath.guards.ts:124` `UsesPosixSeparator` (type) - missing @example
@@ -1852,10 +2120,7 @@ Export findings:
 - `src/Float64Array.ts:59` `Float64Arr` (type) - missing @example
 - `src/Float64Array.ts:107` `Float64ArrayFromArray` (type) - missing @example
 - `src/Float64Array.ts:115` `Float64ArrayFromArray` (namespace) - missing @example
-- `src/Fn/Fn.schema.ts:185` `FnSchemaNoArg` (interface) - 1 unsafe example violation(s)
-- `src/Fn/Fn.schema.ts:215` `FnSchemaUnary` (interface) - 1 unsafe example violation(s)
-- `src/Fn/Fn.schema.ts:273` `FnSchemaStatics` (type) - 1 unsafe example violation(s)
-- `src/Fn/Fn.schema.ts:470` `AnyFn` (type) - missing @example
+- `src/Fn/Fn.schema.ts:473` `AnyFn` (type) - missing @example
 - `src/Fn/index.ts:12` `export * from "./Fn.schema.ts";` (re-export) - missing @example
 - `src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:79` `ForceHttpsRedirectEnabled` (type) - missing @example
 - `src/ForceHttpsRedirect/ForceHttpsRedirect.schema.ts:107` `ForceHttpsRedirectOption` (type) - missing @example
@@ -1876,7 +2141,6 @@ Export findings:
 - `src/FrameGuard/FrameGuard.schema.ts:137` `Option` (type) - missing @example
 - `src/FrameGuard/index.ts:20` `export * from "./FrameGuard.schema.ts";` (re-export) - missing @example
 - `src/Glob/Glob.schema.ts:130` `Glob` (type) - missing @example
-- `src/Glob/Glob.schema.ts:161` `Schema` (type) - 1 unsafe example violation(s)
 - `src/Glob/index.ts:12` `export * from "./Glob.schema.ts";` (re-export) - missing @example
 - `src/Graph/Graph.edge.ts:67` `Edge` (interface) - missing @example
 - `src/Graph/Graph.encoded.ts:78` `EdgeIso` (type) - missing @example
@@ -1995,7 +2259,6 @@ Export findings:
 - `src/HttpStatus/HttpStatus.redirection.ts:349` `HttpStatus3XX` (namespace) - missing @example
 - `src/HttpStatus/HttpStatus.schema.ts:53` `HttpStatus` (namespace) - missing @example
 - `src/HttpStatus/HttpStatus.schema.ts:69` `HttpStatus` (type) - missing @example
-- `src/HttpStatus/HttpStatus.schema.ts:100` `Schema` (type) - 1 unsafe example violation(s)
 - `src/HttpStatus/HttpStatus.server-error.aggregate.ts:64` `HttpStatus5XX` (namespace) - missing @example
 - `src/HttpStatus/HttpStatus.server-error.aggregate.ts:80` `HttpStatus5XX` (type) - missing @example
 - `src/HttpStatus/HttpStatus.server-error.ts:47` `InternalServerError` (type) - missing @example
@@ -2047,28 +2310,23 @@ Export findings:
 - `src/HttpStatus/index.ts:71` `export * from "./HttpStatus.success.ts";` (re-export) - missing @example
 - `src/HttpStatus/index.ts:76` `export * from "./HttpStatus.unofficial.aggregate.ts";` (re-export) - missing @example
 - `src/HttpStatus/index.ts:81` `export * from "./HttpStatus.unofficial.ts";` (re-export) - missing @example
-- `src/Int.ts:98` `PosInt` (type) - 1 unsafe example violation(s)
-- `src/Int.ts:137` `PostgresSerialInt` (type) - 1 unsafe example violation(s)
-- `src/Int.ts:180` `NegInt` (type) - 1 unsafe example violation(s)
-- `src/Int.ts:223` `NonPositiveInt` (type) - 1 unsafe example violation(s)
 - `src/Json.ts:39` `JsonObject` (type) - missing @example
 - `src/Json.ts:68` `JsonArray` (type) - missing @example
 - `src/Jsonc.ts:91` `JsoncTextToUnknown` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Jsonl.ts:103` `JsonlTextToUnknown` (const) - 1 schema annotation/type-alias gap(s)
-- `src/KebabStr.ts:60` `KebabCaseStr` (type) - 1 unsafe example violation(s)
-- `src/LiteralKit/LiteralKit.schema.ts:722` `LiteralKit` (function) - missing summary; missing @example, @category, @since
-- `src/LiteralKit/LiteralKit.schema.ts:726` `LiteralKit` (function) - missing summary; missing @example, @category, @since
+- `src/LiteralKit/LiteralKit.schema.ts:721` `LiteralKit` (function) - missing summary; missing @example, @category, @since
+- `src/LiteralKit/LiteralKit.schema.ts:725` `LiteralKit` (function) - missing summary; missing @example, @category, @since
 - `src/LiteralKit/index.ts:12` `export * from "./LiteralKit.schema.ts";` (re-export) - missing @example
-- `src/LocalDate/LocalDate.schema.ts:675` `LocalDateFromString` (type) - 1 unsafe example violation(s)
-- `src/LocalDate/LocalDate.schema.ts:691` `LocalDateFromString` (namespace) - 1 unsafe example violation(s)
+- `src/LocalDate/LocalDate.schema.ts:677` `LocalDateFromString` (type) - 1 unsafe example violation(s)
+- `src/LocalDate/LocalDate.schema.ts:693` `LocalDateFromString` (namespace) - 1 unsafe example violation(s)
 - `src/LocalDate/index.ts:12` `export * from "./LocalDate.schema.ts";` (re-export) - missing @example
 - `src/Logs.ts:43` `LogLevel` (type) - missing @example
 - `src/Logs.ts:74` `LogSeverity` (type) - missing @example
 - `src/MappedLiteralKit/MappedLiteralKit.schema.ts:342` `MappedLiteralKit` (function) - 1 unsafe example violation(s)
 - `src/MappedLiteralKit/MappedLiteralKit.schema.ts:311` `MappedLiteralKit` (interface) - 1 unsafe example violation(s)
 - `src/MappedLiteralKit/index.ts:12` `export * from "./MappedLiteralKit.schema.ts";` (re-export) - missing @example
-- `src/Markdown.ts:139` `Markdown` (type) - missing @example
-- `src/Markdown.ts:164` `MarkdownTextToHtml` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Markdown.ts:140` `Markdown` (type) - missing @example
+- `src/Markdown.ts:165` `MarkdownTextToHtml` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Model/Model.codecs.ts:28` `JsonFromString` (interface) - 1 example import violation(s)
 - `src/Model/Model.codecs.ts:56` `JsonFromString` (const) - 1 example import violation(s)
 - `src/Model/Model.datetime.ts:44` `Date` (const) - 1 example import violation(s); 2 schema annotation/type-alias gap(s)
@@ -2089,7 +2347,6 @@ Export findings:
 - `src/Model/Model.uuid.ts:29` `UuidV4Insert` (interface) - 1 example import violation(s)
 - `src/Model/Model.uuid.ts:96` `UuidV4Insert` (const) - 1 example import violation(s)
 - `src/Model/Model.uuid.ts:71` `UuidV4WithGenerate` (const) - 1 example import violation(s)
-- `src/Model/Model.variants.ts:34` `Any` (type) - 1 unsafe example violation(s)
 - `src/Model/Model.variants.ts:15` `Class` (BindingElement) - missing summary; missing @example, @category, @since
 - `src/Model/Model.variants.ts:15` `extract` (BindingElement) - missing summary; missing @example, @category, @since
 - `src/Model/Model.variants.ts:15` `Field` (BindingElement) - missing summary; missing @example, @category, @since
@@ -2098,7 +2355,7 @@ Export findings:
 - `src/Model/Model.variants.ts:15` `fieldEvolve` (BindingElement) - missing summary; missing @example, @category, @since
 - `src/Model/Model.variants.ts:15` `Struct` (BindingElement) - missing summary; missing @example, @category, @since
 - `src/Model/Model.variants.ts:15` `Union` (BindingElement) - missing summary; missing @example, @category, @since
-- `src/Model/Model.variants.ts:329` `fields` (const) - 1 example import violation(s)
+- `src/Model/Model.variants.ts:331` `fields` (const) - 1 example import violation(s)
 - `src/Model/index.ts:14` `export * from "./Model.codecs.ts";` (re-export) - missing @example
 - `src/Model/index.ts:19` `export * from "./Model.datetime.ts";` (re-export) - missing @example
 - `src/Model/index.ts:24` `export * from "./Model.fields.ts";` (re-export) - missing @example
@@ -2123,22 +2380,18 @@ Export findings:
 - `src/NoSniff/NoSniff.schema.ts:53` `NoSniffValue` (type) - missing @example
 - `src/NoSniff/NoSniff.schema.ts:85` `NoSniffOption` (type) - missing @example
 - `src/NoSniff/NoSniff.schema.ts:102` `NoSniffResponseHeader` (class) - 1 example import violation(s)
-- `src/NoSniff/NoSniff.schema.ts:194` `NoSniffHeader` (type) - missing @example
-- `src/NoSniff/NoSniff.schema.ts:129` `Header` (const) - 1 schema annotation/type-alias gap(s)
-- `src/NoSniff/NoSniff.schema.ts:194` `Header` (type) - missing @example
+- `src/NoSniff/NoSniff.schema.ts:195` `NoSniffHeader` (type) - missing @example
+- `src/NoSniff/NoSniff.schema.ts:130` `Header` (const) - 1 schema annotation/type-alias gap(s)
+- `src/NoSniff/NoSniff.schema.ts:195` `Header` (type) - missing @example
 - `src/NoSniff/NoSniff.schema.ts:85` `Option` (type) - missing @example
 - `src/NoSniff/NoSniff.schema.ts:102` `ResponseHeader` (class) - 1 example import violation(s)
 - `src/NoSniff/NoSniff.schema.ts:53` `Value` (type) - missing @example
 - `src/NoSniff/index.ts:20` `export * from "./NoSniff.schema.ts";` (re-export) - missing @example
-- `src/Number.ts:163` `NonNegNum` (type) - 1 unsafe example violation(s)
-- `src/Number.ts:213` `NonNegativeInt` (type) - 1 unsafe example violation(s)
 - `src/Options.ts:78` `OptionFromOptionalNullishKey` (const) - forbidden @template
 - `src/ParserOptions/ParserOptions.schema.ts:82` `HeaderValueInput` (type) - missing @example
 - `src/ParserOptions/ParserOptions.types.ts:44` `HeaderArray` (type) - missing @example
 - `src/ParserOptions/ParserOptions.types.ts:76` `HeaderTransformFunction` (type) - missing @example
 - `src/ParserOptions/index.ts:21` `export * from "./ParserOptions.schema.ts";` (re-export) - missing @example
-- `src/PascalStr.ts:60` `PascalCaseStr` (type) - 1 unsafe example violation(s)
-- `src/Percentage.ts:55` `Percentage` (type) - 1 unsafe example violation(s)
 - `src/PermissionsPolicy/PermissionsPolicy.schema.ts:81` `PermissionsPolicyDirective` (type) - missing @example
 - `src/PermissionsPolicy/PermissionsPolicy.schema.ts:116` `PermissionsPolicyDirectiveKey` (type) - missing @example
 - `src/PermissionsPolicy/PermissionsPolicy.schema.ts:150` `QuotedOrigin` (type) - missing @example
@@ -2161,8 +2414,7 @@ Export findings:
 - `src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:89` `Option` (type) - missing @example
 - `src/PermittedCrossDomainPolicies/PermittedCrossDomainPolicies.schema.ts:58` `Value` (type) - missing @example
 - `src/PermittedCrossDomainPolicies/index.ts:20` `export * from "./PermittedCrossDomainPolicies.schema.ts";` (re-export) - missing @example
-- `src/PosixPath.ts:51` `PosixPath` (type) - 1 unsafe example violation(s)
-- `src/PosixPath.ts:68` `NativePathToPosixPath` (const) - 1 schema annotation/type-alias gap(s)
+- `src/PosixPath.ts:70` `NativePathToPosixPath` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Record/index.ts:12` `export * from "./Record.schema.ts";` (re-export) - missing @example
 - `src/ReferrerPolicy/ReferrerPolicy.schema.ts:61` `ReferrerPolicyValue` (type) - missing @example
 - `src/ReferrerPolicy/ReferrerPolicy.schema.ts:90` `ReferrerPolicyValueList` (type) - missing @example
@@ -2174,8 +2426,6 @@ Export findings:
 - `src/ReferrerPolicy/ReferrerPolicy.schema.ts:118` `Option` (type) - missing @example
 - `src/ReferrerPolicy/ReferrerPolicy.schema.ts:61` `Value` (type) - missing @example
 - `src/ReferrerPolicy/index.ts:20` `export * from "./ReferrerPolicy.schema.ts";` (re-export) - missing @example
-- `src/RegExp.ts:78` `RegExpStr` (type) - 1 unsafe example violation(s)
-- `src/RegExp.ts:130` `RegExpFromStr` (type) - 1 unsafe example violation(s)
 - `src/SchemaUtils/index.ts:12` `export * from "./optionalKeyWithDefaults.ts";` (re-export) - missing @example
 - `src/SchemaUtils/index.ts:17` `export * from "./pluck.ts";` (re-export) - missing @example
 - `src/SchemaUtils/index.ts:22` `export * from "./split.ts";` (re-export) - missing @example
@@ -2203,29 +2453,17 @@ Export findings:
 - `src/Sex/Sex.schema.ts:25` `Schema` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Sex/Sex.schema.ts:36` `Schema` (type) - missing @example
 - `src/Sex/index.ts:22` `export * from "./Sex.schema.ts";` (re-export) - missing @example
-- `src/Sha256.ts:81` `Sha256Hex` (type) - 1 unsafe example violation(s)
-- `src/Sha256.ts:124` `Sha256HexFromBytes` (type) - 1 unsafe example violation(s)
-- `src/Sha256.ts:164` `Sha256HexFromHexBytes` (type) - 1 unsafe example violation(s)
 - `src/Slug.ts:96` `Slug` (type) - missing @example
-- `src/SnakeStr.ts:60` `SnakeCaseStr` (type) - 1 unsafe example violation(s)
 - `src/StatusCauseError.ts:39` `StatusCauseFields` (const) - 2 schema annotation/type-alias gap(s)
 - `src/StatusCauseTaggedErrorClass/index.ts:12` `export * from "./StatusCauseTaggedErrorClass.errors.ts";` (re-export) - missing @example
-- `src/String.ts:49` `NonEmptyTrimmedStr` (type) - 1 unsafe example violation(s)
-- `src/String.ts:87` `UUID` (type) - 1 unsafe example violation(s)
-- `src/String.ts:154` `OptionFromNullableStr` (type) - missing @example
 - `src/TaggedErrorClass/index.ts:12` `export * from "./TaggedErrorClass.errors.ts";` (re-export) - missing @example
-- `src/Timestamp/Timestamp.schema.ts:66` `ISOStr` (type) - 1 unsafe example violation(s)
-- `src/Timestamp/Timestamp.schema.ts:107` `EpochMillis` (type) - 1 unsafe example violation(s)
-- `src/Timestamp/Timestamp.schema.ts:126` `ToIsoStr` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Timestamp/Timestamp.schema.ts:170` `ToIsoStr` (namespace) - 1 unsafe example violation(s)
-- `src/Timestamp/Timestamp.schema.ts:154` `ToIsoString` (type) - 1 unsafe example violation(s)
+- `src/Timestamp/Timestamp.schema.ts:130` `ToIsoStr` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Timestamp/Timestamp.schema.ts:176` `ToIsoStr` (namespace) - 1 unsafe example violation(s)
 - `src/Timestamp/index.ts:12` `export * from "./Timestamp.schema.ts";` (re-export) - missing @example
+- `src/Timezone.ts:41` `Timezone` (type) - missing @example
 - `src/Toml.ts:95` `TomlTextToUnknown` (const) - 1 schema annotation/type-alias gap(s)
 - `src/Transformations.ts:47` `destructiveTransform` (const) - 2 schema annotation/type-alias gap(s)
-- `src/URL.ts:85` `URLStr` (type) - 1 unsafe example violation(s)
 - `src/VariantSchema/VariantSchema.core.ts:609` `make` (const) - 1 schema annotation/type-alias gap(s)
-- `src/VariantSchema/VariantSchema.overridable.ts:43` `Overridable` (interface) - 1 unsafe example violation(s)
-- `src/VariantSchema/VariantSchema.overridable.ts:134` `Overrideable` (interface) - 1 unsafe example violation(s)
 - `src/VariantSchema/index.ts:14` `export * from "./VariantSchema.core.ts";` (re-export) - missing @example
 - `src/VariantSchema/index.ts:19` `export * from "./VariantSchema.overridable.ts";` (re-export) - missing @example
 - `src/Xml.ts:85` `XmlTextToUnknown` (const) - 1 schema annotation/type-alias gap(s)
@@ -2239,21 +2477,23 @@ Export findings:
 - `src/XssProtection/XssProtection.schema.ts:124` `Option` (const) - 1 schema annotation/type-alias gap(s)
 - `src/XssProtection/XssProtection.schema.ts:136` `Option` (type) - missing @example
 - `src/XssProtection/index.ts:20` `export * from "./XssProtection.schema.ts";` (re-export) - missing @example
-- `src/Yaml.ts:92` `YamlTextToUnknown` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Yaml.ts:94` `YamlTextToUnknown` (const) - 1 schema annotation/type-alias gap(s)
 - `src/index.ts:8` `export * from "./Number.ts";` (re-export) - missing @example
-- `src/index.ts:29` `export * from "./LiteralKit/index.ts";` (re-export) - missing @example
-- `src/index.ts:34` `export * from "./MappedLiteralKit/index.ts";` (re-export) - missing @example
-- `src/index.ts:42` `export * from "./AbortSignal.ts";` (re-export) - missing @example
-- `src/index.ts:47` `export * from "./ArrayOf.ts";` (re-export) - missing @example
-- `src/index.ts:52` `export * from "./BigDecimal.ts";` (re-export) - missing @example
-- `src/index.ts:57` `export * from "./BufferEncoding.ts";` (re-export) - missing @example
-- `src/index.ts:62` `export * from "./CauseTaggedError/index.ts";` (re-export) - missing @example
-- `src/index.ts:67` `export * from "./Color/index.ts";` (re-export) - missing @example
-- `src/index.ts:72` `export * from "./CommonTextSchemas.ts";` (re-export) - missing @example
-- `src/index.ts:77` `export { CSV, Csv, type CsvDocument, type CsvText, type RowSchemaWithFields } from "./Csv/index.ts";` (re-export) - missing @example
-- `src/index.ts:82` `export * from "./DateTimeUtcFromValid/index.ts";` (re-export) - missing @example
-- `src/index.ts:87` `export * as DomainModel from "./DomainModel.ts";` (re-export) - missing @example
-- `src/index.ts:92` `export {
+- `src/index.ts:29` `export * from "./AbortSignal.ts";` (re-export) - missing @example
+- `src/index.ts:34` `export * from "./ArrayOf.ts";` (re-export) - missing @example
+- `src/index.ts:39` `export * from "./BigDecimal.ts";` (re-export) - missing @example
+- `src/index.ts:44` `export * from "./BufferEncoding.ts";` (re-export) - missing @example
+- `src/index.ts:49` `export * from "./CauseTaggedError/index.ts";` (re-export) - missing @example
+- `src/index.ts:54` `export * from "./Color/index.ts";` (re-export) - missing @example
+- `src/index.ts:59` `export * from "./CommonTextSchemas.ts";` (re-export) - missing @example
+- `src/index.ts:64` `export * from "./ContinentCode.ts";` (re-export) - missing @example
+- `src/index.ts:69` `export * from "./CountryCode.ts";` (re-export) - missing @example
+- `src/index.ts:74` `export * from "./CountryName.ts";` (re-export) - missing @example
+- `src/index.ts:79` `export { CSV, Csv, type CsvDocument, type CsvText, type RowSchemaWithFields } from "./Csv/index.ts";` (re-export) - missing @example
+- `src/index.ts:84` `export * from "./CurrencyCode.ts";` (re-export) - missing @example
+- `src/index.ts:89` `export * from "./DateTimeUtcFromValid/index.ts";` (re-export) - missing @example
+- `src/index.ts:94` `export * as DomainModel from "./DomainModel.ts";` (re-export) - missing @example
+- `src/index.ts:99` `export {
   Duration,
   type Duration as DurationValue,
   DurationFromInput,
@@ -2266,56 +2506,67 @@ Export findings:
   FromInput,
   type Unit as DurationUnitAlias,
 } from "./Duration/index.ts";` (re-export) - missing @example
-- `src/index.ts:109` `export * from "./EffectSchema.ts";` (re-export) - missing @example
-- `src/index.ts:114` `export * from "./Email.ts";` (re-export) - missing @example
-- `src/index.ts:119` `export * as EntitySchema from "./EntitySchema/index.ts";` (re-export) - missing @example
-- `src/index.ts:124` `export * from "./FileExtension.ts";` (re-export) - missing @example
-- `src/index.ts:129` `export * from "./FileName.ts";` (re-export) - missing @example
-- `src/index.ts:134` `export * from "./FilePath/index.ts";` (re-export) - missing @example
-- `src/index.ts:139` `export * from "./Float16Array.ts";` (re-export) - missing @example
-- `src/index.ts:144` `export * from "./Float32Array.ts";` (re-export) - missing @example
-- `src/index.ts:149` `export * from "./Float64Array.ts";` (re-export) - missing @example
-- `src/index.ts:154` `export * from "./Fn/index.ts";` (re-export) - missing @example
-- `src/index.ts:159` `export * from "./Glob/index.ts";` (re-export) - missing @example
-- `src/index.ts:164` `export * from "./Graph/index.ts";` (re-export) - missing @example
-- `src/index.ts:169` `export * from "./Html.ts";` (re-export) - missing @example
-- `src/index.ts:174` `export * from "./Int.ts";` (re-export) - missing @example
-- `src/index.ts:179` `export * from "./Json.ts";` (re-export) - missing @example
-- `src/index.ts:184` `export * from "./Jsonc.ts";` (re-export) - missing @example
-- `src/index.ts:189` `export * from "./Jsonl.ts";` (re-export) - missing @example
-- `src/index.ts:194` `export * from "./KebabStr.ts";` (re-export) - missing @example
-- `src/index.ts:199` `export * from "./LocalDate/index.ts";` (re-export) - missing @example
-- `src/index.ts:204` `export * from "./Logs.ts";` (re-export) - missing @example
-- `src/index.ts:209` `export * from "./Markdown.ts";` (re-export) - missing @example
-- `src/index.ts:214` `export * from "./MimeType.ts";` (re-export) - missing @example
-- `src/index.ts:219` `export * as Model from "./Model/index.ts";` (re-export) - missing @example
-- `src/index.ts:224` `export * from "./MutableHashMap.ts";` (re-export) - missing @example
-- `src/index.ts:229` `export * from "./MutableHashSet.ts";` (re-export) - missing @example
-- `src/index.ts:234` `export * from "./Options.ts";` (re-export) - missing @example
-- `src/index.ts:239` `export * from "./PascalStr.ts";` (re-export) - missing @example
-- `src/index.ts:244` `export * from "./PosixPath.ts";` (re-export) - missing @example
-- `src/index.ts:249` `export * from "./Primitive.ts";` (re-export) - missing @example
-- `src/index.ts:254` `export * from "./PromiseSchema.ts";` (re-export) - missing @example
-- `src/index.ts:259` `export * from "./Record/index.ts";` (re-export) - missing @example
-- `src/index.ts:264` `export * from "./RegExp.ts";` (re-export) - missing @example
-- `src/index.ts:269` `export * from "./SafeRemoteHost.ts";` (re-export) - missing @example
-- `src/index.ts:274` `export * as SchemaUtils from "./SchemaUtils/index.ts";` (re-export) - missing @example
-- `src/index.ts:279` `export * from "./SemanticVersion.ts";` (re-export) - missing @example
-- `src/index.ts:284` `export * from "./SeverityLevel.ts";` (re-export) - missing @example
-- `src/index.ts:289` `export * from "./Sha256.ts";` (re-export) - missing @example
-- `src/index.ts:294` `export * from "./Slug.ts";` (re-export) - missing @example
-- `src/index.ts:299` `export * from "./SnakeStr.ts";` (re-export) - missing @example
-- `src/index.ts:304` `export * from "./StatusCauseError.ts";` (re-export) - missing @example
-- `src/index.ts:309` `export * from "./StatusCauseTaggedErrorClass/index.ts";` (re-export) - missing @example
-- `src/index.ts:314` `export * from "./String.ts";` (re-export) - missing @example
-- `src/index.ts:319` `export * from "./TaggedErrorClass/index.ts";` (re-export) - missing @example
-- `src/index.ts:324` `export * from "./Timezone.ts";` (re-export) - missing @example
-- `src/index.ts:329` `export * from "./Toml.ts";` (re-export) - missing @example
-- `src/index.ts:334` `export * from "./Transformations.ts";` (re-export) - missing @example
-- `src/index.ts:339` `export * from "./URL.ts";` (re-export) - missing @example
-- `src/index.ts:344` `export * as VariantSchema from "./VariantSchema/index.ts";` (re-export) - missing @example
-- `src/index.ts:349` `export * from "./Xml.ts";` (re-export) - missing @example
-- `src/index.ts:354` `export * from "./Yaml.ts";` (re-export) - missing @example
+- `src/index.ts:116` `export * from "./EffectSchema.ts";` (re-export) - missing @example
+- `src/index.ts:121` `export * from "./Email.ts";` (re-export) - missing @example
+- `src/index.ts:126` `export * as EntitySchema from "./EntitySchema/index.ts";` (re-export) - missing @example
+- `src/index.ts:131` `export * from "./FileExtension.ts";` (re-export) - missing @example
+- `src/index.ts:136` `export * from "./FileName.ts";` (re-export) - missing @example
+- `src/index.ts:141` `export * from "./FilePath/index.ts";` (re-export) - missing @example
+- `src/index.ts:146` `export * from "./Float16Array.ts";` (re-export) - missing @example
+- `src/index.ts:151` `export * from "./Float32Array.ts";` (re-export) - missing @example
+- `src/index.ts:156` `export * from "./Float64Array.ts";` (re-export) - missing @example
+- `src/index.ts:161` `export * from "./Fn/index.ts";` (re-export) - missing @example
+- `src/index.ts:166` `export * from "./Glob/index.ts";` (re-export) - missing @example
+- `src/index.ts:171` `export * from "./Graph/index.ts";` (re-export) - missing @example
+- `src/index.ts:176` `export * from "./Html.ts";` (re-export) - missing @example
+- `src/index.ts:181` `export * from "./Int.ts";` (re-export) - missing @example
+- `src/index.ts:186` `export * from "./Json.ts";` (re-export) - missing @example
+- `src/index.ts:191` `export * from "./Jsonc.ts";` (re-export) - missing @example
+- `src/index.ts:196` `export * from "./Jsonl.ts";` (re-export) - missing @example
+- `src/index.ts:201` `export * from "./KebabStr.ts";` (re-export) - missing @example
+- `src/index.ts:206` `export * from "./LiteralKit/index.ts";` (re-export) - missing @example
+- `src/index.ts:211` `export * from "./LocalDate/index.ts";` (re-export) - missing @example
+- `src/index.ts:216` `export * from "./Logs.ts";` (re-export) - missing @example
+- `src/index.ts:221` `export * from "./MappedLiteralKit/index.ts";` (re-export) - missing @example
+- `src/index.ts:226` `export * from "./Markdown.ts";` (re-export) - missing @example
+- `src/index.ts:231` `export * from "./MimeType.ts";` (re-export) - missing @example
+- `src/index.ts:236` `export * as Model from "./Model/index.ts";` (re-export) - missing @example
+- `src/index.ts:241` `export * from "./MutableHashMap.ts";` (re-export) - missing @example
+- `src/index.ts:246` `export * from "./MutableHashSet.ts";` (re-export) - missing @example
+- `src/index.ts:251` `export * from "./Options.ts";` (re-export) - missing @example
+- `src/index.ts:256` `export * from "./PascalStr.ts";` (re-export) - missing @example
+- `src/index.ts:261` `export * from "./PosixPath.ts";` (re-export) - missing @example
+- `src/index.ts:266` `export * from "./Primitive.ts";` (re-export) - missing @example
+- `src/index.ts:271` `export * from "./PromiseSchema.ts";` (re-export) - missing @example
+- `src/index.ts:276` `export * from "./Record/index.ts";` (re-export) - missing @example
+- `src/index.ts:281` `export * from "./RegExp.ts";` (re-export) - missing @example
+- `src/index.ts:286` `export * from "./SafeRemoteHost.ts";` (re-export) - missing @example
+- `src/index.ts:291` `export * as SchemaUtils from "./SchemaUtils/index.ts";` (re-export) - missing @example
+- `src/index.ts:296` `export * from "./SemanticVersion.ts";` (re-export) - missing @example
+- `src/index.ts:301` `export * from "./Semver.ts";` (re-export) - missing @example
+- `src/index.ts:306` `export * from "./SeverityLevel.ts";` (re-export) - missing @example
+- `src/index.ts:311` `export * from "./Sha256.ts";` (re-export) - missing @example
+- `src/index.ts:316` `export * from "./Slug.ts";` (re-export) - missing @example
+- `src/index.ts:321` `export * from "./SnakeStr.ts";` (re-export) - missing @example
+- `src/index.ts:326` `export * from "./StatusCauseError.ts";` (re-export) - missing @example
+- `src/index.ts:331` `export * from "./StatusCauseTaggedErrorClass/index.ts";` (re-export) - missing @example
+- `src/index.ts:336` `export * from "./String.ts";` (re-export) - missing @example
+- `src/index.ts:341` `export * from "./TaggedErrorClass/index.ts";` (re-export) - missing @example
+- `src/index.ts:346` `export * from "./TerritoryCode.ts";` (re-export) - missing @example
+- `src/index.ts:351` `export * from "./Timezone.ts";` (re-export) - missing @example
+- `src/index.ts:356` `export * from "./Toml.ts";` (re-export) - missing @example
+- `src/index.ts:361` `export * from "./Transformations.ts";` (re-export) - missing @example
+- `src/index.ts:366` `export * from "./URL.ts";` (re-export) - missing @example
+- `src/index.ts:371` `export * as VariantSchema from "./VariantSchema/index.ts";` (re-export) - missing @example
+- `src/index.ts:376` `export * from "./Xml.ts";` (re-export) - missing @example
+- `src/index.ts:381` `export * from "./Yaml.ts";` (re-export) - missing @example
+
+### @beep/epistemic-server
+
+Path: `packages/epistemic/server`
+
+Export findings:
+- `src/index.ts:30` `export * from "./Layer.js";` (re-export) - missing @example
 
 ### @beep/rdf
 
@@ -2342,11 +2593,14 @@ Export findings:
 - `src/Vocab/Skos.ts:168` `SKOS_IN_SCHEME` (const) - missing @example
 - `src/Vocab/Skos.ts:176` `SKOS_HAS_TOP_CONCEPT` (const) - missing @example
 - `src/Vocab/Skos.ts:184` `SKOS_TOP_CONCEPT_OF` (const) - missing @example
-- `src/index.ts:22` `export * from "./Iri.ts";` (re-export) - missing @example
-- `src/index.ts:29` `export * from "./JsonLd.ts";` (re-export) - missing @example
-- `src/index.ts:36` `export * from "./Rdf.ts";` (re-export) - missing @example
-- `src/index.ts:43` `export * from "./SemanticSchemaMetadata.ts";` (re-export) - missing @example
-- `src/index.ts:50` `export * from "./Uri.ts";` (re-export) - missing @example
+- `src/index.ts:22` `export * from "./Evidence.ts";` (re-export) - missing @example
+- `src/index.ts:29` `export * from "./Iri.ts";` (re-export) - missing @example
+- `src/index.ts:36` `export * from "./JsonLd.ts";` (re-export) - missing @example
+- `src/index.ts:43` `export * from "./Prov.ts";` (re-export) - missing @example
+- `src/index.ts:50` `export * from "./Rdf.ts";` (re-export) - missing @example
+- `src/index.ts:57` `export * from "./SemanticSchemaMetadata.ts";` (re-export) - missing @example
+- `src/index.ts:64` `export * from "./Uri.ts";` (re-export) - missing @example
+- `src/index.ts:71` `export * as WebAnnotation from "./Adapters/WebAnnotation.ts";` (re-export) - missing @example
 - `src/index.ts:14` `VERSION` (const) - missing @example
 
 ### @beep/onepassword-cli
@@ -2382,6 +2636,139 @@ Export findings:
   WorkItemConfig,
   type WorkItemConfigShape,
 } from "./aggregates/WorkItem/index.js";` (re-export) - missing @example
+
+### @beep/govinfo
+
+Path: `packages/drivers/govinfo`
+
+Module findings:
+- `src/domain/contracts/Search/Search.http.ts:1` (none) - missing summary; missing @since
+- `src/domain/contracts/index.ts:1` (jsdoc) - missing summary
+- `src/domain/index.ts:1` (jsdoc) - missing summary
+- `src/domain/values/index.ts:1` (jsdoc) - missing summary
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/domain/contracts/Search/Search.contract.ts:52` `FailureBadRequest` (class) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/Search/Search.contract.ts:63` `FailureNotFound` (class) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/Search/Search.contract.ts:74` `FailureInternalServerError` (class) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/Search/Search.contract.ts:87` `Failure` (const) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/Search/Search.contract.ts:98` `Failure` (type) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/Search/Search.contract.ts:100` `Failure` (namespace) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/Search/Search.http.ts:4` `Http` (const) - missing summary; missing @example, @category, @since
+- `src/domain/contracts/index.ts:11` `export * as Search from "./Search/Search.contract.ts";` (re-export) - missing @example; 1 category casing violation(s)
+- `src/domain/index.ts:11` `export * from "./values/index.ts";` (re-export) - missing @example
+- `src/domain/index.ts:17` `export * from "./contracts/index.ts";` (re-export) - missing @example; 1 category casing violation(s)
+- `src/domain/values/CollectionContainer/CollectionContainer.model.ts:73` `CollectionContainer` (namespace) - missing @example
+- `src/domain/values/CollectionSummary/CollectionSummary.model.ts:51` `CollectionSummary` (namespace) - missing @example
+- `src/domain/values/GranuleContainer/GranuleContainer.model.ts:84` `GranuleContainer` (namespace) - missing @example
+- `src/domain/values/GranuleMetadata/GranuleMetadata.model.ts:64` `GranuleMetadata` (namespace) - missing @example
+- `src/domain/values/PackageInfo/PackageInfo.model.ts:69` `PackageInfo` (namespace) - missing @example
+- `src/domain/values/SearchBody/SearchBody.model.ts:59` `SearchBody` (namespace) - missing @example
+- `src/domain/values/SearchResponse/SearchResponse.model.ts:59` `SearchResponse` (namespace) - missing @example
+- `src/domain/values/SearchResult/SearchResult.model.ts:83` `SearchResult` (namespace) - missing @example
+- `src/domain/values/Sort/Sort.model.ts:43` `SortBase` (namespace) - missing @example
+- `src/domain/values/Sort/Sort.model.ts:93` `SortASC` (namespace) - missing @example
+- `src/domain/values/Sort/Sort.model.ts:145` `SortDESC` (namespace) - missing @example
+- `src/domain/values/Sort/Sort.model.ts:179` `Sort` (const) - 1 schema annotation/type-alias gap(s)
+- `src/domain/values/Sort/Sort.model.ts:198` `Sort` (namespace) - missing @example
+- `src/domain/values/SummaryItem/SummaryItem.model.ts:61` `SummaryItem` (namespace) - missing @example
+- `src/domain/values/index.ts:12` `export * from "./SummaryItem/index.ts";` (re-export) - missing @example; 1 category casing violation(s)
+- `src/domain/values/index.ts:13` `export * from "./Sort/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:14` `export * from "./SearchResult/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:15` `export * from "./SearchBody/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:16` `export * from "./PackageInfo/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:17` `export * from "./GranuleMetadata/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:18` `export * from "./GranuleContainer/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:19` `export * from "./CollectionSummary/index.ts";` (re-export) - missing @example, @category, @since
+- `src/domain/values/index.ts:20` `export * from "./CollectionContainer/index.ts";` (re-export) - missing @example, @category, @since
+- `src/index.ts:11` `export * from "./domain/index.ts"` (re-export) - missing @example; 1 category casing violation(s)
+
+### @beep/data
+
+Path: `packages/foundation/primitive/data`
+
+Export findings:
+- `src/CurrencyCodes.ts:58` `CurrencyCodeDataMetadata` (type) - missing @example
+- `src/CurrencyCodes.ts:91` `CurrencyCodeDataMetadata` (const) - missing @example
+- `src/CurrencyCodes.ts:99` `CurrencyCodeDataPublished` (const) - missing @example
+- `src/CurrencyCodes.ts:107` `CurrencyCodeDataSourceUrl` (const) - missing @example
+- `src/CurrencyCodes.ts:115` `CurrencyCodeDataSourceSha256` (const) - missing @example
+- `src/CurrencyCodes.ts:124` `CurrencyCodeDataByCode` (const) - missing @example
+- `src/CurrencyCodes.ts:132` `CurrencyCodeDataCodeValues` (const) - missing @example
+- `src/CurrencyCodes.ts:141` `CurrencyCodeDataNameByCode` (const) - missing @example
+- `src/CurrencyCodes.ts:150` `CurrencyCodeDataCodeNamePairs` (const) - missing @example
+- `src/MimeTypes.ts:42` `OfficialMimeType` (type) - missing @example
+- `src/MimeTypes.ts:50` `OfficialMimeTypeData` (type) - missing @example
+- `src/MimeTypes.ts:216` `OfficialMimeTypeDataMetadata` (const) - missing @example
+- `src/MimeTypes.ts:225` `OfficialMimeTypeDataUpdated` (const) - missing @example
+- `src/MimeTypes.ts:234` `OfficialMimeTypeDataSourceUrl` (const) - missing @example
+- `src/MimeTypes.ts:243` `OfficialMimeTypeDataSourceSha256` (const) - missing @example
+- `src/MimeTypes.ts:252` `OfficialMimeTypeDataValues` (const) - missing @example
+- `src/MimeTypes.ts:261` `OfficialMimeTypeDataByType` (const) - missing @example
+- `src/MimeTypes.ts:270` `OfficialMimeTypeDataTypeValues` (const) - missing @example
+- `src/MimeTypes.ts:279` `OfficialMimeTypeDataByTopLevel` (const) - missing @example
+- `src/Territories.ts:16` `TerritoryData` (type) - missing @example
+- `src/Territories.ts:24` `TerritoryCode` (type) - missing @example
+- `src/Territories.ts:32` `TerritoryName` (type) - missing @example
+- `src/Territories.ts:40` `ContinentData` (type) - missing @example
+- `src/Territories.ts:48` `ContinentCode` (type) - missing @example
+- `src/Territories.ts:56` `ContinentName` (type) - missing @example
+- `src/Territories.ts:64` `TerritoryDataMetadata` (const) - missing @example
+- `src/Territories.ts:72` `TerritoryDataReleaseTag` (const) - missing @example
+- `src/Territories.ts:80` `TerritoryDataValues` (const) - missing @example
+- `src/Territories.ts:88` `TerritoryDataByCode` (const) - missing @example
+- `src/Territories.ts:96` `TerritoryCodeValues` (const) - missing @example
+- `src/Territories.ts:104` `TerritoryDataNameByCode` (const) - missing @example
+- `src/Territories.ts:112` `TerritoryDataCodeNamePairs` (const) - missing @example
+- `src/Territories.ts:121` `ContinentDataValues` (const) - missing @example
+- `src/Territories.ts:129` `ContinentDataByCode` (const) - missing @example
+- `src/Territories.ts:137` `ContinentCodeValues` (const) - missing @example
+- `src/Territories.ts:145` `ContinentDataNameByCode` (const) - missing @example
+- `src/Territories.ts:153` `ContinentDataCodeNamePairs` (const) - missing @example
+- `src/Timezones.ts:41` `TimezoneData` (type) - missing @example
+- `src/Timezones.ts:70` `TimezoneDataMetadata` (const) - missing @example
+- `src/Timezones.ts:78` `TimezoneDataVersion` (const) - missing @example
+- `src/Timezones.ts:86` `TimezoneDataSourceUrl` (const) - missing @example
+- `src/Timezones.ts:94` `TimezoneDataSourceSha256` (const) - missing @example
+- `src/Timezones.ts:102` `TimezoneDataValues` (const) - missing @example
+- `src/Timezones.ts:110` `TimezoneDataByName` (const) - missing @example
+- `src/generated/cldr-territories.ts:17` `TerritoryDataMetadata` (const) - missing @example
+- `src/generated/cldr-territories.ts:56` `TerritoryDataReleaseTag` (const) - missing @example
+- `src/generated/cldr-territories.ts:64` `TerritoryDataValues` (const) - missing @example
+- `src/generated/cldr-territories.ts:1621` `TerritoryDataByCode` (const) - missing @example
+- `src/generated/cldr-territories.ts:3178` `TerritoryCodeValues` (const) - missing @example
+- `src/generated/cldr-territories.ts:3445` `TerritoryDataNameByCode` (const) - missing @example
+- `src/generated/cldr-territories.ts:3712` `TerritoryDataCodeNamePairs` (const) - missing @example
+- `src/generated/cldr-territories.ts:4753` `ContinentDataValues` (const) - missing @example
+- `src/generated/cldr-territories.ts:4782` `ContinentDataByCode` (const) - missing @example
+- `src/generated/cldr-territories.ts:4811` `ContinentCodeValues` (const) - missing @example
+- `src/generated/cldr-territories.ts:4825` `ContinentDataNameByCode` (const) - missing @example
+- `src/generated/cldr-territories.ts:4839` `ContinentDataCodeNamePairs` (const) - missing @example
+- `src/generated/iana-media-types.ts:18` `OfficialMimeTypeDataMetadata` (const) - missing @example
+- `src/generated/iana-media-types.ts:30` `OfficialMimeTypeDataUpdated` (const) - missing @example
+- `src/generated/iana-media-types.ts:38` `OfficialMimeTypeDataSourceUrl` (const) - missing @example
+- `src/generated/iana-media-types.ts:46` `OfficialMimeTypeDataSourceSha256` (const) - missing @example
+- `src/generated/iana-media-types.ts:54` `OfficialMimeTypeDataValues` (const) - missing @example
+- `src/generated/iana-media-types.ts:14740` `OfficialMimeTypeDataByType` (const) - missing @example
+- `src/generated/iana-media-types.ts:29426` `OfficialMimeTypeDataTypeValues` (const) - missing @example
+- `src/generated/iana-media-types.ts:31737` `OfficialMimeTypeDataByTopLevel` (const) - missing @example
+- `src/generated/iana-timezones.ts:18` `TimezoneDataMetadata` (const) - missing @example
+- `src/generated/iana-timezones.ts:30` `TimezoneDataVersion` (const) - missing @example
+- `src/generated/iana-timezones.ts:38` `TimezoneDataSourceUrl` (const) - missing @example
+- `src/generated/iana-timezones.ts:46` `TimezoneDataSourceSha256` (const) - missing @example
+- `src/generated/iana-timezones.ts:54` `TimezoneDataValues` (const) - missing @example
+- `src/generated/iana-timezones.ts:1857` `TimezoneDataByName` (const) - missing @example
+- `src/generated/iana-timezones.ts:3660` `TimezoneNameValues` (const) - missing @example
+- `src/generated/iso4217.ts:18` `CurrencyCodeDataMetadata` (const) - missing @example
+- `src/generated/iso4217.ts:30` `CurrencyCodeDataPublished` (const) - missing @example
+- `src/generated/iso4217.ts:38` `CurrencyCodeDataSourceUrl` (const) - missing @example
+- `src/generated/iso4217.ts:46` `CurrencyCodeDataSourceSha256` (const) - missing @example
+- `src/generated/iso4217.ts:54` `CurrencyCodeDataValues` (const) - missing @example
+- `src/generated/iso4217.ts:1764` `CurrencyCodeDataByCode` (const) - missing @example
+- `src/generated/iso4217.ts:3474` `CurrencyCodeDataCodeValues` (const) - missing @example
+- `src/generated/iso4217.ts:3661` `CurrencyCodeDataNameByCode` (const) - missing @example
+- `src/generated/iso4217.ts:3848` `CurrencyCodeDataCodeNamePairs` (const) - missing @example
 
 ### @beep/architecture-lab-server
 
@@ -2428,10 +2815,29 @@ Export findings:
 Path: `packages/agents/client`
 
 Export findings:
-- `src/Chat.atoms.ts:217` `StreamingTurn` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:286` `EditTarget` (class) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:391` `TurnRequest` (const) - 1 schema annotation/type-alias gap(s)
-- `src/Chat.atoms.ts:399` `TurnRequest` (type) - missing @example
+- `src/Chat.atoms.ts:256` `StreamingTurn` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:325` `EditTarget` (class) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:430` `TurnRequest` (const) - 1 schema annotation/type-alias gap(s)
+- `src/Chat.atoms.ts:438` `TurnRequest` (type) - missing @example
+
+### @beep/epistemic-use-cases
+
+Path: `packages/epistemic/use-cases`
+
+Export findings:
+- `src/index.ts:30` `export * from "./public.js";` (re-export) - missing @example
+
+### @beep/m365
+
+Path: `packages/drivers/m365`
+
+Export findings:
+- `src/M365.schemas.ts:365` `GraphCollection` (const) - 2 schema annotation/type-alias gap(s)
+- `src/index.ts:14` `export * from "./M365.auth.ts";` (re-export) - missing @example
+- `src/index.ts:21` `export * from "./M365.config.ts";` (re-export) - missing @example
+- `src/index.ts:28` `export * from "./M365.errors.ts";` (re-export) - missing @example
+- `src/index.ts:35` `export * from "./M365.schemas.ts";` (re-export) - missing @example
+- `src/index.ts:42` `export * from "./M365.service.ts";` (re-export) - missing @example
 
 ### @beep/observability
 
@@ -2469,40 +2875,33 @@ Export findings:
 - `src/web/index.ts:5` `export * from "./Config.ts";` (re-export) - missing @example
 - `src/web/index.ts:10` `export * from "./Layer.ts";` (re-export) - missing @example
 
-### @beep/konva
-
-Path: `packages/drivers/konva`
-
-Export findings:
-- `src/index.ts:21` `VERSION` (const) - 1 category casing violation(s)
-
 ### @beep/html
 
 Path: `packages/foundation/modeling/html`
 
 Export findings:
-- `src/Html.attributes.ts:35` `Dir` (const) - missing @example
-- `src/Html.attributes.ts:44` `Translate` (const) - missing @example
-- `src/Html.attributes.ts:53` `ContentEditable` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:62` `Draggable` (const) - missing @example
-- `src/Html.attributes.ts:71` `SpellCheck` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:80` `WritingSuggestions` (const) - missing @example
-- `src/Html.attributes.ts:89` `AutoCapitalize` (const) - missing @example
-- `src/Html.attributes.ts:98` `AutoCorrect` (const) - missing @example
-- `src/Html.attributes.ts:107` `InputMode` (const) - missing @example
-- `src/Html.attributes.ts:116` `EnterKeyHint` (const) - missing @example
-- `src/Html.attributes.ts:125` `Hidden` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:134` `Popover` (const) - missing @example
-- `src/Html.attributes.ts:143` `PopoverTargetAction` (const) - missing @example
-- `src/Html.attributes.ts:154` `BooleanAttribute` (const) - missing @example; 1 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:171` `StandardGlobalAttributes` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:216` `DatasetAttribute` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:283` `AriaAttributes` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:372` `EventHandlerAttributes` (const) - missing @example
-- `src/Html.attributes.ts:383` `GlobalAttributes` (const) - missing @example
-- `src/Html.attributes.ts:398` `GlobalAttributesStruct` (const) - missing @example; 2 schema annotation/type-alias gap(s)
-- `src/Html.attributes.ts:406` `GlobalAttributesType` (type) - missing @example
-- `src/Html.attributes.ts:414` `GlobalAttributesEncoded` (type) - missing @example
+- `src/Html.attributes.ts:37` `Dir` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:46` `Translate` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:55` `ContentEditable` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:64` `Draggable` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:73` `SpellCheck` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:82` `WritingSuggestions` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:91` `AutoCapitalize` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:100` `AutoCorrect` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:109` `InputMode` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:118` `EnterKeyHint` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:127` `Hidden` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:136` `Popover` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:145` `PopoverTargetAction` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:156` `BooleanAttribute` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:173` `StandardGlobalAttributes` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:218` `DatasetAttribute` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:285` `AriaAttributes` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:374` `EventHandlerAttributes` (const) - missing @example
+- `src/Html.attributes.ts:385` `GlobalAttributes` (const) - missing @example
+- `src/Html.attributes.ts:400` `GlobalAttributesStruct` (const) - missing @example; 2 schema annotation/type-alias gap(s)
+- `src/Html.attributes.ts:408` `GlobalAttributesType` (type) - missing @example
+- `src/Html.attributes.ts:416` `GlobalAttributesEncoded` (type) - missing @example
 - `src/Html.meta.ts:18` `HtmlElementMeta` (const) - missing @example
 - `src/Html.meta.ts:33` `HtmlElementMeta` (type) - missing @example
 - `src/Html.meta.ts:41` `ELEMENT_META` (const) - missing @example
@@ -2851,6 +3250,7 @@ Module findings:
 - `src/components/dropdown-menu.tsx:1` (none) - missing summary; missing @since
 - `src/components/editor/editor-ui/content-editable.tsx:1` (none) - missing summary; missing @since
 - `src/components/editor/themes/editor-theme.ts:1` (none) - missing summary; missing @since
+- `src/components/effect-date-time-picker.tsx:1` (none) - missing summary; missing @since
 - `src/components/empty.tsx:1` (none) - missing summary; missing @since
 - `src/components/field.tsx:1` (none) - missing summary; missing @since
 - `src/components/hover-card.tsx:1` (none) - missing summary; missing @since
@@ -2937,10 +3337,16 @@ Export findings:
 - `src/components/calendar-event-card.tsx:22` `EventStatus` (type) - 1 unsafe example violation(s)
 - `src/components/calendar-event-card.tsx:37` `EventVariant` (type) - 1 unsafe example violation(s)
 - `src/components/carousel.tsx:27` `CarouselApi` (type) - 1 unsafe example violation(s)
+- `src/components/color-picker.tsx:52` `ColorPickerProps` (interface) - missing @example
 - `src/components/conversation.tsx:24` `ConversationProps` (type) - 1 unsafe example violation(s)
 - `src/components/conversation.tsx:63` `ConversationContentProps` (type) - 1 unsafe example violation(s)
 - `src/components/conversation.tsx:96` `ConversationEmptyStateProps` (type) - 1 unsafe example violation(s)
 - `src/components/conversation.tsx:153` `ConversationScrollButtonProps` (type) - 1 unsafe example violation(s)
+- `src/components/country-select.tsx:37` `CountryCode` (const) - missing @example; 1 schema annotation/type-alias gap(s)
+- `src/components/country-select.tsx:297` `CountryCode` (type) - missing @example
+- `src/components/country-select.tsx:418` `CountryFlagProps` (type) - missing @example
+- `src/components/country-select.tsx:448` `CountryOptionContentProps` (interface) - missing @example
+- `src/components/country-select.tsx:487` `CountrySelectProps` (interface) - missing @example
 - `src/components/dialog.tsx:253` `Dialog` (Identifier) - missing summary; missing @example, @category, @since
 - `src/components/dialog.tsx:254` `Dialog` (Identifier) - missing summary; missing @example, @category, @since
 - `src/components/dialog.tsx:255` `Dialog` (Identifier) - missing summary; missing @example, @category, @since
@@ -2965,6 +3371,7 @@ Export findings:
 - `src/components/dropdown-menu.tsx:426` `DropdownMenu` (Identifier) - missing summary; missing @example, @category, @since
 - `src/components/dropdown-menu.tsx:427` `DropdownMenu` (Identifier) - missing summary; missing @example, @category, @since
 - `src/components/dropdown-menu.tsx:428` `DropdownMenu` (Identifier) - missing summary; missing @example, @category, @since
+- `src/components/emoji-picker.tsx:27` `EmojiPickerProps` (interface) - missing @example
 - `src/components/knowledge-graph.tsx:30` `GraphNode` (interface) - 1 unsafe example violation(s)
 - `src/components/knowledge-graph.tsx:59` `GraphLink` (interface) - 1 unsafe example violation(s)
 - `src/components/knowledge-graph.tsx:103` `KnowledgeGraphHandle` (interface) - 1 unsafe example violation(s)
@@ -2974,6 +3381,9 @@ Export findings:
 - `src/components/notification-card.tsx:103` `ActionStyle` (type) - 1 unsafe example violation(s)
 - `src/components/notification-card.tsx:165` `NotificationAction` (type) - 1 unsafe example violation(s)
 - `src/components/orb.tsx:27` `AgentState` (type) - 1 unsafe example violation(s)
+- `src/components/phone-input.tsx:77` `PhoneNumberE164` (type) - missing @example
+- `src/components/phone-input.tsx:145` `PhoneInputProps` (interface) - missing @example
+- `src/components/rating.tsx:22` `RatingProps` (interface) - missing @example
 - `src/components/toast.tsx:120` `ToastVariant` (type) - 1 unsafe example violation(s)
 - `src/components/toast.tsx:297` `ToastActionElement` (type) - 1 unsafe example violation(s)
 - `src/components/toast.tsx:281` `ToastProps` (type) - 1 unsafe example violation(s)
@@ -3005,10 +3415,10 @@ Export findings:
 - `src/Pandoc.codec.ts:130` `PandocJsonWire` (namespace) - missing @example
 - `src/Pandoc.codec.ts:152` `PandocJsonFromString` (const) - missing @example
 - `src/Pandoc.codec.ts:164` `PandocJsonFromString` (type) - missing @example
-- `src/Pandoc.mapping.ts:880` `PandocToDocumentResult` (class) - missing @example
-- `src/Pandoc.mapping.ts:900` `PandocToDocumentResult` (namespace) - missing @example
-- `src/Pandoc.mapping.ts:924` `DocumentToPandocResult` (class) - missing @example
-- `src/Pandoc.mapping.ts:944` `DocumentToPandocResult` (namespace) - missing @example
+- `src/Pandoc.mapping.ts:913` `PandocToDocumentResult` (class) - missing @example
+- `src/Pandoc.mapping.ts:933` `PandocToDocumentResult` (namespace) - missing @example
+- `src/Pandoc.mapping.ts:957` `DocumentToPandocResult` (class) - missing @example
+- `src/Pandoc.mapping.ts:977` `DocumentToPandocResult` (namespace) - missing @example
 - `src/Pandoc.model.ts:39` `PandocApiVersion` (type) - missing @example
 - `src/Pandoc.model.ts:47` `PandocKeyValue` (const) - missing @example
 - `src/Pandoc.model.ts:59` `PandocKeyValue` (type) - missing @example
@@ -3168,6 +3578,15 @@ Export findings:
 - `src/values/WorkPriority/index.ts:14` `export * from "./WorkPriority.model.js";` (re-export) - missing @example
 - `src/values/index.ts:15` `export * as WorkPriority from "./WorkPriority/index.js";` (re-export) - missing @example
 
+### @beep/provenance
+
+Path: `packages/foundation/modeling/provenance`
+
+Export findings:
+- `src/TextAnchor.ts:37` `TextAnchorFields` (const) - 2 schema annotation/type-alias gap(s)
+- `src/index.ts:23` `export * from "./TextAnchor.ts";` (re-export) - missing @example
+- `src/index.ts:15` `VERSION` (const) - missing @example
+
 ### @beep/epistemic-tables
 
 Path: `packages/epistemic/tables`
@@ -3177,6 +3596,16 @@ Export findings:
 - `src/entities/UsageRecord/UsageRecord.converters.ts:27` `UsageRecordRow` (type) - 1 unsafe example violation(s)
 - `src/entities/UsageRecord/UsageRecord.converters.ts:43` `UsageRecordInsert` (type) - 1 unsafe example violation(s)
 - `src/index.ts:28` `export { DbSchema } from "./Schema.ts";` (re-export) - missing @example
+
+### @beep/federal-register
+
+Path: `packages/drivers/federal-register`
+
+Module findings:
+- `src/index.ts:1` (jsdoc) - missing summary
+
+Export findings:
+- `src/index.ts:11` `VERSION` (const) - missing summary; missing @example; 1 category casing violation(s)
 
 ### @beep/sanity
 

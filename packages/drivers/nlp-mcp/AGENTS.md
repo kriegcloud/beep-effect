@@ -3,7 +3,7 @@
 ## Purpose & Fit
 - Model Context Protocol server exposing ~42 tools over stdio by mounting two
   toolkits into one server:
-  - the product-neutral `@beep/nlp/Tools/NlpToolkit` (25 tools) bound to its
+  - the product-neutral `@beep/nlp-processing/Tools/NlpToolkit` (25 tools) bound to its
     wink-backed handler layer (`WinkNlpToolkitLive` from `@beep/wink`); the driver
     does not redeclare these tools, schemas, or handlers; and
   - a driver-local `StreamingToolkit` (17 file/JSONL/dataset/pipeline tools) backed

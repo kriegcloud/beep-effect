@@ -5,8 +5,8 @@
  * Wired to the wink-nlp backend via NLPService.layer(WinkBackendLive) + WinkEngineLive.
  */
 
-import * as Graph from "@beep/nlp/Graph/AnnotatedTextGraph";
-import * as NLPService from "@beep/nlp/NLPService";
+import * as Graph from "@beep/nlp-processing/Graph/AnnotatedTextGraph";
+import * as NLPService from "@beep/nlp-processing/NLPService";
 import { provideScopedLayer } from "@beep/test-utils";
 import * as WinkEngine from "@beep/wink";
 import { WinkBackendLive } from "@beep/wink";

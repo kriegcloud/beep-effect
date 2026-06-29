@@ -1,4 +1,4 @@
-import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit";
+import { NlpToolkit } from "@beep/nlp-processing/Tools/NlpToolkit";
 import { WinkNlpToolkitLive } from "@beep/wink";
 import { Effect, Layer, Stream } from "effect";
 import { describe, expect, it } from "vitest";
