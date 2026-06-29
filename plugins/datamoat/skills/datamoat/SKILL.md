@@ -50,13 +50,15 @@ If `datamoat` is on the user's PATH (source installs), `datamoat status` also
 prints sessions and messages protected, and `datamoat audit verify` checks the
 local tamper-evident audit chain.
 
-## Install (Latest Release, Verified)
+## Install (Pinned Release, Verified)
 
-The installers fetch the current release straight from the official download
-service manifest (`downloads.datamoat.org/releases/latest/manifest.json`),
-verify the SHA-256 checksum, install, and start pre-setup no-screen
-protection so capture begins immediately — even before the user finishes
-setup at the desktop.
+The installers use pinned DataMoat release inputs. macOS and Windows download
+version `2.0.14` and verify the SHA-256 checksum embedded in these scripts.
+Linux checks out pinned source commit
+`1f3caa91080b8ca9370e0f99173a025feb8a999e`. This avoids trusting a mutable
+`latest` manifest as both the artifact selector and checksum source. The
+scripts install and start pre-setup no-screen protection so capture begins
+immediately, even before the user finishes setup at the desktop.
 
 macOS:
 

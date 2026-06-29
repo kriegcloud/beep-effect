@@ -1,5 +1,5 @@
 {
-  "name": "codex-marketplace-beep-effect-225b539d",
+  "name": "beep-effect-local-plugins",
   "interface": {
     "displayName": "Codex Plugins (beep-effect)"
   },
@@ -8,7 +8,7 @@
       "name": "box",
       "source": {
         "source": "local",
-        "path": "./plugins/box"
+        "path": "../../plugins/box"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -20,7 +20,7 @@
       "name": "github",
       "source": {
         "source": "local",
-        "path": "./plugins/github"
+        "path": "../../plugins/github"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -32,7 +32,7 @@
       "name": "notion",
       "source": {
         "source": "local",
-        "path": "./plugins/notion"
+        "path": "../../plugins/notion"
       },
       "policy": {
         "installation": "AVAILABLE",
@@ -44,7 +44,7 @@
       "name": "datamoat",
       "source": {
         "source": "local",
-        "path": "./plugins/datamoat"
+        "path": "../../plugins/datamoat"
       },
       "policy": {
         "installation": "AVAILABLE",

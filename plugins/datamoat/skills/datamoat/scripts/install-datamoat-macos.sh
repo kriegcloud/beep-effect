@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
-# Install the latest DataMoat on macOS from the official download service,
+# Install pinned DataMoat on macOS from the official download service,
 # then start pre-setup no-screen protection.
 # Exit codes: 0 = installed and protecting, 3 = installed (finish on desktop),
 #             4 = use the official site.
 set -u
 
 OFFICIAL_SITE="https://datamoat.org"
-MANIFEST_URL="https://downloads.datamoat.org/releases/latest/manifest.json?s=skill"
+DATAMOAT_VERSION="2.0.14"
+MACOS_ARM64_URL="https://downloads.datamoat.org/releases/v2.0.14/DataMoat-2.0.14-macos-arm64.dmg"
+MACOS_ARM64_SHA256="c661429b2eeb9fba262ee8d40edd80750aea42c979a0c8dd893bb9014163a4e1"
+MACOS_ARM64_FALLBACK_URL="https://github.com/max-ng/datamoat/releases/download/v2.0.14/DataMoat-2.0.14-macos-arm64.dmg"
 
 gentle_site_exit() {
   echo ""
@@ -20,10 +23,16 @@ if [ "$(uname -s)" != "Darwin" ]; then
   gentle_site_exit
 fi
 
-ARCH="$(uname -m)"
-case "$ARCH" in
-  arm64) BLOCK_KEY="macos" ;;
-  *) BLOCK_KEY="macos-x64" ;;
+case "$(uname -m)" in
+  arm64)
+    DMG_URL="$MACOS_ARM64_URL"
+    DMG_SHA="$MACOS_ARM64_SHA256"
+    FALLBACK_URL="$MACOS_ARM64_FALLBACK_URL"
+    ;;
+  *)
+    echo "This pinned quick installer is currently published for Apple Silicon Macs."
+    gentle_site_exit
+    ;;
 esac
 
 TMP_BASE="${TMPDIR:-/tmp}"
@@ -41,27 +50,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Checking the latest DataMoat release..."
-MANIFEST="$(curl -fsSL --max-time 30 "$MANIFEST_URL" 2>/dev/null)" || MANIFEST=""
-if [ -z "$MANIFEST" ]; then
-  gentle_site_exit
-fi
-
-VERSION="$(printf '%s\n' "$MANIFEST" | grep -o '"version":[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"version":[[:space:]]*"//; s/"$//')"
-
-# Pull the artifact block for this Mac's architecture.
-BLOCK="$(printf '%s\n' "$MANIFEST" | awk -v key="\"$BLOCK_KEY\": {" 'index($0, key){f=1} f{print; if (!/\{/ && /\}/) exit}')"
-DMG_URL="$(printf '%s\n' "$BLOCK" | grep -o '"url":[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"url":[[:space:]]*"//; s/"$//')"
-DMG_SHA="$(printf '%s\n' "$BLOCK" | grep -o '"sha256":[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"sha256":[[:space:]]*"//; s/"$//')"
-FALLBACK_URL="$(printf '%s\n' "$BLOCK" | grep -o '"githubFallbackUrl":[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"githubFallbackUrl":[[:space:]]*"//; s/"$//')"
-
-if [ -z "$DMG_URL" ]; then
-  # No package published yet for this Mac model in the quick path.
-  gentle_site_exit
-fi
-
-echo "Downloading DataMoat ${VERSION:-latest} for your Mac..."
-if ! curl -fL --max-time 600 "${DMG_URL}?s=skill" -o "$DMG_PATH" 2>/dev/null; then
+echo "Downloading DataMoat ${DATAMOAT_VERSION} for your Mac..."
+if ! curl -fL --max-time 600 "${DMG_URL}" -o "$DMG_PATH" 2>/dev/null; then
   if [ -n "$FALLBACK_URL" ]; then
     curl -fL --max-time 600 "$FALLBACK_URL" -o "$DMG_PATH" 2>/dev/null || gentle_site_exit
   else
@@ -79,6 +69,8 @@ if [ -n "$DMG_SHA" ]; then
     [ "$ACTUAL_SHA" = "$DMG_SHA" ] || gentle_site_exit
   fi
   echo "Download verified (SHA-256 match)."
+else
+  gentle_site_exit
 fi
 
 mkdir -p "$MOUNT_DIR"
@@ -117,7 +109,7 @@ for _ in $(seq 1 60); do
   if [ -f "$BOOTSTRAP_FILE" ] && [ -f "$HEALTH_FILE" ] \
     && grep -q '"bootstrapCapture":[[:space:]]*true' "$HEALTH_FILE"; then
     echo ""
-    echo "DataMoat ${VERSION:-} is installed and already protecting this Mac."
+    echo "DataMoat ${DATAMOAT_VERSION} is installed and already protecting this Mac."
     echo "It is quietly encrypting your local ChatGPT, Claude, Codex, Cursor,"
     echo "DeepSeek, Qwen, and OpenClaw conversation records in the background."
     echo ""
@@ -130,7 +122,7 @@ for _ in $(seq 1 60); do
 done
 
 echo ""
-echo "DataMoat ${VERSION:-} is installed at ${DEST_APP}."
+echo "DataMoat ${DATAMOAT_VERSION} is installed at ${DEST_APP}."
 echo "To begin protection, open DataMoat once on this desktop — it takes seconds."
 echo "For your security, password and recovery setup happen in the local app, not in chat."
 exit 3

@@ -1,11 +1,25 @@
-# Install the latest DataMoat on Windows from the official download service,
+# Install pinned DataMoat on Windows from the official download service,
 # then start pre-setup no-screen protection.
 # Exit codes: 0 = installed and protecting, 3 = installed (one click left),
 #             4 = use the official site.
 
 $ErrorActionPreference = 'Stop'
 $OfficialSite = 'https://datamoat.org'
-$ManifestUrl = 'https://downloads.datamoat.org/releases/latest/manifest.json?s=skill'
+$PinnedVersion = '2.0.14'
+$PinnedArtifacts = @{
+  'windows-x64' = @{
+    filename = 'DataMoat-2.0.14-win32-x64.zip'
+    url = 'https://downloads.datamoat.org/releases/v2.0.14/DataMoat-2.0.14-win32-x64.zip'
+    sha256 = '170552a5b9b2417208e47efa71a8855d4e659ece7e96ce35d81f8bb16dea5110'
+    githubFallbackUrl = 'https://github.com/max-ng/datamoat/releases/download/v2.0.14/DataMoat-2.0.14-win32-x64.zip'
+  }
+  'windows-arm64' = @{
+    filename = 'DataMoat-2.0.14-win32-arm64.zip'
+    url = 'https://downloads.datamoat.org/releases/v2.0.14/DataMoat-2.0.14-win32-arm64.zip'
+    sha256 = 'e1212d7c4db36e704a526c13caf7ecb77a42cec01bdc326f3ab9868028ed7339'
+    githubFallbackUrl = 'https://github.com/max-ng/datamoat/releases/download/v2.0.14/DataMoat-2.0.14-win32-arm64.zip'
+  }
+}
 
 function Gentle-SiteExit {
   Write-Output ''
@@ -22,34 +36,30 @@ try {
   }
   if (-not $archKey) { Gentle-SiteExit }
 
-  Write-Output 'Checking the latest DataMoat release...'
-  $manifest = Invoke-RestMethod -Uri $ManifestUrl -TimeoutSec 30
-  $artifact = $manifest.artifacts.$archKey
-  if (-not $artifact -or -not $artifact.url) { Gentle-SiteExit }
-  $version = $manifest.version
+  $artifact = $PinnedArtifacts[$archKey]
+  if (-not $artifact) { Gentle-SiteExit }
+  $version = $PinnedVersion
 
-  $zipPath = Join-Path $env:TEMP $artifact.filename
+  $zipPath = Join-Path $env:TEMP $artifact['filename']
   Write-Output ("Downloading DataMoat " + $version + " for Windows (" + $archKey + ")...")
   $downloaded = $false
   try {
-    Invoke-WebRequest -Uri ($artifact.url + '?s=skill') -OutFile $zipPath -TimeoutSec 600
+    Invoke-WebRequest -Uri $artifact['url'] -OutFile $zipPath -TimeoutSec 600
     $downloaded = $true
   } catch {
-    if ($artifact.githubFallbackUrl) {
-      Invoke-WebRequest -Uri $artifact.githubFallbackUrl -OutFile $zipPath -TimeoutSec 600
+    if ($artifact['githubFallbackUrl']) {
+      Invoke-WebRequest -Uri $artifact['githubFallbackUrl'] -OutFile $zipPath -TimeoutSec 600
       $downloaded = $true
     }
   }
   if (-not $downloaded) { Gentle-SiteExit }
 
-  if ($artifact.sha256) {
-    $actual = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
-    if ($actual -ne $artifact.sha256.ToLowerInvariant()) { Gentle-SiteExit }
-    Write-Output 'Download verified (SHA-256 match).'
-  }
+  $actual = (Get-FileHash -Path $zipPath -Algorithm SHA256).Hash.ToLowerInvariant()
+  if ($actual -ne $artifact['sha256'].ToLowerInvariant()) { Gentle-SiteExit }
+  Write-Output 'Download verified (SHA-256 match).'
 
   $installRoot = Join-Path $env:LOCALAPPDATA 'DataMoat/app'
-  $installDir = Join-Path $installRoot ([System.IO.Path]::GetFileNameWithoutExtension($artifact.filename))
+  $installDir = Join-Path $installRoot ([System.IO.Path]::GetFileNameWithoutExtension($artifact['filename']))
   if (Test-Path $installDir) { Remove-Item $installDir -Recurse -Force }
   New-Item -ItemType Directory -Path $installDir -Force | Out-Null
   Write-Output 'Unpacking DataMoat...'
