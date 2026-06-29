@@ -116,3 +116,10 @@ This initiative references existing packets without merging them:
 
 Those packets remain source context and evidence. This packet is the active
 authority for the professional runtime product direction.
+
+## Notes
+
+- 2026-06-29: gold-intake research note added at
+  research/gold-intake-agent-skills-ethical-wall.md (see for agent Skills,
+  cost-tiered tool routing, the not-legal-advice disclaimer gate, and
+  ethical-wall `CurrentUser` identity).

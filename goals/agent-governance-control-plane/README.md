@@ -24,3 +24,4 @@ packet contracts, and reusable prompt assets that other initiatives inherit.
 - Historical phase outputs and reflection material live under [history/](./history).
 - This initiative remains active because it governs future initiative work, not
   because it is waiting on one final code change.
+- 2026-06-29: gold-intake research note added at research/gold-intake-governance-controls.md (see for runtime governance primitives — previewable filter-gated bulk mutation + tamper-evident agent/tool-call audit trace).

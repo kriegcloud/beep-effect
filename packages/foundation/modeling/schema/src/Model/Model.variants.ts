@@ -22,10 +22,12 @@ const { Class, Field, FieldExcept, FieldOnly, Struct, Union, extract, fieldEvolv
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * declare const model: Model.Any
- * console.log(model.fields)
+ * class Account extends Model.Class<Account>("Account")({ id: S.String }) {}
+ * const fields: Model.Any["fields"] = Account.fields
+ * console.log(Object.keys(fields))
  * ```
  *
  * @since 0.0.0

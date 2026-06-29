@@ -153,8 +153,8 @@ export type Markdown = typeof Markdown.Type;
  *
  * const MarkdownToHtml = MarkdownTextToHtml()
  * const program = S.decodeUnknownEffect(MarkdownToHtml)("# Hello")
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const html = await Effect.runPromise(program)
+ * console.log(html.includes("<h1"))
  * ```
  *
  * @param options - Optional Bun Markdown parser options. Raw HTML tag filtering is enabled by default.
@@ -189,8 +189,8 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  * const decodeHtml = decodeMarkdownTextAs(S.String)
  *
  * const program = decodeHtml("# Hello")
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const html = await Effect.runPromise(program)
+ * console.log(html.includes("Hello"))
  * ```
  *
  * @param schema - Target schema to decode rendered HTML output into.

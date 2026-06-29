@@ -28,7 +28,7 @@ type LiteralKitStatics<L extends A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>
  * const StatusBase = LiteralKit(["draft", "published"])
  * const Status = StatusBase.pipe(withLiteralKitStatics(StatusBase))
  *
- * console.log(Status.Options)
+ * console.log(Status.Options.includes("published"))
  * ```
  *
  * @category utilities

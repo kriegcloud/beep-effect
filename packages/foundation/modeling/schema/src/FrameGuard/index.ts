@@ -5,7 +5,7 @@
  * ```ts
  * import * as FrameGuard from "@beep/schema/FrameGuard"
  *
- * console.log(FrameGuard.Header)
+ * console.log(Object.keys(FrameGuard).includes("Header"))
  * ```
  *
  * @packageDocumentation

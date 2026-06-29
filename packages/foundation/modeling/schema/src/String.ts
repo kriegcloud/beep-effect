@@ -6,9 +6,42 @@
  */
 
 import { $SchemaId } from "@beep/identity";
+import { Str } from "@beep/utils";
+import { identity, Result, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("String");
+const encodeUnknownAsJsonResult = S.encodeUnknownResult(S.UnknownFromJsonString);
+const isError = S.is(S.Error());
+
+const stringifyFallback = (value: unknown): string => {
+  try {
+    return String(value);
+  } catch {
+    try {
+      return Object.prototype.toString.call(value);
+    } catch {
+      return "[object Unknown]";
+    }
+  }
+};
+
+const stringifyUnknown = (value: unknown): string => {
+  if (Str.isString(value)) {
+    return value;
+  }
+
+  if (isError(value)) {
+    return value.message;
+  }
+
+  return encodeUnknownAsJsonResult(value).pipe(
+    Result.match({
+      onFailure: () => stringifyFallback(value),
+      onSuccess: identity,
+    })
+  );
+};
 
 /**
  * Branded non-empty trimmed string schema that strips whitespace and rejects empty results.
@@ -38,9 +71,11 @@ export const NonEmptyTrimmedStr = S.Trim.check(S.isNonEmpty({ message: "String m
  *
  * @example
  * ```ts
- * import type { NonEmptyTrimmedStr } from "@beep/schema/String"
+ * import * as S from "effect/Schema"
+ * import { NonEmptyTrimmedStr } from "@beep/schema/String"
  *
- * const label: NonEmptyTrimmedStr = "hello" as NonEmptyTrimmedStr
+ * const label: NonEmptyTrimmedStr = S.decodeUnknownSync(NonEmptyTrimmedStr)("  hello  ")
+ * console.log(label) // "hello"
  * ```
  *
  * @since 0.0.0
@@ -76,9 +111,11 @@ export const UUID = NonEmptyTrimmedStr.check(S.isUUID()).pipe(
  *
  * @example
  * ```ts
- * import type { UUID } from "@beep/schema/String"
+ * import * as S from "effect/Schema"
+ * import { UUID } from "@beep/schema/String"
  *
- * const userId: UUID = "550e8400-e29b-41d4-a716-446655440000" as UUID
+ * const userId: UUID = S.decodeUnknownSync(UUID)("550e8400-e29b-41d4-a716-446655440000")
+ * console.log(userId)
  * ```
  *
  * @since 0.0.0
@@ -94,8 +131,8 @@ export type UUID = typeof UUID.Type;
  * import * as S from "effect/Schema"
  * import { NullableStr } from "@beep/schema/String"
  *
- * S.decodeUnknownSync(NullableStr)("hello")
- * S.decodeUnknownSync(NullableStr)(null)
+ * console.log(S.decodeUnknownSync(NullableStr)("hello")) // "hello"
+ * console.log(S.decodeUnknownSync(NullableStr)(null)) // null
  * ```
  *
  * @category validation
@@ -113,9 +150,11 @@ export const NullableStr = S.String.pipe(
  *
  * @example
  * ```ts
- * import type { NullableStr } from "@beep/schema/String"
+ * import * as S from "effect/Schema"
+ * import { NullableStr } from "@beep/schema/String"
  *
- * const name: NullableStr = null
+ * const name: NullableStr = S.decodeUnknownSync(NullableStr)(null)
+ * console.log(name) // null
  * ```
  *
  * @category models
@@ -131,8 +170,8 @@ export type NullableStr = typeof NullableStr.Type;
  * import * as S from "effect/Schema"
  * import { OptionFromNullableStr } from "@beep/schema/String"
  *
- * const result = S.decodeUnknownSync(OptionFromNullableStr)(null)
- * console.log(result) // Option.none()
+ * const option = S.decodeUnknownSync(OptionFromNullableStr)(null)
+ * console.log(option) // Option.none()
  * ```
  *
  * @category validation
@@ -148,7 +187,70 @@ export const OptionFromNullableStr = S.String.pipe(
 /**
  * Type for {@link OptionFromNullableStr}.
  *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ * import { OptionFromNullableStr } from "@beep/schema/String"
+ *
+ * const value: OptionFromNullableStr = S.decodeUnknownSync(OptionFromNullableStr)("hello")
+ * console.log(O.isSome(value)) // true
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
 export type OptionFromNullableStr = typeof OptionFromNullableStr.Type;
+
+/**
+ * Schema transformation that decodes any unknown input into a string.
+ *
+ * Strings pass through unchanged. Errors decode to their message. JSON-compatible
+ * values decode to compact JSON text, and values that cannot be JSON encoded
+ * fall back to JavaScript string coercion.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { StrFromUnknown } from "@beep/schema/String"
+ *
+ * const program = S.decodeUnknownEffect(StrFromUnknown)({ ok: true })
+ * const value = Effect.runSync(program)
+ *
+ * console.log(value) // "{\"ok\":true}"
+ * ```
+ *
+ * @category codecs
+ * @since 0.0.0
+ */
+export const StrFromUnknown = S.Unknown.pipe(
+  S.decodeTo(
+    S.String,
+    SchemaTransformation.transform<string, unknown>({
+      decode: stringifyUnknown,
+      encode: identity,
+    })
+  ),
+  $I.annoteSchema("StrFromUnknown", {
+    description: "Schema transformation that decodes any unknown input into a string.",
+  })
+);
+
+/**
+ * Type for {@link StrFromUnknown}. {@inheritDoc StrFromUnknown}
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { StrFromUnknown } from "@beep/schema/String"
+ *
+ * const text: StrFromUnknown = Effect.runSync(S.decodeUnknownEffect(StrFromUnknown)(new Error("boom")))
+ * console.log(text) // "boom"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type StrFromUnknown = typeof StrFromUnknown.Type;

@@ -170,10 +170,10 @@ type FnNoArgInput<Input extends S.Top> = [Input["Type"]] extends [never]
  *
  * @example
  * ```ts
- * import type { FnSchemaNoArg } from "@beep/schema/Fn"
+ * import { Fn, type FnSchemaNoArg } from "@beep/schema/Fn"
  * import * as S from "effect/Schema"
  *
- * declare const schema: FnSchemaNoArg<typeof S.Never, typeof S.String, typeof S.Never>
+ * const schema: FnSchemaNoArg<typeof S.Never, typeof S.String, typeof S.Never> = Fn({ output: S.String })
  * const getValue = schema.implementSync(() => "ready")
  *
  * console.log(getValue())
@@ -200,10 +200,13 @@ export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.
  *
  * @example
  * ```ts
- * import type { FnSchemaUnary } from "@beep/schema/Fn"
+ * import { Fn, type FnSchemaUnary } from "@beep/schema/Fn"
  * import * as S from "effect/Schema"
  *
- * declare const schema: FnSchemaUnary<typeof S.Finite, typeof S.String, typeof S.Never>
+ * const schema: FnSchemaUnary<typeof S.Finite, typeof S.String, typeof S.Never> = Fn({
+ *   input: S.Finite,
+ *   output: S.String
+ * })
  * const format = schema.implementSync((input) => `${input}`)
  *
  * console.log(format(1))
@@ -237,7 +240,7 @@ export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error 
  * type FormatCount = FnSchema<typeof S.Finite, typeof S.String>
  * const schema = S.String satisfies FormatCount["outputSchema"]
  *
- * console.log(schema.ast._tag)
+ * console.log(S.isSchema(schema))
  * ```
  *
  * @since 0.0.0
@@ -258,10 +261,10 @@ export type FnSchema<Input extends S.Top, Output extends S.Top, Error extends S.
  *
  * @example
  * ```ts
- * import type { FnSchemaStatics } from "@beep/schema/Fn"
+ * import { Fn, type FnSchemaStatics } from "@beep/schema/Fn"
  * import * as S from "effect/Schema"
  *
- * declare const statics: FnSchemaStatics<typeof S.Finite, typeof S.String>
+ * const statics = Fn({ input: S.Finite, output: S.String }) satisfies FnSchemaStatics<typeof S.Finite, typeof S.String>
  * const format = statics.implementSync((input) => `${input}`)
  *
  * console.log(format(1))
@@ -502,7 +505,7 @@ export function ThunkOf<Output extends S.Top>(output: Output): FnSchema<typeof S
  * import * as S from "effect/Schema"
  *
  * const GetCount = ThunkOf(S.Finite, S.String)
- * console.log(GetCount.errorSchema.ast._tag)
+ * console.log(S.isSchema(GetCount.errorSchema))
  * ```
  *
  * @since 0.0.0
@@ -544,7 +547,7 @@ export function ThunkOf<Output extends S.Top, Error extends S.Top>(output: Outpu
  * const GetGreeting = Fn({ output: S.String })
  * const greeting = GetGreeting.implementSync(() => "hello")
  *
- * console.log(greeting)
+ * console.log(greeting())
  * ```
  *
  * @param options - Output and optional error contracts for the thunk.
@@ -568,7 +571,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  *
  * const GetTime = Fn({ input: S.Undefined, output: S.Finite })
  * const getTime = GetTime.implementSync(() => Date.now())
- * console.log(getTime)
+ * console.log(getTime())
  * ```
  *
  * @param options - Input/output contract for the thunk-like function.
@@ -593,7 +596,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  *
  * const Noop = Fn({ input: S.Void, output: S.Void })
  * const noop = Noop.implementSync(() => undefined)
- * console.log(noop)
+ * console.log(noop())
  * ```
  *
  * @param options - Input/output contract for the thunk-like function.
@@ -623,7 +626,7 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  *
  * const formatCount = FormatCount.implementSync((count) => `${count}`)
  *
- * console.log(formatCount)
+ * console.log(formatCount(1))
  * ```
  *
  * @param options - Input, output, and optional error contracts for the function.

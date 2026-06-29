@@ -62,6 +62,10 @@ format-specific engines. Drivers implement declared operation capabilities.
 - The P1 proof is a minimum vertical slice. Broad Tika coverage across every
   non-PST V1 family, real/public PST export coverage, and optional corpus
   profiling remain later phases.
+- 2026-06-29: gold-intake research note added at
+  `research/gold-intake-ocr-pdf-diagnostics.md` (see for OCR-need gating,
+  layout-aware PDF extraction, MIME/encoding/mojibake repair, and input-quality
+  gating feeding the SPEC-deferred OCR strategy/driver boundary).
 
 ## V1 Cutline
 

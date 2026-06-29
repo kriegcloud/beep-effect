@@ -134,9 +134,11 @@ export type Glob = typeof Glob.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Schema } from "@beep/schema/Glob"
  *
- * console.log(Schema.ast._tag)
+ * const pattern = S.decodeUnknownSync(Schema)("src/*.ts")
+ * console.log(pattern)
  * ```
  *
  * @category schemas
@@ -149,9 +151,11 @@ export const Schema = Glob;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { Schema as GlobValue } from "@beep/schema/Glob"
+ * import { Schema as GlobSchema } from "@beep/schema/Glob"
  *
- * const pattern = "src/*.ts" as GlobValue
+ * const pattern: GlobValue = S.decodeUnknownSync(GlobSchema)("src/*.ts")
  * console.log(pattern)
  * ```
  *

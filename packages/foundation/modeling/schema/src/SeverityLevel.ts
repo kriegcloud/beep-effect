@@ -38,9 +38,11 @@ export const SeverityLevel = SeverityLevelBase.pipe(
  *
  * @example
  * ```ts
- * import type { SeverityLevel } from "@beep/schema/SeverityLevel"
+ * import * as S from "effect/Schema"
+ * import { SeverityLevel } from "@beep/schema/SeverityLevel"
  *
- * const severity: SeverityLevel = "critical"
+ * const severity: SeverityLevel = S.decodeUnknownSync(SeverityLevel)("critical")
+ * console.log(severity) // "critical"
  * ```
  *
  * @since 0.0.0

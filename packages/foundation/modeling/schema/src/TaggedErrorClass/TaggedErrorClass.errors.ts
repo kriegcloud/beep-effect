@@ -267,7 +267,8 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  *
  * const program = Effect.fail(err)
  *
- * console.log(program)
+ * const exit = Effect.runSyncExit(program)
+ * console.log(exit._tag)
  * ```
  *
  * @example
@@ -285,7 +286,8 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  *   catch: () => DbError.make({ query: "select 1" })
  * })
  *
- * console.log(program)
+ * const value = Effect.runSync(program)
+ * console.log(value)
  * ```
  *
  * @category constructors

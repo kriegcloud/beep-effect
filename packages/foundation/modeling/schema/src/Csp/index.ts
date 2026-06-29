@@ -5,7 +5,7 @@
  * ```ts
  * import * as Csp from "@beep/schema/Csp"
  *
- * console.log(Csp.Header)
+ * console.log(Object.keys(Csp).includes("Header"))
  * ```
  *
  * @packageDocumentation

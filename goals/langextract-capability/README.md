@@ -62,3 +62,4 @@ with zero required findings.
   `@beep/nlp` instead of duplicated.
 - Provider adapters, provider env config, CLI workflows, rendering, and
   visualization are V1 non-goals for the foundation package.
+- 2026-06-29: gold-intake research note added at research/gold-intake-anti-inference-prompt-mode.md (see for anti-inference "pure-OCR" prompt-mode + JSON-contract candidate prompts + n-best/null-score scoring + context-budget chunking).

@@ -216,7 +216,8 @@ const encodeLocalDateFromString = (localDate: {
  * import { fromString } from "@beep/schema/LocalDate"
  *
  * const program = fromString("2024-06-15")
- * console.log(Effect.runPromise(program))
+ * const date = await Effect.runPromise(program)
+ * console.log(date.toISOString())
  * ```
  *
  * @effects Parses an ISO local date string and fails with `SchemaError` when the input is not a valid calendar date.
@@ -287,7 +288,8 @@ export const today = (): LocalDate => DateTime.nowUnsafe().pipe(DateTime.toDate,
  * import { Effect } from "effect"
  * import { todayEffect } from "@beep/schema/LocalDate"
  *
- * console.log(Effect.runPromise(todayEffect))
+ * const date = await Effect.runPromise(todayEffect)
+ * console.log(date.year > 0)
  * ```
  *
  * @effects Reads the Effect Clock service and returns the current UTC calendar date.

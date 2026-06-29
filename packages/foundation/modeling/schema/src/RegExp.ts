@@ -67,9 +67,11 @@ export const RegExpStr = S.String.check(RegExpStrCheck).pipe(
  *
  * @example
  * ```ts
- * import type { RegExpStr } from "@beep/schema/RegExp"
+ * import * as S from "effect/Schema"
+ * import { RegExpStr } from "@beep/schema/RegExp"
  *
- * const pattern: RegExpStr = "\\d+" as RegExpStr
+ * const pattern: RegExpStr = S.decodeUnknownSync(RegExpStr)("\\d+")
+ * console.log(new RegExp(pattern).test("123")) // true
  * ```
  *
  * @since 0.0.0
@@ -93,9 +95,8 @@ const encodeRegExpStrForbidden = (value: globalThis.RegExp): Effect.Effect<RegEx
  * import * as S from "effect/Schema"
  * import { RegExpFromStr } from "@beep/schema/RegExp"
  *
- * const program = S.decodeUnknownEffect(RegExpFromStr)("[a-z]+")
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const pattern = Effect.runSync(S.decodeUnknownEffect(RegExpFromStr)("[a-z]+"))
+ * console.log(pattern.test("abc")) // true
  * ```
  *
  * @since 0.0.0
@@ -119,9 +120,12 @@ export const RegExpFromStr = RegExpStr.pipe(
  *
  * @example
  * ```ts
- * import type { RegExpFromStr } from "@beep/schema/RegExp"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { RegExpFromStr } from "@beep/schema/RegExp"
  *
- * const re: RegExpFromStr = /hello/ as RegExpFromStr
+ * const re: RegExpFromStr = Effect.runSync(S.decodeUnknownEffect(RegExpFromStr)("hello"))
+ * console.log(re.test("hello world")) // true
  * ```
  *
  * @since 0.0.0

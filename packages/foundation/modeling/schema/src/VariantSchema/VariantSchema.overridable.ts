@@ -31,10 +31,14 @@ export const Override = <A>(value: A): A & Brand<"Override"> => value as A & Bra
  * @example
  * ```ts
  * import type { Overridable } from "@beep/schema/VariantSchema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * declare const field: Overridable<typeof S.String>
- * console.log(field.ast._tag)
+ * const field: Overridable<typeof S.String> = VariantSchema.Overridable(S.String, {
+ *   defaultValue: Effect.succeed("generated")
+ * })
+ * console.log(S.isSchema(field))
  * ```
  *
  * @since 0.0.0
@@ -73,7 +77,7 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
  *   defaultValue: Effect.succeed("generated")
  * })
  *
- * console.log(field.ast._tag)
+ * console.log(S.isSchema(field))
  * ```
  *
  * @since 0.0.0
@@ -109,10 +113,14 @@ export const Overridable: {
  * @example
  * ```ts
  * import type { Overrideable } from "@beep/schema/VariantSchema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * declare const field: Overrideable<typeof S.String>
- * console.log(field.ast._tag)
+ * const field: Overrideable<typeof S.String> = VariantSchema.Overrideable(S.String, {
+ *   defaultValue: Effect.succeed("generated")
+ * })
+ * console.log(S.isSchema(field))
  * ```
  *
  * @example
@@ -146,7 +154,7 @@ export interface Overrideable<S extends S.Top & S.WithoutConstructorDefault> ext
  *   defaultValue: Effect.succeed("generated")
  * })
  *
- * console.log(field.ast._tag)
+ * console.log(S.isSchema(field))
  * ```
  *
  * @since 0.0.0

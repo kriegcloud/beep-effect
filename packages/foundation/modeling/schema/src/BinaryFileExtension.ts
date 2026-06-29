@@ -187,9 +187,11 @@ const isBinaryFileExtensionSchema = S.is(BinaryFileExtension);
  *
  * @example
  * ```ts
- * import type { BinaryFileExtension } from "@beep/schema/BinaryFileExtension"
+ * import * as S from "effect/Schema"
+ * import { BinaryFileExtension } from "@beep/schema/BinaryFileExtension"
  *
- * const ext: BinaryFileExtension = ".png"
+ * const ext: BinaryFileExtension = S.decodeUnknownSync(BinaryFileExtension)(".png")
+ * console.log(ext) // ".png"
  * ```
  *
  * @since 0.0.0

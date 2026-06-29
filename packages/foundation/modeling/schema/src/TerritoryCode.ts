@@ -16,6 +16,15 @@ const $I = $SchemaId.create("TerritoryCode");
 /**
  * CLDR territory code schema derived from generated territory data.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TerritoryCode } from "@beep/schema/TerritoryCode"
+ *
+ * const code = S.decodeUnknownSync(TerritoryCode)("US")
+ * console.log(code) // "US"
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -28,6 +37,15 @@ export const TerritoryCode = LiteralKit(Struct.keysNonEmpty(TerritoriesData.Terr
 /**
  * {@inheritDoc TerritoryCode}
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TerritoryCode } from "@beep/schema/TerritoryCode"
+ *
+ * const code: TerritoryCode = S.decodeUnknownSync(TerritoryCode)("US")
+ * console.log(code) // "US"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -37,6 +55,15 @@ const territoryNameByCodeEntries = Struct.entriesNonEmpty(TerritoriesData.Territ
 
 /**
  * CLDR territory display-name schema derived from generated territory data.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TerritoryName } from "@beep/schema/TerritoryCode"
+ *
+ * const name = S.decodeUnknownSync(TerritoryName)("United States")
+ * console.log(name) // "United States"
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -52,6 +79,15 @@ export const TerritoryName = LiteralKit(
 /**
  * {@inheritDoc TerritoryName}
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TerritoryName } from "@beep/schema/TerritoryCode"
+ *
+ * const name: TerritoryName = S.decodeUnknownSync(TerritoryName)("United States")
+ * console.log(name) // "United States"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -62,6 +98,15 @@ export type TerritoryName = typeof TerritoryName.Type;
  *
  * Decoding maps territory code to display name; `TerritoryNameFromCode.To`
  * maps display name back to territory code.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TerritoryNameFromCode } from "@beep/schema/TerritoryCode"
+ *
+ * const name = S.decodeUnknownSync(TerritoryNameFromCode)("US")
+ * console.log(name) // "United States"
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -74,6 +119,15 @@ export const TerritoryNameFromCode = MappedLiteralKit(territoryNameByCodeEntries
 
 /**
  * Reverse codec from CLDR territory display name to territory code.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TerritoryCodeFromName } from "@beep/schema/TerritoryCode"
+ *
+ * const code = S.decodeUnknownSync(TerritoryCodeFromName)("United States")
+ * console.log(code) // "US"
+ * ```
  *
  * @since 0.0.0
  * @category schemas

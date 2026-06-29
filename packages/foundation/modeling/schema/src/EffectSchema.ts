@@ -50,6 +50,9 @@ const effectAnnotations = {
  *
  * @param u - The value to test.
  * @returns Whether the value is an Effect runtime value.
+ * @effects
+ * Inspects the runtime value only; it does not execute the supplied Effect.
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -67,8 +70,11 @@ export const isEffect = Effect.isEffect;
  * const program = Effect.succeed("done")
  * const decoded = S.decodeUnknownSync(EffectSchema)(program)
  *
- * console.log(decoded)
+ * console.log(Effect.isEffect(decoded)) // true
  * ```
+ *
+ * @effects
+ * Validates Effect runtime values without executing them.
  *
  * @category validation
  * @since 0.0.0
@@ -85,11 +91,11 @@ export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import type { EffectSchema } from "@beep/schema/EffectSchema"
+ * import * as S from "effect/Schema"
+ * import { EffectSchema } from "@beep/schema/EffectSchema"
  *
- * const program: EffectSchema = Effect.succeed("done")
- *
- * console.log(program)
+ * const program: EffectSchema = S.decodeUnknownSync(EffectSchema)(Effect.succeed("done"))
+ * console.log(Effect.isEffect(program)) // true
  * ```
  *
  * @category models

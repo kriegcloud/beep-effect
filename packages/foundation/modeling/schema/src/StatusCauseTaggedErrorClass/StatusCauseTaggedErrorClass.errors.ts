@@ -492,7 +492,8 @@ const attachStatusCauseTaggedErrorStatics = <
  * )
  * const notFound = HttpError.noCause("Missing resource", 404)
  *
- * console.log(program)
+ * const exit = Effect.runSyncExit(program)
+ * console.log(exit._tag)
  * console.log(notFound)
  * ```
  *

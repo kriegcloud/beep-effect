@@ -81,3 +81,4 @@ claim admission, and PR #265 carries the Yeet-published branch.
 - The nlp `AnnotatedDocument` envelope is still span-lossy for law anchoring.
   Feed `LangExtractResult.extractions` / `GroundedExtraction[]` into `IrToLaw`.
 - Fixtures must remain synthetic/public only.
+- 2026-06-29: gold-intake research note added at research/gold-intake-relational-extraction-grid.md (see for a relational document x column grounded-extraction grid with per-cell citations + status; non-invasive extend capture).

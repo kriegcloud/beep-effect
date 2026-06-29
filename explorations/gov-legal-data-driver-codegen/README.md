@@ -2,7 +2,7 @@
 
 ## Status
 
-Stage: `capture`
+Stage: `research`
 Status: `active`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -18,7 +18,11 @@ Effect/effect-Schema/HttpApi stack rather than vendoring Orval/axios/Zod.
 
 ## Next Open Question
 
-None — ready for research.
+**Q1: Codegen engine — one generator for all five drivers, or a tiered
+per-driver strategy keyed on spec availability?** (the build-vs-buy fork the
+whole pipeline hinges on). All eight branch-closing questions are pre-drafted
+with recommended answers in [`DECISIONS.md`](./DECISIONS.md) — resolve them via
+`/grill-with-docs gov-legal-data-driver-codegen`.
 
 ## Read This First
 
@@ -31,4 +35,5 @@ None — ready for research.
 
 ## Trail
 
+- 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.
 - 2026-06-29: packet opened from gold-intake cluster 'Gov/legal data drivers + OpenAPI codegen' (19 nuggets).

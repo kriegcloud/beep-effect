@@ -48,9 +48,11 @@ export const PascalCaseStr = NonEmptyTrimmedStr.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { PascalCaseStr } from "@beep/schema"
+ * import { PascalCaseStr as PascalCaseStrSchema } from "@beep/schema"
  *
- * const name = "WorkflowStatus" as PascalCaseStr
+ * const name: PascalCaseStr = S.decodeUnknownSync(PascalCaseStrSchema)("WorkflowStatus")
  * console.log(name)
  * ```
  *

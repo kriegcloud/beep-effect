@@ -5,7 +5,7 @@
  * ```ts
  * import * as ExpectCt from "@beep/schema/ExpectCt"
  *
- * console.log(ExpectCt.Header)
+ * console.log(Object.keys(ExpectCt).includes("Header"))
  * ```
  *
  * @packageDocumentation

@@ -5,7 +5,7 @@
  * ```ts
  * import * as NoSniff from "@beep/schema/NoSniff"
  *
- * console.log(NoSniff.Header)
+ * console.log(Object.keys(NoSniff).includes("Header"))
  * ```
  *
  * @packageDocumentation

@@ -153,9 +153,12 @@ const resolveHeaders = Effect.fnUntraced(function* (
  * import { Effect } from "effect"
  * import { createHeadersObject } from "@beep/schema/SecureHeaderOptions"
  *
- * const program = createHeadersObject({ nosniff: "nosniff" })
- * console.log(program)
+ * const headers = Effect.runSync(createHeadersObject({ nosniff: "nosniff" }))
+ * console.log(headers["X-Content-Type-Options"]) // "nosniff"
  * ```
+ *
+ * @effects
+ * Resolves configured secure-header options in memory; it performs no I/O.
  *
  * @since 0.0.0
  * @category constructors
@@ -182,9 +185,12 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
  * import { Effect } from "effect"
  * import { createSecureHeaders } from "@beep/schema/SecureHeaderOptions"
  *
- * const program = createSecureHeaders({ nosniff: "nosniff" })
- * console.log(program)
+ * const headers = Effect.runSync(createSecureHeaders({ nosniff: "nosniff" }))
+ * console.log(headers[0]?.key) // "X-Content-Type-Options"
  * ```
+ *
+ * @effects
+ * Resolves configured secure-header options in memory; it performs no I/O.
  *
  * @since 0.0.0
  * @category constructors

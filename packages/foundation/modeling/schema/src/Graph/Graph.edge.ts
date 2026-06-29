@@ -20,7 +20,7 @@ import type { EdgeEncodedSchema, EdgeIso } from "./Graph.encoded.ts";
  * import * as S from "effect/Schema"
  *
  * const EdgeSchema = EdgeFromSelf(S.String)
- * console.log(EdgeSchema.ast._tag)
+ * console.log(S.isSchema(EdgeSchema))
  * ```
  *
  * @since 0.0.0
@@ -46,7 +46,7 @@ export interface EdgeFromSelf<Data extends S.Top>
  * import * as S from "effect/Schema"
  *
  * const EdgeSchema = EdgeTransform(S.String)
- * console.log(EdgeSchema.ast._tag)
+ * console.log(S.isSchema(EdgeSchema))
  * ```
  *
  * @since 0.0.0
@@ -76,7 +76,7 @@ export interface Edge<Data extends S.Top> extends EdgeTransform<Data> {}
  * import * as S from "effect/Schema"
  *
  * const EdgeSchema = EdgeFromSelf(S.String)
- * console.log(EdgeSchema.ast._tag)
+ * console.log(S.isSchema(EdgeSchema))
  * ```
  *
  * @param data - Schema for edge payloads.
@@ -148,7 +148,7 @@ export const EdgeFromSelf = <Data extends S.Top>(data: Data): EdgeFromSelf<Data>
  * import * as S from "effect/Schema"
  *
  * const EdgeSchema = EdgeTransform(S.String)
- * console.log(EdgeSchema.ast._tag)
+ * console.log(S.isSchema(EdgeSchema))
  * ```
  *
  * @param data - Schema for edge payloads.
@@ -199,7 +199,7 @@ export const EdgeTransform = <Data extends S.Top>(data: Data): EdgeTransform<Dat
  *
  * const EdgeSchema = Edge(S.String)
  *
- * console.log(EdgeSchema.ast)
+ * console.log(S.isSchema(EdgeSchema))
  * ```
  *
  * @param data - Schema for edge payloads.

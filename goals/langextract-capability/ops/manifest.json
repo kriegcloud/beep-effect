@@ -96,7 +96,8 @@
     "research/reports/effect-v4-migration.md",
     "research/reports/architecture-boundaries.md",
     "research/reports/extraction-alignment.md",
-    "research/reports/testing-quality.md"
+    "research/reports/testing-quality.md",
+    "research/gold-intake-anti-inference-prompt-mode.md"
   ],
   "proposalReviewReports": ["research/reports/proposal-review-round-1.md"],
   "proposalReviewLoop": {

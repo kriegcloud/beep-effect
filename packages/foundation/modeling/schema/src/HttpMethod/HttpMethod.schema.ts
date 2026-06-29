@@ -19,7 +19,7 @@ const $I = $SchemaId.create("http/HttpMethod/HttpMethod");
  * ```ts
  * import { Literal } from "@beep/schema/HttpMethod"
  *
- * console.log(Literal.Options)
+ * console.log(Literal.Options.includes("GET"))
  * ```
  *
  * @category schemas

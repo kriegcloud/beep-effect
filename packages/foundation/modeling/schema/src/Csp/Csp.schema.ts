@@ -24,9 +24,11 @@ const $I = $SchemaId.create("Csp");
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { DirectiveSource } from "@beep/schema/Csp"
  *
- * console.log(DirectiveSource.ast)
+ * const source = S.decodeUnknownSync(DirectiveSource)("'self'")
+ * console.log(source)
  * ```
  *
  * @category schemas
@@ -65,9 +67,11 @@ const ContentSecurityPolicyHeaderNameBase = LiteralKit([headerName, reportOnlyHe
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ContentSecurityPolicyHeaderName } from "@beep/schema/Csp"
  *
- * console.log(ContentSecurityPolicyHeaderName.ast)
+ * const name = S.decodeUnknownSync(ContentSecurityPolicyHeaderName)("Content-Security-Policy")
+ * console.log(name)
  * ```
  *
  * @category schemas
@@ -190,9 +194,11 @@ export const createDirectiveValue: {
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PluginTypes } from "@beep/schema/Csp"
  *
- * console.log(PluginTypes.ast)
+ * const pluginTypes = S.decodeUnknownSync(PluginTypes)(["application/pdf"])
+ * console.log(pluginTypes[0])
  * ```
  *
  * @category schemas
@@ -242,9 +248,11 @@ const SandboxBase = LiteralKit([
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Sandbox } from "@beep/schema/Csp"
  *
- * console.log(Sandbox.ast)
+ * const directive = S.decodeUnknownSync(Sandbox)("allow-scripts")
+ * console.log(directive)
  * ```
  *
  * @category schemas
@@ -502,9 +510,11 @@ export class NavigationDirective extends S.Class<NavigationDirective>($I`Navigat
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ReportURI } from "@beep/schema/Csp"
  *
- * console.log(ReportURI.ast)
+ * const uri = S.decodeUnknownSync(ReportURI)("/csp-report")
+ * console.log(uri)
  * ```
  *
  * @category schemas
@@ -567,9 +577,11 @@ export class ReportingDirective extends S.Class<ReportingDirective>($I`Reporting
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { CspDirectives } from "@beep/schema/Csp"
  *
- * console.log(CspDirectives.ast)
+ * const directives = S.decodeUnknownSync(CspDirectives)({ defaultSrc: "'self'" })
+ * console.log(directives.defaultSrc)
  * ```
  *
  * @category schemas
@@ -591,9 +603,13 @@ export const CspDirectives = S.Struct({
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ContentSecurityPolicyOptionStruct } from "@beep/schema/Csp"
  *
- * console.log(ContentSecurityPolicyOptionStruct.ast)
+ * const option = S.decodeUnknownSync(ContentSecurityPolicyOptionStruct)({
+ *   directives: { defaultSrc: "'self'" }
+ * })
+ * console.log(option.directives.defaultSrc)
  * ```
  *
  * @category models
@@ -632,9 +648,11 @@ export class ContentSecurityPolicyOptionStruct extends S.Class<ContentSecurityPo
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ContentSecurityPolicyOption } from "@beep/schema/Csp"
  *
- * console.log(ContentSecurityPolicyOption.ast)
+ * const option = S.decodeUnknownSync(ContentSecurityPolicyOption)(false)
+ * console.log(option)
  * ```
  *
  * @category schemas
@@ -667,9 +685,14 @@ export type ContentSecurityPolicyOption = typeof ContentSecurityPolicyOption.Typ
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { ContentSecurityPolicyResponseHeader } from "@beep/schema/Csp"
  *
- * console.log(ContentSecurityPolicyResponseHeader.ast)
+ * const header = new ContentSecurityPolicyResponseHeader({
+ *   name: "Content-Security-Policy",
+ *   value: O.some("default-src 'self'")
+ * })
+ * console.log(header.name)
  * ```
  *
  * @category models
@@ -772,9 +795,13 @@ export const createContentSecurityPolicyOptionHeaderValue = (
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ContentSecurityPolicyHeader } from "@beep/schema/Csp"
  *
- * console.log(ContentSecurityPolicyHeader.ast)
+ * const header = await Effect.runPromise(
+ *   ContentSecurityPolicyHeader.create({ directives: { defaultSrc: "'self'" } })
+ * )
+ * console.log(header._tag)
  * ```
  *
  * @category schemas
@@ -846,9 +873,14 @@ export const ContentSecurityPolicyHeader = S.Union([ContentSecurityPolicyOption,
  *
  * @example
  * ```ts
- * import type { ContentSecurityPolicyHeader } from "@beep/schema/Csp"
+ * import * as O from "effect/Option"
+ * import { ContentSecurityPolicyResponseHeader, type ContentSecurityPolicyHeader } from "@beep/schema/Csp"
  *
- * console.log({} as { header: ContentSecurityPolicyHeader })
+ * const header: ContentSecurityPolicyHeader = new ContentSecurityPolicyResponseHeader({
+ *   name: "Content-Security-Policy",
+ *   value: O.some("default-src 'self'")
+ * })
+ * console.log(header.name)
  * ```
  *
  * @category models

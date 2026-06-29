@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "mcp-auth-gated-registration",
+    "title": "MCP Auth-Gated Registration & Progressive Disclosure",
+    "status": "active",
+    "stage": "capture",
+    "openQuestions": [],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-06-29",
+    "updated": "2026-06-29"
+  }
+}

@@ -81,8 +81,8 @@ export const isPostgresSerialInt = S.makeFilterGroup(
  * import { isNonNegative } from "@beep/schema/Number"
  *
  * const NonNeg = S.Finite.check(isNonNegative)
- * S.decodeUnknownSync(NonNeg)(0)
- * S.decodeUnknownSync(NonNeg)(42)
+ * console.log(S.decodeUnknownSync(NonNeg)(0)) // 0
+ * console.log(S.decodeUnknownSync(NonNeg)(42)) // 42
  * ```
  *
  * @since 0.0.0
@@ -117,8 +117,8 @@ export const isNegative = S.isLessThan(0);
  * import { isNonPositive } from "@beep/schema/Number"
  *
  * const NonPos = S.Finite.check(isNonPositive)
- * S.decodeUnknownSync(NonPos)(0)
- * S.decodeUnknownSync(NonPos)(-10)
+ * console.log(S.decodeUnknownSync(NonPos)(0)) // 0
+ * console.log(S.decodeUnknownSync(NonPos)(-10)) // -10
  * ```
  *
  * @since 0.0.0
@@ -134,8 +134,8 @@ export const isNonPositive = S.isLessThanOrEqualTo(0);
  * import * as S from "effect/Schema"
  * import { NonNegNum } from "@beep/schema/Number"
  *
- * S.decodeUnknownSync(NonNegNum)(0)
- * S.decodeUnknownSync(NonNegNum)(100)
+ * console.log(S.decodeUnknownSync(NonNegNum)(0)) // 0
+ * console.log(S.decodeUnknownSync(NonNegNum)(100)) // 100
  * ```
  *
  * @since 0.0.0
@@ -152,9 +152,11 @@ export const NonNegNum = S.Finite.check(isNonNegative).pipe(
  *
  * @example
  * ```ts
- * import type { NonNegNum } from "@beep/schema/Number"
+ * import * as S from "effect/Schema"
+ * import { NonNegNum } from "@beep/schema/Number"
  *
- * const index: NonNegNum = 0 as NonNegNum
+ * const index: NonNegNum = S.decodeUnknownSync(NonNegNum)(0)
+ * console.log(index >= 0) // true
  * ```
  *
  * @since 0.0.0
@@ -170,8 +172,8 @@ export type NonNegNum = typeof NonNegNum.Type;
  * import * as S from "effect/Schema"
  * import { NonNegativeInt } from "@beep/schema/Number"
  *
- * S.decodeUnknownSync(NonNegativeInt)(0)
- * S.decodeUnknownSync(NonNegativeInt)(100)
+ * console.log(S.decodeUnknownSync(NonNegativeInt)(0)) // 0
+ * console.log(S.decodeUnknownSync(NonNegativeInt)(100)) // 100
  * ```
  *
  * @since 0.0.0
@@ -202,9 +204,11 @@ export const NonNegativeInt = S.Int.pipe(S.brand("Int"))
  *
  * @example
  * ```ts
- * import type { NonNegativeInt } from "@beep/schema/Number"
+ * import * as S from "effect/Schema"
+ * import { NonNegativeInt } from "@beep/schema/Number"
  *
- * const index: NonNegativeInt = 0 as NonNegativeInt
+ * const index: NonNegativeInt = S.decodeUnknownSync(NonNegativeInt)(0)
+ * console.log(index >= 0) // true
  * ```
  *
  * @since 0.0.0

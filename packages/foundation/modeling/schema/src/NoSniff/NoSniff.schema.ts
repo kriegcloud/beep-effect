@@ -30,8 +30,8 @@ const NoSniffValueBase = LiteralKit([defaultValue]);
  * import * as S from "effect/Schema"
  * import { NoSniffValue } from "@beep/schema/NoSniff"
  *
- * const decoded = S.decodeUnknownSync(NoSniffValue)("nosniff")
- * console.log(decoded)
+ * const value = S.decodeUnknownSync(NoSniffValue)("nosniff")
+ * console.log(value)
  * ```
  *
  * @since 0.0.0
@@ -62,8 +62,8 @@ const NoSniffOptionBase = LiteralKit([false, ...NoSniffValueBase.Options]);
  * import * as S from "effect/Schema"
  * import { NoSniffOption } from "@beep/schema/NoSniff"
  *
- * const decoded = S.decodeUnknownSync(NoSniffOption)(false)
- * console.log(decoded)
+ * const option = S.decodeUnknownSync(NoSniffOption)(false)
+ * console.log(option)
  * ```
  *
  * @since 0.0.0
@@ -93,7 +93,7 @@ export type NoSniffOption = typeof NoSniffOption.Type;
  * import { NoSniffResponseHeader } from "@beep/schema/NoSniff"
  *
  * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: Option.none() })
- * console.log(header)
+ * console.log(header.name)
  * ```
  *
  * @since 0.0.0
@@ -120,7 +120,8 @@ type NoSniffResponseHeaderEncoded = typeof NoSniffResponseHeader.Encoded;
  * import { NoSniffHeader } from "@beep/schema/NoSniff"
  *
  * const program = NoSniffHeader.create()
- * console.log(program)
+ * const header = await Effect.runPromise(program)
+ * console.log(header._tag)
  * ```
  *
  * @since 0.0.0

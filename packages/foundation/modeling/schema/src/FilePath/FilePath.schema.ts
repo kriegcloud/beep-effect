@@ -29,7 +29,7 @@ const SupportedPathFamilyKit = LiteralKit([
  * ```ts
  * import { SupportedPathFamily } from "@beep/schema/FilePath"
  *
- * console.log(SupportedPathFamily.Options)
+ * console.log(SupportedPathFamily.Options.includes("posixAbsolute"))
  * ```
  *
  * @since 0.0.0

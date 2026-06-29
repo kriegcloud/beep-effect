@@ -93,15 +93,36 @@ retry/backoff + token-bucket rate limiter) is largely native in
   `Config.option(Config.redacted("ENV"))` + `Layer.unwrap(... ? toolkit :
   Layer.empty)` so a keyless driver's tools are absent from `tools/list` *and*
   uncallable. The MCP spec defines `name` only as "unique identifier" with no
-  published regex (https://modelcontextprotocol.io/specification/2025-06-18/server/tools).
+  published regex (https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
+  — but "no regex in the prose spec" is NOT sufficient for *generated* tools.
+  OpenAPI operationIds can be absent, duplicated, long, mixed-case, or carry
+  characters that downstream MCP clients/providers reject even when Effect
+  accepts them (historically some SDK JSON schemas constrain names to
+  `^[a-zA-Z0-9_-]+$` with ~64–128 char caps), and merging five drivers into one
+  server adds cross-driver collision risk
+  (`research/conditional-mcp-registration-and-auth-gating.md:78`). **Required
+  generated-name contract:** driver-prefixed stable names (m365's `m365_` prefix
+  is the in-repo precedent), safe-character normalization, a max-length policy,
+  duplicate detection with a checked-in collision report, and integration tests
+  against the Effect MCP JSON schemas plus at least one MCP client/provider
+  constraint. Treat raw `operationId` as metadata/description, not necessarily
+  the wire name.
   Effect's separate `McpSchema.EnabledWhen` annotation gates on the *client's*
   declared capabilities and is applied only to `*/list` (not `tools/call`), so
   it is discovery-shaping, NOT server-side credential access control — wrong tool
   for key-gating.
 
-### Per-upstream contract matrix (verified 2026-06-29)
+### Per-upstream contract matrix (docs-verified 2026-06-29; runtime probes pending)
 
-Five upstreams, **three** auth families (CAPTURE implied two), all ACTIVE:
+Five upstreams, **three** auth families (CAPTURE implied two). Status is
+**docs-indicate-active, live runtime probes pending** — sourced from current
+published docs, not reproduced live `curl` probes (external DNS was blocked in
+the verifying session), so this is not runtime proof for every path.
+Auth-enforcement on DOL and CourtListener especially must be probed before MCP
+gating is finalized. **Build-out proof checklist** (run before align closes):
+unauthenticated + authenticated CourtListener sample request, DOL `/v4/datasets`
+catalog + keyed dataset request, GovInfo `DEMO_KEY` or real-key request capturing
+`X-RateLimit-*` headers, eCFR spec fetch, FedReg keyless request.
 
 | Upstream | Auth | Credential | Base URL | Rate limit (current) |
 |---|---|---|---|---|
@@ -109,7 +130,7 @@ Five upstreams, **three** auth families (CAPTURE implied two), all ACTIVE:
 | eCFR | keyless | — | `https://www.ecfr.gov` `/api/{search,versioner,admin}/v1/` | none published (429 on abuse) |
 | DOL v4 | agency-native key | `X-API-KEY` (header or query) from `dataportal.dol.gov` | `https://apiprod.dol.gov/v4/` | undocumented in primary |
 | Federal Register | keyless | — | `https://www.federalregister.gov/api/v1/` | none published; **2000-result pagination cap** |
-| GovInfo | api.data.gov key | `api_key` query param (or `X-Api-Key` header) | `https://api.govinfo.gov/` | **36,000/hr** elevated tier, `X-RateLimit-*` headers |
+| GovInfo | api.data.gov key | `api_key` query param (or `X-Api-Key` header) | `https://api.govinfo.gov/` | documented **36,000/hr** GPO tier — confirm per-key from live `X-RateLimit-Limit`; `DEMO_KEY` is far lower |
 
 Key external facts and corrections the reports surfaced:
 
@@ -123,36 +144,68 @@ Key external facts and corrections the reports surfaced:
   (https://wiki.free.law/c/courtlistener/help/api/rest/v4/overview,
   https://free.law/2026/05/07/api-included-in-memberships/,
   https://wiki.free.law/c/courtlistener/help/api/rest/v4/citation-lookup). No
-  machine-readable OpenAPI is published — the SDK path needs a hand-authored
-  spec subset or a hand-written HttpApi.
+  machine-readable OpenAPI is published, but CourtListener is Django REST
+  Framework-backed and its docs point at the API root / `OPTIONS`-style endpoint
+  metadata (https://wiki.free.law/c/courtlistener/help/api/rest/v4/overview) — so
+  the choice is NOT binary "clean OpenAPI vs. hand-author everything." A DRF
+  metadata spike (API-root/`OPTIONS` introspection) may seed a first
+  field/endpoint inventory before any hand-authored subset is frozen.
 - **DOL correction:** the current API is **v4 on `apiprod.dol.gov`** using a
   DOL-native `X-API-KEY` from `dataportal.dol.gov` — NOT api.data.gov (CAPTURE
   line 74 conflated it with GovInfo). The legacy `developer.dol.gov` hub no
   longer resolves (DNS ENOTFOUND, 2026-06-29) and v4 defaults to XML unless sent
   `Accept: application/json` (https://www.dataportal.dol.gov/pdf/dol-api-user-guide.pdf,
   https://usdepartmentoflabor.github.io/DOLAPI/, https://developer.dol.gov/beginners-guide/).
-  No clean machine-readable OpenAPI surfaced.
+  No clean machine-readable OpenAPI surfaced, but DOL v4 exposes per-dataset
+  **metadata endpoints** (`/v4/get/<agency>/<endpoint>/json/metadata`,
+  `research/upstream-api-contract-matrix.md:52`) that can seed a field/endpoint
+  inventory rather than freezing field sets by hand.
 - **eCFR / Federal Register are keyless and always-on.** eCFR's machine-readable
   spec is at `https://www.ecfr.gov/developers/documentation/api/v1.json`
-  (three service groups: search / versioner / admin). FedReg `per_page` defaults
-  20 / max 1000 with a hard 2000-result pagination cap
+  (three service groups: search / versioner / admin) — but it is a **Swagger 2.0**
+  document, not OpenAPI 3.x. `@effect/openapi-generator` claims Swagger 2.0
+  normalization (`node_modules/@effect/openapi-generator/dist/OpenApiGenerator.d.ts`
+  header: "It normalizes Swagger 2.0 input"), so the acp-style path is plausible
+  but unproven — run a generator spike against the eCFR dialect and record
+  warnings before choosing it. FedReg `per_page` defaults 20 / max 1000 with a
+  hard 2000-result pagination cap
   (https://www.ecfr.gov/developers/documentation/api/v1,
-  https://www.federalregister.gov/developers/documentation/api/v1). **Correction:**
-  multiple reports found NO support for CAPTURE's "FedReg is an unofficial
-  prototype" — current docs present it as an official NARA/GPO service; only the
-  keyless fact is load-bearing.
-- **GovInfo is the official source**, US-Gov public-domain spec, api.data.gov
-  `api_key` query param, `offsetMark`+`pageSize` pagination, elevated 36,000/hr
-  tier (https://www.govinfo.gov/features/api, https://github.com/usgpo/api,
-  https://api.data.gov/docs/developer-manual/).
+  https://www.federalregister.gov/developers/documentation/api/v1).
+- **Federal Register legal-status correction (supersedes both CAPTURE *and* the
+  earlier "no prototype disclaimer" reading).** Three load-bearing facts, kept
+  distinct: (1) the Federal Register API is a **current official-site API and
+  keyless**; (2) FederalRegister.gov nonetheless still carries an
+  **unofficial/prototype "Legal Status" caveat** — its rendered content "is not an
+  official legal edition of the Federal Register," and only the official editions
+  give legal/judicial notice under 44 U.S.C. 1503 & 1507
+  (https://www.federalregister.gov/developers/documentation/api/v1,
+  https://www.federalregister.gov/reader-aids/understanding-the-federal-register/legal-status);
+  (3) **GovInfo remains the official legal-edition source** for authoritative
+  documents. So "hosted by official federalregister.gov / NARA / GPO" is NOT the
+  same as "official legal source." **Implementation constraint:** FedReg-derived
+  outputs must preserve source/status metadata and should link or reconcile to
+  GovInfo when legal authority matters — do NOT treat FedReg API data as legally
+  authoritative the way GovInfo is.
+- **GovInfo is the official legal-edition source**, US-Gov public-domain spec,
+  api.data.gov `api_key` query param, `offsetMark`+`pageSize` pagination,
+  documented 36,000/hr GPO tier (confirm per-key from the live
+  `X-RateLimit-Limit` header) (https://www.govinfo.gov/features/api,
+  https://github.com/usgpo/api, https://api.data.gov/docs/developer-manual/).
 
 ## In-Repo Capability Inventory
 
 Verified by `ls`/`rg` against the working tree on 2026-06-29. **The repo already
-owns the entire substrate this wedge composes — the work is "implement five
-drivers on existing rails," not "build new rails."**
+owns the *primitives and precedents* this wedge composes — schema generation,
+Effect HTTP, MCP server hosting, and package-private generated output are all in
+place — but that is "good primitives, not the whole substrate."** At least three
+rails are still net-new or unsettled and this packet owns them: (1) a shared
+gov/legal HTTP-client transformer (auth + retry + cache + rate-limit), (2) an
+operation→MCP-`Toolkit` generation strategy (or an explicit manual-toolkit
+policy), and (3) a CI codegen drift/check gate. Those three are **align-stage
+open questions** — appetite and sequencing must size the net-new work, not just
+"implement five drivers on existing rails."
 
-### Codegen precedent — two distinct Effect-native styles already shipping
+### Codegen precedent — three distinct Effect-native styles already shipping
 
 - **`runpod` = bespoke renderer over a checked-in spec.** `packages/drivers/runpod/openapi.json`
   (151 KB, committed) + `packages/drivers/runpod/scripts/generate.ts` (decodes
@@ -169,6 +222,18 @@ drivers on existing rails," not "build new rails."**
   release (`const CURRENT_SCHEMA_RELEASE = "v0.11.3"`, confirmed) over
   `FetchHttpClient`, and emits package-private `src/_generated/*`. This is the
   lowest-LOC path where a clean OpenAPI 3.x spec exists.
+- **`box` = typed-SDK / `.d.ts`-declaration-driven generator.**
+  `packages/drivers/box/scripts/generate.ts` parses `box-node-sdk`'s
+  `node_modules/box-node-sdk/lib/**/*.d.ts` with the TypeScript compiler API
+  (`sdkRoot`/`lib/client.d.ts`/`lib/managers/*.d.ts`, confirmed), emits
+  package-private `src/_generated/Box.models.gen.ts` + `Box.operations.gen.ts`
+  (effect/Schema models + generated operation groups), and feeds a hand-written
+  `packages/drivers/box/src/Box.service.ts` (`Context.Service`) runner. This is a
+  **third** style — materially different from runpod (bespoke renderer over a
+  checked-in OpenAPI doc) and acp (`@effect/openapi-generator` over a downloaded
+  spec): codegen driven by typed SDK *declarations*, not an OpenAPI document. It
+  is the closest precedent if CourtListener or DOL expose a typed client surface
+  or rich metadata but no clean OpenAPI (see the metadata spike in Genuine gaps).
 - **`@effect/openapi-generator` is already a repo dependency, MIT, pinned
   `4.0.0-beta.91`** in the root catalog (`package.json:32`, confirmed) and
   consumed by `@beep/acp` (`packages/drivers/acp/package.json:86`, `catalog:`).
@@ -203,7 +268,12 @@ drivers on existing rails," not "build new rails."**
   Failure as `S.toTaggedUnion` of bad-request/not-found/internal-error). "Finish
   govinfo" = tighten placeholder `/** change me */` annotations + **add the
   missing client/config/auth(api_key query)/retry/cache layer** on top of the
-  existing Search contract. Do NOT restart.
+  existing Search contract. Do NOT restart. **Local integration gap to repair:**
+  `packages/drivers/govinfo/src/domain/**` already imports `@beep/identity` (11
+  hits) and `@beep/schema` (4 hits), but `packages/drivers/govinfo/package.json`
+  declares only `effect` under dependencies — the finish work must add at least
+  `@beep/identity` and `@beep/schema` (plus any transport/client deps the driver
+  layer introduces) to the package manifest, not only add transport code.
 - **`packages/drivers/uspto`** is hand-rolled (5 src files: `Uspto.service.ts`,
   `Uspto.config.ts`, `Uspto.errors.ts`, `Uspto.models.ts` — confirmed), already
   targets ODP `api.uspto.gov`, and already does Redacted header auth
@@ -241,9 +311,12 @@ drivers on existing rails," not "build new rails."**
 
 - `@beep/identity` ($I composer: `$I.annote`/`$I.annoteSchema`), `@beep/schema`
   (`LiteralKit`, `TaggedErrorClass`, `HttpStatus2XX/4XX/5XX`), `@beep/utils`
-  (`A`/`Str`/`Struct`/`R`/`O`/`P`) — all already consumed by the runpod
-  generator (`packages/drivers/runpod/scripts/generate.ts`) and govinfo
-  contracts.
+  (`A`/`Str`/`Struct`/`R`/`O`/`P`). The runpod generator
+  (`packages/drivers/runpod/scripts/generate.ts`) consumes all three; govinfo
+  source currently imports only `@beep/identity` and `@beep/schema` — there is
+  **no `@beep/utils` hit in `packages/drivers/govinfo/src`** (confirmed), so it
+  may or may not need utils during transport implementation. Reuse what each
+  driver actually needs; do not cargo-cult all three.
 
 ### Genuine gaps
 
@@ -258,9 +331,17 @@ drivers on existing rails," not "build new rails."**
   per-package via the generate-first audit convention + committed `_generated/`
   artifact, NOT a turbo edge. Wiring `build→codegen` (or keeping per-package
   audit + a `git diff --exit-code` drift check) is a net-new align decision.
-- **NOT FOUND: machine-readable OpenAPI for CourtListener and DOL.** Both need a
-  hand-authored spec subset or a hand-written HttpApi (the runpod
-  `RunpodRawRequest` escape-hatch generalizes).
+- **NOT FOUND: full machine-readable OpenAPI for CourtListener and DOL** — but
+  NOT a clean binary "OpenAPI or hand-author everything." CourtListener (DRF)
+  exposes API-root/`OPTIONS` metadata and DOL v4 exposes per-dataset metadata
+  endpoints; both are prior art for auto-seeding a schema/endpoint inventory.
+  **Required pre-align research item:** prototype metadata extraction for the
+  CourtListener API root/`OPTIONS` and DOL v4 dataset metadata, diff the emitted
+  fields/statuses/pagination/auth against a hand-authored subset, then decide
+  whether the generator consumes OpenAPI 3.x, Swagger 2.0, DRF metadata, DOL
+  metadata, or a normalized intermediate operation model. The runpod
+  `RunpodRawRequest` escape-hatch and the Box `.d.ts`-driven generator (above)
+  generalize as fallbacks if the metadata proves too thin.
 - **NOT FOUND: a committable GovInfo `openapi.json` file path** in `usgpo/api`
   (interactive docs + Postman collection only); confirm the exact downloadable
   artifact before wiring an acp-style `download` step.
@@ -324,13 +405,30 @@ drivers on existing rails," not "build new rails."**
   value is the *pipeline/pattern*, not the Orval/axios/Zod or plain-TS runtime;
   port onto Effect/`@effect/openapi-generator`/`effect/Schema`/`effect/unstable/httpapi`),
   reinforced by standing repo law to avoid Orval/axios/Zod.
-- **AVOID vendoring MPL-2.0** `fortanix/openapi-to-effect` source — weak copyleft
-  would taint the MIT surface; use the first-party MIT `@effect/openapi-generator`.
+- **AVOID vendoring or copying MPL-2.0** `fortanix/openapi-to-effect` source
+  unless Legal accepts file-level MPL obligations. MPL-2.0 is *file-level* weak
+  copyleft — using the package, vendoring unmodified files, modifying MPL files,
+  and copying snippets each carry different obligations, so "taint the MIT
+  surface" overstates it; dependency or CLI use needs separate review. Keep the
+  first-party MIT `@effect/openapi-generator` as the preferred path.
 - **GovInfo / eCFR / Federal Register specs are US-Government works (17 U.S.C.
   105 + CC0 1.0 for `usgpo/api`) — public domain, freely committable** into the
   repo (https://raw.githubusercontent.com/usgpo/api/main/LICENSE.md). DOL's
   DOLAPI repos are likewise US-Gov works. CourtListener/DOL have no committable
   OpenAPI, so any hand-authored spec is original repo work.
+- **Code/spec licensing ≠ data/API-use terms — the latter is still OPEN.** The
+  analysis above clears *code and spec* licenses; it does NOT clear *data and
+  API-use* terms. CourtListener is not a U.S.-Government publisher, may expose
+  PACER/RECAP-sourced opinions, dockets, and documents, and the proposed shared
+  client adds caching. Whether cached CourtListener content, citation-lookup
+  results, opinions, docket entries, or documents may be stored, redistributed,
+  used commercially, or shipped in fixtures is **unanswered**. **Required before
+  shape:** a per-upstream data/source-terms matrix — data license, API terms of
+  use, commercial-use limits, caching/retention permission, redistribution/fixture
+  rules, attribution requirements, and source-of-authority caveat (esp. FedReg
+  prototype vs. GovInfo legal edition, above). **Default until verified:**
+  CourtListener caching is in-process/ephemeral only, and third-party legal
+  content is excluded from committed fixtures.
 
 ### Locked decisions / cautions from the routing record
 
@@ -373,3 +471,5 @@ drivers on existing rails," not "build new rails."**
 - **Spec-drift escape hatch:** a checked-in `openapi.json` lags the live API;
   plan a per-driver raw-request path (runpod `RunpodRawRequest`) and a CI
   `git diff --exit-code` drift check on re-run of `generate`.
+
+_Codex gate-1 folded 2026-06-29: 5 blocking + 7 advisory addressed._

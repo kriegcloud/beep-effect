@@ -5,7 +5,7 @@
  * ```ts
  * import * as CrossOriginOpenerPolicy from "@beep/schema/CrossOriginOpenerPolicy"
  *
- * console.log(CrossOriginOpenerPolicy.Header)
+ * console.log(Object.keys(CrossOriginOpenerPolicy).includes("Header"))
  * ```
  *
  * @packageDocumentation

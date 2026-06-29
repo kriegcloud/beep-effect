@@ -5,7 +5,7 @@
  * ```ts
  * import * as DomEvent from "@beep/schema/DomEvent"
  *
- * console.log(DomEvent.Schema)
+ * console.log(Object.keys(DomEvent).includes("Schema"))
  * ```
  *
  * @packageDocumentation

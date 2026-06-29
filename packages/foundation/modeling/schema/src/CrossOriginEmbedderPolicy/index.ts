@@ -5,7 +5,7 @@
  * ```ts
  * import * as CrossOriginEmbedderPolicy from "@beep/schema/CrossOriginEmbedderPolicy"
  *
- * console.log(CrossOriginEmbedderPolicy.Header)
+ * console.log(Object.keys(CrossOriginEmbedderPolicy).includes("Header"))
  * ```
  *
  * @packageDocumentation

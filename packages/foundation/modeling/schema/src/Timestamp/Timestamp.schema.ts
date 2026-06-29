@@ -54,9 +54,11 @@ export const ISOStr = NonEmptyTrimmedStr.check(S.makeFilter((i) => O.isSome(Date
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { ISOStr } from "@beep/schema/Timestamp"
+ * import { ISOStr as ISOStrSchema } from "@beep/schema/Timestamp"
  *
- * const iso = "2024-01-01T00:00:00Z" as ISOStr
+ * const iso: ISOStr = S.decodeUnknownSync(ISOStrSchema)("2024-01-01T00:00:00Z")
  * console.log(iso)
  * ```
  *
@@ -95,9 +97,11 @@ export const EpochMillis = PosInt.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { EpochMillis } from "@beep/schema/Timestamp"
+ * import { EpochMillis as EpochMillisSchema } from "@beep/schema/Timestamp"
  *
- * const millis = 1704067200000 as EpochMillis
+ * const millis: EpochMillis = S.decodeUnknownSync(EpochMillisSchema)(1704067200000)
  * console.log(millis)
  * ```
  *
@@ -142,9 +146,11 @@ export const ToIsoStr = S.Union([ISOStr, S.Finite]).pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { ToIsoString } from "@beep/schema/Timestamp"
+ * import { ToIsoStr } from "@beep/schema/Timestamp"
  *
- * const iso = "2024-01-01T00:00:00Z" as ToIsoString
+ * const iso: ToIsoString = S.decodeUnknownSync(ToIsoStr)("2024-01-01T00:00:00.123Z")
  * console.log(iso)
  * ```
  *
@@ -325,7 +331,8 @@ export const fromDate = (date: Date): Timestamp => Timestamp.make({ epochMillis:
  * import { fromString } from "@beep/schema/Timestamp"
  *
  * const program = fromString("2024-01-01T00:00:00Z")
- * console.log(Effect.runPromise(program))
+ * const timestamp = await Effect.runPromise(program)
+ * console.log(timestamp.epochMillis)
  * ```
  *
  * @effects Parses a date string and fails with `SchemaIssue.InvalidValue` when the input is not a valid DateTime.
@@ -366,7 +373,8 @@ export const now = (): Timestamp => Timestamp.make({ epochMillis: DateTime.nowUn
  * import { Effect } from "effect"
  * import { nowEffect } from "@beep/schema/Timestamp"
  *
- * console.log(Effect.runPromise(nowEffect))
+ * const timestamp = await Effect.runPromise(nowEffect)
+ * console.log(timestamp.epochMillis > 0)
  * ```
  *
  * @effects Reads the Effect Clock service and returns the current wall-clock timestamp.

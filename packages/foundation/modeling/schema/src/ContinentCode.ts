@@ -16,6 +16,15 @@ const $I = $SchemaId.create("ContinentCode");
 /**
  * CLDR top-level territory containment code schema.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ContinentCode } from "@beep/schema/ContinentCode"
+ *
+ * const code = S.decodeUnknownSync(ContinentCode)("019")
+ * console.log(code) // "019"
+ * ```
+ *
  * @since 0.0.0
  * @category schemas
  */
@@ -28,6 +37,15 @@ export const ContinentCode = LiteralKit(Struct.keysNonEmpty(TerritoriesData.Cont
 /**
  * {@inheritDoc ContinentCode}
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ContinentCode } from "@beep/schema/ContinentCode"
+ *
+ * const code: ContinentCode = S.decodeUnknownSync(ContinentCode)("150")
+ * console.log(code) // "150"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -37,6 +55,15 @@ const continentNameByCodeEntries = Struct.entriesNonEmpty(TerritoriesData.Contin
 
 /**
  * CLDR top-level territory containment display-name schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ContinentName } from "@beep/schema/ContinentCode"
+ *
+ * const name = S.decodeUnknownSync(ContinentName)("Americas")
+ * console.log(name) // "Americas"
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -52,6 +79,15 @@ export const ContinentName = LiteralKit(
 /**
  * {@inheritDoc ContinentName}
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ContinentName } from "@beep/schema/ContinentCode"
+ *
+ * const name: ContinentName = S.decodeUnknownSync(ContinentName)("Europe")
+ * console.log(name) // "Europe"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -59,6 +95,15 @@ export type ContinentName = typeof ContinentName.Type;
 
 /**
  * Reversible CLDR continent code/name codec.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ContinentNameFromCode } from "@beep/schema/ContinentCode"
+ *
+ * const name = S.decodeUnknownSync(ContinentNameFromCode)("019")
+ * console.log(name) // "Americas"
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -71,6 +116,15 @@ export const ContinentNameFromCode = MappedLiteralKit(continentNameByCodeEntries
 
 /**
  * Reverse codec from CLDR continent display name to CLDR code.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ContinentCodeFromName } from "@beep/schema/ContinentCode"
+ *
+ * const code = S.decodeUnknownSync(ContinentCodeFromName)("Europe")
+ * console.log(code) // "150"
+ * ```
  *
  * @since 0.0.0
  * @category schemas

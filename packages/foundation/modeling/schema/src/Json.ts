@@ -18,7 +18,7 @@ const $I = $SchemaId.create("Json");
  * import { JsonObject } from "@beep/schema/Json"
  *
  * const decoded = S.decodeUnknownSync(JsonObject)({ name: "Alice", age: 30 })
- * console.log(decoded)
+ * console.log(decoded.name)
  * ```
  *
  * @category validation
@@ -47,7 +47,7 @@ export type JsonObject = typeof JsonObject.Type;
  * import { JsonArray } from "@beep/schema/Json"
  *
  * const decoded = S.decodeUnknownSync(JsonArray)([1, "two", true, null])
- * console.log(decoded)
+ * console.log(decoded.length)
  * ```
  *
  * @category validation
@@ -75,9 +75,9 @@ export type JsonArray = typeof JsonArray.Type;
  * import { Effect } from "effect"
  * import { decodeJsonString } from "@beep/schema/Json"
  *
- * const decoded = Effect.runSync(decodeJsonString("{\"ok\":true}"))
+ * const value = Effect.runSync(decodeJsonString("{\"ok\":true}"))
  *
- * console.log(decoded)
+ * console.log(value)
  * ```
  *
  * @category codecs

@@ -81,3 +81,4 @@ passes `bun run beep lint reflection-artifacts` (blocking_findings=0). The
 - Verified on disk: `ClaimLifecycle` is today `LiteralKit(["candidate"])`;
   `Evidence` carries only `artifactFixtureKey`/`spanFixtureKey` (two string
   refs) — the four states and char-offsets are genuinely net-new.
+- 2026-06-29: gold-intake research note added at research/gold-intake-claim-gate-shacl.md (see for SHACL non-blocking warnings + source-span provenance on gate results and a deterministic weighted-scoring/dealbreaker tier; additive only, packet stays completed-retained).

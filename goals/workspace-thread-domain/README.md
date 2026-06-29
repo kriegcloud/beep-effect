@@ -79,3 +79,6 @@ PGlite-proven db-admin migration, `@beep/anthropic` exists, the legacy
 - The legacy `agent-capability` → `agents` rename includes proposing the
   `goals/agentic-professional-runtime/SPEC.md` slice-table amendment in the
   same PR.
+- 2026-06-29: gold-intake research note added at
+  research/gold-intake-conversation-branching.md (see for Turn sibling-variant
+  branchIndex conversation branching).

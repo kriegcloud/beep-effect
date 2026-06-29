@@ -79,7 +79,7 @@ export interface GeneratedByApp<S extends S.Top>
  * import * as Model from "@beep/schema/Model"
  *
  * const field = Model.GeneratedByApp(S.String)
- * console.log(field.schemas.select.ast._tag)
+ * console.log(S.isSchema(field.schemas.select))
  * ```
  *
  * @since 0.0.0

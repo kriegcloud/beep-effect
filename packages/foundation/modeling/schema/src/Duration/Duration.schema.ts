@@ -13,10 +13,11 @@ import * as S from "effect/Schema";
  * @example
  * ```ts
  * import * as Duration from "@beep/schema/Duration"
+ * import { Duration as EffectDuration } from "effect"
  * import * as S from "effect/Schema"
  *
- * const decode = S.decodeUnknownOption(Duration.Schema)
- * console.log(decode)
+ * const duration = S.decodeUnknownSync(Duration.Schema)(EffectDuration.seconds(5))
+ * console.log(EffectDuration.toMillis(duration))
  * ```
  *
  * @category schemas
@@ -46,9 +47,12 @@ export type Schema = typeof Schema.Type;
  *
  * @example
  * ```ts
+ * import { Duration as EffectDuration } from "effect"
  * import { Duration } from "@beep/schema/Duration"
+ * import * as S from "effect/Schema"
  *
- * console.log(Duration.ast._tag)
+ * const duration = S.decodeUnknownSync(Duration)(EffectDuration.millis(250))
+ * console.log(EffectDuration.toMillis(duration))
  * ```
  *
  * @category schemas

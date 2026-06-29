@@ -82,7 +82,7 @@ export const isPromise = (u: unknown): u is globalThis.Promise<unknown> =>
  * const task = globalThis.Promise.resolve("done")
  * const decoded = S.decodeUnknownSync(PromiseSchema)(task)
  *
- * console.log(decoded)
+ * console.log(decoded === task)
  * ```
  *
  * @category validation
@@ -103,7 +103,7 @@ export const PromiseSchema = S.declare<globalThis.Promise<unknown>>(isPromise, p
  *
  * const task: PromiseSchema = globalThis.Promise.resolve("done")
  *
- * console.log(task)
+ * console.log(task instanceof globalThis.Promise)
  * ```
  *
  * @category models

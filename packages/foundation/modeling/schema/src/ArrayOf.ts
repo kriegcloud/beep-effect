@@ -19,7 +19,7 @@ const $I = $SchemaId.create("ArrayOf");
  * import { ArrayOfStrings } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(ArrayOfStrings)(["a", "b", "c"])
- * console.log(decoded)
+ * console.log(decoded.length)
  * ```
  *
  * @since 0.0.0
@@ -48,7 +48,7 @@ export type ArrayOfStrings = S.Schema.Type<typeof ArrayOfStrings>;
  * import { NonEmptyArrayOfStrings } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(NonEmptyArrayOfStrings)(["hello"])
- * console.log(decoded)
+ * console.log(decoded[0])
  * ```
  *
  * @since 0.0.0
@@ -77,7 +77,7 @@ export type NonEmptyArrayOfStrings = S.Schema.Type<typeof NonEmptyArrayOfStrings
  * import { ArrayOfNonEmptyStrings } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(ArrayOfNonEmptyStrings)(["hello", "world"])
- * console.log(decoded)
+ * console.log(decoded.length)
  * ```
  *
  * @since 0.0.0
@@ -106,7 +106,7 @@ export type ArrayOfNonEmptyStrings = S.Schema.Type<typeof ArrayOfNonEmptyStrings
  * import { NonEmptyArrayOfNonEmptyStrings } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNonEmptyStrings)(["hello"])
- * console.log(decoded)
+ * console.log(decoded[0])
  * ```
  *
  * @since 0.0.0
@@ -135,7 +135,7 @@ export type NonEmptyArrayOfNonEmptyStrings = S.Schema.Type<typeof NonEmptyArrayO
  * import { ArrayOfNumbers } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(ArrayOfNumbers)([1, 2, 3])
- * console.log(decoded)
+ * console.log(decoded.length)
  * ```
  *
  * @since 0.0.0
@@ -164,7 +164,7 @@ export type ArrayOfNumbers = S.Schema.Type<typeof ArrayOfNumbers>;
  * import { NonEmptyArrayOfNumbers } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNumbers)([42])
- * console.log(decoded)
+ * console.log(decoded[0])
  * ```
  *
  * @since 0.0.0
@@ -193,7 +193,7 @@ export type NonEmptyArrayOfNumbers = S.Schema.Type<typeof NonEmptyArrayOfNumbers
  * import { ArrayOfInts } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(ArrayOfInts)([1, 2, 3])
- * console.log(decoded)
+ * console.log(decoded.every(Number.isInteger))
  * ```
  *
  * @since 0.0.0
@@ -222,7 +222,7 @@ export type ArrayOfInts = S.Schema.Type<typeof ArrayOfInts>;
  * import { NonEmptyArrayOfInts } from "@beep/schema/ArrayOf"
  *
  * const decoded = S.decodeUnknownSync(NonEmptyArrayOfInts)([1])
- * console.log(decoded)
+ * console.log(decoded[0])
  * ```
  *
  * @since 0.0.0

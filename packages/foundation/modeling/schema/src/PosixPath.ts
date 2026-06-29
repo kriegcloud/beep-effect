@@ -40,9 +40,11 @@ export const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
  *
  * @example
  * ```ts
- * import type { PosixPath } from "@beep/schema/PosixPath"
+ * import * as S from "effect/Schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
  *
- * const dir: PosixPath = "/home/user" as PosixPath
+ * const dir: PosixPath = S.decodeUnknownSync(PosixPath)("/home/user")
+ * console.log(dir) // "/home/user"
  * ```
  *
  * @since 0.0.0

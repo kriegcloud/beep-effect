@@ -217,13 +217,13 @@ const decodeDurationInput = (input: DurationInput): Effect.Effect<D.Duration, Sc
  *
  * @example
  * ```ts
- * import { Effect } from "effect"
+ * import { Duration, Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { DurationFromInput } from "@beep/schema/Duration"
  *
  * const program = S.decodeUnknownEffect(DurationFromInput)("2 hours")
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const duration = await Effect.runPromise(program)
+ * console.log(Duration.toMillis(duration)) // 7200000
  * ```
  *
  * @since 0.0.0

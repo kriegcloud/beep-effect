@@ -213,10 +213,8 @@ type ToTaggedUnionFn<L extends PropertyKeyLiteralArray, M extends EnumMappings<L
  * ```ts
  * import { matchLiteral } from "@beep/schema/LiteralKit"
  *
- * matchLiteral("pending")  // "pending"
- * matchLiteral(200)        // "number200"
- * matchLiteral(true)       // "true"
- * matchLiteral(1n)         // "bigint1n"
+ * const keys = [matchLiteral("pending"), matchLiteral(200), matchLiteral(true), matchLiteral(BigInt(1))]
+ * console.log(keys) // ["pending", "number200", "true", "bigint1n"]
  * ```
  *
  * @since 0.0.0
@@ -686,14 +684,14 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * Status.is.number1(42);     // false
  * Status.is.hello("hello");  // true
  *
- * const result = Status.$match(Status.Enum.number1, {
+ * const matchResult = Status.$match(Status.Enum.number1, {
  *   number1: () => "one",
  *   bigint20n: () => "twenty",
  *   true: () => "yes",
  *   false: () => "no",
  *   hello: () => "greeting",
  * });
- * console.log(result)
+ * console.log(matchResult)
  *
  * const EventKind = LiteralKit(["created", "deleted"]);
  *
@@ -705,7 +703,8 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  *     id: S.String
  *   }
  * });
- * console.log(Event)
+ * const event = S.decodeUnknownSync(Event)({ kind: "created", id: "evt_1" })
+ * console.log(event.kind)
  *
  * const StatusKeys = LiteralKit(
  *   ["one", "two"],

@@ -5,7 +5,7 @@
  * ```ts
  * import * as ReferrerPolicy from "@beep/schema/ReferrerPolicy"
  *
- * console.log(ReferrerPolicy.Header)
+ * console.log(Object.keys(ReferrerPolicy).includes("Header"))
  * ```
  *
  * @packageDocumentation

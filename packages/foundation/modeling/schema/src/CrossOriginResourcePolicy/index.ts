@@ -5,7 +5,7 @@
  * ```ts
  * import * as CrossOriginResourcePolicy from "@beep/schema/CrossOriginResourcePolicy"
  *
- * console.log(CrossOriginResourcePolicy.Header)
+ * console.log(Object.keys(CrossOriginResourcePolicy).includes("Header"))
  * ```
  *
  * @packageDocumentation

@@ -20,8 +20,8 @@ import { Email as InternalEmail, EmailString as InternalEmailString } from "./in
  * import * as S from "effect/Schema"
  * import { EmailString } from "@beep/schema"
  *
- * const decode = S.decodeUnknownEffect(EmailString)
- * console.log(decode)
+ * const email = S.decodeUnknownSync(EmailString)("Admin@Example.COM")
+ * console.log(email) // "admin@example.com"
  * ```
  *
  * @category constructors
@@ -34,9 +34,11 @@ export const EmailString = InternalEmailString;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { EmailString } from "@beep/schema"
+ * import { EmailString as EmailStringSchema } from "@beep/schema"
  *
- * const email = "admin@example.com" as EmailString
+ * const email: EmailString = S.decodeUnknownSync(EmailStringSchema)("admin@example.com")
  * console.log(email)
  * ```
  *

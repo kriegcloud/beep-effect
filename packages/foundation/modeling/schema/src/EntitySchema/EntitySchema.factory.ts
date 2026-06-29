@@ -48,8 +48,9 @@ import type {
  * ```ts
  * import type { ClassFactory } from "@beep/schema/EntitySchema"
  *
- * declare const factory: ClassFactory<unknown, {}, {}, string, undefined>
- * console.log(factory.ast._tag)
+ * type TableName = ClassFactory<unknown, {}, {}, "accounts", undefined>["definition"]["tableName"]
+ * const tableName: TableName = "accounts"
+ * console.log(tableName)
  * ```
  *
  * @since 0.0.0

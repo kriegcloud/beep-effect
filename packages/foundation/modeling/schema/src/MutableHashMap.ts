@@ -134,8 +134,8 @@ export interface MutableHashMap<Key extends S.Top, Value extends S.Top>
  * import { MutableHashMap } from "effect"
  * import { isMutableHashMap } from "@beep/schema/MutableHashMap"
  *
- * isMutableHashMap(MutableHashMap.empty())  // true
- * isMutableHashMap({})                      // false
+ * console.log(isMutableHashMap(MutableHashMap.empty())) // true
+ * console.log(isMutableHashMap({})) // false
  * ```
  *
  * @param value - Unknown input to test.
@@ -159,7 +159,7 @@ export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHa
  * const MapSchema = MutableHashMapFromSelf({ key: S.String, value: S.Finite })
  * const map = MutableHashMap.fromIterable([["a", 1]])
  * const decoded = S.decodeUnknownSync(MapSchema)(map)
- * console.log(decoded)
+ * console.log(MutableHashMap.has(decoded, "a"))
  * ```
  *
  * @param options - Schemas for keys and values.

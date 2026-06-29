@@ -5,7 +5,7 @@
  * ```ts
  * import * as PermittedCrossDomainPolicies from "@beep/schema/PermittedCrossDomainPolicies"
  *
- * console.log(PermittedCrossDomainPolicies.Header)
+ * console.log(Object.keys(PermittedCrossDomainPolicies).includes("Header"))
  * ```
  *
  * @packageDocumentation

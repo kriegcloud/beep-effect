@@ -21,3 +21,7 @@ expectations.
   — local grounding corpus anchors (FOLIO, IP ontology literature,
   effect-ontology patterns) plus the flagged FalkorDB-vs-projection open
   question P0 must resolve (added 2026-06-11)
+
+## Notes
+
+- 2026-06-29: gold-intake research note added at research/gold-intake-cpc-ipc-skos-seed.md (see for CPC/IPC classification taxonomy as a SKOS seed for the S7 WIPO-IPC slot).

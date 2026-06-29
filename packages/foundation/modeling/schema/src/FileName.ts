@@ -155,9 +155,11 @@ export const FileName: S.Codec<`${string}.${string}`, `${string}.${string}`> = F
  *
  * @example
  * ```ts
- * import type { FileName } from "@beep/schema/FileName"
+ * import * as S from "effect/Schema"
+ * import { FileName } from "@beep/schema/FileName"
  *
- * const file: FileName = "readme.txt" as FileName
+ * const file: FileName = S.decodeUnknownSync(FileName)("readme.txt")
+ * console.log(file) // "readme.txt"
  * ```
  *
  * @since 0.0.0

@@ -5,7 +5,7 @@
  * ```ts
  * import * as NoOpen from "@beep/schema/NoOpen"
  *
- * console.log(NoOpen.Header)
+ * console.log(Object.keys(NoOpen).includes("Header"))
  * ```
  *
  * @packageDocumentation

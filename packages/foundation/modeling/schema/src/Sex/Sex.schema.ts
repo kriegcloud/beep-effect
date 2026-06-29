@@ -16,7 +16,7 @@ const $I = $SchemaId.create("Sex");
  * ```ts
  * import { Sex } from "@beep/schema/Sex"
  *
- * console.log(Sex.Options)
+ * console.log(Sex.Options.includes("female"))
  * ```
  *
  * @since 0.0.0

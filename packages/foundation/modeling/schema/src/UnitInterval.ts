@@ -44,9 +44,11 @@ export const UnitInterval = S.Finite.check(
  *
  * @example
  * ```ts
- * import type { UnitInterval } from "@beep/schema/UnitInterval"
+ * import * as S from "effect/Schema"
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
  *
- * const confidence: UnitInterval = 0.5 as UnitInterval
+ * const confidence: UnitInterval = S.decodeUnknownSync(UnitInterval)(0.5)
+ * console.log(confidence) // 0.5
  * ```
  *
  * @since 0.0.0

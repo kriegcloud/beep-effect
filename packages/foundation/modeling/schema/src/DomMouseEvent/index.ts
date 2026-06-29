@@ -5,7 +5,7 @@
  * ```ts
  * import * as DomMouseEvent from "@beep/schema/DomMouseEvent"
  *
- * console.log(DomMouseEvent.Schema)
+ * console.log(Object.keys(DomMouseEvent).includes("Schema"))
  * ```
  *
  * @packageDocumentation

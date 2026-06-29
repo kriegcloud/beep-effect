@@ -88,9 +88,11 @@ export const Schema = HttpStatus;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { Schema as HttpStatusValue } from "@beep/schema/HttpStatus"
+ * import { Schema as HttpStatusSchema } from "@beep/schema/HttpStatus"
  *
- * const status = 200 as HttpStatusValue
+ * const status: HttpStatusValue = S.decodeUnknownSync(HttpStatusSchema)(200)
  * console.log(status)
  * ```
  *

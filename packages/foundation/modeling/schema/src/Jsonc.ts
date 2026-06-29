@@ -81,8 +81,8 @@ const decodeJsoncUnknown = Effect.fn("Jsonc.decodeJsoncUnknown")(function* (cont
  * import { JsoncTextToUnknown } from "@beep/schema/Jsonc"
  *
  * const program = S.decodeUnknownEffect(JsoncTextToUnknown)('{ "port": 8080 }')
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const parsed = await Effect.runPromise(program)
+ * console.log(parsed)
  * ```
  *
  * @category validation
@@ -115,8 +115,8 @@ export const JsoncTextToUnknown = S.String.pipe(
  * const decodeConfig = decodeJsoncTextAs(Config)
  *
  * const program = decodeConfig('{ "port": 8080, "host": "localhost" }')
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const config = await Effect.runPromise(program)
+ * console.log(config.port) // 8080
  * ```
  *
  * @param schema - Target schema to decode parsed JSONC document into.

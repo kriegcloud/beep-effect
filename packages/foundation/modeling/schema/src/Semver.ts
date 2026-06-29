@@ -12,7 +12,8 @@
  *   return Semver.format(version)
  * })
  *
- * Effect.runPromise(program).then(console.log)
+ * const formatted = await Effect.runPromise(program)
+ * console.log(formatted)
  * ```
  *
  * @packageDocumentation
@@ -615,7 +616,8 @@ const decodeSemverOption = S.decodeUnknownOption(Semver);
  *   return Semver.format(version)
  * })
  *
- * Effect.runPromise(program).then(console.log)
+ * const formatted = await Effect.runPromise(program)
+ * console.log(formatted)
  * ```
  *
  * @category codecs

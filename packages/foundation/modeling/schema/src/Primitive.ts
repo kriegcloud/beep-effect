@@ -17,9 +17,9 @@ const $I = $SchemaId.create("Primitive");
  * import * as S from "effect/Schema"
  * import { Primitive } from "@beep/schema/Primitive"
  *
- * S.decodeUnknownSync(Primitive)("hello")
- * S.decodeUnknownSync(Primitive)(42)
- * S.decodeUnknownSync(Primitive)(null)
+ * console.log(S.decodeUnknownSync(Primitive)("hello")) // "hello"
+ * console.log(S.decodeUnknownSync(Primitive)(42)) // 42
+ * console.log(S.decodeUnknownSync(Primitive)(null)) // null
  * ```
  *
  * @category validation
@@ -36,9 +36,11 @@ export const Primitive = S.Union([S.String, S.Finite, S.Boolean, S.BigInt, S.Nul
  *
  * @example
  * ```ts
- * import type { Primitive } from "@beep/schema/Primitive"
+ * import * as S from "effect/Schema"
+ * import { Primitive } from "@beep/schema/Primitive"
  *
- * const value: Primitive = "hello"
+ * const value: Primitive = S.decodeUnknownSync(Primitive)("hello")
+ * console.log(value) // "hello"
  * ```
  *
  * @category models

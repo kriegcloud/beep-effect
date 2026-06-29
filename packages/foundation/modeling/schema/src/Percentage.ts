@@ -44,9 +44,11 @@ export const Percentage = S.Finite.check(
  *
  * @example
  * ```ts
- * import type { Percentage } from "@beep/schema/Percentage"
+ * import * as S from "effect/Schema"
+ * import { Percentage } from "@beep/schema/Percentage"
  *
- * const discount: Percentage = 25 as Percentage
+ * const discount: Percentage = S.decodeUnknownSync(Percentage)(25)
+ * console.log(discount) // 25
  * ```
  *
  * @since 0.0.0
@@ -197,8 +199,8 @@ export const isFull = (percentage: Percentage): boolean => percentage === 100;
  * ```ts
  * import { complement, TWENTY } from "@beep/schema/Percentage"
  *
- * const result = complement(TWENTY)
- * console.log(result) // 80
+ * const value = complement(TWENTY)
+ * console.log(value) // 80
  * ```
  *
  * @since 0.0.0

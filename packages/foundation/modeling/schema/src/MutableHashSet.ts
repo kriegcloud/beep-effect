@@ -99,8 +99,8 @@ export interface MutableHashSet<Value extends S.Top>
  * import { MutableHashSet } from "effect"
  * import { isMutableHashSet } from "@beep/schema/MutableHashSet"
  *
- * isMutableHashSet(MutableHashSet.empty())  // true
- * isMutableHashSet(new Set())               // false
+ * console.log(isMutableHashSet(MutableHashSet.empty())) // true
+ * console.log(isMutableHashSet(new Set())) // false
  * ```
  *
  * @param value - Unknown input to test.
@@ -124,7 +124,7 @@ export const isMutableHashSet = <Value>(value: unknown): value is MutableHashSet
  * const SetSchema = MutableHashSetFromSelf(S.String)
  * const set = MutableHashSet.fromIterable(["a", "b"])
  * const decoded = S.decodeUnknownSync(SetSchema)(set)
- * console.log(decoded)
+ * console.log(MutableHashSet.has(decoded, "a"))
  * ```
  *
  * @param value - Element schema for set members.

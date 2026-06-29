@@ -140,7 +140,7 @@ const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(
  *
  * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Finite })
  *
- * console.log(GraphSchema.ast)
+ * console.log(S.isSchema(GraphSchema))
  * ```
  *
  * @param options - Schemas for node and edge payloads.
@@ -174,7 +174,7 @@ export const DirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
  *
  * const GraphSchema = UndirectedGraph({ node: S.String, edge: S.Finite })
  *
- * console.log(GraphSchema.ast)
+ * console.log(S.isSchema(GraphSchema))
  * ```
  *
  * @param options - Schemas for node and edge payloads.
@@ -208,7 +208,7 @@ export const UndirectedGraph = <Node extends S.Top, Edge extends S.Top>(options:
  *
  * const GraphSchema = MutableDirectedGraph({ node: S.String, edge: S.Finite })
  *
- * console.log(GraphSchema.ast)
+ * console.log(S.isSchema(GraphSchema))
  * ```
  *
  * @param options - Schemas for node and edge payloads.
@@ -242,7 +242,7 @@ export const MutableDirectedGraph = <Node extends S.Top, Edge extends S.Top>(opt
  *
  * const GraphSchema = MutableUndirectedGraph({ node: S.String, edge: S.Finite })
  *
- * console.log(GraphSchema.ast)
+ * console.log(S.isSchema(GraphSchema))
  * ```
  *
  * @param options - Schemas for node and edge payloads.

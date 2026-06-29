@@ -106,9 +106,11 @@ export const ApplicationFileExtension = pipe(
  *
  * @example
  * ```ts
- * import type { ApplicationFileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { ApplicationFileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: ApplicationFileExtension = "pdf" as ApplicationFileExtension
+ * const ext: ApplicationFileExtension = S.decodeUnknownSync(ApplicationFileExtension)("pdf")
+ * console.log(ext) // "pdf"
  * ```
  *
  * @since 0.0.0
@@ -145,9 +147,11 @@ export const VideoFileExtension = pipe(
  *
  * @example
  * ```ts
- * import type { VideoFileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { VideoFileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: VideoFileExtension = "mp4" as VideoFileExtension
+ * const ext: VideoFileExtension = S.decodeUnknownSync(VideoFileExtension)("mp4")
+ * console.log(ext) // "mp4"
  * ```
  *
  * @since 0.0.0
@@ -184,9 +188,11 @@ export const TextFileExtension = pipe(
  *
  * @example
  * ```ts
- * import type { TextFileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { TextFileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: TextFileExtension = "txt" as TextFileExtension
+ * const ext: TextFileExtension = S.decodeUnknownSync(TextFileExtension)("txt")
+ * console.log(ext) // "txt"
  * ```
  *
  * @since 0.0.0
@@ -223,9 +229,11 @@ export const ImageFileExtension = pipe(
  *
  * @example
  * ```ts
- * import type { ImageFileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { ImageFileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: ImageFileExtension = "png" as ImageFileExtension
+ * const ext: ImageFileExtension = S.decodeUnknownSync(ImageFileExtension)("png")
+ * console.log(ext) // "png"
  * ```
  *
  * @since 0.0.0
@@ -262,9 +270,11 @@ export const AudioFileExtension = pipe(
  *
  * @example
  * ```ts
- * import type { AudioFileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { AudioFileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: AudioFileExtension = "mp3" as AudioFileExtension
+ * const ext: AudioFileExtension = S.decodeUnknownSync(AudioFileExtension)("mp3")
+ * console.log(ext) // "mp3"
  * ```
  *
  * @since 0.0.0
@@ -280,7 +290,8 @@ export type AudioFileExtension = typeof AudioFileExtension.Type;
  * import * as S from "effect/Schema"
  * import { MiscFileExtension } from "@beep/schema/FileExtension"
  *
- * const decode = S.decodeUnknownSync(MiscFileExtension)
+ * const ext = S.decodeUnknownSync(MiscFileExtension)("ics")
+ * console.log(ext) // "ics"
  * ```
  *
  * @since 0.0.0
@@ -300,9 +311,11 @@ export const MiscFileExtension = pipe(
  *
  * @example
  * ```ts
- * import type { MiscFileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { MiscFileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: MiscFileExtension = "ics" as MiscFileExtension
+ * const ext: MiscFileExtension = S.decodeUnknownSync(MiscFileExtension)("ics")
+ * console.log(ext) // "ics"
  * ```
  *
  * @since 0.0.0
@@ -343,9 +356,11 @@ export const FileExtension = LiteralKit([
  *
  * @example
  * ```ts
- * import type { FileExtension } from "@beep/schema/FileExtension"
+ * import * as S from "effect/Schema"
+ * import { FileExtension } from "@beep/schema/FileExtension"
  *
- * const ext: FileExtension = "png" as FileExtension
+ * const ext: FileExtension = S.decodeUnknownSync(FileExtension)("png")
+ * console.log(ext) // "png"
  * ```
  *
  * @since 0.0.0

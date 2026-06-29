@@ -5,7 +5,7 @@
  * ```ts
  * import * as DomCssProperties from "@beep/schema/DomCssProperties"
  *
- * console.log(DomCssProperties.Schema)
+ * console.log(Object.keys(DomCssProperties).includes("Schema"))
  * ```
  *
  * @packageDocumentation

@@ -5,7 +5,7 @@
  * ```ts
  * import * as DomReactNode from "@beep/schema/DomReactNode"
  *
- * console.log(DomReactNode.Schema)
+ * console.log(Object.keys(DomReactNode).includes("Schema"))
  * ```
  *
  * @packageDocumentation

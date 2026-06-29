@@ -4,8 +4,17 @@
     "slug": "gov-legal-data-driver-codegen",
     "title": "Gov/Legal Data Drivers + OpenAPI Codegen",
     "status": "active",
-    "stage": "capture",
-    "openQuestions": [],
+    "stage": "research",
+    "openQuestions": [
+      "Q1: Codegen engine — one generator for all five drivers, or a tiered per-driver strategy keyed on spec availability?",
+      "Q2: Codegen boundary — where does generated output stop and hand-authored code begin?",
+      "Q3: MCP target — does this packet ship a new gov-legal-mcp server, attach toolkits to an existing server, or stay patterns-only?",
+      "Q4: First slice — which driver is the reference vertical that proves the substrate end-to-end?",
+      "Q5: Shared client layer — one transformer parameterized over three auth families, or per-driver bespoke clients?",
+      "Q6: Package placement — where do the shared transformer, the codegen scripts, and the MCP bin live?",
+      "Q7: Determinism gate — wire a repo-wide build → codegen turbo edge, or keep per-package generate-first audit + a git diff drift check?",
+      "Q8: Data/source-terms gate — ship CourtListener caching/fixtures now under a default policy, or block until a per-upstream data-terms matrix exists?"
+    ],
     "links": {
       "goals": [],
       "docs": [],

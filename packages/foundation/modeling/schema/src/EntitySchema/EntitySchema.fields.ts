@@ -30,9 +30,18 @@ export type Fields = Readonly<Record<string, S.Top>>;
  * @example
  * ```ts
  * import type { EntityVariantFieldInput } from "@beep/schema/EntitySchema"
+ * import * as Model from "@beep/schema/Model"
+ * import * as S from "effect/Schema"
  *
- * declare const field: EntityVariantFieldInput
- * console.log(field.schemas.select.ast._tag)
+ * const field = Model.Field({
+ *   select: S.String,
+ *   insert: S.String,
+ *   update: S.String,
+ *   json: S.String,
+ *   jsonCreate: S.String,
+ *   jsonUpdate: S.String
+ * }) satisfies EntityVariantFieldInput
+ * console.log(S.isSchema(field.schemas.select))
  * ```
  *
  * @since 0.0.0
@@ -53,7 +62,7 @@ export type EntityVariantFieldInput = VariantSchema.Field.Any & {
  * import * as S from "effect/Schema"
  *
  * const field = S.String satisfies EntityFieldInput
- * console.log(field.ast._tag)
+ * console.log(S.isSchema(field))
  * ```
  *
  * @since 0.0.0
@@ -70,7 +79,7 @@ export type EntityFieldInput = S.Top | EntityVariantFieldInput;
  * import * as S from "effect/Schema"
  *
  * const fields = { name: S.String } satisfies EntityFieldInputs
- * console.log(fields.name.ast._tag)
+ * console.log(S.isSchema(fields.name))
  * ```
  *
  * @since 0.0.0
@@ -88,7 +97,7 @@ export type EntityFieldInputs = Readonly<Record<string, EntityFieldInput>>;
  *
  * type Selected = SelectedFieldOf<typeof S.String>
  * const selected = S.String satisfies Selected
- * console.log(selected.ast._tag)
+ * console.log(S.isSchema(selected))
  * ```
  *
  * @since 0.0.0
@@ -114,7 +123,7 @@ export type SelectedFieldOf<Field extends EntityFieldInput> = Field extends {
  *
  * type Selected = SelectedFieldsOf<{ readonly name: typeof S.String }>
  * const fields = { name: S.String } satisfies Selected
- * console.log(fields.name.ast._tag)
+ * console.log(S.isSchema(fields.name))
  * ```
  *
  * @since 0.0.0

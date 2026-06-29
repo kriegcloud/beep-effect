@@ -474,7 +474,8 @@ const attachCauseTaggedErrorStatics = <
  *   DomainError.mapError("Domain operation failed")
  * )
  *
- * console.log(program)
+ * const exit = Effect.runSyncExit(program)
+ * console.log(exit._tag)
  * ```
  *
  * @example

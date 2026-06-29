@@ -33,7 +33,7 @@ const SecureHeaderBase = LiteralKit([
  * ```ts
  * import { SecureHeader } from "@beep/schema/SecureHeader"
  *
- * console.log(SecureHeader.Options)
+ * console.log(SecureHeader.Options.includes("NO_SNIFF"))
  * ```
  *
  * @category schemas

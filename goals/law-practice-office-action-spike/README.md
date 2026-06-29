@@ -103,3 +103,8 @@ retained as reference.
   client matter in the repo.
 - Federation invariant: `OfficeAction.matterId` (matter wall) modeled now;
   any cross-matter view is a permissioned projection, enforcement deferrable.
+- 2026-06-29: gold-intake research note added at
+  `research/gold-intake-ip-domain-depth.md` (see for IP-law domain depth —
+  element-level claim-chart, PTAB validity-challenge, CUAD clause taxonomy,
+  claim-evolution lineage, and PriorArtReference enrichment; deferred P2/P3
+  growth, non-invasive to this spike's scope).

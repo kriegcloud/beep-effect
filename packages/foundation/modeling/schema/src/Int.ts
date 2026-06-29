@@ -47,9 +47,11 @@ export const Int = S.Int.pipe(S.brand("Int"))
  *
  * @example
  * ```ts
- * import type { Int } from "@beep/schema/Int"
+ * import * as S from "effect/Schema"
+ * import { Int } from "@beep/schema/Int"
  *
- * const add = (a: Int, b: Int): number => a + b
+ * const value: Int = S.decodeUnknownSync(Int)(42)
+ * console.log(value + 1) // 43
  * ```
  *
  * @since 0.0.0
@@ -90,9 +92,11 @@ export const PosInt = Int.pipe(S.brand("PosInt"))
  *
  * @example
  * ```ts
- * import type { PosInt } from "@beep/schema/Int"
+ * import * as S from "effect/Schema"
+ * import { PosInt } from "@beep/schema/Int"
  *
- * const count: PosInt = 1 as PosInt
+ * const count: PosInt = S.decodeUnknownSync(PosInt)(1)
+ * console.log(count > 0) // true
  * ```
  *
  * @since 0.0.0
@@ -128,10 +132,11 @@ export const PostgresSerialInt = Int.pipe(S.brand("PostgresSerialInt"))
  *
  * @example
  * ```ts
- * import type { PostgresSerialInt } from "@beep/schema/Int"
+ * import * as S from "effect/Schema"
+ * import { PostgresSerialInt } from "@beep/schema/Int"
  *
- * const id = 1 as PostgresSerialInt
- * console.log(id)
+ * const id: PostgresSerialInt = S.decodeUnknownSync(PostgresSerialInt)(1)
+ * console.log(id) // 1
  * ```
  *
  * @since 0.0.0
@@ -235,8 +240,8 @@ export type Int64 = typeof Int64.Type;
  * import * as S from "effect/Schema"
  *
  * const program = S.decodeUnknownEffect(Int64FromString)("9223372036854775807")
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const value = await Effect.runPromise(program)
+ * console.log(value === BigInt("9223372036854775807"))
  * ```
  *
  * @since 0.0.0
@@ -303,9 +308,11 @@ export const NegInt = Int.pipe(S.brand("NegInt"))
  *
  * @example
  * ```ts
- * import type { NegInt } from "@beep/schema/Int"
+ * import * as S from "effect/Schema"
+ * import { NegInt } from "@beep/schema/Int"
  *
- * const debt: NegInt = -10 as NegInt
+ * const debt: NegInt = S.decodeUnknownSync(NegInt)(-10)
+ * console.log(debt < 0) // true
  * ```
  *
  * @since 0.0.0
@@ -321,8 +328,8 @@ export type NegInt = typeof NegInt.Type;
  * import * as S from "effect/Schema"
  * import { NonPositiveInt } from "@beep/schema/Int"
  *
- * S.decodeUnknownSync(NonPositiveInt)(0)
- * S.decodeUnknownSync(NonPositiveInt)(-5)
+ * console.log(S.decodeUnknownSync(NonPositiveInt)(0)) // 0
+ * console.log(S.decodeUnknownSync(NonPositiveInt)(-5)) // -5
  * ```
  *
  * @since 0.0.0
@@ -346,9 +353,11 @@ export const NonPositiveInt = Int.pipe(S.brand("NonPositiveInt"))
  *
  * @example
  * ```ts
- * import type { NonPositiveInt } from "@beep/schema/Int"
+ * import * as S from "effect/Schema"
+ * import { NonPositiveInt } from "@beep/schema/Int"
  *
- * const offset: NonPositiveInt = 0 as NonPositiveInt
+ * const offset: NonPositiveInt = S.decodeUnknownSync(NonPositiveInt)(0)
+ * console.log(offset <= 0) // true
  * ```
  *
  * @since 0.0.0
@@ -364,8 +373,8 @@ export type NonPositiveInt = typeof NonPositiveInt.Type;
  * import * as S from "effect/Schema"
  * import { NonNegativeInt } from "@beep/schema/Int"
  *
- * S.decodeUnknownSync(NonNegativeInt)(0)
- * S.decodeUnknownSync(NonNegativeInt)(100)
+ * console.log(S.decodeUnknownSync(NonNegativeInt)(0)) // 0
+ * console.log(S.decodeUnknownSync(NonNegativeInt)(100)) // 100
  * ```
  *
  * @since 0.0.0

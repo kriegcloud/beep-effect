@@ -54,11 +54,14 @@ export type RowSchemaWithFields = S.Top & {
  * @example
  * ```ts
  * import type { CsvDocument } from "@beep/schema/Csv"
+ * import { CSV } from "@beep/schema/Csv"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
  * const Row = S.Struct({ name: S.String })
- * declare const document: CsvDocument<typeof Row>
- * console.log(document.ast._tag)
+ * const document: CsvDocument<typeof Row> = CSV(Row)
+ * const rows = await Effect.runPromise(S.decodeUnknownEffect(document)("name\nAda"))
+ * console.log(rows[0]?.name)
  * ```
  *
  * @category models
@@ -299,8 +302,8 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * const CsvSchema = CSV(Row)
  *
  * const program = S.decodeUnknownEffect(CsvSchema)("name,age\nAda,36")
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const rows = await Effect.runPromise(program)
+ * console.log(rows[0]?.age) // 36
  * ```
  *
  * @category validation
@@ -348,12 +351,15 @@ export { Csv as CSV, Csv as Schema };
  *
  * @example
  * ```ts
- * import type { CSV } from "@beep/schema/Csv"
+ * import { CSV } from "@beep/schema/Csv"
+ * import type { CSV as CSVSchema } from "@beep/schema/Csv"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
  * const Row = S.Struct({ name: S.String })
- * declare const schema: CSV<typeof Row>
- * console.log(schema.ast._tag)
+ * const schema: CSVSchema<typeof Row> = CSV(Row)
+ * const rows = await Effect.runPromise(S.decodeUnknownEffect(schema)("name\nAda"))
+ * console.log(rows[0]?.name)
  * ```
  *
  * @category models
@@ -366,12 +372,15 @@ export type CSV<RowSchema extends RowSchemaWithFields> = CsvDocument<RowSchema>;
  *
  * @example
  * ```ts
- * import type { Schema } from "@beep/schema/Csv"
+ * import { Schema as CsvSchema } from "@beep/schema/Csv"
+ * import type { Schema as CsvSchemaType } from "@beep/schema/Csv"
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
  * const Row = S.Struct({ name: S.String })
- * declare const schema: Schema<typeof Row>
- * console.log(schema.ast._tag)
+ * const schema: CsvSchemaType<typeof Row> = CsvSchema(Row)
+ * const rows = await Effect.runPromise(S.decodeUnknownEffect(schema)("name\nAda"))
+ * console.log(rows[0]?.name)
  * ```
  *
  * @category models

@@ -5,7 +5,7 @@
  * ```ts
  * import * as DomHtmlElement from "@beep/schema/DomHtmlElement"
  *
- * console.log(DomHtmlElement.Schema)
+ * console.log(Object.keys(DomHtmlElement).includes("Schema"))
  * ```
  *
  * @packageDocumentation

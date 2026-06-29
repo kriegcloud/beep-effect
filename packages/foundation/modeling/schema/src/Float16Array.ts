@@ -195,8 +195,9 @@ export declare namespace Float16ArrayFromArray {
  * @example
  * ```ts
  * import { Float16ArrayField } from "@beep/schema/Float16Array";
+ * import * as S from "effect/Schema";
  *
- * console.log(Float16ArrayField.schemas.insert.ast._tag);
+ * console.log(S.isSchema(Float16ArrayField.schemas.insert));
  * ```
  *
  * @category schemas

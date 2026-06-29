@@ -113,8 +113,8 @@ export const ThunkUnknown = S.declare<() => unknown>(isThunkUnknownValue).pipe(
  * ```ts
  * import { isThunkUnknown } from "@beep/schema/Thunk"
  *
- * isThunkUnknown(() => 1)  // true
- * isThunkUnknown("hello")  // false
+ * console.log(isThunkUnknown(() => 1)) // true
+ * console.log(isThunkUnknown("hello")) // false
  * ```
  *
  * @since 0.0.0

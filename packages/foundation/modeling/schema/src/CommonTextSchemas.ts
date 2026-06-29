@@ -51,9 +51,11 @@ export const TrimmedNonEmptyText = S.String.pipe(
  *
  * @example
  * ```ts
- * import type { TrimmedNonEmptyText } from "@beep/schema/CommonTextSchemas"
+ * import * as S from "effect/Schema"
+ * import { TrimmedNonEmptyText } from "@beep/schema/CommonTextSchemas"
  *
- * const name: TrimmedNonEmptyText = "hello" as TrimmedNonEmptyText
+ * const name: TrimmedNonEmptyText = S.decodeUnknownSync(TrimmedNonEmptyText)("  hello  ")
+ * console.log(name) // "hello"
  * ```
  *
  * @since 0.0.0
@@ -94,9 +96,11 @@ export const CommaSeparatedList = S.String.pipe(
  *
  * @example
  * ```ts
- * import type { CommaSeparatedList } from "@beep/schema/CommonTextSchemas"
+ * import * as S from "effect/Schema"
+ * import { CommaSeparatedList } from "@beep/schema/CommonTextSchemas"
  *
- * const tags: CommaSeparatedList = ["a", "b"] as CommaSeparatedList
+ * const tags: CommaSeparatedList = S.decodeUnknownSync(CommaSeparatedList)("a, b")
+ * console.log(tags.join("|")) // "a|b"
  * ```
  *
  * @since 0.0.0
@@ -137,9 +141,11 @@ export const NormalizedBooleanString = S.String.pipe(
  *
  * @example
  * ```ts
- * import type { NormalizedBooleanString } from "@beep/schema/CommonTextSchemas"
+ * import * as S from "effect/Schema"
+ * import { NormalizedBooleanString } from "@beep/schema/CommonTextSchemas"
  *
- * const flag: NormalizedBooleanString = true
+ * const flag: NormalizedBooleanString = S.decodeUnknownSync(NormalizedBooleanString)("yes")
+ * console.log(flag) // true
  * ```
  *
  * @since 0.0.0

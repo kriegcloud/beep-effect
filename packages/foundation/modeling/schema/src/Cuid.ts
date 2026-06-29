@@ -20,9 +20,14 @@ import type * as PlatformError from "effect/PlatformError";
  * import { Effect } from "effect"
  * import { sha512 } from "@beep/schema/Cuid"
  *
- * const digest = Effect.runPromise(sha512(new TextEncoder().encode("beep")).pipe(Effect.provide(BunCrypto.layer)))
- * console.log(digest)
+ * const digest = await Effect.runPromise(
+ *   sha512(new TextEncoder().encode("beep")).pipe(Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(digest.byteLength) // 64
  * ```
+ *
+ * @effects
+ * Reads the `Crypto` service to compute a digest; it performs no writes.
  *
  * @category utilities
  * @since 0.0.0
@@ -58,9 +63,11 @@ export const Cuid = S.String.pipe(S.check(S.isPattern(/^[a-z][0-9a-z]+$/)), S.br
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { Cuid } from "@beep/schema/Cuid"
+ * import { Cuid as CuidSchema } from "@beep/schema/Cuid"
  *
- * const id = "a123" as Cuid
+ * const id: Cuid = S.decodeUnknownSync(CuidSchema)("a123")
  * console.log(id)
  * ```
  *
@@ -111,9 +118,14 @@ export type CuidSeed = {
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
+ * import { Effect } from "effect"
  * import { CuidState } from "@beep/schema/Cuid"
  *
- * console.log(CuidState.Default)
+ * const seed = await Effect.runPromise(
+ *   CuidState.next.pipe(Effect.provide(CuidState.Default), Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(seed.fingerprint.length)
  * ```
  *
  * @category constructors
@@ -162,8 +174,10 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
  * import { Effect } from "effect"
  * import { cuid, CuidState } from "@beep/schema/Cuid"
  *
- * const id = Effect.runPromise(cuid.pipe(Effect.provide(CuidState.Default), Effect.provide(BunCrypto.layer)))
- * console.log(id)
+ * const id = await Effect.runPromise(
+ *   cuid.pipe(Effect.provide(CuidState.Default), Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(id.length)
  * ```
  *
  * @effects Requires {@link CuidState} and `effect/Crypto`; `CuidState.Default`

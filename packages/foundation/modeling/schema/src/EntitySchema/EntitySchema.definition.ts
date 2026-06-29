@@ -32,7 +32,7 @@ import type {
  * ```ts
  * import type { Definition } from "@beep/schema/EntitySchema"
  *
- * const definition = { fields: {}, inputFields: {}, persisted: {}, tableName: "accounts", variantFields: {} } as Definition
+ * const definition = { fields: {}, inputFields: {}, persisted: {}, tableName: "accounts", variantFields: {} } satisfies Definition
  * console.log(definition.tableName)
  * ```
  *
@@ -171,7 +171,8 @@ export type TableNameFromIdentifier<Identifier extends string> = SnakeCase<LastP
  * import type { ColumnNameFor, PersistDescriptor } from "@beep/schema/EntitySchema"
  *
  * type Column = ColumnNameFor<"createdAt", PersistDescriptor<"text", "provided">>
- * console.log("created_at" as Column)
+ * const column: Column = "created_at"
+ * console.log(column)
  * ```
  *
  * @since 0.0.0
@@ -242,7 +243,8 @@ export const defineClassInput = <
  * import type { PersistDescriptor, VariantFieldFor } from "@beep/schema/EntitySchema"
  *
  * type Field = VariantFieldFor<typeof S.String, PersistDescriptor.Any>
- * console.log(S.String as Field)
+ * const field = S.String satisfies Field
+ * console.log(S.isSchema(field))
  * ```
  *
  * @since 0.0.0
@@ -280,7 +282,8 @@ export type VariantFieldFor<
  * import type { PersistDescriptor, VariantFieldForInput } from "@beep/schema/EntitySchema"
  *
  * type Field = VariantFieldForInput<typeof S.String, PersistDescriptor.Any>
- * console.log(S.String as Field)
+ * const field = S.String satisfies Field
+ * console.log(S.isSchema(field))
  * ```
  *
  * @since 0.0.0
@@ -300,7 +303,8 @@ export type VariantFieldForInput<
  * import type { VariantFieldsFor } from "@beep/schema/EntitySchema"
  *
  * type Fields = VariantFieldsFor<{ readonly id: typeof S.String }, {}>
- * console.log({ id: S.String } as Fields)
+ * const fields = { id: S.String } satisfies Fields
+ * console.log(Object.keys(fields))
  * ```
  *
  * @since 0.0.0
@@ -319,8 +323,9 @@ export type VariantFieldsFor<FieldMap extends EntityFieldInputs, Persisted exten
  * ```ts
  * import type { EntityClass } from "@beep/schema/EntitySchema"
  *
- * declare const entity: EntityClass.Any
- * console.log(entity.definition.tableName)
+ * type Definition = EntityClass.Any["definition"]
+ * const definition = { fields: {}, inputFields: {}, persisted: {}, tableName: "accounts", variantFields: {} } satisfies Definition
+ * console.log(definition.tableName)
  * ```
  *
  * @since 0.0.0
@@ -345,8 +350,9 @@ export type EntityClass<
  * ```ts
  * import type { EntityClass } from "@beep/schema/EntitySchema"
  *
- * declare const entity: EntityClass.Any
- * console.log(entity.definition.tableName)
+ * type Definition = EntityClass.DefinitionOf<EntityClass.Any>
+ * const definition = { fields: {}, inputFields: {}, persisted: {}, tableName: "accounts", variantFields: {} } satisfies Definition
+ * console.log(definition.tableName)
  * ```
  *
  * @since 0.0.0
@@ -419,7 +425,8 @@ export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersist
  * import type { AssignedEntityParts } from "@beep/schema/EntitySchema"
  *
  * type Parts = AssignedEntityParts<{ readonly id: typeof S.String }, {}, { readonly name: typeof S.String }, {}>
- * console.log({ fields: { id: S.String, name: S.String }, persisted: {} } as Parts)
+ * const fieldKey: keyof Parts["fields"] = "id"
+ * console.log(fieldKey)
  * ```
  *
  * @since 0.0.0

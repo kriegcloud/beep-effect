@@ -48,9 +48,11 @@ export const KebabCaseStr = NonEmptyTrimmedStr.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { KebabCaseStr } from "@beep/schema"
+ * import { KebabCaseStr as KebabCaseStrSchema } from "@beep/schema"
  *
- * const role = "command-handler" as KebabCaseStr
+ * const role: KebabCaseStr = S.decodeUnknownSync(KebabCaseStrSchema)("command-handler")
  * console.log(role)
  * ```
  *

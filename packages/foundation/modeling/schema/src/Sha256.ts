@@ -53,7 +53,7 @@ const computeSha256Hex = Effect.fn("computeSha256Hex")(function* (
  * const digest = S.decodeUnknownSync(Sha256Hex)(
  *   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
  * )
- * console.log(digest)
+ * console.log(digest.length) // 64
  * ```
  *
  * @since 0.0.0
@@ -75,9 +75,13 @@ export const Sha256Hex = S.String.check(Sha256HexChecks)
  *
  * @example
  * ```ts
- * import type { Sha256Hex } from "@beep/schema/Sha256"
+ * import * as S from "effect/Schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
  *
- * const hash: Sha256Hex = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as Sha256Hex
+ * const hash: Sha256Hex = S.decodeUnknownSync(Sha256Hex)(
+ *   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * )
+ * console.log(hash.length) // 64
  * ```
  *
  * @since 0.0.0
@@ -96,9 +100,10 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * import * as S from "effect/Schema"
  * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
  *
- * const program = S.decodeUnknownEffect(Sha256HexFromBytes)(new Uint8Array()).pipe(Effect.provide(BunCrypto.layer))
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const digest = await Effect.runPromise(
+ *   S.decodeUnknownEffect(Sha256HexFromBytes)(new Uint8Array()).pipe(Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(digest) // "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
  * ```
  *
  * @since 0.0.0
@@ -119,9 +124,15 @@ export const Sha256HexFromBytes = S.Uint8Array.pipe(
  *
  * @example
  * ```ts
- * import type { Sha256HexFromBytes } from "@beep/schema/Sha256"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
  *
- * const hash: Sha256HexFromBytes = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as Sha256HexFromBytes
+ * const hash: Sha256HexFromBytes = await Effect.runPromise(
+ *   S.decodeUnknownEffect(Sha256HexFromBytes)(new Uint8Array()).pipe(Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(hash.length) // 64
  * ```
  *
  * @since 0.0.0
@@ -140,9 +151,10 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  * import * as S from "effect/Schema"
  * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
  *
- * const program = S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f").pipe(Effect.provide(BunCrypto.layer))
- * const result = Effect.runPromise(program)
- * console.log(result)
+ * const digest = await Effect.runPromise(
+ *   S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f").pipe(Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(digest) // "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
  * ```
  *
  * @since 0.0.0
@@ -160,9 +172,15 @@ export const Sha256HexFromHexBytes = S.Uint8ArrayFromHex.pipe(
  *
  * @example
  * ```ts
- * import type { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
  *
- * const hash: Sha256HexFromHexBytes = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as Sha256HexFromHexBytes
+ * const hash: Sha256HexFromHexBytes = await Effect.runPromise(
+ *   S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f").pipe(Effect.provide(BunCrypto.layer))
+ * )
+ * console.log(hash.length) // 64
  * ```
  *
  * @since 0.0.0

@@ -48,9 +48,11 @@ export const SnakeCaseStr = NonEmptyTrimmedStr.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { SnakeCaseStr } from "@beep/schema"
+ * import { SnakeCaseStr as SnakeCaseStrSchema } from "@beep/schema"
  *
- * const key = "workflow_status" as SnakeCaseStr
+ * const key: SnakeCaseStr = S.decodeUnknownSync(SnakeCaseStrSchema)("workflow_status")
  * console.log(key)
  * ```
  *

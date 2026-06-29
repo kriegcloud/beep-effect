@@ -62,10 +62,8 @@ const EmailBranded = NormalizedString.check(emailChecks).pipe(S.brand("Email"));
  * import * as S from "effect/Schema"
  * import { EmailString } from "@beep/schema/internal/email"
  *
- * const decode = S.decodeUnknownEffect(EmailString)
- * const program = decode("Admin@Example.COM")
- *
- * console.log(program)
+ * const email = S.decodeUnknownSync(EmailString)("Admin@Example.COM")
+ * console.log(email) // "admin@example.com"
  * ```
  *
  * @category constructors
@@ -82,9 +80,11 @@ export const EmailString = EmailBranded.pipe(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import type { EmailString } from "@beep/schema/internal/email"
+ * import { EmailString as EmailStringSchema } from "@beep/schema/internal/email"
  *
- * const email = "admin@example.com" as EmailString
+ * const email: EmailString = S.decodeUnknownSync(EmailStringSchema)("admin@example.com")
  * console.log(email)
  * ```
  *

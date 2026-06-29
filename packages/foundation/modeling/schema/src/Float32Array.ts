@@ -146,8 +146,9 @@ export declare namespace Float32ArrayFromArray {
  * @example
  * ```ts
  * import { Float32ArrayField } from "@beep/schema/Float32Array";
+ * import * as S from "effect/Schema";
  *
- * console.log(Float32ArrayField.schemas.insert.ast._tag);
+ * console.log(S.isSchema(Float32ArrayField.schemas.insert));
  * ```
  *
  * @category schemas

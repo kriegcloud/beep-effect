@@ -5,7 +5,7 @@
  * ```ts
  * import * as ForceHttpsRedirect from "@beep/schema/ForceHttpsRedirect"
  *
- * console.log(ForceHttpsRedirect.Header)
+ * console.log(Object.keys(ForceHttpsRedirect).includes("Header"))
  * ```
  *
  * @packageDocumentation

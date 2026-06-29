@@ -5,7 +5,7 @@
  * ```ts
  * import * as PermissionsPolicy from "@beep/schema/PermissionsPolicy"
  *
- * console.log(PermissionsPolicy.Header)
+ * console.log(Object.keys(PermissionsPolicy).includes("Header"))
  * ```
  *
  * @packageDocumentation

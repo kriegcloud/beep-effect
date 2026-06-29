@@ -15,9 +15,11 @@ import type { EntityFieldInput, EntityFieldInputs, SelectedFieldOf } from "./Ent
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { StorageKind } from "@beep/schema/EntitySchema"
  *
- * console.log(StorageKind.ast)
+ * const kind = S.decodeUnknownSync(StorageKind)("text")
+ * console.log(kind)
  * ```
  *
  * @since 0.0.0
@@ -60,9 +62,11 @@ export type StorageKind = typeof StorageKind.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ValueStrategy } from "@beep/schema/EntitySchema"
  *
- * console.log(ValueStrategy.ast)
+ * const strategy = S.decodeUnknownSync(ValueStrategy)("provided")
+ * console.log(strategy)
  * ```
  *
  * @since 0.0.0
@@ -104,9 +108,11 @@ export type ValueStrategy = typeof ValueStrategy.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PersistStrategy } from "@beep/schema/EntitySchema"
  *
- * console.log(PersistStrategy.ast)
+ * const strategy = S.decodeUnknownSync(PersistStrategy)("provided")
+ * console.log(strategy)
  * ```
  *
  * @since 0.0.0
@@ -135,9 +141,11 @@ export type PersistStrategy = ValueStrategy;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { IndexHintKind } from "@beep/schema/EntitySchema"
  *
- * console.log(IndexHintKind.ast)
+ * const kind = S.decodeUnknownSync(IndexHintKind)("unique")
+ * console.log(kind)
  * ```
  *
  * @since 0.0.0
@@ -220,9 +228,11 @@ export type IndexHint = typeof IndexHint.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { EncodedAbsenceKind } from "@beep/schema/EntitySchema"
  *
- * console.log(EncodedAbsenceKind.ast)
+ * const kind = S.decodeUnknownSync(EncodedAbsenceKind)("optionalKey")
+ * console.log(kind)
  * ```
  *
  * @since 0.0.0
@@ -348,7 +358,7 @@ export type PersistDescriptor<
  * ```ts
  * import type { PersistDescriptor } from "@beep/schema/EntitySchema"
  *
- * declare const descriptor: PersistDescriptor.Any
+ * const descriptor = { storageKind: "text", valueStrategy: "provided" } satisfies PersistDescriptor.Any
  * console.log(descriptor.storageKind)
  * ```
  *
@@ -403,9 +413,11 @@ const attachPersistDescriptorStatics = <Schema extends S.ConstraintDecoder<Persi
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PersistDescriptor } from "@beep/schema/EntitySchema"
  *
- * console.log(PersistDescriptor.cases.text.ast)
+ * const descriptor = S.decodeUnknownSync(PersistDescriptor)({ storageKind: "text", valueStrategy: "provided" })
+ * console.log(descriptor.storageKind)
  * ```
  *
  * @since 0.0.0

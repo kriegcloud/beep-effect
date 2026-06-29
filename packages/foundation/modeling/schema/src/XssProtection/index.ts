@@ -5,7 +5,7 @@
  * ```ts
  * import * as XssProtection from "@beep/schema/XssProtection"
  *
- * console.log(XssProtection.Header)
+ * console.log(Object.keys(XssProtection).includes("Header"))
  * ```
  *
  * @packageDocumentation
