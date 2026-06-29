@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "domain-layer-hardening",
+    "title": "Domain-Layer Hardening",
+    "status": "active",
+    "stage": "graduate",
+    "openQuestions": [
+      "Graduate sibling packets 2-7 (domain-typed-references, epistemic-claim-body, workspace-candidate-approval, law-practice-real-domain, provenance-attestation, agents-and-narrowing-sweep) as their predecessors land — see MAP.md sequencing. Deferred until domain-kernel-hardening progresses.",
+      "Confirm during packet-2 shaping: move fixtureKey out of domain models into a fixtures/seed layer (N1) vs retain as a seed-import field.",
+      "Confirm during epistemic-claim-body shaping: SPO-capable assertion VO shape (deep FOLIO/PROV-O TBox deferred to ip-law-knowledge-graph)."
+    ],
+    "links": {
+      "goals": [
+        "goals/domain-kernel-hardening"
+      ],
+      "docs": [
+        "docs/product/prose-to-proof.md",
+        "goals/agentic-professional-runtime/SPEC.md",
+        "standards/architecture/04-rich-domain-model.md",
+        "standards/architecture/02-shared-kernel.md"
+      ],
+      "supersededBy": null
+    },
+    "created": "2026-06-29",
+    "updated": "2026-06-29"
+  }
+}

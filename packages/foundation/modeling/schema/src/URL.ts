@@ -5,18 +5,14 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
+import { O } from "@beep/utils";
 import { Brand, pipe, Result } from "effect";
 import * as S from "effect/Schema";
 import * as SchemaUtils from "./SchemaUtils/index.ts";
 import { NonEmptyTrimmedStr } from "./String.ts";
 
 const $I = $SchemaId.create("URL");
-/**
- * A type guard for URL a URL encoded string
- *
- * @category validation
- * @since 0.0.0
- */
+
 const isURLStr = (u: unknown): u is URLStr =>
   S.is(NonEmptyTrimmedStr)(u) &&
   pipe(
@@ -24,22 +20,10 @@ const isURLStr = (u: unknown): u is URLStr =>
     Result.isSuccess
   );
 
-/**
- * A Schema filter for a URL encoded as a string
- *
- * @category validation
- * @since 0.0.0
- */
 const filterURLStr = S.makeFilter(isURLStr, {
   message: "URL must be a valid URL encoded string",
 });
 
-/**
- * A URL encoded string constructor
- *
- * @category validation
- * @since 0.0.0
- */
 const urlStr = Brand.check<URLStr>(filterURLStr);
 
 /**
@@ -70,16 +54,105 @@ export const URLStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * {@inheritDoc URLStr}
+ * Type for {@link URLStr}. {@inheritDoc URLStr}
  *
  * @example
  * ```ts
- * import type { URLStr } from "@beep/schema/URL"
+ * import * as S from "effect/Schema"
+ * import { URLStr } from "@beep/schema/URL"
  *
- * const endpoint: URLStr = "https://api.example.com" as URLStr
+ * const endpoint: URLStr = S.decodeUnknownSync(URLStr)("https://api.example.com")
+ * console.log(endpoint)
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export type URLStr = Brand.Branded<NonEmptyTrimmedStr, "URLStr">;
+
+const filterHttpsUrl = S.makeFilter(
+  (input: unknown): input is `https://${string}` => {
+    const urlOpt = S.decodeUnknownOption(S.URLFromString)(input);
+
+    if (O.isNone(urlOpt)) return false;
+
+    const url = urlOpt.value;
+
+    return url.protocol === "https:";
+  },
+  {
+    message: "URL must use the https protocol",
+  }
+);
+
+/**
+ * Branded schema for absolute URL strings that use the `https:` protocol.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { HttpsUrl } from "@beep/schema/URL"
+ *
+ * const secureUrl = S.decodeUnknownSync(HttpsUrl)("https://example.com")
+ * console.log(secureUrl)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
+export const HttpsUrl = S.String.pipe(
+  S.check(filterHttpsUrl),
+  S.brand("HttpsUrl"),
+  $I.annoteSchema("HttpsUrl", {
+    description: "An absolute URL string constrained to the https protocol.",
+  })
+);
+
+/**
+ * Type for {@link HttpsUrl}. {@inheritDoc HttpsUrl}
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { HttpsUrl } from "@beep/schema/URL"
+ *
+ * const secureUrl: HttpsUrl = S.decodeUnknownSync(HttpsUrl)("https://api.example.com")
+ * console.log(secureUrl)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type HttpsUrl = typeof HttpsUrl.Type;
+
+/**
+ * Namespace members for {@link HttpsUrl}.
+ *
+ * @example
+ * ```ts
+ * import { HttpsUrl } from "@beep/schema/URL"
+ *
+ * const encoded = "https://example.com" satisfies HttpsUrl.Encoded
+ * console.log(encoded)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace HttpsUrl {
+  /**
+   * Encoded representation accepted by {@link HttpsUrl}.
+   *
+   * @example
+   * ```ts
+   * import { HttpsUrl } from "@beep/schema/URL"
+   *
+   * const encoded = "https://example.com" satisfies HttpsUrl.Encoded
+   * console.log(encoded)
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof HttpsUrl.Encoded;
+}

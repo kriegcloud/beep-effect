@@ -63,6 +63,7 @@
     "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
     "packages/foundation/modeling/lexical/dtslint/**/*.tst.*",
     "packages/foundation/modeling/md/dtslint/**/*.tst.*",
+    "packages/foundation/modeling/onotology/dtslint/**/*.tst.*",
     "packages/foundation/modeling/pandoc-ast/dtslint/**/*.tst.*",
     "packages/foundation/modeling/rdf/dtslint/**/*.tst.*",
     "packages/foundation/modeling/schema/dtslint/**/*.tst.*",

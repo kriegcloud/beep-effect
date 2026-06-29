@@ -1118,6 +1118,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/modeling/onotology": {
+      "name": "@beep/onotology",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/foundation/modeling/pandoc-ast": {
       "name": "@beep/pandoc-ast",
       "version": "0.0.0",
@@ -2204,6 +2215,8 @@
     "@beep/oip-web": ["@beep/oip-web@workspace:apps/oip-web"],
 
     "@beep/onepassword-cli": ["@beep/onepassword-cli@workspace:packages/drivers/onepassword-cli"],
+
+    "@beep/onotology": ["@beep/onotology@workspace:packages/foundation/modeling/onotology"],
 
     "@beep/openai-compat": ["@beep/openai-compat@workspace:packages/drivers/openai-compat"],
 

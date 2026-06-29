@@ -79,6 +79,23 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   (`voice-capture-foundation`, `voice-inference-worker`, `voice-provider-ports`,
   `voice-dictation-slice`, `voice-tts-playback`, `voice-cloud-transport`,
   `voice-to-voice-session`).
+- [`domain-layer-hardening`](./domain-layer-hardening/README.md) — systematic
+  hardening of every product slice's domain/schema layer (entities, aggregates,
+  value objects, typed errors) against a regret-minimization rubric + external
+  best practice. At `graduate`: Phases 0–2 done (five-slice audit
+  [`10`–`14`](./domain-layer-hardening/synthesis/) + rollup
+  [`19`](./domain-layer-hardening/synthesis/19-phase1-crosscutting.md) + external
+  grounding [`20`](./domain-layer-hardening/synthesis/20-external-law-and-ontology.md)/[`21`](./domain-layer-hardening/synthesis/21-external-signature-dms-notes-corpus.md));
+  Phase 3 ([`BRIEF`](./domain-layer-hardening/BRIEF.md)+[`MAP`](./domain-layer-hardening/MAP.md))
+  decomposed into **7 goal packets**, first graduated:
+  [`domain-kernel-hardening`](../goals/domain-kernel-hardening/README.md) (soft-delete
+  on `BaseEntity` + retire `DomainModel`). Status stays `active` — packets 2–7
+  (typed-references, epistemic-claim-body, workspace-candidate-approval,
+  law-practice-real-domain, provenance-attestation, agents-and-narrowing) graduate as
+  predecessors land. Frontier was: 0 typed
+  errors in 3 slices, two competing audit bases (`BaseEntity` vs unused
+  `@beep/schema/DomainModel`), no soft-delete / temporal-validity / domain-event
+  substrate, near-empty aggregates, law-practice rich-in-nouns-thin-in-lifecycle.
 ### Proposed
 
 - (none — `atlas-synthesis` is now an Active packet above; its capability-inventory

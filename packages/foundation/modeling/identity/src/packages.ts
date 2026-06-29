@@ -138,7 +138,8 @@ const generatedComposers = $I.compose(
   "federal-register",
   "ecfr",
   "dol",
-  "courtlistener"
+  "courtlistener",
+  "onotology"
 );
 
 const composers = {
@@ -1530,3 +1531,19 @@ export const $DolId: Identity.IdentityComposer<"@beep/dol"> = composers.$DolId;
  * @category configuration
  */
 export const $CourtlistenerId: Identity.IdentityComposer<"@beep/courtlistener"> = composers.$CourtlistenerId;
+
+/**
+ * Identity composer for `@beep/onotology`.
+ *
+ * @example
+ * ```typescript
+ * import { $OnotologyId } from "@beep/identity"
+ *
+ * const id = $OnotologyId.make("Onotology")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $OnotologyId: Identity.IdentityComposer<"@beep/onotology"> = composers.$OnotologyId;

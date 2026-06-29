@@ -1314,6 +1314,12 @@
       ],
       "@beep/courtlistener/*": [
         "./packages/drivers/courtlistener/src/*"
+      ],
+      "@beep/onotology": [
+        "./packages/foundation/modeling/onotology/src/index.ts"
+      ],
+      "@beep/onotology/*": [
+        "./packages/foundation/modeling/onotology/src/*"
       ]
     }
   }

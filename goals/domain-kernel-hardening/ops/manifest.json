@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "initiative-manifest/v1",
+  "initiative": {
+    "id": "domain-kernel-hardening",
+    "title": "Domain Kernel Hardening",
+    "status": "active",
+    "created": "2026-06-29",
+    "updated": "2026-06-29",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "packetPath": "goals/domain-kernel-hardening",
+  "lifecycle": "active",
+  "executionCapable": true,
+  "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/domain-layer-hardening",
+    "note": "First graduated slice of the domain-layer-hardening exploration (audit synthesis/10-21, decisions G1-G14 + N1-N8). Packets 2-7 named in explorations/domain-layer-hardening/MAP.md."
+  },
+  "currentSourceOfTruth": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "goals/domain-kernel-hardening/README.md",
+    "goals/domain-kernel-hardening/SPEC.md",
+    "goals/domain-kernel-hardening/PLAN.md",
+    "goals/domain-kernel-hardening/GOAL.md"
+  ],
+  "agentLaunchers": [
+    {
+      "kind": "codex-goal",
+      "path": "GOAL.md",
+      "targetChars": 3500,
+      "maxChars": 4000,
+      "command": "/goal follow the instructions in goals/domain-kernel-hardening/GOAL.md"
+    }
+  ],
+  "phases": [
+    { "id": "P0", "name": "Research", "status": "pending" },
+    { "id": "P1", "name": "Implement", "status": "pending" },
+    { "id": "P2", "name": "Verify", "status": "pending" },
+    { "id": "P3", "name": "Close", "status": "pending" }
+  ],
+  "verificationCommands": [
+    "test \"$(wc -m < goals/domain-kernel-hardening/GOAL.md)\" -le 4000",
+    "jq . goals/domain-kernel-hardening/ops/manifest.json",
+    "rg -n \"domain-kernel-hardening|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/domain-kernel-hardening",
+    "git diff --check -- goals/domain-kernel-hardening",
+    "bun run beep lint reflection-artifacts"
+  ],
+  "stopConditions": [
+    "Required source files are missing or materially contradictory.",
+    "The implementation would exceed named scope (this packet is the kernel only; do not migrate slice entities).",
+    "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
+    "The same blocker repeats after reasonable investigation."
+  ]
+}

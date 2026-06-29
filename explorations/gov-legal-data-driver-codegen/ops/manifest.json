@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "gov-legal-data-driver-codegen",
+    "title": "Gov/Legal Data Drivers + OpenAPI Codegen",
+    "status": "active",
+    "stage": "capture",
+    "openQuestions": [],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-06-29",
+    "updated": "2026-06-29"
+  }
+}

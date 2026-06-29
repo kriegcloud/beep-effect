@@ -199,6 +199,9 @@
       "path": "packages/foundation/modeling/md"
     },
     {
+      "path": "packages/foundation/modeling/onotology"
+    },
+    {
       "path": "packages/foundation/modeling/pandoc-ast"
     },
     {

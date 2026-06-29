@@ -1,0 +1,131 @@
+# Decisions
+
+<!--
+Stage 2 (align). One branch-closing question at a time, recommended answer
+first. Log every resolution with WHY; keep manifest openQuestions in sync.
+Phase-2 corpus findings get adopted/rejected here with WHY.
+-->
+
+## Resolved at the Phase-0 gate (2026-06-29)
+
+### D0.1 — Scope of the audit
+**Resolved: all product slices + kernel** (`workspace`, `law-practice`,
+`epistemic`, `agents`, `shared/domain`). `architecture-lab` excluded (fixture).
+**Why:** the user optimizes for future-proofing over token economy; the kernel
+sets invariants every slice inherits, so a comprehensive pass beats a single
+vertical. Drivers/foundation are substrate, not product domain.
+
+### D0.2 — Artifact home
+**Resolved: a new exploration packet, `domain-layer-hardening`.** **Why:** clean
+lineage through the `/explore` pipeline (capture→research→align→shape→decompose→
+graduate); graduates into a `goals/` packet at Phase 3 without entangling the
+existing `atlas-synthesis` gap-map.
+
+### D0.3 — External grounding depth
+**Resolved: full mine of all six corpora.** **Why:** the rubric's criterion 3
+(external validation) is load-bearing; the legal/DMS/signature/ontology corpora
+are exactly the modeling-decision sources the initiative needs to be defensible.
+
+### D0.4 — Execution pacing
+**Resolved: sequential per-slice, bounded concurrency (≤2–3 agents), continue
+agents via `SendMessage`.** **Why:** an account spend-limit was hit during
+orientation; paced execution stays inside budget and avoids mid-run agent kills.
+
+---
+
+## Open for Phase 1 (align — to resolve during/after the audit)
+
+These mirror `ops/manifest.json` `openQuestions`. Each will be closed with a
+recommended-answer-first entry once the audit + Phase-2 grounding inform it.
+
+- **Q1 — Audit base reconciliation.** Retire the unused `@beep/schema/DomainModel`,
+  or promote its soft-delete/`version` fields into the live `BaseEntity`?
+- **Q2 — Soft-delete posture.** Add `deletedAt`/`deletedByPrincipal` to the
+  canonical `BaseEntity` now (model-now/enforce-later), or per-entity only?
+- **Q3 — Temporal validity.** Introduce `validFrom`/`validTo` (bitemporal
+  substrate) at the base or for select aggregates now, vs defer to roadmap P4?
+- **Q4 — Domain-event substrate.** Add a `.events.ts` envelope + emission seam
+  now, or defer to first cross-slice integration load?
+- **Q5 — Typed-error gap.** Add `.errors.ts` actionable domain failures to
+  `law-practice`/`workspace`/`agents` (0 each today) in this pass?
+- **Q6 — Aggregate roots.** Which flat entities are really consistency
+  boundaries belonging in `aggregates/` (candidates: `Matter`, `Thread`,
+  `OfficeAction`)?
+
+---
+
+## Phase 1 findings — recommended directions (2026-06-29)
+
+Phase 1 audit complete (`synthesis/10`–`14` + `19`). Recommended answers below
+are **provisional pending Phase-2 grounding**; items tagged *[grounded]* depend
+on the corpus mine before they close.
+
+### Standing questions
+- **Q1 audit-base** → **retire `@beep/schema/DomainModel`; port soft-delete into
+  `BaseEntity`** with rich `Principal` actor typing (not `String`). `rowVersion`
+  already subsumes `DomainModel.version`.
+- **Q2 soft-delete** → **base-wide** `deletedAt`/`deletedByPrincipal` on `BaseEntity`.
+- **Q3 temporal validity** → **opt-in `TemporalValidity` VO**, applied to entities
+  with real effective-dating; NOT base-wide.
+- **Q4 domain events** → **define a `DomainEvent` envelope VO now**, wire emission later.
+- **Q5 typed errors** → **per-slice `.errors.ts`** using the epistemic
+  `ClaimInvalidTransition` template (smart ctor + union).
+- **Q6 aggregate roots** → **`Turn`,`Thread` (workspace), `Matter` (law-practice)**
+  are aggregate roots; promote to `aggregates/`. Confirm `Claim`↔`PatentAsset`↔`Matter`
+  boundary.
+
+### New questions surfaced by the audit (the highest-leverage debt)
+- **N1 — typed references (P1).** Replace `*FixtureKey: S.String` relationships with
+  typed `EntityRef`/`EntityId` repo-wide. *Recommend adopt — top structural priority.*
+  Open: is `fixtureKey` retained as a seed-import field or moved to a fixtures layer?
+- **N2 — typed bodies (P2).** Replace `snapshot: UnknownRecord` (candidates, claims,
+  activities, approvals, context packets) with typed value objects. *Recommend adopt;*
+  *[grounded]* on Phase-2 ontology/DMS corpus for the claim/activity shapes.
+- **N3 — real vocabularies (P3).** Grow the 8 placeholder literals into real domain
+  vocabularies (often `toTaggedUnion` with per-case payload). *[grounded]* on law/oppold corpus.
+- **N4 — lifecycle unification (P5).** One candidate/approval lifecycle relating to
+  `ClaimLifecycle`, vs per-surface vocabularies. *Recommend a shared model; cross-slice decision.*
+- **N5 — `ApprovalGate` cannot express approval.** `ApprovalDecision = ["pending"]`
+  only; needs approved/rejected/changes_requested + `approverPrincipal` + `decidedAt`
+  + `reason`. *Recommend adopt — product-spine critical.*
+- **N6 — attestation/provenance adoption (P8).** Wire `TextAnchor` + the unused
+  `Sha256`/`Ed25519Signature`/`HybridLogicalClock`/`VectorClock` substrate into a
+  reusable attestation VO for evidence/approval/signed entities. *[grounded]* on signature corpus.
+- **N7 — agent versioning.** `AgentPrincipal.agentVersionId` exists but `Agent` has no
+  version backing it. Field, temporal mixin, or `AgentVersion` entity? *Open.*
+- **N8 — claim body shape.** SPO triple vs claim-text+structured-fields vs tagged
+  union of claim kinds? *[grounded]* — the product's core primitive; ontology corpus is a hard dep.
+
+---
+
+## Phase 2 — external grounding outcomes (2026-06-29)
+
+All six corpora mined, paced/main-loop (`synthesis/20` law+ontology, `synthesis/21`
+signature+dms+notes+corpus). **No external source contradicted a Phase-1
+recommendation; several strengthened it.** Adopted shapes (detail + citations in
+`synthesis/20`–`21`):
+
+- **G1 bitemporal never-overwrite edges** (`tvalid`/`supersededBy`/`isLatest`) →
+  resolves N4 lifecycle supersession + R3 temporal validity + P10 events. *agentmemory.*
+- **G2 typed version-lineage `source` enum** (machine-proposed vs human-confirmed) →
+  resolves the candidate→approval boundary (N4/N5) + soft-delete (P6). *mike.*
+- **G3 verbatim span verifier** → the shared cross-field refinement idiom, closes the
+  `TextAnchor` gap (P8/kernel R7). *doc-haus.*
+- **G4 confidence + derivation-`source`** on claims/evidence → N8/P2 (how-derived). *harvest-mcp/agentmemory.*
+- **G5 authority/quality grading** on cited sources → `PriorArtReference`/Evidence. *research-squad.*
+- **G6 claim/prosecution version lineage** → law `Claim`/`PatentAsset` (P1/P9). *uspto_pfw_mcp.*
+- **G7 court/jurisdiction SKOS + CPC/IPC + reporter crosswalk** → real vocabularies (P3/N3). *courtlistener/courts-db/patents-mcp-server.*
+- **G8 patent identifier + bibliographic VOs** → `PatentAsset` (P3/L2). *uspto MCPs.*
+- **G9 temporal-validity as-of filtering** (open-interval sentinels) → `TemporalValidity` VO (R3). *courts-db.*
+- **G10 content-addressable hashing** (metadata-normalized) → wires `Sha256` (P8/R6). *doctor.*
+- **G11 `Attestation`/`SignatureRequest` VO** (role union + status lifecycle + signed-artifact hash+signature) → N6, wires `Ed25519Signature`. *Box Sign.*
+- **G12 document/version + soft-delete-as-trash + typed metadata templates** → P6/P2/R1. *Box.*
+- **G13 capture-artifact + timestamped segment provenance + HMAC integrity** → P8/W4. *meeting-notes corpus.*
+- **G14 real-corpus client→matter→document hierarchy** (manifests/catalog) → validates party→matter→document aggregates (P3/N3/L5/L6). *oppold (structure only).*
+
+**Convergence:** three independent corpora demand versioned/never-overwrite/
+attributable records and role-typed-participant + status-lifecycle unions — the
+same shapes the audit flagged. **Resolved directions** for the grounded questions:
+N3 (G7/G8), N6 (G11), N8 (SPO-capable assertion + confidence/derivation/lifecycle/
+supersession; defer deep FOLIO/PROV-O TBox to `ip-law-knowledge-graph`),
+R3 (G9/G1), P6 (G2/G12), P8 (G10/G11/G13).
