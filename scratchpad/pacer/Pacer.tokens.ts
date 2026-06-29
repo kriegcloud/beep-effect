@@ -135,3 +135,23 @@ export const PacerEnvironment = LiteralKit(["qa", "prod"]).pipe(
  * @since 0.0.0
  */
 export type PacerEnvironment = typeof PacerEnvironment.Type;
+
+/**
+ * Status of a PCL asynchronous batch/download report job.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ReportStatus = LiteralKit(["WAITING", "RUNNING", "COMPLETED", "FAILED"]).pipe(
+  $I.annoteSchema("ReportStatus", {
+    description: "PCL batch report job status: WAITING, RUNNING, COMPLETED, FAILED.",
+  })
+);
+
+/**
+ * Type for {@link ReportStatus}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ReportStatus = typeof ReportStatus.Type;

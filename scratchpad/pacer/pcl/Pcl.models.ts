@@ -14,7 +14,7 @@
 
 import { $ScratchpadId } from "@beep/identity";
 import * as S from "effect/Schema";
-import { CaseNumberFull, JurisdictionType } from "../Pacer.tokens.ts";
+import { CaseNumberFull, JurisdictionType, ReportStatus } from "../Pacer.tokens.ts";
 
 const $I = $ScratchpadId.create("pacer/pcl/Pcl.models");
 
@@ -193,5 +193,31 @@ export class PartyReportList extends S.Class<PartyReportList>($I`PartyReportList
   },
   $I.annote("PartyReportList", {
     description: "PCL /parties/find response envelope.",
+  })
+) {}
+
+/**
+ * `ReportInfoType` — metadata for an asynchronous batch/download job. Returned
+ * by `POST /cases/download` and the `/download/status/{reportId}` poll. Note
+ * `reportId` is an integer for batch jobs (vs a UUID string in immediate
+ * receipts), so it is modeled permissively.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export class ReportInfoType extends S.Class<ReportInfoType>($I`ReportInfoType`)(
+  {
+    reportId: NumberOrString,
+    status: S.optionalKey(ReportStatus),
+    recordCount: S.optionalKey(S.Finite),
+    pages: S.optionalKey(S.Finite),
+    unbilledPageCount: S.optionalKey(S.Finite),
+    downloadFee: S.optionalKey(S.Finite),
+    startTime: S.optionalKey(S.String),
+    endTime: S.optionalKey(S.String),
+    searchType: S.optionalKey(S.String),
+  },
+  $I.annote("ReportInfoType", {
+    description: "PCL batch report job metadata.",
   })
 ) {}

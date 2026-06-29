@@ -16,7 +16,15 @@
 import { FastCheck } from "effect/testing";
 import * as S from "effect/Schema";
 import { CsoAuthResponse, CsoLogoutResponse } from "../auth/CsoAuth.models.ts";
-import { CaseReportList, CaseResult, PageInfo, PartyReportList, PartyResult, Receipt } from "../pcl/Pcl.models.ts";
+import {
+  CaseReportList,
+  CaseResult,
+  PageInfo,
+  PartyReportList,
+  PartyResult,
+  Receipt,
+  ReportInfoType,
+} from "../pcl/Pcl.models.ts";
 
 const caseArbitrary = S.toArbitrary(CaseResult);
 const partyArbitrary = S.toArbitrary(PartyResult);
@@ -109,3 +117,17 @@ export const logoutBody: unknown = S.encodeSync(CsoLogoutResponse)(
 
 /** A PCL 406 validation error body (PACER's own shape, not our error schema). */
 export const invalidParameterBody = { error: "Validation Exception", message: "invalid search parameter" };
+
+/** The report id the default mock issues for batch downloads. */
+export const DEFAULT_REPORT_ID = 1078;
+
+/** Total case rows the default batch download returns. */
+export const PACER_MOCK_DOWNLOAD_CASES = 2;
+
+/** Build an encoded `ReportInfoType` body for a batch job in the given status. */
+export const reportInfoBody = (reportId: number, status: "WAITING" | "RUNNING" | "COMPLETED" | "FAILED"): unknown =>
+  S.encodeSync(ReportInfoType)(ReportInfoType.make({ reportId, status, recordCount: 3, pages: 1 }));
+
+/** Build the encoded result set returned by a completed batch case download. */
+export const downloadResultsBody = (): unknown =>
+  caseReportListBody(0, 1, sampleCaseResults(PACER_MOCK_DOWNLOAD_CASES, 3001));

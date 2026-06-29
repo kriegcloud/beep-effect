@@ -15,7 +15,13 @@
 
 import * as S from "effect/Schema";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
-import { CaseReportList, CourtCaseSearchDto, PartyReportList, PartySearchDto } from "./Pcl.models.ts";
+import {
+  CaseReportList,
+  CourtCaseSearchDto,
+  PartyReportList,
+  PartySearchDto,
+  ReportInfoType,
+} from "./Pcl.models.ts";
 
 /**
  * HttpApi group for PCL synchronous search endpoints. `page` is a 0-based query
@@ -34,6 +40,18 @@ export const PclHttpApiGroup = HttpApiGroup.make("pcl").add(
     payload: PartySearchDto,
     query: { page: S.optional(S.FiniteFromString) },
     success: PartyReportList,
+  }),
+  HttpApiEndpoint.post("startCaseDownload", "/pcl-public-api/rest/cases/download", {
+    payload: CourtCaseSearchDto,
+    success: ReportInfoType,
+  }),
+  HttpApiEndpoint.get("caseDownloadStatus", "/pcl-public-api/rest/cases/download/status/:reportId", {
+    params: { reportId: S.FiniteFromString },
+    success: ReportInfoType,
+  }),
+  HttpApiEndpoint.get("caseDownloadResults", "/pcl-public-api/rest/cases/download/:reportId", {
+    params: { reportId: S.FiniteFromString },
+    success: CaseReportList,
   })
 );
 

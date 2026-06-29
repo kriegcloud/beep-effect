@@ -22,9 +22,9 @@ import { FastCheck } from "effect/testing";
 import { mockPacerConfig } from "./Pacer.config.ts";
 import { PacerAuth } from "./auth/PacerAuth.service.ts";
 import { PacerAuthError, PacerPclError } from "./Pacer.errors.ts";
-import { CaseReportList, CourtCaseSearchDto, PartySearchDto } from "./pcl/Pcl.models.ts";
+import { CaseReportList, CourtCaseSearchDto, PartySearchDto, ReportInfoType } from "./pcl/Pcl.models.ts";
 import { PclClient } from "./pcl/PclClient.service.ts";
-import { PACER_MOCK_TOTAL_CASES } from "./transport/Arbitraries.ts";
+import { PACER_MOCK_DOWNLOAD_CASES, PACER_MOCK_TOTAL_CASES } from "./transport/Arbitraries.ts";
 import { makePacerLayer } from "./transport/Layers.ts";
 import { makePacerMockHttpClient } from "./transport/Mock.ts";
 
@@ -47,6 +47,10 @@ describe("PACER schema round-trips (property-based)", () => {
 
   it.prop("CaseReportList round-trips", { report: S.toArbitrary(CaseReportList) }, ({ report }) => {
     roundTrips(CaseReportList, report);
+  });
+
+  it.prop("ReportInfoType round-trips", { info: S.toArbitrary(ReportInfoType) }, ({ info }) => {
+    roundTrips(ReportInfoType, info);
   });
 });
 
@@ -103,6 +107,13 @@ describe("PACER end-to-end (mock transport)", () => {
         const parties = yield* pcl.findParties(PartySearchDto.make({ lastName: "Henderson" }));
         expect((parties.content ?? []).length).toBe(1);
       }))
+
+    it.effect("runs the batch download lifecycle (start → poll → download → delete)", () =>
+      Effect.gen(function* () {
+        const pcl = yield* PclClient;
+        const downloaded = yield* pcl.downloadCases(CourtCaseSearchDto.make({ caseNumberFull: "1:2002bk20340" }));
+        expect(downloaded.length).toBe(PACER_MOCK_DOWNLOAD_CASES);
+      }))
   });
 
   it.layer(makePacerLayer(cfg, makePacerMockHttpClient({ auth: "invalid" })).auth)("auth failure", (it) => {
@@ -123,6 +134,16 @@ describe("PACER end-to-end (mock transport)", () => {
         expect(error._tag).toBe("PacerPclError");
         expect(error.reason).toBe("invalid-parameter");
         expect(error.status).toBe(406);
+      }))
+  });
+
+  it.layer(makePacerLayer(cfg, makePacerMockHttpClient({ batch: "failed" })).full)("batch job failure", (it) => {
+    it.effect("downloadCases fails with a typed PacerPclError when the report FAILS", () =>
+      Effect.gen(function* () {
+        const pcl = yield* PclClient;
+        const error = yield* Effect.flip(pcl.downloadCases(CourtCaseSearchDto.make({})));
+        expect(error._tag).toBe("PacerPclError");
+        expect(error.reason).toBe("server-error");
       }))
   });
 });

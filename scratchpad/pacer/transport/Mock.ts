@@ -16,10 +16,13 @@ import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import {
   authInvalidBody,
   authSuccessBody,
+  DEFAULT_REPORT_ID,
   defaultCasePages,
   defaultPartyBody,
+  downloadResultsBody,
   invalidParameterBody,
   logoutBody,
+  reportInfoBody,
 } from "./Arbitraries.ts";
 
 /**
@@ -33,6 +36,8 @@ export interface PacerMockOptions {
   readonly auth?: "success" | "invalid";
   /** /cases/find behavior. Defaults to `"success"`. */
   readonly cases?: "success" | "invalid-parameter" | "unauthorized";
+  /** Batch job terminal status. Defaults to `"complete"`. */
+  readonly batch?: "complete" | "failed";
 }
 
 const jsonResponse = (
@@ -64,6 +69,21 @@ export const makePacerMockHttpClient = (options: PacerMockOptions = {}): Layer.L
       }
       if (path.endsWith("/services/cso-logout")) {
         return Effect.succeed(jsonResponse(request, 200, logoutBody));
+      }
+      // Batch lifecycle (happy path): start → status COMPLETED → results → delete.
+      if (path.includes("/cases/download/status/")) {
+        const id = Number(url.pathname.split("/").filter(Boolean).at(-1));
+        const status = options.batch === "failed" ? "FAILED" : "COMPLETED";
+        return Effect.succeed(jsonResponse(request, 200, reportInfoBody(Number.isFinite(id) ? id : DEFAULT_REPORT_ID, status)));
+      }
+      if (path.includes("/cases/download/")) {
+        return Effect.succeed(jsonResponse(request, 200, downloadResultsBody()));
+      }
+      if (path.endsWith("/cases/download")) {
+        return Effect.succeed(jsonResponse(request, 200, reportInfoBody(DEFAULT_REPORT_ID, "RUNNING")));
+      }
+      if (path.includes("/cases/reports/")) {
+        return Effect.succeed(HttpClientResponse.fromWeb(request, new Response(null, { status: 204 })));
       }
       if (path.endsWith("/cases/find")) {
         if (options.cases === "invalid-parameter") {

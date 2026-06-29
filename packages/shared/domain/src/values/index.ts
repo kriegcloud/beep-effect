@@ -47,3 +47,15 @@ export * as LocalDate from "./LocalDate/index.ts";
  * @category value-objects
  */
 export * as OnePasswordReference from "./OnePasswordReference/index.ts";
+/**
+ * Rule - TODO
+ *
+ * @example
+ * ```ts
+ * TODO
+ * ```
+ *
+ * @since 0.0.0
+ * @category value-objects
+ */
+export * from "./Rule/index.ts";

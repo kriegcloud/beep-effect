@@ -38,4 +38,8 @@ export const searchDemo: Effect.Effect<void, PacerPclError, PclClient> = Effect.
   yield* Effect.forEach(partyRows, (p) =>
     Console.log(`    • ${p.lastName ?? ""}, ${p.firstName ?? ""}  (${p.caseNumberFull ?? ""})`)
   );
+
+  yield* Console.log("→ batch: POST /cases/download → poll status → download → delete (Effect.ensuring)");
+  const downloaded = yield* pcl.downloadCases(CourtCaseSearchDto.make({ caseNumberFull: "1:2002bk20340" }));
+  yield* Console.log(`  downloaded ${downloaded.length} case(s) via the batch lifecycle (report auto-deleted)`);
 });

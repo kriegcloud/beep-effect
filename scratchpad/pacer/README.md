@@ -25,13 +25,13 @@ Pacer.errors.ts        TaggedErrorClass: PacerAuthError (loginResult), PacerPclE
 Pacer.config.ts        base URLs + Config.redacted secret reads (+ mockPacerConfig)
 auth/CsoAuth.models.ts S.Class request/response for cso-auth + cso-logout
 auth/PacerAuth.service.ts  PacerAuth (login/logout over HttpClient) + PacerSession (scoped: login→Ref→logout)
-pcl/Pcl.models.ts      S.Class CourtCaseSearchDto / PartySearchDto / Receipt / PageInfo / Case/Party + envelopes
-pcl/Pcl.api.ts         HttpApi.make + HttpApiGroup + HttpApiEndpoint.post (the declarative PCL contract)
-pcl/PclClient.service.ts  HttpApiClient.make(PclApi) + per-request token inject + token refresh + pagination Stream
+pcl/Pcl.models.ts      S.Class CourtCaseSearchDto / PartySearchDto / Receipt / PageInfo / Case/Party + envelopes + ReportInfoType
+pcl/Pcl.api.ts         HttpApi.make + group: find{Cases,Parties} + batch start/status/results endpoints
+pcl/PclClient.service.ts  HttpApiClient.make(PclApi) + token inject/refresh + pagination Stream + batch download workflow
 transport/Arbitraries.ts  schema-derived bodies (Schema.toArbitrary + FastCheck.sample, not hardcoded JSON)
 transport/Mock.ts      deterministic HttpClient layer serving the schema-derived bodies
 transport/Layers.ts    composes PacerAuth + PacerSession + PclClient over a chosen transport
-Demo.ts                shared search demo (paginated /cases/find + /parties/find)
+Demo.ts                shared search demo (paginated /cases/find + /parties/find + batch download)
 run-mock.ts            default entrypoint (mock transport)
 run-live.ts            live entrypoint (QA, real creds + OTP)
 Pacer.test.ts          property-based (it.prop over Schema arbitraries) + e2e (it.layer) tests
@@ -46,8 +46,8 @@ bun scratchpad/pacer/run-mock.ts
 ```
 
 Prints the happy path (scoped login → paginated `/cases/find` → `/parties/find`
-→ logout on scope close) plus the two typed error paths (auth `loginResult 13`
-and PCL `406`).
+→ batch download lifecycle → logout on scope close) plus the two typed error
+paths (auth `loginResult 13` and PCL `406`).
 
 ```sh
 bunx vitest run --config scratchpad/vitest.config.ts scratchpad/pacer/Pacer.test.ts
@@ -104,15 +104,26 @@ bunx tsgo -p scratchpad/tsconfig.json --noEmit   # repo's @effect/tsgo type+lint
   `HttpClient.mapRequestEffect` (reading the Ref) and writes back any rotated
   `X-NEXT-GEN-CSO` response header via `HttpClient.transformResponse`. `429`s
   retry with `HttpClient.retryTransient`.
+- **Batch lifecycle** — `downloadCases` starts a job (`POST /cases/download`),
+  polls `/download/status/{id}` until `COMPLETED`/`FAILED` (bounded manual
+  recursion), downloads the results, and **always deletes** the stored report via
+  `Effect.ensuring` (PACER caps stored jobs). `httpapi` has no DELETE constructor
+  in this beta, so the delete goes through the same token-injecting `HttpClient` —
+  another spot where the hybrid `httpapi` + `http` split is forced by the surface.
 - **Typed errors at the boundary** — auth failures map the body `loginResult`
   to `PacerAuthError`; PCL failures map the HTTP status to `PacerPclError`
   (PACER's error bodies are not a stable schema, so they are intentionally not
   modeled as HttpApi `error` shapes).
 - **Transport-agnostic** — `PacerAuth` and `PclClient` depend only on
   `HttpClient`, so the mock and live runs differ by exactly one layer.
+- **Resilience** (hardened after an adversarial review pass) — every live request
+  carries a 30s `Effect.timeout`; pagination is hard-capped against a server that
+  never sets `pageInfo.last`; a batch `reportId` is validated as an integer before
+  it is spliced into a URL; and a `PacerConfig.isFiler` flag drives the `redactFlag`
+  the Authentication API requires for e-filing accounts.
 
 ## Out of scope (future work)
 
-Batch/download lifecycle (`/cases/download` → poll → download → delete); XML
-content negotiation; headless TOTP; production host; graduation to
-`packages/drivers/pacer`; the docketing rules engine / approval gate.
+Party batch downloads (only case batch is wired); XML content negotiation;
+headless TOTP; production host; graduation to `packages/drivers/pacer`; the
+docketing rules engine / approval gate.

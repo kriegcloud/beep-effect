@@ -69,6 +69,7 @@ export class PacerConfigBase extends S.Class<PacerConfigBase>($I`PacerConfigBase
 		password: S.Redacted(S.String),
 		clientCode: S.Option(S.String),
 		otpCode: S.String.pipe(S.Redacted, S.Option),
+		isFiler: S.optionalKey(S.Boolean),
 	},
 	$I.annote("PacerConfigBase", {
 		description: "Base PACER configuration consumed by the auth + PCL services"
@@ -139,7 +140,9 @@ export const loadPacerConfig = (options: {
       loginId,
       password,
       clientCode,
-      otpCode: options.otpCode ?? otpFromEnv,
+      // `??` would keep an explicit O.none() (it is a truthy object); fall back to
+      // the PACER_OTP env value only when no OTP was explicitly provided.
+      otpCode: O.orElse(options.otpCode ?? O.none<Redacted.Redacted<string>>(), () => otpFromEnv),
     } satisfies PacerConfig;
   }).pipe(Effect.mapError((cause) => PacerConfigError.make_(String(cause))));
 

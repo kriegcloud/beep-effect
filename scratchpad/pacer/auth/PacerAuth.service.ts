@@ -45,6 +45,9 @@ const transport = (cause: unknown): PacerAuthError =>
 const decoding = (cause: unknown): PacerAuthError =>
   PacerAuthError.fromReason("response-decoding", { cause: String(cause) });
 
+/** Per-request timeout so a hung PACER auth endpoint can never block forever. */
+const REQUEST_TIMEOUT = "30 seconds";
+
 const makeService = (client: HttpClient.HttpClient, cfg: PacerConfig): PacerAuthShape => {
   const login: Effect.Effect<NextGenCsoToken, PacerAuthError> = Effect.gen(function* () {
     const requestBody = CsoAuthRequest.make({
@@ -52,12 +55,15 @@ const makeService = (client: HttpClient.HttpClient, cfg: PacerConfig): PacerAuth
       password: Redacted.value(cfg.password),
       ...R.getSomes({ clientCode: cfg.clientCode }),
       ...R.getSomes({ otpCode: O.map(cfg.otpCode, Redacted.value) }),
+      // Filers (e-filing accounts) must attest redaction compliance; PACER returns
+      // loginResult "1" if a filer omits it. Search-only accounts leave it off.
+      ...R.getSomes({ redactFlag: cfg.isFiler === true ? O.some("1") : O.none<string>() }),
     });
     const baseRequest = HttpClientRequest.post(`${cfg.authBaseUrl}/services/cso-auth`).pipe(
       HttpClientRequest.accept("application/json")
     );
     const request = yield* HttpClientRequest.bodyJson(baseRequest, requestBody).pipe(Effect.mapError(transport));
-    const response = yield* client.execute(request).pipe(Effect.mapError(transport));
+    const response = yield* client.execute(request).pipe(Effect.timeout(REQUEST_TIMEOUT), Effect.mapError(transport));
     const body = yield* HttpClientResponse.schemaBodyJson(CsoAuthResponse)(response).pipe(Effect.mapError(decoding));
 
     if (body.loginResult !== "0" || body.nextGenCSO === "") {
@@ -78,7 +84,7 @@ const makeService = (client: HttpClient.HttpClient, cfg: PacerConfig): PacerAuth
       const request = yield* HttpClientRequest.bodyJson(baseRequest, CsoLogoutRequest.make({ nextGenCSO: token })).pipe(
         Effect.mapError(transport)
       );
-      const response = yield* client.execute(request).pipe(Effect.mapError(transport));
+      const response = yield* client.execute(request).pipe(Effect.timeout(REQUEST_TIMEOUT), Effect.mapError(transport));
       yield* HttpClientResponse.schemaBodyJson(CsoLogoutResponse)(response).pipe(Effect.mapError(decoding));
     });
 
