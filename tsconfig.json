@@ -1281,6 +1281,36 @@
       ],
       "@beep/lint-rules/oxlint": [
         "./packages/tooling/policy-pack/lint-rules/src/rules/index.ts"
+      ],
+      "@beep/govinfo": [
+        "./packages/drivers/govinfo/src/index.ts"
+      ],
+      "@beep/govinfo/*": [
+        "./packages/drivers/govinfo/src/*"
+      ],
+      "@beep/federal-register": [
+        "./packages/drivers/federal-register/src/index.ts"
+      ],
+      "@beep/federal-register/*": [
+        "./packages/drivers/federal-register/src/*"
+      ],
+      "@beep/ecfr": [
+        "./packages/drivers/ecfr/src/index.ts"
+      ],
+      "@beep/ecfr/*": [
+        "./packages/drivers/ecfr/src/*"
+      ],
+      "@beep/dol": [
+        "./packages/drivers/dol/src/index.ts"
+      ],
+      "@beep/dol/*": [
+        "./packages/drivers/dol/src/*"
+      ],
+      "@beep/courtlistener": [
+        "./packages/drivers/courtlistener/src/index.ts"
+      ],
+      "@beep/courtlistener/*": [
+        "./packages/drivers/courtlistener/src/*"
       ]
     }
   }

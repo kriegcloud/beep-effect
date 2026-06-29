@@ -70,7 +70,13 @@
       "path": "packages/drivers/box"
     },
     {
+      "path": "packages/drivers/courtlistener"
+    },
+    {
       "path": "packages/drivers/discord"
+    },
+    {
+      "path": "packages/drivers/dol"
     },
     {
       "path": "packages/drivers/drizzle"
@@ -79,13 +85,22 @@
       "path": "packages/drivers/duckdb"
     },
     {
+      "path": "packages/drivers/ecfr"
+    },
+    {
       "path": "packages/drivers/face-detection"
+    },
+    {
+      "path": "packages/drivers/federal-register"
     },
     {
       "path": "packages/drivers/ffmpeg"
     },
     {
       "path": "packages/drivers/firecrawl"
+    },
+    {
+      "path": "packages/drivers/govinfo"
     },
     {
       "path": "packages/drivers/hubspot"

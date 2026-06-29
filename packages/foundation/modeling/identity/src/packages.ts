@@ -133,7 +133,12 @@ const generatedComposers = $I.compose(
   "form",
   "pglite",
   "m365",
-  "m365-mcp"
+  "m365-mcp",
+  "govinfo",
+  "federal-register",
+  "ecfr",
+  "dol",
+  "courtlistener"
 );
 
 const composers = {
@@ -1445,3 +1450,83 @@ export const $M365Id: Identity.IdentityComposer<"@beep/m365"> = composers.$M365I
  * @category configuration
  */
 export const $M365McpId: Identity.IdentityComposer<"@beep/m365-mcp"> = composers.$M365McpId;
+
+/**
+ * Identity composer for `@beep/govinfo`.
+ *
+ * @example
+ * ```typescript
+ * import { $GovinfoId } from "@beep/identity"
+ *
+ * const id = $GovinfoId.make("Govinfo")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GovinfoId: Identity.IdentityComposer<"@beep/govinfo"> = composers.$GovinfoId;
+
+/**
+ * Identity composer for `@beep/federal-register`.
+ *
+ * @example
+ * ```typescript
+ * import { $FederalRegisterId } from "@beep/identity"
+ *
+ * const id = $FederalRegisterId.make("FederalRegister")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FederalRegisterId: Identity.IdentityComposer<"@beep/federal-register"> = composers.$FederalRegisterId;
+
+/**
+ * Identity composer for `@beep/ecfr`.
+ *
+ * @example
+ * ```typescript
+ * import { $EcfrId } from "@beep/identity"
+ *
+ * const id = $EcfrId.make("Ecfr")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $EcfrId: Identity.IdentityComposer<"@beep/ecfr"> = composers.$EcfrId;
+
+/**
+ * Identity composer for `@beep/dol`.
+ *
+ * @example
+ * ```typescript
+ * import { $DolId } from "@beep/identity"
+ *
+ * const id = $DolId.make("Dol")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $DolId: Identity.IdentityComposer<"@beep/dol"> = composers.$DolId;
+
+/**
+ * Identity composer for `@beep/courtlistener`.
+ *
+ * @example
+ * ```typescript
+ * import { $CourtlistenerId } from "@beep/identity"
+ *
+ * const id = $CourtlistenerId.make("Courtlistener")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $CourtlistenerId: Identity.IdentityComposer<"@beep/courtlistener"> = composers.$CourtlistenerId;

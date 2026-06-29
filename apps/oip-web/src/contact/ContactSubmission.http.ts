@@ -38,7 +38,7 @@ const contactClientBaseUrl = (): string =>
 export class ContactSubmissionAccepted extends S.Class<ContactSubmissionAccepted>($I`ContactSubmissionAccepted`)(
   {
     message: S.String,
-    status: S.Literal("accepted"),
+    status: S.tag("accepted"),
   },
   $I.annote("ContactSubmissionAccepted", {
     description: "Accepted OIP contact response body.",
@@ -66,7 +66,7 @@ export class ContactSubmissionAccepted extends S.Class<ContactSubmissionAccepted
 export class ContactSubmissionRejected extends S.Class<ContactSubmissionRejected>($I`ContactSubmissionRejected`)(
   {
     message: S.String,
-    status: S.Literal("rejected"),
+    status: S.tag("rejected"),
   },
   $I.annote("ContactSubmissionRejected", {
     description: "Rejected OIP contact response body.",

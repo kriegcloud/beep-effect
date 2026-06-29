@@ -69,6 +69,11 @@ const config = {
     "packages/drivers/pglite/package.json",
     "packages/drivers/m365/package.json",
     "packages/drivers/m365-mcp/package.json",
+    "packages/drivers/govinfo/package.json",
+    "packages/drivers/federal-register/package.json",
+    "packages/drivers/ecfr/package.json",
+    "packages/drivers/dol/package.json",
+    "packages/drivers/courtlistener/package.json",
   ],
   customTypes: {
     catalog: {
