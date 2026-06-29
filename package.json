@@ -217,6 +217,8 @@
     "testcontainers": "^12.0.3",
     "three": "^0.185.0",
     "tokenlens": "^1.3.1",
+    "n3": "^2.1.0",
+    "@types/n3": "^1.26.1",
     "ts-morph": "^28.0.0",
     "ts-patch": "^4.0.1",
     "tstyche": "^7.2.1",

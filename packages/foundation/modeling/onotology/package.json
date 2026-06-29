@@ -56,11 +56,13 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "n3": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/node": "catalog:"
+    "@types/node": "catalog:",
+    "@types/n3": "catalog:"
   },
   "beep": {
     "family": "foundation",
