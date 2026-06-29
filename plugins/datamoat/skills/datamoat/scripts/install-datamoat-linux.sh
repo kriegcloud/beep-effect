@@ -9,7 +9,6 @@ OFFICIAL_SITE="https://datamoat.org"
 REPO_URL="https://github.com/max-ng/datamoat.git"
 SRC_DIR="${DATAMOAT_SRC_DIR:-$HOME/.datamoat-src}"
 DATAMOAT_PINNED_REF="1f3caa91080b8ca9370e0f99173a025feb8a999e"
-DATAMOAT_GIT_REF="${DATAMOAT_GIT_REF:-$DATAMOAT_PINNED_REF}"
 
 gentle_site_exit() {
   echo ""
@@ -32,13 +31,6 @@ if [ "${NODE_MAJOR:-0}" -lt 18 ]; then
   gentle_site_exit
 fi
 
-case "$DATAMOAT_GIT_REF" in
-  ""|*[!A-Za-z0-9._/-]*)
-    echo "DataMoat setup needs a valid pinned git ref."
-    gentle_site_exit
-    ;;
-esac
-
 echo "Getting pinned DataMoat source..."
 if [ -d "$SRC_DIR/.git" ]; then
   git -C "$SRC_DIR" remote set-url origin "$REPO_URL" >/dev/null 2>&1 || gentle_site_exit
@@ -46,17 +38,17 @@ else
   git clone --no-checkout --filter=blob:none "$REPO_URL" "$SRC_DIR" >/dev/null 2>&1 || gentle_site_exit
 fi
 
-git -C "$SRC_DIR" fetch --quiet --depth 1 origin "$DATAMOAT_GIT_REF" >/dev/null 2>&1 || gentle_site_exit
+git -C "$SRC_DIR" fetch --quiet --depth 1 origin "$DATAMOAT_PINNED_REF" >/dev/null 2>&1 || gentle_site_exit
 git -C "$SRC_DIR" checkout --quiet --detach FETCH_HEAD >/dev/null 2>&1 || gentle_site_exit
 RESOLVED_REF="$(git -C "$SRC_DIR" rev-parse HEAD 2>/dev/null || true)"
-if [ "$DATAMOAT_GIT_REF" = "$DATAMOAT_PINNED_REF" ] && [ "$RESOLVED_REF" != "$DATAMOAT_PINNED_REF" ]; then
+if [ "$RESOLVED_REF" != "$DATAMOAT_PINNED_REF" ]; then
   gentle_site_exit
 fi
 
 cd "$SRC_DIR" || gentle_site_exit
 
 echo "Installing DataMoat and starting background protection (no screen needed)..."
-if ! DATAMOAT_INSTALL_SOURCE=skill DATAMOAT_UPDATE_SOURCE=skill DATAMOAT_INSTALL_REF="${RESOLVED_REF:-$DATAMOAT_GIT_REF}" bash install.sh --remote-no-screen; then
+if ! DATAMOAT_INSTALL_SOURCE=skill DATAMOAT_UPDATE_SOURCE=skill DATAMOAT_INSTALL_REF="$RESOLVED_REF" bash install.sh --remote-no-screen; then
   gentle_site_exit
 fi
 
