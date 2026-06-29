@@ -31,12 +31,20 @@ Raw: [`research/odp-query-dsl-and-lucene-surface.md`](research/odp-query-dsl-and
 - **Shape gotcha** (when the POST body is confirmed): `filters` use
   `name`/`value[]` (exact-match, multi-value OR), while `rangeFilters` and
   `sort` use `field` — model the asymmetry exactly.
-- The `q` parameter is USPTO **"Simplified Query Syntax"** = OpenSearch/Lucene
-  `query_string`, not raw Lucene; spec PDF
-  <https://data.uspto.gov/documents/documents/ODP-API-Query-Spec.pdf>. It inherits
-  the full Lucene grammar (`field:value`, `AND/OR/NOT`, `[a TO b]`, `term~`,
+- The `q` parameter is USPTO **"Simplified Query Syntax"**, which **appears to
+  be** OpenSearch/Lucene `query_string`-like, not raw Lucene; spec PDF
+  <https://data.uspto.gov/documents/documents/ODP-API-Query-Spec.pdf>. The Lucene
+  `query_string` grammar (`field:value`, `AND/OR/NOT`, `[a TO b]`, `term~`,
   `"a b"~10`, `*`/`?`, `^boost`) per
-  <https://lucene.apache.org/core/2_9_4/queryparsersyntax.html>.
+  <https://lucene.apache.org/core/2_9_4/queryparsersyntax.html> is the *upper
+  bound* of what such an endpoint can express — **do not assume ODP accepts the
+  full grammar.** That 2.9.4 reference predates modern OpenSearch `query_string`,
+  and the exact ODP-accepted feature set is still UNVERIFIED behind the
+  WAF/Swagger gate (see Unresolved). **Implement a tested subset**: gate each
+  grammar feature (ranges, fuzzy, proximity, boost, wildcards) behind
+  fixtures/live probes, use **literal-term escaping by default**, and expose
+  advanced field-query pass-through only as an explicitly **unsafe/advanced
+  mode**.
 - **Escaping is two-mode.** Classic Lucene reserves
   `+ - && || ! ( ) { } [ ] ^ " ~ * ? : \` (no `/`); modern Elasticsearch/OpenSearch
   `query_string` reserves a **broader** set adding `= > < /`, where `<`/`>`
@@ -111,16 +119,26 @@ Raw: [`research/ppubs-fulltext-fallback-tier.md`](research/ppubs-fulltext-fallba
   ppubs is the only no-key, no-login, no-cost full-text search of `USPAT`/`US-PGPUB`/
   `USOCR` <https://data.uspto.gov/patent-file-wrapper>. So a ppubs tier behind ODP is
   non-duplicative *in principle*.
-- The reverse-engineered handshake is triple-confirmed across `patent_client`
-  <https://github.com/parkerhancock/patent_client/blob/master/patent_client/_async/uspto/public_search/api.py>,
-  `patent_mcp_server`
-  <https://github.com/riemannzeta/patent_mcp_server/blob/main/src/patent_mcp_server/uspto/ppubs_uspto_gov.py>,
-  and `swinc/fetch-ppubs-patents`: `GET /pubwebapp/` seeds cookies →
-  `POST /api/users/me/session` (body literal `-1`, header `X-Access-Token: "null"`)
-  → read `caseId` + live token from the response header. Two-step
-  `counts`-then-`searchWithBeFamily`, `qt:"brs"`, `.pn.` field suffix, ~1800 s token
-  resetting on use; re-session on **401 OR 403**, `429` honors
-  `x-rate-limit-retry-after-seconds`.
+- The **general public-search workflow is multi-sourced**, but the exact base
+  URL and session/header requirements are **version-sensitive** — treat this as
+  a per-implementation matrix, not a single triple-confirmed handshake:
+  - `patent_client`
+    <https://github.com/parkerhancock/patent_client/blob/master/patent_client/_async/uspto/public_search/api.py>
+    and `riemannzeta/patent_mcp_server`
+    <https://github.com/riemannzeta/patent_mcp_server/blob/main/src/patent_mcp_server/uspto/ppubs_uspto_gov.py>
+    — **maintained `/api/` base**: `GET /pubwebapp/` seeds cookies →
+    `POST /api/users/me/session` (body literal `-1`, header
+    `X-Access-Token: "null"`) → read `caseId` + live token from the response
+    header.
+  - `swinc/fetch-ppubs-patents` (2023) and `layer1labs/specsmith` (pushed
+    2026-06-29) — **legacy `/dirsearch-public/` base**, a different path family
+    that is still live in fresh code, so the base URL is not settled.
+  - Common workflow shape across impls: two-step
+    `counts`-then-`searchWithBeFamily`, `qt:"brs"`, `.pn.` field suffix, ~1800 s
+    token resetting on use; re-session on **401 OR 403**, `429` honors
+    `x-rate-limit-retry-after-seconds`.
+  Keep the existing DEFERRED decision unless a live capture proves one path;
+  pin `/api/` as primary with `/dirsearch-public/` fallback and live-probe both.
 - **ADVERSARIAL DOWNGRADE: likely dead/fragile.** `patent_client` was **archived
   read-only 2026-04-24** citing PPS-endpoint blocking
   <https://github.com/parkerhancock/patent_client/issues/63>; endpoint base is split
@@ -143,7 +161,13 @@ Raw: [`research/epo-ops-and-bigquery-credentialed-tiers.md`](research/epo-ops-an
   Free registered fair-use ≈ **4 GB/week**; responses are namespace-heavy XML where
   `family-member/classification-cpc/applicant/inventor/priority-claim/legal` must be
   **force-arrayed**. Port *logic* from the **Apache-2.0** python client, not the
-  license-UNVERIFIED TS source named in CAPTURE.
+  license-UNVERIFIED TS source named in CAPTURE. **Reuse the existing XML stack —
+  do not add a new parser:** root `package.json` already catalogs `fast-xml-parser`
+  (`:164`) and `@beep/schema/Xml` exports `XmlTextToUnknown` (`Xml.ts:85`) and
+  `decodeXmlTextAs` (`Xml.ts:121`) over `XMLParser`/`SyntaxValidator`
+  (`packages/foundation/modeling/schema/src/Xml.ts`). Extend `@beep/schema/Xml`
+  with an EPO-specific `isArray`/force-array parser hook for those node names and
+  decode EPO XML **through schema** rather than introducing a parallel XML layer.
 - **Google Patents BigQuery** (`packages/drivers/google-patents-bigquery`, NEW):
   canonical table `patents-public-data.patents.publications`; claims/descriptions are
   **nested REPEATED RECORD** columns (`claims_localized`, etc., subfields
@@ -179,11 +203,28 @@ Raw: [`research/extend-in-place-architecture-and-codegen.md`](research/extend-in
   `Uspto.vocab.ts` (status-code + document-code dictionaries — public-domain US-gov
   facts), extend `Uspto.errors.ts` (`UsptoEndpointSunset`, richer `errorCode`),
   add a `searchStructured` POST path; `Uspto.ppubs.*` DEFERRED.
-- **Credential-gated MCP registration is NET-NEW** — no in-repo example of
-  conditional toolkit registration exists. Pattern: read each driver credential via
-  `Config.option`, conditionally include its `McpServer.toolkit(...)` layer
-  (present→real, absent→`Layer.empty`), so EPO/BigQuery tools stay off the advertised
-  list when unconfigured.
+- **Credential-gated MCP registration depends on the active
+  `explorations/mcp-auth-gated-registration` packet** — this is NOT net-new
+  design space. That packet already shapes the full Effect/MCP design: Shapes
+  A/B (build-time conditional mounting that makes a tool *disappear* when its
+  `Config.option` credential is absent) vs Shape C (always-register + handler-time
+  `api_key_required` structured-content guard), plus a per-module
+  `ModuleMeta { auth }` carrier. Reuse its shapes; do not re-derive them here.
+  Pattern: read each driver credential via `Config.option`, conditionally
+  include its `McpServer.toolkit(...)` layer (present→real, absent→`Layer.empty`),
+  so EPO/BigQuery tools stay off the advertised list when unconfigured.
+- **v4 layer-API gotcha (deprecation):** the raw research proposes folding with
+  `Layer.unwrapEffect`
+  ([research/extend-in-place-architecture-and-codegen.md:73](research/extend-in-place-architecture-and-codegen.md)),
+  but **`Layer.unwrapEffect` is not an Effect v4 API** — `node_modules/effect/src/Layer.ts`
+  exports `unwrap` (`:1498`), and `rg unwrapEffect` over `effect/src/Layer.ts`
+  returns nothing against the pinned `effect@4.0.0-beta.91`. The
+  `mcp-auth-gated-registration` packet also records that `Layer.orElse` was
+  removed in v4 (use `Layer.catch`/`Layer.catchTag("ConfigError",…)`), and that a
+  dynamically-built `Array<Layer>` cannot satisfy `Layer.mergeAll`'s non-empty
+  tuple — fold with `layers.reduce((acc, l) => Layer.merge(acc, l), Layer.empty)`.
+  Use `Layer.unwrap`/`Layer.catch` + the `Layer.empty` fold, and **add a dtslint
+  spike before committing to dynamic layer folding.**
 - **CourtListener docket-prompt is an AGPL LICENSE BLOCKER** (see Constraints).
 
 ---
@@ -237,9 +278,15 @@ precedent the depth build deliberately does NOT follow for uspto.
 with a **static** `Layer.mergeAll(McpServer.toolkit(NlpToolkit)…, McpServer.toolkit(
 StreamingToolkit)…)` over `McpServer.layerStdio` (lines 104–107). Registration is a
 build-time layer concern — the substrate to add conditional inclusion onto.
-**Conditional/credential-gated registration: NOT FOUND** (verified `rg "Layer.empty|
-unwrapEffect"` across `nlp-mcp/src` + `m365-mcp/src` returned nothing) — genuinely
-net-new.
+**Conditional/credential-gated registration: not yet implemented in driver
+source** (verified `rg "Layer.empty|unwrapEffect"` across `nlp-mcp/src` +
+`m365-mcp/src` returned nothing) — **but the design is NOT net-new**: the active
+`explorations/mcp-auth-gated-registration` packet already shapes it (Shapes A/B/C,
+`api_key_required` helper, the v4 `Layer.unwrap`/`Layer.catch` fold, and the
+`McpServer.registerToolkit` `isError` wire-encoding gotcha). This depth build
+**depends on / imports that packet's shapes**, it does not re-invent them. Note
+`Layer.unwrapEffect` is not a v4 API (use `Layer.unwrap`; see External Landscape
+§5).
 
 ### Span extraction — `@beep/langextract` (exists, Apache-2.0)
 `packages/foundation/capability/langextract/src/{Target,Service}/index.ts`. `buildPrompt`
@@ -264,8 +311,15 @@ LegalContact, Matter, OfficeAction, PatentAsset, PriorArtReference, Rejection`.
 ### Naming-collision guard — `ClaimLifecycle` is NOT prosecution vocab
 `packages/shared/domain/src/values/ClaimLifecycle/ClaimLifecycle.model.ts:38` defines
 `ClaimLifecycle = LiteralKit(["candidate","shape_valid","consistency_checked",
-"admitted"])` — the shared-kernel **evidence-admission** gate consumed by
-`@beep/epistemic-*`, orthogonal to patent prosecution phase. **Do not overload it.**
+"admitted"])` — a shared-kernel **admission-state** vocabulary explicitly
+"deliberately shared across knowledge verticals" (`ClaimLifecycle.model.ts:4-8`).
+It is **already reused beyond epistemic**: `law-practice/domain` types
+`Distinction.lifecycleState` from it
+(`packages/law-practice/domain/src/entities/Distinction/Distinction.model.ts:12,44`),
+so it is the admission-state axis for law-practice work product too. The
+prosecution **phase** axis is a *different* axis — author a separate
+`ProsecutionPhase`/`PatentAssetStatus` value rather than overloading
+`ClaimLifecycle`. **Do not overload it.**
 
 ### Net-new sibling drivers — confirmed absent
 - `packages/drivers/epo` — **NOT FOUND** (verified `ls`). Fully net-new (EPO OPS OAuth2).
@@ -344,7 +398,15 @@ drivers (`courtlistener`, `ecfr`, `dol`, `federal-register` = 1 file each; `govi
   `generate.ts`/`openapi.json` or introduce Orval/axios/Zod. The runpod codegen path is
   precedent-NOT-applicable here.
 - **Do not port the hand-curated status-code maps** (both MCP maps are corrupted —
-  4-of-5 wrong); sync the canonical 225-code table from ODP `/status-codes` instead.
+  4-of-5 wrong). "Sync" is not an implementation verb without an owner, cadence,
+  and proof gate — pick one of two concrete mechanisms for the canonical 225-code
+  table: **(a)** a **versioned generated artifact** `Uspto.vocab.generated.ts`
+  built from PatEx/ODP `/status-codes` with embedded **source date + checksum +
+  a refresh command**, export-blocked like the runpod `_generated` precedent; or
+  **(b)** a **runtime `/status-codes` cache** with typed **stale/offline**
+  behavior. Note that (b) couples vocab decode to secret availability (the
+  endpoint is key-authenticated), so (a) is preferred for a stable, offline-safe
+  repo artifact. Do not leave it as a bare "sync."
 - **Vocabulary-ownership boundary:** `@beep/uspto` owns USPTO-native vocab as decoded
   data (codes-as-strings + native categories, faithful decode, zero interpretation);
   `@beep/law-practice-domain` owns the opinionated overlays (litigation-importance tiers,
@@ -360,11 +422,23 @@ drivers (`courtlistener`, `ecfr`, `dol`, `federal-register` = 1 file each; `govi
   authoritative document PDF).
 
 ### Auth / secret / offline boundaries
-- **Default scope stays local/ODP and privilege-safe.** All three credentialed tiers
-  (EPO OAuth2, BigQuery GCP, SerpApi) transmit search terms — which may encode unfiled
-  invention disclosures / client work product — to third-party clouds. They are
-  **OPT-IN per matter with explicit consent**, never the default for privileged/pre-filing
-  work.
+- **Separate "official/public-source" from "privilege-safe" — they are not the
+  same axis.** ODP and ppubs are *official/public USPTO* sources, but they still
+  **transmit free-text query text to external USPTO systems**; for pre-filing
+  invention disclosures the confidentiality risk is **not** eliminated merely
+  because the endpoint is official or no-key. Only offline/local search and
+  public-identifier-only lookups (a known application/patent number, not
+  free-text disclosure language) are truly privilege-safe by default.
+- **Encode this as a source policy in the driver/MCP auth matrix.** For
+  pre-filing/privileged matters, **default to offline/local or
+  public-identifier-only**, and require **explicit matter-level consent for any
+  external free-text search** — ODP and ppubs included, alongside the three
+  credentialed tiers (EPO OAuth2, BigQuery GCP, SerpApi). The credentialed tiers
+  transmit search terms — which may encode unfiled invention disclosures / client
+  work product — to third-party clouds, so they remain **OPT-IN per matter with
+  explicit consent**; the key correction is that free-text ODP/ppubs queries
+  carry a confidentiality cost too and must not be treated as a consent-free
+  default.
 - **The opt-in gate is structural, not a runtime flag:** absence of a Redacted secret →
   the driver `Layer` fails fast / is simply not constructed, and its MCP toolkit layer
   resolves to `Layer.empty`. Mirror the `UsptoConfigInput` Redacted pattern for each new
@@ -388,4 +462,9 @@ drivers (`courtlistener`, `ecfr`, `dol`, `federal-register` = 1 file each; `govi
   `data.uspto.gov/swagger/index.html` in a real browser before finalizing the search
   surface. Default to the broader OpenSearch reserved set and fully-qualified dotted paths.
 - Whether the patent-applications `/search` endpoint accepts the POST structured body
-  (confirmed for PTAB `/proceedings/search`) — confirm before wiring `searchStructured`.
+  (confirmed for PTAB `/proceedings/search`) — confirm before wiring `searchStructured`;
+  keep it behind a spike until proven (see External Landscape §1).
+
+---
+
+_Codex gate-1 folded 2026-06-29: 3 blocking + 5 advisory addressed._

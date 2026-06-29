@@ -4,8 +4,16 @@
     "slug": "mcp-auth-gated-registration",
     "title": "MCP Auth-Gated Registration & Progressive Disclosure",
     "status": "active",
-    "stage": "capture",
-    "openQuestions": [],
+    "stage": "research",
+    "openQuestions": [
+      "Q1: Patterns-only kit vs also building the gov-legal MCP host and drivers?",
+      "Q2: New dedicated gov-legal/USPTO MCP package (reusing the seam) vs extending NLP/M365?",
+      "Q3: Build patterns natively on effect/unstable/ai vs wrap a third-party MCP framework?",
+      "Q4: Where the shared kit lives — new @beep/mcp-kit driver package vs foundation vs inline?",
+      "Q5: Per-source auth model (gate none|soft|hard) + tool-vanish vs graceful-degrade on absent key?",
+      "Q6: api_key_required wire channel — success-with-error-JSON vs tools/call isError:true wrapper?",
+      "Q7: Where the write-tool wall is enforced + how a gated call is audited (Activity table vs UsageRecord.metadata)?"
+    ],
     "links": {
       "goals": [],
       "docs": [],

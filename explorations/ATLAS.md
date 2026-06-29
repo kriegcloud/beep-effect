@@ -96,6 +96,35 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   errors in 3 slices, two competing audit bases (`BaseEntity` vs unused
   `@beep/schema/DomainModel`), no soft-delete / temporal-validity / domain-event
   substrate, near-empty aggregates, law-practice rich-in-nouns-thin-in-lifecycle.
+- **Gold-Intake cohort** (opened 2026-06-29, all at `research`-complete) — 13 new exploration
+  packets reconciled from the 219-nugget gold-intake corpus; full matrix +
+  provenance in [`_gold-intake/ROUTING.md`](./_gold-intake/ROUTING.md) /
+  [`routing.json`](./_gold-intake/routing.json) (219/219 routed, user-approved). Each packet:
+  CAPTURE seeded from its nuggets, `RESEARCH.md` (external landscape · in-repo inventory ·
+  constraints), codex gate-1 folded, `DECISIONS.md` pre-drafted. **Graduate-now (Wave-1,
+  user-confirmed):** [`gov-legal-data-driver-codegen`](./gov-legal-data-driver-codegen/README.md),
+  [`uspto-patent-driver-depth`](./uspto-patent-driver-depth/README.md) (extends `@beep/uspto`),
+  [`mcp-auth-gated-registration`](./mcp-auth-gated-registration/README.md),
+  [`citation-grounding-hallucination-guard`](./citation-grounding-hallucination-guard/README.md).
+  **Queued (P2/P3, research-complete):**
+  [`effect-orchestration-patterns`](./effect-orchestration-patterns/README.md),
+  [`agent-memory-tiers-bitemporal-edges`](./agent-memory-tiers-bitemporal-edges/README.md),
+  [`deterministic-doc-structure-extraction`](./deterministic-doc-structure-extraction/README.md)
+  (langextract streaming-lock sibling),
+  [`court-vocabulary-resolver`](./court-vocabulary-resolver/README.md),
+  [`ingestion-security-secret-governance`](./ingestion-security-secret-governance/README.md),
+  [`multi-provider-llm-dispatch-fallback`](./multi-provider-llm-dispatch-fallback/README.md),
+  [`rag-retrieval-projection`](./rag-retrieval-projection/README.md) (the single RRF-layer owner),
+  [`secure-document-download-proxy`](./secure-document-download-proxy/README.md),
+  [`local-first-projection-sync`](./local-first-projection-sync/README.md) (last two are
+  singletons — attach-vs-standalone deferred to their `DECISIONS.md`). Plus **9 non-invasive
+  Case-A research notes** folded into existing goals (`file-processing-capability` OCR,
+  `langextract-capability` anti-inference, `law-practice-office-action-spike` IP-depth,
+  `law-practice-office-action-extraction-rung` relational-grid, `ip-law-knowledge-graph` CPC/IPC,
+  `agent-governance-control-plane`, `epistemic-claim-lifecycle-gate` claim-gate,
+  `workspace-thread-domain` branching, `agentic-professional-runtime` agent-skills) — SPECs
+  untouched. Next: `/grill-with-docs` the four graduate-now wedges → shape → decompose → graduate.
+
 ### Proposed
 
 - (none — `atlas-synthesis` is now an Active packet above; its capability-inventory

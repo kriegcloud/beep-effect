@@ -2,7 +2,7 @@
 
 ## Status
 
-Stage: `capture`
+Stage: `research`
 Status: `active`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -18,7 +18,13 @@ Google Patents). Extend the existing driver in place; do not restart it.
 
 ## Next Open Question
 
-None — ready for research.
+**Q1: Driver-wave scope — in-place `@beep/uspto` depth only, or fan out to
+net-new sibling drivers in this packet?** This is the highest-leverage fork: it
+decides whether the exploration graduates as a single privilege-safe in-place
+depth goal or a fan-out of credentialed driver goals, which shapes every
+downstream slice. All seven branch-closing questions are pre-drafted with
+recommended answers in [`DECISIONS.md`](./DECISIONS.md) — resolve them via
+`/grill-with-docs uspto-patent-driver-depth`.
 
 ## Read This First
 
@@ -31,4 +37,5 @@ None — ready for research.
 
 ## Trail
 
+- 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.
 - 2026-06-29: packet opened from gold-intake cluster 'USPTO/patent driver depth (ODP, query DSL, File Wrapper, EPO, BigQuery)' (26 nuggets).

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "exploration-manifest/v1",
+  "exploration": {
+    "slug": "court-vocabulary-resolver",
+    "title": "Court Vocabulary Resolver",
+    "status": "active",
+    "stage": "research",
+    "openQuestions": [
+      "Q1: Build-vs-buy — reimplement the courts-db resolver in Effect, or adopt an existing JS citation library?",
+      "Q2: Scope boundary — confirm this packet stays the vocabulary + resolver vertical only, with the three-way ownership split?",
+      "Q3: First slice — what ships in slice 1, and in what order do the rest land?",
+      "Q4: Vendor/auth — which regex engine and fuzzy matcher, and confirm the acquire boundary?",
+      "Q5: Package placement — which slice owns the court/reporter IDs, the vocabulary schemas, and the resolver module?",
+      "Q6: Canonical taxonomy — how is the court jurisdiction field modeled, and which reporter-type enum is canonical?",
+      "Q7: Attribution artifact — where does the Free Law Project BSD-2 notice live?"
+    ],
+    "links": {
+      "goals": [],
+      "docs": [],
+      "supersededBy": null
+    },
+    "created": "2026-06-29",
+    "updated": "2026-06-29"
+  }
+}
