@@ -14,7 +14,9 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import picomatch from "picomatch";
+import { readdirSync, statSync } from "./FileSystem.ts";
 import { thunk } from "./thunk.ts";
+import type { PlatformError } from "effect";
 
 const $I = $UtilsId.create("Glob");
 
@@ -222,6 +224,8 @@ type NodeGlobEntry = {
   readonly relativePath: string;
 };
 
+type NodeDirent = import("node:fs").Dirent;
+
 type PatternMatcher = (relativePath: string, isDirectory: boolean) => boolean;
 
 const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
@@ -353,125 +357,119 @@ const scanRootsForPatterns: (patterns: ReadonlyArray<string>) => ReadonlyArray<s
   (roots) => A.filter(roots, (root, index) => !A.some(A.take(roots, index), (parent) => isNestedScanRoot(parent, root)))
 );
 
-const scanDirectoryWithNodeFs = (
-  fs: typeof import("node:fs"),
+const resolveDirectoryFlag = (
+  entry: NodeDirent,
+  absolutePath: string
+): Effect.Effect<O.Option<boolean>, PlatformError.PlatformError> =>
+  entry.isSymbolicLink()
+    ? Effect.map(
+        Effect.option(statSync(absolutePath)),
+        O.map((info) => info.type === "Directory")
+      )
+    : Effect.succeed(O.some(entry.isDirectory()));
+
+const scanDirectory = (
   cwdUrl: URL,
   absoluteDirectoryPath: string,
   relativeDirectoryPath: string,
   includeMatchers: ReadonlyArray<PatternMatcher>,
   ignoreMatchers: ReadonlyArray<PatternMatcher>,
   options: undefined | GlobOptions
-): Array<NodeGlobEntry> =>
-  pipe(
-    fs.readdirSync(absoluteDirectoryPath, {
-      withFileTypes: true,
-    }),
-    A.fromIterable,
-    A.flatMap((entry) => {
-      const relativePath = relativeDirectoryPath.length === 0 ? entry.name : `${relativeDirectoryPath}/${entry.name}`;
-      const normalizedRelativePath = normalizePathSeparators(relativePath);
-      const absolutePath = absolutePathPattern.test(normalizedRelativePath)
-        ? normalizedRelativePath
-        : fileURLToPath(new URL(normalizedRelativePath, cwdUrl));
-      const isHiddenPath = options?.dot !== true && hasDotSegment(normalizedRelativePath);
+): Effect.Effect<ReadonlyArray<NodeGlobEntry>, PlatformError.PlatformError> =>
+  readdirSync(absoluteDirectoryPath, { withFileTypes: true }).pipe(
+    Effect.flatMap((entries) =>
+      Effect.forEach(
+        entries,
+        Effect.fnUntraced(function* (entry: NodeDirent) {
+          const relativePath =
+            relativeDirectoryPath.length === 0 ? entry.name : `${relativeDirectoryPath}/${entry.name}`;
+          const normalizedRelativePath = normalizePathSeparators(relativePath);
+          const absolutePath = absolutePathPattern.test(normalizedRelativePath)
+            ? normalizedRelativePath
+            : fileURLToPath(new URL(normalizedRelativePath, cwdUrl));
+          const isHiddenPath = options?.dot !== true && hasDotSegment(normalizedRelativePath);
 
-      if (isHiddenPath) {
-        return [];
-      }
+          if (isHiddenPath) {
+            return [];
+          }
 
-      let isDirectory = entry.isDirectory();
-      if (entry.isSymbolicLink()) {
-        try {
-          isDirectory = fs.statSync(absolutePath).isDirectory();
-        } catch {
-          return [];
-        }
-      }
+          const directoryFlag = yield* resolveDirectoryFlag(entry, absolutePath);
+          if (O.isNone(directoryFlag)) {
+            return [];
+          }
+          const isDirectory = directoryFlag.value;
 
-      if (matchesCompiledPatterns(ignoreMatchers, normalizedRelativePath, isDirectory)) {
-        return [];
-      }
+          if (matchesCompiledPatterns(ignoreMatchers, normalizedRelativePath, isDirectory)) {
+            return [];
+          }
 
-      const currentEntry =
-        matchesCompiledPatterns(includeMatchers, normalizedRelativePath, isDirectory) &&
-        (isDirectory ? options?.nodir !== true : true)
-          ? [
-              {
-                isDirectory,
-                relativePath: normalizedRelativePath,
-              } satisfies NodeGlobEntry,
-            ]
-          : [];
+          const currentEntry: ReadonlyArray<NodeGlobEntry> =
+            matchesCompiledPatterns(includeMatchers, normalizedRelativePath, isDirectory) &&
+            (isDirectory ? options?.nodir !== true : true)
+              ? [{ isDirectory, relativePath: normalizedRelativePath }]
+              : [];
 
-      if (!isDirectory || entry.isSymbolicLink()) {
-        return currentEntry;
-      }
+          if (!isDirectory || entry.isSymbolicLink()) {
+            return currentEntry;
+          }
 
-      return [
-        ...currentEntry,
-        ...scanDirectoryWithNodeFs(
-          fs,
-          cwdUrl,
-          absolutePath,
-          normalizedRelativePath,
-          includeMatchers,
-          ignoreMatchers,
-          options
-        ),
-      ];
-    })
+          const children = yield* scanDirectory(
+            cwdUrl,
+            absolutePath,
+            normalizedRelativePath,
+            includeMatchers,
+            ignoreMatchers,
+            options
+          );
+          return [...currentEntry, ...children];
+        })
+      )
+    ),
+    Effect.map(A.flatten)
   );
 
-const scanWithNodeGlob = (
+const scanWithNodeFs = Effect.fn("scanWithNodeFs")(function* (
   pattern: Pattern,
   options: undefined | GlobOptions,
   cwdUrl: URL,
   toAbsolute: (relativePath: string) => string
-): Promise<Array<string>> =>
-  import("node:fs").then((fs) => {
-    const patterns = toPatterns(pattern);
-    const includeMatchers = compileIncludedPatterns(patterns);
-    const ignoreMatchers = compileIgnoredPatterns(toIgnorePatterns(options?.ignore));
-    const cwdPath = fileURLToPath(cwdUrl);
+): Effect.fn.Return<Array<string>, PlatformError.PlatformError> {
+  const patterns = toPatterns(pattern);
+  const includeMatchers = compileIncludedPatterns(patterns);
+  const ignoreMatchers = compileIgnoredPatterns(toIgnorePatterns(options?.ignore));
 
-    const relativePaths = pipe(
-      scanRootsForPatterns(patterns),
-      A.flatMap((scanRoot) => {
-        const absoluteScanRoot = Match.value(scanRoot).pipe(
-          Match.when("", () => cwdPath),
-          Match.when(
-            (value) => absolutePathPattern.test(value),
-            (value) => value
-          ),
-          Match.orElse((value) => fileURLToPath(new URL(value, cwdUrl)))
-        );
-        try {
-          if (!fs.statSync(absoluteScanRoot).isDirectory()) {
-            return [];
-          }
-        } catch {
-          return [];
-        }
+  const entriesPerRoot = yield* Effect.forEach(
+    scanRootsForPatterns(patterns),
+    Effect.fnUntraced(function* (scanRoot: string) {
+      const absoluteScanRoot = Match.value(scanRoot).pipe(
+        Match.when("", () => fileURLToPath(cwdUrl)),
+        Match.when(
+          (value) => absolutePathPattern.test(value),
+          (value) => value
+        ),
+        Match.orElse((value) => fileURLToPath(new URL(value, cwdUrl)))
+      );
 
-        return scanDirectoryWithNodeFs(
-          fs,
-          cwdUrl,
-          absoluteScanRoot,
-          scanRoot,
-          includeMatchers,
-          ignoreMatchers,
-          options
-        );
-      }),
-      A.map((entry) => entry.relativePath),
-      A.dedupe,
-      A.sort(Order.String)
-    );
+      const rootInfo = yield* Effect.option(statSync(absoluteScanRoot));
+      if (O.isNone(rootInfo) || rootInfo.value.type !== "Directory") {
+        return [];
+      }
 
-    return options?.absolute === true
-      ? pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths])
-      : [...relativePaths];
-  });
+      return yield* scanDirectory(cwdUrl, absoluteScanRoot, scanRoot, includeMatchers, ignoreMatchers, options);
+    })
+  );
+
+  const relativePaths = pipe(
+    A.flatten(entriesPerRoot),
+    A.map((entry) => entry.relativePath),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+
+  return options?.absolute === true
+    ? pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths])
+    : [...relativePaths];
+});
 
 const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
   const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");
@@ -479,10 +477,7 @@ const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
   const BunGlob = getBunGlobConstructor();
 
   if (BunGlob === undefined) {
-    return Effect.tryPromise({
-      try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
-      catch: toGlobError(pattern),
-    });
+    return Effect.mapError(scanWithNodeFs(pattern, options, cwdUrl, toAbsolute), toGlobError(pattern));
   }
 
   return Effect.try({

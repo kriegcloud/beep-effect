@@ -1,11 +1,7 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-21",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "generatedOn": "2026-06-29",
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -1450,6 +1446,14 @@
       "line": 9,
       "owner": "@beep/schema",
       "reason": "Exception: meta-test of the destructiveTransform combinator using test-local illustrative schemas; lossy decode + passthrough encode has no round-trip law and no domain source schema."
+    },
+    {
+      "file": "packages/foundation/modeling/utils/src/DrainableWorker.ts",
+      "symbol": "DrainableWorker",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/foundation/modeling/utils/src/Errors.ts",
