@@ -29,8 +29,11 @@ the first packet that actually consumes them (see the exploration MAP).
 
 - No slice-entity migration: do not replace `*FixtureKey` strings, type any
   `snapshot: UnknownRecord`, or grow placeholder vocabularies here.
-- No base-wide temporal/event/crypto **columns** — `TemporalValidity`/`DomainEvent`/
-  attestation are opt-in VOs applied where the domain needs them, by later packets.
+- No new shared value objects in this packet — `TemporalValidity`/`DomainEvent`/
+  attestation are introduced by the later packets that consume them (promotion rule:
+  >=2 current consumers), not pre-built here as zero-consumer scaffolding.
+- No base-wide temporal/event/crypto **columns** — those remain opt-in VOs applied
+  where the domain needs them, by later packets.
 - No new entity base, id scheme, tagged-union builder, or value-object library —
   reuse the canonical catalog.
 - No raw `Data.TaggedError`, no optional-bag modeling of finite cases, no hand-mapped

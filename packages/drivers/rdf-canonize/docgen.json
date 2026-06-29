@@ -29,11 +29,11 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/semantic-web": [
-        "../../../packages/foundation/capability/semantic-web/src/index.ts"
+      "@beep/rdf-canonize": [
+        "../../../packages/drivers/rdf-canonize/src/index.ts"
       ],
-      "@beep/semantic-web/*": [
-        "../../../packages/foundation/capability/semantic-web/src/*.ts"
+      "@beep/rdf-canonize/*": [
+        "../../../packages/drivers/rdf-canonize/src/*.ts"
       ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
@@ -403,6 +403,12 @@
       "@beep/schema/test/Yaml": [
         "../../../packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
       ],
+      "@beep/semantic-web": [
+        "../../../packages/foundation/capability/semantic-web/src/index.ts"
+      ],
+      "@beep/semantic-web/*": [
+        "../../../packages/foundation/capability/semantic-web/src/*.ts"
+      ],
       "@beep/test-utils": [
         "../../../packages/tooling/test-kit/test-utils/src/index.ts"
       ],
@@ -412,13 +418,7 @@
       "@beep/utils": [
         "../../../packages/foundation/modeling/utils/src/index.ts"
       ],
-      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"],
-      "@beep/rdf-canonize": [
-        "../../../packages/drivers/rdf-canonize/src/index.ts"
-      ],
-      "@beep/rdf-canonize/*": [
-        "../../../packages/drivers/rdf-canonize/src/*.ts"
-      ]
+      "@beep/utils/*": ["../../../packages/foundation/modeling/utils/src/*.ts"]
     }
   }
 }

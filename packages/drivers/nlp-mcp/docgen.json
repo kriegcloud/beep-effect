@@ -98,6 +98,27 @@
       "@beep/nlp/VariantText": [
         "../../../packages/foundation/modeling/nlp/src/VariantText.ts"
       ],
+      "@beep/nlp-processing": [
+        "../../../packages/foundation/capability/nlp-processing/src/index.ts"
+      ],
+      "@beep/nlp-processing/Backend": [
+        "../../../packages/foundation/capability/nlp-processing/src/Backend/index.ts"
+      ],
+      "@beep/nlp-processing/Core": [
+        "../../../packages/foundation/capability/nlp-processing/src/Core/index.ts"
+      ],
+      "@beep/nlp-processing/Graph": [
+        "../../../packages/foundation/capability/nlp-processing/src/Graph/index.ts"
+      ],
+      "@beep/nlp-processing/Graph/GraphOperations": [
+        "../../../packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/index.ts"
+      ],
+      "@beep/nlp-processing/NLPService": [
+        "../../../packages/foundation/capability/nlp-processing/src/NLPService.ts"
+      ],
+      "@beep/nlp-processing/Tools": [
+        "../../../packages/foundation/capability/nlp-processing/src/Tools/index.ts"
+      ],
       "@beep/schema": [
         "../../../packages/foundation/modeling/schema/src/index.ts"
       ],
@@ -456,32 +477,7 @@
         "../../../packages/foundation/modeling/schema/src/internal/test/Yaml.test-kit.ts"
       ],
       "@beep/wink": ["../../../packages/drivers/wink/src/index.ts"],
-      "@beep/wink/*": ["../../../packages/drivers/wink/src/*.ts"],
-      "@beep/nlp/*": ["../../../packages/foundation/modeling/nlp/src/*.ts"],
-      "@beep/nlp-processing": [
-        "../../../packages/foundation/capability/nlp-processing/src/index.ts"
-      ],
-      "@beep/nlp-processing/*": [
-        "../../../packages/foundation/capability/nlp-processing/src/*.ts"
-      ],
-      "@beep/nlp-processing/Backend": [
-        "../../../packages/foundation/capability/nlp-processing/src/Backend/index.ts"
-      ],
-      "@beep/nlp-processing/Core": [
-        "../../../packages/foundation/capability/nlp-processing/src/Core/index.ts"
-      ],
-      "@beep/nlp-processing/Graph": [
-        "../../../packages/foundation/capability/nlp-processing/src/Graph/index.ts"
-      ],
-      "@beep/nlp-processing/Graph/GraphOperations": [
-        "../../../packages/foundation/capability/nlp-processing/src/Graph/GraphOperations/index.ts"
-      ],
-      "@beep/nlp-processing/NLPService": [
-        "../../../packages/foundation/capability/nlp-processing/src/NLPService.ts"
-      ],
-      "@beep/nlp-processing/Tools": [
-        "../../../packages/foundation/capability/nlp-processing/src/Tools/index.ts"
-      ]
+      "@beep/wink/*": ["../../../packages/drivers/wink/src/*.ts"]
     }
   }
 }

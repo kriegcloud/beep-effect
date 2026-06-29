@@ -60,6 +60,7 @@ const config = {
     "packages/drivers/hubspot/package.json",
     "packages/drivers/phoenix/package.json",
     "packages/drivers/nlp-mcp/package.json",
+    "packages/drivers/rdf-canonize/package.json",
     "packages/drivers/wink/package.json",
     "packages/drivers/tika/package.json",
     "packages/drivers/libpff/package.json",

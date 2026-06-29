@@ -71,18 +71,6 @@
       "@beep/identity/packages": [
         "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/observability": [
-        "../../../../packages/foundation/capability/observability/src/index.ts"
-      ],
-      "@beep/observability/experimental/server": [
-        "../../../../packages/foundation/capability/observability/src/experimental/server/index.ts"
-      ],
-      "@beep/observability/server": [
-        "../../../../packages/foundation/capability/observability/src/server/index.ts"
-      ],
-      "@beep/observability/web": [
-        "../../../../packages/foundation/capability/observability/src/web/index.ts"
-      ],
       "@beep/schema": [
         "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
@@ -451,8 +439,7 @@
       ],
       "@beep/utils/*": [
         "../../../../packages/foundation/modeling/utils/src/*.ts"
-      ],
-      "@beep/nlp/*": ["../../../../packages/foundation/modeling/nlp/src/*.ts"]
+      ]
     }
   }
 }

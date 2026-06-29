@@ -45,6 +45,7 @@
     "packages/drivers/hubspot/dtslint/**/*.tst.*",
     "packages/drivers/phoenix/dtslint/**/*.tst.*",
     "packages/drivers/nlp-mcp/dtslint/**/*.tst.*",
+    "packages/drivers/rdf-canonize/dtslint/**/*.tst.*",
     "packages/drivers/wink/dtslint/**/*.tst.*",
     "packages/drivers/tika/dtslint/**/*.tst.*",
     "packages/drivers/libpff/dtslint/**/*.tst.*",
@@ -63,15 +64,15 @@
     "packages/foundation/modeling/identity/dtslint/**/*.tst.*",
     "packages/foundation/modeling/lexical/dtslint/**/*.tst.*",
     "packages/foundation/modeling/md/dtslint/**/*.tst.*",
+    "packages/foundation/modeling/nlp/dtslint/**/*.tst.*",
+    "packages/foundation/modeling/ontology/dtslint/**/*.tst.*",
     "packages/foundation/modeling/pandoc-ast/dtslint/**/*.tst.*",
     "packages/foundation/modeling/rdf/dtslint/**/*.tst.*",
     "packages/foundation/modeling/schema/dtslint/**/*.tst.*",
     "packages/foundation/modeling/utils/dtslint/**/*.tst.*",
     "packages/tooling/library/ai-sync/dtslint/**/*.tst.*",
     "packages/tooling/library/repo-utils/dtslint/**/*.tst.*",
-    "packages/tooling/policy-pack/repo-configs/dtslint/**/*.tst.*",
-    "packages/foundation/modeling/ontology/dtslint/**/*.tst.*",
-    "packages/drivers/rdf-canonize/dtslint/**/*.tst.*"
+    "packages/tooling/policy-pack/repo-configs/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

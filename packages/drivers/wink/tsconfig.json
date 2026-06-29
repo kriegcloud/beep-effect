@@ -12,13 +12,13 @@
       "path": "../../foundation/capability/nlp-processing/tsconfig.json"
     },
     {
-      "path": "../../foundation/modeling/nlp/tsconfig.json"
-    },
-    {
       "path": "../../foundation/capability/observability/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/nlp/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/schema/tsconfig.json"

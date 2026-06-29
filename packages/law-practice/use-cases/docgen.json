@@ -583,8 +583,7 @@
       ],
       "@beep/test-utils/*": [
         "../../../packages/tooling/test-kit/test-utils/src/*.ts"
-      ],
-      "@beep/nlp/*": ["../../../packages/foundation/modeling/nlp/src/*.ts"]
+      ]
     }
   }
 }
