@@ -1,0 +1,7 @@
+sauce_connect: true
+loopback: airtap.local
+browsers:
+  - name: safari
+    version: 11..13
+  - name: iphone
+    version: 11.3

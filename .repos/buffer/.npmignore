@@ -1,0 +1,5 @@
+.airtap.yml
+.github/
+bin/
+perf/
+test/
