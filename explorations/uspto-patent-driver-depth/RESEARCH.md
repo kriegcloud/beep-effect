@@ -12,15 +12,25 @@ the navigable summary. Verified against the live tree on 2026-06-29.
 ### 1. ODP query/search surface — the core extend-in-place target
 Raw: [`research/odp-query-dsl-and-lucene-surface.md`](research/odp-query-dsl-and-lucene-surface.md)
 
-- The live search endpoint is `POST /api/v1/patent/applications/search` on
-  `api.uspto.gov` (GET accepts the same params as query strings, returns top-25
-  by default). The structured POST body keys (all optional) are
-  `q, filters, rangeFilters, sort, fields/fieldList, pagination, facets,
-  downloadType`. **Shape gotcha: `filters` use `name`/`value[]` (exact-match,
-  multi-value OR), while `rangeFilters` and `sort` use `field`** — model the
-  asymmetry exactly. Confirmed against the Microsoft Power Platform connector
-  (mirrors the ODP OpenAPI) <https://learn.microsoft.com/en-us/connectors/uspatenttrademarkoff/>
-  and `patent_client` <https://patent-client.readthedocs.io/en/latest/user_guide/open_data_portal.html>.
+- The search endpoint is `…/api/v1/patent/applications/search` on
+  `api.uspto.gov`; the existing driver already calls it as a **GET** with `?q=`
+  (returns top-25 by default). A structured **POST** body with keys (all
+  optional) `q, filters, rangeFilters, sort, fields/fieldList, pagination,
+  facets, downloadType` is **documented by secondary connectors, NOT yet
+  live-probed against this applications endpoint** — the Microsoft Power
+  Platform connector (mirrors the ODP OpenAPI)
+  <https://learn.microsoft.com/en-us/connectors/uspatenttrademarkoff/> and
+  `patent_client`
+  <https://patent-client.readthedocs.io/en/latest/user_guide/open_data_portal.html>.
+  The POST structured-body acceptance is **confirmed for PTAB
+  `/proceedings/search`** but **unconfirmed for `applications/search`** (see
+  Unresolved below). **Keep `searchStructured` behind a spike** until a
+  key-authenticated probe or a real-browser Swagger read confirms the
+  applications endpoint accepts the POST body; do not ship it against an
+  assumed method/body combination.
+- **Shape gotcha** (when the POST body is confirmed): `filters` use
+  `name`/`value[]` (exact-match, multi-value OR), while `rangeFilters` and
+  `sort` use `field` — model the asymmetry exactly.
 - The `q` parameter is USPTO **"Simplified Query Syntax"** = OpenSearch/Lucene
   `query_string`, not raw Lucene; spec PDF
   <https://data.uspto.gov/documents/documents/ODP-API-Query-Spec.pdf>. It inherits
