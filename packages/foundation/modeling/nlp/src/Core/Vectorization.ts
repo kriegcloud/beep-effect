@@ -13,6 +13,19 @@ import { DocumentId } from "./Document.ts";
 
 const $I = $NlpId.create("Core/Vectorization");
 
+/**
+ * Strictly positive numeric value shared by BM25 hyperparameters.
+ *
+ * @example
+ * ```ts
+ * import { PositiveNumber } from "@beep/nlp/Core/Vectorization"
+ *
+ * console.log(PositiveNumber)
+ * ```
+ *
+ * @category validation
+ * @since 0.0.0
+ */
 export { PositiveNumber } from "../internal/numbers.ts";
 
 const BM25NormKit = LiteralKit(["none", "l1", "l2"]).annotate(
@@ -56,10 +69,11 @@ export type BM25Norm = typeof BM25Norm.Type;
  *
  * @example
  * ```ts
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
  * import { BM25Config } from "@beep/nlp/Core/Vectorization"
  *
  * const config = BM25Config.make({
- *   b: 0.75,
+ *   b: UnitInterval.make(0.75),
  *   k: 1,
  *   k1: 1.2,
  *   norm: "none"

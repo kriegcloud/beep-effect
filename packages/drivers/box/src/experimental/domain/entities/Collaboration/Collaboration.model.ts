@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Collaboration/Collaborati
  *
  * @example
  * ```ts
- * import { Collaboration } from "@beep/box/experimental/domain/values/Collaboration/Collaboration.model";
+ * import { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
  *
  * console.log(Collaboration.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Collaboration/Collaborati
  * @since 0.0.0
  */
 export class Collaboration extends S.Class<Collaboration>($I`Collaboration`)(
-	{},
-	$I.annote("Collaboration", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Collaboration", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Collaboration extends S.Class<Collaboration>($I`Collaboration`)(
  * @since 0.0.0
  */
 export declare namespace Collaboration {
-	/**
-	 * Companion encoded type for {@link Collaboration}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Collaboration} from "@beep/box/experimental/domain/values/Collaboration/Collaboration.model";
-	 *
-	 * const thing: Collaboration.Encoded = S.encodeUnknownSync(Collaboration)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Collaboration.Encoded;
+  /**
+   * Companion encoded type for {@link Collaboration}.
+   *
+   * @example
+   * ```ts
+   * import type { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
+   *
+   * const useEncoded = (_value: Collaboration.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Collaboration.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Collaboration {
  *
  * @example
  * ```ts
- * import {Collaboration} from "@beep/box/experimental/domain/values/Collaboration/Collaboration.model";
+ * import type { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
  *
- * const thing: Collaboration = S.encodeUnknownSync(Collaboration)({});
+ * const useValue = (_value: Collaboration) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

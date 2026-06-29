@@ -19,6 +19,9 @@ const $I = $GovinfoId.create("domain/contracts/Search/Search.contract");
  *
  * @example
  * ```ts
+ * import { Payload } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * console.log(Payload)
  * ```
  *
  * @category models
@@ -36,6 +39,9 @@ export class Payload extends SearchBody.extend<Payload>($I`Payload`)(
  *
  * @example
  * ```ts
+ * import { Success } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * console.log(Success)
  * ```
  *
  * @category models
@@ -49,6 +55,19 @@ export class Success extends SearchResponse.extend<Success>($I`Success`)(
   })
 ) {}
 
+/**
+ * Bad-request failure returned by the GovInfo search endpoint.
+ *
+ * @example
+ * ```ts
+ * import { FailureBadRequest } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * console.log(FailureBadRequest)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class FailureBadRequest extends TaggedErrorClass<FailureBadRequest>($I`FailureBadRequest`)(
   "FailureBadRequest",
   {
@@ -60,6 +79,19 @@ export class FailureBadRequest extends TaggedErrorClass<FailureBadRequest>($I`Fa
   })
 ) {}
 
+/**
+ * Not-found failure returned by the GovInfo search endpoint.
+ *
+ * @example
+ * ```ts
+ * import { FailureNotFound } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * console.log(FailureNotFound)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class FailureNotFound extends TaggedErrorClass<FailureNotFound>($I`FailureNotFound`)(
   "FailureNotFound",
   {
@@ -71,6 +103,19 @@ export class FailureNotFound extends TaggedErrorClass<FailureNotFound>($I`Failur
   })
 ) {}
 
+/**
+ * Internal-server-error failure returned by the GovInfo search endpoint.
+ *
+ * @example
+ * ```ts
+ * import { FailureInternalServerError } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * console.log(FailureInternalServerError)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class FailureInternalServerError extends TaggedErrorClass<FailureInternalServerError>(
   $I`FailureInternalServerError`
 )(
@@ -84,6 +129,19 @@ export class FailureInternalServerError extends TaggedErrorClass<FailureInternal
   })
 ) {}
 
+/**
+ * Tagged union of GovInfo search endpoint failures.
+ *
+ * @example
+ * ```ts
+ * import { Failure } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * console.log(Failure.ast)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export const Failure = S.Union([
   FailureBadRequest.pipe(HttpApiSchema.status(400)),
   FailureNotFound.pipe(HttpApiSchema.status(404)),
@@ -95,8 +153,42 @@ export const Failure = S.Union([
   })
 );
 
+/**
+ * Type for {@link Failure}.
+ *
+ * @example
+ * ```ts
+ * import type { Failure } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ *
+ * const tag: Failure["_tag"] = "FailureBadRequest"
+ * console.log(tag)
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export type Failure = typeof Failure.Type;
 
+/**
+ * Companion namespace for {@link Failure}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
 export declare namespace Failure {
+  /**
+   * Encoded type for {@link Failure}.
+   *
+   * @example
+   * ```ts
+   * import type { Failure } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+   *
+   * const tag: Failure.Encoded["_tag"] = "FailureBadRequest"
+   * console.log(tag)
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
   export type Encoded = typeof Failure.Encoded;
 }

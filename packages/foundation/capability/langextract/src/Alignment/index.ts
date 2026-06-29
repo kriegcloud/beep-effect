@@ -13,6 +13,7 @@ import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import type { ExtractionCandidate, LangExtractOptions } from "@beep/langextract/Extraction";
+import type { UnitInterval } from "@beep/nlp/Handoff";
 
 const DEFAULT_FUZZY_THRESHOLD = 0.82;
 
@@ -41,7 +42,7 @@ const makeGrounded = (
   const input: {
     alignmentStatus: GroundedExtraction["alignmentStatus"];
     attributes?: Readonly<Record<string, string>>;
-    confidence?: number;
+    confidence?: UnitInterval;
     label: ExtractionCandidate["label"];
     matchedText?: string;
     span?: Contract.Span;

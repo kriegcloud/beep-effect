@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { PackageInfo } from "@beep/govinfo/domain/values";
+ * import { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
  *
- * console.log(PackageInfo.make({}));
+ * console.log(PackageInfo);
  * ```
  *
  * @category models

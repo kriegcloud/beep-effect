@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/AppItem/AppItem.model");
  *
  * @example
  * ```ts
- * import { AppItem } from "@beep/box/experimental/domain/values/AppItem/AppItem.model";
+ * import { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
  *
  * console.log(AppItem.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/AppItem/AppItem.model");
  * @since 0.0.0
  */
 export class AppItem extends S.Class<AppItem>($I`AppItem`)(
-	{},
-	$I.annote("AppItem", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("AppItem", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class AppItem extends S.Class<AppItem>($I`AppItem`)(
  * @since 0.0.0
  */
 export declare namespace AppItem {
-	/**
-	 * Companion encoded type for {@link AppItem}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {AppItem} from "@beep/box/experimental/domain/values/AppItem/AppItem.model";
-	 *
-	 * const thing: AppItem.Encoded = S.encodeUnknownSync(AppItem)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof AppItem.Encoded;
+  /**
+   * Companion encoded type for {@link AppItem}.
+   *
+   * @example
+   * ```ts
+   * import type { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
+   *
+   * const useEncoded = (_value: AppItem.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AppItem.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace AppItem {
  *
  * @example
  * ```ts
- * import {AppItem} from "@beep/box/experimental/domain/values/AppItem/AppItem.model";
+ * import type { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
  *
- * const thing: AppItem = S.encodeUnknownSync(AppItem)({});
+ * const useValue = (_value: AppItem) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

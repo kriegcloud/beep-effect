@@ -7,7 +7,6 @@
 import { $BoxId } from "@beep/identity";
 import * as S from "effect/Schema";
 
-
 const $I = $BoxId.create("entities/Metadata/Metadata.model");
 
 /**
@@ -42,9 +41,10 @@ export declare namespace Metadata {
    *
    * @example
    * ```ts
-   * import {Metadata} from "@beep/box/experimental/domain/values/Metadata/Metadata.model";
+   * import type { Metadata } from "@beep/box/experimental/domain/values/Metadata/Metadata.model";
    *
-   * const thing: Metadata.Encoded = S.encodeUnknownSync(Metadata)({});
+   * const useEncoded = (_value: Metadata.Encoded) => true;
+   * console.log(useEncoded);
    * ```
    *
    * @category models
@@ -58,9 +58,10 @@ export declare namespace Metadata {
  *
  * @example
  * ```ts
- * import {Metadata} from "@beep/box/experimental/domain/values/Metadata/Metadata.model";
+ * import type { Metadata } from "@beep/box/experimental/domain/values/Metadata/Metadata.model";
  *
- * const thing: Metadata = S.encodeUnknownSync(Metadata)({});
+ * const useValue = (_value: Metadata) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

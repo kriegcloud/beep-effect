@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Item/Item.model");
  *
  * @example
  * ```ts
- * import { Item } from "@beep/box/experimental/domain/values/Item/Item.model";
+ * import { Item } from "@beep/box/experimental/domain/entities/Item/Item.model";
  *
  * console.log(Item.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Item/Item.model");
  * @since 0.0.0
  */
 export class Item extends S.Class<Item>($I`Item`)(
-	{},
-	$I.annote("Item", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Item", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Item extends S.Class<Item>($I`Item`)(
  * @since 0.0.0
  */
 export declare namespace Item {
-	/**
-	 * Companion encoded type for {@link Item}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Item} from "@beep/box/experimental/domain/values/Item/Item.model";
-	 *
-	 * const thing: Item.Encoded = S.encodeUnknownSync(Item)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Item.Encoded;
+  /**
+   * Companion encoded type for {@link Item}.
+   *
+   * @example
+   * ```ts
+   * import type { Item } from "@beep/box/experimental/domain/entities/Item/Item.model";
+   *
+   * const useEncoded = (_value: Item.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Item.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Item {
  *
  * @example
  * ```ts
- * import {Item} from "@beep/box/experimental/domain/values/Item/Item.model";
+ * import type { Item } from "@beep/box/experimental/domain/entities/Item/Item.model";
  *
- * const thing: Item = S.encodeUnknownSync(Item)({});
+ * const useValue = (_value: Item) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

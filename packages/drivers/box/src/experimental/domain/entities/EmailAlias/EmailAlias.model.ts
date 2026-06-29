@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/EmailAlias/EmailAlias.mod
  *
  * @example
  * ```ts
- * import { EmailAlias } from "@beep/box/experimental/domain/values/EmailAlias/EmailAlias.model";
+ * import { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
  *
  * console.log(EmailAlias.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/EmailAlias/EmailAlias.mod
  * @since 0.0.0
  */
 export class EmailAlias extends S.Class<EmailAlias>($I`EmailAlias`)(
-	{},
-	$I.annote("EmailAlias", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("EmailAlias", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class EmailAlias extends S.Class<EmailAlias>($I`EmailAlias`)(
  * @since 0.0.0
  */
 export declare namespace EmailAlias {
-	/**
-	 * Companion encoded type for {@link EmailAlias}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {EmailAlias} from "@beep/box/experimental/domain/values/EmailAlias/EmailAlias.model";
-	 *
-	 * const thing: EmailAlias.Encoded = S.encodeUnknownSync(EmailAlias)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof EmailAlias.Encoded;
+  /**
+   * Companion encoded type for {@link EmailAlias}.
+   *
+   * @example
+   * ```ts
+   * import type { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
+   *
+   * const useEncoded = (_value: EmailAlias.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof EmailAlias.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace EmailAlias {
  *
  * @example
  * ```ts
- * import {EmailAlias} from "@beep/box/experimental/domain/values/EmailAlias/EmailAlias.model";
+ * import type { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
  *
- * const thing: EmailAlias = S.encodeUnknownSync(EmailAlias)({});
+ * const useValue = (_value: EmailAlias) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

@@ -21,7 +21,7 @@ const $I = $NlpProcessingId.create("Graph/GraphOperations/Errors");
  *
  * @example
  * ```ts
- * import { ValidationError } from "./Errors.ts"
+ * import { ValidationError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  *
  * const error = ValidationError.make({
  *   operationName: "tokenize",
@@ -52,7 +52,7 @@ export class ValidationError extends TaggedErrorClass<ValidationError>($I`Valida
  *
  * @example
  * ```ts
- * import { TimeoutError } from "./Errors.ts"
+ * import { TimeoutError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  *
  * const error = TimeoutError.make({
  *   operationName: "extractEntities",
@@ -88,7 +88,7 @@ export class TimeoutError extends TaggedErrorClass<TimeoutError>($I`TimeoutError
  *
  * @example
  * ```ts
- * import { OperationError } from "./Errors.ts"
+ * import { OperationError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  *
  * const error = OperationError.make({
  *   operationName: "posTag",
@@ -119,7 +119,7 @@ export class OperationError extends TaggedErrorClass<OperationError>($I`Operatio
  *
  * @example
  * ```ts
- * import { GraphError } from "./Errors.ts"
+ * import { GraphError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  * import * as O from "effect/Option"
  *
  * const error = GraphError.make({
@@ -153,7 +153,7 @@ export class GraphError extends TaggedErrorClass<GraphError>($I`GraphError`)(
  *
  * @example
  * ```ts
- * import { StorageError } from "./Errors.ts"
+ * import { StorageError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  *
  * const error = StorageError.make({
  *   operation: "retrieve",
@@ -182,7 +182,7 @@ export class StorageError extends TaggedErrorClass<StorageError>($I`StorageError
  *
  * @example
  * ```ts
- * import { ExecutionError } from "./Errors.ts"
+ * import { ExecutionError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  * import * as O from "effect/Option"
  *
  * const error = ExecutionError.make({
@@ -217,7 +217,7 @@ export class ExecutionError extends TaggedErrorClass<ExecutionError>($I`Executio
  *
  * @example
  * ```ts
- * import { GraphError, GraphOperationError } from "./Errors.ts"
+ * import { GraphError, GraphOperationError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
@@ -246,8 +246,8 @@ export const GraphOperationError = S.Union([
  *
  * @example
  * ```ts
- * import type { GraphOperationError } from "./Errors.ts"
- * import { GraphError } from "./Errors.ts"
+ * import type { GraphOperationError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
+ * import { GraphError } from "@beep/nlp-processing/Graph/GraphOperations/Errors"
  * import * as O from "effect/Option"
  *
  * const error: GraphOperationError = GraphError.make({ message: "Missing root", nodeId: O.none() })

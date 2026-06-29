@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Event } from "@beep/box/experimental/domain/entities/Event";
+ * import { Event } from "@beep/box/experimental/domain/entities/Event/Event.model";
  *
- * const thing = Event.make({});
+ * console.log(Event)
  * ```
  *
  * @category models

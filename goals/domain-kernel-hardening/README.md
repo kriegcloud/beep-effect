@@ -9,9 +9,10 @@ Source: [`ops/manifest.json`](./ops/manifest.json)
 ## Mission
 
 Harden the shared-kernel persisted-entity base (`BaseEntity`) once, so every
-product slice inherits soft-delete, a single canonical audit base, and the
-conventions (typed errors, opt-in temporal/event/attestation value objects) the
-rest of the domain-layer hardening builds on.
+product slice inherits soft-delete, a single canonical audit base, and the typed
+domain-error (`.errors.ts`) convention the rest of the domain-layer hardening
+builds on. (The `TemporalValidity`/`DomainEvent` VOs are deliberately deferred to
+their consuming packets — a zero-consumer shared export is not promotable.)
 
 ## Launch
 

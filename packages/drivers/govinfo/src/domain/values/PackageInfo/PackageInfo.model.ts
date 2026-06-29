@@ -16,49 +16,48 @@ const $I = $GovinfoId.create("domain/values/PackageInfo/PackageInfo.model");
  * ```ts
  * import { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
  *
- * console.log(PackageInfo.make({}));
+ * console.log(PackageInfo);
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export class PackageInfo extends S.Class<PackageInfo>($I`PackageInfo`)(
-	{
-		/** change me */
-		congress: S.String.annotateKey({
-			description: ""
-		}),
+  {
+    /** change me */
+    congress: S.String.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		dateIssued: S.DateTimeUtcFromString.annotateKey({
-			description: ""
-		}),
+    /** change me */
+    dateIssued: S.DateTimeUtcFromString.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		docClass: S.String.annotateKey({
-			description: ""
-		}),
+    /** change me */
+    docClass: S.String.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		lastModified: S.DateTimeUtcFromString.annotateKey({
-			description: ""
-		}),
+    /** change me */
+    lastModified: S.DateTimeUtcFromString.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		packageLink: S.String.annotateKey({
-			description: ""
-		}),
+    /** change me */
+    packageLink: S.String.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		title: S.String.annotateKey({
-			description: ""
-		}),
-	},
-	$I.annote("PackageInfo", {
-		description: "The PackageInfo value object.",
-	})
+    /** change me */
+    title: S.String.annotateKey({
+      description: "",
+    }),
+  },
+  $I.annote("PackageInfo", {
+    description: "The PackageInfo value object.",
+  })
 ) {}
-
 
 /**
  * The companion namespace for the {@link PackageInfo} value object.
@@ -67,18 +66,19 @@ export class PackageInfo extends S.Class<PackageInfo>($I`PackageInfo`)(
  * @since 0.0.0
  */
 export declare namespace PackageInfo {
-	/**
-	 * The compainion encoded type for {@link PackageInfo}.
-	 *
-	 * @example
-	 * ```ts
-	 * import type { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
-	 *
-	 * const thing: PackageInfo.Encoded = PackageInfo.make({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof PackageInfo.Encoded;
+  /**
+   * The companion encoded type for {@link PackageInfo}.
+   *
+   * @example
+   * ```ts
+   * import type { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
+   *
+   * const useEncoded = (_value: PackageInfo.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PackageInfo.Encoded;
 }

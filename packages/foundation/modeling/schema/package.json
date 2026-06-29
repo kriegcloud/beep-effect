@@ -104,6 +104,8 @@
     "./CurrencyCode/*": null,
     "./DateTimeUtcFromValid": "./src/DateTimeUtcFromValid/index.ts",
     "./DateTimeUtcFromValid/*": null,
+    "./Did": "./src/Did.ts",
+    "./Did/*": null,
     "./DomCssProperties": "./src/DomCssProperties/index.ts",
     "./DomCssProperties/*": null,
     "./DomDragEvent": "./src/DomDragEvent/index.ts",

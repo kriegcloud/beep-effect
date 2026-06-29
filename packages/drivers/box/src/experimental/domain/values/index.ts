@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { SerializedData } from "@beep/box/experimental/domain/values";
+ * import { SerializedData } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model";
  *
- * const thing = SerializedData.make({});
+ * console.log(SerializedData)
  * ```
  *
  * @category models
@@ -24,9 +24,9 @@ export * from "./SerializedData/index.ts";
  *
  * @example
  * ```ts
- * import { UploadPart } from "@beep/box/experimental/domain/values";
+ * import { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
  *
- * const thing = UploadPart.make({});
+ * console.log(UploadPart)
  * ```
  *
  * @category models

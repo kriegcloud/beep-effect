@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { SearchResponse } from "@beep/govinfo/domain/values";
+ * import { SearchResponse } from "@beep/govinfo/domain/values/SearchResponse/SearchResponse.model";
  *
- * console.log(SearchResponse.make({}));
+ * console.log(SearchResponse);
  * ```
  *
  * @category models

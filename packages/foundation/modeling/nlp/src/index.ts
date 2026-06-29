@@ -27,8 +27,7 @@ export * as Algebra from "./Algebra/index.ts";
  * ```typescript
  * import { Core } from "@beep/nlp"
  *
- * const tokenize = Core.tokenize
- * console.log(tokenize)
+ * console.log(Core.DocumentId.make("doc-a"))
  * ```
  *
  * @since 0.0.0

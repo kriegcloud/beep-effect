@@ -23,7 +23,7 @@ import { WinkVectorizerLive as WinkVectorizerLiveService } from "./WinkVectorize
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { Tokenization } from "@beep/nlp/Core"
+ * import { Tokenization } from "@beep/nlp-processing/Core"
  * import { WinkLayerLive } from "@beep/wink"
  *
  * const count = Effect.gen(function* () {
@@ -195,7 +195,7 @@ export const WinkTokenization = WinkTokenizationService;
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { Tokenization } from "@beep/nlp/Core"
+ * import { Tokenization } from "@beep/nlp-processing/Core"
  * import { WinkTokenizationLive } from "@beep/wink"
  *
  * const program = Effect.gen(function* () {

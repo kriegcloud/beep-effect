@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/ZipDownload/ZipDownload.m
  *
  * @example
  * ```ts
- * import { ZipDownload } from "@beep/box/experimental/domain/values/ZipDownload/ZipDownload.model";
+ * import { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
  *
  * console.log(ZipDownload.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/ZipDownload/ZipDownload.m
  * @since 0.0.0
  */
 export class ZipDownload extends S.Class<ZipDownload>($I`ZipDownload`)(
-	{},
-	$I.annote("ZipDownload", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("ZipDownload", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class ZipDownload extends S.Class<ZipDownload>($I`ZipDownload`)(
  * @since 0.0.0
  */
 export declare namespace ZipDownload {
-	/**
-	 * Companion encoded type for {@link ZipDownload}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {ZipDownload} from "@beep/box/experimental/domain/values/ZipDownload/ZipDownload.model";
-	 *
-	 * const thing: ZipDownload.Encoded = S.encodeUnknownSync(ZipDownload)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof ZipDownload.Encoded;
+  /**
+   * Companion encoded type for {@link ZipDownload}.
+   *
+   * @example
+   * ```ts
+   * import type { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
+   *
+   * const useEncoded = (_value: ZipDownload.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof ZipDownload.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace ZipDownload {
  *
  * @example
  * ```ts
- * import {ZipDownload} from "@beep/box/experimental/domain/values/ZipDownload/ZipDownload.model";
+ * import type { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
  *
- * const thing: ZipDownload = S.encodeUnknownSync(ZipDownload)({});
+ * const useValue = (_value: ZipDownload) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/UploadSession/UploadSessi
  *
  * @example
  * ```ts
- * import { UploadSession } from "@beep/box/experimental/domain/values/UploadSession/UploadSession.model";
+ * import { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
  *
  * console.log(UploadSession.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/UploadSession/UploadSessi
  * @since 0.0.0
  */
 export class UploadSession extends S.Class<UploadSession>($I`UploadSession`)(
-	{},
-	$I.annote("UploadSession", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("UploadSession", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class UploadSession extends S.Class<UploadSession>($I`UploadSession`)(
  * @since 0.0.0
  */
 export declare namespace UploadSession {
-	/**
-	 * Companion encoded type for {@link UploadSession}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {UploadSession} from "@beep/box/experimental/domain/values/UploadSession/UploadSession.model";
-	 *
-	 * const thing: UploadSession.Encoded = S.encodeUnknownSync(UploadSession)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof UploadSession.Encoded;
+  /**
+   * Companion encoded type for {@link UploadSession}.
+   *
+   * @example
+   * ```ts
+   * import type { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
+   *
+   * const useEncoded = (_value: UploadSession.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof UploadSession.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace UploadSession {
  *
  * @example
  * ```ts
- * import {UploadSession} from "@beep/box/experimental/domain/values/UploadSession/UploadSession.model";
+ * import type { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
  *
- * const thing: UploadSession = S.encodeUnknownSync(UploadSession)({});
+ * const useValue = (_value: UploadSession) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

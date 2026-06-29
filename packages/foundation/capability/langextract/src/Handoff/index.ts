@@ -11,6 +11,7 @@ import { DocumentId } from "@beep/nlp/Core";
 import { Contract } from "@beep/nlp/Handoff";
 import { NonNegativeInt } from "@beep/schema";
 import * as S from "effect/Schema";
+import type { UnitInterval } from "@beep/nlp/Handoff";
 
 const $I = $LangExtractId.create("Handoff");
 
@@ -64,7 +65,7 @@ const makeEntity = (
 ): Contract.Entity => {
   const input: {
     canonicalName: string;
-    confidence?: number;
+    confidence?: UnitInterval;
     id: Contract.EntityId;
     mentions: ReadonlyArray<Contract.MentionId>;
     provenance: Contract.Provenance;

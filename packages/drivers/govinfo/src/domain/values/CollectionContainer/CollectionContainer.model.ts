@@ -6,7 +6,7 @@
  */
 import { $GovinfoId } from "@beep/identity";
 import * as S from "effect/Schema";
-import {PackageInfo} from "../PackageInfo/index.ts";
+import { PackageInfo } from "../PackageInfo/index.ts";
 
 const $I = $GovinfoId.create("domain/values/CollectionContainer/CollectionContainer.model");
 
@@ -17,52 +17,49 @@ const $I = $GovinfoId.create("domain/values/CollectionContainer/CollectionContai
  * ```ts
  * import { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
  *
- * console.log(CollectionContainer.make({}));
+ * console.log(CollectionContainer);
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export class CollectionContainer extends S.Class<CollectionContainer>($I`CollectionContainer`)(
-	{
-		/** change me */
-		count: S.Int.pipe(
-			S.check(
-				S.makeFilterGroup([
-					S.isInt32(),
-					S.isGreaterThanOrEqualTo(0),
-					S.isFinite()
-				])
-			),
-			S.annotateKey({
-			description: ""
-		})),
+  {
+    /** change me */
+    count: S.Int.pipe(
+      S.check(S.makeFilterGroup([S.isInt32(), S.isGreaterThanOrEqualTo(0), S.isFinite()])),
+      S.annotateKey({
+        description: "",
+      })
+    ),
 
-		/** change me */
-		message: S.String.annotateKey({
-			description: ""
-		}),
+    /** change me */
+    message: S.String.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		nextPage: S.String.annotateKey({
-			description: ""
-		}),
+    /** change me */
+    nextPage: S.String.annotateKey({
+      description: "",
+    }),
 
-		/** change me */
-		packages: PackageInfo.pipe(S.Array, S.annotateKey({
-			description: ""
-		})),
+    /** change me */
+    packages: PackageInfo.pipe(
+      S.Array,
+      S.annotateKey({
+        description: "",
+      })
+    ),
 
-		/** change me */
-		previousPage: S.String.annotateKey({
-			description: ""
-		}),
-	},
-	$I.annote("CollectionContainer", {
-		description: "The CollectionContainer value object.",
-	})
+    /** change me */
+    previousPage: S.String.annotateKey({
+      description: "",
+    }),
+  },
+  $I.annote("CollectionContainer", {
+    description: "The CollectionContainer value object.",
+  })
 ) {}
-
 
 /**
  * The companion namespace for the {@link CollectionContainer} value object.
@@ -71,18 +68,19 @@ export class CollectionContainer extends S.Class<CollectionContainer>($I`Collect
  * @since 0.0.0
  */
 export declare namespace CollectionContainer {
-	/**
-	 * The compainion encoded type for {@link CollectionContainer}.
-	 *
-	 * @example
-	 * ```ts
-	 * import type { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
-	 *
-	 * const thing: CollectionContainer.Encoded = CollectionContainer.make({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof CollectionContainer.Encoded;
+  /**
+   * The companion encoded type for {@link CollectionContainer}.
+   *
+   * @example
+   * ```ts
+   * import type { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
+   *
+   * const useEncoded = (_value: CollectionContainer.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CollectionContainer.Encoded;
 }

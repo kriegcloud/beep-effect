@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/TrashWebLink/TrashWebLink
  *
  * @example
  * ```ts
- * import { TrashWebLink } from "@beep/box/experimental/domain/values/TrashWebLink/TrashWebLink.model";
+ * import { TrashWebLink } from "@beep/box/experimental/domain/entities/TrashWebLink/TrashWebLink.model";
  *
  * console.log(TrashWebLink.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/TrashWebLink/TrashWebLink
  * @since 0.0.0
  */
 export class TrashWebLink extends S.Class<TrashWebLink>($I`TrashWebLink`)(
-	{},
-	$I.annote("TrashWebLink", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("TrashWebLink", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class TrashWebLink extends S.Class<TrashWebLink>($I`TrashWebLink`)(
  * @since 0.0.0
  */
 export declare namespace TrashWebLink {
-	/**
-	 * Companion encoded type for {@link TrashWebLink}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {TrashWebLink} from "@beep/box/experimental/domain/values/TrashWebLink/TrashWebLink.model";
-	 *
-	 * const thing: TrashWebLink.Encoded = S.encodeUnknownSync(TrashWebLink)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof TrashWebLink.Encoded;
+  /**
+   * Companion encoded type for {@link TrashWebLink}.
+   *
+   * @example
+   * ```ts
+   * import type { TrashWebLink } from "@beep/box/experimental/domain/entities/TrashWebLink/TrashWebLink.model";
+   *
+   * const useEncoded = (_value: TrashWebLink.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TrashWebLink.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace TrashWebLink {
  *
  * @example
  * ```ts
- * import {TrashWebLink} from "@beep/box/experimental/domain/values/TrashWebLink/TrashWebLink.model";
+ * import type { TrashWebLink } from "@beep/box/experimental/domain/entities/TrashWebLink/TrashWebLink.model";
  *
- * const thing: TrashWebLink = S.encodeUnknownSync(TrashWebLink)({});
+ * const useValue = (_value: TrashWebLink) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

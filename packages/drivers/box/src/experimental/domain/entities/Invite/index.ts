@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Invite } from "@beep/box/experimental/domain/entities/Invite";
+ * import { Invite } from "@beep/box/experimental/domain/entities/Invite/Invite.model";
  *
- * const thing = Invite.make({});
+ * console.log(Invite)
  * ```
  *
  * @category models

@@ -48,11 +48,13 @@ export * as LocalDate from "./LocalDate/index.ts";
  */
 export * as OnePasswordReference from "./OnePasswordReference/index.ts";
 /**
- * Rule - TODO
+ * Rule effect value object exports.
  *
  * @example
  * ```ts
- * TODO
+ * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ *
+ * console.log(Rule.ast)
  * ```
  *
  * @since 0.0.0

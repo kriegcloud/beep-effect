@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Webhook/Webhook.model");
  *
  * @example
  * ```ts
- * import { Webhook } from "@beep/box/experimental/domain/values/Webhook/Webhook.model";
+ * import { Webhook } from "@beep/box/experimental/domain/entities/Webhook/Webhook.model";
  *
  * console.log(Webhook.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Webhook/Webhook.model");
  * @since 0.0.0
  */
 export class Webhook extends S.Class<Webhook>($I`Webhook`)(
-	{},
-	$I.annote("Webhook", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Webhook", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Webhook extends S.Class<Webhook>($I`Webhook`)(
  * @since 0.0.0
  */
 export declare namespace Webhook {
-	/**
-	 * Companion encoded type for {@link Webhook}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Webhook} from "@beep/box/experimental/domain/values/Webhook/Webhook.model";
-	 *
-	 * const thing: Webhook.Encoded = S.encodeUnknownSync(Webhook)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Webhook.Encoded;
+  /**
+   * Companion encoded type for {@link Webhook}.
+   *
+   * @example
+   * ```ts
+   * import type { Webhook } from "@beep/box/experimental/domain/entities/Webhook/Webhook.model";
+   *
+   * const useEncoded = (_value: Webhook.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Webhook.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Webhook {
  *
  * @example
  * ```ts
- * import {Webhook} from "@beep/box/experimental/domain/values/Webhook/Webhook.model";
+ * import type { Webhook } from "@beep/box/experimental/domain/entities/Webhook/Webhook.model";
  *
- * const thing: Webhook = S.encodeUnknownSync(Webhook)({});
+ * const useValue = (_value: Webhook) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

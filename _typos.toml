@@ -94,6 +94,7 @@ extend-exclude = [
   "**/storybook-static/**",
   ".beep/**",
   "scratchpad/**",
+  "explorations/**",
   "outputs/agent-reliability/**",
   "goals/**",
   "standards/repo-exports.catalog.jsonc",

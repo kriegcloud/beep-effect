@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/File/File.model");
  *
  * @example
  * ```ts
- * import { File } from "@beep/box/experimental/domain/values/File/File.model";
+ * import { File } from "@beep/box/experimental/domain/entities/File/File.model";
  *
  * console.log(File.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/File/File.model");
  * @since 0.0.0
  */
 export class File extends S.Class<File>($I`File`)(
-	{},
-	$I.annote("File", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("File", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class File extends S.Class<File>($I`File`)(
  * @since 0.0.0
  */
 export declare namespace File {
-	/**
-	 * Companion encoded type for {@link File}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {File} from "@beep/box/experimental/domain/values/File/File.model";
-	 *
-	 * const thing: File.Encoded = S.encodeUnknownSync(File)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof File.Encoded;
+  /**
+   * Companion encoded type for {@link File}.
+   *
+   * @example
+   * ```ts
+   * import type { File } from "@beep/box/experimental/domain/entities/File/File.model";
+   *
+   * const useEncoded = (_value: File.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof File.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace File {
  *
  * @example
  * ```ts
- * import {File} from "@beep/box/experimental/domain/values/File/File.model";
+ * import type { File } from "@beep/box/experimental/domain/entities/File/File.model";
  *
- * const thing: File = S.encodeUnknownSync(File)({});
+ * const useValue = (_value: File) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

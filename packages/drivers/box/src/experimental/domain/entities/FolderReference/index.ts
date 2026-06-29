@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference";
+ * import { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
  *
- * const thing = FolderReference.make({});
+ * console.log(FolderReference)
  * ```
  *
  * @category models

@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { AiTaxonomy } from "@beep/box/experimental/domain/entities/AiTaxonomy";
+ * import { AiTaxonomy } from "@beep/box/experimental/domain/entities/AiTaxonomy/AiTaxonomy.model";
  *
- * const thing = AiTaxonomy.make({});
+ * console.log(AiTaxonomy)
  * ```
  *
  * @category models

@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { PLACEHOLDER } from "@beep/box/experimental/domain/entities/PLACEHOLDER";
+ * import { PLACEHOLDER } from "@beep/box/experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.model";
  *
- * const thing = PLACEHOLDER.make({});
+ * console.log(PLACEHOLDER)
  * ```
  *
  * @category models

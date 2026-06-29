@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/FileVersion/FileVersion.m
  *
  * @example
  * ```ts
- * import { FileVersion } from "@beep/box/experimental/domain/values/FileVersion/FileVersion.model";
+ * import { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
  *
  * console.log(FileVersion.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/FileVersion/FileVersion.m
  * @since 0.0.0
  */
 export class FileVersion extends S.Class<FileVersion>($I`FileVersion`)(
-	{},
-	$I.annote("FileVersion", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("FileVersion", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class FileVersion extends S.Class<FileVersion>($I`FileVersion`)(
  * @since 0.0.0
  */
 export declare namespace FileVersion {
-	/**
-	 * Companion encoded type for {@link FileVersion}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {FileVersion} from "@beep/box/experimental/domain/values/FileVersion/FileVersion.model";
-	 *
-	 * const thing: FileVersion.Encoded = S.encodeUnknownSync(FileVersion)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof FileVersion.Encoded;
+  /**
+   * Companion encoded type for {@link FileVersion}.
+   *
+   * @example
+   * ```ts
+   * import type { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
+   *
+   * const useEncoded = (_value: FileVersion.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FileVersion.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace FileVersion {
  *
  * @example
  * ```ts
- * import {FileVersion} from "@beep/box/experimental/domain/values/FileVersion/FileVersion.model";
+ * import type { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
  *
- * const thing: FileVersion = S.encodeUnknownSync(FileVersion)({});
+ * const useValue = (_value: FileVersion) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

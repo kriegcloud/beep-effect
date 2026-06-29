@@ -6,18 +6,16 @@
  */
 
 /**
- * The `PLACEHOLDER` value-object;
+ * The `Metadata` value-object.
  *
  * @example
  * ```ts
- * import { PLACEHOLDER } from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
+ * import { Metadata } from "@beep/box/experimental/domain/values/Metadata/Metadata.model";
  *
- * console.log(PLACEHOLDER.make({
- *
- * }))
+ * console.log(Metadata.make({}))
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export * from "./PLACEHOLDER.model.ts";
+export * from "./Metadata.model.ts";

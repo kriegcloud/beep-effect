@@ -76,6 +76,7 @@
     ".beep/**",
     ".aiassistant/**",
     "scratchpad/**",
+    "explorations/**",
     "goals/**",
     "explorations/*/CAPTURE.md",
     ".turbo",

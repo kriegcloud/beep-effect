@@ -54,8 +54,6 @@ the first packet that actually consumes them (see the exploration MAP).
 
 - `packages/shared/domain/src/entity/BaseEntity.ts` (soft-delete fields + persisted).
 - `packages/foundation/modeling/schema/src/DomainModel.ts` (retire/deprecate).
-- `packages/shared/domain/src/` and/or `packages/foundation/modeling/*` for the new
-  `TemporalValidity` + `DomainEvent` VOs (placement per shared-kernel promotion rules).
 - Tests + docgen examples for any new/changed exported behavior.
 
 ## Constraints
@@ -63,11 +61,13 @@ the first packet that actually consumes them (see the exploration MAP).
 (rabbit holes from the BRIEF, as boundary rules)
 
 - Soft-delete is a field pair only; no repository/read-model filtering in this packet.
-- Any shared-kernel addition (TemporalValidity/DomainEvent placement) needs a
-  promotion record per `02-shared-kernel.md` (≥2 intended consumers — cite the MAP packets).
+- Promotion records gate only *new shared exports* with >=2 current consumers
+  (`02-shared-kernel.md:189`); adding fields to the already-shared `BaseEntity` does
+  not create a new export, so this packet needs none. (Do not add a promotion record
+  for a zero-consumer export — that is what excludes the VOs from this packet.)
 - Domain stays driver-free (no `Sql`/`HttpClient`/`FileSystem`/`Config` in `R`).
-- Grounded by exploration decisions G1 (bitemporal/supersession shape), G2 (lineage
-  source), R1/R3 (soft-delete, temporal validity) — keep shapes consistent with them.
+- Keep the soft-delete shape consistent with exploration decisions G1
+  (bitemporal/supersession) and G2 (lineage source) so the later VO packets compose.
 
 ## Acceptance Criteria
 
@@ -75,8 +75,6 @@ the first packet that actually consumes them (see the exploration MAP).
       (Principal-typed, nullable→`null`), with passing decode/encode tests.
 - [ ] `@beep/schema/DomainModel` is retired or deprecated-aliased; no product entity
       references it; the change is documented.
-- [ ] `TemporalValidity` + `DomainEvent` VOs exist with JSDoc/docgen-clean examples
-      and a shared-kernel promotion record citing their future consumers.
 - [ ] The `.errors.ts` convention is demonstrated in the kernel.
 - [ ] `bun run check`, `bun run test`, `bun run docgen`, `bun run lint` pass for the
       touched packages; schema-first + schema-topology lint stay green.

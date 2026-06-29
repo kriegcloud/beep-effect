@@ -1392,16 +1392,6 @@
       "reason": "Exception: meta-test of the Fn/ThunkOf/AnyFn schema combinator over function values (declareConstructor with self-identity equivalence); no structural data for S.toArbitrary to generate or round-trip."
     },
     {
-      "file": "packages/foundation/modeling/schema/test/Int.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "advisory",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 10,
-      "owner": "@beep/schema",
-      "reason": "Schema-heavy test file has 5 Schema codec assertions but no schema-derived property coverage."
-    },
-    {
       "file": "packages/foundation/modeling/schema/test/MappedLiteralKit.test.ts",
       "symbol": "schema-codec-tests",
       "kind": "schema-policy-advisory",

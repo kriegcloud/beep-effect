@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/DevicePinner/DevicePinner
  *
  * @example
  * ```ts
- * import { DevicePinner } from "@beep/box/experimental/domain/values/DevicePinner/DevicePinner.model";
+ * import { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
  *
  * console.log(DevicePinner.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/DevicePinner/DevicePinner
  * @since 0.0.0
  */
 export class DevicePinner extends S.Class<DevicePinner>($I`DevicePinner`)(
-	{},
-	$I.annote("DevicePinner", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("DevicePinner", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class DevicePinner extends S.Class<DevicePinner>($I`DevicePinner`)(
  * @since 0.0.0
  */
 export declare namespace DevicePinner {
-	/**
-	 * Companion encoded type for {@link DevicePinner}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {DevicePinner} from "@beep/box/experimental/domain/values/DevicePinner/DevicePinner.model";
-	 *
-	 * const thing: DevicePinner.Encoded = S.encodeUnknownSync(DevicePinner)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof DevicePinner.Encoded;
+  /**
+   * Companion encoded type for {@link DevicePinner}.
+   *
+   * @example
+   * ```ts
+   * import type { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
+   *
+   * const useEncoded = (_value: DevicePinner.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof DevicePinner.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace DevicePinner {
  *
  * @example
  * ```ts
- * import {DevicePinner} from "@beep/box/experimental/domain/values/DevicePinner/DevicePinner.model";
+ * import type { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
  *
- * const thing: DevicePinner = S.encodeUnknownSync(DevicePinner)({});
+ * const useValue = (_value: DevicePinner) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

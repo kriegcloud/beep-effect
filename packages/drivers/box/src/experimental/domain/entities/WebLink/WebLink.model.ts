@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/WebLink/WebLink.model");
  *
  * @example
  * ```ts
- * import { WebLink } from "@beep/box/experimental/domain/values/WebLink/WebLink.model";
+ * import { WebLink } from "@beep/box/experimental/domain/entities/WebLink/WebLink.model";
  *
  * console.log(WebLink.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/WebLink/WebLink.model");
  * @since 0.0.0
  */
 export class WebLink extends S.Class<WebLink>($I`WebLink`)(
-	{},
-	$I.annote("WebLink", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("WebLink", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class WebLink extends S.Class<WebLink>($I`WebLink`)(
  * @since 0.0.0
  */
 export declare namespace WebLink {
-	/**
-	 * Companion encoded type for {@link WebLink}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {WebLink} from "@beep/box/experimental/domain/values/WebLink/WebLink.model";
-	 *
-	 * const thing: WebLink.Encoded = S.encodeUnknownSync(WebLink)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof WebLink.Encoded;
+  /**
+   * Companion encoded type for {@link WebLink}.
+   *
+   * @example
+   * ```ts
+   * import type { WebLink } from "@beep/box/experimental/domain/entities/WebLink/WebLink.model";
+   *
+   * const useEncoded = (_value: WebLink.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof WebLink.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace WebLink {
  *
  * @example
  * ```ts
- * import {WebLink} from "@beep/box/experimental/domain/values/WebLink/WebLink.model";
+ * import type { WebLink } from "@beep/box/experimental/domain/entities/WebLink/WebLink.model";
  *
- * const thing: WebLink = S.encodeUnknownSync(WebLink)({});
+ * const useValue = (_value: WebLink) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen";
+ * import { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
  *
- * const thing = AiTextGen.make({});
+ * console.log(AiTextGen)
  * ```
  *
  * @category models

@@ -242,7 +242,7 @@ export interface Foldable<F, A> {
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { singleton } from "./EffectGraph.ts"
+ * import { singleton } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { foldableGraph } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * const graph = Effect.runSync(singleton("root"))
@@ -277,7 +277,7 @@ const getLeafNodes = <A>(graph: EffectGraph<A>): ReadonlyArray<GraphNode<A>> =>
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { singleton, size } from "./EffectGraph.ts"
+ * import { singleton, size } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { executeOperation, mapOperation } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * const program = Effect.flatMap(
@@ -320,7 +320,7 @@ export const executeOperation: {
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { singleton, size } from "./EffectGraph.ts"
+ * import { singleton, size } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { executeOperations, mapOperation } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * const graph = Effect.runSync(singleton("root"))
@@ -382,7 +382,7 @@ export type FreeOperation<A, B, R = never, E = never> = TextOperation<A, B, R, E
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { makeNode } from "./EffectGraph.ts"
+ * import { makeNode } from "@beep/nlp-processing/Graph/EffectGraph"
  * import type { ForgetfulOperation } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * const operation: ForgetfulOperation<string, string> = {
@@ -406,7 +406,7 @@ export interface ForgetfulOperation<A, B, R = never, E = never> {
  *
  * @example
  * ```ts
- * import { makeNode } from "./EffectGraph.ts"
+ * import { makeNode } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { makeAdjunction, mapOperation, type ForgetfulOperation } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * const aggregate: ForgetfulOperation<number, string> = {
@@ -500,7 +500,7 @@ export const flatMapOperation: {
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { singleton } from "./EffectGraph.ts"
+ * import { singleton } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { collectData } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * console.log(collectData(Effect.runSync(singleton("root")))) // ["root"]
@@ -517,7 +517,7 @@ export const collectData = <A>(graph: EffectGraph<A>): ReadonlyArray<A> => A.map
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { singleton } from "./EffectGraph.ts"
+ * import { singleton } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { depth } from "@beep/nlp-processing/Graph/TypeClass"
  *
  * console.log(depth(Effect.runSync(singleton("root")))) // 0

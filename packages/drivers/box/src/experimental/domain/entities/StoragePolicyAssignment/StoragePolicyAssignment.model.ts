@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/StoragePolicyAssignment/S
  *
  * @example
  * ```ts
- * import { StoragePolicyAssignment } from "@beep/box/experimental/domain/values/StoragePolicyAssignment/StoragePolicyAssignment.model";
+ * import { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
  *
  * console.log(StoragePolicyAssignment.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/StoragePolicyAssignment/S
  * @since 0.0.0
  */
 export class StoragePolicyAssignment extends S.Class<StoragePolicyAssignment>($I`StoragePolicyAssignment`)(
-	{},
-	$I.annote("StoragePolicyAssignment", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("StoragePolicyAssignment", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class StoragePolicyAssignment extends S.Class<StoragePolicyAssignment>($I
  * @since 0.0.0
  */
 export declare namespace StoragePolicyAssignment {
-	/**
-	 * Companion encoded type for {@link StoragePolicyAssignment}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {StoragePolicyAssignment} from "@beep/box/experimental/domain/values/StoragePolicyAssignment/StoragePolicyAssignment.model";
-	 *
-	 * const thing: StoragePolicyAssignment.Encoded = S.encodeUnknownSync(StoragePolicyAssignment)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof StoragePolicyAssignment.Encoded;
+  /**
+   * Companion encoded type for {@link StoragePolicyAssignment}.
+   *
+   * @example
+   * ```ts
+   * import type { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
+   *
+   * const useEncoded = (_value: StoragePolicyAssignment.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof StoragePolicyAssignment.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace StoragePolicyAssignment {
  *
  * @example
  * ```ts
- * import {StoragePolicyAssignment} from "@beep/box/experimental/domain/values/StoragePolicyAssignment/StoragePolicyAssignment.model";
+ * import type { StoragePolicyAssignment } from "@beep/box/experimental/domain/entities/StoragePolicyAssignment/StoragePolicyAssignment.model";
  *
- * const thing: StoragePolicyAssignment = S.encodeUnknownSync(StoragePolicyAssignment)({});
+ * const useValue = (_value: StoragePolicyAssignment) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

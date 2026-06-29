@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Webhook } from "@beep/box/experimental/domain/entities/Webhook";
+ * import { Webhook } from "@beep/box/experimental/domain/entities/Webhook/Webhook.model";
  *
- * const thing = Webhook.make({});
+ * console.log(Webhook)
  * ```
  *
  * @category models

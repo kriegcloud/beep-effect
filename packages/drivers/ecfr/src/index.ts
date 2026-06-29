@@ -1,5 +1,5 @@
 /**
- * @beep/ecfr
+ * Package entry point for `@beep/ecfr`.
  *
  * @since 0.0.0
  */

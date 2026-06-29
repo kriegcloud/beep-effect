@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Folder } from "@beep/box/experimental/domain/entities/Folder";
+ * import { Folder } from "@beep/box/experimental/domain/entities/Folder/Folder.model";
  *
- * const thing = Folder.make({});
+ * console.log(Folder)
  * ```
  *
  * @category models

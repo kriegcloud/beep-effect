@@ -6,9 +6,6 @@
  */
 import { $BoxId } from "@beep/identity";
 import * as S from "effect/Schema";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { Effect, Tuple, Redacted } from "effect";
-import { pipe, flow, dual, P, O, A, Struct } from "@beep/utils";
 
 const $I = $BoxId.create("entities/PLACEHOLDER/PLACEHOLDER.model");
 
@@ -44,9 +41,10 @@ export declare namespace PLACEHOLDER {
    *
    * @example
    * ```ts
-   * import {PLACEHOLDER} from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
+   * import type { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
    *
-   * const thing: PLACEHOLDER.Encoded = S.encodeUnknownSync(PLACEHOLDER)({});
+   * const useEncoded = (_value: PLACEHOLDER.Encoded) => true;
+   * console.log(useEncoded);
    * ```
    *
    * @category models
@@ -60,9 +58,10 @@ export declare namespace PLACEHOLDER {
  *
  * @example
  * ```ts
- * import {PLACEHOLDER} from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
+ * import type { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
  *
- * const thing: PLACEHOLDER = S.encodeUnknownSync(PLACEHOLDER)({});
+ * const useValue = (_value: PLACEHOLDER) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.m
  *
  * @example
  * ```ts
- * import { PLACEHOLDER } from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
+ * import { PLACEHOLDER } from "@beep/box/experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.model";
  *
  * console.log(PLACEHOLDER.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.m
  * @since 0.0.0
  */
 export class PLACEHOLDER extends S.Class<PLACEHOLDER>($I`PLACEHOLDER`)(
-	{},
-	$I.annote("PLACEHOLDER", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("PLACEHOLDER", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class PLACEHOLDER extends S.Class<PLACEHOLDER>($I`PLACEHOLDER`)(
  * @since 0.0.0
  */
 export declare namespace PLACEHOLDER {
-	/**
-	 * Companion encoded type for {@link PLACEHOLDER}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {PLACEHOLDER} from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
-	 *
-	 * const thing: PLACEHOLDER.Encoded = S.encodeUnknownSync(PLACEHOLDER)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof PLACEHOLDER.Encoded;
+  /**
+   * Companion encoded type for {@link PLACEHOLDER}.
+   *
+   * @example
+   * ```ts
+   * import type { PLACEHOLDER } from "@beep/box/experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.model";
+   *
+   * const useEncoded = (_value: PLACEHOLDER.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PLACEHOLDER.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace PLACEHOLDER {
  *
  * @example
  * ```ts
- * import {PLACEHOLDER} from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
+ * import type { PLACEHOLDER } from "@beep/box/experimental/domain/entities/PLACEHOLDER/PLACEHOLDER.model";
  *
- * const thing: PLACEHOLDER = S.encodeUnknownSync(PLACEHOLDER)({});
+ * const useValue = (_value: PLACEHOLDER) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

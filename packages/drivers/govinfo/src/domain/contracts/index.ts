@@ -1,5 +1,5 @@
 /**
- * @beep/govinfo/domain/contracts
+ * Package entry point for `@beep/govinfo/domain/contracts`.
  *
  * @since 0.0.0
  */

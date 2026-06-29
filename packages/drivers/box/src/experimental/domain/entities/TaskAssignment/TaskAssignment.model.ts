@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/TaskAssignment/TaskAssign
  *
  * @example
  * ```ts
- * import { TaskAssignment } from "@beep/box/experimental/domain/values/TaskAssignment/TaskAssignment.model";
+ * import { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
  *
  * console.log(TaskAssignment.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/TaskAssignment/TaskAssign
  * @since 0.0.0
  */
 export class TaskAssignment extends S.Class<TaskAssignment>($I`TaskAssignment`)(
-	{},
-	$I.annote("TaskAssignment", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("TaskAssignment", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class TaskAssignment extends S.Class<TaskAssignment>($I`TaskAssignment`)(
  * @since 0.0.0
  */
 export declare namespace TaskAssignment {
-	/**
-	 * Companion encoded type for {@link TaskAssignment}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {TaskAssignment} from "@beep/box/experimental/domain/values/TaskAssignment/TaskAssignment.model";
-	 *
-	 * const thing: TaskAssignment.Encoded = S.encodeUnknownSync(TaskAssignment)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof TaskAssignment.Encoded;
+  /**
+   * Companion encoded type for {@link TaskAssignment}.
+   *
+   * @example
+   * ```ts
+   * import type { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
+   *
+   * const useEncoded = (_value: TaskAssignment.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TaskAssignment.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace TaskAssignment {
  *
  * @example
  * ```ts
- * import {TaskAssignment} from "@beep/box/experimental/domain/values/TaskAssignment/TaskAssignment.model";
+ * import type { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
  *
- * const thing: TaskAssignment = S.encodeUnknownSync(TaskAssignment)({});
+ * const useValue = (_value: TaskAssignment) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

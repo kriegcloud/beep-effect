@@ -52,9 +52,13 @@ export type SimilarityMethod = typeof SimilarityMethod.Type;
  *
  * @example
  * ```ts
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
  * import { TverskyParams } from "@beep/nlp/Core/Similarity"
  *
- * const params = TverskyParams.make({ alpha: 0.7, beta: 0.3 })
+ * const params = TverskyParams.make({
+ *   alpha: UnitInterval.make(0.7),
+ *   beta: UnitInterval.make(0.3)
+ * })
  * console.log(params.alpha + params.beta)
  * ```
  *
@@ -106,6 +110,7 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
  * @example
  * ```ts
  * import * as O from "effect/Option"
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
  * import { DocumentId } from "@beep/nlp/Core/Document"
  * import { SimilarityScore } from "@beep/nlp/Core/Similarity"
  *
@@ -114,7 +119,7 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
  *   document2Id: DocumentId.make("doc-b"),
  *   method: "set.tversky",
  *   parameters: O.some({ alpha: 0.7, beta: 0.3 }),
- *   score: 0.8
+ *   score: UnitInterval.make(0.8)
  * })
  *
  * console.log(score.method)

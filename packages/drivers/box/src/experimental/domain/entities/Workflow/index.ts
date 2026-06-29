@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Workflow } from "@beep/box/experimental/domain/entities/Workflow";
+ * import { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
  *
- * const thing = Workflow.make({});
+ * console.log(Workflow)
  * ```
  *
  * @category models

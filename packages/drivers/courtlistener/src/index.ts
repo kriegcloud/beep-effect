@@ -1,5 +1,5 @@
 /**
- * @beep/courtlistener
+ * Package entry point for `@beep/courtlistener`.
  *
  * @since 0.0.0
  */

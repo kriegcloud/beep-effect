@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/FolderReference/FolderRef
  *
  * @example
  * ```ts
- * import { FolderReference } from "@beep/box/experimental/domain/values/FolderReference/FolderReference.model";
+ * import { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
  *
  * console.log(FolderReference.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/FolderReference/FolderRef
  * @since 0.0.0
  */
 export class FolderReference extends S.Class<FolderReference>($I`FolderReference`)(
-	{},
-	$I.annote("FolderReference", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("FolderReference", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class FolderReference extends S.Class<FolderReference>($I`FolderReference
  * @since 0.0.0
  */
 export declare namespace FolderReference {
-	/**
-	 * Companion encoded type for {@link FolderReference}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {FolderReference} from "@beep/box/experimental/domain/values/FolderReference/FolderReference.model";
-	 *
-	 * const thing: FolderReference.Encoded = S.encodeUnknownSync(FolderReference)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof FolderReference.Encoded;
+  /**
+   * Companion encoded type for {@link FolderReference}.
+   *
+   * @example
+   * ```ts
+   * import type { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
+   *
+   * const useEncoded = (_value: FolderReference.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof FolderReference.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace FolderReference {
  *
  * @example
  * ```ts
- * import {FolderReference} from "@beep/box/experimental/domain/values/FolderReference/FolderReference.model";
+ * import type { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
  *
- * const thing: FolderReference = S.encodeUnknownSync(FolderReference)({});
+ * const useValue = (_value: FolderReference) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

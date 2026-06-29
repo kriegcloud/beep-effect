@@ -5,10 +5,10 @@
  * @since 0.0.0
  */
 
-import {$OipWebId} from "@beep/identity/packages";
-import {LiteralKit, NonNegativeInt, TrimmedNonEmptyText} from "@beep/schema";
-import {Str} from "@beep/utils";
-import {Effect, pipe, Result, SchemaTransformation} from "effect";
+import { $OipWebId } from "@beep/identity/packages";
+import { LiteralKit, NonNegativeInt, TrimmedNonEmptyText } from "@beep/schema";
+import { Str } from "@beep/utils";
+import { Effect, pipe, Result, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -16,58 +16,67 @@ import * as S from "effect/Schema";
 
 const $I = $OipWebId.create("contact/ContactSubmission.model");
 
-const contactEmailPattern = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
-const ContactEmailArbitraryValues = [
-	"builder@example.com",
-	"intake@oip.law",
-	"tom@example.com",
-] as const;
-const ContactNameArbitraryValues = [
-	"Builder",
-	"Thomas Oppold",
-	"OIP Intake",
-] as const;
+const contactEmailPattern =
+  /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+const ContactEmailArbitraryValues = ["builder@example.com", "intake@oip.law", "tom@example.com"] as const;
+const ContactNameArbitraryValues = ["Builder", "Thomas Oppold", "OIP Intake"] as const;
 const ContactMessageArbitraryValues = [
-	"I would like to discuss a patent matter.",
-	"Please contact me about protecting a new machine design.",
-	"We need help reviewing an intellectual property portfolio.",
+  "I would like to discuss a patent matter.",
+  "Please contact me about protecting a new machine design.",
+  "We need help reviewing an intellectual property portfolio.",
 ] as const;
 
 const TrimmedContactText = TrimmedNonEmptyText.annotate({
-	toArbitrary: () => (fc) => fc.string({minLength: 1}).map(Str.trim).filter(Str.isNonEmpty),
-}).pipe($I.annoteSchema("TrimmedContactText", {
-	description: "Trimmed non-empty contact form text.",
-}));
+  toArbitrary: () => (fc) => fc.string({ minLength: 1 }).map(Str.trim).filter(Str.isNonEmpty),
+}).pipe(
+  $I.annoteSchema("TrimmedContactText", {
+    description: "Trimmed non-empty contact form text.",
+  })
+);
 
-const ContactName = TrimmedContactText.pipe(S.check(S.isMinLength(2, {
-	message: "Name must include at least 2 characters.",
-})), $I.annoteSchema("ContactName", {
-	description: "Normalized contact form name.",
-	toArbitrary: () => (fc) => fc.constantFrom(...ContactNameArbitraryValues),
-}))
+const ContactName = TrimmedContactText.pipe(
+  S.check(
+    S.isMinLength(2, {
+      message: "Name must include at least 2 characters.",
+    })
+  ),
+  $I.annoteSchema("ContactName", {
+    description: "Normalized contact form name.",
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactNameArbitraryValues),
+  })
+);
 
 const ContactEmail = TrimmedContactText.pipe(S.decode(SchemaTransformation.toLowerCase()))
-	.check(S.isMaxLength(254, {
-		message: "Email must be 254 characters or fewer.",
-	}), S.isPattern(contactEmailPattern, {
-		message: "Email must be a valid email address.",
-	}))
-	.pipe($I.annoteSchema("ContactEmail", {
-		description: "Normalized contact form email address.",
-	}))
-	.annotate({
-		toArbitrary: () => (fc) => fc.constantFrom(...ContactEmailArbitraryValues),
-	});
+  .check(
+    S.isMaxLength(254, {
+      message: "Email must be 254 characters or fewer.",
+    }),
+    S.isPattern(contactEmailPattern, {
+      message: "Email must be a valid email address.",
+    })
+  )
+  .pipe(
+    $I.annoteSchema("ContactEmail", {
+      description: "Normalized contact form email address.",
+    })
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactEmailArbitraryValues),
+  });
 
-const ContactMessage = TrimmedContactText.check(S.isMinLength(10, {
-	message: "Message must include at least 10 characters.",
-}))
-	.pipe($I.annoteSchema("ContactMessage", {
-		description: "Normalized contact form message.",
-	}))
-	.annotate({
-		toArbitrary: () => (fc) => fc.constantFrom(...ContactMessageArbitraryValues),
-	});
+const ContactMessage = TrimmedContactText.check(
+  S.isMinLength(10, {
+    message: "Message must include at least 10 characters.",
+  })
+)
+  .pipe(
+    $I.annoteSchema("ContactMessage", {
+      description: "Normalized contact form message.",
+    })
+  )
+  .annotate({
+    toArbitrary: () => (fc) => fc.constantFrom(...ContactMessageArbitraryValues),
+  });
 
 /**
  * Public contact submission status.
@@ -83,12 +92,11 @@ const ContactMessage = TrimmedContactText.check(S.isMinLength(10, {
  * @category schemas
  * @since 0.0.0
  */
-export const ContactSubmissionStatus = LiteralKit([
-	"accepted",
-	"rejected",
-]).pipe($I.annoteSchema("ContactSubmissionStatus", {
-	description: "Public contact submission result status.",
-}));
+export const ContactSubmissionStatus = LiteralKit(["accepted", "rejected"]).pipe(
+  $I.annoteSchema("ContactSubmissionStatus", {
+    description: "Public contact submission result status.",
+  })
+);
 
 /**
  * Type for {@link ContactSubmissionStatus}.
@@ -130,35 +138,38 @@ export type ContactSubmissionStatus = typeof ContactSubmissionStatus.Type;
  * @category models
  * @since 0.0.0
  */
-export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubmission`)({
-	company: S.optionalKey(TrimmedContactText),
-	email: ContactEmail,
-	message: ContactMessage,
-	name: ContactName,
-	phone: S.optionalKey(TrimmedContactText),
-	posture: S.optionalKey(TrimmedContactText),
-	submittedAt: NonNegativeInt,
-	technology: S.optionalKey(TrimmedContactText),
-	website: S.optionalKey(TrimmedContactText),
-}, $I.annote("ContactSubmission", {
-	description: "Browser-submitted OIP contact form payload.",
-})) {
-	static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
+export class ContactSubmission extends S.Class<ContactSubmission>($I`ContactSubmission`)(
+  {
+    company: S.optionalKey(TrimmedContactText),
+    email: ContactEmail,
+    message: ContactMessage,
+    name: ContactName,
+    phone: S.optionalKey(TrimmedContactText),
+    posture: S.optionalKey(TrimmedContactText),
+    submittedAt: NonNegativeInt,
+    technology: S.optionalKey(TrimmedContactText),
+    website: S.optionalKey(TrimmedContactText),
+  },
+  $I.annote("ContactSubmission", {
+    description: "Browser-submitted OIP contact form payload.",
+  })
+) {
+  static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
 }
 
 const ContactSubmissionFormSubmittedAtFromString = S.FiniteFromString.pipe(
-	S.decodeTo(NonNegativeInt),
-	$I.annoteSchema("ContactSubmissionFormSubmittedAtFromString", {
-		description: "Form-submitted contact timestamp decoded from a numeric string.",
-	}),
+  S.decodeTo(NonNegativeInt),
+  $I.annoteSchema("ContactSubmissionFormSubmittedAtFromString", {
+    description: "Form-submitted contact timestamp decoded from a numeric string.",
+  })
 );
 
-const ContactSubmissionFormSubmittedAt = S.Union([
-	NonNegativeInt,
-	ContactSubmissionFormSubmittedAtFromString,
-]).pipe(S.withDecodingDefault(Effect.succeed(0)), $I.annoteSchema("ContactSubmissionFormSubmittedAt", {
-	description: "Form-submitted contact timestamp decoded from a number or numeric string.",
-}));
+const ContactSubmissionFormSubmittedAt = S.Union([NonNegativeInt, ContactSubmissionFormSubmittedAtFromString]).pipe(
+  S.withDecodingDefault(Effect.succeed(0)),
+  $I.annoteSchema("ContactSubmissionFormSubmittedAt", {
+    description: "Form-submitted contact timestamp decoded from a number or numeric string.",
+  })
+);
 
 /**
  * Normalized browser form payload before the contact domain schema decodes it.
@@ -181,66 +192,68 @@ const ContactSubmissionFormSubmittedAt = S.Union([
  * @category schemas
  * @since 0.0.0
  */
-export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormPayload>($I`ContactSubmissionFormPayload`)({
-		company: S.optionalKey(TrimmedContactText),
-		email: ContactEmail,
-		message: ContactMessage,
-		name: ContactName,
-		phone: S.optionalKey(TrimmedContactText),
-		posture: S.optionalKey(TrimmedContactText),
-		submittedAt: ContactSubmissionFormSubmittedAt,
-		technology: S.optionalKey(TrimmedContactText),
-		website: S.optionalKey(TrimmedContactText),
-	},
-	$I.annote("ContactSubmissionFormPayload", {
-		description: "Normalized browser form payload before contact submission decoding.",
-	}),
+export class ContactSubmissionFormPayload extends S.Class<ContactSubmissionFormPayload>(
+  $I`ContactSubmissionFormPayload`
+)(
+  {
+    company: S.optionalKey(TrimmedContactText),
+    email: ContactEmail,
+    message: ContactMessage,
+    name: ContactName,
+    phone: S.optionalKey(TrimmedContactText),
+    posture: S.optionalKey(TrimmedContactText),
+    submittedAt: ContactSubmissionFormSubmittedAt,
+    technology: S.optionalKey(TrimmedContactText),
+    website: S.optionalKey(TrimmedContactText),
+  },
+  $I.annote("ContactSubmissionFormPayload", {
+    description: "Normalized browser form payload before contact submission decoding.",
+  })
 ) {
-	static readonly decodeUnknownResult = S.decodeUnknownResult(this);
-	static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
+  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+  static readonly decodeUnknownEffect = S.decodeUnknownEffect(this);
 }
 
 const decodeContactSubmissionFormPayloadResult = ContactSubmissionFormPayload.decodeUnknownResult;
 const decodeContactSubmissionFormPayloadEffect = ContactSubmissionFormPayload.decodeUnknownEffect;
 
-const formTextOption = (value: FormDataEntryValue | null): O.Option<string> => pipe(
-	O.fromNullishOr(value),
-	O.filter(P.isString),
-	O.map(Str.trim),
-	O.filter(Str.isNonEmpty),
-);
+const formTextOption = (value: FormDataEntryValue | null): O.Option<string> =>
+  pipe(O.fromNullishOr(value), O.filter(P.isString), O.map(Str.trim), O.filter(Str.isNonEmpty));
 
-const requiredFormTextValue = (value: FormDataEntryValue | null): string => pipe(
-	formTextOption(value),
-	O.getOrElse(() => ""),
-);
+const requiredFormTextValue = (value: FormDataEntryValue | null): string =>
+  pipe(
+    formTextOption(value),
+    O.getOrElse(() => "")
+  );
 
 const contactSubmissionPayloadInputFromFormData = (formData: FormData) => ({
-	email: requiredFormTextValue(formData.get("email")),
-	message: requiredFormTextValue(formData.get("message")),
-	name: requiredFormTextValue(formData.get("name")), ...R.getSomes({
-		company: formTextOption(formData.get("company")),
-		phone: formTextOption(formData.get("phone")),
-		posture: formTextOption(formData.get("posture")),
-		submittedAt: formTextOption(formData.get("submittedAt")),
-		technology: formTextOption(formData.get("technology")),
-		website: formTextOption(formData.get("website")),
-	}),
+  email: requiredFormTextValue(formData.get("email")),
+  message: requiredFormTextValue(formData.get("message")),
+  name: requiredFormTextValue(formData.get("name")),
+  ...R.getSomes({
+    company: formTextOption(formData.get("company")),
+    phone: formTextOption(formData.get("phone")),
+    posture: formTextOption(formData.get("posture")),
+    submittedAt: formTextOption(formData.get("submittedAt")),
+    technology: formTextOption(formData.get("technology")),
+    website: formTextOption(formData.get("website")),
+  }),
 });
 
-const contactSubmissionPayloadFallback = (formData: FormData): ContactSubmissionFormPayload => ContactSubmissionFormPayload.make(
-	{
-		email: requiredFormTextValue(formData.get("email")),
-		message: requiredFormTextValue(formData.get("message")),
-		name: requiredFormTextValue(formData.get("name")),
-		submittedAt: NonNegativeInt.make(0), ...R.getSomes({
-			company: formTextOption(formData.get("company")),
-			phone: formTextOption(formData.get("phone")),
-			posture: formTextOption(formData.get("posture")),
-			technology: formTextOption(formData.get("technology")),
-			website: formTextOption(formData.get("website")),
-		}),
-	});
+const contactSubmissionPayloadFallback = (formData: FormData): ContactSubmissionFormPayload =>
+  ContactSubmissionFormPayload.make({
+    email: requiredFormTextValue(formData.get("email")),
+    message: requiredFormTextValue(formData.get("message")),
+    name: requiredFormTextValue(formData.get("name")),
+    submittedAt: NonNegativeInt.make(0),
+    ...R.getSomes({
+      company: formTextOption(formData.get("company")),
+      phone: formTextOption(formData.get("phone")),
+      posture: formTextOption(formData.get("posture")),
+      technology: formTextOption(formData.get("technology")),
+      website: formTextOption(formData.get("website")),
+    }),
+  });
 
 /**
  * Effectfully converts browser form data into the contact submission wire payload.
@@ -262,8 +275,8 @@ const contactSubmissionPayloadFallback = (formData: FormData): ContactSubmission
  * @category utilities
  * @since 0.0.0
  */
-export const contactSubmissionPayloadFromFormDataEffect = (formData: FormData) => decodeContactSubmissionFormPayloadEffect(
-	contactSubmissionPayloadInputFromFormData(formData));
+export const contactSubmissionPayloadFromFormDataEffect = (formData: FormData) =>
+  decodeContactSubmissionFormPayloadEffect(contactSubmissionPayloadInputFromFormData(formData));
 
 /**
  * Converts browser form data into the contact submission wire payload.
@@ -285,12 +298,13 @@ export const contactSubmissionPayloadFromFormDataEffect = (formData: FormData) =
  * @category utilities
  * @since 0.0.0
  */
-export const contactSubmissionPayloadFromFormData = (formData: FormData): ContactSubmissionFormPayload => pipe(contactSubmissionPayloadInputFromFormData(formData),
-	(input) => pipe(
-		decodeContactSubmissionFormPayloadResult(input),
-		Result.getOrElse(() => contactSubmissionPayloadFallback(formData)),
-	),
-);
+export const contactSubmissionPayloadFromFormData = (formData: FormData): ContactSubmissionFormPayload =>
+  pipe(contactSubmissionPayloadInputFromFormData(formData), (input) =>
+    pipe(
+      decodeContactSubmissionFormPayloadResult(input),
+      Result.getOrElse(() => contactSubmissionPayloadFallback(formData))
+    )
+  );
 
 /**
  * Public contact submission response.
@@ -310,13 +324,15 @@ export const contactSubmissionPayloadFromFormData = (formData: FormData): Contac
  * @category models
  * @since 0.0.0
  */
-export class ContactSubmissionResponse extends S.Class<ContactSubmissionResponse>($I`ContactSubmissionResponse`)({
-	message: S.String,
-	status: ContactSubmissionStatus,
-}, $I.annote("ContactSubmissionResponse", {
-	description: "Public contact submission response.",
-})) {
-}
+export class ContactSubmissionResponse extends S.Class<ContactSubmissionResponse>($I`ContactSubmissionResponse`)(
+  {
+    message: S.String,
+    status: ContactSubmissionStatus,
+  },
+  $I.annote("ContactSubmissionResponse", {
+    description: "Public contact submission response.",
+  })
+) {}
 
 /**
  * Decodes unknown input into a contact submission.

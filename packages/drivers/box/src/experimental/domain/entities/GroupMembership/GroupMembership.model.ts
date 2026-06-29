@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/GroupMembership/GroupMemb
  *
  * @example
  * ```ts
- * import { GroupMembership } from "@beep/box/experimental/domain/values/GroupMembership/GroupMembership.model";
+ * import { GroupMembership } from "@beep/box/experimental/domain/entities/GroupMembership/GroupMembership.model";
  *
  * console.log(GroupMembership.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/GroupMembership/GroupMemb
  * @since 0.0.0
  */
 export class GroupMembership extends S.Class<GroupMembership>($I`GroupMembership`)(
-	{},
-	$I.annote("GroupMembership", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("GroupMembership", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class GroupMembership extends S.Class<GroupMembership>($I`GroupMembership
  * @since 0.0.0
  */
 export declare namespace GroupMembership {
-	/**
-	 * Companion encoded type for {@link GroupMembership}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {GroupMembership} from "@beep/box/experimental/domain/values/GroupMembership/GroupMembership.model";
-	 *
-	 * const thing: GroupMembership.Encoded = S.encodeUnknownSync(GroupMembership)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof GroupMembership.Encoded;
+  /**
+   * Companion encoded type for {@link GroupMembership}.
+   *
+   * @example
+   * ```ts
+   * import type { GroupMembership } from "@beep/box/experimental/domain/entities/GroupMembership/GroupMembership.model";
+   *
+   * const useEncoded = (_value: GroupMembership.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof GroupMembership.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace GroupMembership {
  *
  * @example
  * ```ts
- * import {GroupMembership} from "@beep/box/experimental/domain/values/GroupMembership/GroupMembership.model";
+ * import type { GroupMembership } from "@beep/box/experimental/domain/entities/GroupMembership/GroupMembership.model";
  *
- * const thing: GroupMembership = S.encodeUnknownSync(GroupMembership)({});
+ * const useValue = (_value: GroupMembership) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

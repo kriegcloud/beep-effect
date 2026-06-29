@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession";
+ * import { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
  *
- * const thing = UploadSession.make({});
+ * console.log(UploadSession)
  * ```
  *
  * @category models

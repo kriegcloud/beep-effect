@@ -15,8 +15,8 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 146,
-      "column": 18,
+      "line": 157,
+      "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
     },
@@ -27,8 +27,8 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 200,
-      "column": 18,
+      "line": 214,
+      "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
     },
@@ -39,8 +39,8 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 199,
-      "column": 18,
+      "line": 213,
+      "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
     },

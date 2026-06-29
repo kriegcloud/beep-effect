@@ -91,6 +91,11 @@ export * from "./DateTimeUtcFromValid/index.ts";
  * @since 0.0.0
  * @category validation
  */
+export * from "./Did.ts";
+/**
+ * @since 0.0.0
+ * @category validation
+ */
 export * as DomainModel from "./DomainModel.ts";
 /**
  * @since 0.0.0

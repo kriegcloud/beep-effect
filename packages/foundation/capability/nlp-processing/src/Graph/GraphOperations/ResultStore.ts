@@ -67,7 +67,7 @@ export type AnyOperationResult = OperationResult<unknown, unknown>;
  *
  * @example
  * ```ts
- * import { NodeId } from "../EffectGraph.ts"
+ * import { NodeId } from "@beep/nlp-processing/Graph/EffectGraph"
  * import { ResultKey } from "@beep/nlp-processing/Graph/GraphOperations/ResultStore"
  *
  * const nodeId = NodeId.make("node-example")

@@ -1,5 +1,5 @@
 /**
- * @beep/dol
+ * Package entry point for `@beep/dol`.
  *
  * @since 0.0.0
  */

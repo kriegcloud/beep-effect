@@ -1,5 +1,5 @@
 /**
- * @beep/federal-register
+ * Package entry point for `@beep/federal-register`.
  *
  * @since 0.0.0
  */

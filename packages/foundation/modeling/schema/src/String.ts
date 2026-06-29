@@ -238,7 +238,7 @@ export const StrFromUnknown = S.Unknown.pipe(
 );
 
 /**
- * Type for {@link StrFromUnknown}. {@inheritDoc StrFromUnknown}
+ * Type for {@link StrFromUnknown}.
  *
  * @example
  * ```ts

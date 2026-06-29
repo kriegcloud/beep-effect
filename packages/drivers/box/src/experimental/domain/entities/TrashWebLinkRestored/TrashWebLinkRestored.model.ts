@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/TrashWebLinkRestored/Tras
  *
  * @example
  * ```ts
- * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/values/TrashWebLinkRestored/TrashWebLinkRestored.model";
+ * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
  *
  * console.log(TrashWebLinkRestored.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/TrashWebLinkRestored/Tras
  * @since 0.0.0
  */
 export class TrashWebLinkRestored extends S.Class<TrashWebLinkRestored>($I`TrashWebLinkRestored`)(
-	{},
-	$I.annote("TrashWebLinkRestored", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("TrashWebLinkRestored", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class TrashWebLinkRestored extends S.Class<TrashWebLinkRestored>($I`Trash
  * @since 0.0.0
  */
 export declare namespace TrashWebLinkRestored {
-	/**
-	 * Companion encoded type for {@link TrashWebLinkRestored}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {TrashWebLinkRestored} from "@beep/box/experimental/domain/values/TrashWebLinkRestored/TrashWebLinkRestored.model";
-	 *
-	 * const thing: TrashWebLinkRestored.Encoded = S.encodeUnknownSync(TrashWebLinkRestored)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof TrashWebLinkRestored.Encoded;
+  /**
+   * Companion encoded type for {@link TrashWebLinkRestored}.
+   *
+   * @example
+   * ```ts
+   * import type { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
+   *
+   * const useEncoded = (_value: TrashWebLinkRestored.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TrashWebLinkRestored.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace TrashWebLinkRestored {
  *
  * @example
  * ```ts
- * import {TrashWebLinkRestored} from "@beep/box/experimental/domain/values/TrashWebLinkRestored/TrashWebLinkRestored.model";
+ * import type { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
  *
- * const thing: TrashWebLinkRestored = S.encodeUnknownSync(TrashWebLinkRestored)({});
+ * const useValue = (_value: TrashWebLinkRestored) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

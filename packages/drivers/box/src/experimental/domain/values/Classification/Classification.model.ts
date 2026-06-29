@@ -41,9 +41,10 @@ export declare namespace Classification {
    *
    * @example
    * ```ts
-   * import {Classification} from "@beep/box/experimental/domain/values/Classification/Classification.model";
+   * import type { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
    *
-   * const thing: Classification.Encoded = S.encodeUnknownSync(Classification)({});
+   * const useEncoded = (_value: Classification.Encoded) => true;
+   * console.log(useEncoded);
    * ```
    *
    * @category models
@@ -57,9 +58,10 @@ export declare namespace Classification {
  *
  * @example
  * ```ts
- * import {Classification} from "@beep/box/experimental/domain/values/Classification/Classification.model";
+ * import type { Classification } from "@beep/box/experimental/domain/values/Classification/Classification.model";
  *
- * const thing: Classification = S.encodeUnknownSync(Classification)({});
+ * const useValue = (_value: Classification) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

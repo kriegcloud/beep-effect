@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion";
+ * import { FileVersion } from "@beep/box/experimental/domain/entities/FileVersion/FileVersion.model";
  *
- * const thing = FileVersion.make({});
+ * console.log(FileVersion)
  * ```
  *
  * @category models

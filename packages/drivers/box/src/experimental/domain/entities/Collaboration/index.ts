@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration";
+ * import { Collaboration } from "@beep/box/experimental/domain/entities/Collaboration/Collaboration.model";
  *
- * const thing = Collaboration.make({});
+ * console.log(Collaboration)
  * ```
  *
  * @category models

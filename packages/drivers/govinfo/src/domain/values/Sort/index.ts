@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Sort } from "@beep/govinfo/domain/values";
+ * import { Sort } from "@beep/govinfo/domain/values/Sort/Sort.model";
  *
- * console.log(Sort.make({}));
+ * console.log(Sort);
  * ```
  *
  * @category models

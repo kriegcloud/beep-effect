@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/AiTextGen/AiTextGen.model
  *
  * @example
  * ```ts
- * import { AiTextGen } from "@beep/box/experimental/domain/values/AiTextGen/AiTextGen.model";
+ * import { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
  *
  * console.log(AiTextGen.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/AiTextGen/AiTextGen.model
  * @since 0.0.0
  */
 export class AiTextGen extends S.Class<AiTextGen>($I`AiTextGen`)(
-	{},
-	$I.annote("AiTextGen", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("AiTextGen", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class AiTextGen extends S.Class<AiTextGen>($I`AiTextGen`)(
  * @since 0.0.0
  */
 export declare namespace AiTextGen {
-	/**
-	 * Companion encoded type for {@link AiTextGen}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {AiTextGen} from "@beep/box/experimental/domain/values/AiTextGen/AiTextGen.model";
-	 *
-	 * const thing: AiTextGen.Encoded = S.encodeUnknownSync(AiTextGen)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof AiTextGen.Encoded;
+  /**
+   * Companion encoded type for {@link AiTextGen}.
+   *
+   * @example
+   * ```ts
+   * import type { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
+   *
+   * const useEncoded = (_value: AiTextGen.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof AiTextGen.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace AiTextGen {
  *
  * @example
  * ```ts
- * import {AiTextGen} from "@beep/box/experimental/domain/values/AiTextGen/AiTextGen.model";
+ * import type { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
  *
- * const thing: AiTextGen = S.encodeUnknownSync(AiTextGen)({});
+ * const useValue = (_value: AiTextGen) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

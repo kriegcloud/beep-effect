@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { Comment } from "@beep/box/experimental/domain/entities/Comment";
+ * import { Comment } from "@beep/box/experimental/domain/entities/Comment/Comment.model";
  *
- * const thing = Comment.make({});
+ * console.log(Comment)
  * ```
  *
  * @category models

@@ -1,5 +1,6 @@
 import { alignCandidate } from "@beep/langextract/Alignment";
 import { ExtractionCandidate, LangExtractOptions } from "@beep/langextract/Extraction";
+import { UnitInterval } from "@beep/nlp/Handoff";
 import { describe, expect, it } from "@effect/vitest";
 
 describe("alignCandidate", () => {
@@ -52,7 +53,7 @@ describe("alignCandidate", () => {
     const extraction = alignCandidate(
       "Alice founded Acme.",
       ExtractionCandidate.make({ label: "organization", text: "Acmee" }),
-      LangExtractOptions.make({ fuzzyThreshold: 0.75 })
+      LangExtractOptions.make({ fuzzyThreshold: UnitInterval.make(0.75) })
     );
 
     expect(extraction.alignmentStatus).toBe("match_fuzzy");
@@ -63,7 +64,7 @@ describe("alignCandidate", () => {
     const extraction = alignCandidate(
       "\u{1F389}",
       ExtractionCandidate.make({ label: "event", text: "\u{1F38A}" }),
-      LangExtractOptions.make({ fuzzyThreshold: 0.25 })
+      LangExtractOptions.make({ fuzzyThreshold: UnitInterval.make(0.25) })
     );
 
     expect(extraction.alignmentStatus).toBe("unaligned");

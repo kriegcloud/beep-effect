@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/RetentionPolicyAssignment
  *
  * @example
  * ```ts
- * import { RetentionPolicyAssignment } from "@beep/box/experimental/domain/values/RetentionPolicyAssignment/RetentionPolicyAssignment.model";
+ * import { RetentionPolicyAssignment } from "@beep/box/experimental/domain/entities/RetentionPolicyAssignment/RetentionPolicyAssignment.model";
  *
  * console.log(RetentionPolicyAssignment.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/RetentionPolicyAssignment
  * @since 0.0.0
  */
 export class RetentionPolicyAssignment extends S.Class<RetentionPolicyAssignment>($I`RetentionPolicyAssignment`)(
-	{},
-	$I.annote("RetentionPolicyAssignment", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("RetentionPolicyAssignment", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class RetentionPolicyAssignment extends S.Class<RetentionPolicyAssignment
  * @since 0.0.0
  */
 export declare namespace RetentionPolicyAssignment {
-	/**
-	 * Companion encoded type for {@link RetentionPolicyAssignment}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {RetentionPolicyAssignment} from "@beep/box/experimental/domain/values/RetentionPolicyAssignment/RetentionPolicyAssignment.model";
-	 *
-	 * const thing: RetentionPolicyAssignment.Encoded = S.encodeUnknownSync(RetentionPolicyAssignment)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof RetentionPolicyAssignment.Encoded;
+  /**
+   * Companion encoded type for {@link RetentionPolicyAssignment}.
+   *
+   * @example
+   * ```ts
+   * import type { RetentionPolicyAssignment } from "@beep/box/experimental/domain/entities/RetentionPolicyAssignment/RetentionPolicyAssignment.model";
+   *
+   * const useEncoded = (_value: RetentionPolicyAssignment.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof RetentionPolicyAssignment.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace RetentionPolicyAssignment {
  *
  * @example
  * ```ts
- * import {RetentionPolicyAssignment} from "@beep/box/experimental/domain/values/RetentionPolicyAssignment/RetentionPolicyAssignment.model";
+ * import type { RetentionPolicyAssignment } from "@beep/box/experimental/domain/entities/RetentionPolicyAssignment/RetentionPolicyAssignment.model";
  *
- * const thing: RetentionPolicyAssignment = S.encodeUnknownSync(RetentionPolicyAssignment)({});
+ * const useValue = (_value: RetentionPolicyAssignment) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

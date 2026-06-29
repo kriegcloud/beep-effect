@@ -1309,7 +1309,8 @@
       ],
       "@beep/ontology/*": ["./packages/foundation/modeling/ontology/src/*"],
       "@beep/rdf-canonize": ["./packages/drivers/rdf-canonize/src/index.ts"],
-      "@beep/rdf-canonize/*": ["./packages/drivers/rdf-canonize/src/*"]
+      "@beep/rdf-canonize/*": ["./packages/drivers/rdf-canonize/src/*"],
+      "@beep/schema/Did": ["./packages/foundation/modeling/schema/src/Did.ts"]
     }
   }
 }

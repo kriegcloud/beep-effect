@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { GranuleMetadata } from "@beep/govinfo/domain/values";
+ * import { GranuleMetadata } from "@beep/govinfo/domain/values/GranuleMetadata/GranuleMetadata.model";
  *
- * console.log(GranuleMetadata.make({}));
+ * console.log(GranuleMetadata);
  * ```
  *
  * @category models

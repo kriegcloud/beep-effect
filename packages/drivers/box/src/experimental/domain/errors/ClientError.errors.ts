@@ -14,20 +14,20 @@ const $I = $BoxId.create("errors/ClientError.errors");
  *
  * @example
  * ```ts
- * import {PLACEHOLDER} from "@beep/box/experimental/domain/errors";
+ * import { PLACEHOLDER } from "@beep/box/experimental/domain/errors/ClientError.errors";
  *
- * console.log(PLACEHOLDER.make({}));
+ * console.log(PLACEHOLDER);
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
 export class PLACEHOLDER extends TaggedErrorClass<PLACEHOLDER>($I`PLACEHOLDER`)(
-	"PLACEHOLDER",
-	{},
-	$I.annote("PLACEHOLDER", {
-		description: "TODO"
-	})
+  "PLACEHOLDER",
+  {},
+  $I.annote("PLACEHOLDER", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,18 +36,19 @@ export class PLACEHOLDER extends TaggedErrorClass<PLACEHOLDER>($I`PLACEHOLDER`)(
  * @since 0.0.0
  */
 export declare namespace PLACEHOLDER {
-	/**
-	 * TODO
-	 *
-	 * @example
-	 * ```ts
-	 * import {PLACEHOLDER} from "@beep/box/experimental/domain/errors";
-	 *
-	 * const thing: PLACEHOLDER.Encoded = PLACEHOLDER.make({});
-	 * ```
-	 *
-	 * @category errors
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof PLACEHOLDER.Encoded;
+  /**
+   * TODO
+   *
+   * @example
+   * ```ts
+   * import type { PLACEHOLDER } from "@beep/box/experimental/domain/errors/ClientError.errors";
+   *
+   * const useEncoded = (_value: PLACEHOLDER.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  export type Encoded = typeof PLACEHOLDER.Encoded;
 }

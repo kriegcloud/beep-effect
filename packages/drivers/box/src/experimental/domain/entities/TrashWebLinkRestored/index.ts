@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored";
+ * import { TrashWebLinkRestored } from "@beep/box/experimental/domain/entities/TrashWebLinkRestored/TrashWebLinkRestored.model";
  *
- * const thing = TrashWebLinkRestored.make({});
+ * console.log(TrashWebLinkRestored)
  * ```
  *
  * @category models

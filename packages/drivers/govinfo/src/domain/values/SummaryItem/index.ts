@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { SummaryItem } from "@beep/govinfo/domain/values";
+ * import { SummaryItem } from "@beep/govinfo/domain/values/SummaryItem/SummaryItem.model";
  *
- * console.log(SummaryItem.make({}));
+ * console.log(SummaryItem);
  * ```
  *
  * @category models

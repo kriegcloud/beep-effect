@@ -25,20 +25,20 @@ const $I = $BoxId.create("experimental/domain/values/SerializedData/SerializedDa
  * @since 0.0.0
  */
 export declare namespace SerializedData {
-	/**
-	 * The encoded form of {@link SerializedData}, expressed recursively to break the schema cycle.
-	 *
-	 * @category type-level
-	 * @since 0.0.0
-	 */
-	export type Encoded =
-		| undefined
-		| null
-		| boolean
-		| number
-		| string
-		| SerializedDataList.Encoded
-		| SerializedDataMap.Encoded;
+  /**
+   * The encoded form of {@link SerializedData}, expressed recursively to break the schema cycle.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded =
+    | undefined
+    | null
+    | boolean
+    | number
+    | string
+    | SerializedDataList.Encoded
+    | SerializedDataMap.Encoded;
 }
 
 /**
@@ -57,18 +57,18 @@ export declare namespace SerializedData {
  * @since 0.0.0
  */
 export const SerializedData = S.Union([
-	S.Undefined,
-	S.Null,
-	S.Boolean,
-	S.Finite,
-	S.String,
-	S.suspend((): S.Codec<SerializedDataList.Encoded> => SerializedDataList),
-	S.suspend((): S.Codec<SerializedDataMap.Encoded> => SerializedDataMap),
+  S.Undefined,
+  S.Null,
+  S.Boolean,
+  S.Finite,
+  S.String,
+  S.suspend((): S.Codec<SerializedDataList.Encoded> => SerializedDataList),
+  S.suspend((): S.Codec<SerializedDataMap.Encoded> => SerializedDataMap),
 ]).pipe(
-	$I.annoteSchema("SerializedData", {
-		description:
-			"A schema for serializable data types used in the Box driver, including undefined, null, booleans, numbers, strings, lists, and maps.",
-	})
+  $I.annoteSchema("SerializedData", {
+    description:
+      "A schema for serializable data types used in the Box driver, including undefined, null, booleans, numbers, strings, lists, and maps.",
+  })
 );
 
 /**
@@ -94,13 +94,13 @@ export type SerializedData = typeof SerializedData.Type;
  * @since 0.0.0
  */
 export declare namespace SerializedDataList {
-	/**
-	 * The encoded form of {@link SerializedDataList}: a readonly array of encoded serialized data.
-	 *
-	 * @category type-level
-	 * @since 0.0.0
-	 */
-	export type Encoded = readonly SerializedData.Encoded[];
+  /**
+   * The encoded form of {@link SerializedDataList}: a readonly array of encoded serialized data.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = readonly SerializedData.Encoded[];
 }
 
 /**
@@ -119,10 +119,10 @@ export declare namespace SerializedDataList {
  * @since 0.0.0
  */
 export const SerializedDataList = S.Array(S.suspend((): S.Codec<SerializedData.Encoded> => SerializedData)).pipe(
-	$I.annoteSchema("SerializedDataList", {
-		description:
-			"A schema for serializable data lists used in the Box driver, containing encoded serialized data elements.",
-	})
+  $I.annoteSchema("SerializedDataList", {
+    description:
+      "A schema for serializable data lists used in the Box driver, containing encoded serialized data elements.",
+  })
 );
 
 /**
@@ -148,15 +148,15 @@ export type SerializedDataList = typeof SerializedDataList.Type;
  * @since 0.0.0
  */
 export declare namespace SerializedDataMap {
-	/**
-	 * The encoded form of {@link SerializedDataMap}: string keys to encoded serialized data values.
-	 *
-	 * @category type-level
-	 * @since 0.0.0
-	 */
-	export type Encoded = {
-		readonly [key: string]: SerializedData.Encoded;
-	};
+  /**
+   * The encoded form of {@link SerializedDataMap}: string keys to encoded serialized data values.
+   *
+   * @category type-level
+   * @since 0.0.0
+   */
+  export type Encoded = {
+    readonly [key: string]: SerializedData.Encoded;
+  };
 }
 
 /**
@@ -175,13 +175,13 @@ export declare namespace SerializedDataMap {
  * @since 0.0.0
  */
 export const SerializedDataMap = S.Record(
-	S.String,
-	S.suspend((): S.Codec<SerializedData.Encoded> => SerializedData)
+  S.String,
+  S.suspend((): S.Codec<SerializedData.Encoded> => SerializedData)
 ).pipe(
-	$I.annoteSchema("SerializedDataMap", {
-		description:
-			"A schema for serializable data maps used in the Box driver, mapping string keys to encoded serialized data values.",
-	})
+  $I.annoteSchema("SerializedDataMap", {
+    description:
+      "A schema for serializable data maps used in the Box driver, mapping string keys to encoded serialized data values.",
+  })
 );
 
 /**

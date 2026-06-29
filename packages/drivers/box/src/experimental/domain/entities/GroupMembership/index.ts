@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { GroupMembership } from "@beep/box/experimental/domain/entities/GroupMembership";
+ * import { GroupMembership } from "@beep/box/experimental/domain/entities/GroupMembership/GroupMembership.model";
  *
- * const thing = GroupMembership.make({});
+ * console.log(GroupMembership)
  * ```
  *
  * @category models

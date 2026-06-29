@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { SearchBody } from "@beep/govinfo/domain/values";
+ * import { SearchBody } from "@beep/govinfo/domain/values/SearchBody/SearchBody.model";
  *
- * console.log(SearchBody.make({}));
+ * console.log(SearchBody);
  * ```
  *
  * @category models

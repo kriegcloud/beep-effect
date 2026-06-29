@@ -41,9 +41,10 @@ export declare namespace UploadPart {
    *
    * @example
    * ```ts
-   * import {UploadPart} from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
+   * import type { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
    *
-   * const thing: UploadPart.Encoded = S.encodeUnknownSync(UploadPart)({});
+   * const useEncoded = (_value: UploadPart.Encoded) => true;
+   * console.log(useEncoded);
    * ```
    *
    * @category models
@@ -57,9 +58,10 @@ export declare namespace UploadPart {
  *
  * @example
  * ```ts
- * import {UploadPart} from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
+ * import type { UploadPart } from "@beep/box/experimental/domain/values/UploadPart/UploadPart.model";
  *
- * const thing: UploadPart = S.encodeUnknownSync(UploadPart)({});
+ * const useValue = (_value: UploadPart) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

@@ -133,6 +133,9 @@
       "@beep/schema/DateTimeUtcFromValid": [
         "../../../../packages/foundation/modeling/schema/src/DateTimeUtcFromValid/index.ts"
       ],
+      "@beep/schema/Did": [
+        "../../../../packages/foundation/modeling/schema/src/Did.ts"
+      ],
       "@beep/schema/DomCssProperties": [
         "../../../../packages/foundation/modeling/schema/src/DomCssProperties/index.ts"
       ],

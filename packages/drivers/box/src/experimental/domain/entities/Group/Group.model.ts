@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Group/Group.model");
  *
  * @example
  * ```ts
- * import { Group } from "@beep/box/experimental/domain/values/Group/Group.model";
+ * import { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
  *
  * console.log(Group.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Group/Group.model");
  * @since 0.0.0
  */
 export class Group extends S.Class<Group>($I`Group`)(
-	{},
-	$I.annote("Group", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Group", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Group extends S.Class<Group>($I`Group`)(
  * @since 0.0.0
  */
 export declare namespace Group {
-	/**
-	 * Companion encoded type for {@link Group}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Group} from "@beep/box/experimental/domain/values/Group/Group.model";
-	 *
-	 * const thing: Group.Encoded = S.encodeUnknownSync(Group)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Group.Encoded;
+  /**
+   * Companion encoded type for {@link Group}.
+   *
+   * @example
+   * ```ts
+   * import type { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
+   *
+   * const useEncoded = (_value: Group.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Group.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Group {
  *
  * @example
  * ```ts
- * import {Group} from "@beep/box/experimental/domain/values/Group/Group.model";
+ * import type { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
  *
- * const thing: Group = S.encodeUnknownSync(Group)({});
+ * const useValue = (_value: Group) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

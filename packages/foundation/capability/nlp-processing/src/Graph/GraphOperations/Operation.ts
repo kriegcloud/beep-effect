@@ -39,7 +39,7 @@ import type { OperationCategory, OperationCost, ValidationResult } from "./Types
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { make, type GraphOperation } from "./Operation.ts"
+ * import { make, type GraphOperation } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const operation: GraphOperation<string, string> = make({
  *   name: "drop-empty",
@@ -81,7 +81,7 @@ export interface GraphOperation<A, B, R = never, E = never> {
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { make } from "./Operation.ts"
+ * import { make } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const operation = make<string, string>({
  *   name: "emit-none",
@@ -122,7 +122,7 @@ export const make = <A, B, R = never, E = never>(config: {
  *
  * @example
  * ```ts
- * import { pure } from "./Operation.ts"
+ * import { pure } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const duplicate = pure({
  *   name: "duplicate",
@@ -159,7 +159,7 @@ export const pure = <A, B>(config: {
  *
  * @example
  * ```ts
- * import { transform } from "./Operation.ts"
+ * import { transform } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const normalize = transform({
  *   name: "normalize-case",
@@ -195,7 +195,7 @@ export const transform = <A, B>(config: {
  *
  * @example
  * ```ts
- * import { expand } from "./Operation.ts"
+ * import { expand } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const splitWords = expand({
  *   name: "split-words",
@@ -225,7 +225,7 @@ export const expand = <A, B>(config: {
  *
  * @example
  * ```ts
- * import { filter } from "./Operation.ts"
+ * import { filter } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const nonEmpty = filter({
  *   name: "non-empty",
@@ -264,7 +264,7 @@ export const filter = <A>(config: {
  *
  * @example
  * ```ts
- * import { identity } from "./Operation.ts"
+ * import { identity } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const passthrough = identity<string>()
  * console.log(passthrough.name) // "identity"
@@ -286,7 +286,7 @@ export const identity = <A>(): GraphOperation<A, A> =>
  *
  * @example
  * ```ts
- * import { map } from "./Operation.ts"
+ * import { map } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const lengths = map((text: string) => text.length)
  * console.log(lengths.category) // "transformation"
@@ -303,7 +303,7 @@ export const map = <A, B>(f: (a: A) => B): GraphOperation<A, B> =>
  *
  * @example
  * ```ts
- * import { flatMap } from "./Operation.ts"
+ * import { flatMap } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const characters = flatMap((text: string) => text.split(""))
  * console.log(characters.category) // "expansion"
@@ -324,7 +324,7 @@ export const flatMap = <A, B>(f: (a: A) => ReadonlyArray<B>): GraphOperation<A, 
  *
  * @example
  * ```ts
- * import { getCategory, map } from "./Operation.ts"
+ * import { getCategory, map } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
  *
  * const category = getCategory(map((text: string) => text.length))
  * console.log(category) // "transformation"

@@ -54,7 +54,7 @@ export const URLStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * Type for {@link URLStr}. {@inheritDoc URLStr}
+ * Type for {@link URLStr}.
  *
  * @example
  * ```ts
@@ -109,7 +109,7 @@ export const HttpsUrl = S.String.pipe(
 );
 
 /**
- * Type for {@link HttpsUrl}. {@inheritDoc HttpsUrl}
+ * Type for {@link HttpsUrl}.
  *
  * @example
  * ```ts

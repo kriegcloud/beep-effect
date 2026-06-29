@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/IntegrationMapping/Integr
  *
  * @example
  * ```ts
- * import { IntegrationMapping } from "@beep/box/experimental/domain/values/IntegrationMapping/IntegrationMapping.model";
+ * import { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
  *
  * console.log(IntegrationMapping.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/IntegrationMapping/Integr
  * @since 0.0.0
  */
 export class IntegrationMapping extends S.Class<IntegrationMapping>($I`IntegrationMapping`)(
-	{},
-	$I.annote("IntegrationMapping", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("IntegrationMapping", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class IntegrationMapping extends S.Class<IntegrationMapping>($I`Integrati
  * @since 0.0.0
  */
 export declare namespace IntegrationMapping {
-	/**
-	 * Companion encoded type for {@link IntegrationMapping}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {IntegrationMapping} from "@beep/box/experimental/domain/values/IntegrationMapping/IntegrationMapping.model";
-	 *
-	 * const thing: IntegrationMapping.Encoded = S.encodeUnknownSync(IntegrationMapping)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof IntegrationMapping.Encoded;
+  /**
+   * Companion encoded type for {@link IntegrationMapping}.
+   *
+   * @example
+   * ```ts
+   * import type { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
+   *
+   * const useEncoded = (_value: IntegrationMapping.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof IntegrationMapping.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace IntegrationMapping {
  *
  * @example
  * ```ts
- * import {IntegrationMapping} from "@beep/box/experimental/domain/values/IntegrationMapping/IntegrationMapping.model";
+ * import type { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
  *
- * const thing: IntegrationMapping = S.encodeUnknownSync(IntegrationMapping)({});
+ * const useValue = (_value: IntegrationMapping) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

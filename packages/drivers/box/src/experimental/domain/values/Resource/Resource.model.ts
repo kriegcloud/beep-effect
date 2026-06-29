@@ -41,9 +41,10 @@ export declare namespace Resource {
    *
    * @example
    * ```ts
-   * import {Resource} from "@beep/box/experimental/domain/values/Resource/Resource.model";
+   * import type { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
    *
-   * const thing: Resource.Encoded = S.encodeUnknownSync(Resource)({});
+   * const useEncoded = (_value: Resource.Encoded) => true;
+   * console.log(useEncoded);
    * ```
    *
    * @category models
@@ -57,9 +58,10 @@ export declare namespace Resource {
  *
  * @example
  * ```ts
- * import {Resource} from "@beep/box/experimental/domain/values/Resource/Resource.model";
+ * import type { Resource } from "@beep/box/experimental/domain/values/Resource/Resource.model";
  *
- * const thing: Resource = S.encodeUnknownSync(Resource)({});
+ * const useValue = (_value: Resource) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

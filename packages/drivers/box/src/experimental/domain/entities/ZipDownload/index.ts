@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload";
+ * import { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
  *
- * const thing = ZipDownload.make({});
+ * console.log(ZipDownload)
  * ```
  *
  * @category models

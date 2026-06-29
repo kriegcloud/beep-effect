@@ -49,7 +49,7 @@ const $I = $NlpProcessingId.create("Graph/GraphOperations/Types");
  *
  * @example
  * ```ts
- * import { MAX_PARALLEL_CONCURRENCY } from "./Types.ts"
+ * import { MAX_PARALLEL_CONCURRENCY } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * console.log(MAX_PARALLEL_CONCURRENCY) // 64
  * ```
@@ -72,7 +72,7 @@ export const MAX_PARALLEL_CONCURRENCY = 64;
  *
  * @example
  * ```ts
- * import { ExecutionStrategy } from "./Types.ts"
+ * import { ExecutionStrategy } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const strategy = ExecutionStrategy.Parallel(4)
  * console.log(strategy.concurrency) // 4
@@ -109,7 +109,7 @@ export const ExecutionStrategy = S.TaggedUnion({
  *
  * @example
  * ```ts
- * import { ExecutionStrategy } from "./Types.ts"
+ * import { ExecutionStrategy } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const strategy: ExecutionStrategy = ExecutionStrategy.Sequential
  * console.log(strategy._tag) // "Sequential"
@@ -134,7 +134,7 @@ export type ExecutionStrategy = typeof ExecutionStrategy.Type;
  *
  * @example
  * ```ts
- * import { ExecutionMetrics } from "./Types.ts"
+ * import { ExecutionMetrics } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const combined = ExecutionMetrics.combine(
  *   ExecutionMetrics.empty(),
@@ -193,7 +193,7 @@ export class ExecutionMetrics extends S.Class<ExecutionMetrics>($I`ExecutionMetr
  *
  * @example
  * ```ts
- * import { Complexity } from "./Types.ts"
+ * import { Complexity } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * console.log(Complexity.is["O(n)"]("O(n)")) // true
  * ```
@@ -212,7 +212,7 @@ export const Complexity = LiteralKit(["O(1)", "O(n)", "O(n log n)", "O(n^2)"]).p
  *
  * @example
  * ```ts
- * import type { Complexity } from "./Types.ts"
+ * import type { Complexity } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const complexity: Complexity = "O(n log n)"
  * console.log(complexity)
@@ -229,7 +229,7 @@ export type Complexity = typeof Complexity.Type;
  * @example
  * ```ts
  * import { Duration } from "effect"
- * import { ConstantOperationCost } from "./Types.ts"
+ * import { ConstantOperationCost } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const cost = ConstantOperationCost.make({
  *   complexity: "O(1)",
@@ -268,7 +268,7 @@ export class ConstantOperationCost extends S.Class<ConstantOperationCost>($I`Con
  * @example
  * ```ts
  * import { Duration } from "effect"
- * import { LinearOperationCost } from "./Types.ts"
+ * import { LinearOperationCost } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const cost = LinearOperationCost.make({
  *   complexity: "O(n)",
@@ -307,7 +307,7 @@ export class LinearOperationCost extends S.Class<LinearOperationCost>($I`LinearO
  * @example
  * ```ts
  * import { Duration } from "effect"
- * import { LinearithmicOperationCost } from "./Types.ts"
+ * import { LinearithmicOperationCost } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const cost = LinearithmicOperationCost.make({
  *   complexity: "O(n log n)",
@@ -346,7 +346,7 @@ export class LinearithmicOperationCost extends S.Class<LinearithmicOperationCost
  * @example
  * ```ts
  * import { Duration } from "effect"
- * import { QuadraticOperationCost } from "./Types.ts"
+ * import { QuadraticOperationCost } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const cost = QuadraticOperationCost.make({
  *   complexity: "O(n^2)",
@@ -390,7 +390,7 @@ export class QuadraticOperationCost extends S.Class<QuadraticOperationCost>($I`Q
  * @example
  * ```ts
  * import { Duration } from "effect"
- * import { OperationCost } from "./Types.ts"
+ * import { OperationCost } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const cost = OperationCost.cases["O(n)"].make({
  *   estimatedTime: Duration.millis(2),
@@ -455,7 +455,7 @@ export const OperationCost = Complexity.mapMembers(
  * @example
  * ```ts
  * import { Duration } from "effect"
- * import { OperationCost } from "./Types.ts"
+ * import { OperationCost } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const cost: OperationCost = OperationCost.cases["O(1)"].make({
  *   estimatedTime: Duration.millis(1),
@@ -483,7 +483,7 @@ export type OperationCost = typeof OperationCost.Type;
  *
  * @example
  * ```ts
- * import { ValidationResult } from "./Types.ts"
+ * import { ValidationResult } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const result = ValidationResult.withWarnings(
  *   ValidationResult.valid(),
@@ -538,7 +538,7 @@ export class ValidationResult extends S.Class<ValidationResult>($I`ValidationRes
  *
  * @example
  * ```ts
- * import { OperationCategory } from "./Types.ts"
+ * import { OperationCategory } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * console.log(OperationCategory.is.expansion("expansion")) // true
  * ```
@@ -560,7 +560,7 @@ export const OperationCategory = LiteralKit([
  *
  * @example
  * ```ts
- * import type { OperationCategory } from "./Types.ts"
+ * import type { OperationCategory } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const category: OperationCategory = "transformation"
  * console.log(category)
@@ -588,7 +588,7 @@ export type OperationCategory = typeof OperationCategory.Type;
  *
  * @example
  * ```ts
- * import { ExecutionOptions } from "./Types.ts"
+ * import { ExecutionOptions } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const options = ExecutionOptions.parallel(8)
  * console.log(options.strategy._tag) // "Parallel"
@@ -635,7 +635,7 @@ export class ExecutionOptions extends S.Class<ExecutionOptions>($I`ExecutionOpti
  *
  * @example
  * ```ts
- * import { ExecutionId } from "./Types.ts"
+ * import { ExecutionId } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const id: ExecutionId = ExecutionId.make("exec-1")
  * console.log(id)
@@ -655,7 +655,7 @@ export const ExecutionId = S.String.pipe(
  *
  * @example
  * ```ts
- * import { ExecutionId } from "./Types.ts"
+ * import { ExecutionId } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const id: ExecutionId = ExecutionId.make("exec-1")
  * console.log(id)
@@ -670,7 +670,7 @@ export type ExecutionId = typeof ExecutionId.Type;
  *
  * @example
  * ```ts
- * import { makeExecutionId } from "./Types.ts"
+ * import { makeExecutionId } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * console.log(makeExecutionId("exec-1"))
  * ```
@@ -686,7 +686,7 @@ export const makeExecutionId: Brand.Constructor<ExecutionId> = Brand.nominal<Exe
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { generateExecutionId } from "./Types.ts"
+ * import { generateExecutionId } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const program = Effect.map(generateExecutionId, (id) => id.startsWith("exec-"))
  * console.log(Effect.runSync(program)) // true
@@ -717,7 +717,7 @@ export const generateExecutionId: Effect.Effect<ExecutionId> = Effect.gen(functi
  *
  * @example
  * ```ts
- * import type { OperationResult } from "./Types.ts"
+ * import type { OperationResult } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const createdCount = <A, E>(result: OperationResult<A, E>) => result.newNodes.length
  * console.log(createdCount)
@@ -742,7 +742,7 @@ export interface OperationResult<B, E> {
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { ExecutionMetrics, makeOperationResult, makeExecutionId } from "./Types.ts"
+ * import { ExecutionMetrics, makeOperationResult, makeExecutionId } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
  * const program = makeOperationResult(
  *   makeExecutionId("exec-example"),

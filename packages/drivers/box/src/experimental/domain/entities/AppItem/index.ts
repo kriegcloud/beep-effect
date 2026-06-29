@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { AppItem } from "@beep/box/experimental/domain/entities/AppItem";
+ * import { AppItem } from "@beep/box/experimental/domain/entities/AppItem/AppItem.model";
  *
- * const thing = AppItem.make({});
+ * console.log(AppItem)
  * ```
  *
  * @category models

@@ -14,9 +14,9 @@ const $I = $SharedDomainId.create("values/Rule/Rule.model");
  *
  * @example
  * ```ts
- * import { Rule } from "@beep/shared-domain/values/Rule"
+ * import { Effect } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * console.log(Rule.Effect.make("allow" as const))
+ * console.log(Effect.Enum.allow)
  * ```
  *
  * @category schemas
@@ -33,9 +33,10 @@ export const Effect = LiteralKit(["allow", "deny", "ask"]).pipe(
  *
  * @example
  * ```ts
- * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import type { Effect } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const Rulething: Rule.Effect = Rule.Effect.Enum.allow
+ * const useEffect = (_value: Effect) => true
+ * console.log(useEffect)
  * ```
  */
 /**
@@ -49,9 +50,10 @@ export declare namespace Effect {
    *
    * @example
    * ```ts
-   * import type { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+   * import type { Effect } from "@beep/shared-domain/values/Rule/Rule.model"
    *
-   *
+   * const useEncoded = (_value: Effect.Encoded) => true
+   * console.log(useEncoded)
    * ```
    *
    * @category models
@@ -66,9 +68,9 @@ export declare namespace Effect {
  * @example
  *
  * ```ts
- * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import { Base } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const Rulething: Rule.Effect = Rule.Effect.Enum.allow
+ * console.log(Base)
  * ```
  *
  *
@@ -90,9 +92,9 @@ export class Base extends S.Class<Base>($I`Base`)(
  *
  * @example
  * ```ts
- * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import { Allow } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const Rulething: Rule.Effect = Rule.Effect.Enum.allow
+ * console.log(Allow)
  * ```
  *
  * @category models
@@ -112,9 +114,9 @@ export class Allow extends Base.extend<Allow>($I`Allow`)(
  *
  * @example
  * ```ts
- * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import { Deny } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const Rulething: Rule.Effect = Rule.Effect.Enum.allow
+ * console.log(Deny)
  * ```
  *
  * @category models
@@ -134,9 +136,9 @@ export class Deny extends Base.extend<Deny>($I`Deny`)(
  *
  * @example
  * ```ts
- * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import { Ask } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const Rulething: Rule.Effect = Rule.Effect.Enum.ask
+ * console.log(Ask)
  * ```
  *
  * @category models
@@ -159,7 +161,7 @@ export class Ask extends Base.extend<Ask>($I`Ask`)(
  * ```ts
  * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const Rulething: Rule = Rule.Enum.allow
+ * console.log(Rule.ast)
  * ```
  *
  * @category models
@@ -175,15 +177,27 @@ export const Rule = S.Union([Allow, Deny, Ask]).pipe(
 /**
  * Companion type for {@link Rule}.
  *
+ * @example
+ * ```ts
+ * import type { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ *
+ * const useRule = (_value: Rule) => true
+ * console.log(useRule)
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
 export type Rule = typeof Rule.Type;
 
 /**
+ * Array schema for ordered rule effects.
  *
  * @example
  * ```ts
+ * import { Ruleset } from "@beep/shared-domain/values/Rule/Rule.model"
+ *
+ * console.log(Ruleset.ast)
  * ```
  *
  * @category models
@@ -196,4 +210,18 @@ export const Ruleset = Rule.pipe(
   })
 );
 
+/**
+ * Type for {@link Ruleset}.
+ *
+ * @example
+ * ```ts
+ * import type { Ruleset } from "@beep/shared-domain/values/Rule/Rule.model"
+ *
+ * const useRuleset = (_value: Ruleset) => true
+ * console.log(useRuleset)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type Ruleset = typeof Ruleset.Type;

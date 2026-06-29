@@ -4,9 +4,9 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import {$GovinfoId} from "@beep/identity";
+import { $GovinfoId } from "@beep/identity";
 import * as S from "effect/Schema";
-import {SummaryItem} from "../SummaryItem/index.ts";
+import { SummaryItem } from "../SummaryItem/index.ts";
 
 const $I = $GovinfoId.create("domain/values/CollectionSummary/CollectionSummary.model");
 
@@ -17,15 +17,17 @@ const $I = $GovinfoId.create("domain/values/CollectionSummary/CollectionSummary.
  * ```ts
  * import { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
  *
- * console.log(CollectionSummary.make({}));
+ * console.log(CollectionSummary);
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export const CollectionSummary = S.Array(SummaryItem).pipe($I.annoteSchema("CollectionSummary", {
-	description: "The CollectionSummary value object.",
-}))
+export const CollectionSummary = S.Array(SummaryItem).pipe(
+  $I.annoteSchema("CollectionSummary", {
+    description: "The CollectionSummary value object.",
+  })
+);
 
 /**
  * Companion type for {@link CollectionSummary}.
@@ -34,7 +36,8 @@ export const CollectionSummary = S.Array(SummaryItem).pipe($I.annoteSchema("Coll
  * ```ts
  * import type { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
  *
- * const thing: CollectionSummary = CollectionSummary.make({});
+ * const useValue = (_value: CollectionSummary) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models
@@ -49,18 +52,19 @@ export type CollectionSummary = typeof CollectionSummary.Type;
  * @since 0.0.0
  */
 export declare namespace CollectionSummary {
-	/**
-	 * The compainion encoded type for {@link CollectionSummary}.
-	 *
-	 * @example
-	 * ```ts
-	 * import type { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
-	 *
-	 * const thing: CollectionSummary.Encoded = CollectionSummary.make({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof CollectionSummary.Encoded;
+  /**
+   * The companion encoded type for {@link CollectionSummary}.
+   *
+   * @example
+   * ```ts
+   * import type { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+   *
+   * const useEncoded = (_value: CollectionSummary.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof CollectionSummary.Encoded;
 }

@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping";
+ * import { IntegrationMapping } from "@beep/box/experimental/domain/entities/IntegrationMapping/IntegrationMapping.model";
  *
- * const thing = IntegrationMapping.make({});
+ * console.log(IntegrationMapping)
  * ```
  *
  * @category models

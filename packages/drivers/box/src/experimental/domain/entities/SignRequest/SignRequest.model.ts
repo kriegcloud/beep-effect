@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/SignRequest/SignRequest.m
  *
  * @example
  * ```ts
- * import { SignRequest } from "@beep/box/experimental/domain/values/SignRequest/SignRequest.model";
+ * import { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
  *
  * console.log(SignRequest.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/SignRequest/SignRequest.m
  * @since 0.0.0
  */
 export class SignRequest extends S.Class<SignRequest>($I`SignRequest`)(
-	{},
-	$I.annote("SignRequest", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("SignRequest", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class SignRequest extends S.Class<SignRequest>($I`SignRequest`)(
  * @since 0.0.0
  */
 export declare namespace SignRequest {
-	/**
-	 * Companion encoded type for {@link SignRequest}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {SignRequest} from "@beep/box/experimental/domain/values/SignRequest/SignRequest.model";
-	 *
-	 * const thing: SignRequest.Encoded = S.encodeUnknownSync(SignRequest)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof SignRequest.Encoded;
+  /**
+   * Companion encoded type for {@link SignRequest}.
+   *
+   * @example
+   * ```ts
+   * import type { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
+   *
+   * const useEncoded = (_value: SignRequest.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SignRequest.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace SignRequest {
  *
  * @example
  * ```ts
- * import {SignRequest} from "@beep/box/experimental/domain/values/SignRequest/SignRequest.model";
+ * import type { SignRequest } from "@beep/box/experimental/domain/entities/SignRequest/SignRequest.model";
  *
- * const thing: SignRequest = S.encodeUnknownSync(SignRequest)({});
+ * const useValue = (_value: SignRequest) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

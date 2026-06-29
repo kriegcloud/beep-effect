@@ -233,6 +233,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
  * @example
  * ```ts
  * import { Effect } from "effect"
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
  * import { DocumentId } from "@beep/nlp/Core/Document"
  * import { DocumentTermSet, TverskyParams } from "@beep/nlp/Core/Similarity"
  * import { WinkSimilarity, WinkSimilarityLive } from "@beep/wink"
@@ -242,7 +243,10 @@ const makeWinkSimilarity = Effect.gen(function* () {
  *   return yield* similarity.setTversky(
  *     DocumentTermSet.make({ documentId: DocumentId.make("doc-a"), terms: ["effect", "schema"] }),
  *     DocumentTermSet.make({ documentId: DocumentId.make("doc-b"), terms: ["effect", "docs"] }),
- *     TverskyParams.make({ alpha: 0.5, beta: 0.5 })
+ *     TverskyParams.make({
+ *       alpha: UnitInterval.make(0.5),
+ *       beta: UnitInterval.make(0.5)
+ *     })
  *   )
  * })
  *
@@ -262,6 +266,7 @@ export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilari
  * @example
  * ```ts
  * import { Effect } from "effect"
+ * import { UnitInterval } from "@beep/schema/UnitInterval"
  * import { DocumentId } from "@beep/nlp/Core/Document"
  * import { DocumentTermSet, TverskyParams } from "@beep/nlp/Core/Similarity"
  * import { WinkSimilarity, WinkSimilarityLive } from "@beep/wink"
@@ -271,7 +276,10 @@ export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilari
  *   return yield* similarity.setTversky(
  *     DocumentTermSet.make({ documentId: DocumentId.make("left"), terms: ["nlp"] }),
  *     DocumentTermSet.make({ documentId: DocumentId.make("right"), terms: ["nlp", "search"] }),
- *     TverskyParams.make({ alpha: 0.5, beta: 0.5 })
+ *     TverskyParams.make({
+ *       alpha: UnitInterval.make(0.5),
+ *       beta: UnitInterval.make(0.5)
+ *     })
  *   )
  * })
  *

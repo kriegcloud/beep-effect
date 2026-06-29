@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias";
+ * import { EmailAlias } from "@beep/box/experimental/domain/entities/EmailAlias/EmailAlias.model";
  *
- * const thing = EmailAlias.make({});
+ * console.log(EmailAlias)
  * ```
  *
  * @category models

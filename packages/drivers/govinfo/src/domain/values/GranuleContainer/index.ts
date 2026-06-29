@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { GranuleContainer } from "@beep/govinfo/domain/values";
+ * import { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
  *
- * console.log(GranuleContainer.make({}));
+ * console.log(GranuleContainer);
  * ```
  *
  * @category models

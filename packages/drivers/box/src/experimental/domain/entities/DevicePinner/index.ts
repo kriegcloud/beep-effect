@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner";
+ * import { DevicePinner } from "@beep/box/experimental/domain/entities/DevicePinner/DevicePinner";
  *
- * const thing = DevicePinner.make({});
+ * console.log(DevicePinner)
  * ```
  *
  * @category models

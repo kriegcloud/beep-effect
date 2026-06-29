@@ -16,7 +16,6 @@
  * @since 0.0.0
  */
 export * from "./Search.contract.ts";
-
 /**
  * TODO
  *

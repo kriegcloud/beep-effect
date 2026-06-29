@@ -135,9 +135,13 @@ export type AlignmentStatus = typeof AlignmentStatus.Type;
  * @example
  * ```ts
  * import { LangExtractOptions } from "@beep/langextract/Extraction"
+ * import { UnitInterval } from "@beep/nlp/Handoff"
  * import { NonNegativeInt } from "@beep/schema"
  *
- * console.log(LangExtractOptions.make({ fuzzyThreshold: 0.9, maxExtractions: NonNegativeInt.make(5) }))
+ * console.log(LangExtractOptions.make({
+ *   fuzzyThreshold: UnitInterval.make(0.9),
+ *   maxExtractions: NonNegativeInt.make(5)
+ * }))
  * ```
  *
  * @category models
@@ -159,8 +163,13 @@ export class LangExtractOptions extends S.Class<LangExtractOptions>($I`LangExtra
  * @example
  * ```ts
  * import { ExtractionCandidate } from "@beep/langextract/Extraction"
+ * import { UnitInterval } from "@beep/nlp/Handoff"
  *
- * console.log(ExtractionCandidate.make({ label: "person", text: "Ada Lovelace", confidence: 0.98 }))
+ * console.log(ExtractionCandidate.make({
+ *   label: "person",
+ *   text: "Ada Lovelace",
+ *   confidence: UnitInterval.make(0.98)
+ * }))
  * ```
  *
  * @category models

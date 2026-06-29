@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Workflow/Workflow.model")
  *
  * @example
  * ```ts
- * import { Workflow } from "@beep/box/experimental/domain/values/Workflow/Workflow.model";
+ * import { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
  *
  * console.log(Workflow.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Workflow/Workflow.model")
  * @since 0.0.0
  */
 export class Workflow extends S.Class<Workflow>($I`Workflow`)(
-	{},
-	$I.annote("Workflow", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Workflow", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Workflow extends S.Class<Workflow>($I`Workflow`)(
  * @since 0.0.0
  */
 export declare namespace Workflow {
-	/**
-	 * Companion encoded type for {@link Workflow}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Workflow} from "@beep/box/experimental/domain/values/Workflow/Workflow.model";
-	 *
-	 * const thing: Workflow.Encoded = S.encodeUnknownSync(Workflow)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Workflow.Encoded;
+  /**
+   * Companion encoded type for {@link Workflow}.
+   *
+   * @example
+   * ```ts
+   * import type { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
+   *
+   * const useEncoded = (_value: Workflow.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Workflow.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Workflow {
  *
  * @example
  * ```ts
- * import {Workflow} from "@beep/box/experimental/domain/values/Workflow/Workflow.model";
+ * import type { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
  *
- * const thing: Workflow = S.encodeUnknownSync(Workflow)({});
+ * const useValue = (_value: Workflow) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

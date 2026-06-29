@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/TrashFileRestored/TrashFi
  *
  * @example
  * ```ts
- * import { TrashFileRestored } from "@beep/box/experimental/domain/values/TrashFileRestored/TrashFileRestored.model";
+ * import { TrashFileRestored } from "@beep/box/experimental/domain/entities/TrashFileRestored/TrashFileRestored.model";
  *
  * console.log(TrashFileRestored.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/TrashFileRestored/TrashFi
  * @since 0.0.0
  */
 export class TrashFileRestored extends S.Class<TrashFileRestored>($I`TrashFileRestored`)(
-	{},
-	$I.annote("TrashFileRestored", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("TrashFileRestored", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class TrashFileRestored extends S.Class<TrashFileRestored>($I`TrashFileRe
  * @since 0.0.0
  */
 export declare namespace TrashFileRestored {
-	/**
-	 * Companion encoded type for {@link TrashFileRestored}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {TrashFileRestored} from "@beep/box/experimental/domain/values/TrashFileRestored/TrashFileRestored.model";
-	 *
-	 * const thing: TrashFileRestored.Encoded = S.encodeUnknownSync(TrashFileRestored)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof TrashFileRestored.Encoded;
+  /**
+   * Companion encoded type for {@link TrashFileRestored}.
+   *
+   * @example
+   * ```ts
+   * import type { TrashFileRestored } from "@beep/box/experimental/domain/entities/TrashFileRestored/TrashFileRestored.model";
+   *
+   * const useEncoded = (_value: TrashFileRestored.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TrashFileRestored.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace TrashFileRestored {
  *
  * @example
  * ```ts
- * import {TrashFileRestored} from "@beep/box/experimental/domain/values/TrashFileRestored/TrashFileRestored.model";
+ * import type { TrashFileRestored } from "@beep/box/experimental/domain/entities/TrashFileRestored/TrashFileRestored.model";
  *
- * const thing: TrashFileRestored = S.encodeUnknownSync(TrashFileRestored)({});
+ * const useValue = (_value: TrashFileRestored) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

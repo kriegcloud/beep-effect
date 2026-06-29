@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/TrashFolder/TrashFolder.m
  *
  * @example
  * ```ts
- * import { TrashFolder } from "@beep/box/experimental/domain/values/TrashFolder/TrashFolder.model";
+ * import { TrashFolder } from "@beep/box/experimental/domain/entities/TrashFolder/TrashFolder.model";
  *
  * console.log(TrashFolder.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/TrashFolder/TrashFolder.m
  * @since 0.0.0
  */
 export class TrashFolder extends S.Class<TrashFolder>($I`TrashFolder`)(
-	{},
-	$I.annote("TrashFolder", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("TrashFolder", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class TrashFolder extends S.Class<TrashFolder>($I`TrashFolder`)(
  * @since 0.0.0
  */
 export declare namespace TrashFolder {
-	/**
-	 * Companion encoded type for {@link TrashFolder}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {TrashFolder} from "@beep/box/experimental/domain/values/TrashFolder/TrashFolder.model";
-	 *
-	 * const thing: TrashFolder.Encoded = S.encodeUnknownSync(TrashFolder)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof TrashFolder.Encoded;
+  /**
+   * Companion encoded type for {@link TrashFolder}.
+   *
+   * @example
+   * ```ts
+   * import type { TrashFolder } from "@beep/box/experimental/domain/entities/TrashFolder/TrashFolder.model";
+   *
+   * const useEncoded = (_value: TrashFolder.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof TrashFolder.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace TrashFolder {
  *
  * @example
  * ```ts
- * import {TrashFolder} from "@beep/box/experimental/domain/values/TrashFolder/TrashFolder.model";
+ * import type { TrashFolder } from "@beep/box/experimental/domain/entities/TrashFolder/TrashFolder.model";
  *
- * const thing: TrashFolder = S.encodeUnknownSync(TrashFolder)({});
+ * const useValue = (_value: TrashFolder) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/SignTemplate/SignTemplate
  *
  * @example
  * ```ts
- * import { SignTemplate } from "@beep/box/experimental/domain/values/SignTemplate/SignTemplate.model";
+ * import { SignTemplate } from "@beep/box/experimental/domain/entities/SignTemplate/SignTemplate.model";
  *
  * console.log(SignTemplate.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/SignTemplate/SignTemplate
  * @since 0.0.0
  */
 export class SignTemplate extends S.Class<SignTemplate>($I`SignTemplate`)(
-	{},
-	$I.annote("SignTemplate", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("SignTemplate", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class SignTemplate extends S.Class<SignTemplate>($I`SignTemplate`)(
  * @since 0.0.0
  */
 export declare namespace SignTemplate {
-	/**
-	 * Companion encoded type for {@link SignTemplate}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {SignTemplate} from "@beep/box/experimental/domain/values/SignTemplate/SignTemplate.model";
-	 *
-	 * const thing: SignTemplate.Encoded = S.encodeUnknownSync(SignTemplate)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof SignTemplate.Encoded;
+  /**
+   * Companion encoded type for {@link SignTemplate}.
+   *
+   * @example
+   * ```ts
+   * import type { SignTemplate } from "@beep/box/experimental/domain/entities/SignTemplate/SignTemplate.model";
+   *
+   * const useEncoded = (_value: SignTemplate.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SignTemplate.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace SignTemplate {
  *
  * @example
  * ```ts
- * import {SignTemplate} from "@beep/box/experimental/domain/values/SignTemplate/SignTemplate.model";
+ * import type { SignTemplate } from "@beep/box/experimental/domain/entities/SignTemplate/SignTemplate.model";
  *
- * const thing: SignTemplate = S.encodeUnknownSync(SignTemplate)({});
+ * const useValue = (_value: SignTemplate) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

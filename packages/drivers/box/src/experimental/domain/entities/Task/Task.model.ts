@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Task/Task.model");
  *
  * @example
  * ```ts
- * import { Task } from "@beep/box/experimental/domain/values/Task/Task.model";
+ * import { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
  *
  * console.log(Task.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Task/Task.model");
  * @since 0.0.0
  */
 export class Task extends S.Class<Task>($I`Task`)(
-	{},
-	$I.annote("Task", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Task", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Task extends S.Class<Task>($I`Task`)(
  * @since 0.0.0
  */
 export declare namespace Task {
-	/**
-	 * Companion encoded type for {@link Task}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Task} from "@beep/box/experimental/domain/values/Task/Task.model";
-	 *
-	 * const thing: Task.Encoded = S.encodeUnknownSync(Task)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Task.Encoded;
+  /**
+   * Companion encoded type for {@link Task}.
+   *
+   * @example
+   * ```ts
+   * import type { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
+   *
+   * const useEncoded = (_value: Task.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Task.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Task {
  *
  * @example
  * ```ts
- * import {Task} from "@beep/box/experimental/domain/values/Task/Task.model";
+ * import type { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
  *
- * const thing: Task = S.encodeUnknownSync(Task)({});
+ * const useValue = (_value: Task) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models

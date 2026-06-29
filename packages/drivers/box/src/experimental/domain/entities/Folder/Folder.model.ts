@@ -13,7 +13,7 @@ const $I = $BoxId.create("experimental/domain/entities/Folder/Folder.model");
  *
  * @example
  * ```ts
- * import { Folder } from "@beep/box/experimental/domain/values/Folder/Folder.model";
+ * import { Folder } from "@beep/box/experimental/domain/entities/Folder/Folder.model";
  *
  * console.log(Folder.make({
  *
@@ -24,10 +24,10 @@ const $I = $BoxId.create("experimental/domain/entities/Folder/Folder.model");
  * @since 0.0.0
  */
 export class Folder extends S.Class<Folder>($I`Folder`)(
-	{},
-	$I.annote("Folder", {
-		description: "TODO",
-	})
+  {},
+  $I.annote("Folder", {
+    description: "TODO",
+  })
 ) {}
 
 /**
@@ -36,20 +36,21 @@ export class Folder extends S.Class<Folder>($I`Folder`)(
  * @since 0.0.0
  */
 export declare namespace Folder {
-	/**
-	 * Companion encoded type for {@link Folder}.
-	 *
-	 * @example
-	 * ```ts
-	 * import {Folder} from "@beep/box/experimental/domain/values/Folder/Folder.model";
-	 *
-	 * const thing: Folder.Encoded = S.encodeUnknownSync(Folder)({});
-	 * ```
-	 *
-	 * @category models
-	 * @since 0.0.0
-	 */
-	export type Encoded = typeof Folder.Encoded;
+  /**
+   * Companion encoded type for {@link Folder}.
+   *
+   * @example
+   * ```ts
+   * import type { Folder } from "@beep/box/experimental/domain/entities/Folder/Folder.model";
+   *
+   * const useEncoded = (_value: Folder.Encoded) => true;
+   * console.log(useEncoded);
+   * ```
+   *
+   * @category models
+   * @since 0.0.0
+   */
+  export type Encoded = typeof Folder.Encoded;
 }
 
 /**
@@ -57,9 +58,10 @@ export declare namespace Folder {
  *
  * @example
  * ```ts
- * import {Folder} from "@beep/box/experimental/domain/values/Folder/Folder.model";
+ * import type { Folder } from "@beep/box/experimental/domain/entities/Folder/Folder.model";
  *
- * const thing: Folder = S.encodeUnknownSync(Folder)({});
+ * const useValue = (_value: Folder) => true;
+ * console.log(useValue);
  * ```
  *
  * @category models
