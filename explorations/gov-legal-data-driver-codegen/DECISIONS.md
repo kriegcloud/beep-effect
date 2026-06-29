@@ -175,7 +175,18 @@ spec + `_generated/` make build/check network-free, per
 `packages/drivers/acp/AGENTS.md`). The MCP-bin-as-sibling split is the established
 `m365`/`m365-mcp` packaging pattern.
 
-**Status:** open (for /grill-with-docs)
+**Resolved (2026-06-29):** **Incubate-then-promote.** The shared transformer is
+authored **inside the `govinfo` driver** for slice 1, then **promoted to a
+`foundation/capability/<name>` package when the 2nd driver (eCFR/FedReg) imports
+it**, with a README promotion record naming both consumers at promotion time.
+This honors the binding `07-non-slice-families.md` gate (`foundation/capability`
+is the last generic home; requires **≥2 named consumers currently importing**,
+checked at PR review — "one importer is not promotion-ready"; no sanctioned
+`drivers/_shared` exists). Codegen stays per-driver (`scripts/generate.ts` +
+package-private `src/_generated/*`); MCP bin is its own sibling (see Q3). Q5's
+transformer design is unchanged — only its home + timing.
+
+**Status:** resolved
 
 ## Q7: Determinism gate — wire a repo-wide `build → codegen` turbo edge, or keep per-package generate-first audit + a `git diff` drift check?
 

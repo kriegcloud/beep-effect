@@ -129,3 +129,44 @@ same shapes the audit flagged. **Resolved directions** for the grounded question
 N3 (G7/G8), N6 (G11), N8 (SPO-capable assertion + confidence/derivation/lifecycle/
 supersession; defer deep FOLIO/PROV-O TBox to `ip-law-knowledge-graph`),
 R3 (G9/G1), P6 (G2/G12), P8 (G10/G11/G13).
+
+---
+
+## Adversarial review outcomes (2026-06-29)
+
+A 6-dimension adversarial review (multi-agent, with an independent verify pass)
+stress-tested the audit, grounding, plan, and graduated packet. **Verdict: the
+Phase-1 audit held** — the code-accuracy dimension tried to refute every
+load-bearing claim and verified them all true (only cosmetic nits). Three serious
+findings survived verification and were **applied**:
+
+- **R-1 (upheld, packet-compliance).** The graduated `domain-kernel-hardening` SPEC
+  proposed promotion records for `TemporalValidity`/`DomainEvent` citing *intended*
+  consumers, violating `02-shared-kernel.md:189` (>=2 *current* consumers; these had
+  zero). **Fix:** cut both VOs out of packet 1; each is introduced by its first
+  consumer (`DomainEvent`→packet 3, `TemporalValidity`→packet 5). Adding fields to
+  the already-shared `BaseEntity` needs no new promotion record.
+- **R-2 (upheld, plan-soundness).** Same two VOs were speculative scaffolding on the
+  critical-path first packet, contradicting its "smallest change" framing. Resolved
+  by the same cut (R-1).
+- **R-3 (upheld, plan-soundness).** `MAP.md` packet-4 dependency table (`2, lifecycle
+  from 1/3`) contradicted the ASCII graph (3/4 drawn parallel). **Fix:** packet 4 now
+  depends on `2, 3`; graph redrawn with the `3→4` edge.
+
+Minors applied: softened the `GOLD_SYNTHESIS.md` "independent" framing (it is a
+same-day beep-specific synthesis of *independent* repos); corrected G7 "CPC/IPC"→
+"CPC" (cited file has no IPC table); footnoted `architecture-lab` as a wired-but-
+synthetic slice deliberately excluded; added MAP coordination notes (packet-3 SPO
+shape must reconcile with `@beep/ontology`; packet 5 is large and must split +
+reconcile with the office-action packets); fixed three code-audit nits
+(applicationNumber mislabel, Turn cross-slice overstatement, DomainModel "only
+tests" + version floor/mechanism).
+
+Refuted by the verify pass (recorded for honesty): the "foundation surface silently
+dropped" critique (it is explicitly scoped as reuse substrate), "retire DomainModel =
+64-file churn" (the SPEC sanctions deprecate-alias), "attestation packet is committed
+speculation" (it is a deferred candidate), "SPO pre-commits the graph engine" (logical
+shape ≠ storage), and "plan shaped in isolation" (the README Related-Packets section
+exists). Reuse check (run manually after one review agent degraded): all proposed
+NET-NEW symbols return 0 existing files; claimed bricks (`EntityRef`, `Ed25519Signature`)
+exist — reuse-first discipline holds.

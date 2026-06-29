@@ -58,6 +58,16 @@ The approved execution plan lives at
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-29: **Adversarial review + fixes.** Ran a 6-dimension multi-agent
+  adversarial review (with an independent verify pass). The Phase-1 audit held
+  (code-accuracy refuted nothing load-bearing). Applied 3 upheld serious fixes —
+  the headline being **cutting `TemporalValidity`/`DomainEvent` out of
+  `domain-kernel-hardening`** (zero-consumer shared exports are not promotable per
+  `02-shared-kernel.md`) — plus a MAP dependency-graph fix and several precision
+  minors (GOLD_SYNTHESIS framing, G7 CPC/IPC, architecture-lab footnote, SPO/ontology
+  + packet-5-split coordination notes, code-audit nits). Outcomes logged in
+  `DECISIONS.md` §"Adversarial review outcomes"; packet re-verified (GOAL 3302/4000,
+  manifest valid, whitespace clean).
 - 2026-06-29: **Phase 3 shape + decompose + graduate (first packet).** Wrote
   `BRIEF.md` (problem/appetite/sketch/rabbit-holes/no-gos) and `MAP.md` (7 candidate
   packets, dependency graph, capability cites, first slice). Confirmed packet shape

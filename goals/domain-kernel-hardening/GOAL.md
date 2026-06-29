@@ -3,9 +3,8 @@
 Repo: `/home/elpresidank/YeeBois/projects/beep-effect`.
 
 Outcome: `BaseEntity` carries `Principal`-typed soft-delete and is the single
-canonical audit base, with reusable conventions (typed-error pattern, opt-in
-`TemporalValidity` + `DomainEvent` value objects) in place for the rest of the
-domain-layer hardening.
+canonical audit base, with the typed-error (`.errors.ts`) convention in place for
+the rest of the domain-layer hardening.
 
 This is a compact `/goal` launcher. Treat the packet files as the detailed
 contract:
@@ -27,17 +26,18 @@ Scope:
 - In: `packages/shared/domain/src/entity/BaseEntity.ts` (add `deletedAt` +
   `deletedByPrincipal`, Principal-typed, nullable→`null`, with an
   `EntitySchema.persist.*` descriptor); `packages/foundation/modeling/schema/src/DomainModel.ts`
-  (retire or deprecate-alias — `rowVersion` already covers `version`); a new
-  `TemporalValidity` VO (open-interval) + `DomainEvent` envelope VO (placement per
-  shared-kernel promotion rules); the kernel `.errors.ts` convention; tests + docgen.
-- Out: NO slice-entity edits — do not replace `*FixtureKey` strings, type any
+  (retire or deprecate-alias — `rowVersion` already covers `version`); the kernel
+  `.errors.ts` convention; tests + docgen.
+- Out: NO new shared VOs (`TemporalValidity`/`DomainEvent` are deferred to their
+  consuming packets — zero-consumer shared exports are not promotable). NO
+  slice-entity edits — do not replace `*FixtureKey` strings, type any
   `snapshot: UnknownRecord`, grow vocabularies, or add soft-delete **enforcement**
   (repository filtering/cascade). Those are sibling packets in the exploration MAP.
 
 Workflow:
 
 1. P0: inspect `BaseEntity`, `DomainModel`, `EntitySchema.persist.*`, `Principal`,
-   and decide VO placement (+ promotion record). Record facts/blockers.
+   and the soft-delete persist value-strategy. Record facts/blockers.
 2. P1: make the smallest schema-first changes satisfying `SPEC.md`.
 3. Preserve unrelated worktree changes; keep decisions tied to file/test evidence.
 4. P2: run the verification commands; capture evidence.
@@ -48,8 +48,7 @@ Workflow:
 Acceptance:
 
 - [ ] `SPEC.md` acceptance criteria are satisfied (soft-delete fields + tests;
-      `DomainModel` retired/deprecated; both VOs with docgen-clean examples +
-      promotion record; `.errors.ts` convention demonstrated).
+      `DomainModel` retired/deprecated; `.errors.ts` convention demonstrated).
 - [ ] Required verification commands pass, or unrelated failures are reproduced
       and recorded separately.
 - [ ] No unrelated refactors, formatting churn, or slice-entity edits.

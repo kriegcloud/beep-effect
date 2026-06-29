@@ -9,7 +9,7 @@ candidate/approval/artifact entities are fixture-seed blobs.** Citations
 
 | Entity | Highlights | Cite |
 |---|---|---|
-| `Turn` | **real aggregate**: `items: TurnItems` (tagged union `TurnItem` = Message/ToolCall/ToolResult/ArtifactRef/Activity items via `LiteralKit.mapMembers` + `S.toTaggedUnion("itemType")`), `parentTurnId` (**branching lineage**), typed `threadId`, `turnIndex: NonNegativeInt`; cross-slice typed refs to `MessageId`/`EmailArtifactId`/`ActivityId` | `entities/Turn/Turn.model.ts:102-205` |
+| `Turn` | **real aggregate**: `items: TurnItems` (tagged union `TurnItem` = Message/ToolCall/ToolResult/ArtifactRef/Activity items via `LiteralKit.mapMembers` + `S.toTaggedUnion("itemType")`), `parentTurnId` (**branching lineage**), typed `threadId`, `turnIndex: NonNegativeInt`; typed refs (`MessageId`/`EmailArtifactId` same-slice; `ActivityId` cross-slice to epistemic) | `entities/Turn/Turn.model.ts:102-205` |
 | `Message` | `content: Document` (**`@beep/md` rich text, schema-first**), `role: MessageRole` (LiteralKit system/user/assistant/agent/tool), typed `threadId`/`turnId` | `entities/Message/Message.model.ts:65-95` |
 | `Thread` | `title: NonEmptyString`, typed `workspaceId` | `entities/Thread/Thread.model.ts:29-49` |
 

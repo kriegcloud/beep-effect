@@ -36,6 +36,14 @@ enforce later*.
 | agents | 2 | Agent, Skill | entities, turn, values | 0 | thin |
 | shared/domain | 3 + kernel | User, Organization, Membership (+ BaseEntity/EntityId/Principal/primitives) | aggregates(empty), entities, entity, identity, values | 2 | the kernel/reference |
 
+Excluded deliberately: **`architecture-lab`** is a *fully-wired* slice
+(domain/client/server/ui/tables/use-cases) with a real `Worker` model + an
+`aggregates/` dir — not merely a fixture — but it is a synthetic lab/specimen
+slice, not a product vertical, so it is out of scope for product-domain hardening.
+Foundation packages (`@beep/schema`, `@beep/provenance`, `@beep/rdf`, …) are
+treated as **reuse-first substrate** (§A.3), not audited as product slices — they
+supply the bricks the slices compose, by design.
+
 ### A.3 Canonical patterns ALREADY solved (reuse-first — do NOT re-propose)
 Primitives in `packages/foundation/modeling/*` (`@beep/schema`, `@beep/identity`,
 `@beep/provenance`) + `@beep/shared-domain`.

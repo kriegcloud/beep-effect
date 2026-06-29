@@ -24,7 +24,10 @@ here and ripple to all five slices. Citations are `file:line` under
 **Reading:** `BaseEntity` is strictly richer on actor/source/tenant/versioning;
 `DomainModel` is richer only on **soft-delete** (`deletedAt`/`deletedBy`) — and
 even there with weak `String` actor typing. `rowVersion` already subsumes
-`DomainModel.version`. `DomainModel` is referenced only by tests/dtslint.
+`DomainModel.version` (modulo a floor/mechanism difference: `rowVersion` is
+`PosInt`/`incrementedOnWrite`, `version` is `Generated(NonNegativeInt)` — map
+`version: 0` rows deliberately on retirement). `DomainModel` is adopted by no
+product entity; only its own barrel, unit tests, and dtslint reference it.
 
 **Recommendation (rubric 1✔ 2✔ 3✔ 4✔):** keep `BaseEntity` canonical; **port
 soft-delete into `BaseEntity`** as `deletedAt: S.OptionFromNullOr(DateTimeFromMillis)`

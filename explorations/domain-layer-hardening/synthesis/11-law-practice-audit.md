@@ -15,7 +15,7 @@ Every entity carries `fixtureKey: S.String` and references siblings by
 | Entity | Relationship fields (all `S.String`) |
 |---|---|
 | `Matter` | `legalClientFixtureKey` |
-| `OfficeAction` | `matterFixtureKey`, `patentAssetFixtureKey`, `applicationNumber` |
+| `OfficeAction` | `matterFixtureKey`, `patentAssetFixtureKey` (`applicationNumber` is a bare-`S.String` *attribute*, not a relationship — see §2) |
 | `PatentAsset` | `matterFixtureKey` |
 | `Claim` | `patentAssetFixtureKey` |
 | `Rejection` | `claimFixtureKey`, `officeActionFixtureKey` |
