@@ -459,12 +459,34 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/drivers/courtlistener": {
+      "name": "@beep/courtlistener",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/discord": {
       "name": "@beep/discord",
       "version": "0.0.1",
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/dol": {
+      "name": "@beep/dol",
+      "version": "0.0.0",
+      "dependencies": {
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -505,6 +527,17 @@
         "vitest": "catalog:",
       },
     },
+    "packages/drivers/ecfr": {
+      "name": "@beep/ecfr",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/drivers/face-detection": {
       "name": "@beep/face-detection",
       "version": "0.0.2",
@@ -515,6 +548,17 @@
         "effect": "catalog:",
         "onnxruntime-node": "catalog:",
         "sharp": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/federal-register": {
+      "name": "@beep/federal-register",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
@@ -546,6 +590,17 @@
         "@beep/utils": "workspace:^",
         "effect": "catalog:",
         "firecrawl": "^4.25.2",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/govinfo": {
+      "name": "@beep/govinfo",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
@@ -2072,15 +2127,21 @@
 
     "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
+    "@beep/courtlistener": ["@beep/courtlistener@workspace:packages/drivers/courtlistener"],
+
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
 
     "@beep/db-admin": ["@beep/db-admin@workspace:packages/_internal/db-admin"],
 
     "@beep/discord": ["@beep/discord@workspace:packages/drivers/discord"],
 
+    "@beep/dol": ["@beep/dol@workspace:packages/drivers/dol"],
+
     "@beep/drizzle": ["@beep/drizzle@workspace:packages/drivers/drizzle"],
 
     "@beep/duckdb": ["@beep/duckdb@workspace:packages/drivers/duckdb"],
+
+    "@beep/ecfr": ["@beep/ecfr@workspace:packages/drivers/ecfr"],
 
     "@beep/editor": ["@beep/editor@workspace:packages/foundation/ui-system/editor"],
 
@@ -2094,6 +2155,8 @@
 
     "@beep/face-detection": ["@beep/face-detection@workspace:packages/drivers/face-detection"],
 
+    "@beep/federal-register": ["@beep/federal-register@workspace:packages/drivers/federal-register"],
+
     "@beep/ffmpeg": ["@beep/ffmpeg@workspace:packages/drivers/ffmpeg"],
 
     "@beep/file-processing": ["@beep/file-processing@workspace:packages/foundation/capability/file-processing"],
@@ -2101,6 +2164,8 @@
     "@beep/firecrawl": ["@beep/firecrawl@workspace:packages/drivers/firecrawl"],
 
     "@beep/form": ["@beep/form@workspace:packages/foundation/ui-system/form"],
+
+    "@beep/govinfo": ["@beep/govinfo@workspace:packages/drivers/govinfo"],
 
     "@beep/html": ["@beep/html@workspace:packages/foundation/modeling/html"],
 
