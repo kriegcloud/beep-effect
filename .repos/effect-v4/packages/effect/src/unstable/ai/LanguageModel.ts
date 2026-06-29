@@ -1044,7 +1044,7 @@ export const make: (params: {
           })
         })
       }
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const prepared = tracker.prepareUnsafe(providerOptions.prompt)
         if (Option.isSome(prepared)) {
           providerOptions.previousResponseId = prepared.value.previousResponseId
@@ -1056,7 +1056,7 @@ export const make: (params: {
       )
       const rawContent = yield* generateWithNonIncrementalFallback()
       const content = yield* Schema.decodeEffect(ResponseSchema)(rawContent)
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const responseMetadata = content.find((part) => part.type === "response-metadata")
         if (Predicate.isNotUndefined(responseMetadata) && Predicate.isNotUndefined(responseMetadata.id)) {
           tracker.markParts(providerOptions.prompt.content, responseMetadata.id)
@@ -1082,7 +1082,7 @@ export const make: (params: {
           })
         })
       }
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const prepared = tracker.prepareUnsafe(providerOptions.prompt)
         if (Option.isSome(prepared)) {
           providerOptions.previousResponseId = prepared.value.previousResponseId
@@ -1094,7 +1094,7 @@ export const make: (params: {
       )
       const rawContent = yield* generateWithNonIncrementalFallback()
       const content = yield* Schema.decodeEffect(ResponseSchema)(rawContent)
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const responseMetadata = content.find((part) => part.type === "response-metadata")
         if (Predicate.isNotUndefined(responseMetadata) && Predicate.isNotUndefined(responseMetadata.id)) {
           tracker.markParts(providerOptions.prompt.content, responseMetadata.id)
@@ -1155,7 +1155,7 @@ export const make: (params: {
     providerOptions.tools = tools
     providerOptions.toolChoice = toolChoice
 
-    if (tracker) {
+    if (P.isNotUndefined(tracker)) {
       const prepared = tracker.prepareUnsafe(providerOptions.prompt)
       if (Option.isSome(prepared)) {
         providerOptions.previousResponseId = prepared.value.previousResponseId
@@ -1173,7 +1173,7 @@ export const make: (params: {
     if (options.disableToolCallResolution === true) {
       const rawContent = yield* generateWithNonIncrementalFallback()
       const content = yield* Schema.decodeEffect(ResponseSchema)(rawContent)
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const responseMetadata = content.find((part) => part.type === "response-metadata")
         if (Predicate.isNotUndefined(responseMetadata) && Predicate.isNotUndefined(responseMetadata.id)) {
           tracker.markParts(providerOptions.prompt.content, responseMetadata.id)
@@ -1201,7 +1201,7 @@ export const make: (params: {
 
     const content = yield* Schema.decodeEffect(ResponseSchema)(rawContent)
 
-    if (tracker) {
+    if (P.isNotUndefined(tracker)) {
       const responseMetadata = content.find((part) => part.type === "response-metadata")
       if (Predicate.isNotUndefined(responseMetadata) && Predicate.isNotUndefined(responseMetadata.id)) {
         tracker.markParts(providerOptions.prompt.content, responseMetadata.id)
@@ -1278,7 +1278,7 @@ export const make: (params: {
           })
         })
       }
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const prepared = tracker.prepareUnsafe(providerOptions.prompt)
         if (Option.isSome(prepared)) {
           providerOptions.previousResponseId = prepared.value.previousResponseId
@@ -1327,7 +1327,7 @@ export const make: (params: {
           })
         })
       }
-      if (tracker) {
+      if (P.isNotUndefined(tracker)) {
         const prepared = tracker.prepareUnsafe(providerOptions.prompt)
         if (Option.isSome(prepared)) {
           providerOptions.previousResponseId = prepared.value.previousResponseId
@@ -1430,7 +1430,7 @@ export const make: (params: {
     providerOptions.tools = tools
     providerOptions.toolChoice = toolChoice
 
-    if (tracker) {
+    if (P.isNotUndefined(tracker)) {
       const prepared = tracker.prepareUnsafe(providerOptions.prompt)
       if (Option.isSome(prepared)) {
         providerOptions.previousResponseId = prepared.value.previousResponseId
@@ -1527,7 +1527,7 @@ export const make: (params: {
       Stream.runForEachArray(
         Effect.fnUntraced(function*(chunk) {
           const parts = yield* decodeParts(chunk)
-          if (tracker) {
+          if (P.isNotUndefined(tracker)) {
             for (const part of parts) {
               if (part.type === "response-metadata" && part.id) {
                 tracker.markParts(providerOptions.prompt.content, part.id)

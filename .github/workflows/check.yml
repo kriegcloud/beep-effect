@@ -106,13 +106,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 100
+          fetch-depth: 0
 
       - name: Fetch pull request base
         if: github.event_name == 'pull_request'
         shell: bash
         run: |
-          git fetch --quiet --no-tags --depth=100 origin "${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
+          git fetch --quiet --no-tags origin "+refs/heads/${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
 
       - name: Determine lane execution
         id: lane-gate
@@ -718,14 +718,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Semgrep scan
-        uses: semgrep/semgrep-action@v1
         with:
-          config: >-
-            p/typescript
-            p/javascript
-            p/security-audit
-            p/secrets
-        env:
-          SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+          fetch-depth: 0
+
+      - name: Fetch pull request base
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git fetch --quiet --no-tags origin "+refs/heads/${GITHUB_BASE_REF:-main}:refs/remotes/origin/${GITHUB_BASE_REF:-main}"
+
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
+        with:
+          cache-turbo: "false"
+          cache-write: "false"
+
+      - name: Run SAST
+        run: |
+          # Keep Semgrep parity with the previous semgrep-action packs:
+          # p/typescript, p/javascript, p/security-audit, and p/secrets.
+          bun run beep quality github-checks sast

@@ -67,6 +67,18 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   assistant: agents may observe activity and propose candidate billable or
   nonbillable entries, while the attorney approval gate controls what becomes
   billable or exportable.
+- [`local-first-voice`](./local-first-voice/README.md) — privilege-safe voice &
+  microphone capability (TTS, STT, voice-to-voice) for `apps/professional-desktop`
+  (already Tauri v2). At `shape`, awaiting BRIEF sign-off. Research done via two
+  adversarial sweeps; 9 forks resolved (hybrid local-default · dictation-first slice
+  · desktop-first shared pkg · webview AudioWorklet capture · English-first
+  Moonshine+Kokoro · per-capability provider ports · STT→LLM→TTS pipeline ·
+  `effect/unstable/rpc` worker). Hand-rolls the missing `@effect/platform-browser`
+  audio glue; composes existing `live-waveform`/`use-scribe`/`xai`/`venice-ai`
+  bricks. First slice: local desktop dictation. MAP names 7 candidate goals
+  (`voice-capture-foundation`, `voice-inference-worker`, `voice-provider-ports`,
+  `voice-dictation-slice`, `voice-tts-playback`, `voice-cloud-transport`,
+  `voice-to-voice-session`).
 ### Proposed
 
 - (none — `atlas-synthesis` is now an Active packet above; its capability-inventory
