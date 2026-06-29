@@ -1,3 +1,5 @@
+// noinspection HttpUrlsUsage
+
 /**
  * Stage 4 of the TTL → Effect Schema codegen pipeline: produce a TS source
  * string for `packages/ontology-store/src/iris.ts` — namespace constants
@@ -31,15 +33,55 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import {pipe} from "effect";
+import {flow, identity, pipe} from "effect";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import {dual} from "effect/Function";
+import {$ScratchpadId} from "@beep/identity";
+import {Fn, MutableHashMapFromSelf, SchemaUtils} from "@beep/schema";
 import type { ClassTable } from "./parseTtl.ts";
 
-type IriTerms = MutableHashMap.MutableHashMap<string, string>;
+const $I = $ScratchpadId.create("ontology/emitIrisModule");
+
+const IriTermsSchema = MutableHashMapFromSelf({key: S.String, value: S.String}).pipe(
+  $I.annoteSchema("IriTerms", {
+    description: "Mutable map from generated TypeScript term key to full ontology IRI.",
+  })
+);
+type IriTerms = typeof IriTermsSchema.Type;
+
+const IriKeep = Fn({input: S.String, output: S.Boolean}).pipe(
+  SchemaUtils.withStatics((schema) => ({
+    acceptAll: schema.implementSync(() => true),
+  }))
+);
+const IriKey = Fn({input: S.String, output: S.String}).pipe(
+  SchemaUtils.withStatics((schema) => ({
+    identity: schema.implementSync(identity<string>),
+  }))
+);
+
+/**
+ * Namespace bucket configuration for generated ontology IRI constants.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+class IriBucket extends S.Class<IriBucket>($I`IriBucket`)({
+  terms: IriTermsSchema,
+  prefix: S.String,
+  keep: S.OptionFromOptionalKey(IriKeep),
+  key: S.OptionFromOptionalKey(IriKey),
+}, $I.annote("IriBucket", {
+  description: "Namespace bucket configuration for generated ontology IRI constants.",
+})) {
+}
+
+const decodeIriBucket = S.decodeSync(IriBucket);
 
 const NS_EI = "https://w3id.org/energy-intel/";
 const NS_BFO = "http://purl.obolibrary.org/obo/";
@@ -86,9 +128,11 @@ const IAO_TERMS: R.ReadonlyRecord<string, string> = {
  * namespace below.
  */
 const stripPrefix = (iri: string, prefix: string): O.Option<string> =>
-  pipe(iri, Str.startsWith(prefix))
-    ? O.some(pipe(iri, Str.slice(Str.length(prefix))))
-    : O.none();
+  pipe(
+    iri,
+    O.liftPredicate(Str.startsWith(prefix)),
+    O.map((value) => pipe(value, Str.slice(Str.length(prefix))))
+  );
 
 const renderEntry = (term: string, fullIri: string): string =>
   `  ${term}: namedNode("${fullIri}"),`;
@@ -98,15 +142,34 @@ const bfoAlias = (term: string): string => pipe(
   O.getOrElse(() => term)
 );
 
+const bucketIri: {
+  (bucket: IriBucket): (iri: string) => void;
+  (iri: string, bucket: IriBucket): void;
+} = dual(2, (iri: string, bucket: IriBucket): void => {
+  const keep = pipe(bucket.keep, O.getOrElse(() => IriKeep.acceptAll));
+  const key = pipe(bucket.key, O.getOrElse(() => IriKey.identity));
+  pipe(
+    stripPrefix(iri, bucket.prefix),
+    O.filter(keep),
+    O.map((tail) => MutableHashMap.set(bucket.terms, key(tail), iri)),
+    O.asVoid
+  );
+});
+
+const sortedTermKeys: (terms: IriTerms) => ReadonlyArray<string> = flow(
+  MutableHashMap.keys,
+  A.fromIterable,
+  A.sort(Str.Order)
+);
+
 const renderConst = (
   name: string,
   prefix: string,
   terms: IriTerms
 ): string => {
   const body = pipe(
-    MutableHashMap.keys(terms),
-    A.fromIterable,
-    A.sort(Str.Order),
+    terms,
+    sortedTermKeys,
     A.map((term) => renderEntry(
       term,
       pipe(
@@ -129,6 +192,7 @@ const renderConst = (
  *
  * @example
  * ```ts
+ * import * as Str from "effect/String"
  * import { emitIrisModule } from "./emitIrisModule.ts"
  * import { ClassTable } from "./parseTtl.ts"
  *
@@ -136,7 +200,7 @@ const renderConst = (
  *   classes: [],
  *   prefixes: {}
  * }))
- * console.log(source.includes("export const RDF"))
+ * console.log(Str.includes("export const RDF")(source))
  * ```
  *
  * @category formatting
@@ -150,73 +214,34 @@ export const emitIrisModule = (table: ClassTable): string => {
   const bfo = MutableHashMap.empty<string, string>();
   const foaf = MutableHashMap.empty<string, string>();
   const iao = MutableHashMap.fromIterable(R.toEntries(IAO_TERMS));
+  const bucketEi = bucketIri(decodeIriBucket({terms: ei, prefix: NS_EI}));
+  const bucketBfo = bucketIri(decodeIriBucket({
+    terms: bfo,
+    prefix: NS_BFO,
+    keep: Str.startsWith("BFO_"),
+    key: bfoAlias,
+  }));
+  const bucketFoaf = bucketIri(decodeIriBucket({terms: foaf, prefix: NS_FOAF}));
 
-  for (const propertyIri of table.declaredProperties ?? A.empty<string>()) {
-    pipe(
-      stripPrefix(propertyIri, NS_EI),
-      O.match({
-        onNone: () => undefined,
-        onSome: (tail) => MutableHashMap.set(ei, tail, propertyIri)
-      })
-    );
-
-    pipe(
-      stripPrefix(propertyIri, NS_BFO),
-      O.filter(Str.startsWith("BFO_")),
-      O.match({
-        onNone: () => undefined,
-        onSome: (tail) => MutableHashMap.set(bfo, bfoAlias(tail), propertyIri)
-      })
-    );
-
-    pipe(
-      stripPrefix(propertyIri, NS_FOAF),
-      O.match({
-        onNone: () => undefined,
-        onSome: (tail) => MutableHashMap.set(foaf, tail, propertyIri)
-      })
-    );
+  for (const propertyIri of table.declaredProperties) {
+    pipe(propertyIri, bucketEi);
+    pipe(propertyIri, bucketBfo);
+    pipe(propertyIri, bucketFoaf);
   }
 
   for (const cls of table.classes) {
-    pipe(
-      stripPrefix(cls.iri, NS_EI),
-      O.match({
-        onNone: () => undefined,
-        onSome: (tail) => MutableHashMap.set(ei, tail, cls.iri)
-      })
-    );
+    pipe(cls.iri, bucketEi);
 
     for (const prop of cls.properties) {
-      pipe(
-        stripPrefix(prop.iri, NS_EI),
-        O.match({
-          onNone: () => undefined,
-          onSome: (tail) => MutableHashMap.set(ei, tail, prop.iri)
-        })
-      );
+      pipe(prop.iri, bucketEi);
 
       // Only keep BFO_NNNNNNN form (skip e.g. RO_, IAO_) — the slice ontology
       // only references BFO terms, but the namespace bucket is `purl.obo`
       // shared. Filter by the conventional BFO_ prefix. Apply the curated
       // alias table when present so generated source reads `BFO.bearerOf`
       // instead of `BFO.BFO_0000053`; otherwise keep the raw segment.
-      pipe(
-        stripPrefix(prop.iri, NS_BFO),
-        O.filter(Str.startsWith("BFO_")),
-        O.match({
-          onNone: () => undefined,
-          onSome: (tail) => MutableHashMap.set(bfo, bfoAlias(tail), prop.iri)
-        })
-      );
-
-      pipe(
-        stripPrefix(prop.iri, NS_FOAF),
-        O.match({
-          onNone: () => undefined,
-          onSome: (tail) => MutableHashMap.set(foaf, tail, prop.iri)
-        })
-      );
+      pipe(prop.iri, bucketBfo);
+      pipe(prop.iri, bucketFoaf);
     }
 
     // BFO terms in agent.ttl (and similar TTLs) only appear inside
@@ -224,14 +249,7 @@ export const emitIrisModule = (table: ClassTable): string => {
     // not declared as owl:ObjectProperty, so cls.properties[] never sees them.
     // Walk the restrictions to surface those IRIs as well.
     for (const restriction of cls.equivalentClassRestrictions) {
-      pipe(
-        stripPrefix(restriction.onProperty, NS_BFO),
-        O.filter(Str.startsWith("BFO_")),
-        O.match({
-          onNone: () => undefined,
-          onSome: (tail) => MutableHashMap.set(bfo, bfoAlias(tail), restriction.onProperty)
-        })
-      );
+      pipe(restriction.onProperty, bucketBfo);
     }
   }
 

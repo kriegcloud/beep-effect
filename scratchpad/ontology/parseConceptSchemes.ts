@@ -8,22 +8,19 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import {Effect, pipe} from "effect";
+import {Effect, identity, pipe, SchemaGetter} from "effect";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {DataFactory, Parser, Store, type NamedNode} from "n3";
+import {O} from "@beep/utils";
+import {Parser, Store} from "n3";
 import {$ScratchpadId} from "@beep/identity";
-import {TaggedErrorClass} from "@beep/schema";
-import {QuadSubject} from "./parseTtl.ts";
+import {CauseTaggedError, SchemaUtils} from "@beep/schema";
+import {NamedNode, QuadSubject, Term} from "./parseTtl.ts";
 
 const $I = $ScratchpadId.create("ontology/parseConceptSchemes");
-
-const {namedNode} = DataFactory;
 
 /**
  * RDF predicate IRI for term type assertions.
@@ -220,6 +217,22 @@ export const SKOS_PREF_LABEL = "http://www.w3.org/2004/02/skos/core#prefLabel";
  */
 export const SKOS_TOP_CONCEPT_OF = "http://www.w3.org/2004/02/skos/core#topConceptOf";
 
+const SortedUniqueStrings = S.Array(S.String).pipe(
+	S.decodeTo(
+		S.UniqueArray(S.String),
+		{
+			decode: SchemaGetter.transform((values: ReadonlyArray<string>) => pipe(values, A.dedupe, A.sort(Str.Order))),
+			encode: SchemaGetter.transform((values: ReadonlyArray<string>) => pipe(values, A.sort(Str.Order))),
+		},
+	),
+	S.withDecodingDefault(Effect.succeed(A.empty<string>())),
+	$I.annoteSchema("SortedUniqueStrings", {
+		description: "Private array schema that canonicalizes string lists into sorted unique values.",
+	}),
+);
+
+const decodeSortedUniqueStrings = S.decodeSync(SortedUniqueStrings);
+
 /**
  * Parsed SKOS concept individual with labels and concept graph edges.
  *
@@ -246,12 +259,12 @@ export class SkosConceptRecord extends S.Class<SkosConceptRecord>($I`SkosConcept
 	iri: S.String,
 	slug: S.String,
 	label: S.String,
-	altLabels: S.Array(S.String),
+	altLabels: SortedUniqueStrings,
 	definition: S.optionalKey(S.String),
 	inScheme: S.optionalKey(S.String),
-	topConcept: S.Boolean,
-	broader: S.Array(S.String),
-	narrower: S.Array(S.String),
+	topConcept: SchemaUtils.BoolKeyDefaultFalse,
+	broader: SortedUniqueStrings,
+	narrower: SortedUniqueStrings,
 }, $I.annote("SkosConceptRecord", {
 	description: "Parsed SKOS concept individual with labels and concept graph edges.",
 })) {
@@ -281,7 +294,7 @@ export class SkosConceptSchemeRecord extends S.Class<SkosConceptSchemeRecord>($I
 	slug: S.String,
 	label: S.String,
 	definition: S.optionalKey(S.String),
-	topConcepts: S.Array(S.String),
+	topConcepts: SortedUniqueStrings,
 }, $I.annote("SkosConceptSchemeRecord", {
 	description: "Parsed SKOS concept scheme with its top concepts.",
 })) {
@@ -305,8 +318,8 @@ export class SkosConceptSchemeRecord extends S.Class<SkosConceptSchemeRecord>($I
  * @since 0.0.0
  */
 export class ConceptSchemeTable extends S.Class<ConceptSchemeTable>($I`ConceptSchemeTable`)({
-	concepts: S.Array(SkosConceptRecord),
-	schemes: S.Array(SkosConceptSchemeRecord),
+	concepts: S.Array(SkosConceptRecord).pipe(SchemaUtils.withEmptyArrayDefaults<SkosConceptRecord>()),
+	schemes: S.Array(SkosConceptSchemeRecord).pipe(SchemaUtils.withEmptyArrayDefaults<SkosConceptSchemeRecord>()),
 }, $I.annote("ConceptSchemeTable", {
 	description: "Parsed table of SKOS concepts and concept schemes.",
 })) {
@@ -323,27 +336,21 @@ export class ConceptSchemeTable extends S.Class<ConceptSchemeTable>($I`ConceptSc
  * const handled = parseConceptSchemeTtl("not turtle").pipe(
  *   Effect.catchTag("ConceptSchemeParseError", (error) => Effect.succeed(error.message))
  * )
- * console.log(handled)
+ * console.log(Effect.runSync(handled))
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
-export class ConceptSchemeParseError extends TaggedErrorClass<ConceptSchemeParseError>($I`ConceptSchemeParseError`)(
-	"ConceptSchemeParseError",
-	{
-		message: S.String,
-		cause: S.optionalKey(S.Defect({includeStack: true})),
-	},
-	$I.annote("ConceptSchemeParseError", {
-		description: "Error raised when SKOS Turtle parsing fails.",
-	}),
-) {
+export class ConceptSchemeParseError extends CauseTaggedError<ConceptSchemeParseError>($I`ConceptSchemeParseError`)("ConceptSchemeParseError", $I.annote("ConceptSchemeParseError", {
+	description: "Error raised when SKOS Turtle parsing fails.",
+})) {
 }
 
-const namedNodeOf = (iri: string): NamedNode => namedNode(iri);
+const decodeSkosConceptRecord = S.decodeSync(SkosConceptRecord);
+const decodeSkosConceptSchemeRecord = S.decodeSync(SkosConceptSchemeRecord);
 
-const slugFromIri = (iri: string): string => {
+const iriTail = (iri: string): string => {
 	const hashTail = pipe(iri, Str.lastIndexOf("#"), O.map((hashIdx) => pipe(iri, Str.slice(hashIdx + 1))));
 	const slashTail = pipe(
 		iri,
@@ -357,34 +364,29 @@ const slugFromIri = (iri: string): string => {
 		: tail;
 };
 
+const SkosSlugFromIri = S.String.pipe(
+	S.decodeTo(
+		S.String,
+		{
+			decode: SchemaGetter.transform(iriTail),
+			encode: SchemaGetter.transform(identity),
+		},
+	),
+	$I.annoteSchema("SkosSlugFromIri", {
+		description: "Private normalization schema for deriving SKOS concept slugs from IRIs.",
+	}),
+);
+
+const slugFromIri = S.decodeUnknownSync(SkosSlugFromIri);
+
 const byIri = <T extends {
 	readonly iri: string
 }>(values: Iterable<T>): ReadonlyArray<T> => A.sortWith(values, (value) => value.iri, Str.Order);
 
-const uniqueSorted = (values: Iterable<string>): ReadonlyArray<string> => pipe(
-	values,
-	A.fromIterable,
-	A.dedupe,
-	A.sort(Str.Order),
-);
-
-type OptionalField<K extends string, V> = Readonly<{
-	[P in K]?: V
-}>;
-
-const optionalField = <K extends string, V>(
-	key: K,
-	value: V | undefined,
-): OptionalField<K, V> => pipe(
-	O.fromNullishOr(value),
-	O.map((some) => R.set(R.empty<string, V>(), key, some)),
-	O.getOrElse(() => R.empty<string, V>()),
-) as OptionalField<K, V>;
-
 const hasType = (store: Store, subject: QuadSubject, typeIri: string): boolean => pipe(store.getQuads(
 	subject,
-	namedNodeOf(RDF_TYPE),
-	namedNodeOf(typeIri),
+	NamedNode.of(RDF_TYPE),
+	NamedNode.of(typeIri),
 	null,
 ), A.isReadonlyArrayNonEmpty);
 
@@ -394,9 +396,9 @@ const literalValues = (
 	subject: QuadSubject,
 	predicate: string,
 ): ReadonlyArray<string> => pipe(
-	store.getQuads(subject, namedNodeOf(predicate), null, null),
+	store.getQuads(subject, NamedNode.of(predicate), null, null),
 	A.map((quad) => quad.object),
-	A.filter((object) => object.termType === "Literal"),
+	A.filter(Term.guards.Literal),
 	A.map((object) => object.value),
 );
 
@@ -405,9 +407,9 @@ const namedObjectValues = (
 	subject: QuadSubject,
 	predicate: string,
 ): ReadonlyArray<string> => pipe(
-	store.getQuads(subject, namedNodeOf(predicate), null, null),
+	store.getQuads(subject, NamedNode.of(predicate), null, null),
 	A.map((quad) => quad.object),
-	A.filter((object): object is NamedNode => object.termType === "NamedNode"),
+	A.filter(Term.guards.NamedNode),
 	A.map((object) => object.value),
 );
 
@@ -415,19 +417,12 @@ const firstLiteral = (
 	store: Store,
 	subject: QuadSubject,
 	predicates: ReadonlyArray<string>,
-): string | undefined => pipe(
-	predicates,
-	A.reduce(
-		O.none<string>(),
-		(current, predicate) => O.isSome(current)
-			? current
-			: A.head(literalValues(store, subject, predicate)),
-	),
-	O.getOrUndefined,
-);
+): string | undefined => pipe(predicates, A.reduce(
+	O.none<string>(),
+	(current, predicate) => pipe(current, O.orElse(() => A.head(literalValues(store, subject, predicate)))),
+), O.getOrUndefined);
 
-const firstNamedObject = (store: Store, subject: QuadSubject, predicate: string): string | undefined => pipe(
-	namedObjectValues(store, subject, predicate),
+const firstNamedObject = (store: Store, subject: QuadSubject, predicate: string): string | undefined => pipe(namedObjectValues(store, subject, predicate),
 	A.head,
 	O.getOrUndefined,
 );
@@ -435,10 +430,10 @@ const firstNamedObject = (store: Store, subject: QuadSubject, predicate: string)
 const namedSubjects = (store: Store): ReadonlyArray<NamedNode> => pipe(
 	store.getQuads(null, null, null, null),
 	A.map((quad) => quad.subject),
-	A.filter((subject): subject is NamedNode => QuadSubject.guards.NamedNode(subject)),
+	A.filter(QuadSubject.guards.NamedNode),
 	A.map((subject) => subject.value),
-	uniqueSorted,
-	A.map(namedNodeOf),
+	decodeSortedUniqueStrings,
+	A.map(NamedNode.of),
 );
 
 /**
@@ -461,72 +456,66 @@ const namedSubjects = (store: Store): ReadonlyArray<NamedNode> => pipe(
  * const program = parseConceptSchemeTtl(ttl).pipe(
  *   Effect.map((table) => table.concepts.length)
  * )
- * console.log(program)
+ * console.log(Effect.runSync(program))
  * ```
  *
  * @category parsing
  * @since 0.0.0
  */
-export const parseConceptSchemeTtl = (ttl: string): Effect.Effect<ConceptSchemeTable, ConceptSchemeParseError> => Effect.try(
-	{
-		try: () => {
-			const parser = new Parser({format: "Turtle"});
-			const store = new Store(parser.parse(ttl));
-			let concepts = A.empty<SkosConceptRecord>();
-			let schemes = A.empty<SkosConceptSchemeRecord>();
+export const parseConceptSchemeTtl = (ttl: string): Effect.Effect<ConceptSchemeTable, ConceptSchemeParseError> => Effect.try(() => {
+		const parser = new Parser({format: "Turtle"});
+		const store = new Store(parser.parse(ttl));
+		let concepts = A.empty<SkosConceptRecord>();
+		let schemes = A.empty<SkosConceptSchemeRecord>();
 
-			for (const subject of namedSubjects(store)) {
-				if (hasType(store, subject, SKOS_CONCEPT)) {
-					const label = firstLiteral(store, subject, [
-						SKOS_PREF_LABEL,
-						RDFS_LABEL,
-					]);
-					if (P.isUndefined(label)) continue;
-					const definition = firstLiteral(store, subject, [SKOS_DEFINITION]);
-					const inScheme = firstNamedObject(store, subject, SKOS_IN_SCHEME);
-					concepts = A.append(concepts, SkosConceptRecord.make({
-						iri: subject.value,
-						slug: slugFromIri(subject.value),
-						label,
-						altLabels: uniqueSorted(literalValues(store, subject, SKOS_ALT_LABEL)), ...optionalField(
-							"definition",
-							definition,
-						), ...optionalField("inScheme", inScheme),
-						topConcept: pipe(namedObjectValues(store, subject, SKOS_TOP_CONCEPT_OF), A.isReadonlyArrayNonEmpty),
-						broader: uniqueSorted(namedObjectValues(store, subject, SKOS_BROADER)),
-						narrower: uniqueSorted(namedObjectValues(store, subject, SKOS_NARROWER)),
-					}));
-				}
-
-				if (hasType(store, subject, SKOS_CONCEPT_SCHEME) || (hasType(store, subject, OWL_NAMED_INDIVIDUAL) && pipe(
-					namedObjectValues(store, subject, SKOS_HAS_TOP_CONCEPT),
-					A.isReadonlyArrayNonEmpty,
-				))) {
-					const label = firstLiteral(store, subject, [
-						SKOS_PREF_LABEL,
-						RDFS_LABEL,
-					]);
-					if (P.isUndefined(label)) continue;
-					const definition = firstLiteral(store, subject, [SKOS_DEFINITION]);
-					schemes = A.append(schemes, SkosConceptSchemeRecord.make({
-						iri: subject.value,
-						slug: slugFromIri(subject.value),
-						label, ...optionalField("definition", definition),
-						topConcepts: uniqueSorted(namedObjectValues(store, subject, SKOS_HAS_TOP_CONCEPT)),
-					}));
-				}
+		for (const subject of namedSubjects(store)) {
+			if (hasType(store, subject, SKOS_CONCEPT)) {
+				const label = firstLiteral(store, subject, [
+					SKOS_PREF_LABEL,
+					RDFS_LABEL,
+				]);
+				if (P.isUndefined(label)) continue;
+				const definition = firstLiteral(store, subject, [SKOS_DEFINITION]);
+				const inScheme = firstNamedObject(store, subject, SKOS_IN_SCHEME);
+				concepts = A.append(concepts, decodeSkosConceptRecord({
+					iri: subject.value,
+					slug: slugFromIri(subject.value),
+					label,
+					altLabels: literalValues(store, subject, SKOS_ALT_LABEL), ...O.getSomesStruct({
+						definition: O.fromNullishOr(definition),
+						inScheme: O.fromNullishOr(inScheme),
+					}),
+					topConcept: pipe(namedObjectValues(store, subject, SKOS_TOP_CONCEPT_OF), A.isReadonlyArrayNonEmpty),
+					broader: namedObjectValues(store, subject, SKOS_BROADER),
+					narrower: namedObjectValues(store, subject, SKOS_NARROWER),
+				}));
 			}
 
-			return ConceptSchemeTable.make({
-				concepts: byIri(concepts),
-				schemes: byIri(schemes),
-			});
-		},
-		catch: (cause) => ConceptSchemeParseError.make({
-			message: "Failed to parse SKOS concept-scheme Turtle",
-			cause,
-		}),
-	});
+			if (hasType(store, subject, SKOS_CONCEPT_SCHEME) || (hasType(store, subject, OWL_NAMED_INDIVIDUAL) && pipe(namedObjectValues(store, subject, SKOS_HAS_TOP_CONCEPT),
+				A.isReadonlyArrayNonEmpty,
+			))) {
+				const label = firstLiteral(store, subject, [
+					SKOS_PREF_LABEL,
+					RDFS_LABEL,
+				]);
+				if (P.isUndefined(label)) continue;
+				const definition = firstLiteral(store, subject, [SKOS_DEFINITION]);
+				schemes = A.append(schemes, decodeSkosConceptSchemeRecord({
+					iri: subject.value,
+					slug: slugFromIri(subject.value),
+					label, ...O.getSomesStruct({
+						definition: O.fromNullishOr(definition),
+					}),
+					topConcepts: namedObjectValues(store, subject, SKOS_HAS_TOP_CONCEPT),
+				}));
+			}
+		}
+
+		return ConceptSchemeTable.make({
+			concepts: byIri(concepts),
+			schemes: byIri(schemes),
+		});
+}).pipe(ConceptSchemeParseError.mapError("Failed to parse SKOS concept-scheme Turtle"));
 
 /**
  * Merge parsed SKOS concept-scheme tables, preserving first-seen records by IRI.

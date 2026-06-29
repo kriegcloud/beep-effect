@@ -6,11 +6,11 @@
  * prefix bindings. Downstream codegen stages (Task 7+) consume this table and
  * never touch the n3 Store directly.
  *
- * The parser deliberately defers cardinality / `owl:Restriction` parsing —
- * Task 7's JSON Schema builder defaults every property to optional + single,
- * which matches the slice scope. Cross-class object-property references are
- * left as raw IRIs (`range` is a string); resolution happens during JSON
- * Schema construction.
+ * The parser deliberately keeps property cardinality unresolved: properties
+ * default to optional + single unless a later pass projects restriction
+ * metadata onto `ClassProperty`. Cross-class object-property references are left
+ * as raw IRIs (`range` is a string); resolution happens during JSON Schema
+ * construction.
  *
  * Equivalent-class restrictions of the BFO role-bearer shape
  * (`Foo ≡ Person ⊓ ∃bfo:bearerOf.Role`) are captured per class so Task 8 can
@@ -26,40 +26,90 @@ import {Effect, pipe} from "effect";
 import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
 import * as MutableHashSet from "effect/MutableHashSet";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import {TaggedErrorClass} from "@beep/schema";
+import {O} from "@beep/utils";
+import {CauseTaggedError, SchemaUtils} from "@beep/schema";
 import {
-	DataFactory, Parser, Store, NamedNode, BlankNode, Variable, Literal, DefaultGraph,
+	DataFactory,
+	Parser,
+	Store,
+	NamedNode as N3NamedNode,
+	BlankNode,
+	Variable,
+	Literal,
+	DefaultGraph,
 } from "n3";
 import {$ScratchpadId} from "@beep/identity";
 
 const $I = $ScratchpadId.create("ontology/parseTtl")
 
-const {namedNode} = DataFactory;
+const termTypeSentinel = <const TermType extends string>(literal: TermType) => ({
+	"~sentinels": A.make({
+		key: "termType",
+		literal,
+	}),
+});
 
 const N3 = {
 	Parser: S.instanceOf(Parser),
 	Store: S.instanceOf(Store),
-	NamedNode: S.instanceOf(NamedNode),
-	Variable: S.instanceOf(Variable),
-	BlankNode: S.instanceOf(BlankNode),
-	Literal: S.instanceOf(Literal),
-	DefaultGraph: S.instanceOf(DefaultGraph),
+	Variable: S.instanceOf(Variable, termTypeSentinel("Variable")),
+	BlankNode: S.instanceOf(BlankNode, termTypeSentinel("BlankNode")),
+	Literal: S.instanceOf(Literal, termTypeSentinel("Literal")),
+	DefaultGraph: S.instanceOf(DefaultGraph, termTypeSentinel("DefaultGraph")),
 }
+
+/**
+ * N3 named-node schema with constructors colocated on the schema value.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NamedNode } from "./parseTtl.ts"
+ *
+ * const expert = NamedNode.of("https://w3id.org/energy-intel/Expert")
+ * console.log(S.is(NamedNode)(expert)) // true
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const NamedNode = S.instanceOf(N3NamedNode, termTypeSentinel("NamedNode")).pipe(
+	SchemaUtils.withStatics(() => ({
+		of: DataFactory.namedNode,
+	})),
+	$I.annoteSchema("NamedNode", {
+		description: "N3 named-node schema with colocated constructors.",
+	}),
+);
+
+/**
+ * Runtime type for {@link NamedNode}. {@inheritDoc NamedNode}
+ *
+ * @example
+ * ```ts
+ * import type { NamedNode } from "./parseTtl.ts"
+ *
+ * const value: NamedNode["termType"] = "NamedNode"
+ * console.log(value)
+ * ```
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type NamedNode = typeof NamedNode.Type;
 
 /**
  * N3 quad subject schema accepted by the ontology Turtle parser.
  *
  * @example
  * ```ts
- * import { DataFactory } from "n3"
- * import { QuadSubject } from "./parseTtl.ts"
+ * import { NamedNode, QuadSubject } from "./parseTtl.ts"
  *
- * const subject = DataFactory.namedNode("https://w3id.org/energy-intel/Expert")
+ * const subject = NamedNode.of("https://w3id.org/energy-intel/Expert")
  * console.log(QuadSubject.guards.NamedNode(subject)) // true
  * ```
  *
@@ -67,7 +117,7 @@ const N3 = {
  * @since 0.0.0
  */
 export const QuadSubject = S.Union([
-	N3.NamedNode,
+	NamedNode,
 	N3.BlankNode,
 	N3.Variable,
 ]).pipe(S.toTaggedUnion("termType"), $I.annoteSchema("QuadSubject", {
@@ -106,7 +156,7 @@ export type QuadSubject = typeof QuadSubject.Type;
  * @since 0.0.0
  */
 export const Term = S.Union([
-	N3.NamedNode,
+	NamedNode,
 	N3.BlankNode,
 	N3.Literal,
 	N3.Variable,
@@ -174,8 +224,8 @@ export class ClassProperty extends S.Class<ClassProperty>($I`ClassProperty`)({
 	label: S.optionalKey(S.String),
 	range: S.optionalKey(S.String),
 	rangeUnion: S.String.pipe(S.Array, S.optionalKey),
-	optional: S.Boolean,
-	list: S.Boolean,
+	optional: SchemaUtils.BoolKeyDefaultTrue,
+	list: SchemaUtils.BoolKeyDefaultFalse,
 }, $I.annote("ClassProperty", {
 	description: "Property attached to a parsed ontology class.",
 })) {
@@ -231,10 +281,12 @@ export class ClassRecord extends S.Class<ClassRecord>($I`ClassRecord`)({
 	iri: S.String,
 	label: S.String,
 	definition: S.optionalKey(S.String),
-	superClasses: S.Array(S.String),
-	disjointWith: S.Array(S.String),
-	equivalentClassRestrictions: S.Array(EquivalentClassRestriction),
-	properties: S.Array(ClassProperty),
+	superClasses: S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>()),
+	disjointWith: S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>()),
+	equivalentClassRestrictions: S.Array(EquivalentClassRestriction).pipe(
+		SchemaUtils.withEmptyArrayDefaults<EquivalentClassRestriction>(),
+	),
+	properties: S.Array(ClassProperty).pipe(SchemaUtils.withEmptyArrayDefaults<ClassProperty>()),
 }, $I.annote("ClassRecord", {
 	description: "Parsed OWL class with superclass links, restrictions, and attached properties.",
 })) {
@@ -259,9 +311,9 @@ export class ClassRecord extends S.Class<ClassRecord>($I`ClassRecord`)({
  * @since 0.0.0
  */
 export class ClassTable extends S.Class<ClassTable>($I`ClassTable`)({
-	classes: S.Array(ClassRecord),
-	declaredProperties: S.String.pipe(S.Array, S.optionalKey),
-	prefixes: S.Record(S.String, S.String),
+	classes: S.Array(ClassRecord).pipe(SchemaUtils.withEmptyArrayDefaults<ClassRecord>()),
+	declaredProperties: S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>()),
+	prefixes: S.Record(S.String, S.String).pipe(SchemaUtils.withKeyDefaults(R.empty<string, string>())),
 }, $I.annote("ClassTable", {
 	description: "Parsed class table consumed by ontology code generation stages.",
 })) {
@@ -278,29 +330,24 @@ export class ClassTable extends S.Class<ClassTable>($I`ClassTable`)({
  * const handled = parseTtlToClassTable("not turtle").pipe(
  *   Effect.catchTag("TtlParseError", (error) => Effect.succeed(error.message))
  * )
- * console.log(handled)
+ * console.log(Effect.runSync(handled))
  * ```
  *
  * @category errors
  * @since 0.0.0
  */
-export class TtlParseError extends TaggedErrorClass<TtlParseError>()("TtlParseError", {
-	message: S.String,
-	cause: S.optionalKey(S.Unknown),
-}, $I.annote("TtlParseError", {
+export class TtlParseError extends CauseTaggedError<TtlParseError>($I`TtlParseError`)("TtlParseError", $I.annote("TtlParseError", {
 	description: "Error raised when Turtle parsing or class-table extraction fails.",
 })) {
 }
 
-const namedNodeOf = (iri: string): NamedNode => namedNode(iri);
-
 const firstObjectValue = (store: Store, subject: QuadSubject, predicate: string): string | undefined => {
-	const quads = store.getQuads(subject, namedNodeOf(predicate), null, null);
+	const quads = store.getQuads(subject, NamedNode.of(predicate), null, null);
 	return pipe(quads, A.get(0), O.map((quad) => quad.object.value), O.getOrUndefined);
 };
 
 const firstObjectTerm = (store: Store, subject: QuadSubject, predicate: string): Term | undefined => {
-	const quads = store.getQuads(subject, namedNodeOf(predicate), null, null);
+	const quads = store.getQuads(subject, NamedNode.of(predicate), null, null);
 	return pipe(quads, A.get(0), O.map((quad) => quad.object), O.getOrUndefined);
 };
 
@@ -309,14 +356,14 @@ const objectValuesNamed = (
 	subject: QuadSubject,
 	predicate: string,
 ): ReadonlyArray<string> => pipe(
-	store.getQuads(subject, namedNodeOf(predicate), null, null),
+	store.getQuads(subject, NamedNode.of(predicate), null, null),
 	A.map((q) => q.object),
-	A.filter((o): o is NamedNode => o.termType === "NamedNode"),
+	A.filter(Term.guards.NamedNode),
 	A.map((o) => o.value),
 )
 
 
-const isNamedSubject = (term: Term): term is NamedNode => S.is(N3.NamedNode)(term);
+const isNamedSubject = QuadSubject.guards.NamedNode;
 
 const subjectFromTerm = (term: Term): QuadSubject | undefined => Term.guards.BlankNode(term) || Term.guards.NamedNode(
 	term)
@@ -388,13 +435,13 @@ const extractEquivalentRestrictions = (
 	namedSubject: NamedNode,
 ): ReadonlyArray<EquivalentClassRestriction> => {
 	let out = A.empty<EquivalentClassRestriction>();
-	const equivQuads = store.getQuads(namedSubject, namedNodeOf(OWL_EQUIVALENT_CLASS), null, null);
+	const equivQuads = store.getQuads(namedSubject, NamedNode.of(OWL_EQUIVALENT_CLASS), null, null);
 
 	for (const equivQuad of equivQuads) {
 		const equivSubject = subjectFromTerm(equivQuad.object);
 		if (P.isUndefined(equivSubject)) continue;
 
-		const intersectionQuads = store.getQuads(equivSubject, namedNodeOf(OWL_INTERSECTION_OF), null, null);
+		const intersectionQuads = store.getQuads(equivSubject, NamedNode.of(OWL_INTERSECTION_OF), null, null);
 
 		for (const intersectionQuad of intersectionQuads) {
 			let listHead = subjectFromTerm(intersectionQuad.object);
@@ -404,16 +451,16 @@ const extractEquivalentRestrictions = (
 			let safety = 0;
 			while (P.isNotUndefined(listHead) && Term.guards.BlankNode(listHead) && safety < 1024) {
 				safety++;
-				const firstQuads = store.getQuads(listHead, namedNodeOf(RDF_FIRST), null, null);
+				const firstQuads = store.getQuads(listHead, NamedNode.of(RDF_FIRST), null, null);
 				const memberTerm = pipe(firstQuads, A.get(0), O.map((quad) => quad.object), O.getOrUndefined);
 				const member = P.isUndefined(memberTerm)
 					? undefined
 					: subjectFromTerm(memberTerm);
 				if (P.isNotUndefined(member)) {
 					const memberTypes = pipe(
-						store.getQuads(member, namedNodeOf(RDF_TYPE), null, null),
+						store.getQuads(member, NamedNode.of(RDF_TYPE), null, null),
 						A.map((quad) => quad.object),
-						A.filter((term): term is NamedNode => Term.guards.NamedNode(term)),
+						A.filter(Term.guards.NamedNode),
 						A.map((term) => term.value),
 					);
 					if (A.contains(memberTypes, OWL_RESTRICTION)) {
@@ -432,7 +479,7 @@ const extractEquivalentRestrictions = (
 					// Non-restriction members (e.g. foaf:Person) are skipped silently.
 				}
 
-				const restQuads = store.getQuads(listHead, namedNodeOf(RDF_REST), null, null);
+				const restQuads = store.getQuads(listHead, NamedNode.of(RDF_REST), null, null);
 				const restTerm = pipe(restQuads, A.get(0), O.map((quad) => quad.object), O.getOrUndefined);
 				if (P.isUndefined(restTerm) || (Term.guards.NamedNode(restTerm) && restTerm.value === RDF_NIL)) {
 					listHead = undefined;
@@ -459,21 +506,10 @@ class MutableClassRecord extends S.Class<MutableClassRecord>($I`MutableClassReco
 })) {
 }
 
-type OptionalField<K extends string, V> = Readonly<{
-	[P in K]?: V
-}>;
-
-const optionalField = <K extends string, V>(
-	key: K,
-	value: V | undefined,
-): OptionalField<K, V> => O.fromNullishOr(value).pipe(
-	O.map((some) => R.set(R.empty<string, V>(), key, some)),
-	O.getOrElse(() => R.empty<string, V>()),
-) as OptionalField<K, V>;
-
 const finalizeClass = (cls: MutableClassRecord): ClassRecord => ClassRecord.make({
 	iri: cls.iri,
-	label: cls.label, ...optionalField("definition", cls.definition),
+	label: cls.label,
+	...O.getSomesStruct({definition: O.fromNullishOr(cls.definition)}),
 	superClasses: cls.superClasses,
 	disjointWith: cls.disjointWith,
 	equivalentClassRestrictions: cls.equivalentClassRestrictions,
@@ -515,18 +551,18 @@ export const mergeClassTables = (tables: ReadonlyArray<ClassTable>): ClassTable 
 		for (const cls of table.classes) {
 			if (!MutableHashMap.has(classByIri, cls.iri)) MutableHashMap.set(classByIri, cls.iri, cls);
 		}
-		for (const property of table.declaredProperties ?? A.empty()) {
+		for (const property of table.declaredProperties) {
 			MutableHashSet.add(declaredProperties, property);
 		}
 		for (const [prefix, iri] of R.toEntries(table.prefixes)) {
 			prefixes = R.set(prefixes, prefix, iri);
 		}
 	}
-	return {
+	return ClassTable.make({
 		classes: classByIri.pipe(MutableHashMap.values, A.fromIterable),
 		declaredProperties: pipe(A.fromIterable(declaredProperties), A.sort(Str.Order)),
 		prefixes,
-	};
+	});
 };
 
 /**
@@ -550,14 +586,13 @@ export const mergeClassTables = (tables: ReadonlyArray<ClassTable>): ClassTable 
  * const program = parseTtlToClassTable(ttl).pipe(
  *   Effect.map((table) => table.classes.length)
  * )
- * console.log(program)
+ * console.log(Effect.runSync(program))
  * ```
  *
  * @category parsing
  * @since 0.0.0
  */
-export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, TtlParseError> => Effect.try({
-	try: (): ClassTable => {
+export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, TtlParseError> => Effect.try((): ClassTable => {
 		let prefixes = R.empty<string, string>();
 		const parser = new Parser({format: "Turtle"});
 		const quads = parser.parse(ttl, null, (prefix, iri) => {
@@ -570,7 +605,7 @@ export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, Ttl
 		// attachment — the parser scales to ~300 classes for the full energy-intel
 		// ontology.
 		const classByIri = MutableHashMap.empty<string, MutableClassRecord>();
-		const classQuads = store.getQuads(null, namedNodeOf(RDF_TYPE), namedNodeOf(OWL_CLASS), null);
+		const classQuads = store.getQuads(null, NamedNode.of(RDF_TYPE), NamedNode.of(OWL_CLASS), null);
 		for (const quad of classQuads) {
 			const subj = quad.subject;
 			if (!isNamedSubject(subj)) continue;
@@ -583,7 +618,8 @@ export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, Ttl
 			const equivalentClassRestrictions = extractEquivalentRestrictions(store, subj);
 			MutableHashMap.set(classByIri, iri, MutableClassRecord.make({
 				iri,
-				label, ...optionalField("definition", definition),
+				label,
+				...O.getSomesStruct({definition: O.fromNullishOr(definition)}),
 				superClasses,
 				disjointWith,
 				equivalentClassRestrictions,
@@ -596,7 +632,7 @@ export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, Ttl
 		// at the slice default (optional + single); Task 7 may revisit.
 		const declaredProperties = MutableHashSet.empty<string>();
 		for (const propType of A.make(OWL_DATATYPE_PROPERTY, OWL_OBJECT_PROPERTY)) {
-			const propQuads = store.getQuads(null, namedNodeOf(RDF_TYPE), namedNodeOf(propType), null);
+			const propQuads = store.getQuads(null, NamedNode.of(RDF_TYPE), NamedNode.of(propType), null);
 			for (const propQuad of propQuads) {
 				const propSubj = propQuad.subject;
 				if (!isNamedSubject(propSubj)) continue;
@@ -609,9 +645,9 @@ export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, Ttl
 					const domainClass = MutableHashMap.get(classByIri, domainIri);
 					if (O.isNone(domainClass)) continue;
 					const property = ClassProperty.make({
-						iri: propIri, ...optionalField("label", label), ...range,
-						optional: true,
-						list: false,
+						iri: propIri,
+						...O.getSomesStruct({label: O.fromNullishOr(label)}),
+						...range,
 					});
 					MutableHashMap.set(classByIri, domainIri, MutableClassRecord.make({
 						...domainClass.value,
@@ -621,16 +657,9 @@ export const parseTtlToClassTable = (ttl: string): Effect.Effect<ClassTable, Ttl
 			}
 		}
 
-		return {
+		return ClassTable.make({
 			classes: pipe(A.fromIterable(classByIri.pipe(MutableHashMap.values)), A.map(finalizeClass)),
 			declaredProperties: pipe(A.fromIterable(declaredProperties), A.sort(Str.Order)),
 			prefixes,
-		};
-	},
-	catch: (cause) => TtlParseError.make({
-		message: P.isString(cause)
-			? `TTL parse failed: ${cause}`
-			: "TTL parse failed",
-		cause,
-	}),
-});
+		});
+}).pipe(TtlParseError.mapError("TTL parse failed"));
