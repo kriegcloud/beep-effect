@@ -2,7 +2,7 @@ import { Drizzle, DrizzleError, DrizzleErrorContext } from "@beep/drizzle";
 import { makePgliteIntegrationGate } from "@beep/test-utils";
 import { A } from "@beep/utils";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, Layer, pipe } from "effect";
+import { Effect, Exit, Layer, pipe } from "effect";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import type { DrizzleClient, DrizzleRows } from "@beep/drizzle";
@@ -40,10 +40,19 @@ const makeSqlBackedDrizzleClient = (sqlClient: SqlClient.SqlClient): DrizzleClie
           )
         )
       ),
-    withTransaction: (use) =>
-      sql
-        .withTransaction(use(client))
-        .pipe(Effect.mapError((cause) => DrizzleError.fromUnknown("withTransaction", cause))),
+    withTransaction: Effect.fn("withTransaction")(
+      function* (use) {
+        yield* sql`BEGIN`;
+        const exit = yield* Effect.exit(use(client));
+        if (Exit.isSuccess(exit)) {
+          return yield* sql`COMMIT`.pipe(Effect.as(exit.value));
+        }
+
+        yield* sql`ROLLBACK`.pipe(Effect.catch(() => Effect.void));
+        return yield* Effect.failCause(exit.cause);
+      },
+      Effect.mapError((cause) => DrizzleError.fromUnknown("withTransaction", cause))
+    ),
   };
 
   return client;
