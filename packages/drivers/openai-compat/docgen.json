@@ -323,6 +323,9 @@
       "@beep/schema/SemanticVersion": [
         "../../../packages/foundation/modeling/schema/src/SemanticVersion.ts"
       ],
+      "@beep/schema/Semver": [
+        "../../../packages/foundation/modeling/schema/src/Semver.ts"
+      ],
       "@beep/schema/SeverityLevel": [
         "../../../packages/foundation/modeling/schema/src/SeverityLevel.ts"
       ],

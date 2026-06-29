@@ -56,6 +56,18 @@ export * as Bool from "./Bool.ts";
  */
 export * as DateTime from "./DateTime.ts";
 /**
+ * DrainableWorker - A queue-based worker that exposes a `drain()` effect.
+ *
+ * Wraps the common `Queue.unbounded` + `Effect.forever` pattern and adds
+ * a signal that resolves when the queue is empty **and** the current item
+ * has finished processing. This lets tests replace timing-sensitive
+ * `Effect.sleep` calls with deterministic `drain()`.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./DrainableWorker.ts";
+/**
  * Equality utilities extending `effect/Equal`.
  *
  * @example
@@ -97,13 +109,16 @@ export * as Eq from "./Equal.ts";
  */
 export * as Err from "./Errors.ts";
 /**
- * File-system watch helpers built on `effect/FileSystem`.
+ * File-system helpers: synchronous, layer-free `Effect` wrappers over
+ * `node:fs` (`appendFileSync`, `existsSync`, `rmSync`, `renameSync`,
+ * `readdirSync`, `statSync`) plus the async watch helper `makeWaitForFile`.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { FileSystem } from "@beep/utils"
  *
- * console.log(FileSystem)
+ * console.log(Effect.runSync(FileSystem.existsSync(".")))
  * ```
  *
  * @category utilities
@@ -162,6 +177,20 @@ export * as N from "./Number.ts";
  * @since 0.0.0
  */
 export * as O from "./Option.ts";
+/**
+ * Path utilities wrapping `node:path`, mirroring effect's `Path` service.
+ *
+ * @example
+ * ```ts
+ * import { Path } from "@beep/utils"
+ *
+ * console.log(Path.join("a", "b"))
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * as Path from "./Path.ts";
 /**
  * Predicate utilities extending `effect/Predicate`.
  *
