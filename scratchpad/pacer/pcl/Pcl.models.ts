@@ -13,6 +13,7 @@
  */
 
 import { $ScratchpadId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { CaseNumberFull, JurisdictionType, ReportStatus } from "../Pacer.tokens.ts";
 
@@ -29,14 +30,14 @@ const NumberOrString = S.Union([S.Finite, S.String]);
  */
 export class CourtCaseSearchDto extends S.Class<CourtCaseSearchDto>($I`CourtCaseSearchDto`)(
   {
-    caseNumberFull: S.optionalKey(CaseNumberFull),
-    caseTitle: S.optionalKey(S.String),
-    jurisdictionType: S.optionalKey(JurisdictionType),
-    courtId: S.String.pipe(S.Array, S.optionalKey),
-    caseType: S.String.pipe(S.Array, S.optionalKey),
-    natureOfSuit: S.String.pipe(S.Array, S.optionalKey),
-    dateFiledFrom: S.optionalKey(S.String),
-    dateFiledTo: S.optionalKey(S.String),
+    caseNumberFull: S.OptionFromOptionalKey(CaseNumberFull).pipe(SchemaUtils.withNoneDefault),
+    caseTitle: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    jurisdictionType: S.OptionFromOptionalKey(JurisdictionType).pipe(SchemaUtils.withNoneDefault),
+    courtId: S.Array(S.String).pipe(S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    caseType: S.Array(S.String).pipe(S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    natureOfSuit: S.Array(S.String).pipe(S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    dateFiledFrom: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    dateFiledTo: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("CourtCaseSearchDto", {
     description: "PCL /cases/find request body (subset).",
@@ -51,12 +52,12 @@ export class CourtCaseSearchDto extends S.Class<CourtCaseSearchDto>($I`CourtCase
  */
 export class PartySearchDto extends S.Class<PartySearchDto>($I`PartySearchDto`)(
   {
-    lastName: S.optionalKey(S.String),
-    firstName: S.optionalKey(S.String),
-    middleName: S.optionalKey(S.String),
-    exactNameMatch: S.optionalKey(S.Boolean),
-    courtId: S.String.pipe(S.Array, S.optionalKey),
-    jurisdictionType: S.optionalKey(JurisdictionType),
+    lastName: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    firstName: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    middleName: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    exactNameMatch: S.OptionFromOptionalKey(S.Boolean).pipe(SchemaUtils.withNoneDefault),
+    courtId: S.Array(S.String).pipe(S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    jurisdictionType: S.OptionFromOptionalKey(JurisdictionType).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("PartySearchDto", {
     description: "PCL /parties/find request body (subset).",
@@ -71,16 +72,16 @@ export class PartySearchDto extends S.Class<PartySearchDto>($I`PartySearchDto`)(
  */
 export class Receipt extends S.Class<Receipt>($I`Receipt`)(
   {
-    transactionDate: S.optionalKey(S.String),
-    billablePages: S.optionalKey(S.Finite),
-    loginId: S.optionalKey(S.String),
-    clientCode: S.optionalKey(S.String),
-    firmId: S.optionalKey(S.String),
-    search: S.optionalKey(S.String),
-    description: S.optionalKey(S.String),
-    csoId: S.optionalKey(S.Finite),
-    reportId: S.optionalKey(S.String),
-    searchFee: S.optionalKey(S.String),
+    transactionDate: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    billablePages: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    loginId: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    clientCode: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    firmId: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    search: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    description: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    csoId: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    reportId: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    searchFee: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("Receipt", {
     description: "PCL search billing receipt block.",
@@ -95,13 +96,13 @@ export class Receipt extends S.Class<Receipt>($I`Receipt`)(
  */
 export class PageInfo extends S.Class<PageInfo>($I`PageInfo`)(
   {
-    number: S.optionalKey(S.Finite),
-    size: S.optionalKey(S.Finite),
-    totalPages: S.optionalKey(S.Finite),
-    totalElements: S.optionalKey(S.Finite),
-    numberOfElements: S.optionalKey(S.Finite),
-    first: S.optionalKey(S.Boolean),
-    last: S.optionalKey(S.Boolean),
+    number: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    size: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    totalPages: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    totalElements: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    numberOfElements: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    first: S.OptionFromOptionalKey(S.Boolean).pipe(SchemaUtils.withNoneDefault),
+    last: S.OptionFromOptionalKey(S.Boolean).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("PageInfo", {
     description: "PCL search pagination block (54 records per page).",
@@ -116,19 +117,19 @@ export class PageInfo extends S.Class<PageInfo>($I`PageInfo`)(
  */
 export class CaseResult extends S.Class<CaseResult>($I`CaseResult`)(
   {
-    courtId: S.optionalKey(S.String),
-    caseId: S.optionalKey(NumberOrString),
-    caseYear: S.optionalKey(NumberOrString),
-    caseNumber: S.optionalKey(NumberOrString),
-    caseOffice: S.optionalKey(S.String),
-    caseType: S.optionalKey(S.String),
-    caseTitle: S.optionalKey(S.String),
-    dateFiled: S.optionalKey(S.String),
-    effectiveDateClosed: S.optionalKey(S.String),
-    natureOfSuit: S.optionalKey(S.String),
-    jurisdictionType: S.optionalKey(S.String),
-    caseLink: S.optionalKey(S.String),
-    caseNumberFull: S.optionalKey(CaseNumberFull),
+    courtId: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseId: S.OptionFromOptionalKey(NumberOrString).pipe(SchemaUtils.withNoneDefault),
+    caseYear: S.OptionFromOptionalKey(NumberOrString).pipe(SchemaUtils.withNoneDefault),
+    caseNumber: S.OptionFromOptionalKey(NumberOrString).pipe(SchemaUtils.withNoneDefault),
+    caseOffice: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseType: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseTitle: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    dateFiled: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    effectiveDateClosed: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    natureOfSuit: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    jurisdictionType: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseLink: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseNumberFull: S.OptionFromOptionalKey(CaseNumberFull).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("CaseResult", {
     description: "PCL case search result record (subset).",
@@ -143,18 +144,18 @@ export class CaseResult extends S.Class<CaseResult>($I`CaseResult`)(
  */
 export class PartyResult extends S.Class<PartyResult>($I`PartyResult`)(
   {
-    lastName: S.optionalKey(S.String),
-    firstName: S.optionalKey(S.String),
-    middleName: S.optionalKey(S.String),
-    generation: S.optionalKey(S.String),
-    partyType: S.optionalKey(S.String),
-    partyRole: S.optionalKey(S.String),
-    courtId: S.optionalKey(S.String),
-    caseTitle: S.optionalKey(S.String),
-    caseNumberFull: S.optionalKey(CaseNumberFull),
-    jurisdictionType: S.optionalKey(S.String),
-    dateFiled: S.optionalKey(S.String),
-    caseId: S.optionalKey(NumberOrString),
+    lastName: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    firstName: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    middleName: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    generation: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    partyType: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    partyRole: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    courtId: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseTitle: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseNumberFull: S.OptionFromOptionalKey(CaseNumberFull).pipe(SchemaUtils.withNoneDefault),
+    jurisdictionType: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    dateFiled: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    caseId: S.OptionFromOptionalKey(NumberOrString).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("PartyResult", {
     description: "PCL party search result record (subset).",
@@ -169,9 +170,9 @@ export class PartyResult extends S.Class<PartyResult>($I`PartyResult`)(
  */
 export class CaseReportList extends S.Class<CaseReportList>($I`CaseReportList`)(
   {
-    receipt: Receipt.pipe(S.NullOr, S.optionalKey),
-    pageInfo: S.optionalKey(PageInfo),
-    content: CaseResult.pipe(S.Array, S.optionalKey),
+    receipt: Receipt.pipe(S.NullOr, S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    pageInfo: S.OptionFromOptionalKey(PageInfo).pipe(SchemaUtils.withNoneDefault),
+    content: S.Array(CaseResult).pipe(S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
   },
   $I.annote("CaseReportList", {
     description: "PCL /cases/find response envelope.",
@@ -186,10 +187,10 @@ export class CaseReportList extends S.Class<CaseReportList>($I`CaseReportList`)(
  */
 export class PartyReportList extends S.Class<PartyReportList>($I`PartyReportList`)(
   {
-    receipt: Receipt.pipe(S.NullOr, S.optionalKey),
-    pageInfo: S.optionalKey(PageInfo),
-    content: PartyResult.pipe(S.Array, S.optionalKey),
-    masterCase: S.Unknown.pipe(S.NullOr, S.optionalKey),
+    receipt: Receipt.pipe(S.NullOr, S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    pageInfo: S.OptionFromOptionalKey(PageInfo).pipe(SchemaUtils.withNoneDefault),
+    content: S.Array(PartyResult).pipe(S.OptionFromOptionalKey, SchemaUtils.withNoneDefault),
+    masterCase: S.OptionFromOptionalNullOr(S.Unknown).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("PartyReportList", {
     description: "PCL /parties/find response envelope.",
@@ -208,14 +209,14 @@ export class PartyReportList extends S.Class<PartyReportList>($I`PartyReportList
 export class ReportInfoType extends S.Class<ReportInfoType>($I`ReportInfoType`)(
   {
     reportId: NumberOrString,
-    status: S.optionalKey(ReportStatus),
-    recordCount: S.optionalKey(S.Finite),
-    pages: S.optionalKey(S.Finite),
-    unbilledPageCount: S.optionalKey(S.Finite),
-    downloadFee: S.optionalKey(S.Finite),
-    startTime: S.optionalKey(S.String),
-    endTime: S.optionalKey(S.String),
-    searchType: S.optionalKey(S.String),
+    status: S.OptionFromOptionalKey(ReportStatus).pipe(SchemaUtils.withNoneDefault),
+    recordCount: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    pages: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    unbilledPageCount: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    downloadFee: S.OptionFromOptionalKey(S.Finite).pipe(SchemaUtils.withNoneDefault),
+    startTime: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    endTime: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    searchType: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
   },
   $I.annote("ReportInfoType", {
     description: "PCL batch report job metadata.",

@@ -12,18 +12,12 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
-import { FastCheck } from "effect/testing";
+import {O} from "@beep/utils";
+import {FastCheck} from "effect/testing";
 import * as S from "effect/Schema";
-import { CsoAuthResponse, CsoLogoutResponse } from "../auth/CsoAuth.models.ts";
+import {CsoAuthResponse, CsoLogoutResponse} from "../auth/CsoAuth.models.ts";
 import {
-  CaseReportList,
-  CaseResult,
-  PageInfo,
-  PartyReportList,
-  PartyResult,
-  Receipt,
-  ReportInfoType,
+	CaseReportList, CaseResult, PageInfo, PartyReportList, PartyResult, Receipt, ReportInfoType,
 } from "../pcl/Pcl.models.ts";
 
 const caseArbitrary = S.toArbitrary(CaseResult);
@@ -31,66 +25,89 @@ const partyArbitrary = S.toArbitrary(PartyResult);
 const receiptArbitrary = S.toArbitrary(Receipt);
 
 /** Generate `count` schema-valid case rows (deterministic per `seed`). */
-export const sampleCaseResults = (count: number, seed: number): ReadonlyArray<CaseResult> =>
-  FastCheck.sample(caseArbitrary, { numRuns: count, seed });
+export const sampleCaseResults = (count: number, seed: number): ReadonlyArray<CaseResult> => FastCheck.sample(
+	caseArbitrary,
+	{
+		numRuns: count,
+		seed,
+	},
+);
 
 /** Generate `count` schema-valid party rows (deterministic per `seed`). */
-export const samplePartyResults = (count: number, seed: number): ReadonlyArray<PartyResult> =>
-  FastCheck.sample(partyArbitrary, { numRuns: count, seed });
+export const samplePartyResults = (count: number, seed: number): ReadonlyArray<PartyResult> => FastCheck.sample(
+	partyArbitrary,
+	{
+		numRuns: count,
+		seed,
+	},
+);
 
 const sampleReceipt = (seed: number): Receipt => {
-  const [value] = FastCheck.sample(receiptArbitrary, { numRuns: 1, seed });
-  return value ?? Receipt.make({});
+	const [value] = FastCheck.sample(
+		receiptArbitrary,
+		{
+			numRuns: 1,
+			seed,
+		},
+	);
+	return value ?? Receipt.make({
+		transactionDate: O.none(),
+		billablePages: O.none(),
+		loginId: O.none(),
+		clientCode: O.none(),
+		firmId: O.none(),
+		search: O.none(),
+		description: O.none(),
+		csoId: O.none(),
+		reportId: O.none(),
+		searchFee: O.none(),
+	});
 };
 
 /** Build one encoded `/cases/find` page envelope with controlled pagination. */
 export const caseReportListBody = (
-  pageNumber: number,
-  totalPages: number,
-  content: ReadonlyArray<CaseResult>
-): unknown =>
-  S.encodeSync(CaseReportList)(
-    CaseReportList.make({
-      receipt: sampleReceipt(pageNumber + 1),
-      pageInfo: PageInfo.make({
-        number: pageNumber,
-        size: 54,
-        totalPages,
-        totalElements: totalPages,
-        numberOfElements: content.length,
-        first: pageNumber === 0,
-        last: pageNumber >= totalPages - 1,
-      }),
-      content,
-    })
-  );
+	pageNumber: number,
+	totalPages: number,
+	content: ReadonlyArray<CaseResult>,
+): unknown => S.encodeUnknownSync(CaseReportList)(
+	CaseReportList.make({
+		receipt: O.some(sampleReceipt(pageNumber + 1)),
+		pageInfo: S.decodeOption(PageInfo)({
+			number: pageNumber,
+			size: 54,
+			totalPages,
+			totalElements: totalPages,
+			numberOfElements: content.length,
+			first: pageNumber === 0,
+			last: pageNumber >= totalPages - 1,
+		}),
+		content: O.some(content),
+	}));
 
 /** Build one encoded `/parties/find` page envelope. */
-export const partyReportListBody = (content: ReadonlyArray<PartyResult>): unknown =>
-  S.encodeSync(PartyReportList)(
-    PartyReportList.make({
-      receipt: sampleReceipt(2001),
-      pageInfo: PageInfo.make({
-        number: 0,
-        size: 54,
-        totalPages: 1,
-        totalElements: content.length,
-        numberOfElements: content.length,
-        first: true,
-        last: true,
-      }),
-      content,
-      masterCase: null,
-    })
-  );
+export const partyReportListBody = (content: ReadonlyArray<PartyResult>): unknown => S.encodeSync(PartyReportList)(
+	PartyReportList.make({
+		receipt: O.some(sampleReceipt(2001)),
+		pageInfo: PageInfo.makeOption({
+			number: O.some(0),
+			size: O.some(54),
+			totalPages: O.some(1),
+			totalElements: O.some(content.length),
+			numberOfElements: O.some(content.length),
+			first: O.some(true),
+			last: O.some(true),
+		}),
+		content: O.some(content),
+		masterCase: O.none(),
+	}));
 
 /** Total number of case rows the default mock serves across all pages. */
 export const PACER_MOCK_TOTAL_CASES = 3;
 
 /** Two schema-sampled `/cases/find` pages (2 rows then 1 row; last on page 1). */
 export const defaultCasePages = (): ReadonlyArray<unknown> => [
-  caseReportListBody(0, 2, sampleCaseResults(2, 1001)),
-  caseReportListBody(1, 2, sampleCaseResults(1, 1002)),
+	caseReportListBody(0, 2, sampleCaseResults(2, 1001)),
+	caseReportListBody(1, 2, sampleCaseResults(1, 1002)),
 ];
 
 /** One schema-sampled `/parties/find` page (1 row). */
@@ -98,25 +115,32 @@ export const defaultPartyBody = (): unknown => partyReportListBody(samplePartyRe
 
 /** Successful cso-auth body (loginResult "0", non-empty token). */
 export const authSuccessBody: unknown = S.encodeSync(CsoAuthResponse)(
-  CsoAuthResponse.make({ nextGenCSO: "Q".repeat(128), loginResult: "0", errorDescription: "" })
-);
+	CsoAuthResponse.make({
+		nextGenCSO: "Q".repeat(128),
+		loginResult: "0",
+		errorDescription: O.none(),
+	}));
 
 /** Failed cso-auth body (invalid credentials / OTP, loginResult "13"). */
-export const authInvalidBody: unknown = S.encodeSync(CsoAuthResponse)(
-  CsoAuthResponse.make({
-    nextGenCSO: "",
-    loginResult: "13",
-    errorDescription: "Invalid username, password, or one-time passcode.",
-  })
-);
+export const authInvalidBody: unknown = S.encodeSync(CsoAuthResponse)(CsoAuthResponse.make({
+	nextGenCSO: "",
+	loginResult: "13",
+	errorDescription: O.some("Invalid username, password, or one-time passcode."),
+}));
 
 /** Successful cso-logout body. */
 export const logoutBody: unknown = S.encodeSync(CsoLogoutResponse)(
-  CsoLogoutResponse.make({ loginResult: "0", errorDescription: "" })
-);
+	CsoLogoutResponse.make({
+		loginResult: O.some("0"),
+		errorDescription: O.none(),
+		nextGenCSO: O.none()
+	}));
 
 /** A PCL 406 validation error body (PACER's own shape, not our error schema). */
-export const invalidParameterBody = { error: "Validation Exception", message: "invalid search parameter" };
+export const invalidParameterBody = {
+	error: "Validation Exception",
+	message: "invalid search parameter",
+};
 
 /** The report id the default mock issues for batch downloads. */
 export const DEFAULT_REPORT_ID = 1078;
@@ -125,9 +149,20 @@ export const DEFAULT_REPORT_ID = 1078;
 export const PACER_MOCK_DOWNLOAD_CASES = 2;
 
 /** Build an encoded `ReportInfoType` body for a batch job in the given status. */
-export const reportInfoBody = (reportId: number, status: "WAITING" | "RUNNING" | "COMPLETED" | "FAILED"): unknown =>
-  S.encodeSync(ReportInfoType)(ReportInfoType.make({ reportId, status, recordCount: 3, pages: 1 }));
+export const reportInfoBody = (
+	reportId: number,
+	status: "WAITING" | "RUNNING" | "COMPLETED" | "FAILED",
+): unknown => S.encodeSync(ReportInfoType)(
+	ReportInfoType.make({
+		reportId,
+		status: O.some(status),
+		recordCount: O.some(3),
+		pages: O.some(1),
+	}));
 
 /** Build the encoded result set returned by a completed batch case download. */
-export const downloadResultsBody = (): unknown =>
-  caseReportListBody(0, 1, sampleCaseResults(PACER_MOCK_DOWNLOAD_CASES, 3001));
+export const downloadResultsBody = (): unknown => caseReportListBody(
+	0,
+	1,
+	sampleCaseResults(PACER_MOCK_DOWNLOAD_CASES, 3001),
+);

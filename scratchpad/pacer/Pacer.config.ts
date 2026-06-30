@@ -9,14 +9,15 @@
  * @since 0.0.0
  */
 
+import { $ScratchpadId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import { Config, Effect, Redacted } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { PacerConfigError } from "./Pacer.errors.ts";
 import { PacerEnvironment } from "./Pacer.tokens.ts";
-import { $ScratchpadId } from "@beep/identity";
-import * as S from "effect/Schema";
 
-const $I = $ScratchpadId.create("pacer/pcl/Pacer.config")
+const $I = $ScratchpadId.create("pacer/pcl/Pacer.config");
 
 /**
  * PACER Authentication API host per environment.
@@ -69,7 +70,7 @@ export class PacerConfigBase extends S.Class<PacerConfigBase>($I`PacerConfigBase
 		password: S.Redacted(S.String),
 		clientCode: S.Option(S.String),
 		otpCode: S.String.pipe(S.Redacted, S.Option),
-		isFiler: S.optionalKey(S.Boolean),
+		isFiler: S.OptionFromOptionalKey(S.Boolean).pipe(SchemaUtils.withNoneDefault),
 	},
 	$I.annote("PacerConfigBase", {
 		description: "Base PACER configuration consumed by the auth + PCL services"
@@ -133,17 +134,17 @@ export const loadPacerConfig = (options: {
     const password = yield* Config.redacted(PACER_ENV.password);
     const clientCode = yield* Config.string(PACER_ENV.clientCode).pipe(Config.option);
     const otpFromEnv = yield* Config.redacted(PACER_ENV.otp).pipe(Config.option);
-    return {
+    return PacerConfig.make({
 	    environment: options.environment,
-      authBaseUrl: PACER_AUTH_BASE_URL[options.environment],
-      pclBaseUrl: PACER_PCL_BASE_URL[options.environment],
-      loginId,
-      password,
-      clientCode,
-      // `??` would keep an explicit O.none() (it is a truthy object); fall back to
-      // the PACER_OTP env value only when no OTP was explicitly provided.
-      otpCode: O.orElse(options.otpCode ?? O.none<Redacted.Redacted<string>>(), () => otpFromEnv),
-    } satisfies PacerConfig;
+	    authBaseUrl: PACER_AUTH_BASE_URL[options.environment],
+	    pclBaseUrl: PACER_PCL_BASE_URL[options.environment],
+	    loginId,
+	    password,
+	    clientCode,
+	    // `??` would keep an explicit O.none() (it is a truthy object); fall back to
+	    // the PACER_OTP env value only when no OTP was explicitly provided.
+	    otpCode: O.orElse(options.otpCode ?? O.none<Redacted.Redacted<string>>(), () => otpFromEnv),
+    });
   }).pipe(Effect.mapError((cause) => PacerConfigError.make_(String(cause))));
 
 /**

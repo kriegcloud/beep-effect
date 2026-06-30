@@ -16,10 +16,11 @@
  */
 
 import { $LawPracticeUseCasesId } from "@beep/identity/packages";
+import { GroundedExtraction } from "@beep/langextract/Extraction";
+import { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
+import { EffectSchema, Fn } from "@beep/schema";
 import { Context } from "effect";
-import type { GroundedExtraction } from "@beep/langextract/Extraction";
-import type { Claim, Distinction, OfficeAction, PriorArtReference, Rejection } from "@beep/law-practice-domain";
-import type { Effect } from "effect";
+import * as S from "effect/Schema";
 import type { IrToLawExtractionError } from "./IrToLaw.errors.ts";
 
 const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.ports");
@@ -40,13 +41,19 @@ const $I = $LawPracticeUseCasesId.create("IrToLaw/IrToLaw.ports");
  * @category models
  * @since 0.0.0
  */
-export interface LawEntities {
-  readonly claim: Claim;
-  readonly distinction: Distinction;
-  readonly officeAction: OfficeAction;
-  readonly priorArtReference: PriorArtReference;
-  readonly rejection: Rejection;
-}
+export class LawEntities extends S.Class<LawEntities>($I`LawEntities`)(
+  {
+    claim: Claim,
+    distinction: Distinction,
+    officeAction: OfficeAction,
+    priorArtReference: PriorArtReference,
+    rejection: Rejection,
+  },
+  $I.annote("LawEntities", {
+    description:
+      "The bundle of law-practice domain entities produced by mapping one office\naction's grounded extractions. Each field is the concrete entity the generic\nextraction output resolves into.",
+  })
+) {}
 
 /**
  * Service shape for the IR-to-law mapping: take the span-bearing grounded
@@ -65,11 +72,14 @@ export interface LawEntities {
  * @category services
  * @since 0.0.0
  */
-export interface IrToLawShape {
-  readonly toLaw: (
-    extractions: ReadonlyArray<GroundedExtraction>
-  ) => Effect.Effect<LawEntities, IrToLawExtractionError>;
-}
+export class IrToLawShape extends S.Class<IrToLawShape>($I`IrToLawShape`)({
+	toLaw: Fn({
+		input: S.Array(GroundedExtraction),
+		output: EffectSchema<LawEntities, IrToLawExtractionError, never>(),
+	}),
+}) {}
+
+
 
 /**
  * IR-to-law mapping service tag.

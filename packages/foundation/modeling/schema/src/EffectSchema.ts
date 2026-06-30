@@ -7,28 +7,24 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-
-import { $SchemaId } from "@beep/identity/packages";
-import { Effect } from "effect";
+import {$SchemaId} from "@beep/identity/packages";
+import {Effect} from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("EffectSchema");
 const effectAnnotations = {
-  typeConstructor: {
-    _tag: "@beep/schema/EffectSchema",
-  },
-  generation: {
-    runtime: "EffectSchema",
-    Type: "EffectSchema",
-    importDeclaration: 'import { EffectSchema } from "@beep/schema/EffectSchema"',
-  },
-  expected: "Effect",
-  description: "Schema for Effect runtime values.",
-  toEquivalence:
-    () =>
-    <A extends Effect.Effect<unknown, unknown, unknown>>(self: A, that: A): boolean =>
-      self === that,
-  toFormatter: () => (): string => "[Effect]",
+	typeConstructor: {
+		_tag: "@beep/schema/EffectSchema",
+	},
+	generation: {
+		runtime: "EffectSchema",
+		Type: "EffectSchema",
+		importDeclaration: 'import { EffectSchema } from "@beep/schema/EffectSchema"',
+	},
+	expected: "Effect",
+	description: "Schema for Effect runtime values.",
+	toEquivalence: () => <A extends Effect.Effect<unknown, unknown, unknown>>(self: A, that: A): boolean => self === that,
+	toFormatter: () => (): string => "[Effect]",
 };
 
 /**
@@ -57,6 +53,10 @@ const effectAnnotations = {
  * @since 0.0.0
  */
 export const isEffect = Effect.isEffect;
+type SchemaStatics<Schema extends S.Top> = Omit<Schema, keyof Schema["Rebuild"] | keyof S.Top>;
+type AnnotatedSchema<Schema extends S.Top> =
+	Schema["Rebuild"]
+	& SchemaStatics<Schema>;
 
 /**
  * Declared schema for Effect runtime values.
@@ -79,11 +79,12 @@ export const isEffect = Effect.isEffect;
  * @category validation
  * @since 0.0.0
  */
-export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(isEffect, effectAnnotations).pipe(
-  $I.annoteSchema("EffectSchema", {
-    description: "A schema that validates Effect runtime values.",
-  })
-);
+export const EffectSchema = <Success, Failure, Dependencies>(): AnnotatedSchema<S.declare<Effect.Effect<Success, Failure, Dependencies>, Effect.Effect<Success, Failure, Dependencies>>> => S.declare<Effect.Effect<Success, Failure, Dependencies>>(
+	isEffect,
+	effectAnnotations,
+).pipe($I.annoteSchema("EffectSchema", {
+	description: "A schema that validates Effect runtime values.",
+}));
 
 /**
  * {@inheritDoc EffectSchema}
@@ -101,4 +102,4 @@ export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(
  * @category models
  * @since 0.0.0
  */
-export type EffectSchema = typeof EffectSchema.Type;
+export type EffectSchema<Success, Failure, Dependencies> = S.Schema.Type<ReturnType<typeof EffectSchema<Success, Failure, Dependencies>>>

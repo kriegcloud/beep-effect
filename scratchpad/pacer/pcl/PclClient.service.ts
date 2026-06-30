@@ -14,7 +14,7 @@
  */
 
 import { $ScratchpadId } from "@beep/identity";
-import { Context, Effect, Layer, Redacted, Ref, Stream } from "effect";
+import { Context, Effect, Layer, pipe, Redacted, Ref, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as HttpClient from "effect/unstable/http/HttpClient";
@@ -22,7 +22,7 @@ import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import { HttpApiClient } from "effect/unstable/httpapi";
 import { PacerSession } from "../auth/PacerAuth.service.ts";
 import { PacerPclError } from "../Pacer.errors.ts";
-import { NextGenCsoToken } from "../Pacer.tokens.ts";
+import { NextGenCsoToken, ReportStatus } from "../Pacer.tokens.ts";
 import { PclHttpApi } from "./Pcl.api.ts";
 import type { PacerConfig } from "../Pacer.config.ts";
 import type {
@@ -52,6 +52,9 @@ const extractStatus = (error: unknown): number | undefined =>
 
 const errorTag = (error: unknown): string | undefined =>
   P.hasProperty(error, "_tag") && P.isString(error._tag) ? error._tag : undefined;
+
+const isTerminalReportStatus = (status: ReportStatus): boolean =>
+  status === ReportStatus.Enum.COMPLETED || status === ReportStatus.Enum.FAILED;
 
 const mapPclFailure = (error: unknown): PacerPclError => {
   const status = extractStatus(error);
@@ -169,8 +172,12 @@ export class PclClient extends Context.Service<PclClient, PclClientShape>()($I`P
               ? Effect.fail(PacerPclError.fromReason("server-error", { cause: "pagination exceeded max pages" }))
               : findCasesPage(payload, page).pipe(
                   Effect.map((report) => {
-                    const content = report.content ?? [];
-                    const hasMore = report.pageInfo?.last === false;
+                    const content = O.getOrElse(report.content, () => []);
+                    const hasMore = pipe(
+                      report.pageInfo,
+                      O.flatMap((pageInfo) => pageInfo.last),
+                      O.exists((last) => !last)
+                    );
                     return [content, hasMore ? O.some(page + 1) : O.none<number>()] as const;
                   })
                 )
@@ -204,7 +211,7 @@ export class PclClient extends Context.Service<PclClient, PclClientShape>()($I`P
         ): Effect.Effect<ReportInfoType, PacerPclError> =>
           caseDownloadStatus(reportId).pipe(
             Effect.flatMap((info) =>
-              info.status === "COMPLETED" || info.status === "FAILED"
+              O.exists(info.status, isTerminalReportStatus)
                 ? Effect.succeed(info)
                 : attemptsLeft <= 0
                   ? Effect.fail(PacerPclError.fromReason("server-error", { cause: "report polling timed out" }))
@@ -224,11 +231,11 @@ export class PclClient extends Context.Service<PclClient, PclClientShape>()($I`P
             // Always delete the stored report, even if polling/download fails.
             return yield* Effect.gen(function* () {
               const completed = yield* pollUntilComplete(reportId, POLL_MAX_ATTEMPTS);
-              if (completed.status === "FAILED") {
+              if (O.contains(completed.status, ReportStatus.Enum.FAILED)) {
                 return yield* PacerPclError.fromReason("server-error", { cause: "report failed" });
               }
               const report = yield* caseDownloadResults(reportId);
-              return report.content ?? [];
+              return O.getOrElse(report.content, () => []);
             }).pipe(Effect.ensuring(deleteCaseReport(reportId).pipe(Effect.ignore)));
           });
 
