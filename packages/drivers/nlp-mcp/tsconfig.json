@@ -21,10 +21,10 @@
       "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {
-      "path": "../../foundation/modeling/nlp/tsconfig.json"
+      "path": "../../foundation/modeling/schema/tsconfig.json"
     },
     {
-      "path": "../../foundation/modeling/schema/tsconfig.json"
+      "path": "../../foundation/modeling/nlp/tsconfig.json"
     }
   ]
 }

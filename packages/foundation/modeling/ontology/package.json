@@ -55,17 +55,10 @@
       "./package.json": "./package.json"
     }
   },
-  "dependencies": {
-    "@beep/identity": "workspace:^",
-    "@beep/rdf": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "effect": "catalog:",
-    "n3": "catalog:"
-  },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/node": "catalog:",
-    "@types/n3": "catalog:"
+    "@types/n3": "catalog:",
+    "@types/node": "catalog:"
   },
   "beep": {
     "family": "foundation",

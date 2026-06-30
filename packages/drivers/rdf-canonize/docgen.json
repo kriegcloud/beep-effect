@@ -35,15 +35,6 @@
       "@beep/rdf-canonize/*": [
         "../../../packages/drivers/rdf-canonize/src/*.ts"
       ],
-      "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
-      ],
-      "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
-      ],
       "@beep/rdf": ["../../../packages/foundation/modeling/rdf/src/index.ts"],
       "@beep/rdf/*": ["../../../packages/foundation/modeling/rdf/src/*.ts"],
       "@beep/schema": [

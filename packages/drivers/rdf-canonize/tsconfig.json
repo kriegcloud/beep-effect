@@ -12,9 +12,6 @@
       "path": "../../foundation/capability/semantic-web/tsconfig.json"
     },
     {
-      "path": "../../foundation/modeling/identity/tsconfig.json"
-    },
-    {
       "path": "../../foundation/modeling/rdf/tsconfig.json"
     },
     {
@@ -25,6 +22,9 @@
     },
     {
       "path": "../../tooling/test-kit/test-utils/tsconfig.json"
+    },
+    {
+      "path": "../../foundation/modeling/identity/tsconfig.json"
     }
   ]
 }

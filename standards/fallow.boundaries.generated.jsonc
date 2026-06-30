@@ -1440,7 +1440,6 @@
         "allow": [
           "@beep/file-processing",
           "@beep/identity",
-          "@beep/nlp",
           "@beep/nlp-mcp",
           "@beep/nlp-processing",
           "@beep/schema",
@@ -1449,7 +1448,6 @@
         "allowTypeOnly": [
           "@beep/file-processing",
           "@beep/identity",
-          "@beep/nlp",
           "@beep/nlp-mcp",
           "@beep/nlp-processing",
           "@beep/schema",
@@ -1537,16 +1535,10 @@
       {
         "from": "@beep/ontology",
         "allow": [
-          "@beep/identity",
-          "@beep/ontology",
-          "@beep/rdf",
-          "@beep/schema"
+          "@beep/ontology"
         ],
         "allowTypeOnly": [
-          "@beep/identity",
-          "@beep/ontology",
-          "@beep/rdf",
-          "@beep/schema"
+          "@beep/ontology"
         ]
       },
       {
@@ -1706,7 +1698,6 @@
       {
         "from": "@beep/rdf-canonize",
         "allow": [
-          "@beep/identity",
           "@beep/rdf",
           "@beep/rdf-canonize",
           "@beep/schema",
@@ -1715,7 +1706,6 @@
           "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/identity",
           "@beep/rdf",
           "@beep/rdf-canonize",
           "@beep/schema",

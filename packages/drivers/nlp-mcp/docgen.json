@@ -67,37 +67,6 @@
       "@beep/identity/packages": [
         "../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/nlp": ["../../../packages/foundation/modeling/nlp/src/index.ts"],
-      "@beep/nlp/Algebra": [
-        "../../../packages/foundation/modeling/nlp/src/Algebra/index.ts"
-      ],
-      "@beep/nlp/Core": [
-        "../../../packages/foundation/modeling/nlp/src/Core/index.ts"
-      ],
-      "@beep/nlp/Graph": [
-        "../../../packages/foundation/modeling/nlp/src/Graph/index.ts"
-      ],
-      "@beep/nlp/Handoff": [
-        "../../../packages/foundation/modeling/nlp/src/Handoff/index.ts"
-      ],
-      "@beep/nlp/IdentifierText": [
-        "../../../packages/foundation/modeling/nlp/src/IdentifierText.ts"
-      ],
-      "@beep/nlp/Ontology": [
-        "../../../packages/foundation/modeling/nlp/src/Ontology/index.ts"
-      ],
-      "@beep/nlp/Operations": [
-        "../../../packages/foundation/modeling/nlp/src/Operations/index.ts"
-      ],
-      "@beep/nlp/PathText": [
-        "../../../packages/foundation/modeling/nlp/src/PathText.ts"
-      ],
-      "@beep/nlp/QueryText": [
-        "../../../packages/foundation/modeling/nlp/src/QueryText.ts"
-      ],
-      "@beep/nlp/VariantText": [
-        "../../../packages/foundation/modeling/nlp/src/VariantText.ts"
-      ],
       "@beep/nlp-processing": [
         "../../../packages/foundation/capability/nlp-processing/src/index.ts"
       ],

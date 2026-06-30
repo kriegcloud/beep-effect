@@ -36,6 +36,11 @@ export * from "./ArrayOf.ts";
  * @since 0.0.0
  * @category validation
  */
+export * from "./AtURI.ts";
+/**
+ * @since 0.0.0
+ * @category validation
+ */
 export * from "./BigDecimal.ts";
 /**
  * @since 0.0.0

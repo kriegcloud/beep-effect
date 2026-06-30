@@ -40,7 +40,7 @@ premature. The lossy `httpclient` format (open bug #1978) further argues for
 keeping the bespoke renderer in the toolkit, not betting everything on the
 generator.
 
-**Status:** open (for /grill-with-docs)
+**Status:** resolved — recommendation accepted as-is (2026-06-29 grill)
 
 ## Q2: Codegen boundary — where does generated output stop and hand-authored code begin?
 
@@ -65,7 +65,7 @@ MCP-toolkit generator avoids building net-new tooling against an unproven target
 and keeps v1 scoped to the driver/client substrate the five skeletons actually
 need.
 
-**Status:** open (for /grill-with-docs)
+**Status:** resolved — recommendation accepted as-is (2026-06-29 grill)
 
 ## Q3: MCP target — does this packet ship a new `gov-legal-mcp` server, attach toolkits to an existing server, or stay patterns-only?
 
@@ -93,7 +93,17 @@ is why the generated-name contract and gating mechanics
 Layer.empty)` — NOT `McpSchema.EnabledWhen`, which is discovery-shaping, not
 credential gating) are preconditions rather than afterthoughts.
 
-**Status:** open (for /grill-with-docs)
+**Resolved (2026-06-29):** **New `packages/drivers/gov-legal-mcp` sibling package**
+(`m365-mcp`/`nlp-mcp` precedent) — but **DEFERRED to a named follow-on goal gated
+behind >=2 proven drivers**, NOT in the v1 graduation slice. v1 graduates the
+driver/client substrate (finish `govinfo` + shared transformer + a 2nd keyless
+driver). The MCP server carries the mandatory generated-tool-name collision
+contract (driver-prefixed stable names, normalization + cap, duplicate-detection
+with a collision report, integration tests against the Effect MCP JSON schemas).
+Rationale: no merge-server before there are drivers to expose; collision risk only
+matters once multiple toolkits merge.
+
+**Status:** resolved
 
 ## Q4: First slice — which driver is the reference vertical that proves the substrate end-to-end?
 
@@ -120,7 +130,7 @@ carry the most unresolved blockers (no clean spec, disputed `anonymous=401`
 enforcement, the 2026-05-07 rate cliff, unanswered data-use terms), so
 sequencing them last keeps the reference vertical clean.
 
-**Status:** open (for /grill-with-docs)
+**Status:** resolved — recommendation accepted as-is (2026-06-29 grill)
 
 ## Q5: Shared client layer — one transformer parameterized over three auth families, or per-driver bespoke clients?
 
@@ -150,7 +160,7 @@ shared transformer also concentrates the per-source rate-limit policy (esp. the
 CourtListener 50/hr cliff and citation-lookup per-token charging) in one
 auditable place.
 
-**Status:** open (for /grill-with-docs)
+**Status:** resolved — recommendation accepted as-is (2026-06-29 grill)
 
 ## Q6: Package placement — where do the shared transformer, the codegen scripts, and the MCP bin live?
 
@@ -208,7 +218,7 @@ introducing a global edge that re-shapes every package's build graph; the
 the blast radius. Turbo requires deterministic codegen, which the committed-spec
 approach already guarantees.
 
-**Status:** open (for /grill-with-docs)
+**Status:** resolved — recommendation accepted as-is (2026-06-29 grill)
 
 ## Q8: Data/source-terms gate — ship CourtListener caching/fixtures now under a default policy, or block until a per-upstream data-terms matrix exists?
 
@@ -233,4 +243,12 @@ eCFR, FedReg are all public-domain/keyless) while keeping the one upstream with
 real legal-content risk behind an ephemeral-only policy until Legal-grade answers
 exist.
 
-**Status:** open (for /grill-with-docs)
+**Resolved (2026-06-29):** **Default-deny.** CourtListener caching is
+in-process/ephemeral-only and third-party legal content is excluded from committed
+fixtures until a per-upstream data/source-terms matrix exists (data license, API
+ToS, commercial-use limits, caching/retention permission, redistribution/fixture
+rules, attribution, source-of-authority caveat). Building that matrix is a
+**required pre-shape research item**. FedReg-derived outputs preserve source/status
+metadata and reconcile to GovInfo when legal authority matters.
+
+**Status:** resolved
