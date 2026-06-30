@@ -274,7 +274,7 @@
     "markdownlint-cli2": "catalog:",
     "syncpack": "catalog:",
     "tstyche": "catalog:",
-    "turbo": "catalog:",
+    "turbo": "^2.10.2",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
