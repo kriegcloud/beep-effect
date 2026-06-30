@@ -10,7 +10,7 @@ import { CSV } from "@beep/schema/Csv";
 import { parseCsvRows } from "@beep/schema/CsvParser";
 import { ParserOptions } from "@beep/schema/ParserOptions";
 import { XmlTextToUnknown } from "@beep/schema/Xml";
-import { A, Str } from "@beep/utils";
+import { A, dual, Str } from "@beep/utils";
 import { cast } from "@beep/utils/Function";
 import { Crypto, Effect, Encoding, pipe, Result } from "effect";
 import * as R from "effect/Record";
@@ -191,13 +191,16 @@ export const fetchSource = Effect.fn("SyncDataToTs.fetchSource")(function* (
  * @category parsing
  * @since 0.0.0
  */
-export const parseJsonSource = (
-  targetId: string,
-  source: SyncDataFetchedSource
-): Effect.Effect<unknown, SyncDataToTsError> =>
-  decodeJsonText(source.text).pipe(
-    SyncDataToTsError.mapError(`Failed to parse JSON payload for ${targetId}`, targetId)
-  );
+export const parseJsonSource: {
+  (targetId: string, source: SyncDataFetchedSource): Effect.Effect<unknown, SyncDataToTsError>;
+  (source: SyncDataFetchedSource): (targetId: string) => Effect.Effect<unknown, SyncDataToTsError>;
+} = dual(
+  2,
+  (targetId: string, source: SyncDataFetchedSource): Effect.Effect<unknown, SyncDataToTsError> =>
+    decodeJsonText(source.text).pipe(
+      SyncDataToTsError.mapError(`Failed to parse JSON payload for ${targetId}`, targetId)
+    )
+);
 
 /**
  * Parse a fetched source as XML.
@@ -208,11 +211,14 @@ export const parseJsonSource = (
  * @category parsing
  * @since 0.0.0
  */
-export const parseXmlSource = (
-  targetId: string,
-  source: SyncDataFetchedSource
-): Effect.Effect<unknown, SyncDataToTsError> =>
-  decodeXmlText(source.text).pipe(SyncDataToTsError.mapError(`Failed to parse XML payload for ${targetId}`, targetId));
+export const parseXmlSource: {
+  (targetId: string, source: SyncDataFetchedSource): Effect.Effect<unknown, SyncDataToTsError>;
+  (source: SyncDataFetchedSource): (targetId: string) => Effect.Effect<unknown, SyncDataToTsError>;
+} = dual(
+  2,
+  (targetId: string, source: SyncDataFetchedSource): Effect.Effect<unknown, SyncDataToTsError> =>
+    decodeXmlText(source.text).pipe(SyncDataToTsError.mapError(`Failed to parse XML payload for ${targetId}`, targetId))
+);
 
 const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content: string) {
   const rawRows = yield* parseCsvRows(content, defaultCsvParserOptions);
@@ -249,8 +255,11 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
  * @category parsing
  * @since 0.0.0
  */
-export const parseCsvSource = (
-  targetId: string,
-  source: SyncDataFetchedSource
-): Effect.Effect<ParsedCsvRecords, SyncDataToTsError> =>
-  decodeCsvText(source.text).pipe(SyncDataToTsError.mapError(`Failed to parse CSV payload for ${targetId}`, targetId));
+export const parseCsvSource: {
+  (targetId: string, source: SyncDataFetchedSource): Effect.Effect<ParsedCsvRecords, SyncDataToTsError>;
+  (source: SyncDataFetchedSource): (targetId: string) => Effect.Effect<ParsedCsvRecords, SyncDataToTsError>;
+} = dual(
+  2,
+  (targetId: string, source: SyncDataFetchedSource): Effect.Effect<ParsedCsvRecords, SyncDataToTsError> =>
+    decodeCsvText(source.text).pipe(SyncDataToTsError.mapError(`Failed to parse CSV payload for ${targetId}`, targetId))
+);

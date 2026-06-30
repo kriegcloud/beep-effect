@@ -14,6 +14,7 @@ import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 
 const $I = $RdfId.create("semantic-schema-metadata");
 /* istanbul ignore next -- public callers receive schema issues through Result decoding */
@@ -264,7 +265,10 @@ export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`S
     description: "Typed metadata payload stored in the semanticSchemaMetadata annotation key.",
   })
 ) {
-  static readonly decodeUnknownResult = S.decodeUnknownResult(this);
+  static readonly decodeUnknownResult: (
+    input: unknown,
+    options?: AST.ParseOptions
+  ) => Result.Result<SemanticSchemaMetadata, S.SchemaError> = S.decodeUnknownResult(this);
 }
 
 /**

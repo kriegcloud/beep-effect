@@ -1028,10 +1028,10 @@ export const promotedFallowGithubCheckLaneIdsForTesting = (
  * @category testing
  * @since 0.0.0
  */
-export const githubCheckLanesForModeForTesting = (
-  repoRoot: string,
-  mode: GithubCheckMode
-): ReadonlyArray<GithubCheckLaneSpec> => {
+export const githubCheckLanesForModeForTesting: {
+  (repoRoot: string, mode: GithubCheckMode): ReadonlyArray<GithubCheckLaneSpec>;
+  (mode: GithubCheckMode): (repoRoot: string) => ReadonlyArray<GithubCheckLaneSpec>;
+} = dual(2, (repoRoot: string, mode: GithubCheckMode): ReadonlyArray<GithubCheckLaneSpec> => {
   const externalLanes = githubCheckPrePushExternalLanes(repoRoot);
   const externalLane = (id: string): ReadonlyArray<GithubCheckLaneSpec> =>
     pipe(
@@ -1060,7 +1060,7 @@ export const githubCheckLanesForModeForTesting = (
     Match.when("review-fix", A.empty<GithubCheckLaneSpec>),
     Match.exhaustive
   );
-};
+});
 
 /**
  * Compare promoted Fallow matrix rows against static GitHub check lanes.
@@ -1079,27 +1079,29 @@ export const githubCheckLanesForModeForTesting = (
  * @category testing
  * @since 0.0.0
  */
-export const githubCheckPromotedFallowLaneDiagnosticsForTesting = (
-  repoRoot: string,
-  mode: GithubCheckMode,
-  matrix: GithubChecksFallowFeatureMatrix
-): ReadonlyArray<string> => {
-  const promotedLaneIds = promotedFallowGithubCheckLaneIdsForTesting(matrix);
-  const actualLaneIds = pipe(
-    githubCheckLanesForModeForTesting(repoRoot, mode),
-    A.map((lane) => lane.id),
-    A.dedupe,
-    A.sort(Order.String)
-  );
-  const actualFallowLaneIds = A.filter(actualLaneIds, Str.startsWith("fallow:"));
-  const missingPromotedLaneIds = A.filter(promotedLaneIds, (laneId) => !A.contains(actualLaneIds, laneId));
-  const unpromotedLaneIds = A.filter(actualFallowLaneIds, (laneId) => !A.contains(promotedLaneIds, laneId));
+export const githubCheckPromotedFallowLaneDiagnosticsForTesting: {
+  (repoRoot: string, mode: GithubCheckMode, matrix: GithubChecksFallowFeatureMatrix): ReadonlyArray<string>;
+  (mode: GithubCheckMode, matrix: GithubChecksFallowFeatureMatrix): (repoRoot: string) => ReadonlyArray<string>;
+} = dual(
+  3,
+  (repoRoot: string, mode: GithubCheckMode, matrix: GithubChecksFallowFeatureMatrix): ReadonlyArray<string> => {
+    const promotedLaneIds = promotedFallowGithubCheckLaneIdsForTesting(matrix);
+    const actualLaneIds = pipe(
+      githubCheckLanesForModeForTesting(repoRoot, mode),
+      A.map((lane) => lane.id),
+      A.dedupe,
+      A.sort(Order.String)
+    );
+    const actualFallowLaneIds = A.filter(actualLaneIds, Str.startsWith("fallow:"));
+    const missingPromotedLaneIds = A.filter(promotedLaneIds, (laneId) => !A.contains(actualLaneIds, laneId));
+    const unpromotedLaneIds = A.filter(actualFallowLaneIds, (laneId) => !A.contains(promotedLaneIds, laneId));
 
-  return [
-    ...A.map(missingPromotedLaneIds, (laneId) => `missing promoted Fallow GitHub check lane ${laneId}`),
-    ...A.map(unpromotedLaneIds, (laneId) => `unpromoted Fallow GitHub check lane is wired: ${laneId}`),
-  ];
-};
+    return [
+      ...A.map(missingPromotedLaneIds, (laneId) => `missing promoted Fallow GitHub check lane ${laneId}`),
+      ...A.map(unpromotedLaneIds, (laneId) => `unpromoted Fallow GitHub check lane is wired: ${laneId}`),
+    ];
+  }
+);
 
 /**
  * Build the repo-quality diagnostic lanes used by GitHub check collectors.
@@ -1285,16 +1287,22 @@ const runDevQuality = Effect.fn("QualityScriptCommands.runDevQuality")(function*
  * @category testing
  * @since 0.0.0
  */
-export const reviewFixDocgenLocalArgsForTesting = (base: string, head: string): ReadonlyArray<string> => [
-  "docgen:local",
-  "--",
-  "--base",
-  base,
-  "--head",
-  head,
-  "--parallel=3",
-  "--full",
-];
+export const reviewFixDocgenLocalArgsForTesting: {
+  (base: string, head: string): ReadonlyArray<string>;
+  (head: string): (base: string) => ReadonlyArray<string>;
+} = dual(
+  2,
+  (base: string, head: string): ReadonlyArray<string> => [
+    "docgen:local",
+    "--",
+    "--base",
+    base,
+    "--head",
+    head,
+    "--parallel=3",
+    "--full",
+  ]
+);
 
 const runReviewFix = Effect.fn("QualityScriptCommands.runReviewFix")(function* (
   repoRoot: string,

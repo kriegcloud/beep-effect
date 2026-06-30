@@ -6,6 +6,7 @@
  */
 
 import { Effect, Graph as Graph_ } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import {
   makeGraphConstructionIssue,
@@ -56,27 +57,42 @@ const populateMutableGraph = Effect.fn("Schema.Graph.populateMutableGraph")(func
  * @category constructors
  * @since 0.0.0
  */
-export const rebuildImmutableGraph = <Node, Edge>(
-  encoded: GraphEncoded<Node, Edge>,
-  actual: unknown,
-  expectedType?: GraphKindValue
-): Effect.Effect<Graph_.Graph<Node, Edge, GraphKindValue>, SchemaIssue.Issue> => {
-  if (expectedType !== undefined && encoded.type !== expectedType) {
-    return Effect.fail(makeInvalidGraphIssue(actual, `Expected ${expectedType} graph, got ${encoded.type}`));
-  }
+export const rebuildImmutableGraph: {
+  <Node, Edge>(
+    encoded: GraphEncoded<Node, Edge>,
+    actual: unknown,
+    expectedType?: GraphKindValue
+  ): Effect.Effect<Graph_.Graph<Node, Edge, GraphKindValue>, SchemaIssue.Issue>;
+  (
+    actual: unknown,
+    expectedType?: GraphKindValue
+  ): <Node, Edge>(
+    encoded: GraphEncoded<Node, Edge>
+  ) => Effect.Effect<Graph_.Graph<Node, Edge, GraphKindValue>, SchemaIssue.Issue>;
+} = dual(
+  2,
+  <Node, Edge>(
+    encoded: GraphEncoded<Node, Edge>,
+    actual: unknown,
+    expectedType?: GraphKindValue
+  ): Effect.Effect<Graph_.Graph<Node, Edge, GraphKindValue>, SchemaIssue.Issue> => {
+    if (expectedType !== undefined && encoded.type !== expectedType) {
+      return Effect.fail(makeInvalidGraphIssue(actual, `Expected ${expectedType} graph, got ${encoded.type}`));
+    }
 
-  if (encoded.type === "directed") {
+    if (encoded.type === "directed") {
+      return Effect.map(
+        populateMutableGraph(Graph_.beginMutation(Graph_.directed<Node, Edge>()), encoded, actual),
+        Graph_.endMutation
+      );
+    }
+
     return Effect.map(
-      populateMutableGraph(Graph_.beginMutation(Graph_.directed<Node, Edge>()), encoded, actual),
+      populateMutableGraph(Graph_.beginMutation(Graph_.undirected<Node, Edge>()), encoded, actual),
       Graph_.endMutation
     );
   }
-
-  return Effect.map(
-    populateMutableGraph(Graph_.beginMutation(Graph_.undirected<Node, Edge>()), encoded, actual),
-    Graph_.endMutation
-  );
-};
+);
 
 /** @internal */
 /**
@@ -85,9 +101,24 @@ export const rebuildImmutableGraph = <Node, Edge>(
  * @category constructors
  * @since 0.0.0
  */
-export const rebuildMutableGraph = <Node, Edge>(
-  encoded: GraphEncoded<Node, Edge>,
-  actual: unknown,
-  expectedType?: GraphKindValue
-): Effect.Effect<Graph_.MutableGraph<Node, Edge, GraphKindValue>, SchemaIssue.Issue> =>
-  Effect.map(rebuildImmutableGraph(encoded, actual, expectedType), Graph_.beginMutation);
+export const rebuildMutableGraph: {
+  <Node, Edge>(
+    encoded: GraphEncoded<Node, Edge>,
+    actual: unknown,
+    expectedType?: GraphKindValue
+  ): Effect.Effect<Graph_.MutableGraph<Node, Edge, GraphKindValue>, SchemaIssue.Issue>;
+  <Node, Edge>(
+    actual: unknown,
+    expectedType?: GraphKindValue
+  ): (
+    encoded: GraphEncoded<Node, Edge>
+  ) => Effect.Effect<Graph_.MutableGraph<Node, Edge, GraphKindValue>, SchemaIssue.Issue>;
+} = dual(
+  3,
+  <Node, Edge>(
+    encoded: GraphEncoded<Node, Edge>,
+    actual: unknown,
+    expectedType?: GraphKindValue
+  ): Effect.Effect<Graph_.MutableGraph<Node, Edge, GraphKindValue>, SchemaIssue.Issue> =>
+    Effect.map(rebuildImmutableGraph(encoded, actual, expectedType), Graph_.beginMutation)
+);

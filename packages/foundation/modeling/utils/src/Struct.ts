@@ -718,3 +718,92 @@ export const reverse: {
     return cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
   }
 );
+
+/**
+ * A utility type for constructing a recursive partial of a given object type.
+ *
+ * This type works by traversing the structure of the input type `T` and transforming
+ * each property into an optional property. If the property is an array, the transformation
+ * is applied recursively to the array's element type. If the property is an object, the
+ * transformation is applied recursively to its properties.
+ *
+ * ## Use Cases
+ *
+ * - Useful for deeply nested optional configurations or updates in state management.
+ * - Helps define inputs where only a part of the structure needs to be specified.
+ *
+ * ## Behavior
+ *
+ * - Arrays are transformed into arrays of their recursively partial element type.
+ * - Objects are transformed into objects with optional recursively partial properties.
+ * - Primitive types like string, number, and boolean aren't altered.
+ *
+ * @example
+ * ```typescript
+ * import { DeepPartial } from "effect/DeepPartial"
+ *
+ * // Define a nested structure
+ * interface User {
+ *   id: number;
+ *   name: string;
+ *   profile: {
+ *     age: number;
+ *     hobbies: string[];
+ *   };
+ * }
+ *
+ * // A DeepPartial of User allows all fields to be optional and partial
+ * const partialUser: DeepPartial<User> = {
+ *   profile: {
+ *     hobbies: ["reading"]
+ *   }
+ * }
+ *
+ * console.log(partialUser); // { profile: { hobbies: ["reading"] } }
+ * ```
+ *
+ * @template T - The original type for which a recursive partial should be constructed.
+ * @returns {DeepPartial<T>} - A recursively partial version of the specified type.
+ * @since 0.0.0
+ * @category Utility
+ */
+export type DeepPartial<T> = T extends readonly (infer U)[]
+  ? readonly DeepPartial<U>[]
+  : T extends object
+    ? { [K in keyof T]?: DeepPartial<T[K]> }
+    : T;
+
+/**
+ *
+ * @example
+ * ```ts
+ * import { Struct } from '@beep/utils';
+ *
+ * const one = { beep: "hole" }
+ * const two = { hole: one }
+ *
+ * console.log(Struct.deepMerge(one, two)); // { hole: { beep: "hole" }, beep: "hole" }
+ * ```
+ *
+ * @since 0.0.0
+ * @category combinators
+ * @template {Record<string, unknown>} T
+ * @param {T} current
+ * @param {DeepPartial<T>} patch
+ * @returns {T}
+ */
+export function deepMerge<T extends Record<string, unknown>>(current: T, patch: DeepPartial<T>): T {
+  if (!P.isObject(current) || !P.isObject(patch)) {
+    return patch as T;
+  }
+
+  const next = { ...current } as Record<string, unknown>;
+  for (const [key, value] of entries(patch)) {
+    if (value === undefined) continue;
+
+    const existing = next[key];
+    next[key] = P.isObject(existing) && P.isObject(value) ? deepMerge(existing, value) : value;
+  }
+
+  return next as T;
+}

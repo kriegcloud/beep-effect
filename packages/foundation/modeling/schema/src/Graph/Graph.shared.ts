@@ -5,9 +5,10 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
-import { A, Str } from "@beep/utils";
+import { A, dual, Str } from "@beep/utils";
 import { flow, Graph as Graph_, Number as Num, Option, Order, pipe, SchemaIssue } from "effect";
 import * as P from "effect/Predicate";
+import { LiteralKit } from "../LiteralKit/index.ts";
 
 /**
  * Internal identity composer.
@@ -26,7 +27,16 @@ export const $I = $SchemaId.create("Graph");
  * @category type-level
  * @since 0.0.0
  */
-export type GraphKindValue = "directed" | "undirected";
+export const GraphKindValue = LiteralKit(["directed", "undirected"]).pipe(
+  $I.annoteSchema("GraphKindValue", {
+    description: "Public schema module export.",
+  })
+);
+
+/**
+ * Companion type for {@link GraphKindValue}
+ */
+export type GraphKindValue = typeof GraphKindValue.Type;
 
 /** @internal */
 /**
@@ -169,25 +179,38 @@ export const toRawGraphEncoded = <Node, Edge, Kind extends GraphKindValue>(
  * @category formatting
  * @since 0.0.0
  */
-export const formatGraph = <Node, Edge, Kind extends GraphKindValue>(
-  graph: Graph_.Graph<Node, Edge, Kind> | Graph_.MutableGraph<Node, Edge, Kind>,
-  formatNode: (node: Node) => string,
-  formatEdge: (edge: Edge) => string
-): string => {
-  const encoded = toRawGraphEncoded(graph);
-  const nodes = pipe(
-    encoded.nodes,
-    A.map(([index, node]) => `[${index}, ${formatNode(node)}]`),
-    A.join(", ")
-  );
-  const edges = pipe(
-    encoded.edges,
-    A.map(({ index, source, target, data }) => `[${index}, Edge(${source}, ${target}, ${formatEdge(data)})]`),
-    A.join(", ")
-  );
+export const formatGraph: {
+  <Node, Edge, Kind extends GraphKindValue>(
+    graph: Graph_.Graph<Node, Edge, Kind> | Graph_.MutableGraph<Node, Edge, Kind>,
+    formatNode: (node: Node) => string,
+    formatEdge: (edge: Edge) => string
+  ): string;
+  <Node, Edge, Kind extends GraphKindValue>(
+    formatNode: (node: Node) => string,
+    formatEdge: (edge: Edge) => string
+  ): (graph: Graph_.Graph<Node, Edge, Kind> | Graph_.MutableGraph<Node, Edge, Kind>) => string;
+} = dual(
+  3,
+  <Node, Edge, Kind extends GraphKindValue>(
+    graph: Graph_.Graph<Node, Edge, Kind> | Graph_.MutableGraph<Node, Edge, Kind>,
+    formatNode: (node: Node) => string,
+    formatEdge: (edge: Edge) => string
+  ): string => {
+    const encoded = toRawGraphEncoded(graph);
+    const nodes = pipe(
+      encoded.nodes,
+      A.map(([index, node]) => `[${index}, ${formatNode(node)}]`),
+      A.join(", ")
+    );
+    const edges = pipe(
+      encoded.edges,
+      A.map(({ index, source, target, data }) => `[${index}, Edge(${source}, ${target}, ${formatEdge(data)})]`),
+      A.join(", ")
+    );
 
-  return `Graph.${encoded.type}({ nodes: [${nodes}], edges: [${edges}] })`;
-};
+    return `Graph.${encoded.type}({ nodes: [${nodes}], edges: [${edges}] })`;
+  }
+);
 
 /** @internal */
 /**
@@ -196,57 +219,75 @@ export const formatGraph = <Node, Edge, Kind extends GraphKindValue>(
  * @category constructors
  * @since 0.0.0
  */
-export const makeGraphEquivalence =
+export const makeGraphEquivalence: {
+  <Node, Edge>(
+    nodeEquivalence: (self: Node, that: Node) => boolean,
+    edgeEquivalence: (self: Edge, that: Edge) => boolean
+  ): (
+    self: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>,
+    that: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>
+  ) => boolean;
+  <Node, Edge>(
+    edgeEquivalence: (self: Edge, that: Edge) => boolean
+  ): (
+    nodeEquivalence: (self: Node, that: Node) => boolean
+  ) => (
+    self: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>,
+    that: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>
+  ) => boolean;
+} = dual(
+  2,
   <Node, Edge>(
     nodeEquivalence: (self: Node, that: Node) => boolean,
     edgeEquivalence: (self: Edge, that: Edge) => boolean
   ) =>
-  (
-    self: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>,
-    that: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>
-  ): boolean => {
-    const selfEncoded = toRawGraphEncoded(self);
-    const thatEncoded = toRawGraphEncoded(that);
-
-    if (
-      selfEncoded.type !== thatEncoded.type ||
-      selfEncoded.nodes.length !== thatEncoded.nodes.length ||
-      selfEncoded.edges.length !== thatEncoded.edges.length
-    ) {
-      return false;
-    }
-
-    for (const [index, selfNode] of selfEncoded.nodes.entries()) {
-      const thatNode = thatEncoded.nodes[index];
-
-      if (thatNode === undefined) {
-        return false;
-      }
-
-      if (selfNode[0] !== thatNode[0] || !nodeEquivalence(selfNode[1], thatNode[1])) {
-        return false;
-      }
-    }
-
-    for (const [index, selfEdge] of selfEncoded.edges.entries()) {
-      const thatEdge = thatEncoded.edges[index];
-
-      if (thatEdge === undefined) {
-        return false;
-      }
+    (
+      self: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>,
+      that: Graph_.Graph<Node, Edge, GraphKindValue> | Graph_.MutableGraph<Node, Edge, GraphKindValue>
+    ): boolean => {
+      const selfEncoded = toRawGraphEncoded(self);
+      const thatEncoded = toRawGraphEncoded(that);
 
       if (
-        selfEdge.index !== thatEdge.index ||
-        selfEdge.source !== thatEdge.source ||
-        selfEdge.target !== thatEdge.target ||
-        !edgeEquivalence(selfEdge.data, thatEdge.data)
+        selfEncoded.type !== thatEncoded.type ||
+        selfEncoded.nodes.length !== thatEncoded.nodes.length ||
+        selfEncoded.edges.length !== thatEncoded.edges.length
       ) {
         return false;
       }
-    }
 
-    return true;
-  };
+      for (const [index, selfNode] of selfEncoded.nodes.entries()) {
+        const thatNode = thatEncoded.nodes[index];
+
+        if (thatNode === undefined) {
+          return false;
+        }
+
+        if (selfNode[0] !== thatNode[0] || !nodeEquivalence(selfNode[1], thatNode[1])) {
+          return false;
+        }
+      }
+
+      for (const [index, selfEdge] of selfEncoded.edges.entries()) {
+        const thatEdge = thatEncoded.edges[index];
+
+        if (thatEdge === undefined) {
+          return false;
+        }
+
+        if (
+          selfEdge.index !== thatEdge.index ||
+          selfEdge.source !== thatEdge.source ||
+          selfEdge.target !== thatEdge.target ||
+          !edgeEquivalence(selfEdge.data, thatEdge.data)
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+);
 
 /** @internal */
 /**

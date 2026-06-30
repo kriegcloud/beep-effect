@@ -8,11 +8,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { O as OptionUtils } from "@beep/utils";
+import { dual, O } from "@beep/utils";
 import { Effect } from "effect";
 import * as A from "effect/Array";
 import { flow, pipe } from "effect/Function";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { runRepoCommandCapture } from "../../../internal/repo-run/index.js";
@@ -606,15 +605,14 @@ const latestGreptileSummary: (comments: ReadonlyArray<GhComment>) => GreptileSum
   A.filter((comment) => isGreptileComment(comment.author)),
   A.map((comment) =>
     GreptileSummary.make({
-      ...OptionUtils.getSomesStruct({ issueCount: parseIssueCount(comment.body) }),
-      ...OptionUtils.getSomesStruct({ score: parseScore(comment.body) }),
+      ...O.getSomesStruct({ issueCount: parseIssueCount(comment.body), score: parseScore(comment.body) }),
       url: comment.url,
     })
   ),
   A.filter((summary) => summary.score !== undefined || summary.issueCount !== undefined),
   A.reverse,
   A.head,
-  O.getOrElse(() => GreptileSummary.make({}))
+  O.getOrElse(GreptileSummary.make)
 );
 
 const greptileAuthoredReviewThreadCount: (threads: ReadonlyArray<GhReviewThread>) => number = flow(
@@ -886,26 +884,41 @@ const closeoutGateStates = (
  * @category testing
  * @since 0.0.0
  */
-export const closeoutGateStatesForTesting = (
-  options: PrCloseoutOptions,
-  actionableReviewThreadCount: number,
-  greptile: GreptileSummary,
-  botComments: ReadonlyArray<GreptileSummaryCommentInput>
-): ReadonlyArray<PrCloseoutGateState> =>
-  closeoutGateStates(
-    options,
-    actionableReviewThreadCount,
-    greptile,
-    A.map(botComments, (comment, index) =>
-      GhComment.make({
-        author: GhActor.make({ login: comment.authorLogin }),
-        body: comment.body,
-        id: `comment-${index}`,
-        url: comment.url,
-      })
-    ),
-    []
-  );
+export const closeoutGateStatesForTesting: {
+  (
+    options: PrCloseoutOptions,
+    actionableReviewThreadCount: number,
+    greptile: GreptileSummary,
+    botComments: ReadonlyArray<GreptileSummaryCommentInput>
+  ): ReadonlyArray<PrCloseoutGateState>;
+  (
+    actionableReviewThreadCount: number,
+    greptile: GreptileSummary,
+    botComments: ReadonlyArray<GreptileSummaryCommentInput>
+  ): (options: PrCloseoutOptions) => ReadonlyArray<PrCloseoutGateState>;
+} = dual(
+  4,
+  (
+    options: PrCloseoutOptions,
+    actionableReviewThreadCount: number,
+    greptile: GreptileSummary,
+    botComments: ReadonlyArray<GreptileSummaryCommentInput>
+  ): ReadonlyArray<PrCloseoutGateState> =>
+    closeoutGateStates(
+      options,
+      actionableReviewThreadCount,
+      greptile,
+      A.map(botComments, (comment, index) =>
+        GhComment.make({
+          author: GhActor.make({ login: comment.authorLogin }),
+          body: comment.body,
+          id: `comment-${index}`,
+          url: comment.url,
+        })
+      ),
+      []
+    )
+);
 
 const closedPageInfo = GhPageInfo.make({ endCursor: null, hasNextPage: false });
 

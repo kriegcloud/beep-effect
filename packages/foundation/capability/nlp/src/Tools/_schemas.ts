@@ -10,7 +10,7 @@ import { LiteralKit, SchemaUtils } from "@beep/schema";
 import { Match } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { BM25Norm } from "../Core/Vectorization.ts";
+import { BM25Norm } from "../Core/index.ts";
 
 const $I = $NlpId.create("Tools/_schemas");
 
