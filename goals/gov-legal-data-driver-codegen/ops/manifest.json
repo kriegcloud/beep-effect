@@ -1,24 +1,29 @@
 {
   "schemaVersion": "initiative-manifest/v1",
   "initiative": {
-    "id": "<slug>",
-    "title": "<Goal Title>",
+    "id": "gov-legal-data-driver-codegen",
+    "title": "Gov/Legal Data Driver Codegen",
     "status": "active",
-    "created": "YYYY-MM-DD",
-    "updated": "YYYY-MM-DD",
+    "created": "2026-06-29",
+    "updated": "2026-06-29",
     "packetAnchorDocument": "SPEC.md"
   },
-  "packetPath": "goals/<slug>",
+  "packetPath": "goals/gov-legal-data-driver-codegen",
   "lifecycle": "active",
   "executionCapable": true,
   "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/gov-legal-data-driver-codegen",
+    "graduated": "2026-06-29"
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
-    "goals/<slug>/README.md",
-    "goals/<slug>/SPEC.md",
-    "goals/<slug>/PLAN.md",
-    "goals/<slug>/GOAL.md"
+    "standards/architecture/07-non-slice-families.md",
+    "goals/gov-legal-data-driver-codegen/README.md",
+    "goals/gov-legal-data-driver-codegen/SPEC.md",
+    "goals/gov-legal-data-driver-codegen/PLAN.md",
+    "goals/gov-legal-data-driver-codegen/GOAL.md"
   ],
   "agentLaunchers": [
     {
@@ -26,41 +31,43 @@
       "path": "GOAL.md",
       "targetChars": 3500,
       "maxChars": 4000,
-      "command": "/goal follow the instructions in goals/<slug>/GOAL.md"
+      "command": "/goal follow the instructions in goals/gov-legal-data-driver-codegen/GOAL.md"
     }
   ],
   "phases": [
     {
       "id": "P0",
-      "name": "Research",
+      "name": "govinfo-finish + transformer-incubate",
       "status": "pending"
     },
     {
       "id": "P1",
-      "name": "Implement",
+      "name": "keyless-driver + generator-spike",
       "status": "pending"
     },
     {
       "id": "P2",
-      "name": "Verify",
+      "name": "authed-drivers (gated on data-terms matrix)",
       "status": "pending"
     },
     {
       "id": "P3",
-      "name": "Close",
+      "name": "verify + promote",
       "status": "pending"
     }
   ],
   "verificationCommands": [
-    "test \"$(wc -m < goals/<slug>/GOAL.md)\" -le 4000",
-    "jq . goals/<slug>/ops/manifest.json",
-    "rg -n \"<slug>|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/<slug>",
-    "git diff --check -- goals/<slug>",
+    "test \"$(wc -m < goals/gov-legal-data-driver-codegen/GOAL.md)\" -le 4000",
+    "jq . goals/gov-legal-data-driver-codegen/ops/manifest.json",
+    "rg -n \"gov-legal-data-driver-codegen|GOAL.md|agentLaunchers|packetAnchorDocument\" goals/gov-legal-data-driver-codegen",
+    "git diff --check -- goals/gov-legal-data-driver-codegen",
     "bun run beep lint reflection-artifacts"
   ],
   "stopConditions": [
     "Required source files are missing or materially contradictory.",
-    "The implementation would exceed named scope.",
+    "The implementation would exceed named scope (MCP server, CourtListener caching before the data-terms matrix, or a global build->codegen turbo edge in v1).",
+    "The eCFR Swagger-2.0 normalization is lossy; record warnings and fall back to the bespoke renderer rather than forcing the generator.",
+    "CourtListener/DOL work is reached before the per-upstream data/source-terms matrix exists.",
     "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
     "The same blocker repeats after reasonable investigation."
   ]
