@@ -1,3 +1,10 @@
+/**
+ * Scoped queue worker utilities with drain tracking.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Effect, TxQueue, TxRef } from "effect";
 import type * as Scope from "effect/Scope";
 
