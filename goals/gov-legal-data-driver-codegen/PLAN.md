@@ -1,17 +1,23 @@
-# <Goal Title> Plan
+# Gov/Legal Data Driver Codegen Plan
 
 ## Status
 
 Status: `pending`
 
+Current phase: **P0** (govinfo-finish + transformer-incubate).
+
 ## Phases
+
+This wedge graduates as ONE cohesive multi-phase goal; the phases below are its
+sequenced internal slices, not separate goal packets. P2 is **gated** on the
+data/source-terms matrix (Q8 default-deny).
 
 | Phase | Status | Goal | Exit criteria |
 | --- | --- | --- | --- |
-| P0 Research | pending | Inspect source hierarchy and confirm scope. | Required facts and blockers are recorded. |
-| P1 Implement | pending | Make the smallest changes that satisfy `SPEC.md`. | Acceptance criteria are met. |
-| P2 Verify | pending | Run required checks and capture evidence. | Verification is green or blockers are documented. |
-| P3 Close | pending | Prepare PR, review response, write the closeout reflection, and final readiness if requested. | Packet status and evidence are updated; a closeout reflection exists. |
+| P0 govinfo-finish + transformer-incubate | pending | Repair `@beep/govinfo` manifest (`@beep/identity` + `@beep/schema`); add hand-authored `Govinfo.service.ts` / `Govinfo.config.ts` (client/config/auth/retry/cache/rate-limit) on top of the existing `Search` contract + value models; **incubate the shared transformer inside govinfo** applied via `HttpApiClient.make`'s `transformClient`; api.data.gov `api_key` query-param auth via `Config.redacted("GOVINFO_API_KEY")`. | Live `Search` round-trips through the value models with auth attached, `X-RateLimit-*` honored, cache hit on repeat; `bun run check --filter @beep/govinfo` green offline. |
+| P1 keyless-driver + generator-spike | pending | Build the **2nd** driver (eCFR or FedReg) on the raw-client (`HttpClient.mapRequest`) path with **zero auth surface**, consuming the incubated transformer (the 2nd consumer that unlocks promotion); run the `@effect/openapi-generator` Swagger-2.0 normalization spike on eCFR's `api/v1.json`, recording dialect warnings; per-driver `scripts/generate.ts` + committed spec + package-private `src/_generated/*`. | Keyless driver builds network-free from its committed spec; spike warnings recorded; bespoke-renderer fallback decision documented; ≥2 named transformer consumers exist. |
+| P2 authed-drivers (GATED) | pending | CourtListener (Token-header) + DOL (`X-API-KEY`) auth families branched in the now-shared transformer; CourtListener caching **in-process/ephemeral only**; third-party legal content **excluded from committed fixtures**. | **GATED** on the data/source-terms matrix (required pre-shape research item, default-deny per Q8) + the metadata/auth-enforcement spike. Do not start until the matrix exists. |
+| P3 verify + promote | pending | Per-package generate-first audit + CI `git diff --exit-code` drift check; pin exact versions in each codegen template; **promote the transformer to `foundation/capability/<name>`** with a README promotion record naming ≥2 current consumers; closeout reflection. | Drift check green; promotion record names ≥2 importers (the `07-non-slice-families` gate); reflection written and `bun run beep lint reflection-artifacts` passes. |
 
 ## P3 Closeout Checklist
 
@@ -28,18 +34,22 @@ Before marking the packet closed (and `status` → `completed-retained` / `compl
    `reflectionRequired: true`, so a missing/invalid reflection blocks closeout).
 3. Update `README.md` (status, latest evidence) and `ops/manifest.json` phase
    statuses + `initiative.status`.
+4. Confirm the transformer promotion record names ≥2 current consumers and the
+   codegen-drift check is wired before closing.
 
 ## Execution Notes
 
 - Preserve unrelated worktree changes.
 - Keep `SPEC.md` normative and update it only when the contract changes.
 - Keep this plan current; archive old run outputs under `history/`.
+- Do NOT enter P2 before the data/source-terms matrix exists (Q8 default-deny).
+- The `gov-legal-mcp` sibling server and any patents work are out of scope here.
 
 ## Verification Commands
 
 ```sh
-test "$(wc -m < goals/<slug>/GOAL.md)" -le 4000
-jq . goals/<slug>/ops/manifest.json
-rg -n "<slug>|GOAL.md|agentLaunchers|packetAnchorDocument" goals/<slug>
-git diff --check -- goals/<slug>
+test "$(wc -m < goals/gov-legal-data-driver-codegen/GOAL.md)" -le 4000
+jq . goals/gov-legal-data-driver-codegen/ops/manifest.json
+rg -n "gov-legal-data-driver-codegen|GOAL.md|agentLaunchers|packetAnchorDocument" goals/gov-legal-data-driver-codegen
+git diff --check -- goals/gov-legal-data-driver-codegen
 ```
