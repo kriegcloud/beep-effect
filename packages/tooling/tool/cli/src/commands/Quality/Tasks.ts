@@ -693,6 +693,12 @@ const turboEnvOverrides = Effect.fn("QualityTasks.turboEnvOverrides")(function* 
   const turboTokenValue = pipe(turboToken, O.getOrUndefined);
   const turboTeamValue = pipe(turboTeam, O.getOrUndefined);
   return {
+    // Spawned turbo inherits the parent TTY; its interactive TUI enables
+    // crossterm mouse capture (DECSET ?1000/?1002/?1003/?1006) and, when a
+    // failed task tears the run down, the child is killed before it can restore
+    // the terminal — leaving it emitting mouse-motion reports and swallowing
+    // Ctrl-C. Force turbo's stream renderer so it never enables mouse capture.
+    TURBO_UI: "false",
     ...(isUnresolvedSecretReference(turboTokenValue) ? { TURBO_TOKEN: undefined } : {}),
     ...(isUnresolvedSecretReference(turboTeamValue) ? { TURBO_TEAM: undefined } : {}),
   };

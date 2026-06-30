@@ -718,3 +718,102 @@ export const reverse: {
     return cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
   }
 );
+
+/**
+ * A utility type for constructing a recursive partial of a given object type.
+ *
+ * This type works by traversing the structure of the input type `T` and transforming
+ * each property into an optional property. If the property is an array, the transformation
+ * is applied recursively to the array's element type. If the property is an object, the
+ * transformation is applied recursively to its properties.
+ *
+ * ## Use Cases
+ *
+ * - Useful for deeply nested optional configurations or updates in state management.
+ * - Helps define inputs where only a part of the structure needs to be specified.
+ *
+ * ## Behavior
+ *
+ * - Arrays are transformed into arrays of their recursively partial element type.
+ * - Objects are transformed into objects with optional recursively partial properties.
+ * - Primitive types like string, number, and boolean aren't altered.
+ *
+ * @example
+ * ```ts
+ * import type { DeepPartial } from "@beep/utils/Struct"
+ *
+ * // Define a nested structure
+ * interface User {
+ *   id: number
+ *   name: string
+ *   profile: {
+ *     age: number
+ *     hobbies: ReadonlyArray<string>
+ *   }
+ * }
+ *
+ * // A DeepPartial of User allows all fields to be optional and partial
+ * const partialUser: DeepPartial<User> = {
+ *   profile: {
+ *     hobbies: ["reading"]
+ *   }
+ * }
+ *
+ * console.log(partialUser) // { profile: { hobbies: ["reading"] } }
+ * ```
+ *
+ * @typeParam T - The original type for which a recursive partial should be constructed.
+ * @since 0.0.0
+ * @category Utility
+ */
+export type DeepPartial<T> = T extends readonly (infer U)[]
+  ? readonly DeepPartial<U>[]
+  : T extends object
+    ? { [K in keyof T]?: DeepPartial<T[K]> }
+    : T;
+
+/**
+ * Recursively merges a `DeepPartial` patch into a base struct, producing a new
+ * struct of the same shape. Nested plain objects are merged key-by-key,
+ * `undefined` patch values are skipped, and non-object values overwrite.
+ *
+ * Supports a dual API:
+ * - Data-first: `deepMerge(current, patch)`
+ * - Data-last: `pipe(current, deepMerge(patch))`
+ *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const defaults = {
+ *   server: { host: "localhost", port: 3000 },
+ *   debug: false,
+ * }
+ *
+ * const merged = Struct.deepMerge(defaults, { server: { port: 8080 } })
+ * // { server: { host: "localhost", port: 8080 }, debug: false }
+ *
+ * console.log(merged)
+ * ```
+ *
+ * @since 0.0.0
+ * @category combinators
+ */
+export const deepMerge: {
+  <T extends Record<string, unknown>>(current: T, patch: DeepPartial<T>): T;
+  <T extends Record<string, unknown>>(patch: DeepPartial<T>): (current: T) => T;
+} = dual(2, <T extends Record<string, unknown>>(current: T, patch: DeepPartial<T>): T => {
+  if (!P.isObject(current) || !P.isObject(patch)) {
+    return patch as T;
+  }
+
+  const next = { ...current } as Record<string, unknown>;
+  for (const [key, value] of entries(patch)) {
+    if (value === undefined) continue;
+
+    const existing = next[key];
+    next[key] = P.isObject(existing) && P.isObject(value) ? deepMerge(existing, value) : value;
+  }
+
+  return next as T;
+});

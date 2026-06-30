@@ -209,7 +209,7 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
         return Effect.flatMap(
           SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
           Effect.fnUntraced(function* (graph) {
-            return yield* rebuildImmutableGraph(graph, input, expectedType);
+            return yield* rebuildImmutableGraph(graph, { actual: input, expectedType });
           })
         );
       };
@@ -233,7 +233,7 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
       toFormatter:
         ([node, edge]) =>
         (graph) =>
-          formatGraph(graph, node, edge),
+          formatGraph(graph, { formatNode: node, formatEdge: edge }),
     }
   );
 
@@ -262,7 +262,7 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
         return Effect.flatMap(
           SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
           Effect.fnUntraced(function* (graph) {
-            return yield* rebuildMutableGraph(graph, input, expectedType);
+            return yield* rebuildMutableGraph(graph, { actual: input, expectedType });
           })
         );
       };
@@ -286,7 +286,7 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
       toFormatter:
         ([node, edge]) =>
         (graph) =>
-          formatGraph(graph, node, edge),
+          formatGraph(graph, { formatNode: node, formatEdge: edge }),
     }
   );
 

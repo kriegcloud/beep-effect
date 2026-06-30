@@ -1065,28 +1065,28 @@ describe("yeet planner", () => {
   });
 
   it("builds durable closeout gate states for bot and review gates", () => {
-    const states = closeoutGateStatesForTesting(
-      PrCloseoutOptions.make({
+    const states = closeoutGateStatesForTesting({
+      options: PrCloseoutOptions.make({
         bots: "coderabbit,chatgpt,greptile",
         requireGreptileIssues: 0,
         requireGreptileScore: "5/5",
         requireReviewComments: 0,
         retriggerGreptile: false,
       }),
-      0,
-      GreptileSummary.make({
+      actionableReviewThreadCount: 0,
+      greptile: GreptileSummary.make({
         issueCount: 0,
         score: "5/5",
         url: "https://github.test/pr#greptile",
       }),
-      [
+      botComments: [
         {
           authorLogin: "coderabbitai",
           body: "Review completed",
           url: "https://github.test/pr#coderabbit",
         },
-      ]
-    );
+      ],
+    });
 
     expect(states).toEqual([
       expect.objectContaining({ name: "review-threads", status: "passed", count: 0 }),
