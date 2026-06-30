@@ -2,6 +2,7 @@
 
 import {$ScratchpadId} from "@beep/identity";
 import {CauseTaggedError, SchemaUtils} from "@beep/schema";
+import {P, O, A, Str} from "@beep/utils";
 /**
  * Class table → JSON Schema 2020-12 builder.
  *
@@ -29,13 +30,10 @@ import {CauseTaggedError, SchemaUtils} from "@beep/schema";
  * @since 0.0.0
  */
 import {Effect, flow, identity, pipe, SchemaTransformation} from "effect";
-import * as A from "effect/Array";
 import * as HashMap from "effect/HashMap";
 import * as HashSet from "effect/HashSet";
-import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import {ClassProperty, ClassTable} from "./parseTtl.ts";
 
 const $I = $ScratchpadId.create("ontology/buildJsonSchema")
@@ -62,12 +60,15 @@ const $I = $ScratchpadId.create("ontology/buildJsonSchema")
  * @category errors
  * @since 0.0.0
  */
-export class BuildJsonSchemaError extends CauseTaggedError<BuildJsonSchemaError>($I`BuildJsonSchemaError`)("BuildJsonSchemaError", {
-	propertyIri: S.String,
-	rangeIri: S.String,
-}, $I.annote("BuildJsonSchemaError", {
-	description: "Tagged error surfaced when the builder cannot resolve an ontology range IRI to a primitive XSD type or to a class IRI in the same table. Replaces the prior silent `console.warn` + permissive `{ type: \"string\" }` fallback that let ontology typos sail through to the generated schema.",
-})) {
+export class BuildJsonSchemaError extends CauseTaggedError<BuildJsonSchemaError>($I`BuildJsonSchemaError`)("BuildJsonSchemaError",
+	{
+		propertyIri: S.String,
+		rangeIri: S.String,
+	},
+	$I.annote("BuildJsonSchemaError", {
+		description: "Tagged error surfaced when the builder cannot resolve an ontology range IRI to a primitive XSD type or to a class IRI in the same table. Replaces the prior silent `console.warn` + permissive `{ type: \"string\" }` fallback that let ontology typos sail through to the generated schema.",
+	}),
+) {
 }
 
 /**
@@ -340,9 +341,8 @@ export declare namespace JsonSchemaRef {
  */
 export class JsonSchemaAnyOf extends S.Class<JsonSchemaAnyOf>($I`JsonSchemaAnyOf`)({
 	type: S.tag("anyOf"),
-	anyOf: S.Array(S.suspend((): S.Codec<JsonSchemaProperty, JsonSchemaProperty.Encoded> => JsonSchemaProperty)).pipe(
-		S.withConstructorDefault(Effect.succeed(A.empty<JsonSchemaProperty>())),
-	),
+	anyOf: S.Array(S.suspend((): S.Codec<JsonSchemaProperty, JsonSchemaProperty.Encoded> => JsonSchemaProperty))
+		.pipe(S.withConstructorDefault(Effect.succeed(A.empty<JsonSchemaProperty>()))),
 }, $I.annote("JsonSchemaAnyOf", {
 	description: "JSON Schema anyOf declaration for RDF union ranges.",
 })) {
@@ -419,9 +419,8 @@ export declare namespace JsonSchemaProperty {
  */
 export class JsonSchemaObject extends S.Class<JsonSchemaObject>($I`JsonSchemaObject`)({
 	type: S.tag("object"),
-	properties: S.Record(S.String, JsonSchemaProperty).pipe(
-		SchemaUtils.withKeyDefaults(R.empty<string, JsonSchemaProperty>()),
-	),
+	properties: S.Record(S.String, JsonSchemaProperty)
+		.pipe(SchemaUtils.withKeyDefaults(R.empty<string, JsonSchemaProperty>())),
 	required: S.String.pipe(S.Array, S.optionalKey),
 	description: S.String.pipe(S.optionalKey),
 }, $I.annote("JsonSchemaObject", {
@@ -524,9 +523,10 @@ export class BuildJsonSchemaOptions extends S.Class<BuildJsonSchemaOptions>($I`B
 	 * Explicit allow-list for external ontology classes used as object ranges.
 	 * Keeping this narrow preserves the "ontology typos fail codegen" guardrail.
 	 */
-	allowedExternalRangeIris: S.HashSet(S.String).pipe(SchemaUtils.withKeyDefaults(ALLOWED_EXTERNAL_RANGE_IRIS), S.annotateKey({
-		description: "Explicit allow-list for external ontology classes used as object ranges.\nKeeping this narrow preserves the \"ontology typos fail codegen\" guardrail.",
-	})),
+	allowedExternalRangeIris: S.HashSet(S.String)
+		.pipe(SchemaUtils.withKeyDefaults(ALLOWED_EXTERNAL_RANGE_IRIS), S.annotateKey({
+			description: "Explicit allow-list for external ontology classes used as object ranges.\nKeeping this narrow preserves the \"ontology typos fail codegen\" guardrail.",
+		})),
 }, $I.annote("BuildJsonSchemaOptions", {
 	description: "Options controlling JSON Schema range resolution.",
 })) {
@@ -556,20 +556,35 @@ export declare namespace BuildJsonSchemaOptions {
  * resolves to a class `$ref` or falls through to a `string` default with a
  * `console.warn` (see `mapRange`).
  */
-const XSD_TYPE_MAP = HashMap.make(
-	["http://www.w3.org/2001/XMLSchema#string", JsonSchemaPrimitiveString.make()],
-	["http://www.w3.org/2001/XMLSchema#integer", JsonSchemaPrimitiveInt.make()],
-	["http://www.w3.org/2001/XMLSchema#decimal", JsonSchemaPrimitiveNumber.make()],
-	["http://www.w3.org/2001/XMLSchema#double", JsonSchemaPrimitiveNumber.make()],
-	["http://www.w3.org/2001/XMLSchema#float", JsonSchemaPrimitiveNumber.make()],
-	["http://www.w3.org/2001/XMLSchema#boolean", JsonSchemaPrimitiveBool.make()],
-	["http://www.w3.org/2001/XMLSchema#dateTime", JsonSchemaPrimitiveString.make({
+const XSD_TYPE_MAP = HashMap.make([
+	"http://www.w3.org/2001/XMLSchema#string",
+	JsonSchemaPrimitiveString.make(),
+], [
+	"http://www.w3.org/2001/XMLSchema#integer",
+	JsonSchemaPrimitiveInt.make(),
+], [
+	"http://www.w3.org/2001/XMLSchema#decimal",
+	JsonSchemaPrimitiveNumber.make(),
+], [
+	"http://www.w3.org/2001/XMLSchema#double",
+	JsonSchemaPrimitiveNumber.make(),
+], [
+	"http://www.w3.org/2001/XMLSchema#float",
+	JsonSchemaPrimitiveNumber.make(),
+], [
+	"http://www.w3.org/2001/XMLSchema#boolean",
+	JsonSchemaPrimitiveBool.make(),
+], [
+	"http://www.w3.org/2001/XMLSchema#dateTime",
+	JsonSchemaPrimitiveString.make({
 		format: "date-time",
-	})],
-	["http://www.w3.org/2001/XMLSchema#date", JsonSchemaPrimitiveString.make({
+	}),
+], [
+	"http://www.w3.org/2001/XMLSchema#date",
+	JsonSchemaPrimitiveString.make({
 		format: "date",
-	})],
-);
+	}),
+]);
 
 /**
  * Last URL path segment / fragment, with non-alphanumeric chars (other than
@@ -581,18 +596,14 @@ const XSD_TYPE_MAP = HashMap.make(
  *  https://w3id.org/energy-intel/age#hash  -> hash
  */
 const iriTail = (iri: string): string => {
-	const hashTail = pipe(
-		iri,
-		Str.lastIndexOf("#"),
-		O.map((hashIdx) => pipe(iri, Str.slice(hashIdx + 1))),
-	);
+	const hashTail = pipe(iri, Str.lastIndexOf("#"), O.map((hashIdx) => pipe(iri, Str.slice(hashIdx + 1))));
 	const slashTail = pipe(
 		iri,
 		Str.lastIndexOf("/"),
 		O.map((slashIdx) => pipe(iri, Str.slice(slashIdx + 1))),
 		O.getOrElse(() => iri),
 	);
-	return pipe(hashTail, O.getOrElse(() => slashTail),);
+	return pipe(hashTail, O.getOrElse(() => slashTail));
 };
 
 const sanitizeJsonSchemaKey = (tail: string): string => {
@@ -605,18 +616,12 @@ const sanitizeJsonSchemaKey = (tail: string): string => {
 		: sanitized;
 };
 
-const JsonSchemaKeyFromIri = S.String.pipe(
-	S.decodeTo(
-		S.String,
-		SchemaTransformation.transform({
-			decode: flow(iriTail, sanitizeJsonSchemaKey),
-			encode: identity,
-		}),
-	),
-	$I.annoteSchema("JsonSchemaKeyFromIri", {
-		description: "Private normalization schema for deriving JSON Schema-safe keys from ontology IRIs.",
-	}),
-);
+const JsonSchemaKeyFromIri = S.String.pipe(S.decodeTo(S.String, SchemaTransformation.transform({
+	decode: flow(iriTail, sanitizeJsonSchemaKey),
+	encode: identity,
+})), $I.annoteSchema("JsonSchemaKeyFromIri", {
+	description: "Private normalization schema for deriving JSON Schema-safe keys from ontology IRIs.",
+}));
 
 const localName = S.decodeUnknownSync(JsonSchemaKeyFromIri);
 
@@ -644,16 +649,14 @@ const localName = S.decodeUnknownSync(JsonSchemaKeyFromIri);
  * @category schemas
  * @since 0.0.0
  */
-export class RangeContext extends S.Class<RangeContext>($I`RangeContext`)(
-	{
-		classDefKeys: S.HashMap(S.String, S.String),
-		knownClassIris: S.HashSet(S.String),
-		allowedExternalRangeIris: S.HashSet(S.String)
-	},
-	$I.annote("RangeContext", {
-		description: "Lookup context for resolving property range IRIs into JSON Schema nodes."
-	})
-)  {}
+export class RangeContext extends S.Class<RangeContext>($I`RangeContext`)({
+	classDefKeys: S.HashMap(S.String, S.String),
+	knownClassIris: S.HashSet(S.String),
+	allowedExternalRangeIris: S.HashSet(S.String),
+}, $I.annote("RangeContext", {
+	description: "Lookup context for resolving property range IRIs into JSON Schema nodes.",
+})) {
+}
 
 const mapRangeIri = Effect.fnUntraced(function* (
 	prop: ClassProperty,
@@ -678,10 +681,10 @@ const mapRange = Effect.fnUntraced(function* (
 	context: RangeContext,
 ): Effect.fn.Return<JsonSchemaProperty, BuildJsonSchemaError> {
 	const rangeUnion = prop.rangeUnion;
-	if (rangeUnion !== undefined) {
+	if (P.isNotUndefined(rangeUnion)) {
 		const anyOf = yield* Effect.forEach(rangeUnion, (range) => mapRangeIri(prop, range, context));
 		return A.match(anyOf, {
-			onEmpty: () => JsonSchemaAnyOf.make(),
+			onEmpty: JsonSchemaAnyOf.make,
 			onNonEmpty: (values) => A.isReadonlyArrayNonEmpty(A.tailNonEmpty(values))
 				? JsonSchemaAnyOf.make({
 					anyOf,
@@ -690,12 +693,10 @@ const mapRange = Effect.fnUntraced(function* (
 		});
 	}
 
-	const range = prop.range;
-	if (range === undefined) {
-		return JsonSchemaPrimitiveString.make();
-	}
-
-	return yield* mapRangeIri(prop, range, context);
+	return yield* O.fromNullishOr(prop.range).pipe(O.match({
+		onNone: () => Effect.succeed(JsonSchemaPrimitiveString.make()),
+		onSome: (range) => mapRangeIri(prop, range, context),
+	}))
 });
 
 const propertyShape = Effect.fnUntraced(function* (
@@ -740,14 +741,11 @@ export const buildJsonSchema = Effect.fn("Ontology.buildJsonSchema")(function* (
 	// Pre-build IRI → $defs key map so cross-class $ref resolution is O(1)
 	// and order-independent (a property's range may resolve to a class that
 	// appears later in `table.classes`).
-	const classDefKeys = HashMap.fromIterable(pipe(
-		table.classes,
-		A.map((cls): readonly [string, string] => [cls.iri, localName(cls.iri)]),
-	));
-	const knownClassIris = HashSet.fromIterable(pipe(
-		(options.rangeTable ?? table).classes,
-		A.map((cls) => cls.iri),
-	));
+	const classDefKeys = HashMap.fromIterable(pipe(table.classes, A.map((cls): readonly [string, string] => [
+		cls.iri,
+		localName(cls.iri),
+	])));
+	const knownClassIris = HashSet.fromIterable(pipe((options.rangeTable ?? table).classes, A.map((cls) => cls.iri)));
 	const context = RangeContext.make({
 		classDefKeys,
 		knownClassIris,
@@ -756,10 +754,7 @@ export const buildJsonSchema = Effect.fn("Ontology.buildJsonSchema")(function* (
 
 	let $defs = R.empty<string, JsonSchemaObject>();
 	for (const cls of table.classes) {
-		const defKey = pipe(
-			HashMap.get(classDefKeys, cls.iri),
-			O.getOrElse(() => localName(cls.iri)),
-		);
+		const defKey = pipe(HashMap.get(classDefKeys, cls.iri), O.getOrElse(() => localName(cls.iri)));
 		let properties = R.empty<string, JsonSchemaProperty>();
 		for (const prop of cls.properties) {
 			const key = localName(prop.iri);

@@ -400,7 +400,7 @@ const namedNodeValuesFromRdfList = (store: Store, head: QuadSubject): ReadonlyAr
 
 const propertyRange = (store: Store, propertySubject: QuadSubject): Pick<ClassProperty, "range" | "rangeUnion"> => {
 	const range = firstObjectTerm(store, propertySubject, RDFS_RANGE);
-	if (P.isUndefined(range)) return {};
+	if (P.isUndefined(range)) return R.empty();
 	if (Term.guards.NamedNode(range)) return {range: range.value};
 
 	const rangeSubject = subjectFromTerm(range);

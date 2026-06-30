@@ -217,19 +217,12 @@ export const SKOS_PREF_LABEL = "http://www.w3.org/2004/02/skos/core#prefLabel";
  */
 export const SKOS_TOP_CONCEPT_OF = "http://www.w3.org/2004/02/skos/core#topConceptOf";
 
-const SortedUniqueStrings = S.Array(S.String).pipe(
-	S.decodeTo(
-		S.UniqueArray(S.String),
-		{
-			decode: SchemaGetter.transform((values: ReadonlyArray<string>) => pipe(values, A.dedupe, A.sort(Str.Order))),
-			encode: SchemaGetter.transform((values: ReadonlyArray<string>) => pipe(values, A.sort(Str.Order))),
-		},
-	),
-	S.withDecodingDefault(Effect.succeed(A.empty<string>())),
-	$I.annoteSchema("SortedUniqueStrings", {
-		description: "Private array schema that canonicalizes string lists into sorted unique values.",
-	}),
-);
+const SortedUniqueStrings = S.Array(S.String).pipe(S.decodeTo(S.UniqueArray(S.String), {
+	decode: SchemaGetter.transform((values: ReadonlyArray<string>) => pipe(values, A.dedupe, A.sort(Str.Order))),
+	encode: SchemaGetter.transform((values: ReadonlyArray<string>) => pipe(values, A.sort(Str.Order))),
+}), S.withDecodingDefault(Effect.succeed(A.empty<string>())), $I.annoteSchema("SortedUniqueStrings", {
+	description: "Private array schema that canonicalizes string lists into sorted unique values.",
+}));
 
 const decodeSortedUniqueStrings = S.decodeSync(SortedUniqueStrings);
 
@@ -342,9 +335,12 @@ export class ConceptSchemeTable extends S.Class<ConceptSchemeTable>($I`ConceptSc
  * @category errors
  * @since 0.0.0
  */
-export class ConceptSchemeParseError extends CauseTaggedError<ConceptSchemeParseError>($I`ConceptSchemeParseError`)("ConceptSchemeParseError", $I.annote("ConceptSchemeParseError", {
-	description: "Error raised when SKOS Turtle parsing fails.",
-})) {
+export class ConceptSchemeParseError extends CauseTaggedError<ConceptSchemeParseError>($I`ConceptSchemeParseError`)(
+	"ConceptSchemeParseError",
+	$I.annote("ConceptSchemeParseError", {
+		description: "Error raised when SKOS Turtle parsing fails.",
+	}),
+) {
 }
 
 const decodeSkosConceptRecord = S.decodeSync(SkosConceptRecord);
@@ -358,24 +354,18 @@ const iriTail = (iri: string): string => {
 		O.map((slashIdx) => pipe(iri, Str.slice(slashIdx + 1))),
 		O.getOrElse(() => iri),
 	);
-	const tail = pipe(hashTail, O.getOrElse(() => slashTail));
+	const tail = O.getOrElse(hashTail, () => slashTail);
 	return Str.isEmpty(tail)
 		? iri
 		: tail;
 };
 
-const SkosSlugFromIri = S.String.pipe(
-	S.decodeTo(
-		S.String,
-		{
-			decode: SchemaGetter.transform(iriTail),
-			encode: SchemaGetter.transform(identity),
-		},
-	),
-	$I.annoteSchema("SkosSlugFromIri", {
-		description: "Private normalization schema for deriving SKOS concept slugs from IRIs.",
-	}),
-);
+const SkosSlugFromIri = S.String.pipe(S.decodeTo(S.String, {
+	decode: SchemaGetter.transform(iriTail),
+	encode: SchemaGetter.transform(identity),
+}), $I.annoteSchema("SkosSlugFromIri", {
+	description: "Private normalization schema for deriving SKOS concept slugs from IRIs.",
+}));
 
 const slugFromIri = S.decodeUnknownSync(SkosSlugFromIri);
 
@@ -417,10 +407,14 @@ const firstLiteral = (
 	store: Store,
 	subject: QuadSubject,
 	predicates: ReadonlyArray<string>,
-): string | undefined => pipe(predicates, A.reduce(
-	O.none<string>(),
-	(current, predicate) => pipe(current, O.orElse(() => A.head(literalValues(store, subject, predicate)))),
-), O.getOrUndefined);
+): string | undefined => pipe(
+	predicates,
+	A.reduce(
+		O.none<string>(),
+		(current, predicate) => O.orElse(current, () => A.head(literalValues(store, subject, predicate))),
+	),
+	O.getOrUndefined,
+);
 
 const firstNamedObject = (store: Store, subject: QuadSubject, predicate: string): string | undefined => pipe(namedObjectValues(store, subject, predicate),
 	A.head,
@@ -462,7 +456,8 @@ const namedSubjects = (store: Store): ReadonlyArray<NamedNode> => pipe(
  * @category parsing
  * @since 0.0.0
  */
-export const parseConceptSchemeTtl = (ttl: string): Effect.Effect<ConceptSchemeTable, ConceptSchemeParseError> => Effect.try(() => {
+export const parseConceptSchemeTtl = (ttl: string): Effect.Effect<ConceptSchemeTable, ConceptSchemeParseError> => Effect.try(
+	() => {
 		const parser = new Parser({format: "Turtle"});
 		const store = new Store(parser.parse(ttl));
 		let concepts = A.empty<SkosConceptRecord>();
@@ -515,7 +510,7 @@ export const parseConceptSchemeTtl = (ttl: string): Effect.Effect<ConceptSchemeT
 			concepts: byIri(concepts),
 			schemes: byIri(schemes),
 		});
-}).pipe(ConceptSchemeParseError.mapError("Failed to parse SKOS concept-scheme Turtle"));
+	}).pipe(ConceptSchemeParseError.mapError("Failed to parse SKOS concept-scheme Turtle"));
 
 /**
  * Merge parsed SKOS concept-scheme tables, preserving first-seen records by IRI.

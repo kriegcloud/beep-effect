@@ -221,6 +221,21 @@ export * as P from "./Predicate.ts";
  */
 export * from "./Random.ts";
 /**
+ * Record utilities extending `effect/Record` with dot-path access.
+ *
+ * @example
+ * ```ts
+ * import { R } from "@beep/utils"
+ *
+ * const entries = R.toEntries({ id: 1, name: "Ada" })
+ * console.log(entries)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * as R from "./Record.ts";
+/**
  * String utilities extending `effect/String` with typed case conversions.
  *
  * @example

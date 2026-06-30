@@ -33,17 +33,12 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import {flow, identity, pipe} from "effect";
-import * as A from "effect/Array";
 import * as MutableHashMap from "effect/MutableHashMap";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
-import {dual} from "effect/Function";
 import {$ScratchpadId} from "@beep/identity";
 import {Fn, MutableHashMapFromSelf, SchemaUtils} from "@beep/schema";
 import type { ClassTable } from "./parseTtl.ts";
+import { R, O, Str, A, dual, flow, identity, pipe } from "@beep/utils";
 
 const $I = $ScratchpadId.create("ontology/emitIrisModule");
 
@@ -131,7 +126,7 @@ const stripPrefix = (iri: string, prefix: string): O.Option<string> =>
   pipe(
     iri,
     O.liftPredicate(Str.startsWith(prefix)),
-    O.map((value) => pipe(value, Str.slice(Str.length(prefix))))
+    O.map(Str.slice(prefix.length))
   );
 
 const renderEntry = (term: string, fullIri: string): string =>
@@ -168,8 +163,7 @@ const renderConst = (
   terms: IriTerms
 ): string => {
   const body = pipe(
-    terms,
-    sortedTermKeys,
+    sortedTermKeys(terms),
     A.map((term) => renderEntry(
       term,
       pipe(
