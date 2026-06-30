@@ -124,7 +124,7 @@ describe("Pandoc.mapping", () => {
         expect(result.report.profile).toBe("supported");
         expect(result.report.issues).toEqual([]);
         expect(A.map(result.document.children, (block) => block._tag)).toEqual([
-          "h1",
+          "heading",
           "p",
           "blockquote",
           "pre",
@@ -155,7 +155,7 @@ describe("Pandoc.mapping", () => {
       Effect.gen(function* () {
         const document = Md.Document.make({
           children: [
-            Md.H2.make({ children: [text("Round trip")] }),
+            Md.Heading.make({ level: 2, children: [text("Round trip")] }),
             Md.P.make({
               children: [
                 text("before "),
@@ -356,7 +356,12 @@ describe("Pandoc.mapping", () => {
 
         expect(result.report.profile).toBe("gap");
         expect(A.map(result.report.issues, (entry) => entry.construct)).toContain("Header");
-        expect(result.document.children[0]?._tag).toBe("h6");
+        const heading = result.document.children[0];
+        expect(heading?._tag).toBe("heading");
+        if (heading?._tag !== "heading") {
+          throw new Error("expected heading block");
+        }
+        expect(heading.level).toBe(6);
       })
     ));
 

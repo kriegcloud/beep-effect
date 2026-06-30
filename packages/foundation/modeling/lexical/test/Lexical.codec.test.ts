@@ -14,6 +14,7 @@ import * as S from "effect/Schema";
 import { FastCheck as fc } from "effect/testing";
 
 const StateArbitrary = S.toArbitrary(SerializedEditorState);
+const DocumentArbitrary = S.toArbitrary(MdModel.Document);
 
 const mdText = (value: string) => MdModel.Text.make({ value });
 
@@ -24,7 +25,7 @@ describe("Lexical.codec", () => {
   it("round-trips an md-core assistant turn (Md → Lexical → Md identity)", () => {
     const document = MdModel.Document.make({
       children: [
-        MdModel.H1.make({ children: [mdText("Title")] }),
+        MdModel.Heading.make({ level: 1, children: [mdText("Title")] }),
         MdModel.P.make({
           children: [
             mdText("Read "),
@@ -113,7 +114,16 @@ describe("Lexical.codec", () => {
   });
 
   it("drops invalid legacy code-fence languages during Lexical projection", () => {
-    const invalidLanguage = MdModel.Pre.make({ value: "console.log('beep')", language: O.some("ts bad") });
+    // Invalid info-strings are unconstructable via `Pre.make` now (the schema
+    // validates the branded `CodeFenceLanguage` at construction); they can only
+    // arrive on the wire, where Md decode folds them to None at the boundary.
+    const invalidLanguage = S.decodeUnknownSync(MdModel.Pre)({
+      _tag: "pre",
+      value: "console.log('beep')",
+      language: "ts bad",
+    });
+    expect(invalidLanguage.language).toEqual(O.none());
+
     const validLanguage = MdModel.Pre.make({ value: "console.log('beep')", language: O.some("ts") });
 
     const invalidNode = Effect.runSync(blockToLexical(invalidLanguage));
@@ -278,6 +288,21 @@ describe("Lexical.codec", () => {
         // encoded form. Decoding the instance directly would reject its real
         // Option; decoding the encoded form confirms the projection is valid.
         expect(S.decodeUnknownSync(MdModel.Document)(S.encodeSync(MdModel.Document)(document))).toEqual(document);
+      }),
+      { numRuns: 50 }
+    );
+  });
+
+  it("stabilizes after one Md → Lexical → Md pass (lossy codec idempotent on its stable image)", () => {
+    fc.assert(
+      fc.property(DocumentArbitrary, (document) => {
+        // The codec is intentionally lossy (Lexical-only presentation state drops on
+        // the way to Md), so `roundTrip` is NOT identity on arbitrary documents.
+        // But one pass lands the document in the md-core stable subalgebra, after
+        // which further passes are identity: `roundTrip` is idempotent. This is the
+        // documented lossiness profile stated as a law.
+        const once = roundTrip(document);
+        expect(roundTrip(once)).toEqual(once);
       }),
       { numRuns: 50 }
     );

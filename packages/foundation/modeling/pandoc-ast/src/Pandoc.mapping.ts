@@ -340,24 +340,8 @@ const pandocHeadingLevelProjection = (level: number, path: JsonPath): Projection
   value: mdHeadingLevelFromPandoc(level),
 });
 
-const headingToMd = (level: MdHeadingLevel, children: ReadonlyArray<Md.Inline>): Md.Block => {
-  if (level === 1) {
-    return Md.H1.make({ children });
-  }
-  if (level === 2) {
-    return Md.H2.make({ children });
-  }
-  if (level === 3) {
-    return Md.H3.make({ children });
-  }
-  if (level === 4) {
-    return Md.H4.make({ children });
-  }
-  if (level === 5) {
-    return Md.H5.make({ children });
-  }
-  return Md.H6.make({ children });
-};
+const headingToMd = (level: MdHeadingLevel, children: ReadonlyArray<Md.Inline>): Md.Block =>
+  Md.Heading.make({ level, children });
 
 const isPlainOrPara = (block: PandocBlock.Type): block is Plain.Type | Para.Type =>
   block._tag === "plain" || block._tag === "para";
@@ -508,12 +492,7 @@ const mdTableText = (block: Md.Table): string =>
 
 const mdBlockText: (block: Md.Block) => string = Match.type<Md.Block>().pipe(
   Match.tagsExhaustive({
-    h1: (block) => mdInlinesText(block.children),
-    h2: (block) => mdInlinesText(block.children),
-    h3: (block) => mdInlinesText(block.children),
-    h4: (block) => mdInlinesText(block.children),
-    h5: (block) => mdInlinesText(block.children),
-    h6: (block) => mdInlinesText(block.children),
+    heading: (block) => mdInlinesText(block.children),
     p: (block) => mdInlinesText(block.children),
     blockquote: (block) => A.join(A.map(block.children, mdBlockText), "\n"),
     pre: (block) => block.value,
@@ -604,7 +583,13 @@ const pandocBlockToMd = (block: PandocBlock.Type, path: JsonPath): Effect.Effect
                 }),
               ]
             : [],
-          value: Md.Pre.make({ language: O.fromUndefinedOr(node.attr.classes[0]), value: node.text }),
+          value: Md.Pre.make({
+            // Pandoc code-block classes are arbitrary external tokens; fold the
+            // first class through CodeFenceLanguage so non-conforming hints drop
+            // to None (matching the Pre codec) instead of throwing on construction.
+            language: O.flatMap(O.fromUndefinedOr(node.attr.classes[0]), Md.CodeFenceLanguage.decodeOption),
+            value: node.text,
+          }),
         }),
       bulletlist: (node) =>
         Effect.map(pandocListItemsToMd(node.items, path), ({ issues, value }) => ({
@@ -755,17 +740,7 @@ const mdInlinesToPandoc = (
 ): Effect.Effect<Projection<ReadonlyArray<PandocInline.Type>>, S.SchemaError> =>
   projectChildValues(inlines, path, mdInlineToPandoc);
 
-const headingLevel = (tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"): number =>
-  Match.value(tag).pipe(
-    Match.when("h1", () => 1),
-    Match.when("h2", () => 2),
-    Match.when("h3", () => 3),
-    Match.when("h4", () => 4),
-    Match.when("h5", () => 5),
-    Match.orElse(() => 6)
-  );
-
-type MdHeading = Md.H1 | Md.H2 | Md.H3 | Md.H4 | Md.H5 | Md.H6;
+type MdHeading = Extract<Md.Block, { readonly _tag: "heading" }>;
 
 const mdHeadingToPandoc = (
   node: MdHeading,
@@ -773,7 +748,7 @@ const mdHeadingToPandoc = (
 ): Effect.Effect<Projection<PandocBlock.Type>, S.SchemaError> =>
   Effect.map(mdInlinesToPandoc(node.children, path), ({ issues, value }) => ({
     issues,
-    value: Header.make({ attr: PandocAttr.empty, children: value, level: headingLevel(node._tag) }),
+    value: Header.make({ attr: PandocAttr.empty, children: value, level: node.level }),
   }));
 
 const mdListItemToPandocBlocks = (
@@ -797,12 +772,7 @@ const mdListItemsToPandocBlocks = (
 const mdBlockToPandoc = (block: Md.Block, path: JsonPath): Effect.Effect<Projection<PandocBlock.Type>, S.SchemaError> =>
   Match.value(block).pipe(
     Match.tagsExhaustive({
-      h1: (node) => mdHeadingToPandoc(node, path),
-      h2: (node) => mdHeadingToPandoc(node, path),
-      h3: (node) => mdHeadingToPandoc(node, path),
-      h4: (node) => mdHeadingToPandoc(node, path),
-      h5: (node) => mdHeadingToPandoc(node, path),
-      h6: (node) => mdHeadingToPandoc(node, path),
+      heading: (node) => mdHeadingToPandoc(node, path),
       p: (node) =>
         Effect.map(mdInlinesToPandoc(node.children, path), ({ issues, value }) => ({
           issues,

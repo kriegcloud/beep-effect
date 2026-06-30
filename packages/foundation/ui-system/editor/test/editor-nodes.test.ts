@@ -15,7 +15,7 @@ const text = (value: string) => MdModel.Text.make({ value });
  */
 const fixtureTurn = MdModel.Document.make({
   children: [
-    MdModel.H2.make({ children: [MdModel.Strong.make({ children: [text("Plan")] })] }),
+    MdModel.Heading.make({ level: 2, children: [MdModel.Strong.make({ children: [text("Plan")] })] }),
     MdModel.P.make({
       children: [text("See "), MdModel.A.make({ href: "https://example.com", children: [text("the docs")] })],
     }),

@@ -1,4 +1,16 @@
 import { Md } from "@beep/md";
+import { renderPlainTextBlocks } from "@beep/md/Md.behavior";
+import {
+  escapeHtmlUrlAttribute,
+  escapeMarkdownDestination,
+  escapeMarkdownText,
+  isStringArray,
+  joinBlocks,
+  maxBackticks,
+  prefixLines,
+  renderFencedCode,
+  renderInlineCode,
+} from "@beep/md/Md.escape";
 import { Block, CodeFenceLanguage, Document, Inline, Pre, Table, TableCell, TableRow, Text } from "@beep/md/Md.model";
 import {
   DocumentToHtmlFragment,
@@ -17,23 +29,11 @@ import {
   renderMarkdownBlocks,
   renderMarkdownInline,
   renderPlainText,
-  renderPlainTextBlocks,
   renderPlainTextUnsafe,
   renderUnsafe,
   renderWith,
   renderWithUnsafe,
 } from "@beep/md/Md.render";
-import {
-  escapeHtmlUrlAttribute,
-  escapeMarkdownDestination,
-  escapeMarkdownText,
-  isStringArray,
-  joinBlocks,
-  maxBackticks,
-  prefixLines,
-  renderFencedCode,
-  renderInlineCode,
-} from "@beep/md/Md.utils";
 import { HtmlFragment, Markdown } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit, Result } from "effect";
@@ -138,8 +138,10 @@ https://www.youtube.com/watch?v=dQw4w9WgXcQ
       expect(yield* S.decodeUnknownEffect(Pre)(yield* S.encodeEffect(Pre)(tsPre))).toEqual(tsPre);
       expect(yield* S.decodeUnknownEffect(CodeFenceLanguage)("ts")).toBe("ts");
       expect(() => S.decodeUnknownSync(CodeFenceLanguage)("ts bad")).toThrow();
+      // Pre.language now folds non-conforming legacy info strings to None at decode,
+      // so a free-form "ts bad" token drops out instead of being preserved.
       expect(yield* S.decodeUnknownEffect(Pre)({ _tag: "pre", language: "ts bad", value: "x" })).toEqual(
-        Pre.make({ value: "x", language: O.some("ts bad") })
+        Pre.make({ value: "x", language: O.none() })
       );
       expect(yield* S.decodeUnknownEffect(Text)(Text.make({ value: "Hello" }))).toEqual(text);
     })

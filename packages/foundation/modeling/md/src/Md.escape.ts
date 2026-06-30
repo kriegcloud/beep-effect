@@ -1,13 +1,17 @@
 /**
- * Shared Markdown and HTML rendering utilities.
+ * Markdown and HTML escaping and URL-sanitization helpers.
  *
- * @packageDocumentation \@beep/md/Md.utils
+ * These functions are the XSS/injection boundary for rendered Markdown and HTML
+ * output: every public escaper here normalizes and neutralizes untrusted input
+ * before it reaches a render adapter.
+ *
+ * @packageDocumentation \@beep/md/Md.escape
  * @since 0.0.0
  */
 
 import { $MdId } from "@beep/identity";
 import { Markdown } from "@beep/schema";
-import { A, Html, Str } from "@beep/utils";
+import { A, Html, Str, thunkEmptyStr } from "@beep/utils";
 import { Match, Number as N } from "effect";
 import { dual, flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -15,7 +19,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { CodeFenceLanguage } from "./Md.model.ts";
 
-const $I = $MdId.create("Md.utils");
+const $I = $MdId.create("Md.escape");
 const trimBlock = Str.replace(/^\n+|\n+$/g, "");
 // Only active script protocols are blocked by default.
 // file:, blob:, and filesystem: are intentionally not treated as execution sinks in this boundary.
@@ -27,6 +31,7 @@ const percentEncodedOctetPattern = /%25([0-9a-f]{2})/gi;
 const invalidSurrogatePattern = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 const lineSeparatorPattern = /\r\n?|\n/;
 const lineBreakPattern = /[\r\n]/;
+const backtickRunPattern = /`+/g;
 const maxUnicodeCodePoint = 0x10ffff;
 const maxUrlDecodePasses = 4;
 
@@ -48,7 +53,6 @@ const UnsafeUrlProtocolDestination = S.String.check(
   })
 );
 const isUnsafeUrlProtocolDestination = S.is(UnsafeUrlProtocolDestination);
-const isCodeFenceLanguage = S.is(CodeFenceLanguage);
 
 const isValidCodePoint = (codePoint: number): boolean => codePoint >= 0 && codePoint <= maxUnicodeCodePoint;
 const parseCodePoint: {
@@ -132,21 +136,16 @@ const decodePercentEncodedByte: (value: string) => string = Str.replaceAllWith(
   (match, hex) => (P.isString(hex) ? codePointToString(parseCodePoint(hex, 16)) : match)
 );
 
-const decodePercentEncodedBytes = (value: string): string => {
-  let decoded = value;
+// Repeatedly decode percent-encoded bytes until the value stabilizes or the
+// pass budget is exhausted, defeating multiply-encoded protocol obfuscation
+// (e.g. `%256a` -> `%6a` -> `j`) without an imperative mutable loop.
+const decodePercentEncodedBytesFrom = (current: string, pass: number): string => {
+  const next = pass >= maxUrlDecodePasses ? current : decodePercentEncodedByte(current);
 
-  for (let pass = 0; pass < maxUrlDecodePasses; pass++) {
-    const next = decodePercentEncodedByte(decoded);
-
-    if (next === decoded) {
-      return next;
-    }
-
-    decoded = next;
-  }
-
-  return decoded;
+  return next === current ? next : decodePercentEncodedBytesFrom(next, pass + 1);
 };
+
+const decodePercentEncodedBytes = (value: string): string => decodePercentEncodedBytesFrom(value, 0);
 
 const normalizeUrlProtocolCandidate = flow(
   Str.trim,
@@ -165,7 +164,7 @@ const encodeUrlDestination = flow(
  *
  * @example
  * ```ts
- * import { joinBlocks } from "@beep/md/Md.utils"
+ * import { joinBlocks } from "@beep/md/Md.escape"
  *
  * const markdown = joinBlocks(["# Title", "Body text"])
  * console.log(markdown) // "# Title\n\nBody text"
@@ -185,7 +184,7 @@ export const joinBlocks = (blocks: string | ReadonlyArray<string>): Markdown => 
  *
  * @example
  * ```ts
- * import { prefixLines } from "@beep/md/Md.utils"
+ * import { prefixLines } from "@beep/md/Md.escape"
  *
  * const quoted = prefixLines("alpha\nbeta", "> ")
  * console.log(quoted) // "> alpha\n> beta"
@@ -206,7 +205,7 @@ export const prefixLines: {
  *
  * @example
  * ```ts
- * import { escapeMarkdownText } from "@beep/md/Md.utils"
+ * import { escapeMarkdownText } from "@beep/md/Md.escape"
  *
  * const escaped = escapeMarkdownText("# title")
  * console.log(escaped) // "\\# title"
@@ -224,7 +223,7 @@ export const escapeMarkdownText = Str.replace(/([\\`*_{}[\]()#+\-.|<>~])/g, "\\$
  *
  * @example
  * ```ts
- * import { sanitizeUrlDestination } from "@beep/md/Md.utils"
+ * import { sanitizeUrlDestination } from "@beep/md/Md.escape"
  *
  * console.log(sanitizeUrlDestination("javascript:alert(1)")) // "#"
  * ```
@@ -258,7 +257,7 @@ export const sanitizeUrlDestination = (destination: string): string => {
  *
  * @example
  * ```ts
- * import { escapeMarkdownDestination } from "@beep/md/Md.utils"
+ * import { escapeMarkdownDestination } from "@beep/md/Md.escape"
  *
  * const escaped = escapeMarkdownDestination("https://example.com/a)b")
  * console.log(escaped) // "https://example.com/a\\)b"
@@ -278,7 +277,7 @@ export const escapeMarkdownDestination = flow(
  *
  * @example
  * ```ts
- * import { escapeHtmlUrlAttribute } from "@beep/md/Md.utils"
+ * import { escapeHtmlUrlAttribute } from "@beep/md/Md.escape"
  *
  * console.log(escapeHtmlUrlAttribute("a b")) // "a%20b"
  * ```
@@ -289,34 +288,12 @@ export const escapeMarkdownDestination = flow(
 export const escapeHtmlUrlAttribute = flow(sanitizeUrlDestination, encodeUrlDestination, Html.escapeHtml);
 
 /**
- * Sanitizes Markdown fenced-code info strings to a single language token.
- *
- * Invalid language values are omitted instead of being rendered into the fence.
- *
- * @example
- * ```ts
- * import { sanitizeCodeFenceLanguage } from "@beep/md/Md.utils"
- *
- * console.log(sanitizeCodeFenceLanguage("ts")) // "ts"
- * console.log(sanitizeCodeFenceLanguage("ts bad")) // ""
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const sanitizeCodeFenceLanguage = (language: string): string => {
-  const trimmed = Str.trim(language);
-
-  return isCodeFenceLanguage(trimmed) ? trimmed : "";
-};
-
-/**
  * Returns the length of the longest contiguous backtick run in text.
  *
  * @example
  * ```ts
  * import { Str } from "@beep/utils"
- * import { maxBackticks } from "@beep/md/Md.utils"
+ * import { maxBackticks } from "@beep/md/Md.escape"
  *
  * const triple = Str.repeat("`", 3)
  * const count = maxBackticks(`\`one\` and ${triple}three${triple}`)
@@ -326,28 +303,25 @@ export const sanitizeCodeFenceLanguage = (language: string): string => {
  * @category utilities
  * @since 0.0.0
  */
-export const maxBackticks = (text: string): number => {
-  let max = 0;
-  let current = 0;
-
-  for (let index = 0; index < text.length; index++) {
-    if (text[index] === "`") {
-      current++;
-      max = N.max(max, current);
-    } else {
-      current = 0;
-    }
-  }
-
-  return max;
-};
+export const maxBackticks = (text: string): number =>
+  pipe(
+    text,
+    Str.match(backtickRunPattern),
+    O.map(
+      flow(
+        A.map(Str.length),
+        A.reduce(0, (longest, run) => N.max(longest, run))
+      )
+    ),
+    O.getOrElse(() => 0)
+  );
 
 /**
  * Builds a Markdown inline code span with an adaptive backtick fence.
  *
  * @example
  * ```ts
- * import { renderInlineCode } from "@beep/md/Md.utils"
+ * import { renderInlineCode } from "@beep/md/Md.escape"
  *
  * const code = renderInlineCode("`single`")
  * console.log(code) // "`` `single` ``"
@@ -376,10 +350,13 @@ export const renderInlineCode = (text: string): string => {
 /**
  * Builds a Markdown fenced code block with an adaptive backtick fence.
  *
+ * The info string is folded through {@link CodeFenceLanguage} so only a single
+ * safe language token is ever emitted; non-conforming values are dropped.
+ *
  * @example
  * ```ts
  * import { Str } from "@beep/utils"
- * import { renderFencedCode } from "@beep/md/Md.utils"
+ * import { renderFencedCode } from "@beep/md/Md.escape"
  *
  * const block = renderFencedCode("console.log('beep')", "ts")
  * const fence = Str.repeat("`", 3)
@@ -394,7 +371,7 @@ export const renderFencedCode: {
   (language: string): (text: string) => string;
 } = dual(2, (text: string, language: string): string => {
   const fence = pipe("`", Str.repeat(N.max(maxBackticks(text), 2) + 1));
-  const info = sanitizeCodeFenceLanguage(language);
+  const info = O.getOrElse(CodeFenceLanguage.decodeOption(Str.trim(language)), thunkEmptyStr);
 
   return `${fence}${info}\n${text}\n${fence}`;
 });
@@ -404,7 +381,7 @@ export const renderFencedCode: {
  *
  * @example
  * ```ts
- * import { isStringArray } from "@beep/md/Md.utils"
+ * import { isStringArray } from "@beep/md/Md.escape"
  *
  * console.log(isStringArray(["a", "b"])) // true
  * ```

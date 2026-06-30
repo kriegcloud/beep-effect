@@ -75,7 +75,7 @@
     "@next/bundle-analyzer": "16.3.0-canary.70",
     "@next/mdx": "16.3.0-canary.70",
     "@noble/hashes": "^2.2.0",
-    "@openai/codex-sdk": "~0.142.3",
+    "@openai/codex-sdk": "~0.142.4",
     "@opentelemetry/resources": "2.8.0",
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/sdk-trace-web": "2.8.0",

@@ -22,6 +22,22 @@
 export const VERSION = "0.0.0" as const;
 
 /**
+ * Pure plain-text projections over serialized Lexical state.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { LexicalNode, nodeToPlainText } from "@beep/lexical-schema"
+ *
+ * const node = S.decodeUnknownSync(LexicalNode)({ type: "linebreak", version: 1 })
+ * console.log(JSON.stringify(nodeToPlainText(node))) // "\"\\n\""
+ * ```
+ *
+ * @since 0.0.0
+ * @category getters
+ */
+export * from "./Lexical.behavior.ts";
+/**
  * Md ↔ Lexical codecs over the canonical `@beep/md` AST.
  *
  * @example

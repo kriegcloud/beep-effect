@@ -15,12 +15,7 @@ import type {
   DocumentToPlainText,
   EffectRenderAdapter,
   Em,
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
+  Heading,
   Inline,
   InlineContent,
   InlineContentBuilder,
@@ -49,13 +44,13 @@ describe("@beep/md", () => {
     const document = Md.make([Md.h1("Hello"), Md.p`World ${Md.code("x")}`]);
 
     expect(document).type.toBe<Document>();
-    expect(Md.h1("Hello")).type.toBe<H1>();
-    expect(Md.h1`Heading 1`).type.toBe<H1>();
-    expect(Md.h2`Heading ${Md.code("2")}`).type.toBe<H2>();
-    expect(Md.h3`Heading ${Md.em("3")}`).type.toBe<H3>();
-    expect(Md.h4`Heading ${Md.strong("4")}`).type.toBe<H4>();
-    expect(Md.h5`Heading ${Md.del("5")}`).type.toBe<H5>();
-    expect(Md.h6`Heading ${Md.code("6")}`).type.toBe<H6>();
+    expect(Md.h1("Hello")).type.toBe<Heading>();
+    expect(Md.h1`Heading 1`).type.toBe<Heading>();
+    expect(Md.h2`Heading ${Md.code("2")}`).type.toBe<Heading>();
+    expect(Md.h3`Heading ${Md.em("3")}`).type.toBe<Heading>();
+    expect(Md.h4`Heading ${Md.strong("4")}`).type.toBe<Heading>();
+    expect(Md.h5`Heading ${Md.del("5")}`).type.toBe<Heading>();
+    expect(Md.h6`Heading ${Md.code("6")}`).type.toBe<Heading>();
     expect(Md.p("Hello")).type.toBe<P>();
     expect(Md.p`Hello ${"world"}`).type.toBe<P>();
     expect(Md.p([Md.strong("Hello"), " world"])).type.toBe<P>();
@@ -86,7 +81,7 @@ describe("@beep/md", () => {
     expect<Strong>().type.toBeAssignableTo<InlineContent>();
     expect<Block>().type.toBeAssignableTo<BlockInput>();
     expect<[BlockInput, BlockInput]>().type.toBeAssignableTo<BlockContent>();
-    expect<H2>().type.toBeAssignableTo<BlockTemplateValue>();
+    expect<Heading>().type.toBeAssignableTo<BlockTemplateValue>();
     expect<["a", "b"]>().type.toBeAssignableTo<BlockTemplateValue>();
     expect<Li>().type.toBeAssignableTo<ListItemInput>();
     expect<Block>().type.toBeAssignableTo<ListItemChildInput>();

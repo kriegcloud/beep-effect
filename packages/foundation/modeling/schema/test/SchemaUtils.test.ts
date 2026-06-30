@@ -6,6 +6,7 @@ import { toEquivalence } from "@beep/schema/SchemaUtils/toEquivalence";
 import { A } from "@beep/utils";
 import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 describe("pluck", () => {
@@ -112,5 +113,83 @@ describe("withEmptyArrayDefaults", () => {
     const Settings = S.Struct({ tags: Tags });
 
     expect(A.isReadonlyArrayEmpty(S.decodeUnknownSync(Settings)({ tags: undefined }).tags)).toBe(true);
+  });
+});
+
+describe("withNoneDefault", () => {
+  it("defaults an omitted optional-key Option field to None at construction time", () => {
+    const Node = S.Struct({
+      label: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    });
+
+    expect(O.isNone(Node.make({}).label)).toBe(true);
+    expect(Node.make({ label: O.some("x") }).label).toStrictEqual(O.some("x"));
+  });
+
+  it("defaults an omitted nullable Option field to None at construction time", () => {
+    const Node = S.Struct({
+      direction: S.OptionFromNullOr(S.String).pipe(SchemaUtils.withNoneDefault),
+    });
+
+    expect(O.isNone(Node.make({}).direction)).toBe(true);
+  });
+
+  it("leaves the decode contract intact (missing optional key still decodes to None)", () => {
+    const Node = S.Struct({
+      label: S.OptionFromOptionalKey(S.String).pipe(SchemaUtils.withNoneDefault),
+    });
+
+    expect(O.isNone(S.decodeUnknownSync(Node)({}).label)).toBe(true);
+    expect(S.decodeUnknownSync(Node)({ label: "x" }).label).toStrictEqual(O.some("x"));
+  });
+});
+
+describe("withConstantDefault", () => {
+  it("defaults an omitted field to the constant at construction time", () => {
+    const Node = S.Struct({
+      version: S.Literal(1).pipe(SchemaUtils.withConstantDefault(1)),
+      format: S.Literals(["", "left", "center"]).pipe(SchemaUtils.withConstantDefault("" as const)),
+    });
+
+    const made = Node.make({});
+
+    expect(made.version).toBe(1);
+    expect(made.format).toBe("");
+  });
+
+  it("leaves the encoded contract required (the key is still mandatory on decode)", () => {
+    const Node = S.Struct({
+      version: S.Literal(1).pipe(SchemaUtils.withConstantDefault(1)),
+    });
+
+    expect(() => S.decodeUnknownSync(Node)({})).toThrow();
+    expect(S.decodeUnknownSync(Node)({ version: 1 }).version).toBe(1);
+  });
+});
+
+describe("withCodecStatics", () => {
+  const Slug = S.NonEmptyString.pipe(SchemaUtils.withCodecStatics);
+
+  it("attaches a working `is` guard", () => {
+    expect(Slug.is("post")).toBe(true);
+    expect(Slug.is("")).toBe(false);
+    expect(Slug.is(42)).toBe(false);
+  });
+
+  it("attaches `fromUnknown` (throws on invalid) and `decodeOption` (None on invalid)", () => {
+    expect(Slug.fromUnknown("post")).toBe("post");
+    expect(() => Slug.fromUnknown("")).toThrow();
+    expect(Slug.decodeOption("post")).toStrictEqual(O.some("post"));
+    expect(O.isNone(Slug.decodeOption(""))).toBe(true);
+  });
+
+  it("preserves statics when identity annotations run later in the pipeline", () => {
+    const Tagged = S.NonEmptyString.pipe(
+      SchemaUtils.withCodecStatics,
+      $SchemaId.annoteSchema("TaggedSlug", { description: "Slug with codec statics." })
+    );
+
+    expect(Tagged.is("post")).toBe(true);
+    expect(O.isNone(Tagged.decodeOption(""))).toBe(true);
   });
 });

@@ -15,7 +15,7 @@ const text = (value: string) => MdModel.Text.make({ value });
  */
 const fixtureTurn = MdModel.Document.make({
   children: [
-    MdModel.H2.make({ children: [text("Rollout plan")] }),
+    MdModel.Heading.make({ level: 2, children: [text("Rollout plan")] }),
     MdModel.P.make({
       children: [
         text("The schema-first pipeline is "),

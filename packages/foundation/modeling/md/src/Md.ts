@@ -5,61 +5,58 @@
  * @since 0.0.0
  */
 
-import { A, dual, Str, thunkFalse } from "@beep/utils";
-import { Effect } from "effect";
+import { A, Str } from "@beep/utils";
+import type { Result } from "effect";
+import { Effect, Match } from "effect";
+import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import type { Block, Inline, ListItemChild } from "./Md.model.ts";
 import {
-  A as ANode,
-  BlockQuote,
-  Block as BlockSchema,
-  Br,
-  Code,
-  Del,
-  Document,
-  Em,
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  Hr,
-  Img,
-  Li,
-  Ol,
-  P as PNode,
-  Pre,
-  RawHtml,
-  RawMarkdown,
-  Strong,
-  Table,
-  TableCell,
-  TableRow,
-  TaskItem,
-  TaskList,
-  Text,
-  Ul,
-  YouTube,
+    A as ANode,
+    BlockQuote,
+    Block as BlockSchema,
+    Br,
+    Code,
+    CodeFenceLanguage,
+    Del,
+    Document,
+    Em,
+    Heading,
+    Hr,
+    Img,
+    Li,
+    Ol,
+    P as PNode,
+    Pre,
+    RawHtml,
+    RawMarkdown,
+    Strong,
+    Table,
+    TableCell,
+    TableRow,
+    TaskItem,
+    TaskList,
+    Text,
+    Ul,
+    YouTube,
 } from "./Md.model.ts";
 import {
-  HtmlFragmentAdapter,
-  MarkdownAdapter,
-  PlainTextAdapter,
-  render,
-  renderEffectWith,
-  renderEffectWithUnsafe,
-  renderHtml,
-  renderHtmlUnsafe,
-  renderPlainText,
-  renderPlainTextUnsafe,
-  renderUnsafe,
-  renderWith,
-  renderWithUnsafe,
+    HtmlFragmentAdapter,
+    MarkdownAdapter,
+    PlainTextAdapter,
+    render,
+    renderEffectWith,
+    renderEffectWithUnsafe,
+    renderHtml,
+    renderHtmlUnsafe,
+    renderPlainText,
+    renderPlainTextUnsafe,
+    renderUnsafe,
+    renderWith,
+    renderWithUnsafe,
 } from "./Md.render.ts";
-import type { Result } from "effect";
-import type { Block, Inline, ListItemChild } from "./Md.model.ts";
 
 /**
  * Inline constructor input accepted by text-oriented builders.
@@ -328,21 +325,22 @@ const isBlockInputArray = (input: BlockContent): input is ReadonlyArray<BlockInp
 const isListItemChildInputArray = (input: ListItemContent): input is ReadonlyArray<ListItemChildInput> =>
   A.isArray(input);
 
-const isBlock = S.is(BlockSchema);
-const isLi = S.is(Li);
-const isTaskItem = S.is(TaskItem);
-const isTableCell = S.is(TableCell);
-const isTableRow = S.is(TableRow);
-
-const isBlockTemplateBlockValue = (input: BlockTemplateValue): input is Block => isBlock(input);
-
-const isListItemContentBlockValue = (input: ListItemContent | undefined): boolean =>
-  input !== undefined && (isBlock(input) || (A.isArray(input) && A.some(input, isBlock)));
+const isListItemContentBlockValue = (input: ListItemContent): boolean =>
+  BlockSchema.is(input) || (A.isArray(input) && A.some(input, BlockSchema.is));
 
 const isBlockTemplateFormattingChunk = (chunk: string): boolean =>
-  Str.trim(chunk) === "" && blockTemplateFormattingLinePattern.test(chunk);
+  Str.isEmpty(Str.trim(chunk)) && blockTemplateFormattingLinePattern.test(chunk);
 
-const asInline = (input: InlineInput): Inline => (P.isString(input) ? text(input) : input);
+// A template chunk is rendered unless it is whitespace-only formatting sitting
+// next to a block interpolation (where it is just source-layout indentation).
+const shouldAppendTemplateChunk = (chunk: string, hasBlockNeighbor: boolean): boolean =>
+  Str.isNonEmpty(chunk) && !(hasBlockNeighbor && isBlockTemplateFormattingChunk(chunk));
+
+const asInline = (input: InlineInput): Inline =>
+  Match.value(input).pipe(
+    Match.when(P.isString, text),
+    Match.orElse((node) => node)
+  );
 
 const asInlineArray = (input: InlineContent): ReadonlyArray<Inline> =>
   isInlineInputArray(input) ? A.map(input, asInline) : [asInline(input)];
@@ -350,23 +348,13 @@ const asInlineArray = (input: InlineContent): ReadonlyArray<Inline> =>
 const templateToInlineArray = (
   strings: TemplateStringsArray,
   values: ReadonlyArray<InlineContent>
-): ReadonlyArray<Inline> => {
-  const out: Array<Inline> = [];
-
-  for (let index = 0; index < strings.length; index++) {
-    const chunk = strings[index];
-    if (chunk !== "") {
-      A.appendInPlace(out, text(chunk));
-    }
-
-    const value = values[index];
-    if (value !== undefined) {
-      A.appendAllInPlace(out, asInlineArray(value));
-    }
-  }
-
-  return out;
-};
+): ReadonlyArray<Inline> =>
+  A.flatMap(strings, (chunk, index) =>
+    A.appendAll(
+      Str.isNonEmpty(chunk) ? [text(chunk)] : A.empty<Inline>(),
+      O.match(A.get(values, index), { onNone: A.empty<Inline>, onSome: asInlineArray })
+    )
+  );
 
 const makeInlineContentBuilder = <Node>(
   makeNode: (children: ReadonlyArray<Inline>) => Node
@@ -382,70 +370,58 @@ const makeInlineContentBuilder = <Node>(
   return build;
 };
 
-const asBlock = (input: BlockInput): Block => (P.isString(input) ? p(input) : input);
+const asBlock = (input: BlockInput): Block =>
+  Match.value(input).pipe(
+    Match.when(P.isString, p),
+    Match.orElse((node) => node)
+  );
 
 const asBlockArray = (input: BlockContent): ReadonlyArray<Block> =>
   isBlockInputArray(input) ? A.map(input, asBlock) : [asBlock(input)];
 
-const hasBlockTemplateNeighbor: {
-  (value: BlockTemplateValue | undefined, previousValue: BlockTemplateValue | undefined): boolean;
-  (previousValue: BlockTemplateValue | undefined): (value: BlockTemplateValue | undefined) => boolean;
-} = dual(
-  2,
-  (value: BlockTemplateValue | undefined, previousValue: BlockTemplateValue | undefined): boolean =>
-    (value !== undefined && isBlockTemplateBlockValue(value)) ||
-    (previousValue !== undefined && isBlockTemplateBlockValue(previousValue))
-);
+const hasBlockTemplateNeighbor = (
+  value: O.Option<BlockTemplateValue>,
+  previousValue: O.Option<BlockTemplateValue>
+): boolean => O.exists(value, BlockSchema.is) || O.exists(previousValue, BlockSchema.is);
 
-const shouldAppendBlockTemplateChunk = (chunk: string, hasBlockNeighbor: boolean): boolean =>
-  chunk !== "" && !(hasBlockNeighbor && isBlockTemplateFormattingChunk(chunk));
+interface BlockTemplateState {
+  readonly out: ReadonlyArray<Block>;
+  readonly pending: ReadonlyArray<Inline>;
+}
 
-const appendBlockTemplateValue = (
-  out: Array<Block>,
-  pendingInline: Array<Inline>,
-  value: BlockTemplateValue | undefined,
-  flushInline: () => void
-): void => {
-  if (value === undefined) {
-    return;
-  }
-
-  if (!isBlockTemplateBlockValue(value)) {
-    A.appendAllInPlace(pendingInline, asInlineArray(value));
-    return;
-  }
-
-  flushInline();
-  A.appendAllInPlace(out, asBlockArray(value));
-};
+const flushBlockTemplateInline = (state: BlockTemplateState): BlockTemplateState =>
+  A.isReadonlyArrayNonEmpty(state.pending)
+    ? { out: A.append(state.out, p(state.pending)), pending: A.empty<Inline>() }
+    : state;
 
 const templateToBlockArray = (
   strings: TemplateStringsArray,
   values: ReadonlyArray<BlockTemplateValue>
 ): ReadonlyArray<Block> => {
-  const out: Array<Block> = [];
-  let pendingInline: Array<Inline> = [];
-  const flushInline = (): void => {
-    if (pendingInline.length > 0) {
-      A.appendInPlace(out, p(pendingInline));
-      pendingInline = [];
-    }
-  };
+  const initial: BlockTemplateState = { out: A.empty<Block>(), pending: A.empty<Inline>() };
 
-  for (let index = 0; index < strings.length; index++) {
-    const chunk = strings[index];
-    const value = values[index];
-    const previousValue = values[index - 1];
-    if (shouldAppendBlockTemplateChunk(chunk, hasBlockTemplateNeighbor(value, previousValue))) {
-      A.appendInPlace(pendingInline, text(chunk));
-    }
+  return pipe(
+    strings,
+    A.map((chunk, index) => ({ chunk, value: A.get(values, index), previousValue: A.get(values, index - 1) })),
+    A.reduce(initial, (state, { chunk, value, previousValue }) => {
+      const withChunk = shouldAppendTemplateChunk(chunk, hasBlockTemplateNeighbor(value, previousValue))
+        ? { ...state, pending: A.append(state.pending, text(chunk)) }
+        : state;
 
-    appendBlockTemplateValue(out, pendingInline, value, flushInline);
-  }
-
-  flushInline();
-
-  return out;
+      return O.match(value, {
+        onNone: () => withChunk,
+        onSome: (templateValue) =>
+          BlockSchema.is(templateValue)
+            ? {
+                out: A.appendAll(flushBlockTemplateInline(withChunk).out, asBlockArray(templateValue)),
+                pending: A.empty<Inline>(),
+              }
+            : { ...withChunk, pending: A.appendAll(withChunk.pending, asInlineArray(templateValue)) },
+      });
+    }),
+    flushBlockTemplateInline,
+    (state) => state.out
+  );
 };
 
 const makeBlockContentBuilder = <Node>(
@@ -462,41 +438,38 @@ const makeBlockContentBuilder = <Node>(
   return build;
 };
 
-const asListItemChild = (input: ListItemChildInput): ListItemChild => (P.isString(input) ? text(input) : input);
+const asListItemChild = (input: ListItemChildInput): ListItemChild =>
+  Match.value(input).pipe(
+    Match.when(P.isString, text),
+    Match.orElse((node) => node)
+  );
 
 const asListItemChildren = (input: ListItemContent): ReadonlyArray<ListItemChild> =>
   isListItemChildInputArray(input) ? A.map(input, asListItemChild) : [asListItemChild(input)];
 
 const hasListItemTemplateBlockNeighbor = (
-  value: ListItemContent | undefined,
-  previousValue: ListItemContent | undefined
-): boolean => isListItemContentBlockValue(value) || isListItemContentBlockValue(previousValue);
-
-const appendListItemTemplateValue = (out: Array<ListItemChild>, value: ListItemContent | undefined): void => {
-  if (value !== undefined) {
-    A.appendAllInPlace(out, asListItemChildren(value));
-  }
-};
+  value: O.Option<ListItemContent>,
+  previousValue: O.Option<ListItemContent>
+): boolean => O.exists(value, isListItemContentBlockValue) || O.exists(previousValue, isListItemContentBlockValue);
 
 const templateToListItemChildren = (
   strings: TemplateStringsArray,
   values: ReadonlyArray<ListItemContent>
-): ReadonlyArray<ListItemChild> => {
-  const out: Array<ListItemChild> = [];
+): ReadonlyArray<ListItemChild> =>
+  pipe(
+    strings,
+    A.map((chunk, index) => ({ chunk, value: A.get(values, index), previousValue: A.get(values, index - 1) })),
+    A.reduce(A.empty<ListItemChild>(), (out, { chunk, value, previousValue }) => {
+      const withChunk = shouldAppendTemplateChunk(chunk, hasListItemTemplateBlockNeighbor(value, previousValue))
+        ? A.append(out, text(chunk))
+        : out;
 
-  for (let index = 0; index < strings.length; index++) {
-    const chunk = strings[index];
-    const value = values[index];
-    const previousValue = values[index - 1];
-    if (shouldAppendBlockTemplateChunk(chunk, hasListItemTemplateBlockNeighbor(value, previousValue))) {
-      A.appendInPlace(out, text(chunk));
-    }
-
-    appendListItemTemplateValue(out, value);
-  }
-
-  return out;
-};
+      return O.match(value, {
+        onNone: () => withChunk,
+        onSome: (listItemValue) => A.appendAll(withChunk, asListItemChildren(listItemValue)),
+      });
+    })
+  );
 
 const makeListItemContentBuilder = <Node>(
   makeNode: (children: ReadonlyArray<ListItemChild>) => Node
@@ -512,27 +485,24 @@ const makeListItemContentBuilder = <Node>(
   return build;
 };
 
-const asListItem = (input: ListItemInput): Li => (isLi(input) ? input : li(input));
+const asListItem = (input: ListItemInput): Li => (Li.is(input) ? input : li(input));
 
-const asTaskItem = (input: TaskListItemInput): TaskItem => {
-  if (isTaskItem(input)) {
-    return input;
-  }
+const asTaskItem = (input: TaskListItemInput): TaskItem =>
+  Match.value(input).pipe(
+    Match.when(TaskItem.is, (item) => item),
+    Match.when(P.isString, (value) => taskItem(value)),
+    Match.orElse((options) => {
+      const children = P.hasProperty(options, "children") ? options.children : options.text;
 
-  if (P.isString(input)) {
-    return taskItem(input);
-  }
-
-  const children = P.hasProperty(input, "children") ? input.children : input.text;
-
-  return P.isBoolean(input.checked) ? taskItem(children, { checked: input.checked }) : taskItem(children);
-};
+      return P.isBoolean(options.checked) ? taskItem(children, { checked: options.checked }) : taskItem(children);
+    })
+  );
 
 const asTableCell = (input: TableCellInput): TableCell =>
-  isTableCell(input) ? input : TableCell.make({ children: asInlineArray(input) });
+  TableCell.is(input) ? input : TableCell.make({ children: asInlineArray(input) });
 
 const asTableRow = (input: TableRowInput): TableRow =>
-  isTableRow(input) ? input : TableRow.make({ children: A.map(input, asTableCell) });
+  TableRow.is(input) ? input : TableRow.make({ children: A.map(input, asTableCell) });
 
 /**
  * Creates plain escaped inline text.
@@ -710,7 +680,7 @@ export const br: Br = Br.make({});
  * @category constructors
  * @since 0.0.0
  */
-export const h1 = makeInlineContentBuilder((children): H1 => H1.make({ children }));
+export const h1 = makeInlineContentBuilder((children): Heading => Heading.make({ level: 1, children }));
 
 /**
  * Creates a level-two heading block.
@@ -726,7 +696,7 @@ export const h1 = makeInlineContentBuilder((children): H1 => H1.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const h2 = makeInlineContentBuilder((children): H2 => H2.make({ children }));
+export const h2 = makeInlineContentBuilder((children): Heading => Heading.make({ level: 2, children }));
 
 /**
  * Creates a level-three heading block.
@@ -742,7 +712,7 @@ export const h2 = makeInlineContentBuilder((children): H2 => H2.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const h3 = makeInlineContentBuilder((children): H3 => H3.make({ children }));
+export const h3 = makeInlineContentBuilder((children): Heading => Heading.make({ level: 3, children }));
 
 /**
  * Creates a level-four heading block.
@@ -758,7 +728,7 @@ export const h3 = makeInlineContentBuilder((children): H3 => H3.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const h4 = makeInlineContentBuilder((children): H4 => H4.make({ children }));
+export const h4 = makeInlineContentBuilder((children): Heading => Heading.make({ level: 4, children }));
 
 /**
  * Creates a level-five heading block.
@@ -774,7 +744,7 @@ export const h4 = makeInlineContentBuilder((children): H4 => H4.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const h5 = makeInlineContentBuilder((children): H5 => H5.make({ children }));
+export const h5 = makeInlineContentBuilder((children): Heading => Heading.make({ level: 5, children }));
 
 /**
  * Creates a level-six heading block.
@@ -790,7 +760,7 @@ export const h5 = makeInlineContentBuilder((children): H5 => H5.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const h6 = makeInlineContentBuilder((children): H6 => H6.make({ children }));
+export const h6 = makeInlineContentBuilder((children): Heading => Heading.make({ level: 6, children }));
 
 /**
  * Creates a paragraph block.
@@ -872,8 +842,8 @@ export const ol = (children: ReadonlyArray<ListItemInput>): Ol => Ol.make({ chil
  */
 export const taskItem = (children: ListItemContent, options: { readonly checked?: boolean } = {}): TaskItem =>
   TaskItem.make({
-    checked: O.getOrElse(O.fromUndefinedOr(options.checked), thunkFalse),
     children: asListItemChildren(children),
+    ...(P.isBoolean(options.checked) ? { checked: options.checked } : {}),
   });
 
 /**
@@ -924,7 +894,7 @@ export const blockquote = makeBlockContentBuilder((children): BlockQuote => Bloc
  * @since 0.0.0
  */
 export const pre = (value: string, options: { readonly language?: string } = {}): Pre =>
-  Pre.make({ value, language: O.fromUndefinedOr(options.language) });
+  Pre.make({ value, language: O.flatMap(O.fromUndefinedOr(options.language), CodeFenceLanguage.decodeOption) });
 
 /**
  * Creates a table cell with inline content.
@@ -975,8 +945,8 @@ export const tableRow = (children: ReadonlyArray<TableCellInput>): TableRow =>
  */
 export const table = (children: ReadonlyArray<TableRowInput>, options: { readonly headerRow?: boolean } = {}): Table =>
   Table.make({
-    headerRow: O.getOrElse(O.fromUndefinedOr(options.headerRow), thunkFalse),
     children: A.map(children, asTableRow),
+    ...(P.isBoolean(options.headerRow) ? { headerRow: options.headerRow } : {}),
   });
 
 /**
