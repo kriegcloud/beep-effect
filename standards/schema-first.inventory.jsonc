@@ -1,7 +1,11 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-29",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "generatedOn": "2026-06-30",
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -864,6 +868,14 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/foundation/modeling/md/src/Md.behavior.ts",
+      "symbol": "SegmentStrategy",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/modeling/md/src/Md.render.ts",
       "symbol": "EffectRenderAdapter",
       "kind": "exported-interface",
@@ -1296,6 +1308,14 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/foundation/modeling/schema/src/SchemaUtils/withCodecStatics.ts",
+      "symbol": "CodecStatics",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass/StatusCauseTaggedErrorClass.errors.ts",
       "symbol": "StatusCauseTaggedErrorClassFactory",
       "kind": "exported-interface",
@@ -1406,16 +1426,6 @@
       "line": 10,
       "owner": "@beep/schema",
       "reason": "Exception: PromiseSchema is a pure S.declare<globalThis.Promise<unknown>> identity declaration (Type === Encoded === a native Promise, no codec transform). S.toArbitrary throws 'Unsupported AST Declaration', and a Promise cannot be meaningfully round-tripped (decode/encode are identity, equivalence is reference equality), so any property law would be vacuous. Cross-realm acceptance and thenable-impostor rejection are covered by example-based unit tests."
-    },
-    {
-      "file": "packages/foundation/modeling/schema/test/SchemaUtils.test.ts",
-      "symbol": "schema-codec-tests",
-      "kind": "schema-policy-advisory",
-      "status": "exception",
-      "ruleId": "SFV4-arbitrary-tests",
-      "line": 18,
-      "owner": "@beep/schema",
-      "reason": "Exception: meta-test of SchemaUtils combinators using test-local illustrative schemas; source symbols are combinator functions, not domain schemas."
     },
     {
       "file": "packages/foundation/modeling/schema/test/TerritoryCode.test.ts",

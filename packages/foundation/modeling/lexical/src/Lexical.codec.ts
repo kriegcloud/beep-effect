@@ -17,34 +17,34 @@ import * as Md from "@beep/md/Md.model";
 import { MappedLiteralKit, PosInt } from "@beep/schema";
 import { A, dual, O, P, Str } from "@beep/utils";
 import { Effect, flow, Match, pipe } from "effect";
-import type * as S from "effect/Schema";
 import { nodeToPlainText } from "./Lexical.behavior.ts";
-import type { TableCellHeaderState, TextFormatBit } from "./Lexical.model.ts";
 import {
-    ArtifactRefId,
-    ArtifactRefNode,
-    CodeNode,
-    hasTextFormat,
-    HeadingNode,
-    LexicalNode,
-    LineBreakNode,
-    LinkNode,
-    ListItemNode,
-    ListNode,
-    ParagraphNode,
-    QuoteNode,
-    RootNode,
-    SerializedEditorState,
-    TableCellNode,
-    TableNode,
-    TableRowNode,
-    TextDetailMask,
-    TextFormatBits,
-    TextFormatMask,
-    TextNode,
-    withTextFormat,
-    YouTubeNode,
+  ArtifactRefId,
+  ArtifactRefNode,
+  CodeNode,
+  HeadingNode,
+  hasTextFormat,
+  LexicalNode,
+  LineBreakNode,
+  LinkNode,
+  ListItemNode,
+  ListNode,
+  ParagraphNode,
+  QuoteNode,
+  RootNode,
+  SerializedEditorState,
+  TableCellNode,
+  TableNode,
+  TableRowNode,
+  TextDetailMask,
+  TextFormatBits,
+  TextFormatMask,
+  TextNode,
+  withTextFormat,
+  YouTubeNode,
 } from "./Lexical.model.ts";
+import type * as S from "effect/Schema";
+import type { TableCellHeaderState, TextFormatBit } from "./Lexical.model.ts";
 
 /**
  * URI scheme that round-trips {@link ArtifactRefNode} through the Md AST as a
@@ -109,14 +109,19 @@ const mdInlineText = Match.type<Md.Inline>().pipe(
 const mdInlinesText: (inlines: ReadonlyArray<Md.Inline>) => string = flow(A.map(mdInlineText), A.join(""));
 
 const mdListItemChildrenText = (children: ReadonlyArray<Md.ListItemChild>): string =>
-  pipe(segmentInlineRuns(children, Md.Inline.is, mdInlinesText, mdBlockText), A.join("\n"));
-
-const mdListItemsText = (items: ReadonlyArray<{ readonly children: ReadonlyArray<Md.ListItemChild> }>): string =>
   pipe(
-    items,
-    A.map((item) => mdListItemChildrenText(item.children)),
+    segmentInlineRuns(children, {
+      isInline: Md.Inline.is,
+      renderInlineRun: mdInlinesText,
+      renderBlock: mdBlockText,
+    }),
     A.join("\n")
   );
+
+const mdListItemsText: (items: ReadonlyArray<{ readonly children: ReadonlyArray<Md.ListItemChild> }>) => string = flow(
+  A.map((item: { readonly children: ReadonlyArray<Md.ListItemChild> }) => mdListItemChildrenText(item.children)),
+  A.join("\n")
+);
 
 const mdBlockText = (block: Md.Block): string =>
   Match.value(block).pipe(

@@ -8,6 +8,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { FastCheck as fc } from "effect/testing";
 
 describe("pluck", () => {
   it("decodes a one-property struct into the selected field value", () => {
@@ -148,7 +149,9 @@ describe("withConstantDefault", () => {
   it("defaults an omitted field to the constant at construction time", () => {
     const Node = S.Struct({
       version: S.Literal(1).pipe(SchemaUtils.withConstantDefault(1)),
-      format: S.Literals(["", "left", "center"]).pipe(SchemaUtils.withConstantDefault("" as const)),
+      // Union-typed field: annotate the make-input so the default is not inferred
+      // narrower than the field's literal union (mirrors branded-field usage).
+      format: S.Literals(["", "left", "center"]).pipe(SchemaUtils.withConstantDefault<"" | "left" | "center">("")),
     });
 
     const made = Node.make({});
@@ -169,6 +172,17 @@ describe("withConstantDefault", () => {
 
 describe("withCodecStatics", () => {
   const Slug = S.NonEmptyString.pipe(SchemaUtils.withCodecStatics);
+
+  it("attached statics agree with the raw schema codecs over schema-derived samples", () => {
+    fc.assert(
+      fc.property(S.toArbitrary(S.NonEmptyString), (sampled) => {
+        expect(Slug.is(sampled)).toBe(S.is(S.NonEmptyString)(sampled));
+        expect(Slug.fromUnknown(sampled)).toBe(sampled);
+        expect(O.isSome(Slug.decodeOption(sampled))).toBe(true);
+      }),
+      { numRuns: 50 }
+    );
+  });
 
   it("attaches a working `is` guard", () => {
     expect(Slug.is("post")).toBe(true);

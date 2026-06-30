@@ -304,3 +304,4 @@ myapp
 okrs
 reqs
 tulpn
+parameterizes
