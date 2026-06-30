@@ -336,11 +336,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
           learnDocument: (document) =>
             pipe(
               readNormalizedTokens(document),
-              Effect.flatMap((tokens) =>
-                Effect.sync(() => {
-                  freshVectorizer.learn(A.fromIterable(tokens));
-                })
-              ),
+              Effect.flatMap((tokens) => Effect.sync(() => freshVectorizer.learn(A.fromIterable(tokens)))),
               Effect.mapError(VectorizerError.fromCause("freshLearnDocument"))
             ),
           vectorizeDocument: (document) =>

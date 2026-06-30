@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/n3": "^1.26.1",
+    "@types/n3": "catalog:",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

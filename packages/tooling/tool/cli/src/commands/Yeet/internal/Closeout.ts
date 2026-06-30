@@ -8,11 +8,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { O as OptionUtils } from "@beep/utils";
+import { O } from "@beep/utils";
 import { Effect } from "effect";
 import * as A from "effect/Array";
 import { flow, pipe } from "effect/Function";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { runRepoCommandCapture } from "../../../internal/repo-run/index.js";
@@ -606,8 +605,7 @@ const latestGreptileSummary: (comments: ReadonlyArray<GhComment>) => GreptileSum
   A.filter((comment) => isGreptileComment(comment.author)),
   A.map((comment) =>
     GreptileSummary.make({
-      ...OptionUtils.getSomesStruct({ issueCount: parseIssueCount(comment.body) }),
-      ...OptionUtils.getSomesStruct({ score: parseScore(comment.body) }),
+      ...O.getSomesStruct({ issueCount: parseIssueCount(comment.body), score: parseScore(comment.body) }),
       url: comment.url,
     })
   ),
@@ -860,43 +858,40 @@ const closeoutGateStates = (
 /**
  * Build durable PR closeout gate states from simplified test inputs.
  *
- * @param options - PR closeout options controlling gate requirements.
- * @param actionableReviewThreadCount - Number of unresolved actionable review threads.
- * @param greptile - Latest Greptile summary used for quality gates.
- * @param botComments - Simplified bot comments to include in closeout state.
+ * @param input - Closeout test inputs controlling gate requirements.
  * @returns Durable PR closeout gate states for tests.
  * @example
  * ```ts
  * import { closeoutGateStatesForTesting, GreptileSummary, PrCloseoutOptions } from "@beep/repo-cli/test/Yeet"
  *
- * const states = closeoutGateStatesForTesting(
- *   PrCloseoutOptions.make({
+ * const states = closeoutGateStatesForTesting({
+ *   options: PrCloseoutOptions.make({
  *     bots: "coderabbit,chatgpt,greptile",
  *     requireGreptileIssues: 0,
  *     requireGreptileScore: "5/5",
  *     requireReviewComments: 0,
  *     retriggerGreptile: false
  *   }),
- *   0,
- *   GreptileSummary.make({ issueCount: 0, score: "5/5" }),
- *   []
- * )
+ *   actionableReviewThreadCount: 0,
+ *   greptile: GreptileSummary.make({ issueCount: 0, score: "5/5" }),
+ *   botComments: []
+ * })
  * console.log(states.length)
  * ```
  * @category testing
  * @since 0.0.0
  */
-export const closeoutGateStatesForTesting = (
-  options: PrCloseoutOptions,
-  actionableReviewThreadCount: number,
-  greptile: GreptileSummary,
-  botComments: ReadonlyArray<GreptileSummaryCommentInput>
-): ReadonlyArray<PrCloseoutGateState> =>
+export const closeoutGateStatesForTesting = (input: {
+  readonly options: PrCloseoutOptions;
+  readonly actionableReviewThreadCount: number;
+  readonly greptile: GreptileSummary;
+  readonly botComments: ReadonlyArray<GreptileSummaryCommentInput>;
+}): ReadonlyArray<PrCloseoutGateState> =>
   closeoutGateStates(
-    options,
-    actionableReviewThreadCount,
-    greptile,
-    A.map(botComments, (comment, index) =>
+    input.options,
+    input.actionableReviewThreadCount,
+    input.greptile,
+    A.map(input.botComments, (comment, index) =>
       GhComment.make({
         author: GhActor.make({ login: comment.authorLogin }),
         body: comment.body,

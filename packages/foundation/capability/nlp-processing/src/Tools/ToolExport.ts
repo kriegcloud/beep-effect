@@ -8,7 +8,7 @@
 import { $NlpProcessingId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { A, Struct } from "@beep/utils";
-import { Cause, Effect, Inspectable, pipe, SchemaParser, Stream } from "effect";
+import { Cause, Effect, Inspectable, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -195,14 +195,12 @@ const buildArgsObject = (
         }
   );
 
-const decodeToolParameters = <T extends NlpTool>(
-  tool: T,
+const decodeToolParameters = (
+  tool: NlpTool,
   parameterNames: ReadonlyArray<string>,
   args: ReadonlyArray<unknown>
-): Effect.Effect<Tool.Parameters<T>, ExportedToolError> =>
-  SchemaParser.decodeUnknownEffect(S.make<S.ConstraintDecoder<Tool.Parameters<T>>>(tool.parametersSchema.ast))(
-    buildArgsObject(parameterNames, args)
-  ).pipe(
+): Effect.Effect<Tool.Parameters<NlpTool>, ExportedToolError> =>
+  S.decodeUnknownEffect(tool.parametersSchema)(buildArgsObject(parameterNames, args)).pipe(
     Obs.trackNlpDuration("nlp.tool.decode_parameters", {
       argument_count: `${A.length(args)}`,
       operation: "decodeToolParameters",
@@ -216,23 +214,26 @@ const decodeToolParameters = <T extends NlpTool>(
     )
   );
 
-const handleTool = <T extends NlpTool>(
+const handleTool = (
   toolkit: NlpToolkitWithHandler,
-  tool: T,
-  params: Tool.Parameters<T>
-): Effect.Effect<Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError>, AiError.AiError> =>
+  tool: NlpTool,
+  params: Tool.Parameters<NlpTool>
+): Effect.Effect<
+  Stream.Stream<Tool.HandlerResult<NlpTool>, Tool.HandlerError<NlpTool> | AiError.AiError>,
+  AiError.AiError
+> =>
   // `Toolkit.handle` is keyed by a literal tool-name map. At this adapter boundary
   // we validate `params` against the selected tool schema immediately beforehand,
   // so the runtime pairing of tool name and decoded parameters is sound.
   toolkit.handle(tool.name as never, params as never) as Effect.Effect<
-    Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError>,
+    Stream.Stream<Tool.HandlerResult<NlpTool>, Tool.HandlerError<NlpTool> | AiError.AiError>,
     AiError.AiError
   >;
 
 const buildExportedTool: {
-  <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHandler): ExportedTool;
-  (toolkit: NlpToolkitWithHandler): <T extends NlpTool>(tool: T) => ExportedTool;
-} = dual(2, <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHandler): ExportedTool => {
+  (tool: NlpTool, toolkit: NlpToolkitWithHandler): ExportedTool;
+  (toolkit: NlpToolkitWithHandler): (tool: NlpTool) => ExportedTool;
+} = dual(2, (tool: NlpTool, toolkit: NlpToolkitWithHandler): ExportedTool => {
   const parameterNames = parameterNamesForTool(tool);
 
   return {

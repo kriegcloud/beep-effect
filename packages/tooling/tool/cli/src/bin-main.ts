@@ -132,11 +132,38 @@ const renderCliFailure = (exit: import("effect").Exit.Exit<unknown, unknown>) =>
   process.stderr.write(`${Cause.pretty(exit.cause)}\n`);
 };
 
+/**
+ * Reset the shared terminal on CLI exit.
+ *
+ * Child processes spawned with inherited stdio (notably turbo's interactive
+ * TUI) can put the shared TTY into raw mode and enable xterm mouse tracking,
+ * then die abnormally without restoring it — leaving the terminal emitting
+ * mouse-motion reports and swallowing Ctrl-C. Effect's own finalizers only undo
+ * modes Effect itself set, so the parent CLI must reset the shared TTY here.
+ * This teardown hook runs after all Scope finalizers and before `process.exit`,
+ * which is the correct place to repair state a child left behind.
+ *
+ * @internal
+ * @category configuration
+ * @since 0.0.0
+ */
+const restoreSharedTerminal = (): void => {
+  if (process.stdout.isTTY) {
+    // Disable mouse tracking (?1000 normal, ?1002 button-event, ?1003
+    // any-motion, ?1006 SGR) and show the cursor (?25h).
+    process.stdout.write("\u001B[?1000l\u001B[?1002l\u001B[?1003l\u001B[?1006l\u001B[?25h");
+  }
+  if (process.stdin.isTTY) {
+    process.stdin.setRawMode(false);
+  }
+};
+
 const runRepoCliMain = <E, A>(effect: import("effect").Effect.Effect<A, E>) =>
   BunRuntime.runMain(effect, {
     disableErrorReporting: true,
     teardown: (exit, onExit) => {
       renderCliFailure(exit);
+      restoreSharedTerminal();
       Runtime.defaultTeardown(exit, onExit);
     },
   });
