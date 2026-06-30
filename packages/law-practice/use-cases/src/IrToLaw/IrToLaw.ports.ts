@@ -73,13 +73,11 @@ export class LawEntities extends S.Class<LawEntities>($I`LawEntities`)(
  * @since 0.0.0
  */
 export class IrToLawShape extends S.Class<IrToLawShape>($I`IrToLawShape`)({
-	toLaw: Fn({
-		input: S.Array(GroundedExtraction),
-		output: EffectSchema<LawEntities, IrToLawExtractionError, never>(),
-	}),
+  toLaw: Fn({
+    input: S.Array(GroundedExtraction),
+    output: EffectSchema<LawEntities, IrToLawExtractionError, never>(),
+  }),
 }) {}
-
-
 
 /**
  * IR-to-law mapping service tag.

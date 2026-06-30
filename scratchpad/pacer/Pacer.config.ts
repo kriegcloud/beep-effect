@@ -135,15 +135,16 @@ export const loadPacerConfig = (options: {
     const clientCode = yield* Config.string(PACER_ENV.clientCode).pipe(Config.option);
     const otpFromEnv = yield* Config.redacted(PACER_ENV.otp).pipe(Config.option);
     return PacerConfig.make({
-	    environment: options.environment,
-	    authBaseUrl: PACER_AUTH_BASE_URL[options.environment],
-	    pclBaseUrl: PACER_PCL_BASE_URL[options.environment],
-	    loginId,
-	    password,
-	    clientCode,
-	    // `??` would keep an explicit O.none() (it is a truthy object); fall back to
-	    // the PACER_OTP env value only when no OTP was explicitly provided.
-	    otpCode: O.orElse(options.otpCode ?? O.none<Redacted.Redacted<string>>(), () => otpFromEnv),
+      environment: options.environment,
+      authBaseUrl: PACER_AUTH_BASE_URL[options.environment],
+      pclBaseUrl: PACER_PCL_BASE_URL[options.environment],
+      loginId,
+      password,
+      clientCode,
+      // `??` would keep an explicit O.none() (it is a truthy object); fall back to
+      // the PACER_OTP env value only when no OTP was explicitly provided.
+      otpCode: O.orElse(options.otpCode ?? O.none<Redacted.Redacted<string>>(), () => otpFromEnv),
+      isFiler: O.none(),
     });
   }).pipe(Effect.mapError((cause) => PacerConfigError.make_(String(cause))));
 
@@ -155,12 +156,13 @@ export const loadPacerConfig = (options: {
  * @since 0.0.0
  */
 export const mockPacerConfig = (overrides: Partial<PacerConfig> = {}): PacerConfig => PacerConfigQA.make({
-	authBaseUrl: PACER_AUTH_BASE_URL.qa,
-	pclBaseUrl: PACER_PCL_BASE_URL.qa,
-	loginId: Redacted.make("mock-login-id"),
-	password: Redacted.make("mock-password"),
-	clientCode: O.some("MOCK-CLIENT-CODE"),
-	otpCode: O.none(),
-	...overrides,
-	environment: "qa",
-})
+  authBaseUrl: PACER_AUTH_BASE_URL.qa,
+  pclBaseUrl: PACER_PCL_BASE_URL.qa,
+  loginId: Redacted.make("mock-login-id"),
+  password: Redacted.make("mock-password"),
+  clientCode: O.some("MOCK-CLIENT-CODE"),
+  otpCode: O.none(),
+  isFiler: O.none(),
+  ...overrides,
+  environment: "qa",
+});

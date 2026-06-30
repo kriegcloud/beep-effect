@@ -7,24 +7,27 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import {$SchemaId} from "@beep/identity/packages";
-import {Effect} from "effect";
+import { $SchemaId } from "@beep/identity/packages";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("EffectSchema");
 const effectAnnotations = {
-	typeConstructor: {
-		_tag: "@beep/schema/EffectSchema",
-	},
-	generation: {
-		runtime: "EffectSchema",
-		Type: "EffectSchema",
-		importDeclaration: 'import { EffectSchema } from "@beep/schema/EffectSchema"',
-	},
-	expected: "Effect",
-	description: "Schema for Effect runtime values.",
-	toEquivalence: () => <A extends Effect.Effect<unknown, unknown, unknown>>(self: A, that: A): boolean => self === that,
-	toFormatter: () => (): string => "[Effect]",
+  typeConstructor: {
+    _tag: "@beep/schema/EffectSchema",
+  },
+  generation: {
+    runtime: "EffectSchema",
+    Type: "EffectSchema",
+    importDeclaration: 'import { EffectSchema } from "@beep/schema/EffectSchema"',
+  },
+  expected: "Effect",
+  description: "Schema for Effect runtime values.",
+  toEquivalence:
+    () =>
+    <A extends Effect.Effect<unknown, unknown, unknown>>(self: A, that: A): boolean =>
+      self === that,
+  toFormatter: () => (): string => "[Effect]",
 };
 
 /**
@@ -54,9 +57,7 @@ const effectAnnotations = {
  */
 export const isEffect = Effect.isEffect;
 type SchemaStatics<Schema extends S.Top> = Omit<Schema, keyof Schema["Rebuild"] | keyof S.Top>;
-type AnnotatedSchema<Schema extends S.Top> =
-	Schema["Rebuild"]
-	& SchemaStatics<Schema>;
+type AnnotatedSchema<Schema extends S.Top> = Schema["Rebuild"] & SchemaStatics<Schema>;
 
 /**
  * Declared schema for Effect runtime values.
@@ -68,7 +69,7 @@ type AnnotatedSchema<Schema extends S.Top> =
  * import { EffectSchema } from "@beep/schema/EffectSchema"
  *
  * const program = Effect.succeed("done")
- * const decoded = S.decodeUnknownSync(EffectSchema)(program)
+ * const decoded = S.decodeUnknownSync(EffectSchema())(program)
  *
  * console.log(Effect.isEffect(decoded)) // true
  * ```
@@ -79,12 +80,14 @@ type AnnotatedSchema<Schema extends S.Top> =
  * @category validation
  * @since 0.0.0
  */
-export const EffectSchema = <Success, Failure, Dependencies>(): AnnotatedSchema<S.declare<Effect.Effect<Success, Failure, Dependencies>, Effect.Effect<Success, Failure, Dependencies>>> => S.declare<Effect.Effect<Success, Failure, Dependencies>>(
-	isEffect,
-	effectAnnotations,
-).pipe($I.annoteSchema("EffectSchema", {
-	description: "A schema that validates Effect runtime values.",
-}));
+export const EffectSchema = <Success, Failure, Dependencies>(): AnnotatedSchema<
+  S.declare<Effect.Effect<Success, Failure, Dependencies>, Effect.Effect<Success, Failure, Dependencies>>
+> =>
+  S.declare<Effect.Effect<Success, Failure, Dependencies>>(isEffect, effectAnnotations).pipe(
+    $I.annoteSchema("EffectSchema", {
+      description: "A schema that validates Effect runtime values.",
+    })
+  );
 
 /**
  * {@inheritDoc EffectSchema}
@@ -95,11 +98,13 @@ export const EffectSchema = <Success, Failure, Dependencies>(): AnnotatedSchema<
  * import * as S from "effect/Schema"
  * import { EffectSchema } from "@beep/schema/EffectSchema"
  *
- * const program: EffectSchema = S.decodeUnknownSync(EffectSchema)(Effect.succeed("done"))
+ * const program: EffectSchema<string, never, never> = S.decodeUnknownSync(EffectSchema<string, never, never>())(Effect.succeed("done"))
  * console.log(Effect.isEffect(program)) // true
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export type EffectSchema<Success, Failure, Dependencies> = S.Schema.Type<ReturnType<typeof EffectSchema<Success, Failure, Dependencies>>>
+export type EffectSchema<Success, Failure, Dependencies> = S.Schema.Type<
+  ReturnType<typeof EffectSchema<Success, Failure, Dependencies>>
+>;
