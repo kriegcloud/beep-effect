@@ -53,6 +53,9 @@
       "@beep/schema/ArrayOf": [
         "../packages/foundation/modeling/schema/src/ArrayOf.ts"
       ],
+      "@beep/schema/AtURI": [
+        "../packages/foundation/modeling/schema/src/AtURI.ts"
+      ],
       "@beep/schema/BigDecimal": [
         "../packages/foundation/modeling/schema/src/BigDecimal.ts"
       ],

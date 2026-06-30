@@ -23,6 +23,8 @@ import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
+// cspell:words NSID NSIDs Nsid nsid RKEY bsky ewvi nxzyoun zhxrhs ragtjsm vknwkz oxrd Fdef
+
 const $I = $SchemaId.create("AtURI");
 
 const AT_URI_SCHEME = "at://";

@@ -2,7 +2,7 @@
 
 ## Status
 
-Stage: `research`
+Stage: `graduate`
 Status: `active`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
@@ -35,5 +35,6 @@ with recommended answers in [`DECISIONS.md`](./DECISIONS.md) — resolve them vi
 
 ## Trail
 
+- 2026-06-29: graduated into goals/gov-legal-data-driver-codegen.
 - 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.
 - 2026-06-29: packet opened from gold-intake cluster 'Gov/legal data drivers + OpenAPI codegen' (19 nuggets).

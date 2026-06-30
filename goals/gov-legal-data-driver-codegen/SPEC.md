@@ -74,13 +74,25 @@ Higher sources outrank lower sources when they conflict.
   cache, rate-limit, or `Context.Service` wiring — those stay hand-authored on
   `effect/unstable/http`, mirroring runpod's `Runpod.generated.ts` vs
   `Runpod.service.ts` split.
-- **Official sources only; NEVER PatentsView.** GovInfo/eCFR/FedReg specs are
-  US-Gov public-domain (17 U.S.C. 105 / CC0). CourtListener/DOL have no clean
-  OpenAPI — any hand-authored spec is original repo work.
+- **Official-publisher data sourcing (default rule); NEVER PatentsView.** The
+  default is to ingest only from official US-Gov publishers: GovInfo/eCFR/FedReg
+  specs are public-domain (17 U.S.C. 105 / CC0) and DOL is an agency-native
+  publisher. **CourtListener is the one named exception:** it is *not* a US-Gov
+  publisher and may surface PACER/RECAP-sourced third-party content (Q8), so it is
+  permitted only as gated repo-original spec work behind the data/source-terms
+  matrix (default-deny). "Official sources only" therefore governs *default data
+  sourcing*, not an absolute ban — CourtListener/DOL have no clean OpenAPI, so any
+  hand-authored spec is original repo work. PatentsView is never in scope (routes
+  to `uspto-patent-driver-depth`).
 - **License gravity (reimplement, don't copy).** Both donor repos are MIT but
   the constraint is architectural; AVOID vendoring MPL-2.0
   `fortanix/openapi-to-effect`. Code/spec licensing ≠ data/API-use terms — the
-  latter is OPEN for CourtListener (default-deny, Q8).
+  latter is OPEN for CourtListener (default-deny, Q8). Once the data/source-terms
+  matrix exists, its per-upstream terms (data license, API ToS, commercial-use
+  limits, caching/retention permission, redistribution/fixture rules, attribution,
+  source-of-authority caveat) MUST propagate to: fixture metadata, package/driver
+  README warnings, cache-policy config, and any exported source/status metadata —
+  never silently dropped.
 - **Transformer promotion gate.** `foundation/capability/<name>` requires **≥2
   named consumers currently importing** at PR review — the
   `07-non-slice-families` rule. No `drivers/_shared` convention exists.
@@ -89,42 +101,83 @@ Higher sources outrank lower sources when they conflict.
   (keyless eCFR/FedReg always-on). Never log raw keys.
 - **Three auth families, not two:** Token-header (`Authorization: Token <key>`,
   CourtListener — literal, not Bearer); api.data.gov `api_key` query param
-  (GovInfo); agency-native `X-API-KEY` (DOL).
+  (GovInfo); agency-native `X-API-KEY` (DOL). **Only the api.data.gov `api_key`
+  branch (govinfo) is exercised and verified in P0–P1**; the Token-header
+  (CourtListener) and `X-API-KEY` (DOL) branches are *designed into* the
+  transformer but not exercised or verified until P2 (gated on the
+  data/source-terms matrix).
 - **Effect v4 beta churn.** Pin exact versions (`effect` +
   `@effect/openapi-generator` at `4.0.0-beta.91`) in each codegen template.
 
 ## Acceptance Criteria
 
-- [ ] `@beep/govinfo` manifest declares `@beep/identity` + `@beep/schema`; a live
-      `Search` round-trip decodes through the value models with api.data.gov
-      `api_key` auth attached, `X-RateLimit-*` honored, and a cache hit on repeat.
-- [ ] The shared transformer is applied via `HttpApiClient.make`'s
-      `transformClient` (govinfo) and is importable by a 2nd driver.
-- [ ] One keyless driver (eCFR or FedReg) is built on `HttpClient.mapRequest`,
-      consumes the transformer, and builds **network-free** from its committed
-      spec + `src/_generated/*`.
-- [ ] The eCFR `@effect/openapi-generator` Swagger-2.0 spike is run with recorded
-      dialect warnings; bespoke renderer fallback decision is documented.
-- [ ] Codegen output is Schema value models + operation descriptors only; no
-      transport leaks into `src/_generated/*`.
-- [ ] A CI `git diff --exit-code` codegen-drift check is wired per-package.
-- [ ] At P3, the transformer is promoted to `foundation/capability/<name>` with a
-      README promotion record naming ≥2 current consumers.
-- [ ] CourtListener/DOL remain unbuilt (or default-deny) until the data-terms
-      matrix exists.
-- [ ] No unrelated refactors or formatting churn.
+Each criterion is falsifiable and maps 1-to-1 to a row in the Verification Matrix.
+
+- [ ] **AC#1 — govinfo live + offline-testable.** `@beep/govinfo` manifest
+      declares `@beep/identity` + `@beep/schema`; a `Search` round-trip decodes
+      through the value models with api.data.gov `api_key` auth attached.
+      "Honored" `X-RateLimit-*` is observable: the limiter parses
+      `X-RateLimit-Remaining` / `X-RateLimit-Reset` from the response and updates
+      limiter state, and a repeat `Search` is served from cache (asserted by
+      transport call-count == 1, **not** a second network round-trip). A
+      recorded-response / fake-`HttpClient` test proves the rate-limit + cache
+      behavior **without live credentials**; the live round-trip is an optional
+      manual check when `GOVINFO_API_KEY` is present.
+- [ ] **AC#2 — transformer seam.** The shared transformer is applied via
+      `HttpApiClient.make`'s `transformClient` in govinfo and is importable by a
+      2nd driver (a static import + type-check from the keyless driver proves
+      importability).
+- [ ] **AC#3 — keyless raw-client consumer.** One keyless driver (eCFR or FedReg)
+      is built on `HttpClient.mapRequest`, consumes the transformer (the
+      `mapRequest`/transformer call is present in its `*.service.ts`), and builds
+      **network-free** from its committed spec + `src/_generated/*`.
+- [ ] **AC#4 — eCFR spike evidence.** The eCFR `@effect/openapi-generator`
+      Swagger-2.0 spike is run with recorded dialect warnings under `research/`
+      or `history/`; the bespoke-renderer fallback decision is documented. This
+      spike is **mandatory even if FedReg is the selected keyless driver**.
+- [ ] **AC#5 — generated boundary.** Codegen output under `src/_generated/*` is
+      Schema value models + operation descriptors only. Banned set (asserted by
+      ripgrep over `src/_generated/*`): imports from `effect/unstable/http`,
+      `Config`, `Context`, `Cache`, `Schedule`, and any `transformClient`,
+      `mapRequest`, `withRateLimiter`, `retryTransient`, or auth-header symbol.
+- [ ] **AC#6 — CI drift wiring.** A CI `git diff --exit-code` codegen-drift check
+      is wired **per-package in committed CI config** (grep-able in the
+      workflow/turbo config) — not just a local rerun.
+- [ ] **AC#7 — promotion record.** At P3, the transformer is promoted to
+      `foundation/capability/<name>` with a README promotion record naming ≥2
+      current consumers that **actually import it** (named importers are
+      grep-verifiable in source).
+- [ ] **AC#8 — CL/DOL default-deny.** Until the data/source-terms matrix file
+      exists, CourtListener/DOL remain default-deny, observable as: no committed
+      CL/DOL fixtures, no persistent CL cache (ephemeral/in-process only), no
+      enabled CL/DOL package exports, and the matrix absence visibly gating any
+      build/cache work.
+- [ ] **AC#9 — no churn.** Changed files are confined to the named Target
+      Surfaces + the packet directory; no formatting-only or unrelated-refactor
+      churn in other files (reviewed via scoped `git diff`, not just
+      `git diff --check` whitespace).
 
 ## Verification Matrix
 
-| Check | Command or evidence | Required result |
-| --- | --- | --- |
-| Packet launcher size | `test "$(wc -m < goals/gov-legal-data-driver-codegen/GOAL.md)" -le 4000` | Passes |
-| Manifest JSON | `jq . goals/gov-legal-data-driver-codegen/ops/manifest.json` | Passes |
-| Whitespace | `git diff --check -- goals/gov-legal-data-driver-codegen` | Passes |
-| govinfo build/check | `bun run check --filter @beep/govinfo` | Passes offline |
-| Codegen determinism | re-run `scripts/generate.ts` then `git diff --exit-code` | No drift |
-| Keyless driver build | `bun run build --filter <keyless-driver>` | Network-free |
-| Reflection at P3 | `bun run beep lint reflection-artifacts` | Passes |
+Every Acceptance Criterion (AC#1–AC#9) has a verifier row; packet-operational
+checks are listed separately at the bottom.
+
+| AC | Check | Command or evidence | Required result |
+| --- | --- | --- | --- |
+| AC#1 | rate-limit + cache (offline) | recorded/fake-`HttpClient` test: `X-RateLimit-*` parsed + limiter state updated, repeat `Search` cache-served (transport call-count == 1) | Passes offline |
+| AC#1 | govinfo build/check | `bun run check --filter @beep/govinfo` | Passes offline |
+| AC#2 | transformer seam + import | `rg -n transformClient packages/drivers/govinfo/src` + keyless driver static import type-checks | Both present |
+| AC#3 | keyless raw-client + xform | `rg -n mapRequest packages/drivers/<keyless>/src` + `bun run build --filter <keyless-driver>` | Present, network-free |
+| AC#4 | eCFR spike evidence | dialect-warning log + fallback decision under `research/` or `history/` | Recorded |
+| AC#5 | generated boundary | ripgrep the AC#5 banned set over `packages/drivers/*/src/_generated/*` | No matches |
+| AC#6 | CI drift wiring | `rg -n "git diff --exit-code" .github` (or turbo task) per keyed + keyless package | Wired in CI |
+| AC#6 | codegen determinism | re-run `scripts/generate.ts` then `git diff --exit-code` | No drift |
+| AC#7 | promotion record | README names ≥2 consumers; `rg` confirms both import the capability | ≥2 importers |
+| AC#8 | CL/DOL default-deny | matrix file absent ⇒ no committed CL/DOL fixtures/exports, no persistent CL cache (`rg`/`ls`) | Default-deny |
+| AC#9 | scoped diff | `git diff --stat` confined to Target Surfaces + packet dir; `git diff --check -- goals/gov-legal-data-driver-codegen` | In-scope, clean |
+| ops | packet launcher size | `test "$(wc -m < goals/gov-legal-data-driver-codegen/GOAL.md)" -le 4000` | Passes |
+| ops | manifest JSON | `jq . goals/gov-legal-data-driver-codegen/ops/manifest.json` | Passes |
+| ops | reflection at P3 | `bun run beep lint reflection-artifacts` | Passes |
 
 ## Stop Conditions
 
@@ -160,3 +213,5 @@ closed.
 | Exception | Scope | Owner | Rationale | Removal condition |
 | --- | --- | --- | --- | --- |
 | None | N/A | N/A | N/A | N/A |
+
+_Codex gate-2 folded 2026-06-29: 3 blocking + 4 advisory addressed._

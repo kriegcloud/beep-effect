@@ -4,10 +4,10 @@
     "slug": "gov-legal-data-driver-codegen",
     "title": "Gov/Legal Data Drivers + OpenAPI Codegen",
     "status": "active",
-    "stage": "shape",
+    "stage": "graduate",
     "openQuestions": [],
     "links": {
-      "goals": [],
+      "goals": ["goals/gov-legal-data-driver-codegen"],
       "docs": [],
       "supersededBy": null
     },

@@ -5,4 +5,10 @@
  * @packageDocumentation
  */
 
+/**
+ * Re-exports RDF-facing evidence value models from `@beep/rdf`.
+ *
+ * @category compatibility
+ * @since 0.0.0
+ */
 export * from "@beep/rdf/Evidence";
