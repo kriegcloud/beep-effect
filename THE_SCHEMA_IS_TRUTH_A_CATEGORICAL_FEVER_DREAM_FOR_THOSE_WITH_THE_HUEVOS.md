@@ -1,6 +1,6 @@
 # THE SCHEMA IS TRUTH
 
-### A Categorical Fever Dream — for those with the huevos to love schema
+## A Categorical Fever Dream — for those with the huevos to love schema
 
 > A trip report from the day a routine refactor of `@beep/md` and
 > `@beep/lexical-schema` quietly turned into applied category theory, and the

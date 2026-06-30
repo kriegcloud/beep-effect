@@ -35,13 +35,14 @@ import type * as O from "effect/Option";
  * @category models
  * @since 0.0.0
  */
-export type CodecStatics<Sch extends S.Top> = {
+export interface CodecStatics<Sch extends S.Top> {
   /**
-   * Type guard for decoded values of `Sch`.
+   * Decode an unknown value into an `Option`, returning `None` on failure. Use
+   * at soft boundaries where a malformed value should be dropped, not thrown.
    *
    * @since 0.0.0
    */
-  readonly is: (input: unknown) => input is Sch["Type"];
+  readonly decodeOption: (input: unknown) => O.Option<Sch["Type"]>;
   /**
    * Synchronously decode an unknown value, throwing on failure. Use at trusted
    * boundaries where a malformed value is a programmer error.
@@ -50,13 +51,12 @@ export type CodecStatics<Sch extends S.Top> = {
    */
   readonly fromUnknown: (input: unknown) => Sch["Type"];
   /**
-   * Decode an unknown value into an `Option`, returning `None` on failure. Use
-   * at soft boundaries where a malformed value should be dropped, not thrown.
+   * Type guard for decoded values of `Sch`.
    *
    * @since 0.0.0
    */
-  readonly decodeOption: (input: unknown) => O.Option<Sch["Type"]>;
-};
+  readonly is: (input: unknown) => input is Sch["Type"];
+}
 
 /**
  * Attach {@link CodecStatics} to a schema value. Designed to be used with
@@ -85,10 +85,8 @@ export type CodecStatics<Sch extends S.Top> = {
 export const withCodecStatics = <Sch extends S.Top & S.ConstraintDecoder<unknown>>(
   self: Sch
 ): Sch & CodecStatics<Sch> =>
-  withStatics(
-    (schema: Sch): CodecStatics<Sch> => ({
-      is: S.is(schema),
-      fromUnknown: S.decodeUnknownSync(schema),
-      decodeOption: S.decodeUnknownOption(schema),
-    })
-  )(self);
+  withStatics((schema: Sch) => ({
+    is: S.is(schema),
+    fromUnknown: S.decodeUnknownSync(schema),
+    decodeOption: S.decodeUnknownOption(schema),
+  }))(self);

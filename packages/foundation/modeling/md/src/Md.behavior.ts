@@ -11,13 +11,43 @@
 
 import { A, thunkEmptyStr } from "@beep/utils";
 import { Match } from "effect";
-import { flow, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as O from "effect/Option";
-import type { Block, Inline, Li, ListItemChild, Table, TaskItem } from "./Md.model.ts";
 import { Inline as InlineSchema } from "./Md.model.ts";
+import type { Block, Inline, Li, ListItemChild, Table, TaskItem } from "./Md.model.ts";
 
 const joinEmpty = A.join("");
 const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/watch?v=${videoId}`;
+
+/**
+ * The strategy consumed by {@link segmentInlineRuns}: the inline guard plus the
+ * per-run and per-block renderers.
+ *
+ * @template I - Inline child element type.
+ * @template B - Block child element type.
+ * @category models
+ * @since 0.0.0
+ */
+export interface SegmentStrategy<I, B> {
+  /**
+   * Type guard selecting inline children.
+   *
+   * @since 0.0.0
+   */
+  readonly isInline: (item: I | B) => item is I;
+  /**
+   * Renders a single block child.
+   *
+   * @since 0.0.0
+   */
+  readonly renderBlock: (block: B) => string;
+  /**
+   * Renders a contiguous run of inline children.
+   *
+   * @since 0.0.0
+   */
+  readonly renderInlineRun: (run: ReadonlyArray<I>) => string;
+}
 
 /**
  * Renders a list-item child sequence into per-segment strings: each maximal run
@@ -28,50 +58,51 @@ const youtubeWatchUrl = (videoId: string): string => `https://www.youtube.com/wa
  * each run is rendered by the matching handler — inline runs through
  * `renderInlineRun`, block children individually through `renderBlock`.
  *
+ * Dual-arity: call data-first as `segmentInlineRuns(items, strategy)` or
+ * data-last as `segmentInlineRuns(strategy)(items)`.
+ *
  * @example
  * ```ts
  * import { Inline } from "@beep/md/Md.model"
  * import { segmentInlineRuns } from "@beep/md/Md.behavior"
  * import { Md } from "@beep/md"
  *
- * const segments = segmentInlineRuns(
- *   [Md.text("a"), Md.text("b"), Md.p("para")],
- *   Inline.is,
- *   (run) => `inline:${run.length}`,
- *   (block) => `block:${block._tag}`
- * )
+ * const segments = segmentInlineRuns([Md.text("a"), Md.text("b"), Md.p("para")], {
+ *   isInline: Inline.is,
+ *   renderInlineRun: (run) => `inline:${run.length}`,
+ *   renderBlock: (block) => `block:${block._tag}`,
+ * })
  * console.log(segments) // ["inline:2", "block:p"]
  * ```
  *
  * @template I - Inline child element type.
  * @template B - Block child element type.
  * @param items - The list-item children to segment.
- * @param isInline - Type guard selecting inline children.
- * @param renderInlineRun - Renders a contiguous run of inline children.
- * @param renderBlock - Renders a single block child.
+ * @param render - The segmentation {@link SegmentStrategy}.
  * @returns One rendered string per inline run and per block child, in order.
  * @category utilities
  * @since 0.0.0
  */
-export const segmentInlineRuns = <I, B>(
-  items: ReadonlyArray<I | B>,
-  isInline: (item: I | B) => item is I,
-  renderInlineRun: (run: ReadonlyArray<I>) => string,
-  renderBlock: (block: B) => string
-): ReadonlyArray<string> =>
-  A.match(items, {
-    onEmpty: A.empty<string>,
-    onNonEmpty: (nonEmpty) =>
-      pipe(
-        nonEmpty,
-        A.groupWith((left, right) => isInline(left) === isInline(right)),
+export const segmentInlineRuns: {
+  <I, B>(items: ReadonlyArray<I | B>, render: SegmentStrategy<I, B>): ReadonlyArray<string>;
+  <I, B>(render: SegmentStrategy<I, B>): (items: ReadonlyArray<I | B>) => ReadonlyArray<string>;
+} = dual(
+  2,
+  <I, B>(items: ReadonlyArray<I | B>, render: SegmentStrategy<I, B>): ReadonlyArray<string> =>
+    A.match(items, {
+      onEmpty: A.empty<string>,
+      onNonEmpty: flow(
+        A.groupWith((left, right) => render.isInline(left) === render.isInline(right)),
         A.flatMap((run) =>
-          isInline(A.headNonEmpty(run))
-            ? [renderInlineRun(A.filter(run, isInline))]
-            : A.getSomes(A.map(run, (item) => (isInline(item) ? O.none<string>() : O.some(renderBlock(item)))))
+          render.isInline(A.headNonEmpty(run))
+            ? [render.renderInlineRun(A.filter(run, render.isInline))]
+            : A.getSomes(
+                A.map(run, (item) => (render.isInline(item) ? O.none<string>() : O.some(render.renderBlock(item))))
+              )
         )
       ),
-  });
+    })
+);
 
 const renderPlainTextInlines: (children: ReadonlyArray<Inline>) => string = flow(
   A.map(renderPlainTextInline),
@@ -79,7 +110,14 @@ const renderPlainTextInlines: (children: ReadonlyArray<Inline>) => string = flow
 );
 
 const renderPlainTextListItemChildren = (children: ReadonlyArray<ListItemChild>): string =>
-  pipe(segmentInlineRuns(children, InlineSchema.is, renderPlainTextInlines, renderPlainTextBlock), A.join("\n"));
+  pipe(
+    segmentInlineRuns(children, {
+      isInline: InlineSchema.is,
+      renderInlineRun: renderPlainTextInlines,
+      renderBlock: renderPlainTextBlock,
+    }),
+    A.join("\n")
+  );
 
 const renderPlainTextListItem = (item: Li): string => renderPlainTextListItemChildren(item.children);
 

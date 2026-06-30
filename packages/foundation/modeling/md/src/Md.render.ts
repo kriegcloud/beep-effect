@@ -120,7 +120,11 @@ const renderHtmlInlines: (children: ReadonlyArray<Inline>) => string = flow(A.ma
 
 const renderMarkdownListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
   (items: ReadonlyArray<ListItemChild>) =>
-    segmentInlineRuns(items, InlineSchema.is, renderMarkdownInlines, renderMarkdownBlock),
+    segmentInlineRuns(items, {
+      isInline: InlineSchema.is,
+      renderInlineRun: renderMarkdownInlines,
+      renderBlock: renderMarkdownBlock,
+    }),
   A.join("\n")
 );
 
@@ -128,7 +132,11 @@ const renderMarkdownListItem = (item: Li): string => renderMarkdownListItemChild
 
 const renderHtmlListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
   (items: ReadonlyArray<ListItemChild>) =>
-    segmentInlineRuns(items, InlineSchema.is, renderHtmlInlines, renderHtmlBlock),
+    segmentInlineRuns(items, {
+      isInline: InlineSchema.is,
+      renderInlineRun: renderHtmlInlines,
+      renderBlock: renderHtmlBlock,
+    }),
   joinEmpty
 );
 

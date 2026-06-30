@@ -6,57 +6,57 @@
  */
 
 import { A, Str } from "@beep/utils";
-import type { Result } from "effect";
 import { Effect, Match } from "effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import type { Block, Inline, ListItemChild } from "./Md.model.ts";
 import {
-    A as ANode,
-    BlockQuote,
-    Block as BlockSchema,
-    Br,
-    Code,
-    CodeFenceLanguage,
-    Del,
-    Document,
-    Em,
-    Heading,
-    Hr,
-    Img,
-    Li,
-    Ol,
-    P as PNode,
-    Pre,
-    RawHtml,
-    RawMarkdown,
-    Strong,
-    Table,
-    TableCell,
-    TableRow,
-    TaskItem,
-    TaskList,
-    Text,
-    Ul,
-    YouTube,
+  A as ANode,
+  BlockQuote,
+  Block as BlockSchema,
+  Br,
+  Code,
+  CodeFenceLanguage,
+  Del,
+  Document,
+  Em,
+  Heading,
+  Hr,
+  Img,
+  Li,
+  Ol,
+  P as PNode,
+  Pre,
+  RawHtml,
+  RawMarkdown,
+  Strong,
+  Table,
+  TableCell,
+  TableRow,
+  TaskItem,
+  TaskList,
+  Text,
+  Ul,
+  YouTube,
 } from "./Md.model.ts";
 import {
-    HtmlFragmentAdapter,
-    MarkdownAdapter,
-    PlainTextAdapter,
-    render,
-    renderEffectWith,
-    renderEffectWithUnsafe,
-    renderHtml,
-    renderHtmlUnsafe,
-    renderPlainText,
-    renderPlainTextUnsafe,
-    renderUnsafe,
-    renderWith,
-    renderWithUnsafe,
+  HtmlFragmentAdapter,
+  MarkdownAdapter,
+  PlainTextAdapter,
+  render,
+  renderEffectWith,
+  renderEffectWithUnsafe,
+  renderHtml,
+  renderHtmlUnsafe,
+  renderPlainText,
+  renderPlainTextUnsafe,
+  renderUnsafe,
+  renderWith,
+  renderWithUnsafe,
 } from "./Md.render.ts";
+import type { Result } from "effect";
+import type { Block, Inline, ListItemChild } from "./Md.model.ts";
 
 /**
  * Inline constructor input accepted by text-oriented builders.

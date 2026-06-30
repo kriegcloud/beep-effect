@@ -102,6 +102,7 @@
     "standards/jsdoc-documentation.inventory.md",
     "standards/repo-exports.catalog.jsonc",
     "standards/repo-exports.catalog.md",
-    "packages/foundation/modeling/html/data/**"
+    "packages/foundation/modeling/html/data/**",
+    "THE_SCHEMA_IS_TRUTH_A_CATEGORICAL_FEVER_DREAM_FOR_THOSE_WITH_THE_HUEVOS.md"
   ]
 }

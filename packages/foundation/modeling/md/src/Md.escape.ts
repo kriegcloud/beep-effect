@@ -303,18 +303,16 @@ export const escapeHtmlUrlAttribute = flow(sanitizeUrlDestination, encodeUrlDest
  * @category utilities
  * @since 0.0.0
  */
-export const maxBackticks = (text: string): number =>
-  pipe(
-    text,
-    Str.match(backtickRunPattern),
-    O.map(
-      flow(
-        A.map(Str.length),
-        A.reduce(0, (longest, run) => N.max(longest, run))
-      )
-    ),
-    O.getOrElse(() => 0)
-  );
+export const maxBackticks: (text: string) => number = flow(
+  Str.match(backtickRunPattern),
+  O.map(
+    flow(
+      A.map(Str.length),
+      A.reduce(0, (longest, run) => N.max(longest, run))
+    )
+  ),
+  O.getOrElse(() => 0)
+);
 
 /**
  * Builds a Markdown inline code span with an adaptive backtick fence.
