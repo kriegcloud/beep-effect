@@ -6,9 +6,10 @@
  */
 
 import { $MdId } from "@beep/identity";
-import { dual } from "effect/Function";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { SchemaGetter } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type * as O from "effect/Option";
 
 const $I = $MdId.create("Md.model");
 
@@ -21,7 +22,7 @@ const youtubeVideoIdPattern = /^[A-Za-z0-9_-]{11}$/u;
  * @category models
  * @since 0.0.0
  */
-export const CodeFenceLanguage: S.Codec<string, string> = S.NonEmptyString.check(
+export const CodeFenceLanguage = S.NonEmptyString.check(
   S.isPattern(codeFenceLanguagePattern, {
     identifier: $I`CodeFenceLanguageCheck`,
     title: "Code Fence Language",
@@ -31,7 +32,8 @@ export const CodeFenceLanguage: S.Codec<string, string> = S.NonEmptyString.check
 ).pipe(
   $I.annoteSchema("CodeFenceLanguage", {
     description: "Single safe Markdown fenced-code info-string token.",
-  })
+  }),
+  SchemaUtils.withCodecStatics
 );
 
 /**
@@ -62,7 +64,8 @@ export const YouTubeVideoId = S.String.check(
 ).pipe(
   $I.annoteSchema("YouTubeVideoId", {
     description: "Bare 11-character YouTube video id accepted by Md YouTube embeds.",
-  })
+  }),
+  SchemaUtils.withCodecStatics
 );
 
 /**
@@ -120,9 +123,7 @@ export class Text extends S.TaggedClass<Text>($I`Text`)(
   $I.annote("Text", {
     description: "Plain escaped inline text.",
   })
-) {
-  static readonly fromValue = (value: string): Text => Text.make({ value });
-}
+) {}
 
 /**
  * Companion namespace for {@link Text}.
@@ -169,9 +170,7 @@ export class RawMarkdown extends S.TaggedClass<RawMarkdown>($I`RawMarkdown`)(
   $I.annote("RawMarkdown", {
     description: "Trusted raw Markdown inline content.",
   })
-) {
-  static readonly fromValue = (value: string): RawMarkdown => RawMarkdown.make({ value });
-}
+) {}
 
 /**
  * Companion namespace for {@link RawMarkdown}.
@@ -221,9 +220,7 @@ export class RawHtml extends S.TaggedClass<RawHtml>($I`RawHtml`)(
     description:
       "Raw HTML inline content for adapters that opt into trusted HTML rendering. The built-in HTML adapter escapes this value by default.",
   })
-) {
-  static readonly fromValue = (value: string): RawHtml => RawHtml.make({ value });
-}
+) {}
 
 /**
  * Companion namespace for {@link RawHtml}.
@@ -270,9 +267,7 @@ export class Strong extends S.TaggedClass<Strong>($I`Strong`)(
   $I.annote("Strong", {
     description: "Strong inline content.",
   })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type): Strong => Strong.make({ children });
-}
+) {}
 
 /**
  * Companion namespace for {@link Strong}.
@@ -322,9 +317,7 @@ export class Em extends S.TaggedClass<Em>($I`Em`)(
   $I.annote("Em", {
     description: "Emphasized inline content.",
   })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type): Em => Em.make({ children });
-}
+) {}
 
 /**
  * Companion namespace for {@link Em}.
@@ -374,9 +367,7 @@ export class Del extends S.TaggedClass<Del>($I`Del`)(
   $I.annote("Del", {
     description: "Deleted inline content.",
   })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type): Del => Del.make({ children });
-}
+) {}
 
 /**
  * Companion namespace for {@link Del}.
@@ -426,9 +417,7 @@ export class Code extends S.TaggedClass<Code>($I`Code`)(
   $I.annote("Code", {
     description: "Inline code span.",
   })
-) {
-  static readonly fromValue = (value: string): Code => Code.make({ value });
-}
+) {}
 
 /**
  * Companion namespace for {@link Code}.
@@ -478,12 +467,7 @@ export class A extends S.TaggedClass<A>($I`A`)(
   $I.annote("A", {
     description: "Inline hyperlink.",
   })
-) {
-  static readonly fromProps: {
-    (children: InlineChildren.Type, href: string): A;
-    (href: string): (children: InlineChildren.Type) => A;
-  } = dual(2, (children: InlineChildren.Type, href: string): A => A.make({ children, href }));
-}
+) {}
 
 /**
  * Companion namespace for {@link A}.
@@ -538,12 +522,7 @@ export class Img extends S.TaggedClass<Img>($I`Img`)(
   $I.annote("Img", {
     description: "Inline image.",
   })
-) {
-  static readonly fromProps: {
-    (src: string, alt: string): Img;
-    (alt: string): (src: string) => Img;
-  } = dual(2, (src: string, alt: string): Img => Img.make({ src, alt }));
-}
+) {}
 
 /**
  * Companion namespace for {@link Img}.
@@ -630,7 +609,8 @@ export const Inline = S.Union([Text, RawMarkdown, RawHtml, Strong, Em, Del, Code
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("Inline", {
     description: "Discriminated union of inline Markdown AST nodes.",
-  })
+  }),
+  SchemaUtils.withCodecStatics
 );
 
 /**
@@ -805,9 +785,7 @@ export class P extends S.TaggedClass<P>($I`P`)(
   $I.annote("P", {
     description: "Paragraph block.",
   })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => P.make({ children });
-}
+) {}
 
 /**
  * Companion namespace for {@link P}.
@@ -834,314 +812,90 @@ export declare namespace P {
 }
 
 /**
- * Level-one heading block.
+ * Heading level from one (largest) to six (smallest).
  *
  * @example
  * ```ts
- * import { H1, Text } from "@beep/md/Md.model"
+ * import { Result } from "effect"
+ * import * as S from "effect/Schema"
+ * import { HeadingLevel } from "@beep/md/Md.model"
  *
- * const node = H1.make({ children: [Text.make({ value: "Title" })] })
- * console.log(node._tag) // "h1"
+ * const level = Result.getOrThrow(S.decodeUnknownResult(HeadingLevel)(2))
+ * console.log(level) // 2
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-export class H1 extends S.TaggedClass<H1>($I`H1`)(
-  "h1",
-  {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as level-one heading content.",
-    }),
-  },
-  $I.annote("H1", {
-    description: "Level-one heading block.",
+export const HeadingLevel = LiteralKit([1, 2, 3, 4, 5, 6]).pipe(
+  $I.annoteSchema("HeadingLevel", {
+    description: "Markdown heading level from one (largest) to six (smallest).",
   })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => H1.make({ children });
-}
+);
 
 /**
- * Companion namespace for {@link H1}.
+ * Type for {@link HeadingLevel}.
  *
  * @category models
  * @since 0.0.0
  */
-export declare namespace H1 {
+export type HeadingLevel = typeof HeadingLevel.Type;
+
+/**
+ * Heading block carrying its level alongside inline content.
+ *
+ * @example
+ * ```ts
+ * import { Heading, Text } from "@beep/md/Md.model"
+ *
+ * const node = Heading.make({ level: 1, children: [Text.make({ value: "Title" })] })
+ * console.log(node._tag) // "heading"
+ * console.log(node.level) // 1
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class Heading extends S.TaggedClass<Heading>($I`Heading`)(
+  "heading",
+  {
+    level: HeadingLevel.annotateKey({
+      description: "Heading level from one (largest) to six (smallest).",
+    }),
+    children: InlineChildren.annotateKey({
+      description: "Inline children rendered as heading content.",
+    }),
+  },
+  $I.annote("Heading", {
+    description: "Heading block carrying its level alongside inline content.",
+  })
+) {
+  static readonly is = S.is(Heading);
+}
+
+/**
+ * Companion namespace for {@link Heading}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export declare namespace Heading {
   /**
    * @since 0.0.0
    */
   export interface Type {
-    readonly _tag: "h1";
+    readonly _tag: "heading";
     readonly children: InlineChildren.Type;
+    readonly level: HeadingLevel;
   }
 
   /**
    * @since 0.0.0
    */
   export interface Encoded {
-    readonly _tag: "h1";
+    readonly _tag: "heading";
     readonly children: InlineChildren.Encoded;
-  }
-}
-
-/**
- * Level-two heading block.
- *
- * @example
- * ```ts
- * import { H2, Text } from "@beep/md/Md.model"
- *
- * const node = H2.make({ children: [Text.make({ value: "Install" })] })
- * console.log(node._tag) // "h2"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class H2 extends S.TaggedClass<H2>($I`H2`)(
-  "h2",
-  {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as level-two heading content.",
-    }),
-  },
-  $I.annote("H2", {
-    description: "Level-two heading block.",
-  })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => H2.make({ children });
-}
-
-/**
- * Companion namespace for {@link H2}.
- *
- * @category models
- * @since 0.0.0
- */
-export declare namespace H2 {
-  /**
-   * @since 0.0.0
-   */
-  export interface Type {
-    readonly _tag: "h2";
-    readonly children: InlineChildren.Type;
-  }
-
-  /**
-   * @since 0.0.0
-   */
-  export interface Encoded {
-    readonly _tag: "h2";
-    readonly children: InlineChildren.Encoded;
-  }
-}
-
-/**
- * Level-three heading block.
- *
- * @example
- * ```ts
- * import { H3, Text } from "@beep/md/Md.model"
- *
- * const node = H3.make({ children: [Text.make({ value: "Config" })] })
- * console.log(node._tag) // "h3"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class H3 extends S.TaggedClass<H3>($I`H3`)(
-  "h3",
-  {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as level-three heading content.",
-    }),
-  },
-  $I.annote("H3", {
-    description: "Level-three heading block.",
-  })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => H3.make({ children });
-}
-
-/**
- * Companion namespace for {@link H3}.
- *
- * @category models
- * @since 0.0.0
- */
-export declare namespace H3 {
-  /**
-   * @since 0.0.0
-   */
-  export interface Type {
-    readonly _tag: "h3";
-    readonly children: InlineChildren.Type;
-  }
-
-  /**
-   * @since 0.0.0
-   */
-  export interface Encoded {
-    readonly _tag: "h3";
-    readonly children: InlineChildren.Encoded;
-  }
-}
-
-/**
- * Level-four heading block.
- *
- * @example
- * ```ts
- * import { H4, Text } from "@beep/md/Md.model"
- *
- * const node = H4.make({ children: [Text.make({ value: "Details" })] })
- * console.log(node._tag) // "h4"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class H4 extends S.TaggedClass<H4>($I`H4`)(
-  "h4",
-  {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as level-four heading content.",
-    }),
-  },
-  $I.annote("H4", {
-    description: "Level-four heading block.",
-  })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => H4.make({ children });
-}
-
-/**
- * Companion namespace for {@link H4}.
- *
- * @category models
- * @since 0.0.0
- */
-export declare namespace H4 {
-  /**
-   * @since 0.0.0
-   */
-  export interface Type {
-    readonly _tag: "h4";
-    readonly children: InlineChildren.Type;
-  }
-
-  /**
-   * @since 0.0.0
-   */
-  export interface Encoded {
-    readonly _tag: "h4";
-    readonly children: InlineChildren.Encoded;
-  }
-}
-
-/**
- * Level-five heading block.
- *
- * @example
- * ```ts
- * import { H5, Text } from "@beep/md/Md.model"
- *
- * const node = H5.make({ children: [Text.make({ value: "Notes" })] })
- * console.log(node._tag) // "h5"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class H5 extends S.TaggedClass<H5>($I`H5`)(
-  "h5",
-  {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as level-five heading content.",
-    }),
-  },
-  $I.annote("H5", {
-    description: "Level-five heading block.",
-  })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => H5.make({ children });
-}
-
-/**
- * Companion namespace for {@link H5}.
- *
- * @category models
- * @since 0.0.0
- */
-export declare namespace H5 {
-  /**
-   * @since 0.0.0
-   */
-  export interface Type {
-    readonly _tag: "h5";
-    readonly children: InlineChildren.Type;
-  }
-
-  /**
-   * @since 0.0.0
-   */
-  export interface Encoded {
-    readonly _tag: "h5";
-    readonly children: InlineChildren.Encoded;
-  }
-}
-
-/**
- * Level-six heading block.
- *
- * @example
- * ```ts
- * import { H6, Text } from "@beep/md/Md.model"
- *
- * const node = H6.make({ children: [Text.make({ value: "Footnote" })] })
- * console.log(node._tag) // "h6"
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-export class H6 extends S.TaggedClass<H6>($I`H6`)(
-  "h6",
-  {
-    children: InlineChildren.annotateKey({
-      description: "Inline children rendered as level-six heading content.",
-    }),
-  },
-  $I.annote("H6", {
-    description: "Level-six heading block.",
-  })
-) {
-  static readonly fromChildren = (children: InlineChildren.Type) => H6.make({ children });
-}
-
-/**
- * Companion namespace for {@link H6}.
- *
- * @category models
- * @since 0.0.0
- */
-export declare namespace H6 {
-  /**
-   * @since 0.0.0
-   */
-  export interface Type {
-    readonly _tag: "h6";
-    readonly children: InlineChildren.Type;
-  }
-
-  /**
-   * @since 0.0.0
-   */
-  export interface Encoded {
-    readonly _tag: "h6";
-    readonly children: InlineChildren.Encoded;
+    readonly level: number;
   }
 }
 
@@ -1170,7 +924,7 @@ export class Li extends S.TaggedClass<Li>($I`Li`)(
     description: "List item node used by ordered, unordered, and task lists.",
   })
 ) {
-  static readonly fromChildren = (children: ListItemChildren.Type) => Li.make({ children });
+  static readonly is = S.is(Li);
 }
 
 /**
@@ -1251,9 +1005,7 @@ export class Ul extends S.TaggedClass<Ul>($I`Ul`)(
   $I.annote("Ul", {
     description: "Unordered list block.",
   })
-) {
-  static readonly fromChildren = (children: ListChildren.Type) => Ul.make({ children });
-}
+) {}
 
 /**
  * Companion namespace for {@link Ul}.
@@ -1303,9 +1055,7 @@ export class Ol extends S.TaggedClass<Ol>($I`Ol`)(
   $I.annote("Ol", {
     description: "Ordered list block.",
   })
-) {
-  static readonly fromChildren = (children: ListChildren.Type) => Ol.make({ children });
-}
+) {}
 
 /**
  * Companion namespace for {@link Ol}.
@@ -1348,8 +1098,8 @@ export declare namespace Ol {
 export class TaskItem extends S.TaggedClass<TaskItem>($I`TaskItem`)(
   "taskItem",
   {
-    checked: S.Boolean.annotateKey({
-      description: "Whether the task list item is checked.",
+    checked: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
+      description: "Whether the task list item is checked. Defaults to unchecked on construction and decode.",
     }),
     children: ListItemChildren.annotateKey({
       description: "Inline and block children rendered as the task item label.",
@@ -1358,7 +1108,9 @@ export class TaskItem extends S.TaggedClass<TaskItem>($I`TaskItem`)(
   $I.annote("TaskItem", {
     description: "GFM task list item.",
   })
-) {}
+) {
+  static readonly is = S.is(TaskItem);
+}
 
 /**
  * Companion namespace for {@link TaskItem}.
@@ -1381,7 +1133,7 @@ export declare namespace TaskItem {
    */
   export interface Encoded {
     readonly _tag: "taskItem";
-    readonly checked: boolean;
+    readonly checked?: boolean;
     readonly children: ListItemChildren.Encoded;
   }
 }
@@ -1536,12 +1288,20 @@ export class Pre extends S.TaggedClass<Pre>($I`Pre`)(
   {
     // Encoded form must survive a JSON boundary (jsonb columns, rpc/ndjson
     // wire): S.Option(S.String) encodes to a real Option instance that does not
-    // round-trip through JSON, so persisted/transported documents fail to
-    // decode. Keep persisted AST decoding compatible with legacy free-form code
-    // fence info strings; render helpers sanitize through CodeFenceLanguage.
-    language: S.OptionFromNullOr(S.String).annotateKey({
-      description: "Optional language hint for fenced code rendering.",
-    }),
+    // round-trip through JSON, so persisted/transported documents stay
+    // `string | null` on the wire. Decoding folds legacy free-form info strings
+    // through CodeFenceLanguage, dropping non-conforming tokens to None so the
+    // rendered language is always a single safe token.
+    language: S.OptionFromNullOr(S.String)
+      .pipe(
+        S.decodeTo(S.Option(CodeFenceLanguage), {
+          decode: SchemaGetter.transform((language) => O.flatMap(language, S.decodeUnknownOption(CodeFenceLanguage))),
+          encode: SchemaGetter.transform((language) => language),
+        })
+      )
+      .annotateKey({
+        description: "Optional safe language hint for fenced code rendering.",
+      }),
     value: S.String.annotateKey({
       description: "Literal code block contents.",
     }),
@@ -1563,7 +1323,7 @@ export declare namespace Pre {
    */
   export interface Type {
     readonly _tag: "pre";
-    readonly language: O.Option<string>;
+    readonly language: O.Option<CodeFenceLanguage>;
     readonly value: string;
   }
 
@@ -1605,7 +1365,9 @@ export class TableCell extends S.TaggedClass<TableCell>($I`TableCell`)(
   $I.annote("TableCell", {
     description: "Table cell containing inline Markdown content.",
   })
-) {}
+) {
+  static readonly is = S.is(TableCell);
+}
 
 /**
  * Companion namespace for {@link TableCell}.
@@ -1655,7 +1417,9 @@ export class TableRow extends S.TaggedClass<TableRow>($I`TableRow`)(
   $I.annote("TableRow", {
     description: "Table row containing cells in column order.",
   })
-) {}
+) {
+  static readonly is = S.is(TableRow);
+}
 
 /**
  * Companion namespace for {@link TableRow}.
@@ -1701,8 +1465,8 @@ export declare namespace TableRow {
 export class Table extends S.TaggedClass<Table>($I`Table`)(
   "table",
   {
-    headerRow: S.Boolean.annotateKey({
-      description: "Whether the first row renders as a table header.",
+    headerRow: SchemaUtils.BoolKeyDefaultFalse.annotateKey({
+      description: "Whether the first row renders as a table header. Defaults to false on construction and decode.",
     }),
     children: S.Array(TableRow).annotateKey({
       description: "Table rows in display order.",
@@ -1735,7 +1499,7 @@ export declare namespace Table {
   export interface Encoded {
     readonly _tag: "table";
     readonly children: ReadonlyArray<TableRow.Encoded>;
-    readonly headerRow: boolean;
+    readonly headerRow?: boolean;
   }
 }
 
@@ -1845,11 +1609,12 @@ export declare namespace Hr {
  * @category models
  * @since 0.0.0
  */
-export const Block = S.Union([H1, H2, H3, H4, H5, H6, P, BlockQuote, Pre, Ul, Ol, TaskList, Table, YouTube, Hr]).pipe(
+export const Block = S.Union([Heading, P, BlockQuote, Pre, Ul, Ol, TaskList, Table, YouTube, Hr]).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("Block", {
     description: "Discriminated union of block Markdown AST nodes.",
-  })
+  }),
+  SchemaUtils.withCodecStatics
 );
 
 /**
@@ -1871,12 +1636,7 @@ export declare namespace Block {
    * @since 0.0.0
    */
   export type Type =
-    | H1.Type
-    | H2.Type
-    | H3.Type
-    | H4.Type
-    | H5.Type
-    | H6.Type
+    | Heading.Type
     | P.Type
     | BlockQuote.Type
     | Pre.Type
@@ -1891,12 +1651,7 @@ export declare namespace Block {
    * @since 0.0.0
    */
   export type Encoded =
-    | H1.Encoded
-    | H2.Encoded
-    | H3.Encoded
-    | H4.Encoded
-    | H5.Encoded
-    | H6.Encoded
+    | Heading.Encoded
     | P.Encoded
     | BlockQuote.Encoded
     | Pre.Encoded

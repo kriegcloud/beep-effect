@@ -21,6 +21,35 @@
 export const VERSION = "0.0.2" as const;
 
 /**
+ * Pure, escaping-free node behavior (plain-text projection and run segmentation).
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import { renderPlainTextBlocks } from "@beep/md"
+ *
+ * console.log(renderPlainTextBlocks([Md.h1("Hello")])) // "Hello"
+ * ```
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export * from "./Md.behavior.ts";
+/**
+ * Markdown and HTML escaping and URL-sanitization helpers.
+ *
+ * @example
+ * ```ts
+ * import { escapeMarkdownText } from "@beep/md"
+ *
+ * console.log(escapeMarkdownText("#")) // "\\#"
+ * ```
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export * from "./Md.escape.ts";
+/**
  * Schema-first Markdown AST models.
  *
  * @example
@@ -64,17 +93,3 @@ export * from "./Md.render.ts";
  * @category constructors
  */
 export * from "./Md.ts";
-/**
- * Low-level rendering utilities.
- *
- * @example
- * ```ts
- * import { escapeMarkdownText } from "@beep/md"
- *
- * console.log(escapeMarkdownText("#")) // "\\#"
- * ```
- *
- * @since 0.0.0
- * @category utilities
- */
-export * from "./Md.utils.ts";

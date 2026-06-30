@@ -18,11 +18,12 @@
 // cspell:word youtu
 import { $LexicalSchemaId } from "@beep/identity/packages";
 import * as Md from "@beep/md/Md.model";
-import { LiteralKit, NonNegativeInt, PosInt } from "@beep/schema";
-import { A, O, Str } from "@beep/utils";
+import { LiteralKit, NonNegativeInt, PosInt, SchemaUtils } from "@beep/schema";
+import { A, O } from "@beep/utils";
 import { Effect, SchemaGetter } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
+import { legacyYouTubeVideoId, sanitizeInlineStyle, sanitizeStyleValue } from "./Lexical.normalize.ts";
 import type { CodeFenceLanguage as MdCodeFenceLanguage } from "@beep/md/Md.model";
 import type * as R from "effect/Record";
 
@@ -30,39 +31,11 @@ const $I = $LexicalSchemaId.create("Lexical.model");
 type MdYouTubeVideoId = typeof Md.YouTubeVideoId.Type;
 
 const artifactRefIdPattern = /^[A-Za-z0-9][A-Za-z0-9_.:-]*$/u;
-const decodeCodeFenceLanguageOption = S.decodeUnknownOption(Md.CodeFenceLanguage);
 const decodeYouTubeVideoId = S.decodeUnknownEffect(Md.YouTubeVideoId);
-
-const firstPathSegment = (pathname: string): string => pathname.split("/").find(Str.isNonEmpty) ?? "";
-
-const legacyYouTubeVideoId = (value: string): string => {
-  const trimmed = Str.trim(value);
-
-  if (S.is(Md.YouTubeVideoId)(trimmed)) {
-    return trimmed;
-  }
-
-  try {
-    const url = new URL(trimmed);
-    const hostname = url.hostname.replace(/^www\./u, "");
-
-    if (hostname === "youtu.be") {
-      return firstPathSegment(url.pathname);
-    }
-
-    if (hostname === "youtube.com" || hostname.endsWith(".youtube.com")) {
-      return url.searchParams.get("v") ?? firstPathSegment(url.pathname.replace(/^\/(?:embed|shorts)\//u, ""));
-    }
-  } catch {
-    return trimmed;
-  }
-
-  return trimmed;
-};
 
 const CodeNodeLanguage = S.OptionFromOptionalNullOr(S.String).pipe(
   S.decodeTo(S.Option(Md.CodeFenceLanguage), {
-    decode: SchemaGetter.transform((language) => O.flatMap(language, decodeCodeFenceLanguageOption)),
+    decode: SchemaGetter.transform((language) => O.flatMap(language, Md.CodeFenceLanguage.decodeOption)),
     encode: SchemaGetter.transform((language) => language),
   }),
   $I.annoteSchema("CodeNodeLanguage", {
@@ -178,18 +151,7 @@ export type TextFormatBit = typeof TextFormatBit.Type;
  * @category constants
  * @since 0.0.0
  */
-export const TEXT_FORMAT_MASK_ALL =
-  TextFormatBits.bold |
-  TextFormatBits.italic |
-  TextFormatBits.strikethrough |
-  TextFormatBits.underline |
-  TextFormatBits.code |
-  TextFormatBits.subscript |
-  TextFormatBits.superscript |
-  TextFormatBits.highlight |
-  TextFormatBits.lowercase |
-  TextFormatBits.uppercase |
-  TextFormatBits.capitalize;
+export const TEXT_FORMAT_MASK_ALL = A.reduce(TextFormatBit.Options, 0, (mask, bit) => mask | bit);
 
 const TextFormatMaskBase = NonNegativeInt.check(
   S.isLessThanOrEqualTo(TEXT_FORMAT_MASK_ALL, {
@@ -280,7 +242,7 @@ export type TextDetailBit = typeof TextDetailBit.Type;
  * @category constants
  * @since 0.0.0
  */
-export const TEXT_DETAIL_MASK_ALL = TextDetailBits.directionless | TextDetailBits.unmergeable;
+export const TEXT_DETAIL_MASK_ALL = A.reduce(TextDetailBit.Options, 0, (mask, bit) => mask | bit);
 
 const TextDetailMaskBase = NonNegativeInt.check(
   S.isLessThanOrEqualTo(TEXT_DETAIL_MASK_ALL, {
@@ -412,7 +374,8 @@ export const ArtifactRefId = S.NonEmptyString.check(
 ).pipe(
   $I.annoteSchema("ArtifactRefId", {
     description: "Non-empty artifact reference id accepted by package-owned Lexical artifact-ref nodes.",
-  })
+  }),
+  SchemaUtils.withCodecStatics
 );
 
 /**
@@ -635,56 +598,6 @@ export const ListTag = LiteralKit(["ul", "ol"]).pipe(
 export type ListTag = typeof ListTag.Type;
 
 /**
- * Allowlist of inline CSS properties that are safe to preserve on serialized
- * Lexical text/element nodes. Anything outside this set — positioning, overlay,
- * stacking, animation, transforms, and any URL-bearing or function-call value —
- * is dropped, because a serialized editor state can originate from untrusted
- * persisted/synced content and Lexical renders these strings directly as DOM
- * `style` attributes (UI redressing / external resource beacons otherwise).
- */
-const SAFE_INLINE_STYLE_PROPERTIES: ReadonlyArray<string> = [
-  "color",
-  "background-color",
-  "font-weight",
-  "font-style",
-  "font-family",
-  "font-size",
-  "text-decoration",
-  "text-decoration-line",
-  "text-decoration-style",
-  "text-decoration-color",
-  "text-align",
-  "text-transform",
-  "letter-spacing",
-  "line-height",
-  "vertical-align",
-  "white-space",
-];
-
-const isSafeStyleValue = (value: string): boolean =>
-  Str.isNonEmpty(value) && !Str.includes("url(")(value) && !Str.includes("(")(value) && !Str.includes("\\")(value);
-
-const parseSafeDeclaration = (declaration: string): O.Option<string> => {
-  const colon = Str.indexOf(":")(declaration);
-  return O.flatMap(colon, (index) => {
-    const property = Str.toLowerCase(Str.trim(Str.takeLeft(declaration, index)));
-    const value = Str.trim(Str.slice(index + 1)(declaration));
-    return A.contains(SAFE_INLINE_STYLE_PROPERTIES, property) && isSafeStyleValue(value)
-      ? O.some(`${property}: ${value}`)
-      : O.none();
-  });
-};
-
-/**
- * Sanitizes a serialized Lexical inline `style`/`textStyle` string down to an
- * allowlist of safe presentation declarations, dropping anything that could be
- * weaponized for UI redressing or external resource fetches. Empty input (the
- * common Lexical default) round-trips to the empty string.
- */
-const sanitizeInlineStyle = (style: string): string =>
-  Str.isEmpty(Str.trim(style)) ? "" : A.join(A.getSomes(A.map(Str.split(style, ";"), parseSafeDeclaration)), "; ");
-
-/**
  * Serialized Lexical inline CSS, sanitized at the schema boundary on both
  * decode and encode so that neither persisted untrusted state nor re-encoded
  * viewer/composer state can carry attacker-controlled CSS into the DOM.
@@ -716,18 +629,6 @@ export const SafeInlineStyle: S.decodeTo<S.toType<S.String>, S.String> = S.Strin
     toArbitrary: () => (fc) => fc.string().map(sanitizeInlineStyle),
   })
 );
-
-/**
- * Sanitizes a serialized Lexical bare CSS value (e.g. a table cell
- * `backgroundColor` or `verticalAlign`) that Lexical renders into a single DOM
- * `style` declaration. Any value that smuggles a second declaration (`;`), a
- * function call / URL (`(`), or an escape (`\`) is dropped to the empty string,
- * preventing the bare-value sink from being used for CSS injection.
- */
-const sanitizeStyleValue = (value: string): string => {
-  const trimmed = Str.trim(value);
-  return isSafeStyleValue(trimmed) && !Str.includes(";")(trimmed) && !Str.includes(":")(trimmed) ? trimmed : "";
-};
 
 /**
  * Serialized Lexical single CSS value (table cell `backgroundColor` /
@@ -776,11 +677,15 @@ export const SafeStyleValue: S.decodeTo<S.toType<S.String>, S.String> = S.String
  */
 export class BaseNode extends S.Class<BaseNode>($I`BaseNode`)(
   {
-    version: LexicalNodeVersion.annotateKey({
-      description: "Serialized Lexical node schema version; Lexical currently writes version 1 for built-in nodes.",
-    }),
+    version: LexicalNodeVersion.pipe(
+      SchemaUtils.withConstantDefault(1),
+      S.annotateKey({
+        description: "Serialized Lexical node schema version; Lexical currently writes version 1 for built-in nodes.",
+      })
+    ),
     $: S.Record(S.String, S.Unknown).pipe(
       S.OptionFromOptionalKey,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({
         description:
           "Optional NODE_STATE_KEY payload containing arbitrary persisted Lexical NodeState values keyed by state name.",
@@ -857,19 +762,30 @@ export class ElementNode extends BaseNode.extend<ElementNode>($I`ElementNode`)(
     children: NodeChildren.annotateKey({
       description: "Child nodes in document order, recursively decoded through the LexicalNode tagged union.",
     }),
-    direction: S.OptionFromNullOr(Direction).annotateKey({
-      description: "Optional text direction decoded from Lexical's nullable direction field.",
-    }),
-    format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the element." }),
-    indent: LexicalIndentDepth.annotateKey({ description: "Lexical indentation depth for nested block layout." }),
+    direction: S.OptionFromNullOr(Direction).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({
+        description: "Optional text direction decoded from Lexical's nullable direction field.",
+      })
+    ),
+    format: ElementFormat.pipe(
+      SchemaUtils.withConstantDefault<ElementFormat>(""),
+      S.annotateKey({ description: "Block alignment format token applied to the element." })
+    ),
+    indent: LexicalIndentDepth.pipe(
+      SchemaUtils.withConstantDefault<number>(0),
+      S.annotateKey({ description: "Lexical indentation depth for nested block layout." })
+    ),
     textFormat: TextFormatMask.pipe(
       S.OptionFromOptionalKey,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({
         description: "Optional TextFormatType bitmask applied to newly inserted text within the element.",
       })
     ),
     textStyle: SafeInlineStyle.pipe(
       S.OptionFromOptionalKey,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({
         description:
           "Optional CSS style applied to newly inserted text within the element, sanitized to an allowlist of safe presentation properties.",
@@ -1008,15 +924,7 @@ export class TextNode extends TextBase.extend<TextNode>($I`TextNode`)(
     type: S.tag("text"),
   },
   $I.annote("TextNode", { description: "A serialized Lexical text leaf node." })
-) {
-  /**
-   * Plain-text projection of a text node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: TextNode.Type) => node.text;
-}
+) {}
 
 /**
  * Companion namespace for {@link TextNode}.
@@ -1068,15 +976,7 @@ export class TabNode extends TextBase.extend<TabNode>($I`TabNode`)(
     type: S.tag("tab"),
   },
   $I.annote("TabNode", { description: "A serialized Lexical tab leaf node." })
-) {
-  /**
-   * Plain-text projection of a tab node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (_node: TabNode.Type) => "\t";
-}
+) {}
 
 /**
  * Companion namespace for {@link TabNode}.
@@ -1126,15 +1026,7 @@ export class LineBreakNode extends BaseNode.extend<LineBreakNode>($I`LineBreakNo
     type: S.tag("linebreak"),
   },
   $I.annote("LineBreakNode", { description: "A serialized Lexical line-break leaf node." })
-) {
-  /**
-   * Plain-text projection of a line-break node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (_node: LineBreakNode.Type) => "\n";
-}
+) {}
 
 /**
  * Companion namespace for {@link LineBreakNode}.
@@ -1182,15 +1074,7 @@ export class RootNode extends ElementNode.extend<RootNode>($I`RootNode`)(
     type: S.tag("root"),
   },
   $I.annote("RootNode", { description: "The serialized Lexical document root element." })
-) {
-  /**
-   * Plain-text projection of the root node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: RootNode.Type) => childText(node.children);
-}
+) {}
 
 /**
  * Companion namespace for {@link RootNode}.
@@ -1238,15 +1122,7 @@ export class ParagraphNode extends ElementNode.extend<ParagraphNode>($I`Paragrap
     type: S.tag("paragraph"),
   },
   $I.annote("ParagraphNode", { description: "A serialized Lexical paragraph element node." })
-) {
-  /**
-   * Plain-text projection of a paragraph node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: ParagraphNode.Type) => `${childText(node.children)}\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link ParagraphNode}.
@@ -1295,15 +1171,7 @@ export class HeadingNode extends ElementNode.extend<HeadingNode>($I`HeadingNode`
     tag: HeadingTag.annotateKey({ description: "Heading level tag." }),
   },
   $I.annote("HeadingNode", { description: "A serialized Lexical heading element node." })
-) {
-  /**
-   * Plain-text projection of a heading node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: HeadingNode.Type) => `${childText(node.children)}\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link HeadingNode}.
@@ -1353,15 +1221,7 @@ export class QuoteNode extends ElementNode.extend<QuoteNode>($I`QuoteNode`)(
     type: S.tag("quote"),
   },
   $I.annote("QuoteNode", { description: "A serialized Lexical block-quote element node." })
-) {
-  /**
-   * Plain-text projection of a quote node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: QuoteNode.Type) => `${childText(node.children)}\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link QuoteNode}.
@@ -1414,12 +1274,12 @@ export class ListNode extends ElementNode.extend<ListNode>($I`ListNode`)(
   $I.annote("ListNode", { description: "A serialized Lexical list element node." })
 ) {
   /**
-   * Plain-text projection of a list node.
+   * Type guard narrowing an arbitrary Lexical node to a list node.
    *
-   * @category getters
+   * @category guards
    * @since 0.0.0
    */
-  static readonly toText = (node: ListNode.Type) => `${childText(node.children)}\n`;
+  static readonly is = S.is(ListNode);
 }
 
 /**
@@ -1473,21 +1333,16 @@ export declare namespace ListNode {
 export class ListItemNode extends ElementNode.extend<ListItemNode>($I`ListItemNode`)(
   {
     type: S.tag("listitem"),
-    checked: S.OptionFromOptional(S.Boolean).annotateKey({
-      description: "Checkbox state for check lists; absent otherwise.",
-    }),
+    checked: S.OptionFromOptional(S.Boolean).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({
+        description: "Checkbox state for check lists; absent otherwise.",
+      })
+    ),
     value: LexicalListItemValue.annotateKey({ description: "Ordinal value within the list." }),
   },
   $I.annote("ListItemNode", { description: "A serialized Lexical list-item element node." })
-) {
-  /**
-   * Plain-text projection of a list-item node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: ListItemNode.Type) => `- ${childText(node.children)}\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link ListItemNode}.
@@ -1538,20 +1393,21 @@ export class LinkNode extends ElementNode.extend<LinkNode>($I`LinkNode`)(
   {
     type: S.tag("link"),
     url: S.String.annotateKey({ description: "The link target URL." }),
-    rel: S.OptionFromOptionalNullOr(S.String).annotateKey({ description: "Optional anchor rel attribute." }),
-    target: S.OptionFromOptionalNullOr(S.String).annotateKey({ description: "Optional anchor target attribute." }),
-    title: S.OptionFromOptionalNullOr(S.String).annotateKey({ description: "Optional anchor title attribute." }),
+    rel: S.OptionFromOptionalNullOr(S.String).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({ description: "Optional anchor rel attribute." })
+    ),
+    target: S.OptionFromOptionalNullOr(S.String).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({ description: "Optional anchor target attribute." })
+    ),
+    title: S.OptionFromOptionalNullOr(S.String).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({ description: "Optional anchor title attribute." })
+    ),
   },
   $I.annote("LinkNode", { description: "A serialized Lexical hyperlink element node." })
-) {
-  /**
-   * Plain-text projection of a link node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: LinkNode.Type) => childText(node.children);
-}
+) {}
 
 /**
  * Companion namespace for {@link LinkNode}.
@@ -1606,21 +1462,19 @@ export declare namespace LinkNode {
 export class CodeNode extends ElementNode.extend<CodeNode>($I`CodeNode`)(
   {
     type: S.tag("code"),
-    language: CodeNodeLanguage.annotateKey({
-      description: "Optional code-fence language identifier.",
-    }),
-    theme: S.OptionFromOptional(S.String).annotateKey({ description: "Optional code highlight theme." }),
+    language: CodeNodeLanguage.pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({
+        description: "Optional code-fence language identifier.",
+      })
+    ),
+    theme: S.OptionFromOptional(S.String).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({ description: "Optional code highlight theme." })
+    ),
   },
   $I.annote("CodeNode", { description: "A serialized Lexical fenced code-block element node." })
-) {
-  /**
-   * Plain-text projection of a code node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: CodeNode.Type) => `\`\`\`\n${childText(node.children)}\n\`\`\`\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link CodeNode}.
@@ -1677,20 +1531,15 @@ export class ArtifactRefNode extends BaseNode.extend<ArtifactRefNode>($I`Artifac
   {
     type: S.tag("artifact-ref"),
     artifactId: ArtifactRefId.annotateKey({ description: "Identifier of the referenced runtime artifact." }),
-    label: S.OptionFromOptionalKey(S.NonEmptyString).annotateKey({
-      description: "Optional human-readable label; defaults to the artifact id when absent.",
-    }),
+    label: S.OptionFromOptionalKey(S.NonEmptyString).pipe(
+      SchemaUtils.withNoneDefault,
+      S.annotateKey({
+        description: "Optional human-readable label; defaults to the artifact id when absent.",
+      })
+    ),
   },
   $I.annote("ArtifactRefNode", { description: "A serialized block-level reference to a runtime artifact." })
-) {
-  /**
-   * Plain-text projection of an artifact-ref node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: ArtifactRefNode.Type) => `[artifact:${node.artifactId}]\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link ArtifactRefNode}.
@@ -1750,18 +1599,13 @@ export class YouTubeNode extends BaseNode.extend<YouTubeNode>($I`YouTubeNode`)(
     videoID: YouTubeVideoIdFromLegacyInput.annotateKey({
       description: "The bare YouTube video id rendered by the decorator block.",
     }),
-    format: ElementFormat.annotateKey({ description: "Block alignment format token applied to the embed." }),
+    format: ElementFormat.pipe(
+      SchemaUtils.withConstantDefault<ElementFormat>(""),
+      S.annotateKey({ description: "Block alignment format token applied to the embed." })
+    ),
   },
   $I.annote("YouTubeNode", { description: "A serialized YouTube decorator block node." })
-) {
-  /**
-   * Plain-text projection of a YouTube node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: YouTubeNode.Type) => `https://www.youtube.com/watch?v=${node.videoID}\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link YouTubeNode}.
@@ -1816,24 +1660,29 @@ export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCel
     }),
     colSpan: TableCellSpan.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional colspan for merged table cells." })
     ),
     rowSpan: TableCellSpan.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional rowspan for merged table cells." })
     ),
     width: TableDimension.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional cell width emitted by Lexical table nodes." })
     ),
-    backgroundColor: S.NullOr(SafeStyleValue).pipe(
-      S.OptionFromOptional,
+    backgroundColor: SafeStyleValue.pipe(
+      S.OptionFromOptionalNullOr,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({
         description: "Optional cell background color emitted by Lexical table nodes, sanitized to a safe CSS value.",
       })
     ),
     verticalAlign: SafeStyleValue.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({
         description: "Optional vertical alignment emitted by Lexical table nodes, sanitized to a safe CSS value.",
       })
@@ -1842,12 +1691,12 @@ export class TableCellNode extends ElementNode.extend<TableCellNode>($I`TableCel
   $I.annote("TableCellNode", { description: "A serialized Lexical table cell element node." })
 ) {
   /**
-   * Plain-text projection of a table cell node.
+   * Type guard narrowing an arbitrary Lexical node to a table cell node.
    *
-   * @category getters
+   * @category guards
    * @since 0.0.0
    */
-  static readonly toText = (node: TableCellNode.Type) => `${Str.trim(childText(node.children))}\t`;
+  static readonly is = S.is(TableCellNode);
 }
 
 /**
@@ -1864,7 +1713,7 @@ export declare namespace TableCellNode {
    * @since 0.0.0
    */
   export interface Type extends ElementNode.Type {
-    readonly backgroundColor: O.Option<string | null>;
+    readonly backgroundColor: O.Option<string>;
     readonly colSpan: O.Option<TableCellSpan>;
     readonly headerState: TableCellHeaderState;
     readonly rowSpan: O.Option<TableCellSpan>;
@@ -1908,18 +1757,19 @@ export class TableRowNode extends ElementNode.extend<TableRowNode>($I`TableRowNo
     type: S.tag("tablerow"),
     height: TableDimension.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional row height emitted by Lexical table nodes." })
     ),
   },
   $I.annote("TableRowNode", { description: "A serialized Lexical table row element node." })
 ) {
   /**
-   * Plain-text projection of a table row node.
+   * Type guard narrowing an arbitrary Lexical node to a table row node.
    *
-   * @category getters
+   * @category guards
    * @since 0.0.0
    */
-  static readonly toText = (node: TableRowNode.Type) => `${childText(node.children)}\n`;
+  static readonly is = S.is(TableRowNode);
 }
 
 /**
@@ -1970,31 +1820,27 @@ export class TableNode extends ElementNode.extend<TableNode>($I`TableNode`)(
     type: S.tag("table"),
     colWidths: S.Array(TableDimension).pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional table column widths emitted by Lexical table nodes." })
     ),
     rowStriping: S.Boolean.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional row-striping flag emitted by Lexical table nodes." })
     ),
     frozenColumnCount: NonNegativeInt.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional number of frozen columns emitted by Lexical table nodes." })
     ),
     frozenRowCount: NonNegativeInt.pipe(
       S.OptionFromOptional,
+      SchemaUtils.withNoneDefault,
       S.annotateKey({ description: "Optional number of frozen rows emitted by Lexical table nodes." })
     ),
   },
   $I.annote("TableNode", { description: "A serialized Lexical table element node." })
-) {
-  /**
-   * Plain-text projection of a table node.
-   *
-   * @category getters
-   * @since 0.0.0
-   */
-  static readonly toText = (node: TableNode.Type) => `${childText(node.children)}\n`;
-}
+) {}
 
 /**
  * Companion namespace for {@link TableNode}.
@@ -2218,60 +2064,3 @@ export const EditorStateFromJson = S.fromJsonString(SerializedEditorState).pipe(
     description: "Serialized Lexical editor state codec over its JSON string wire form.",
   })
 );
-
-const childText = (children: ReadonlyArray<LexicalNode.Type>): string => A.join(A.map(children, nodeToPlainText), "");
-
-/**
- * Plain-text projection over the full node union (prompt construction,
- * previews).
- *
- * @example
- * ```ts
- * import * as S from "effect/Schema"
- * import { LexicalNode, nodeToPlainText } from "@beep/lexical-schema/Lexical.model"
- *
- * const node = S.decodeUnknownSync(LexicalNode)({ type: "linebreak", version: 1 })
- * console.log(JSON.stringify(nodeToPlainText(node))) // "\"\\n\""
- * ```
- *
- * @category getters
- * @since 0.0.0
- */
-export const nodeToPlainText: (node: LexicalNode.Type) => string = LexicalNode.match({
-  text: TextNode.toText,
-  tab: TabNode.toText,
-  linebreak: LineBreakNode.toText,
-  "artifact-ref": ArtifactRefNode.toText,
-  root: RootNode.toText,
-  paragraph: ParagraphNode.toText,
-  heading: HeadingNode.toText,
-  quote: QuoteNode.toText,
-  list: ListNode.toText,
-  listitem: ListItemNode.toText,
-  link: LinkNode.toText,
-  code: CodeNode.toText,
-  youtube: YouTubeNode.toText,
-  table: TableNode.toText,
-  tablerow: TableRowNode.toText,
-  tablecell: TableCellNode.toText,
-});
-
-/**
- * Plain-text projection of a full editor state.
- *
- * @example
- * ```ts
- * import * as S from "effect/Schema"
- * import { SerializedEditorState, editorStateToPlainText } from "@beep/lexical-schema/Lexical.model"
- *
- * const state = S.decodeUnknownSync(SerializedEditorState)({
- *   root: { type: "root", version: 1, children: [], direction: null, format: "", indent: 0 }
- * })
- * console.log(editorStateToPlainText(state)) // ""
- * ```
- *
- * @category getters
- * @since 0.0.0
- */
-export const editorStateToPlainText = (state: SerializedEditorState.Type): string =>
-  Str.trim(nodeToPlainText(state.root));

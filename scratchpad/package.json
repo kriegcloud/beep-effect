@@ -9,10 +9,12 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "effect": "catalog:",
-    "lexical": "catalog:"
+    "lexical": "catalog:",
+    "n3": "^2.1.0"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@types/n3": "^1.26.1",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

@@ -27,9 +27,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./Md": "./src/Md.ts",
+    "./Md.behavior": "./src/Md.behavior.ts",
+    "./Md.escape": "./src/Md.escape.ts",
     "./Md.model": "./src/Md.model.ts",
     "./Md.render": "./src/Md.render.ts",
-    "./Md.utils": "./src/Md.utils.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -47,9 +48,10 @@
     "exports": {
       ".": "./dist/index.js",
       "./Md": "./dist/Md.js",
+      "./Md.behavior": "./dist/Md.behavior.js",
+      "./Md.escape": "./dist/Md.escape.js",
       "./Md.model": "./dist/Md.model.js",
       "./Md.render": "./dist/Md.render.js",
-      "./Md.utils": "./dist/Md.utils.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }

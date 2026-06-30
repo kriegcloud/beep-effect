@@ -13,7 +13,7 @@ import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Document as DocumentSchema, Inline as InlineSchema, TableCell, TableRow } from "./Md.model.ts";
+import { renderPlainTextBlocks, segmentInlineRuns } from "./Md.behavior.ts";
 import {
   escapeHtmlUrlAttribute,
   escapeMarkdownDestination,
@@ -22,39 +22,14 @@ import {
   prefixLines,
   renderFencedCode,
   renderInlineCode,
-  sanitizeCodeFenceLanguage,
-} from "./Md.utils.ts";
-import type {
-  Block,
-  Document,
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  Inline,
-  Li,
-  ListItemChild,
-  Table,
-  TaskItem,
-} from "./Md.model.ts";
+} from "./Md.escape.ts";
+import { Document as DocumentSchema, Inline as InlineSchema, TableCell, TableRow } from "./Md.model.ts";
+import type { Block, Document, Heading, Inline, Li, ListItemChild, Table, TaskItem } from "./Md.model.ts";
 
 const $I = $MdId.create("Md.render");
 const joinEmpty = A.join("");
 const lineSeparatorPattern = /\r\n?|\n/;
 const lineSeparatorGlobalPattern = /\r\n?|\n/g;
-const headingMarkerCount = {
-  h1: 1,
-  h2: 2,
-  h3: 3,
-  h4: 4,
-  h5: 5,
-  h6: 6,
-} as const;
-
-type HeadingBlock = H1 | H2 | H3 | H4 | H5 | H6;
-const isInlineListItemChild = S.is(InlineSchema);
 
 /**
  * Error raised when a render adapter fails while producing output.
@@ -143,44 +118,17 @@ const renderMarkdownLinkLabelInlines: (children: ReadonlyArray<Inline>) => strin
 
 const renderHtmlInlines: (children: ReadonlyArray<Inline>) => string = flow(A.map(renderHtmlInline), joinEmpty);
 
-const renderListItemChildSegments = (
-  children: ReadonlyArray<ListItemChild>,
-  renderInlines: (children: ReadonlyArray<Inline>) => string,
-  renderBlock: (block: Block) => string
-): ReadonlyArray<string> => {
-  const out: Array<string> = [];
-  let pendingInlines: Array<Inline> = [];
-  const flushInlines = (): void => {
-    if (pendingInlines.length > 0) {
-      A.appendInPlace(out, renderInlines(pendingInlines));
-      pendingInlines = [];
-    }
-  };
-
-  for (const child of children) {
-    if (isInlineListItemChild(child)) {
-      A.appendInPlace(pendingInlines, child);
-    } else {
-      flushInlines();
-      A.appendInPlace(out, renderBlock(child));
-    }
-  }
-
-  flushInlines();
-
-  return out;
-};
-
 const renderMarkdownListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
   (items: ReadonlyArray<ListItemChild>) =>
-    renderListItemChildSegments(items, renderMarkdownInlines, renderMarkdownBlock),
+    segmentInlineRuns(items, InlineSchema.is, renderMarkdownInlines, renderMarkdownBlock),
   A.join("\n")
 );
 
 const renderMarkdownListItem = (item: Li): string => renderMarkdownListItemChildren(item.children);
 
 const renderHtmlListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
-  (items: ReadonlyArray<ListItemChild>) => renderListItemChildSegments(items, renderHtmlInlines, renderHtmlBlock),
+  (items: ReadonlyArray<ListItemChild>) =>
+    segmentInlineRuns(items, InlineSchema.is, renderHtmlInlines, renderHtmlBlock),
   joinEmpty
 );
 
@@ -284,11 +232,11 @@ const youtubeEmbedUrl = (videoId: string): string => `https://www.youtube-nocook
 const renderEscapedRawHtmlAsMarkdown = ({ value }: { readonly value: string }): string => escapeMarkdownText(value);
 const renderEscapedRawHtmlAsHtml = ({ value }: { readonly value: string }): string => Html.escapeHtml(value);
 
-const renderMarkdownHeading = (block: HeadingBlock): string =>
-  `${pipe("#", Str.repeat(headingMarkerCount[block._tag]))} ${renderMarkdownInlines(block.children)}`;
+const renderMarkdownHeading = (block: Heading): string =>
+  `${pipe("#", Str.repeat(block.level))} ${renderMarkdownInlines(block.children)}`;
 
-const renderHtmlHeading = (block: HeadingBlock): string =>
-  `<${block._tag}>${renderHtmlInlines(block.children)}</${block._tag}>`;
+const renderHtmlHeading = (block: Heading): string =>
+  `<h${block.level}>${renderHtmlInlines(block.children)}</h${block.level}>`;
 
 const indentContinuationLines = (text: string, indent: string): string =>
   pipe(
@@ -307,30 +255,24 @@ const renderMarkdownMarkedItem: {
     `${marker}${indentContinuationLines(content, pipe(" ", Str.repeat(Str.length(marker))))}`
 );
 
-const languageToMarkdown = O.match({
-  onNone: thunkEmptyStr,
-  onSome: identity,
-});
+// Pre.language already carries a validated CodeFenceLanguage (or None), so the
+// language reads straight through without re-sanitizing here.
+const languageToMarkdown: (language: O.Option<string>) => string = O.getOrElse(thunkEmptyStr);
 
 const languageToHtmlClass = O.match({
   onNone: thunkEmptyStr,
-  onSome: flow(
-    sanitizeCodeFenceLanguage,
-    O.liftPredicate(Str.isNonEmpty),
-    O.map(flow(Html.escapeHtml, (language) => ` class="language-${language}"`)),
-    O.getOrElse(thunkEmptyStr)
-  ),
+  onSome: flow(Html.escapeHtml, (language) => ` class="language-${language}"`),
 });
 
 const causeMessage = (cause: unknown): string =>
   Result.getOrElse(
-    Result.try(() => {
-      if (P.isError(cause)) {
-        return cause.message;
-      }
-
-      return P.isSymbol(cause) ? globalThis.String(cause) : `${cause}`;
-    }),
+    Result.try(() =>
+      Match.value(cause).pipe(
+        Match.when(P.isError, (error) => error.message),
+        Match.when(P.isSymbol, (symbol) => globalThis.String(symbol)),
+        Match.orElse((value) => `${value}`)
+      )
+    ),
     () => "Cannot render thrown value."
   );
 
@@ -353,48 +295,32 @@ const renderMarkdownDocumentUnsafe = (document: Document): Markdown => renderMar
 
 const renderHtmlDocumentUnsafe = (document: Document): HtmlFragment => renderHtmlBlocks(document.children);
 
-/**
- * Renders an inline node as Markdown.
- *
- * @example
- * ```ts
- * import { Md } from "@beep/md"
- * import { renderMarkdownInline } from "@beep/md/Md.render"
- *
- * console.log(renderMarkdownInline(Md.strong("beep"))) // "**beep**"
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-const renderMarkdownInlineMatcher = Match.type<Inline>().pipe(
-  Match.tagsExhaustive({
-    text: ({ value }) => escapeMarkdownText(value),
-    rawMarkdown: ({ value }) => value,
-    rawHtml: renderEscapedRawHtmlAsMarkdown,
-    strong: ({ children }) => `**${renderMarkdownInlines(children)}**`,
-    em: ({ children }) => `*${renderMarkdownInlines(children)}*`,
-    del: ({ children }) => `~~${renderMarkdownInlines(children)}~~`,
-    code: ({ value }) => renderInlineCode(value),
-    a: ({ href, children }) => `[${renderMarkdownLinkLabelInlines(children)}](${escapeMarkdownDestination(href)})`,
-    img: ({ src, alt }) => `![${escapeMarkdownText(alt)}](${escapeMarkdownDestination(src)})`,
-    br: () => "<br/>",
-  })
-);
+// The standalone and link-label Markdown inline matchers differ only in how
+// nested inlines recurse and how a trusted `rawMarkdown` leaf is emitted, so a
+// single factory parameterizes both.
+const makeMarkdownInlineMatcher = (
+  renderInlines: (children: ReadonlyArray<Inline>) => string,
+  renderRawMarkdown: (node: { readonly value: string }) => string
+) =>
+  Match.type<Inline>().pipe(
+    Match.tagsExhaustive({
+      text: ({ value }) => escapeMarkdownText(value),
+      rawMarkdown: renderRawMarkdown,
+      rawHtml: renderEscapedRawHtmlAsMarkdown,
+      strong: ({ children }) => `**${renderInlines(children)}**`,
+      em: ({ children }) => `*${renderInlines(children)}*`,
+      del: ({ children }) => `~~${renderInlines(children)}~~`,
+      code: ({ value }) => renderInlineCode(value),
+      a: ({ href, children }) => `[${renderMarkdownLinkLabelInlines(children)}](${escapeMarkdownDestination(href)})`,
+      img: ({ src, alt }) => `![${escapeMarkdownText(alt)}](${escapeMarkdownDestination(src)})`,
+      br: () => "<br/>",
+    })
+  );
 
-const renderMarkdownInlineForLinkLabelMatcher = Match.type<Inline>().pipe(
-  Match.tagsExhaustive({
-    text: ({ value }) => escapeMarkdownText(value),
-    rawMarkdown: ({ value }) => escapeMarkdownText(value),
-    rawHtml: renderEscapedRawHtmlAsMarkdown,
-    strong: ({ children }) => `**${renderMarkdownLinkLabelInlines(children)}**`,
-    em: ({ children }) => `*${renderMarkdownLinkLabelInlines(children)}*`,
-    del: ({ children }) => `~~${renderMarkdownLinkLabelInlines(children)}~~`,
-    code: ({ value }) => renderInlineCode(value),
-    a: ({ href, children }) => `[${renderMarkdownLinkLabelInlines(children)}](${escapeMarkdownDestination(href)})`,
-    img: ({ src, alt }) => `![${escapeMarkdownText(alt)}](${escapeMarkdownDestination(src)})`,
-    br: () => "<br/>",
-  })
+const renderMarkdownInlineMatcher = makeMarkdownInlineMatcher(renderMarkdownInlines, ({ value }) => value);
+
+const renderMarkdownInlineForLinkLabelMatcher = makeMarkdownInlineMatcher(renderMarkdownLinkLabelInlines, ({ value }) =>
+  escapeMarkdownText(value)
 );
 
 function renderMarkdownInlineForLinkLabel(inline: Inline): string {
@@ -466,81 +392,6 @@ export function renderHtmlInline(inline: Inline): string {
   return renderHtmlInlineMatcher(inline);
 }
 
-const renderPlainTextInlines: (children: ReadonlyArray<Inline>) => string = flow(
-  A.map(renderPlainTextInline),
-  joinEmpty
-);
-
-const renderPlainTextListItemChildren: (children: ReadonlyArray<ListItemChild>) => string = flow(
-  (items: ReadonlyArray<ListItemChild>) =>
-    renderListItemChildSegments(items, renderPlainTextInlines, renderPlainTextBlock),
-  A.join("\n")
-);
-
-const renderPlainTextListItem = (item: Li): string => renderPlainTextListItemChildren(item.children);
-
-const renderPlainTextTaskItem = (item: TaskItem): string => renderPlainTextListItemChildren(item.children);
-
-const renderPlainTextTable = (block: Table): string =>
-  pipe(
-    block.children,
-    A.map((row) =>
-      pipe(
-        row.children,
-        A.map((cell) => renderPlainTextInlines(cell.children)),
-        A.join("\t")
-      )
-    ),
-    A.join("\n")
-  );
-
-/**
- * Renders an inline node as plain text.
- *
- * @example
- * ```ts
- * import { Md } from "@beep/md"
- * import { renderPlainTextInline } from "@beep/md/Md.render"
- *
- * console.log(renderPlainTextInline(Md.strong("beep"))) // "beep"
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-const renderPlainTextInlineMatcher = Match.type<Inline>().pipe(
-  Match.tagsExhaustive({
-    text: ({ value }) => value,
-    rawMarkdown: ({ value }) => value,
-    rawHtml: ({ value }) => value,
-    strong: ({ children }) => renderPlainTextInlines(children),
-    em: ({ children }) => renderPlainTextInlines(children),
-    del: ({ children }) => renderPlainTextInlines(children),
-    code: ({ value }) => value,
-    a: ({ children }) => renderPlainTextInlines(children),
-    img: thunkEmptyStr,
-    br: thunkEmptyStr,
-  })
-);
-
-/**
- * Renders an inline node as plain text.
- *
- * @example
- * ```ts
- * import { Md } from "@beep/md"
- * import { renderPlainTextInline } from "@beep/md/Md.render"
- *
- * console.log(renderPlainTextInline(Md.code("beep"))) // "beep"
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export function renderPlainTextInline(inline: Inline): string {
-  return renderPlainTextInlineMatcher(inline);
-}
-
 /**
  * Renders a block node as Markdown.
  *
@@ -557,12 +408,7 @@ export function renderPlainTextInline(inline: Inline): string {
  */
 export const renderMarkdownBlock: (block: Block) => string = Match.type<Block>().pipe(
   Match.tagsExhaustive({
-    h1: renderMarkdownHeading,
-    h2: renderMarkdownHeading,
-    h3: renderMarkdownHeading,
-    h4: renderMarkdownHeading,
-    h5: renderMarkdownHeading,
-    h6: renderMarkdownHeading,
+    heading: renderMarkdownHeading,
     p: (block) => renderMarkdownInlines(block.children),
     blockquote: (block) => pipe(block.children, renderMarkdownBlocks, prefixLines("> ")),
     pre: (block) => renderFencedCode(block.value, languageToMarkdown(block.language)),
@@ -612,12 +458,7 @@ export const renderMarkdownBlock: (block: Block) => string = Match.type<Block>()
  */
 export const renderHtmlBlock: (block: Block) => string = Match.type<Block>().pipe(
   Match.tagsExhaustive({
-    h1: renderHtmlHeading,
-    h2: renderHtmlHeading,
-    h3: renderHtmlHeading,
-    h4: renderHtmlHeading,
-    h5: renderHtmlHeading,
-    h6: renderHtmlHeading,
+    heading: renderHtmlHeading,
     p: (block) => `<p>${renderHtmlInlines(block.children)}</p>`,
     blockquote: (block) => `<blockquote>${renderHtmlBlocks(block.children)}</blockquote>`,
     pre: (block) => `<pre><code${languageToHtmlClass(block.language)}>${Html.escapeHtml(block.value)}</code></pre>`,
@@ -629,40 +470,6 @@ export const renderHtmlBlock: (block: Block) => string = Match.type<Block>().pip
     youtube: (block) =>
       `<iframe src="${escapeHtmlUrlAttribute(youtubeEmbedUrl(block.videoId))}" title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`,
     hr: () => "<hr />",
-  })
-);
-
-/**
- * Renders a block node as plain text.
- *
- * @example
- * ```ts
- * import { Md } from "@beep/md"
- * import { renderPlainTextBlock } from "@beep/md/Md.render"
- *
- * console.log(renderPlainTextBlock(Md.h1("Hello"))) // "Hello"
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const renderPlainTextBlock: (block: Block) => string = Match.type<Block>().pipe(
-  Match.tagsExhaustive({
-    h1: (block) => renderPlainTextInlines(block.children),
-    h2: (block) => renderPlainTextInlines(block.children),
-    h3: (block) => renderPlainTextInlines(block.children),
-    h4: (block) => renderPlainTextInlines(block.children),
-    h5: (block) => renderPlainTextInlines(block.children),
-    h6: (block) => renderPlainTextInlines(block.children),
-    p: (block) => renderPlainTextInlines(block.children),
-    blockquote: (block) => renderPlainTextBlocks(block.children),
-    pre: (block) => block.value,
-    ul: (block) => pipe(block.children, A.map(renderPlainTextListItem), A.join("\n")),
-    ol: (block) => pipe(block.children, A.map(renderPlainTextListItem), A.join("\n")),
-    taskList: (block) => pipe(block.children, A.map(renderPlainTextTaskItem), A.join("\n")),
-    table: renderPlainTextTable,
-    youtube: (block) => youtubeWatchUrl(block.videoId),
-    hr: thunkEmptyStr,
   })
 );
 
@@ -703,25 +510,6 @@ export const renderHtmlBlocks: (blocks: ReadonlyArray<Block>) => HtmlFragment = 
   A.map(renderHtmlBlock),
   A.join("\n"),
   HtmlFragment.make
-);
-
-/**
- * Renders block nodes as plain text.
- *
- * @example
- * ```ts
- * import { Md } from "@beep/md"
- * import { renderPlainTextBlocks } from "@beep/md/Md.render"
- *
- * console.log(renderPlainTextBlocks([Md.h1("Hello"), Md.p("World")]))
- * ```
- *
- * @category utilities
- * @since 0.0.0
- */
-export const renderPlainTextBlocks: (blocks: ReadonlyArray<Block>) => string = flow(
-  A.map(renderPlainTextBlock),
-  A.join("\n")
 );
 
 /**

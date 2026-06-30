@@ -59,17 +59,17 @@ const inlinesToMd = (inlines: ReadonlyArray<InlineNode>): ReadonlyArray<Md.Inlin
 /**
  * Lift a single {@link AssistantBlock} into a `@beep/md` block node.
  *
- * Paragraphs map to `P`; headings map to `H1`/`H2`/`H3` by level; quotes wrap
- * their inlines in a single paragraph inside a `BlockQuote`; lists become `Ul`
- * (bullet) or `Ol` (number) with one `Li` per item; code blocks become `Pre`
- * with an optional language hint.
+ * Paragraphs map to `P`; headings map to a `Heading` block carrying their
+ * numeric `level`; quotes wrap their inlines in a single paragraph inside a
+ * `BlockQuote`; lists become `Ul` (bullet) or `Ol` (number) with one `Li` per
+ * item; code blocks become `Pre` with an optional language hint.
  *
  * @example
  * ```ts
  * import { blockToMd } from "@beep/agents-domain/values/AssistantContent"
  *
  * const node = blockToMd({ type: "heading", level: "h2", children: [{ type: "text", text: "Install" }] })
- * console.log(node._tag) // "h2"
+ * console.log(node._tag) // "heading"
  * ```
  *
  * @category mapping
@@ -80,12 +80,13 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
     paragraph: (b): Md.Block.Type => Md.P.make({ children: inlinesToMd(b.children) }),
     heading: (b): Md.Block.Type => {
       const children = inlinesToMd(b.children);
-      return Match.value(b.level).pipe(
-        Match.when("h1", () => Md.H1.make({ children })),
-        Match.when("h2", () => Md.H2.make({ children })),
-        Match.when("h3", () => Md.H3.make({ children })),
+      const level = Match.value(b.level).pipe(
+        Match.when("h1", () => 1 as const),
+        Match.when("h2", () => 2 as const),
+        Match.when("h3", () => 3 as const),
         Match.exhaustive
       );
+      return Md.Heading.make({ level, children });
     },
     quote: (b): Md.Block.Type =>
       Md.BlockQuote.make({
@@ -97,7 +98,10 @@ export const blockToMd = (block: AssistantBlock): Md.Block.Type =>
     },
     code: (b): Md.Block.Type =>
       Md.Pre.make({
-        language: O.fromNullishOr(b.language),
+        // Assistant-supplied language hints are untrusted free-form info strings;
+        // fold them through CodeFenceLanguage so non-conforming tokens drop to
+        // None (matching the Pre codec) instead of throwing on construction.
+        language: O.flatMap(O.fromNullishOr(b.language), Md.CodeFenceLanguage.decodeOption),
         value: b.code,
       }),
     table: (b): Md.Block.Type =>

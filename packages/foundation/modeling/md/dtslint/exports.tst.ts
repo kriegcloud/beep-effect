@@ -1,10 +1,10 @@
 import { Md } from "@beep/md";
 import { blockquote, h1 } from "@beep/md/Md";
+import { escapeMarkdownText } from "@beep/md/Md.escape";
 import { MarkdownAdapter, PlainTextAdapter, renderEffectWith, renderPlainText, renderWith } from "@beep/md/Md.render";
-import { escapeMarkdownText } from "@beep/md/Md.utils";
 import { Effect } from "effect";
 import { describe, expect, it } from "tstyche";
-import type { Block, Document, H1 } from "@beep/md/Md.model";
+import type { Block, Document, Heading } from "@beep/md/Md.model";
 import type { RenderError } from "@beep/md/Md.render";
 import type { Markdown } from "@beep/schema";
 import type { Result } from "effect";
@@ -18,7 +18,7 @@ describe("@beep/md package exports", () => {
     };
 
     expect(document).type.toBe<Document>();
-    expect(h1`Hello`).type.toBe<H1>();
+    expect(h1`Hello`).type.toBe<Heading>();
     expect(blockquote`${Md.h2("Nested")}`).type.toBeAssignableTo<Block>();
     expect(renderWith(MarkdownAdapter, document)).type.toBe<Result.Result<Markdown, RenderError>>();
     expect(renderWith(PlainTextAdapter, document)).type.toBe<Result.Result<string, RenderError>>();
