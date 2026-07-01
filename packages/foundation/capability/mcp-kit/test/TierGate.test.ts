@@ -1,7 +1,9 @@
 /**
  * Fixture proof: the tier-gate dispatch wrapper refuses fail-closed as a
  * value for an unapproved write-tool call and produces a sanitized audit
- * record matching the kit's audit schema.
+ * record matching the kit's audit schema. Every gated call — approved or
+ * refused — produces an audit record (Q7); an unannotated tool is refused
+ * fail-closed as a value, never a throw.
  *
  * @since 0.0.0
  */
@@ -14,6 +16,7 @@ import { Tool } from "effect/unstable/ai";
 
 const writeTool = Tool.make("delete_document", { success: S.String }).annotate(Tool.Destructive, true);
 const readTool = Tool.make("search_documents", { success: S.String }).annotate(Tool.Destructive, false);
+const unannotatedTool = Tool.make("unannotated_tool", { success: S.String });
 
 describe("dispatchWithTierGate", () => {
   it.effect("refuses fail-closed as a value for an unapproved destructive tool call", () =>
@@ -28,6 +31,7 @@ describe("dispatchWithTierGate", () => {
       if (result._tag === "Refused") {
         assert.isTrue(S.is(TierGateAuditRecord)(result.audit));
         assert.strictEqual(result.audit.tool, "delete_document");
+        assert.strictEqual(result.audit.outcome, "refused");
         assert.isTrue(result.audit.destructive);
         assert.deepStrictEqual(result.audit.toolCallId, O.some("call-1"));
         assert.isString(result.audit.occurredAt);
@@ -35,19 +39,28 @@ describe("dispatchWithTierGate", () => {
     })
   );
 
-  it.effect("dispatches an approved destructive tool call and runs the wrapped effect", () =>
-    Effect.gen(function* () {
-      const gate = fromApprovedToolsPolicy({ approvedTools: ["delete_document"] });
-      const result = yield* dispatchWithTierGate(
-        { tool: writeTool, toolCallId: O.none() },
-        Effect.succeed("deleted")
-      ).pipe(Effect.provideService(TierGate, TierGate.of(gate)));
+  it.effect(
+    "dispatches an approved destructive tool call and produces both the handler result and a schema-valid audit record",
+    () =>
+      Effect.gen(function* () {
+        const gate = fromApprovedToolsPolicy({ approvedTools: ["delete_document"] });
+        const result = yield* dispatchWithTierGate(
+          { tool: writeTool, toolCallId: O.none() },
+          Effect.succeed("deleted")
+        ).pipe(Effect.provideService(TierGate, TierGate.of(gate)));
 
-      assert.deepStrictEqual(result, { _tag: "Dispatched", value: "deleted" });
-    })
+        assert.strictEqual(result._tag, "Dispatched");
+        if (result._tag === "Dispatched") {
+          assert.strictEqual(result.value, "deleted");
+          assert.isTrue(S.is(TierGateAuditRecord)(result.audit));
+          assert.strictEqual(result.audit.outcome, "approved");
+          assert.strictEqual(result.audit.tool, "delete_document");
+          assert.isTrue(result.audit.destructive);
+        }
+      })
   );
 
-  it.effect("dispatches a read-only tool call without requiring approval", () =>
+  it.effect("dispatches a read-only tool call without requiring approval and still audits it", () =>
     Effect.gen(function* () {
       const gate = fromApprovedToolsPolicy({ approvedTools: [] });
       const result = yield* dispatchWithTierGate(
@@ -55,7 +68,30 @@ describe("dispatchWithTierGate", () => {
         Effect.succeed("results")
       ).pipe(Effect.provideService(TierGate, TierGate.of(gate)));
 
-      assert.deepStrictEqual(result, { _tag: "Dispatched", value: "results" });
+      assert.strictEqual(result._tag, "Dispatched");
+      if (result._tag === "Dispatched") {
+        assert.strictEqual(result.value, "results");
+        assert.strictEqual(result.audit.outcome, "approved");
+        assert.isFalse(result.audit.destructive);
+      }
+    })
+  );
+
+  it.effect("refuses an unannotated tool fail-closed as a value, never a throw", () =>
+    Effect.gen(function* () {
+      const gate = fromApprovedToolsPolicy({ approvedTools: [] });
+      const result = yield* dispatchWithTierGate(
+        { tool: unannotatedTool, toolCallId: O.none() },
+        Effect.succeed("this handler must never run")
+      ).pipe(Effect.provideService(TierGate, TierGate.of(gate)));
+
+      assert.strictEqual(result._tag, "Refused");
+      if (result._tag === "Refused") {
+        assert.isTrue(S.is(TierGateAuditRecord)(result.audit));
+        assert.strictEqual(result.audit.tool, "unannotated_tool");
+        assert.strictEqual(result.audit.outcome, "refused");
+        assert.isTrue(result.audit.destructive);
+      }
     })
   );
 });

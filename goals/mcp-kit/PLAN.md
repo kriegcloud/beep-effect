@@ -2,7 +2,7 @@
 
 ## Status
 
-Status: `in-progress`
+Status: `complete`
 
 ## Phases
 
@@ -11,8 +11,8 @@ Status: `in-progress`
 | P0 Research | complete | Re-verify pinned `effect/unstable/ai` internals (SPEC Constraints baseline) and the repo's new-package wiring checklist. | Verified facts recorded ([`history/2026-07-01-p0-verification.md`](./history/2026-07-01-p0-verification.md)); no decision-invalidating drift found. |
 | P1 Implement | complete | Scaffold `packages/foundation/capability/mcp-kit` and build the seven SPEC deliverables with fixture/proof tests. | Acceptance criteria are met (seven deliverables, 12 tests, curated barrel, consumer-plan README). |
 | P2 Verify | complete | Run required checks and capture evidence. | `bun run beep yeet verify` green on all lanes except (a) `changeset-status`, red only while the changeset is uncommitted, and (b) a pre-existing `@beep/schema` identifier-rendering test regression, attributed unrelated and recorded in [`history/2026-07-01-unrelated-failures.md`](./history/2026-07-01-unrelated-failures.md). |
-| P3 Yeet: PR to mergeable | in-progress | Drive the PR to mergeable via `/yeet`. | PR open, checks green, review closeout done. |
-| P4 Close | pending | Closeout reflection + packet status updates. | Packet status and evidence updated; reflection exists and lints. |
+| P3 Yeet: PR to mergeable | complete | Drive the PR to mergeable via `/yeet`. | [PR #288](https://github.com/beep-effect/beep-effect/pull/288) open and `MERGEABLE`; hosted checks green except three inherited-from-main baseline reds (Build And Test, Lint Policy, Test Unit — all failing on main before this branch; Test Unit's only failure is the recorded pre-existing `@beep/schema` regression). Branch turned Lint, Repo Sanity, and Fallow Advisory Envelopes green relative to main. All 12 bot-review threads fixed or answered. |
+| P4 Close | complete | Closeout reflection + packet status updates. | [`history/reflections/2026-07-01-claude.md`](./history/reflections/2026-07-01-claude.md); `bun run beep lint reflection-artifacts` → blocking_findings=0. |
 
 ## P3/P4 Closeout Checklist
 

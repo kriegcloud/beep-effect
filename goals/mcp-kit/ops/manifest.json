@@ -3,13 +3,13 @@
   "initiative": {
     "id": "mcp-kit",
     "title": "MCP Kit",
-    "status": "active",
+    "status": "complete",
     "created": "2026-07-01",
     "updated": "2026-07-01",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/mcp-kit",
-  "lifecycle": "active",
+  "lifecycle": "complete",
   "executionCapable": true,
   "reflectionRequired": true,
   "provenance": {
@@ -65,12 +65,12 @@
     {
       "id": "P3",
       "name": "Yeet: PR to mergeable",
-      "status": "in-progress"
+      "status": "complete"
     },
     {
       "id": "P4",
       "name": "Close",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [

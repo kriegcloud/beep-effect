@@ -3,7 +3,7 @@
 Three read-only Codex sub-agents re-verified every load-bearing code fact the
 Q1–Q7 recommendations rest on, against current HEAD (`.repos/effect-v4` @
 `31ae48e3a9`; `McpServer.ts`/`Toolkit.ts` untouched by the latest subtree
-bump). Verdict: **all claims CONFIRMED**, two corrections. This file is the
+bump). Verdict: **all claims CONFIRMED**, three corrections. This file is the
 evidence record the graduated goal SPEC should cite.
 
 ## Corrections to RESEARCH.md (2026-06-29)

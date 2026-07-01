@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-07-01",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -590,6 +594,14 @@
       "status": "exception",
       "owner": "@beep/mcp-kit",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/mcp-kit/src/FieldTier.ts",
+      "symbol": "ProjectWithinBudgetOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/mcp-kit",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/foundation/capability/mcp-kit/src/TierGate.ts",

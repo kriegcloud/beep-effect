@@ -19,8 +19,9 @@
  */
 
 import { $McpKitId } from "@beep/identity/packages";
-import { LiteralKit, NonNegativeInt } from "@beep/schema";
+import { LiteralKit, NonNegativeInt, UnknownRecord } from "@beep/schema";
 import { HashSet } from "effect";
+import * as A from "effect/Array";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -187,13 +188,76 @@ export const estimateJsonSize = (value: unknown): number => JSON.stringify(value
 const TIER_ORDER: ReadonlyArray<FieldTierName> = ["complete", "balanced", "minimal"];
 
 /**
+ * A payload too large for even the `minimal` tier, handed to the caller's
+ * {@link ProjectWithinBudgetOptions.mintFetchableHandle} to become a
+ * {@link FetchableHandle}. The kit does not mint handles itself — UUID
+ * generation, TTL policy, and out-of-band storage are consumer-owned.
+ *
+ * @example
+ * ```ts
+ * import { OversizedFieldProjection } from "@beep/mcp-kit"
+ * import { NonNegativeInt } from "@beep/schema"
+ *
+ * const oversized = OversizedFieldProjection.make({
+ *   value: { id: "doc-1" },
+ *   sizeBytes: NonNegativeInt.make(1000)
+ * })
+ * console.log(oversized.sizeBytes)
+ * // 1000
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OversizedFieldProjection extends S.Class<OversizedFieldProjection>($I`OversizedFieldProjection`)(
+  {
+    value: UnknownRecord.annotateKey({
+      description: "The oversized minimal-tier projection.",
+    }),
+    sizeBytes: NonNegativeInt.annotateKey({
+      description: "Estimated serialized size of `value`, in bytes.",
+    }),
+  },
+  $I.annote("OversizedFieldProjection", {
+    description: "A minimal-tier projection that still exceeds the caller's size budget.",
+  })
+) {}
+
+/**
+ * Options for {@link projectWithinBudget}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface ProjectWithinBudgetOptions {
+  readonly budgetBytes: number;
+  readonly mintFetchableHandle: (oversized: OversizedFieldProjection) => FetchableHandle;
+}
+
+/**
+ * The result of {@link projectWithinBudget}: `Inline` when some tier fit the
+ * budget and its projected value is returned directly; `Fetchable` when even
+ * `minimal` did not fit, carrying a {@link FetchableHandle} minted by the
+ * caller instead of an oversized inline payload.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type FieldProjectionOutcome =
+  | { readonly _tag: "Inline"; readonly tier: FieldTierName; readonly value: Record<string, unknown> }
+  | { readonly _tag: "Fetchable"; readonly handle: FetchableHandle };
+
+/**
  * Projects a payload to the most complete field tier that fits within
- * `budgetBytes`, falling back to `minimal` when even that tier does not fit.
+ * `options.budgetBytes`. When even the `minimal` tier does not fit, the
+ * payload is never returned inline — `options.mintFetchableHandle` is called
+ * with the oversized `minimal` projection and its size, and the result is
+ * returned as the `Fetchable` outcome.
  *
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { defineFieldTiers, projectWithinBudget } from "@beep/mcp-kit"
+ * import { defineFieldTiers, FetchableHandle, projectWithinBudget } from "@beep/mcp-kit"
  *
  * const tiers = defineFieldTiers({
  *   minimal: S.Struct({ id: S.String }),
@@ -201,9 +265,18 @@ const TIER_ORDER: ReadonlyArray<FieldTierName> = ["complete", "balanced", "minim
  *   complete: S.Struct({ id: S.String, summary: S.String, body: S.String })
  * })
  *
- * const projected = projectWithinBudget(tiers, { id: "doc-1", summary: "s", body: "b".repeat(100) }, 40)
- * console.log(projected.tier)
- * // "minimal"
+ * const projected = projectWithinBudget(tiers, { id: "doc-1", summary: "s", body: "b".repeat(100) }, {
+ *   budgetBytes: 40,
+ *   mintFetchableHandle: (oversized) =>
+ *     FetchableHandle.make({
+ *       handleId: "5b1d6a3e-8f3e-4a1a-9c1e-2e6b7a2f9c10",
+ *       expiresAt: "2026-07-01T01:00:00.000Z",
+ *       sizeBytes: oversized.sizeBytes,
+ *       tier: "minimal"
+ *     })
+ * })
+ * console.log(projected._tag)
+ * // "Fetchable"
  * ```
  *
  * @category combinators
@@ -212,15 +285,20 @@ const TIER_ORDER: ReadonlyArray<FieldTierName> = ["complete", "balanced", "minim
 export const projectWithinBudget = (
   tiers: FieldTierSet<S.Struct.Fields, S.Struct.Fields, S.Struct.Fields>,
   value: Record<string, unknown>,
-  budgetBytes: number
-): { readonly tier: FieldTierName; readonly value: Record<string, unknown> } => {
+  options: ProjectWithinBudgetOptions
+): FieldProjectionOutcome => {
   for (const tier of TIER_ORDER) {
     const projected = projectFieldTier(tiers, tier, value);
-    if (estimateJsonSize(projected) <= budgetBytes) {
-      return { tier, value: projected };
+    if (estimateJsonSize(projected) <= options.budgetBytes) {
+      return { _tag: "Inline", tier, value: projected };
     }
   }
-  return { tier: "minimal", value: projectFieldTier(tiers, "minimal", value) };
+  const minimalProjected = projectFieldTier(tiers, "minimal", value);
+  const oversized = OversizedFieldProjection.make({
+    value: minimalProjected,
+    sizeBytes: NonNegativeInt.make(estimateJsonSize(minimalProjected)),
+  });
+  return { _tag: "Fetchable", handle: options.mintFetchableHandle(oversized) };
 };
 
 /**
@@ -255,27 +333,32 @@ export class ColumnarEnvelope extends S.Class<ColumnarEnvelope>($I`ColumnarEnvel
 ) {}
 
 /**
- * Reshapes an array of row-oriented records into a {@link ColumnarEnvelope},
- * using the first row's key order as the column list.
+ * Reshapes an array of row-oriented records into a {@link ColumnarEnvelope}.
+ * The column list is the ordered union of every row's keys (first-occurrence
+ * order across all rows, not just the first row), so sparse rows — for
+ * example after {@link stripNulls} or a narrower field-tier projection — never
+ * silently drop fields. Cells missing from a given row are filled with
+ * `null`.
  *
  * @example
  * ```ts
  * import { toColumnarEnvelope } from "@beep/mcp-kit"
  *
- * const envelope = toColumnarEnvelope([{ id: "doc-1", title: "A" }, { id: "doc-2", title: "B" }])
+ * const envelope = toColumnarEnvelope([{ title: "A" }, { id: "2", title: "B" }])
+ * console.log(envelope.columns)
+ * // ["title", "id"]
  * console.log(envelope.rows)
- * // [["doc-1", "A"], ["doc-2", "B"]]
+ * // [["A", null], ["B", "2"]]
  * ```
  *
  * @category constructors
  * @since 0.0.0
  */
 export const toColumnarEnvelope = (rows: ReadonlyArray<Record<string, unknown>>): ColumnarEnvelope => {
-  const [first] = rows;
-  const columns = first === undefined ? [] : R.keys(first);
+  const columns = A.dedupe(A.flatMap(rows, R.keys));
   return ColumnarEnvelope.make({
     columns,
-    rows: rows.map((row) => columns.map((column) => row[column])),
+    rows: rows.map((row) => columns.map((column) => (R.has(row, column) ? row[column] : null))),
   });
 };
 

@@ -32,11 +32,36 @@ import type * as P from "effect/Predicate";
 
 const $I = $McpKitId.create("TierGate");
 
+const TierGateOutcomeTag = LiteralKit(["approved", "refused"]);
+
 /**
- * Sanitized audit record written for every gated or refused `tools/call`
- * dispatch. Shaped as a plain JSON-serializable record so it can be stored
- * directly in the `UsageRecord.metadata` jsonb column; persistence wiring
- * belongs to the consumer.
+ * Outcome discriminant carried by {@link TierGateAuditRecord}, mirroring
+ * {@link TierGateVerdict}'s own tag so a persisted audit record is
+ * self-describing independent of the verdict it was extracted from.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const TierGateOutcome = TierGateOutcomeTag.pipe(
+  $I.annoteSchema("TierGateOutcome", {
+    description: "Outcome discriminant carried by TierGateAuditRecord: approved or refused.",
+  })
+);
+
+/**
+ * Runtime type for {@link TierGateOutcome}.
+ *
+ * @category type-level
+ * @since 0.0.0
+ */
+export type TierGateOutcome = typeof TierGateOutcome.Type;
+
+/**
+ * Sanitized audit record written for **every** gated `tools/call` dispatch —
+ * approved and refused alike, per Q7 (`explorations/mcp-auth-gated-registration/DECISIONS.md:157`:
+ * "Each gated call is audited"). Shaped as a plain JSON-serializable record
+ * so it can be stored directly in the `UsageRecord.metadata` jsonb column;
+ * persistence wiring belongs to the consumer.
  *
  * @example
  * ```ts
@@ -45,6 +70,7 @@ const $I = $McpKitId.create("TierGate");
  *
  * const audit = TierGateAuditRecord.make({
  *   tool: "delete_document",
+ *   outcome: "refused",
  *   reason: "Tool is destructive and not present in the approved-tools policy.",
  *   destructive: true,
  *   toolCallId: O.none(),
@@ -60,40 +86,52 @@ const $I = $McpKitId.create("TierGate");
 export class TierGateAuditRecord extends S.Class<TierGateAuditRecord>($I`TierGateAuditRecord`)(
   {
     tool: S.NonEmptyString.annotateKey({
-      description: "Name of the refused tool.",
+      description: "Name of the dispatched or refused tool.",
+    }),
+    outcome: TierGateOutcome.annotateKey({
+      description: "Whether this gated call was approved or refused.",
     }),
     reason: S.NonEmptyString.annotateKey({
-      description: "Human-readable reason the dispatch was refused.",
+      description: "Human-readable reason for the outcome.",
     }),
     destructive: S.Boolean.annotateKey({
-      description: "Whether the refused tool is annotated as destructive.",
+      description: "Whether the tool is annotated as destructive.",
     }),
     toolCallId: S.OptionFromNullOr(S.String).annotateKey({
       description: "Caller-supplied tool call identifier, when available.",
     }),
     occurredAt: S.NonEmptyString.annotateKey({
-      description: "ISO-8601 timestamp at which the refusal was decided.",
+      description: "ISO-8601 timestamp at which the outcome was decided.",
     }),
   },
   $I.annote("TierGateAuditRecord", {
-    description: "Sanitized audit record written for a gated or refused tools/call dispatch.",
+    description: "Sanitized audit record written for every gated tools/call dispatch, approved or refused.",
   })
 ) {}
 
 const TierGateVerdictTag = LiteralKit(["approved", "refused"]);
 
 /**
- * Typed verdict returned by the tier gate, discriminated on `verdict`. An
- * `approved` call carries no audit record and proceeds to the tool handler;
- * a `refused` call carries the {@link TierGateAuditRecord} that documents why
- * dispatch was refused, and never proceeds to the tool handler.
+ * Typed verdict returned by the tier gate, discriminated on `verdict`. Both
+ * `approved` and `refused` verdicts carry a {@link TierGateAuditRecord} — Q7
+ * requires every gated call to be audited, not only refusals.
  *
  * @example
  * ```ts
  * import { TierGateVerdict } from "@beep/mcp-kit"
  * import * as S from "effect/Schema"
  *
- * const verdict = S.decodeUnknownSync(TierGateVerdict)({ verdict: "approved" })
+ * const verdict = S.decodeUnknownSync(TierGateVerdict)({
+ *   verdict: "approved",
+ *   audit: {
+ *     tool: "search_documents",
+ *     outcome: "approved",
+ *     reason: "Tool is not destructive; no approval required.",
+ *     destructive: false,
+ *     toolCallId: null,
+ *     occurredAt: "2026-07-01T00:00:00.000Z"
+ *   }
+ * })
  * console.log(verdict.verdict)
  * // "approved"
  * ```
@@ -102,11 +140,11 @@ const TierGateVerdictTag = LiteralKit(["approved", "refused"]);
  * @since 0.0.0
  */
 export const TierGateVerdict = TierGateVerdictTag.toTaggedUnion("verdict")({
-  approved: {},
+  approved: { audit: TierGateAuditRecord },
   refused: { audit: TierGateAuditRecord },
 }).pipe(
   $I.annoteSchema("TierGateVerdict", {
-    description: "Typed approved/refused verdict returned by the tier gate.",
+    description: "Typed approved/refused verdict returned by the tier gate; both cases carry an audit record.",
   })
 );
 
@@ -115,9 +153,20 @@ export const TierGateVerdict = TierGateVerdictTag.toTaggedUnion("verdict")({
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import type { TierGateVerdict } from "@beep/mcp-kit"
  *
- * const approved: TierGateVerdict = { verdict: "approved" }
+ * const approved: TierGateVerdict = {
+ *   verdict: "approved",
+ *   audit: {
+ *     tool: "search_documents",
+ *     outcome: "approved",
+ *     reason: "Tool is not destructive; no approval required.",
+ *     destructive: false,
+ *     toolCallId: O.none(),
+ *     occurredAt: "2026-07-01T00:00:00.000Z"
+ *   }
+ * }
  * console.log(approved.verdict)
  * ```
  *
@@ -149,10 +198,21 @@ export interface ToolCallRequest {
  * ```ts
  * import { strictEqual } from "node:assert"
  * import { Effect } from "effect"
+ * import * as O from "effect/Option"
  * import type { TierGateShape } from "@beep/mcp-kit"
+ * import { TierGateAuditRecord, TierGateVerdict } from "@beep/mcp-kit"
+ *
+ * const approvedAudit = TierGateAuditRecord.make({
+ *   tool: "search_documents",
+ *   outcome: "approved",
+ *   reason: "Tool is not destructive; no approval required.",
+ *   destructive: false,
+ *   toolCallId: O.none(),
+ *   occurredAt: "2026-07-01T00:00:00.000Z"
+ * })
  *
  * const shape: TierGateShape = {
- *   evaluate: () => Effect.succeed({ verdict: "approved" })
+ *   evaluate: () => Effect.succeed(TierGateVerdict.make({ verdict: "approved", audit: approvedAudit }))
  * }
  *
  * strictEqual(typeof shape.evaluate, "function")
@@ -172,14 +232,27 @@ export interface TierGateShape {
  * ```ts
  * import { strictEqual } from "node:assert"
  * import { Effect } from "effect"
- * import { TierGate } from "@beep/mcp-kit"
+ * import * as O from "effect/Option"
+ * import { TierGate, TierGateAuditRecord, TierGateVerdict } from "@beep/mcp-kit"
+ *
+ * const approvedAudit = TierGateAuditRecord.make({
+ *   tool: "search_documents",
+ *   outcome: "approved",
+ *   reason: "Tool is not destructive; no approval required.",
+ *   destructive: false,
+ *   toolCallId: O.none(),
+ *   occurredAt: "2026-07-01T00:00:00.000Z"
+ * })
  *
  * const hasEvaluate = Effect.runSync(
  *   Effect.gen(function* () {
  *     const gate = yield* TierGate
  *     return typeof gate.evaluate === "function"
  *   }).pipe(
- *     Effect.provideService(TierGate, TierGate.of({ evaluate: () => Effect.succeed({ verdict: "approved" }) }))
+ *     Effect.provideService(
+ *       TierGate,
+ *       TierGate.of({ evaluate: () => Effect.succeed(TierGateVerdict.make({ verdict: "approved", audit: approvedAudit })) })
+ *     )
  *   )
  * )
  *
@@ -219,17 +292,34 @@ export class TierGatePolicy extends S.Class<TierGatePolicy>($I`TierGatePolicy`)(
   })
 ) {}
 
-const isDestructive = (tool: AiTool.Any): boolean => Context.get(tool.annotations, AiTool.Destructive);
+// `Tool.Destructive` is a `Context.Reference` (default `constTrue`), so
+// `Context.get` already resolves the fail-closed default for unannotated
+// tools without throwing (references never raise "service not found",
+// unlike plain `Context.Service` keys). `Context.getOrElse` is used anyway
+// so the fail-closed default is explicit in this module's own source, not
+// only inherited silently from `effect/unstable/ai/Tool`'s definition.
+const isDestructive = (tool: AiTool.Any): boolean =>
+  Context.getOrElse(tool.annotations, AiTool.Destructive, () => true);
 
 const isPolicyApproved = (policy: TierGatePolicy, tool: AiTool.Any): boolean =>
   !isDestructive(tool) || policy.approvedTools.includes(tool.name);
 
+const auditReason = (approved: boolean, destructive: boolean): string => {
+  if (!approved) {
+    return "Tool is destructive and not present in the approved-tools policy.";
+  }
+  return destructive
+    ? "Destructive tool explicitly approved by policy."
+    : "Tool is not destructive; no approval required.";
+};
+
 /**
  * Builds a fail-closed {@link TierGateShape} from an approved-tools policy.
  * Read-only/non-destructive tools (per `Tool.Destructive`) always pass;
- * destructive tools pass only when explicitly named in
- * `policy.approvedTools`. Anything else is refused with a
- * {@link TierGateAuditRecord}.
+ * destructive tools — including tools with no `Tool.Destructive` annotation
+ * at all, which default to destructive — pass only when explicitly named in
+ * `policy.approvedTools`. Every call produces a {@link TierGateAuditRecord},
+ * approved or refused (Q7).
  *
  * @example
  * ```ts
@@ -251,43 +341,45 @@ const isPolicyApproved = (policy: TierGatePolicy, tool: AiTool.Any): boolean =>
  */
 export const fromApprovedToolsPolicy = (policy: TierGatePolicy): TierGateShape => ({
   evaluate: (request) =>
-    isPolicyApproved(policy, request.tool)
-      ? Effect.succeed(TierGateVerdict.make({ verdict: "approved" }))
-      : Effect.map(DateTime.now, (now) =>
-          TierGateVerdict.make({
-            verdict: "refused",
-            audit: TierGateAuditRecord.make({
-              tool: request.tool.name,
-              reason: "Tool is destructive and not present in the approved-tools policy.",
-              destructive: true,
-              toolCallId: request.toolCallId,
-              occurredAt: DateTime.formatIso(now),
-            }),
-          })
-        ),
+    Effect.map(DateTime.now, (now) => {
+      const destructive = isDestructive(request.tool);
+      const approved = isPolicyApproved(policy, request.tool);
+      const audit = TierGateAuditRecord.make({
+        tool: request.tool.name,
+        outcome: approved ? "approved" : "refused",
+        reason: auditReason(approved, destructive),
+        destructive,
+        toolCallId: request.toolCallId,
+        occurredAt: DateTime.formatIso(now),
+      });
+      return approved
+        ? TierGateVerdict.make({ verdict: "approved", audit })
+        : TierGateVerdict.make({ verdict: "refused", audit });
+    }),
 });
 
 /**
  * The result of dispatching a `tools/call` request through the tier gate:
  * `Dispatched` when the gate approved the call and the wrapped effect ran,
- * carrying its result; `Refused` when the gate refused fail-closed, carrying
- * the sanitized audit record. The wrapped effect never runs on the refused
- * path.
+ * carrying both its result and the approval's {@link TierGateAuditRecord};
+ * `Refused` when the gate refused fail-closed, carrying the refusal's audit
+ * record. The wrapped effect never runs on the refused path. Every dispatch
+ * — approved or refused — carries an audit record (Q7).
  *
  * @category models
  * @since 0.0.0
  */
 export type TierGateDispatchResult<A> =
-  | { readonly _tag: "Dispatched"; readonly value: A }
+  | { readonly _tag: "Dispatched"; readonly value: A; readonly audit: TierGateAuditRecord }
   | { readonly _tag: "Refused"; readonly audit: TierGateAuditRecord };
 
 /**
  * Wraps a `tools/call` dispatch effect with the tier gate. Evaluates the
  * gate first; on `refused`, the wrapped effect never runs and the refusal
  * (with its audit record) is returned as a value. On `approved`, the wrapped
- * effect runs and its result is returned as a value. The gate's own
- * evaluation never fails; the wrapper's error channel is exactly the wrapped
- * effect's error channel.
+ * effect runs and both its result and the approval's audit record are
+ * returned as a value. The gate's own evaluation never fails; the wrapper's
+ * error channel is exactly the wrapped effect's error channel.
  *
  * @example
  * ```ts
@@ -320,7 +412,7 @@ export const dispatchWithTierGate = Effect.fn("dispatchWithTierGate")(function* 
   const verdict = yield* gate.evaluate(request);
   if (verdict.verdict === "approved") {
     const value = yield* onApproved;
-    return { _tag: "Dispatched", value } as const;
+    return { _tag: "Dispatched", value, audit: verdict.audit } as const;
   }
   return { _tag: "Refused", audit: verdict.audit } as const;
 });

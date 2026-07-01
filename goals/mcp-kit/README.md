@@ -2,7 +2,7 @@
 
 ## Status
 
-Lifecycle: `active`
+Lifecycle: `complete`
 
 Source: [`ops/manifest.json`](./ops/manifest.json)
 
@@ -37,10 +37,16 @@ Use this command for execution-capable sessions:
 
 ## Current Phase
 
-P3 Yeet: PR to mergeable — publish the kit + packet via
-`bun run beep yeet publish --pr` and drive hosted checks to mergeable.
+Closed (2026-07-01). [PR #288](https://github.com/beep-effect/beep-effect/pull/288)
+open and `MERGEABLE`; merge is the operator's call (three hosted reds are
+inherited from main's chronic-red baseline, documented in `PLAN.md` P3).
 
 ## Latest Evidence
+
+- P3/P4 (2026-07-01): PR #288 mergeable; six bot-review findings fixed
+  (15/15 tests); closeout reflection
+  [`history/reflections/2026-07-01-claude.md`](./history/reflections/2026-07-01-claude.md)
+  lints clean.
 
 - P0 (2026-07-01):
   [`history/2026-07-01-p0-verification.md`](./history/2026-07-01-p0-verification.md)
