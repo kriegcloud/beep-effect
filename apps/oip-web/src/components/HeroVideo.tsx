@@ -24,6 +24,16 @@ type SaveDataNavigator = Navigator & {
   };
 };
 
+/**
+ * A single rotating hero background clip: an optimized poster plus its background
+ * video sources.
+ */
+type HeroClipMedia = {
+  readonly poster: string;
+  readonly mp4: string;
+  readonly webm?: string | undefined;
+};
+
 type HeroVideoState = {
   readonly element: HTMLVideoElement | null;
   readonly playing: boolean;
@@ -34,7 +44,7 @@ const emptyHeroVideoState: HeroVideoState = {
   playing: false,
 };
 
-const heroVideoKey = (poster: string, mp4: string, webm: string | undefined): string =>
+const heroClipKey = (poster: string, mp4: string, webm: string | undefined): string =>
   `${poster}::${mp4}::${webm ?? ""}`;
 
 const heroVideoStateAtom = Atom.family((_key: string) => Atom.make<HeroVideoState>(emptyHeroVideoState));
@@ -115,44 +125,74 @@ const heroVideoAutoplayAtom = Atom.family((key: string) =>
 );
 
 /**
- * Decorative hero media: an optimized poster paints immediately for LCP, then
- * a muted, looping background video is fetched after first paint and crossfades
- * in. The fetch is deferred (`preload="none"` until idle) and skipped entirely
- * for users who prefer reduced motion or are on data-saver / 2g connections.
+ * Interval, in milliseconds, between hero background clips when more than one clip
+ * is supplied. A single clip never rotates.
  *
- * @example
- * ```tsx
- * import { HeroVideo } from "@beep/oip-web/components/HeroVideo"
- *
- * const hero = (
- *   <HeroVideo
- *     poster="/oip/hero-vid-poster.jpg"
- *     mp4="/oip/hero-vid.mp4"
- *     webm="/oip/hero-vid.webm"
- *   />
- * )
- * console.log(hero.type)
- * ```
- *
- * @category components
+ * @category constants
  * @since 0.0.0
  */
-export function HeroVideo({
-  poster,
+export const HERO_ROTATE_MS = 7000;
+
+const rotationSetKey = (clips: ReadonlyArray<HeroClipMedia>): string =>
+  `${clips.length}::${clips.map((clip) => heroClipKey(clip.poster, clip.mp4, clip.webm)).join("||")}`;
+
+const heroRotationIndexAtom = Atom.family((_key: string) => Atom.make(0));
+
+/**
+ * Mount-effect atom that advances the active clip on a fixed interval when more
+ * than one clip is present and motion is allowed. It is a no-op for a single clip
+ * or when {@link shouldSkipHeroVideo} holds (reduced motion / save-data / 2g).
+ */
+const heroRotationDriverAtom = Atom.family((key: string) =>
+  Atom.make((get) => {
+    if (typeof window === "undefined" || shouldSkipHeroVideo()) {
+      return;
+    }
+
+    const count = Number.parseInt(key.split("::")[0] ?? "", 10);
+    if (!Number.isInteger(count) || count <= 1) {
+      return;
+    }
+
+    const indexAtom = heroRotationIndexAtom(key);
+    const timer = window.setInterval(() => {
+      get.registry.update(indexAtom, (current) => (current + 1) % count);
+    }, HERO_ROTATE_MS);
+
+    get.addFinalizer(() => window.clearInterval(timer));
+  })
+);
+
+/**
+ * A single hero clip layer. When `active`, the muted, looping background video is
+ * mounted and its idle autoplay is scheduled; otherwise only the poster renders so
+ * the crossfade between clips has something to fade. Poster/video opacity mirrors
+ * the original single-clip behavior for the active clip.
+ */
+function HeroClipLayer({
+  active,
+  index,
+  layered,
   mp4,
+  poster,
   webm,
 }: {
-  readonly poster: string;
+  readonly active: boolean;
+  readonly index: number;
+  readonly layered: boolean;
   readonly mp4: string;
+  readonly poster: string;
   readonly webm?: string | undefined;
 }) {
-  const key = heroVideoKey(poster, mp4, webm);
+  const key = heroClipKey(poster, mp4, webm);
   const playing = useAtomValue(heroVideoPlayingAtom(key));
   const setPlaying = useAtomSet(heroVideoPlayingAtom(key));
   const setVideoElement = useAtomSet(heroVideoElementAtom(key));
   useAtomMount(heroVideoAutoplayAtom(key));
 
-  return (
+  const posterHidden = active && playing;
+
+  const media = (
     <>
       <Image
         src={poster}
@@ -161,26 +201,95 @@ export function HeroVideo({
         quality={50}
         sizes="(min-width: 1024px) 46vw, 100vw"
         className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
-          playing ? "opacity-0" : "opacity-70"
+          posterHidden ? "opacity-0" : "opacity-70"
         }`}
         aria-hidden="true"
       />
-      <video
-        ref={setVideoElement}
-        muted
-        loop
-        playsInline
-        preload="none"
-        tabIndex={-1}
-        aria-hidden="true"
-        onPlaying={() => setPlaying(true)}
-        className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
-          playing ? "opacity-70" : "opacity-0"
-        }`}
-      >
-        {webm === undefined ? null : <source src={webm} type="video/webm" />}
-        <source src={mp4} type="video/mp4" />
-      </video>
+      {active ? (
+        <video
+          ref={setVideoElement}
+          muted
+          loop
+          playsInline
+          preload="none"
+          tabIndex={-1}
+          aria-hidden="true"
+          onPlaying={() => setPlaying(true)}
+          className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ${
+            playing ? "opacity-70" : "opacity-0"
+          }`}
+        >
+          {webm === undefined ? null : <source src={webm} type="video/webm" />}
+          <source src={mp4} type="video/mp4" />
+        </video>
+      ) : null}
+    </>
+  );
+
+  if (!layered) {
+    return media;
+  }
+
+  return (
+    <div
+      data-hero-clip={index}
+      className={`absolute inset-0 transition-opacity duration-700 ${active ? "opacity-100" : "opacity-0"}`}
+    >
+      {media}
+    </div>
+  );
+}
+
+/**
+ * Decorative hero media. An optimized poster paints immediately for LCP, then a
+ * muted, looping background video is fetched after first paint and crossfades in.
+ * The fetch is deferred (`preload="none"` until idle) and skipped entirely for
+ * users who prefer reduced motion or are on data-saver / 2g connections. When more
+ * than one clip is supplied the clips crossfade on a fixed interval
+ * ({@link HERO_ROTATE_MS}); a single clip renders exactly as before and never rotates.
+ *
+ * @example
+ * ```tsx
+ * import { HeroVideo } from "@beep/oip-web/components/HeroVideo"
+ *
+ * const hero = (
+ *   <HeroVideo
+ *     clips={[
+ *       { poster: "/oip/hero-vid-poster.jpg", mp4: "/oip/hero-vid.mp4", webm: "/oip/hero-vid.webm" }
+ *     ]}
+ *   />
+ * )
+ * console.log(hero.type)
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
+export function HeroVideo({ clips }: { readonly clips: ReadonlyArray<HeroClipMedia> }) {
+  const rotationKey = rotationSetKey(clips);
+  const rotationIndex = useAtomValue(heroRotationIndexAtom(rotationKey));
+  useAtomMount(heroRotationDriverAtom(rotationKey));
+
+  if (clips.length === 0) {
+    return null;
+  }
+
+  const activeIndex = rotationIndex % clips.length;
+  const layered = clips.length > 1;
+
+  return (
+    <>
+      {clips.map((clip, index) => (
+        <HeroClipLayer
+          key={heroClipKey(clip.poster, clip.mp4, clip.webm)}
+          active={index === activeIndex}
+          index={index}
+          layered={layered}
+          mp4={clip.mp4}
+          poster={clip.poster}
+          webm={clip.webm}
+        />
+      ))}
     </>
   );
 }
