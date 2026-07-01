@@ -298,7 +298,7 @@ export const submitContact: (input: unknown) => Effect.Effect<ContactSubmissionR
           ...O.getSomesStruct({
             provider: O.fromUndefinedOr(error.provider),
             providerReason: O.fromUndefinedOr(error.providerReason),
-	          status: O.fromUndefinedOr(error.status)
+            status: O.fromUndefinedOr(error.status),
           }),
         }),
         Effect.as(contactResponseForError(error))
