@@ -34,7 +34,7 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["business", "legal", "productivity"],
     shortcuts: [
       {
-        name: "Open an engagement",
+        name: "Contact",
         short_name: "Contact",
         url: "/?source=pwa#contact",
         icons: [{ src: "/oip/icon-192.png", sizes: "192x192", type: "image/png" }],

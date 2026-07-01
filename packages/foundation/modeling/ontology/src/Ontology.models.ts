@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 const $I = $OntologyId.create("Ontology.models");
 
 /**
- * Source type of the loaded ontology.
+ * Source type of the loaded FOLIO ontology.
  *
  * @example
  * ```ts
@@ -28,7 +28,7 @@ const $I = $OntologyId.create("Ontology.models");
  */
 export const SourceType = LiteralKit(["http", "github"]).pipe(
   $I.annoteSchema("SourceType", {
-    description: "Source type of the ontology graph.",
+    description: "Source type of the FOLIO ontology graph.",
   })
 );
 
@@ -471,7 +471,8 @@ export const OWLClass = S.Struct({
     SchemaUtils.withNoneDefault,
     S.annotateKey({
       title: "Country",
-      identifier: "https://www.loc.gov/standards/mads/mads-outline-2-1.html#country",
+      identifier: "https://www.loc.gov/mads/rdf/v1#country",
+      documentation: "https://www.loc.gov/standards/mads/mads-outline-2-1.html#country",
     })
   ),
 }).pipe(
@@ -497,7 +498,7 @@ export const OWLClass = S.Struct({
 export type OWLClass = typeof OWLClass.Type;
 
 /**
- * OWL object property model for the ontology.
+ * OWL object property model for the FOLIO ontology.
  *
  * @example
  * ```ts

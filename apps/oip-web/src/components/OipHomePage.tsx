@@ -18,15 +18,15 @@ import {
   XLogoIcon,
   YoutubeLogoIcon,
 } from "@phosphor-icons/react/ssr";
-import * as P from "effect/Predicate";
+// import * as P from "effect/Predicate";
 import Image from "next/image";
 import { BackToTop } from "./BackToTop";
 import { ContactForm } from "./ContactForm";
 import { HeroVideo } from "./HeroVideo";
-import { MattersCarousel } from "./MattersCarousel";
+// import { MattersCarousel } from "./MattersCarousel";
 import { ThemeModeToggle } from "./ThemeModeToggle";
 import type { Icon } from "@phosphor-icons/react";
-import type { CSSProperties, ReactNode } from "react";
+// import type { ReactNode } from "react";
 import type { ContactSubmissionStatus } from "../contact";
 import type { OipSiteContent, SocialPlatform } from "../content";
 
@@ -49,21 +49,21 @@ function Lockup({ className = "", width = 176 }: { readonly className?: string; 
   );
 }
 
-function ExternalAnchor({
-  children,
-  className,
-  href,
-}: {
-  readonly children: ReactNode;
-  readonly className?: string;
-  readonly href: string;
-}) {
-  return (
-    <a className={className} href={href} target="_blank" rel="noopener noreferrer">
-      {children}
-    </a>
-  );
-}
+// function ExternalAnchor({
+//   children,
+//   className,
+//   href,
+// }: {
+//   readonly children: ReactNode;
+//   readonly className?: string;
+//   readonly href: string;
+// }) {
+//   return (
+//     <a className={className} href={href} target="_blank" rel="noopener noreferrer">
+//       {children}
+//     </a>
+//   );
+// }
 
 function Nav({ content }: { readonly content: OipSiteContent }) {
   return (
@@ -247,153 +247,153 @@ function Practice({ content }: { readonly content: OipSiteContent }) {
   );
 }
 
-function Matters({ content }: { readonly content: OipSiteContent }) {
-  return (
-    <section
-      className="bg-[var(--oip-soil)] py-20 text-[var(--oip-on-soil)]"
-      id="matters"
-      aria-labelledby="matters-title"
-    >
-      <div className={sectionShell}>
-        <header className="max-w-3xl">
-          <p className={`${monoLabel} text-[var(--oip-gold)]`}>Selected matters</p>
-          <h2 id="matters-title" className={`${displayClass} mt-4 text-5xl leading-tight`}>
-            Public records, practical machinery.
-          </h2>
-        </header>
-        <MattersCarousel>
-          {A.map(content.matters, (matter) => (
-            <a
-              key={matter.id}
-              href={matter.source.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex h-full min-h-[34rem] flex-col overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_80%,black)] text-[var(--oip-on-soil)] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
-            >
-              <figure className="min-w-0 border-b border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[var(--oip-figure-ground)]">
-                <Image
-                  className="aspect-[4/3] w-full object-contain p-5"
-                  src={matter.figure.src}
-                  alt={matter.figure.alt}
-                  width={matter.figure.width ?? 900}
-                  height={matter.figure.height ?? 600}
-                  sizes="(min-width: 1024px) 31vw, 84vw"
-                />
-                {P.isString(matter.figure.credit) ? (
-                  <figcaption className="overflow-wrap-anywhere border-t border-[var(--oip-rule)] px-5 py-3 font-[family-name:var(--font-oip-mono)] text-sm font-semibold leading-6 tracking-[0.04em] text-[var(--oip-figure-caption)]">
-                    {matter.figure.credit}
-                  </figcaption>
-                ) : null}
-              </figure>
-              <div className="grid min-w-0 gap-3 p-5">
-                <p className={`${monoLabel} min-h-8 text-[var(--oip-gold)]`}>{matter.eyebrow}</p>
-                <p className={`${monoLabel} text-[var(--oip-cream-muted)]`}>{matter.caption}</p>
-                <h3 className={`${displayClass} text-3xl leading-tight`}>{matter.title}</h3>
-                <p className="text-sm leading-7 text-[var(--oip-cream-muted)]">{matter.body}</p>
-                {P.isString(matter.citation) ? (
-                  <p className="font-[family-name:var(--font-oip-mono)] text-xs leading-6 text-[var(--oip-gold)]">
-                    {matter.citation}
-                  </p>
-                ) : null}
-                <span className="mt-2 font-[family-name:var(--font-oip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--oip-gold)]">
-                  {matter.source.label}
-                </span>
-              </div>
-            </a>
-          ))}
-        </MattersCarousel>
-      </div>
-    </section>
-  );
-}
+// function Matters({ content }: { readonly content: OipSiteContent }) {
+//   return (
+//     <section
+//       className="bg-[var(--oip-soil)] py-20 text-[var(--oip-on-soil)]"
+//       id="matters"
+//       aria-labelledby="matters-title"
+//     >
+//       <div className={sectionShell}>
+//         <header className="max-w-3xl">
+//           <p className={`${monoLabel} text-[var(--oip-gold)]`}>Selected matters</p>
+//           <h2 id="matters-title" className={`${displayClass} mt-4 text-5xl leading-tight`}>
+//             Public records, practical machinery.
+//           </h2>
+//         </header>
+//         <MattersCarousel>
+//           {A.map(content.matters, (matter) => (
+//             <a
+//               key={matter.id}
+//               href={matter.source.href}
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className="group flex h-full min-h-[34rem] flex-col overflow-hidden rounded-lg border border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_80%,black)] text-[var(--oip-on-soil)] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
+//             >
+//               <figure className="min-w-0 border-b border-[color-mix(in_oklab,var(--oip-on-soil)_18%,transparent)] bg-[var(--oip-figure-ground)]">
+//                 <Image
+//                   className="aspect-[4/3] w-full object-contain p-5"
+//                   src={matter.figure.src}
+//                   alt={matter.figure.alt}
+//                   width={matter.figure.width ?? 900}
+//                   height={matter.figure.height ?? 600}
+//                   sizes="(min-width: 1024px) 31vw, 84vw"
+//                 />
+//                 {P.isString(matter.figure.credit) ? (
+//                   <figcaption className="overflow-wrap-anywhere border-t border-[var(--oip-rule)] px-5 py-3 font-[family-name:var(--font-oip-mono)] text-sm font-semibold leading-6 tracking-[0.04em] text-[var(--oip-figure-caption)]">
+//                     {matter.figure.credit}
+//                   </figcaption>
+//                 ) : null}
+//               </figure>
+//               <div className="grid min-w-0 gap-3 p-5">
+//                 <p className={`${monoLabel} min-h-8 text-[var(--oip-gold)]`}>{matter.eyebrow}</p>
+//                 <p className={`${monoLabel} text-[var(--oip-cream-muted)]`}>{matter.caption}</p>
+//                 <h3 className={`${displayClass} text-3xl leading-tight`}>{matter.title}</h3>
+//                 <p className="text-sm leading-7 text-[var(--oip-cream-muted)]">{matter.body}</p>
+//                 {P.isString(matter.citation) ? (
+//                   <p className="font-[family-name:var(--font-oip-mono)] text-xs leading-6 text-[var(--oip-gold)]">
+//                     {matter.citation}
+//                   </p>
+//                 ) : null}
+//                 <span className="mt-2 font-[family-name:var(--font-oip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--oip-gold)]">
+//                   {matter.source.label}
+//                 </span>
+//               </div>
+//             </a>
+//           ))}
+//         </MattersCarousel>
+//       </div>
+//     </section>
+//   );
+// }
 
-function Clients({ content }: { readonly content: OipSiteContent }) {
-  return (
-    <section className="bg-[var(--oip-paper)] py-14 text-[var(--oip-body)]" id="clients" aria-label="Selected clients">
-      <div className={sectionShell}>
-        <p className={`${monoLabel} text-center text-[var(--oip-burgundy)]`}>Counsel of record for selected matters</p>
-        <ul className="mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
-          {A.map(content.clients, (client) => {
-            const logo = (
-              <img
-                src={client.logo.src}
-                alt={client.logo.alt}
-                loading="lazy"
-                decoding="async"
-                className="max-h-12 w-full max-w-40 object-contain opacity-[0.86] transition-opacity hover:opacity-100"
-                style={
-                  {
-                    aspectRatio: client.aspectRatio,
-                    filter: "var(--oip-client-logo-filter)",
-                  } satisfies CSSProperties
-                }
-              />
-            );
-            return (
-              <li key={client.id} className="flex min-h-16 items-center justify-center">
-                {P.isString(client.website) ? (
-                  <a
-                    href={client.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${client.logo.alt} (opens in a new tab)`}
-                    className="flex w-full items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
-                  >
-                    {logo}
-                  </a>
-                ) : (
-                  logo
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
-  );
-}
+// function Clients({ content }: { readonly content: OipSiteContent }) {
+//   return (
+//     <section className="bg-[var(--oip-paper)] py-14 text-[var(--oip-body)]" id="clients" aria-label="Selected clients">
+//       <div className={sectionShell}>
+//         <p className={`${monoLabel} text-center text-[var(--oip-burgundy)]`}>Counsel of record for selected matters</p>
+//         <ul className="mt-8 grid grid-cols-2 items-center gap-x-8 gap-y-7 sm:grid-cols-3 lg:grid-cols-5">
+//           {A.map(content.clients, (client) => {
+//             const logo = (
+//               <img
+//                 src={client.logo.src}
+//                 alt={client.logo.alt}
+//                 loading="lazy"
+//                 decoding="async"
+//                 className="max-h-12 w-full max-w-40 object-contain opacity-[0.86] transition-opacity hover:opacity-100"
+//                 style={
+//                   {
+//                     aspectRatio: client.aspectRatio,
+//                     filter: "var(--oip-client-logo-filter)",
+//                   } satisfies CSSProperties
+//                 }
+//               />
+//             );
+//             return (
+//               <li key={client.id} className="flex min-h-16 items-center justify-center">
+//                 {P.isString(client.website) ? (
+//                   <a
+//                     href={client.website}
+//                     target="_blank"
+//                     rel="noopener noreferrer"
+//                     aria-label={`${client.logo.alt} (opens in a new tab)`}
+//                     className="flex w-full items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[var(--oip-gold)]"
+//                   >
+//                     {logo}
+//                   </a>
+//                 ) : (
+//                   logo
+//                 )}
+//               </li>
+//             );
+//           })}
+//         </ul>
+//       </div>
+//     </section>
+//   );
+// }
 
-function Press({ content }: { readonly content: OipSiteContent }) {
-  return (
-    <section className="bg-[var(--oip-paper)] py-20 text-[var(--oip-body)]" id="press" aria-labelledby="press-title">
-      <div className={sectionShell}>
-        <header className="max-w-3xl">
-          <p className={`${monoLabel} text-[var(--oip-burgundy)]`}>Selected press</p>
-          <h2 id="press-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--oip-heading)]`}>
-            In the trade and legal press.
-          </h2>
-        </header>
-        <ul className="mt-10 grid gap-5">
-          {A.map(content.press, (item) => (
-            <li key={item.source.href} className="border-t border-[var(--oip-rule)] pt-5">
-              <article className="grid gap-4 md:grid-cols-[14rem_1fr_auto] md:items-start">
-                <p className="font-[family-name:var(--font-oip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--oip-muted)]">
-                  <time dateTime={item.date}>{item.dateLabel}</time>
-                  <br />
-                  {item.publication}
-                </p>
-                <div>
-                  <h3 className={`${displayClass} text-3xl leading-tight text-[var(--oip-heading)]`}>
-                    <ExternalAnchor className="hover:text-[var(--oip-burgundy)]" href={item.source.href}>
-                      {item.headline}
-                    </ExternalAnchor>
-                  </h3>
-                  <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--oip-body)]">{item.body}</p>
-                </div>
-                <ExternalAnchor
-                  className="font-[family-name:var(--font-oip-mono)] text-xs font-medium uppercase tracking-[0.12em] text-[var(--oip-burgundy)]"
-                  href={item.source.href}
-                >
-                  {item.source.label}
-                </ExternalAnchor>
-              </article>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+// function Press({ content }: { readonly content: OipSiteContent }) {
+//   return (
+//     <section className="bg-[var(--oip-paper)] py-20 text-[var(--oip-body)]" id="press" aria-labelledby="press-title">
+//       <div className={sectionShell}>
+//         <header className="max-w-3xl">
+//           <p className={`${monoLabel} text-[var(--oip-burgundy)]`}>Selected press</p>
+//           <h2 id="press-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--oip-heading)]`}>
+//             In the trade and legal press.
+//           </h2>
+//         </header>
+//         <ul className="mt-10 grid gap-5">
+//           {A.map(content.press, (item) => (
+//             <li key={item.source.href} className="border-t border-[var(--oip-rule)] pt-5">
+//               <article className="grid gap-4 md:grid-cols-[14rem_1fr_auto] md:items-start">
+//                 <p className="font-[family-name:var(--font-oip-mono)] text-xs uppercase tracking-[0.12em] text-[var(--oip-muted)]">
+//                   <time dateTime={item.date}>{item.dateLabel}</time>
+//                   <br />
+//                   {item.publication}
+//                 </p>
+//                 <div>
+//                   <h3 className={`${displayClass} text-3xl leading-tight text-[var(--oip-heading)]`}>
+//                     <ExternalAnchor className="hover:text-[var(--oip-burgundy)]" href={item.source.href}>
+//                       {item.headline}
+//                     </ExternalAnchor>
+//                   </h3>
+//                   <p className="mt-3 max-w-3xl text-sm leading-7 text-[var(--oip-body)]">{item.body}</p>
+//                 </div>
+//                 <ExternalAnchor
+//                   className="font-[family-name:var(--font-oip-mono)] text-xs font-medium uppercase tracking-[0.12em] text-[var(--oip-burgundy)]"
+//                   href={item.source.href}
+//                 >
+//                   {item.source.label}
+//                 </ExternalAnchor>
+//               </article>
+//             </li>
+//           ))}
+//         </ul>
+//       </div>
+//     </section>
+//   );
+// }
 
 function Contact({
   content,
@@ -406,6 +406,7 @@ function Contact({
 }) {
   const { contact } = content;
   const mailto = `mailto:${contact.email}?subject=oip.law%20-%20new%20matter`;
+  const officePhoneHref = `tel:${contact.officePhone}`;
 
   return (
     <section
@@ -429,7 +430,13 @@ function Contact({
             >
               {contact.email}
             </a>
-            <span className={`${monoLabel} text-[var(--oip-on-burgundy-accent)]`}>Iowa and Minnesota Bars</span>
+            <a
+              className={`${ctaClass} border border-[color-mix(in_oklab,var(--oip-on-soil)_42%,transparent)] text-[var(--oip-on-soil)] hover:border-white hover:text-white`}
+              href={officePhoneHref}
+            >
+              {contact.officePhone}
+            </a>
+            {/*<span className={`${monoLabel} text-[var(--oip-on-burgundy-accent)]`}>Iowa and Minnesota Bars</span>*/}
           </div>
         </div>
         <div className="grid gap-5">
@@ -542,9 +549,9 @@ export function OipHomePage({
         <Hero content={content} />
         <About content={content} />
         <Practice content={content} />
-        <Matters content={content} />
-        <Clients content={content} />
-        <Press content={content} />
+        {/*<Matters content={content} />*/}
+        {/*<Clients content={content} />*/}
+        {/*<Press content={content} />*/}
         <Contact content={content} initialSubmittedAt={initialContactSubmittedAt} status={contactStatus} />
       </main>
       <Footer content={content} />

@@ -30,7 +30,7 @@ const rawOipSiteContent = {
     siteName: "OIP - Oppold IP Law",
     title: "Patent counsel for the people who build the machines | Thomas J. Oppold",
     description:
-      "Patent counsel for agricultural equipment and the people who build the machines. Patent prosecution, litigation, IPR, trademark, and licensing - Iowa and Minnesota Bars, USPTO registered.",
+      "Patent counsel for agricultural equipment and the people who build the machines. Patent prosecution, litigation, IPR, trademark, and licensing, USPTO registered.",
     linkedInUrl: "https://www.linkedin.com/in/thomas-oppold-b92939/",
     ogImage: "/oip/oip-og.png",
   },
@@ -44,7 +44,7 @@ const rawOipSiteContent = {
   hero: {
     headline: "Thirty years as patent counsel for people who build machines",
     lede: "Patent counsel for the people who build the machines.",
-    primaryCta: { href: "#contact", label: "Open an engagement" },
+    primaryCta: { href: "#contact", label: "Contact" },
     secondaryCta: { href: "#matters", label: "Recent matters" },
     portrait: {
       src: "/oip/hero/portrait.png",
@@ -351,13 +351,14 @@ const rawOipSiteContent = {
   ],
   contact: {
     email: "toppold@oip.law",
-    title: "Open an engagement.",
-    lede: "New matters by direct introduction. A line about the technology, the posture, and any conflicts you can name is the right opening.",
+    officePhone: "+16122010409",
+    title: "Send Tom an email.",
+    lede: "",
     notice: [
-      "Thomas J. Oppold is licensed to practice law in Iowa and Minnesota and registered to practice before the United States Patent and Trademark Office.",
+      // "Thomas J. Oppold is licensed to practice law in Iowa and Minnesota and registered to practice before the United States Patent and Trademark Office.",
       "Information on this site is for general informational purposes only and is not legal advice.",
       "Sending an email does not create an attorney-client relationship; an engagement begins only on countersignature of a written engagement letter following a conflicts check.",
-      "Past results do not guarantee future outcomes.",
+      // "Past results do not guarantee future outcomes.",
     ],
     review: needsReview("Confirm contact email, jurisdictions, and notice text before launch."),
   },

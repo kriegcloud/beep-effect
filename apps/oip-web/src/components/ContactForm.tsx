@@ -10,6 +10,7 @@
 import { $OipWebId } from "@beep/identity";
 import { EmailString } from "@beep/schema";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
@@ -29,9 +30,19 @@ const submittedAtAtom = Atom.make(0);
 const submitContactAtom = OipContactHttpApiClient.mutation("contact", "submit");
 const contactReactivityKeys = ["oip-contact"] as const;
 
+const HTMLFormElementCtor = globalThis.HTMLFormElement;
+const isHTMLFormElement = (value: unknown): value is HTMLFormElement =>
+  P.isFunction(HTMLFormElementCtor) && value instanceof HTMLFormElementCtor;
+
+const DOMHtmlFormElement = S.declare(isHTMLFormElement).pipe(
+  $I.annoteSchema("DOMHtmlFormElement", {
+    description: "A browser HTML form element.",
+  })
+);
+
 class SubmitContactForm extends S.Class<SubmitContactForm>($I`SubmitContactForm`)(
   {
-    form: S.instanceOf(HTMLFormElement),
+    form: DOMHtmlFormElement,
     initialSubmittedAt: S.Finite,
   },
   $I.annote("SubmitContactForm", {
@@ -161,10 +172,6 @@ export function ContactForm({ email, initialSubmittedAt, status }: ContactFormPr
       <label className={labelClass}>
         Technology
         <input className={inputClass} name="technology" />
-      </label>
-      <label className={labelClass}>
-        Posture
-        <input className={inputClass} name="posture" />
       </label>
       <label className={labelClass}>
         Message
