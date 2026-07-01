@@ -5,6 +5,7 @@ import {
   $EpistemicDomainId,
   $I,
   $LawPracticeDomainId,
+  $OntologyId,
   $SchemaId,
   $WorkspaceDomainId,
 } from "@beep/identity/packages";
@@ -82,7 +83,7 @@ describe("@beep/identity", () => {
     });
 
     expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/tenant_profile-name"));
-    expect(annotation.identifier).toBe("tenant_profile-name");
+    expect(annotation.identifier).toBe("@beep/schema/tenant_profile-name");
     expect(annotation.title).toBe("Tenant Profile Name");
     expect(annotation.default).toEqual({ version: 1 });
     expect(annotation.description).toBe("Tenant schema");
@@ -102,12 +103,58 @@ describe("@beep/identity", () => {
     const annotations = S.resolveAnnotations(schema);
 
     expect(annotations?.schemaId).toBe(Symbol.for("@beep/schema/tenant_profile-name"));
-    expect(annotations?.identifier).toBe("tenant_profile-name");
+    expect(annotations?.identifier).toBe("@beep/schema/tenant_profile-name");
     expect(annotations?.title).toBe("Tenant Profile Name");
     expect(annotations?.default).toBe("tenant");
     expect(annotations?.description).toBe("Tenant schema");
     expect(annotations?.toArbitrary).toBe(toArbitrary);
     expect(annotations?.version).toBe(1);
+  });
+
+  it("composes full annotation identifiers for nested schema composers", () => {
+    const $I = $OntologyId.create("Ontology.models");
+
+    class RegressionOWLClass extends S.Class<RegressionOWLClass>($I`OWLClass`)(
+      {
+        iri: S.String,
+      },
+      $I.annote("OWLClass", {
+        description: "Regression model for ontology class annotations.",
+      })
+    ) {}
+
+    const classAnnotations = S.resolveAnnotations(RegressionOWLClass);
+    const schemaAnnotations = S.resolveAnnotations(
+      S.String.pipe(
+        $I.annoteSchema("OWLClassLabel", {
+          description: "Regression schema annotation.",
+        })
+      )
+    );
+    const keyAnnotations = getKeyAnnotations(
+      S.Struct({
+        iri: S.String.pipe(
+          $I.annoteKey<{ readonly iri: string }>()("OWLClass.iri", {
+            description: "Regression key annotation.",
+          })
+        ),
+      })
+    );
+    const httpAnnotations = S.resolveAnnotations(
+      S.String.pipe(
+        $I.annoteHttp("OWLClassResponse", {
+          description: "Regression HTTP annotation.",
+          httpApiStatus: 200,
+        })
+      )
+    );
+
+    expect(classAnnotations?.identifier).toBe("@beep/ontology/Ontology.models/OWLClass");
+    expect(classAnnotations?.schemaId).toBe(Symbol.for("@beep/ontology/Ontology.models/OWLClass"));
+    expect(classAnnotations?.title).toBe("OWLClass");
+    expect(schemaAnnotations?.identifier).toBe("@beep/ontology/Ontology.models/OWLClassLabel");
+    expect(getProperty(keyAnnotations, "identifier")).toBe("@beep/ontology/Ontology.models/OWLClass.iri");
+    expect(httpAnnotations?.identifier).toBe("@beep/ontology/Ontology.models/OWLClassResponse");
   });
 
   it("preserves tagged-union statics when applying annoteSchema", () => {
@@ -141,7 +188,7 @@ describe("@beep/identity", () => {
         }
       )
     ).toBe("message");
-    expect(annotations?.identifier).toBe("SocketEvent");
+    expect(annotations?.identifier).toBe("@beep/schema/SocketEvent");
   });
 
   it("preserves custom own statics when applying annoteSchema", () => {
@@ -165,7 +212,7 @@ describe("@beep/identity", () => {
 
     expect(String(S.decodeUnknownExit(schema)({}))).toContain("Field1 is required");
     expect(getProperty(annotations, "schemaId")).toBe(Symbol.for("@beep/schema/MyClass.field1"));
-    expect(getProperty(annotations, "identifier")).toBe("MyClass.field1");
+    expect(getProperty(annotations, "identifier")).toBe("@beep/schema/MyClass.field1");
     expect(getProperty(annotations, "title")).toBe("MyClass.field1");
     expect(getProperty(annotations, "description")).toBe("Primary field");
     expect(getProperty(annotations, "messageMissingKey")).toBe("Field1 is required");
@@ -186,7 +233,7 @@ describe("@beep/identity", () => {
     const annotations = S.resolveAnnotations(schema);
 
     expect(annotations?.schemaId).toBe(Symbol.for("@beep/schema/TextResponse"));
-    expect(annotations?.identifier).toBe("TextResponse");
+    expect(annotations?.identifier).toBe("@beep/schema/TextResponse");
     expect(annotations?.title).toBe("TextResponse");
     expect(annotations?.description).toBe("Text response payload");
     expect(annotations?.httpApiStatus).toBe(202);
@@ -238,7 +285,7 @@ describe("@beep/identity", () => {
 
     const annotation = $SchemaId.annote("Tenant");
     expect(annotation.schemaId).toBe(Symbol.for("@beep/schema/Tenant"));
-    expect(annotation.identifier).toBe("Tenant");
+    expect(annotation.identifier).toBe("@beep/schema/Tenant");
     expect(annotation.title).toBe("Tenant");
 
     expect($I.create("custom").make("CustomService")).toBe("@beep/custom/CustomService");

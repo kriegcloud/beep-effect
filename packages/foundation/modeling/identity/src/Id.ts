@@ -500,8 +500,8 @@ export type IdentityAnyAnnotationExtras<
 /**
  * Fully resolved identity annotation record applied to Effect schemas.
  *
- * Contains an `identifier` string, an interned `schemaId` symbol, and a
- * human-readable `title` derived from the identifier.
+ * Contains a full-path `identifier` string, an interned `schemaId` symbol, and a
+ * human-readable `title` derived from the local identifier segment.
  *
  * @example
  * ```typescript
@@ -514,7 +514,7 @@ export type IdentityAnyAnnotationExtras<
  * @category models
  */
 export type IdentityAnnotation<Value extends string, Identifier extends string> = S.Annotations.Annotations & {
-  readonly identifier: Identifier;
+  readonly identifier: IdentityString<Value>;
   readonly schemaId: IdentitySymbol<Value>;
   readonly title: TitleFromIdentifier<Identifier>;
 };
@@ -609,7 +609,7 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  * const annotation = $MyPkgId.annote("UserSchema", {
  *
  * })
- * console.log(annotation.identifier)// "UserSchema"
+ * console.log(annotation.identifier)// "@beep/my-pkg/UserSchema"
  * console.log(annotation.title)// "UserSchema"
  * ```
  *
@@ -631,7 +631,7 @@ export interface IdentityComposer<Value extends string> {
    * const { $MyPkgId } = make("my-pkg")
    * const ann = $MyPkgId.annote("UserCreated", { description: "A user was created." })
    *
-   * console.log(ann.identifier)// "UserCreated"
+   * console.log(ann.identifier)// "@beep/my-pkg/UserCreated"
    * console.log(ann.title)// "UserCreated"
    * console.log(ann.description)// "A user was created."
    * ```
@@ -1009,7 +1009,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
 
     return {
       schemaId: composer.symbol(),
-      identifier: next,
+      identifier: composer.string(),
       title: toTitle(next),
     } satisfies IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
   };

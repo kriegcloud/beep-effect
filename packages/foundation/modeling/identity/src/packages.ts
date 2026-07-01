@@ -186,7 +186,7 @@ export const $IdentityId = composers.$IdentityId;
  * Identity composer for the `@beep/schema` package.
  *
  * @example
- * ```typescript
+ * ```ts
  * import { $SchemaId } from "@beep/identity"
  *
  * const id = $SchemaId.make("EntityId")
@@ -278,10 +278,10 @@ export const $UtilsId = composers.$UtilsId;
  * Identity composer for the `@beep/ui` package.
  *
  * @example
- * ```typescript
+ * ```ts
  * import { $UiId } from "@beep/identity"
  *
- * const id = $UiId.make("Button")
+ * const id = $UiId.make("Button") // initial type: `Identity.IdentityComposer<"@beep/ui/Button">`
  * ```
  *
  * @since 0.0.0

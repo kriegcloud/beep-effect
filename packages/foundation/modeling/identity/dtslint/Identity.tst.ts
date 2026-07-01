@@ -3,6 +3,7 @@ import {
   $AgentsUseCasesId,
   $EpistemicDomainId,
   $LawPracticeDomainId,
+  $OntologyId,
   $WorkspaceDomainId,
   make,
 } from "@beep/identity";
@@ -61,10 +62,21 @@ describe("Identity", () => {
 
     expect<TitleFromIdentifier<"tenant_profile-name">>().type.toBe<"Tenant Profile Name">();
     expect(annotation.schemaId).type.toBe<IdentitySymbol<"@beep/schema/tenant_profile-name">>();
-    expect(annotation.identifier).type.toBe<"tenant_profile-name">();
+    expect(annotation.identifier).type.toBe<IdentityString<"@beep/schema/tenant_profile-name">>();
     expect(annotation.title).type.toBe<"Tenant Profile Name">();
     expect(annotation.default).type.toBe<{ readonly version: 1 }>();
     expect(annotation.version).type.toBe<1>();
+  });
+
+  it("types nested annote identifiers as full composed identity strings", () => {
+    const $I = $OntologyId.create("Ontology.models");
+    const annotation = $I.annote("OWLClass", {
+      description: "Regression model for ontology class annotations.",
+    });
+
+    expect(annotation.schemaId).type.toBe<IdentitySymbol<"@beep/ontology/Ontology.models/OWLClass">>();
+    expect(annotation.identifier).type.toBe<IdentityString<"@beep/ontology/Ontology.models/OWLClass">>();
+    expect(annotation.title).type.toBe<"OWLClass">();
   });
 
   it("types annoteSchema and annoteHttp like schema annotators", () => {
