@@ -7,7 +7,7 @@
 
 import { DuckDb } from "@beep/duckdb";
 import { $RepoAiMetricsId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { A, Str } from "@beep/utils";
 import { Clock, Effect, FileSystem, flow, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
@@ -27,6 +27,22 @@ import {
 import { hashPublicTextSha256, redactAiMetricsSensitiveText } from "./privacy.ts";
 
 const $I = $RepoAiMetricsId.create("scorecard");
+
+// Canonical coverage-gap code domain — one source of truth for the conditional detector
+// (coverageGapsFor) and the empty-scorecards fallback list.
+const AiMetricsCoverageGap = LiteralKit([
+  "no_tasks",
+  "no_labels",
+  "no_benchmark_runs",
+  "scorecard_completion_credit_blocked",
+  "model_call_metrics_unavailable_not_scored",
+  "tool_invocation_metrics_unavailable_not_scored",
+  "cost_metrics_unavailable_not_scored",
+]).pipe(
+  $I.annoteSchema("AiMetricsCoverageGap", {
+    description: "Canonical AI-metrics scorecard coverage-gap codes.",
+  })
+);
 
 /**
  * Error raised by AI metrics label, benchmark, or scorecard workflows.
@@ -1196,13 +1212,19 @@ const coverageGapsFor = ({
 }): ReadonlyArray<string> =>
   pipe(
     [
-      taskCount === 0 ? O.some("no_tasks") : O.none<string>(),
-      labelCount === 0 ? O.some("no_labels") : O.none<string>(),
-      benchmarkRunCount === 0 ? O.some("no_benchmark_runs") : O.none<string>(),
-      labelCount === 0 || benchmarkRunCount === 0 ? O.some("scorecard_completion_credit_blocked") : O.none<string>(),
-      coverage.modelCallCount === 0 ? O.some("model_call_metrics_unavailable_not_scored") : O.none<string>(),
-      coverage.toolInvocationCount === 0 ? O.some("tool_invocation_metrics_unavailable_not_scored") : O.none<string>(),
-      O.some("cost_metrics_unavailable_not_scored"),
+      taskCount === 0 ? O.some(AiMetricsCoverageGap.Enum.no_tasks) : O.none<string>(),
+      labelCount === 0 ? O.some(AiMetricsCoverageGap.Enum.no_labels) : O.none<string>(),
+      benchmarkRunCount === 0 ? O.some(AiMetricsCoverageGap.Enum.no_benchmark_runs) : O.none<string>(),
+      labelCount === 0 || benchmarkRunCount === 0
+        ? O.some(AiMetricsCoverageGap.Enum.scorecard_completion_credit_blocked)
+        : O.none<string>(),
+      coverage.modelCallCount === 0
+        ? O.some(AiMetricsCoverageGap.Enum.model_call_metrics_unavailable_not_scored)
+        : O.none<string>(),
+      coverage.toolInvocationCount === 0
+        ? O.some(AiMetricsCoverageGap.Enum.tool_invocation_metrics_unavailable_not_scored)
+        : O.none<string>(),
+      O.some(AiMetricsCoverageGap.Enum.cost_metrics_unavailable_not_scored),
     ],
     A.getSomes
   );
@@ -1433,19 +1455,7 @@ export const generateAiMetricsWeeklyReport: (
       yield* Effect.forEach(scorecards, writeScorecard, { discard: true, concurrency: 8 });
       const coverageGaps = pipe(
         A.flatMap(scorecards, (scorecard) => scorecard.coverageGaps),
-        A.appendAll(
-          A.isReadonlyArrayNonEmpty(scorecards)
-            ? A.empty<string>()
-            : [
-                "no_tasks",
-                "no_labels",
-                "no_benchmark_runs",
-                "scorecard_completion_credit_blocked",
-                "model_call_metrics_unavailable_not_scored",
-                "tool_invocation_metrics_unavailable_not_scored",
-                "cost_metrics_unavailable_not_scored",
-              ]
-        ),
+        A.appendAll(A.isReadonlyArrayNonEmpty(scorecards) ? A.empty<string>() : [...AiMetricsCoverageGap.Options]),
         A.dedupe,
         A.sort(Order.String)
       );
