@@ -107,6 +107,9 @@
       "@beep/repo-cli/commands/Root": [
         "../../../../packages/tooling/tool/cli/src/commands/Root.ts"
       ],
+      "@beep/repo-cli/commands/Skills": [
+        "../../../../packages/tooling/tool/cli/src/commands/Skills/index.ts"
+      ],
       "@beep/repo-cli/commands/SyncDataToTs": [
         "../../../../packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts"
       ],

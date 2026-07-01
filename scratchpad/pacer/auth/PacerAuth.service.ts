@@ -14,9 +14,8 @@
  */
 
 import { $ScratchpadId } from "@beep/identity";
-import { Context, Effect, Layer, Redacted, Ref } from "effect";
+import { Context, Effect, Layer, pipe, Redacted, Ref } from "effect";
 import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
@@ -53,11 +52,11 @@ const makeService = (client: HttpClient.HttpClient, cfg: PacerConfig): PacerAuth
     const requestBody = CsoAuthRequest.make({
       loginId: Redacted.value(cfg.loginId),
       password: Redacted.value(cfg.password),
-      ...R.getSomes({ clientCode: cfg.clientCode }),
-      ...R.getSomes({ otpCode: O.map(cfg.otpCode, Redacted.value) }),
-      // Filers (e-filing accounts) must attest redaction compliance; PACER returns
-      // loginResult "1" if a filer omits it. Search-only accounts leave it off.
-      ...R.getSomes({ redactFlag: cfg.isFiler === true ? O.some("1") : O.none<string>() }),
+	    clientCode: cfg.clientCode,
+	    otpCode: O.map(cfg.otpCode, Redacted.value),
+	    // Filers (e-filing accounts) must attest redaction compliance; PACER returns
+	    // loginResult "1" if a filer omits it. Search-only accounts leave it off.
+	    redactFlag: O.flatMap(cfg.isFiler, (isFiler) => isFiler ? O.some("1") : O.none<string>()),
     });
     const baseRequest = HttpClientRequest.post(`${cfg.authBaseUrl}/services/cso-auth`).pipe(
       HttpClientRequest.accept("application/json")
@@ -67,12 +66,17 @@ const makeService = (client: HttpClient.HttpClient, cfg: PacerConfig): PacerAuth
     const body = yield* HttpClientResponse.schemaBodyJson(CsoAuthResponse)(response).pipe(Effect.mapError(decoding));
 
     if (body.loginResult !== "0" || body.nextGenCSO === "") {
-      return yield* PacerAuthError.fromLoginResult(body.loginResult, body.errorDescription);
+      return yield* PacerAuthError.fromLoginResult(body.loginResult, body.errorDescription.pipe(O.getOrUndefined));
     }
     // loginResult "0" can still carry a non-fatal search-privilege warning.
-    if (body.errorDescription !== undefined && body.errorDescription.length > 0) {
-      yield* Effect.logWarning(`PACER login succeeded with a warning: ${body.errorDescription}`);
-    }
+    yield* pipe(
+      body.errorDescription,
+      O.filter((description) => description.length > 0),
+      O.match({
+        onNone: () => Effect.void,
+        onSome: (description) => Effect.logWarning(`PACER login succeeded with a warning: ${description}`),
+      })
+    );
     return NextGenCsoToken.make(body.nextGenCSO);
   });
 

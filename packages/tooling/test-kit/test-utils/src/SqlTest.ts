@@ -26,7 +26,7 @@ const PgliteDockerContextUrl = new URL("../docker/pglite", import.meta.url);
 const PgliteHealthCheckCommand =
   "node -e \"const { Client } = require('pg'); const client = new Client({ host: '127.0.0.1', port: Number(process.env.PGPORT || '5432'), database: process.env.PGDATABASE, user: process.env.PGUSER, password: process.env.PGPASSWORD, ssl: false }); client.connect().then(() => client.query('select 1')).then(() => client.end()).catch((cause) => { console.error(cause); process.exit(1); });\"";
 const PgliteHealthCheckIntervalMs = 1_000;
-const PgExternalClientEndTimeout = Duration.seconds(1);
+const PgExternalClientEndTimeout = Duration.seconds(5);
 const PgExternalSchemaDropTimeout = Duration.seconds(10);
 let pgliteImageBuild = O.none<Promise<GenericContainer>>();
 

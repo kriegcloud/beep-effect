@@ -16,7 +16,8 @@
 
 import * as HttpStatus from "@beep/schema/HttpStatus";
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, Stream } from "effect";
+import { Effect, pipe, Stream } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FastCheck } from "effect/testing";
 import { mockPacerConfig } from "./Pacer.config.ts";
@@ -104,14 +105,14 @@ describe("PACER end-to-end (mock transport)", () => {
         const pcl = yield* PclClient;
         const cases = yield* Stream.runCollect(pcl.streamCases(CourtCaseSearchDto.make({})));
         expect(cases.length).toBe(PACER_MOCK_TOTAL_CASES);
-        const parties = yield* pcl.findParties(PartySearchDto.make({ lastName: "Henderson" }));
-        expect((parties.content ?? []).length).toBe(1);
+        const parties = yield* pcl.findParties(PartySearchDto.make({ lastName: O.some("Henderson") }));
+        expect(pipe(parties.content, O.getOrElse(() => [])).length).toBe(1);
       }))
 
     it.effect("runs the batch download lifecycle (start → poll → download → delete)", () =>
       Effect.gen(function* () {
         const pcl = yield* PclClient;
-        const downloaded = yield* pcl.downloadCases(CourtCaseSearchDto.make({ caseNumberFull: "1:2002bk20340" }));
+        const downloaded = yield* pcl.downloadCases(CourtCaseSearchDto.make({ caseNumberFull: O.some("1:2002bk20340") }));
         expect(downloaded.length).toBe(PACER_MOCK_DOWNLOAD_CASES);
       }))
   });
