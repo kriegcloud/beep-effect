@@ -7,7 +7,7 @@ describe("PromiseSchema", () => {
     const value = globalThis.Promise.resolve(1);
 
     expect(isPromise(value)).toBe(true);
-    expect(S.decodeUnknownSync(PromiseSchema)(value)).toBe(value);
+    expect(S.decodeUnknownSync(PromiseSchema())(value)).toBe(value);
   });
 
   it("accepts Promise subclasses", () => {
@@ -16,7 +16,7 @@ describe("PromiseSchema", () => {
     const value = DerivedPromise.resolve(1);
 
     expect(isPromise(value)).toBe(true);
-    expect(S.decodeUnknownSync(PromiseSchema)(value)).toBe(value);
+    expect(S.decodeUnknownSync(PromiseSchema())(value)).toBe(value);
   });
 
   it("rejects promise-like objects that are not native promises", () => {
@@ -28,11 +28,11 @@ describe("PromiseSchema", () => {
     };
 
     expect(isPromise(thenable)).toBe(false);
-    expect(() => S.decodeUnknownSync(PromiseSchema)(thenable)).toThrow(/Expected Promise/);
+    expect(() => S.decodeUnknownSync(PromiseSchema())(thenable)).toThrow(/Expected Promise/);
   });
 
   it("rejects non-promise values", () => {
     expect(isPromise("nope")).toBe(false);
-    expect(() => S.decodeUnknownSync(PromiseSchema)("nope")).toThrow(/Expected Promise/);
+    expect(() => S.decodeUnknownSync(PromiseSchema())("nope")).toThrow(/Expected Promise/);
   });
 });

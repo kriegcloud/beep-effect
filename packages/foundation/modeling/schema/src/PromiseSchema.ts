@@ -61,7 +61,7 @@ const promiseAnnotations = {
  * @category validation
  * @since 0.0.0
  */
-export const isPromise = (u: unknown): u is globalThis.Promise<unknown> =>
+export const isPromise = <Value>(u: unknown): u is globalThis.Promise<Value> =>
   P.isObject(u) &&
   "then" in u &&
   P.isFunction(u.then) &&
@@ -88,7 +88,7 @@ export const isPromise = (u: unknown): u is globalThis.Promise<unknown> =>
  * @category validation
  * @since 0.0.0
  */
-export const PromiseSchema = S.declare<globalThis.Promise<unknown>>(isPromise, promiseAnnotations).pipe(
+export const PromiseSchema = <Value>() => S.declare<globalThis.Promise<Value>>(isPromise, promiseAnnotations).pipe(
   $I.annoteSchema("PromiseSchema", {
     description: "A schema that validates native JavaScript Promise values.",
   })
@@ -109,4 +109,4 @@ export const PromiseSchema = S.declare<globalThis.Promise<unknown>>(isPromise, p
  * @category models
  * @since 0.0.0
  */
-export type PromiseSchema = typeof PromiseSchema.Type;
+export type PromiseSchema<Value> = ReturnType<typeof PromiseSchema<Value>>["Type"];
