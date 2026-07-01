@@ -16,18 +16,25 @@ const $I = $DrizzleId.create("Drizzle.errors");
 const REDACTED_SQL_PARAMETER = "<redacted>";
 
 /**
- * Optional query context captured while normalizing Drizzle driver failures.
+ * Optional SQL text and parameter context captured while normalizing Drizzle failures.
+ *
+ * @remarks
+ * The context class stores the values supplied by the adapter. Parameter
+ * redaction happens when the context is passed through
+ * {@link DrizzleError.fromUnknown}.
  *
  * @example
  * ```ts
+ * import { deepStrictEqual, strictEqual } from "node:assert"
  * import { DrizzleErrorContext } from "@beep/drizzle"
  *
  * const context = DrizzleErrorContext.make({
- *   query: "select 1",
- *   params: []
+ *   query: "select * from accounts where id = $1",
+ *   params: [123]
  * })
  *
- * console.log(context)
+ * strictEqual(context.query, "select * from accounts where id = $1")
+ * deepStrictEqual(context.params, [123])
  * ```
  *
  * @category errors
@@ -213,13 +220,16 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> =
 };
 
 /**
- * Technical failure raised by the `@beep/drizzle` driver boundary.
+ * Technical failure normalized at the `@beep/drizzle` driver boundary.
  *
+ * @remarks
  * `operation` identifies the driver operation that failed. Optional query
- * context is captured when Drizzle's native Effect query error exposes it.
+ * context is captured from explicit context or native Drizzle Effect query
+ * errors, with parameter values redacted before they leave the boundary.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { DrizzleError } from "@beep/drizzle"
  * import * as O from "effect/Option"
  *
@@ -230,7 +240,9 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> =
  *   params: O.none()
  * })
  *
- * console.log(error)
+ * strictEqual(error._tag, "DrizzleError")
+ * strictEqual(error.operation, "execute")
+ * strictEqual(O.isNone(error.params), true)
  * ```
  *
  * @category errors
@@ -251,16 +263,26 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError
   /**
    * Normalize an unknown driver failure into a {@link DrizzleError}.
    *
+   * @remarks
+   * Existing `DrizzleError` values keep their original operation and query
+   * context, but parameter values are replaced with redaction markers. Native
+   * Drizzle Effect query errors and `Failed query:` messages are inspected
+   * defensively so hostile or cyclic causes do not escape normalization.
+   *
    * @example
    * ```ts
+   * import { deepStrictEqual, strictEqual } from "node:assert"
    * import { DrizzleError } from "@beep/drizzle"
+   * import * as O from "effect/Option"
    *
-   * const error = DrizzleError.fromUnknown("execute", new Error("boom"), {
-   *   query: "select 1",
-   *   params: []
-   * })
+   * const error = DrizzleError.fromUnknown(
+   *   "execute",
+   *   new Error("driver failed"),
+   *   { query: "select * from accounts where id = $1", params: [123] }
+   * )
    *
-   * console.log(error)
+   * strictEqual(O.getOrThrow(error.query), "select * from accounts where id = $1")
+   * deepStrictEqual(O.getOrThrow(error.params), ["<redacted>"])
    * ```
    *
    * @category errors

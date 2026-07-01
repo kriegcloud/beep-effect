@@ -81,10 +81,33 @@ type OrtTensor = import("onnxruntime-node").Tensor;
  *
  * @example
  * ```ts
- * import type { LoadedFaceDetector } from "@beep/face-detection/FaceDetection.service"
+ * import { Effect } from "effect"
+ * import { FaceDetectionImageRequest, FaceDetectionResult } from "@beep/face-detection"
+ * import type { LoadedFaceDetector } from "@beep/face-detection"
  *
- * const value = {} as LoadedFaceDetector
- * console.log(value)
+ * const detector: LoadedFaceDetector = {
+ *   detect: (request) =>
+ *     Effect.succeed(
+ *       FaceDetectionResult.make({
+ *         faces: [],
+ *         height: 480,
+ *         imagePath: request.imagePath,
+ *         width: 640
+ *       })
+ *     )
+ * }
+ *
+ * const result = Effect.runSync(
+ *   detector.detect(
+ *     FaceDetectionImageRequest.make({
+ *       imagePath: "./photo.jpg",
+ *       minConfidence: 0.8,
+ *       nmsThreshold: 0.3,
+ *       topK: 20
+ *     })
+ *   )
+ * )
+ * console.log(result.faces.length)
  * ```
  *
  * @category services
@@ -99,10 +122,39 @@ export interface LoadedFaceDetector {
  *
  * @example
  * ```ts
- * import type { FaceDetectionServiceShape } from "@beep/face-detection/FaceDetection.service"
+ * import { Effect } from "effect"
+ * import { FaceDetectionImageRequest, FaceDetectionModelConfig, FaceDetectionResult } from "@beep/face-detection"
+ * import type { FaceDetectionServiceShape, LoadedFaceDetector } from "@beep/face-detection"
  *
- * const value = {} as FaceDetectionServiceShape
- * console.log(value)
+ * const detector: LoadedFaceDetector = {
+ *   detect: (request) =>
+ *     Effect.succeed(
+ *       FaceDetectionResult.make({
+ *         faces: [],
+ *         height: 480,
+ *         imagePath: request.imagePath,
+ *         width: 640
+ *       })
+ *     )
+ * }
+ * const service: FaceDetectionServiceShape = {
+ *   withDetector: (_config, use) => use(detector)
+ * }
+ * const result = Effect.runSync(
+ *   service.withDetector(
+ *     FaceDetectionModelConfig.make({ modelPath: "./yunet.onnx" }),
+ *     (loaded) =>
+ *       loaded.detect(
+ *         FaceDetectionImageRequest.make({
+ *           imagePath: "./photo.jpg",
+ *           minConfidence: 0.8,
+ *           nmsThreshold: 0.3,
+ *           topK: 20
+ *         })
+ *       )
+ *   )
+ * )
+ * console.log(result.imagePath)
  * ```
  *
  * @category services
@@ -120,9 +172,47 @@ export interface FaceDetectionServiceShape {
  *
  * @example
  * ```ts
- * import { FaceDetectionService } from "@beep/face-detection/FaceDetection.service"
+ * import { Effect } from "effect"
+ * import {
+ *   FaceDetectionImageRequest,
+ *   FaceDetectionModelConfig,
+ *   FaceDetectionResult,
+ *   FaceDetectionService
+ * } from "@beep/face-detection"
+ * import type { LoadedFaceDetector } from "@beep/face-detection"
  *
- * console.log(FaceDetectionService)
+ * const detector: LoadedFaceDetector = {
+ *   detect: (request) =>
+ *     Effect.succeed(
+ *       FaceDetectionResult.make({
+ *         faces: [],
+ *         height: 480,
+ *         imagePath: request.imagePath,
+ *         width: 640
+ *       })
+ *     )
+ * }
+ * const service = FaceDetectionService.of({
+ *   withDetector: (_config, use) => use(detector)
+ * })
+ * const program = Effect.gen(function* () {
+ *   const faceDetection = yield* FaceDetectionService
+ *   return yield* faceDetection.withDetector(
+ *     FaceDetectionModelConfig.make({ modelPath: "./yunet.onnx" }),
+ *     (loaded) =>
+ *       loaded.detect(
+ *         FaceDetectionImageRequest.make({
+ *           imagePath: "./photo.jpg",
+ *           minConfidence: 0.8,
+ *           nmsThreshold: 0.3,
+ *           topK: 20
+ *         })
+ *       )
+ *   )
+ * })
+ *
+ * const result = Effect.runSync(Effect.provideService(program, FaceDetectionService, service))
+ * console.log(result.width)
  * ```
  *
  * @category services
@@ -133,6 +223,16 @@ export class FaceDetectionService extends Context.Service<FaceDetectionService, 
 ) {
   /**
    * Live ONNX Runtime service layer.
+   *
+   * @example
+   * ```ts
+   * import { Layer } from "effect"
+   * import { FaceDetectionService } from "@beep/face-detection"
+   *
+   * const layer = FaceDetectionService.makeLayer()
+   * const isLayer = Layer.isLayer(layer)
+   * console.log(isLayer)
+   * ```
    *
    * @category layers
    * @since 0.0.0
@@ -603,11 +703,16 @@ const makeLoadedDetector = (ort: Ort, session: OrtSession): LoadedFaceDetector =
 /**
  * Construct the live ONNX Runtime service implementation.
  *
+ * @remarks
+ * Construction is pure; ONNX Runtime is imported and the model session is
+ * opened only when the returned service's `withDetector` method is executed.
+ *
  * @example
  * ```ts
  * import { makeFaceDetectionService } from "@beep/face-detection/FaceDetection.service"
  *
- * console.log(makeFaceDetectionService)
+ * const service = makeFaceDetectionService()
+ * console.log(typeof service.withDetector)
  * ```
  *
  * @category services
@@ -636,15 +741,52 @@ export const makeFaceDetectionService = (): FaceDetectionServiceShape =>
 /**
  * Run a workflow with a loaded face detector.
  *
- * @param config - Model configuration.
- * @param use - Workflow to run with the loaded detector.
- * @returns The workflow result.
  * @example
  * ```ts
- * import { withDetector } from "@beep/face-detection/FaceDetection.service"
+ * import { Effect } from "effect"
+ * import {
+ *   FaceDetectionImageRequest,
+ *   FaceDetectionModelConfig,
+ *   FaceDetectionResult,
+ *   FaceDetectionService,
+ *   withDetector
+ * } from "@beep/face-detection"
+ * import type { LoadedFaceDetector } from "@beep/face-detection"
  *
- * console.log(withDetector)
+ * const detector: LoadedFaceDetector = {
+ *   detect: (request) =>
+ *     Effect.succeed(
+ *       FaceDetectionResult.make({
+ *         faces: [],
+ *         height: 480,
+ *         imagePath: request.imagePath,
+ *         width: 640
+ *       })
+ *     )
+ * }
+ * const service = FaceDetectionService.of({
+ *   withDetector: (_config, use) => use(detector)
+ * })
+ * const program = withDetector(
+ *   FaceDetectionModelConfig.make({ modelPath: "./yunet.onnx" }),
+ *   (loaded) =>
+ *     loaded.detect(
+ *       FaceDetectionImageRequest.make({
+ *         imagePath: "./photo.jpg",
+ *         minConfidence: 0.8,
+ *         nmsThreshold: 0.3,
+ *         topK: 20
+ *       })
+ *     )
+ * )
+ *
+ * const result = Effect.runSync(Effect.provideService(program, FaceDetectionService, service))
+ * console.log(result.imagePath)
  * ```
+ *
+ * @effects Requires {@link FaceDetectionService} in context. With the live
+ * service, each invocation validates the model config, opens an ONNX Runtime
+ * session for the callback, and releases the session after the callback exits.
  *
  * @category use-cases
  * @since 0.0.0

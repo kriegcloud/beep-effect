@@ -1,5 +1,10 @@
 /**
- * Schema-first models for the DuckDB driver boundary.
+ * Schema-first request and row models for the DuckDB driver boundary.
+ *
+ * @remarks
+ * These models describe the technical DuckDB boundary only. Domain packages
+ * define their own row projections and decode those projections after this
+ * driver has returned JSON-compatible row objects.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -12,17 +17,22 @@ const { $DuckdbId } = make("duckdb");
 const $I = $DuckdbId.create("DuckDb.models");
 
 /**
- * Connection options for a DuckDB database.
+ * Connection options for opening a DuckDB database instance.
+ *
+ * @remarks
+ * Use `":memory:"` for an in-memory database. File paths are passed to the
+ * native DuckDB Node API as-is; this package does not create parent
+ * directories or encode domain-specific storage policy.
  *
  * @example
  * ```ts
  * import { DuckDbConnectionOptions } from "@beep/duckdb"
  *
  * const options = DuckDbConnectionOptions.make({
- *   databasePath: "metrics.duckdb"
+ *   databasePath: ":memory:"
  * })
  *
- * console.log(options)
+ * console.log(options.databasePath) // ":memory:"
  * ```
  *
  * @category models
@@ -39,7 +49,13 @@ export class DuckDbConnectionOptions extends S.Class<DuckDbConnectionOptions>($I
 ) {}
 
 /**
- * Parquet export request for a DuckDB table.
+ * Request to export one DuckDB table to a Parquet file.
+ *
+ * @remarks
+ * The service quotes `tableName` and `filePath` before constructing DuckDB's
+ * `COPY ... TO ... (FORMAT parquet)` statement. The request does not describe
+ * filtering or projection; callers create the table shape they want before
+ * exporting it.
  *
  * @example
  * ```ts
@@ -50,7 +66,7 @@ export class DuckDbConnectionOptions extends S.Class<DuckDbConnectionOptions>($I
  *   tableName: "ai_metrics_ingest_runs"
  * })
  *
- * console.log(request)
+ * console.log(`${request.tableName} -> ${request.filePath}`)
  * ```
  *
  * @category models
@@ -67,19 +83,20 @@ export class DuckDbParquetExport extends S.Class<DuckDbParquetExport>($I`DuckDbP
 ) {}
 
 /**
- * JSON-compatible row returned from DuckDB queries.
+ * Schema for a JSON-compatible row returned from a DuckDB query.
+ *
+ * @remarks
+ * The native row reader can produce arbitrary JavaScript values. The service
+ * decodes those values through this schema before returning rows, so invalid
+ * row shapes fail as {@link DuckDbError} instead of leaking unchecked data.
  *
  * @example
  * ```ts
  * import { DuckDbRow } from "@beep/duckdb"
- * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * const program = Effect.gen(function* () {
- *   return yield* S.decodeUnknownEffect(DuckDbRow)({ count: 1 })
- * })
- *
- * console.log(program)
+ * const row = S.decodeUnknownSync(DuckDbRow)({ count: 1, id: "run-1" })
+ * console.log(row.id) // "run-1"
  * ```
  *
  * @category schemas
@@ -92,14 +109,14 @@ export const DuckDbRow = S.Record(S.String, S.Unknown).pipe(
 );
 
 /**
- * Type for {@link DuckDbRow}.
+ * Runtime TypeScript type represented by {@link DuckDbRow}.
  *
  * @example
  * ```ts
  * import type { DuckDbRow } from "@beep/duckdb"
  *
- * const row: DuckDbRow = { count: 1 }
- * console.log(row)
+ * const row = { count: 1, id: "run-1" } satisfies DuckDbRow
+ * console.log(Object.keys(row)) // ["count", "id"]
  * ```
  *
  * @category models
@@ -108,19 +125,21 @@ export const DuckDbRow = S.Record(S.String, S.Unknown).pipe(
 export type DuckDbRow = typeof DuckDbRow.Type;
 
 /**
- * JSON-compatible rows returned from DuckDB queries.
+ * Schema for the row set returned from a DuckDB query.
+ *
+ * @remarks
+ * `DuckDb.query` decodes the complete array through this schema after the
+ * native reader returns row objects. The schema intentionally stays
+ * product-neutral; callers decode domain-specific row shapes in their own
+ * package.
  *
  * @example
  * ```ts
  * import { DuckDbRows } from "@beep/duckdb"
- * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
- * const program = Effect.gen(function* () {
- *   return yield* S.decodeUnknownEffect(DuckDbRows)([])
- * })
- *
- * console.log(program)
+ * const rows = S.decodeUnknownSync(DuckDbRows)([{ id: "run-1" }])
+ * console.log(rows.length) // 1
  * ```
  *
  * @category schemas
@@ -133,14 +152,14 @@ export const DuckDbRows = S.Array(DuckDbRow).pipe(
 );
 
 /**
- * Type for {@link DuckDbRows}.
+ * Runtime TypeScript type represented by {@link DuckDbRows}.
  *
  * @example
  * ```ts
  * import type { DuckDbRows } from "@beep/duckdb"
  *
- * const rows: DuckDbRows = []
- * console.log(rows)
+ * const rows = [{ id: "run-1" }] satisfies DuckDbRows
+ * console.log(rows[0]?.id) // "run-1"
  * ```
  *
  * @category models

@@ -1,5 +1,10 @@
 /**
- * Typed errors raised by the DuckDB driver boundary.
+ * Typed error models and normalization helpers for the DuckDB driver boundary.
+ *
+ * @remarks
+ * Native `@duckdb/node-api` failures enter this package as `unknown`. The
+ * exported normalizer converts them into a single tagged error shape so callers
+ * can catch `DuckDbError` without depending on native error internals.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -21,17 +26,25 @@ const existingDuckDbError = (cause: unknown): O.Option<DuckDbError> =>
   S.is(DuckDbError)(cause) ? O.some(cause) : O.none();
 
 /**
- * Options used when normalizing unknown DuckDB boundary failures.
+ * Diagnostic context captured while normalizing an unknown DuckDB failure.
+ *
+ * @remarks
+ * `databasePath` and `statement` are copied into the resulting
+ * {@link DuckDbError} when present. The unknown failure value supplied to
+ * {@link DuckDbError.fromUnknown} is retained only when it has an inspectable
+ * defect shape, keeping opaque native values out of the public error payload.
  *
  * @example
  * ```ts
- * import { DuckDbErrorFromUnknownOptions } from "@beep/duckdb"
+ * import { DuckDbError, DuckDbErrorFromUnknownOptions } from "@beep/duckdb"
  *
  * const options = DuckDbErrorFromUnknownOptions.make({
  *   databasePath: "metrics.duckdb",
- *   statement: "select 1"
+ *   statement: "select * from missing_table"
  * })
- * console.log(options)
+ *
+ * const error = DuckDbError.fromUnknown("query", new Error("no table"), options)
+ * console.log(error.statement) // "select * from missing_table"
  * ```
  *
  * @category errors
@@ -52,18 +65,29 @@ export class DuckDbErrorFromUnknownOptions extends S.Class<DuckDbErrorFromUnknow
 ) {}
 
 /**
- * Technical failure raised by the `@beep/duckdb` driver boundary.
+ * Recoverable technical failure raised by the DuckDB driver boundary.
+ *
+ * @remarks
+ * The error captures the driver operation that failed plus optional database
+ * path and SQL statement context. Native failures are normalized through
+ * {@link DuckDbError.fromUnknown}; callers usually handle this error by tag in
+ * the Effect failure channel.
  *
  * @example
  * ```ts
  * import { DuckDbError } from "@beep/duckdb"
+ * import { Effect } from "effect"
  *
- * const error = DuckDbError.make({
+ * const failing = Effect.fail(DuckDbError.make({
  *   message: "DuckDB query failed.",
  *   operation: "query"
- * })
+ * }))
  *
- * console.log(error)
+ * const recovered = failing.pipe(
+ *   Effect.catchTag("DuckDbError", (error) => Effect.succeed(error.operation))
+ * )
+ *
+ * Effect.runPromise(recovered).then(console.log) // "query"
  * ```
  *
  * @category errors
@@ -83,17 +107,24 @@ export class DuckDbError extends TaggedErrorClass<DuckDbError>($I`DuckDbError`)(
   })
 ) {
   /**
-   * Normalize an unknown native DuckDB failure into a {@link DuckDbError}.
+   * Normalize an unknown native DuckDB failure into a tagged driver error.
+   *
+   * @remarks
+   * Existing {@link DuckDbError} values are returned unchanged, which lets
+   * adapter code call the normalizer at multiple boundaries without wrapping
+   * the same failure repeatedly. The helper supports both data-first and
+   * data-last forms for use in `Effect.mapError` and `Effect.try*` callbacks.
    *
    * @example
    * ```ts
    * import { DuckDbError } from "@beep/duckdb"
    *
-   * const error = DuckDbError.fromUnknown("run", new Error("boom"), {
-   *   statement: "select 1"
+   * const normalizeRunFailure = DuckDbError.fromUnknown(new Error("boom"), {
+   *   databasePath: ":memory:"
    * })
    *
-   * console.log(error)
+   * const error = normalizeRunFailure("run")
+   * console.log(error.operation) // "run"
    * ```
    *
    * @category errors

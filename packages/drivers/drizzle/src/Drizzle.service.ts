@@ -14,15 +14,20 @@ import type { DrizzleError } from "./Drizzle.errors.ts";
 const $I = $DrizzleId.create("Drizzle.service");
 
 /**
- * Schema for rows returned by a product-neutral Drizzle adapter.
+ * Schema for opaque row arrays returned by a product-neutral Drizzle adapter.
+ *
+ * @remarks
+ * The driver validates only the array boundary. Product repositories should
+ * decode row objects with their own schemas after execution.
  *
  * @example
  * ```ts
+ * import { deepStrictEqual } from "node:assert"
  * import { DrizzleRows } from "@beep/drizzle"
  * import * as S from "effect/Schema"
  *
- * const rows = S.decodeUnknownSync(DrizzleRows)([])
- * console.log(rows)
+ * const rows = S.decodeUnknownSync(DrizzleRows)([{ id: 1 }])
+ * deepStrictEqual(rows, [{ id: 1 }])
  * ```
  *
  * @category schemas
@@ -35,14 +40,15 @@ export const DrizzleRows = S.Array(S.Unknown).pipe(
 );
 
 /**
- * Type for {@link DrizzleRows}.
+ * Runtime row-array type decoded by {@link DrizzleRows}.
  *
  * @example
  * ```ts
+ * import { deepStrictEqual } from "node:assert"
  * import type { DrizzleRows } from "@beep/drizzle"
  *
- * const rows: DrizzleRows = []
- * console.log(rows)
+ * const rows: DrizzleRows = [{ id: 1 }]
+ * deepStrictEqual(rows, [{ id: 1 }])
  * ```
  *
  * @category models
@@ -51,23 +57,32 @@ export const DrizzleRows = S.Array(S.Unknown).pipe(
 export type DrizzleRows = typeof DrizzleRows.Type;
 
 /**
- * Narrow adapter accepted by {@link Drizzle.makeLayer}.
+ * Narrow adapter contract accepted by {@link Drizzle.makeLayer}.
  *
- * The adapter is intentionally product-neutral: composition decides whether it
- * is backed by Postgres or another database runtime.
+ * @remarks
+ * Implementations own connection management, SQL execution, and transaction
+ * callback scoping. This package wraps that adapter without binding it to a
+ * concrete database runtime.
  *
  * @example
  * ```ts
+ * import { deepStrictEqual } from "node:assert"
  * import type { DrizzleClient } from "@beep/drizzle"
  * import { Effect } from "effect"
  *
  * const client: DrizzleClient = {
- *   execute: () => Effect.succeed([]),
+ *   execute: (statement, parameters) => Effect.succeed([{ statement, parameters }]),
  *   withTransaction: (use) => use(client)
  * }
  *
- * console.log(client)
+ * const rows = Effect.runSync(client.execute("select 1", []))
+ * deepStrictEqual(rows, [{ statement: "select 1", parameters: [] }])
  * ```
+ *
+ * @effects
+ * - `execute` delegates SQL execution to the backing adapter and may read or
+ *   write database state depending on the statement.
+ * - `withTransaction` delegates transaction scoping to the backing adapter.
  *
  * @category models
  * @since 0.0.0
@@ -80,20 +95,33 @@ export interface DrizzleClient {
 }
 
 /**
- * Runtime shape exposed by the {@link Drizzle} service.
+ * Service API exposed after yielding the {@link Drizzle} service.
+ *
+ * @remarks
+ * Transaction callbacks receive another `DrizzleShape` so call sites stay
+ * independent of native transaction handles.
  *
  * @example
  * ```ts
+ * import { deepStrictEqual } from "node:assert"
  * import type { DrizzleShape } from "@beep/drizzle"
  * import { Effect } from "effect"
  *
- * const service: DrizzleShape = {
- *   execute: () => Effect.succeed([]),
+ * let service: DrizzleShape
+ * service = {
+ *   execute: (statement, parameters) => Effect.succeed([`${statement}:${parameters.length}`]),
  *   withTransaction: (use) => use(service)
  * }
  *
- * console.log(service)
+ * const rows = Effect.runSync(
+ *   service.withTransaction((transaction) => transaction.execute("select 1", []))
+ * )
+ * deepStrictEqual(rows, ["select 1:0"])
  * ```
+ *
+ * @effects
+ * - `execute` performs adapter-backed SQL execution.
+ * - `withTransaction` runs the callback in the adapter's transaction scope.
  *
  * @category services
  * @since 0.0.0
@@ -112,14 +140,26 @@ const makeService = (client: DrizzleClient): DrizzleShape =>
   }) satisfies DrizzleShape;
 
 /**
- * Effect service for product-neutral Drizzle execution.
+ * Effect service tag for product-neutral Drizzle execution.
  *
  * @example
  * ```ts
- * import { Drizzle } from "@beep/drizzle"
+ * import { strictEqual } from "node:assert"
+ * import { Drizzle, type DrizzleClient } from "@beep/drizzle"
+ * import { Effect } from "effect"
  *
- * const tag = Drizzle
- * console.log(tag)
+ * const client: DrizzleClient = {
+ *   execute: () => Effect.succeed([{ ok: true }]),
+ *   withTransaction: (use) => use(client)
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const drizzle = yield* Drizzle
+ *   const rows = yield* drizzle.execute("select 1", [])
+ *   return rows.length
+ * }).pipe(Effect.provide(Drizzle.makeLayer(client)))
+ *
+ * strictEqual(Effect.runSync(program), 1)
  * ```
  *
  * @category services
@@ -129,19 +169,27 @@ export class Drizzle extends Context.Service<Drizzle, DrizzleShape>()($I`Drizzle
   /**
    * Build a Layer from a narrow product-neutral Drizzle adapter.
    *
+   * @remarks
+   * The layer is pure and does not acquire a database connection. Adapter
+   * side effects occur only when service methods are invoked.
+   *
    * @example
    * ```ts
+   * import { deepStrictEqual } from "node:assert"
    * import { Drizzle, type DrizzleClient } from "@beep/drizzle"
    * import { Effect } from "effect"
    *
    * const client: DrizzleClient = {
-   *   execute: () => Effect.succeed([]),
+   *   execute: (statement, parameters) => Effect.succeed([{ statement, parameters }]),
    *   withTransaction: (use) => use(client)
    * }
    *
-   * const layer = Drizzle.makeLayer(client)
+   * const program = Effect.gen(function* () {
+   *   const drizzle = yield* Drizzle
+   *   return yield* drizzle.withTransaction((transaction) => transaction.execute("select 1", []))
+   * }).pipe(Effect.provide(Drizzle.makeLayer(client)))
    *
-   * console.log(layer)
+   * deepStrictEqual(Effect.runSync(program), [{ statement: "select 1", parameters: [] }])
    * ```
    *
    * @category layers

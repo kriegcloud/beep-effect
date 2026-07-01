@@ -629,8 +629,8 @@ const makeNormalizeManifestOptions = (
   NormalizeManifestOptions.make({
     dedupe,
     format,
-    ...(O.isSome(maxLongEdge) ? { maxLongEdge: maxLongEdge.value } : {}),
-    ...(O.isSome(moveDuplicatesTo) ? { moveDuplicatesTo: moveDuplicatesTo.value } : {}),
+    ...R.getSomes({ maxLongEdge: maxLongEdge }),
+    ...R.getSomes({ moveDuplicatesTo: moveDuplicatesTo }),
     overwrite,
   });
 
@@ -1740,11 +1740,11 @@ const makeDetectFacesReportOptions = (
   DetectFacesReportOptions.make({
     edgeMarginPct: options.edgeMarginPct,
     json: options.json,
-    ...(O.isSome(options.manifest) ? { manifest: options.manifest.value } : {}),
+    ...R.getSomes({ manifest: options.manifest }),
     minConfidence: options.minConfidence,
     minFaceAreaPct: options.minFaceAreaPct,
     modelPath: options.modelPath,
-    ...(O.isSome(moveNoFaceDirectory) ? { moveNoFaceTo: moveNoFaceDirectory.value } : {}),
+    ...R.getSomes({ moveNoFaceTo: moveNoFaceDirectory }),
   });
 
 const archiveCandidateCollectedFile = (file: SortableFile): ArchiveCandidateCollectedEntries => ({
@@ -3350,8 +3350,8 @@ const withDetectFacesMovedNoFaceTarget = (
     movedNoFaceName: targetName,
     movedNoFacePath: targetPath,
     movedNoFaceRelativePath: targetRelativePath,
-    ...(O.isSome(primaryFace) ? { primaryFace: primaryFace.value } : {}),
-    ...(O.isSome(primaryFaceAreaPct) ? { primaryFaceAreaPct: primaryFaceAreaPct.value } : {}),
+    ...R.getSomes({ primaryFace: primaryFace }),
+    ...R.getSomes({ primaryFaceAreaPct: primaryFaceAreaPct }),
     sourceName: entry.sourceName,
     sourcePath: entry.sourcePath,
     width: entry.width,
@@ -4417,32 +4417,25 @@ const makeZeroProcessStatusCounts = (): Record<SourceProcessingStatus, number> =
   succeeded: 0,
 });
 
-const makeZeroProcessCoverageByFormat = (): Record<FileFormatFamily, Record<SourceProcessingStatus, number>> => {
-  let byFormat = R.empty<FileFormatFamily, Record<SourceProcessingStatus, number>>();
-
-  for (const format of processCoverageFormats) {
-    byFormat = R.set(byFormat, format, makeZeroProcessStatusCounts());
-  }
-
-  return byFormat;
-};
+const makeZeroProcessCoverageByFormat = (): Record<FileFormatFamily, Record<SourceProcessingStatus, number>> =>
+  R.fromEntries(A.map(processCoverageFormats, (format) => [format, makeZeroProcessStatusCounts()] as const));
 
 const makeProcessCoverageByFormat = (
   byFormat: Record<FileFormatFamily, Record<SourceProcessingStatus, number>>
-): FileProcessingCoverageSummary["byFormat"] => {
-  let brandedByFormat = R.empty<FileFormatFamily, Record<SourceProcessingStatus, NonNegativeInt>>();
-
-  for (const format of processCoverageFormats) {
-    const counts = byFormat[format];
-    brandedByFormat = R.set(brandedByFormat, format, {
-      failed: processCount(counts.failed),
-      skipped: processCount(counts.skipped),
-      succeeded: processCount(counts.succeeded),
-    });
-  }
-
-  return brandedByFormat as FileProcessingCoverageSummary["byFormat"];
-};
+): FileProcessingCoverageSummary["byFormat"] =>
+  R.fromEntries(
+    A.map(processCoverageFormats, (format) => {
+      const counts = byFormat[format];
+      return [
+        format,
+        {
+          failed: processCount(counts.failed),
+          skipped: processCount(counts.skipped),
+          succeeded: processCount(counts.succeeded),
+        },
+      ] as const;
+    })
+  ) as FileProcessingCoverageSummary["byFormat"];
 
 const sourceRecordHasTextPath = (record: SourceProcessingRecord): boolean =>
   record.status === "succeeded" && record.textPath !== undefined;
