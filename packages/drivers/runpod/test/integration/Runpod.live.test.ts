@@ -1,7 +1,22 @@
 import { Runpod } from "@beep/runpod";
 import { describe, expect, it } from "@effect/vitest";
-import { Config, Effect, Layer } from "effect";
+import { Config, Effect, Layer, Redacted } from "effect";
 import * as O from "effect/Option";
+import * as Str from "effect/String";
+
+// Resolve RUNPOD_API_KEY, treating absent, blank, or unresolved `op://` reference
+// values (present when secrets are not resolved, e.g. no local `op` session) as
+// not configured so live calls are skipped instead of authenticating with a
+// non-token.
+const usableRunpodApiKey = Config.redacted("RUNPOD_API_KEY").pipe(
+  Config.option,
+  Effect.map(
+    O.filter((value) => {
+      const raw = Redacted.value(value);
+      return Str.isNonEmpty(raw) && !Str.startsWith("op://")(raw);
+    })
+  )
+);
 
 const provideScopedLayer =
   <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
@@ -12,7 +27,7 @@ describe("@beep/runpod live", () => {
   it.effect(
     "lists pods when RUNPOD_API_KEY is configured",
     Effect.fnUntraced(function* () {
-      const apiKey = yield* Config.redacted("RUNPOD_API_KEY").pipe(Config.option);
+      const apiKey = yield* usableRunpodApiKey;
       if (O.isNone(apiKey)) {
         return;
       }
@@ -26,7 +41,7 @@ describe("@beep/runpod live", () => {
   it.effect(
     "fetches the unauthenticated OpenAPI document",
     Effect.fnUntraced(function* () {
-      const apiKey = yield* Config.redacted("RUNPOD_API_KEY").pipe(Config.option);
+      const apiKey = yield* usableRunpodApiKey;
       if (O.isNone(apiKey)) {
         return;
       }

@@ -12,8 +12,15 @@ import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
 
+// Treat absent, blank, or unresolved `op://` reference values (present when
+// secrets are not resolved, e.g. no local `op` session) as absent so the suite
+// skips live Graph calls instead of authenticating with a non-token.
 const envText = (name: string): O.Option<string> =>
-  pipe(O.fromUndefinedOr(Bun.env[name]), O.map(Str.trim), O.filter(Str.isNonEmpty));
+  pipe(
+    O.fromUndefinedOr(Bun.env[name]),
+    O.map(Str.trim),
+    O.filter((value) => Str.isNonEmpty(value) && !Str.startsWith("op://")(value))
+  );
 
 const liveEnv = O.all({
   clientId: envText("M365_CLIENT_ID"),

@@ -8,7 +8,7 @@
 /**
  * Re-exports Web Annotation value models from `@beep/rdf`.
  *
- * @category compatibility
+ * @category models
  * @since 0.0.0
  */
 export * from "@beep/rdf/Adapters/WebAnnotation";

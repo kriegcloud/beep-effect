@@ -5,7 +5,13 @@ import { Effect, Layer, pipe, Redacted } from "effect";
 import * as O from "effect/Option";
 import { FetchHttpClient } from "effect/unstable/http";
 
-const apiKey = pipe(Bun.env.AI_VENICE_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+// Skip when the key is absent, blank, or an unresolved `op://` reference (present
+// when secrets are not resolved, e.g. no local `op` session).
+const apiKey = pipe(
+  Bun.env.AI_VENICE_API_KEY,
+  O.fromUndefinedOr,
+  O.filter((value) => Str.isNonEmpty(value) && !Str.startsWith("op://")(value))
+);
 
 const makeLiveLayer = (key: string) =>
   VeniceAI.makeLayer(
