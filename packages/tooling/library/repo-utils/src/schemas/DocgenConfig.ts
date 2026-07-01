@@ -58,15 +58,15 @@ const withRootRelativePrefix: {
  * ```ts
  * import { DEFAULT_DOCGEN_EXCLUDE } from "@beep/repo-utils/schemas/DocgenConfig"
  *
- * const excludesInternalSources = DEFAULT_DOCGEN_EXCLUDE.includes("src/internal/**/ *.ts")
+ * const internalGlob = "src/internal/**" + "/*.ts"
+ * const excludesInternalSources = DEFAULT_DOCGEN_EXCLUDE.includes(internalGlob)
+ *
  * console.log(excludesInternalSources) // true
  * ```
  *
- *
-@category
-utilities
- * @since 0.0
-0.0 * /;;
+ * @category utilities
+ * @since 0.0.0
+ */
 export const DEFAULT_DOCGEN_EXCLUDE = ["src/internal/**/*.ts"] as const;
 
 /**
@@ -230,20 +230,18 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  *   CanonicalDocgenExamplesCompilerOptions
  * } from "@beep/repo-utils/schemas/DocgenConfig"
  *
+ * const internalGlob = "src/internal/**" + "/*.ts"
  * const config = CanonicalDocgenConfig.make({
  *   $schema: "../../packages/tooling/tool/docgen/schema.json",
- *   exclude: ["src/internal/**/ *.ts"],
+ *   exclude: [internalGlob],
  *   srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/example/src/",
- *   examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make(
-{
-  *     noEmit: true,
+ *   examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make({
+ *     noEmit: true,
  *     strict: true,
  *     skipLibCheck: true,
  *     moduleResolution: "bundler",
- *
-  module: "es2022",
- *     target
-  : "es2022",
+ *     module: "es2022",
+ *     target: "es2022",
  *     lib: ["ESNext", "DOM"],
  *     rewriteRelativeImportExtensions: true,
  *     allowImportingTsExtensions: true,
@@ -263,20 +261,16 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  *     noErrorTruncation: true,
  *     types: [],
  *     jsx: "react-jsx",
- *     paths:
-  *
-}
-)
+ *     paths: {}
+ *   })
  * })
  *
- * console.log(config.exclude[0]) // "src/internal/**/*.ts"
+ * console.log(config.exclude[0] === internalGlob) // true
  * ```
  *
- *
-@category
-models
- * @since 0.0
-0.0 * /;;
+ * @category models
+ * @since 0.0.0
+ */
 export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`CanonicalDocgenConfig`)(
   {
     $schema: S.String,
@@ -389,18 +383,15 @@ export const toDocgenExamplesCompilerOptionsJson = (
  * const json = toCanonicalDocgenConfigJson(
  *   CanonicalDocgenConfig.make({
  *     $schema: "../../packages/tooling/tool/docgen/schema.json",
- *     exclude: ["src/internal/**/ *.ts"],
+ *     exclude: ["src/internal/**" + "/*.ts"],
  *     srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/example/src/",
- *     examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make(
-{
-  *       noEmit: true,
+ *     examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make({
+ *       noEmit: true,
  *       strict: true,
  *       skipLibCheck: true,
  *       moduleResolution: "bundler",
- *
-  module: "es2022",
- *       target
-  : "es2022",
+ *       module: "es2022",
+ *       target: "es2022",
  *       lib: ["ESNext"],
  *       rewriteRelativeImportExtensions: true,
  *       allowImportingTsExtensions: true,
@@ -420,21 +411,17 @@ export const toDocgenExamplesCompilerOptionsJson = (
  *       noErrorTruncation: true,
  *       types: [],
  *       jsx: "react-jsx",
- *       paths:
-  *
-}
-)
+ *       paths: {}
+ *     })
  *   })
  * )
  *
  * console.log(json.srcLink.endsWith("/src/")) // true
  * ```
  *
- *
-@category
-models
- * @since 0.0
-0.0 * /;;
+ * @category models
+ * @since 0.0.0
+ */
 export const toCanonicalDocgenConfigJson = (
   config: CanonicalDocgenConfig
 ): {
@@ -725,18 +712,15 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  *
  * const canonical = CanonicalDocgenConfig.make({
  *   $schema: "../../packages/tooling/tool/docgen/schema.json",
- *   exclude: ["src/internal/**/ *.ts"],
+ *   exclude: ["src/internal/**" + "/*.ts"],
  *   srcLink: "https://github.com/beep-effect/beep-effect/tree/main/packages/example/src/",
- *   examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make(
-{
-  *     noEmit: true,
+ *   examplesCompilerOptions: CanonicalDocgenExamplesCompilerOptions.make({
+ *     noEmit: true,
  *     strict: true,
  *     skipLibCheck: true,
  *     moduleResolution: "bundler",
- *
-  module: "es2022",
- *     target
-  : "es2022",
+ *     module: "es2022",
+ *     target: "es2022",
  *     lib: ["ESNext"],
  *     rewriteRelativeImportExtensions: true,
  *     allowImportingTsExtensions: true,
@@ -756,15 +740,15 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  *     noErrorTruncation: true,
  *     types: [],
  *     jsx: "react-jsx",
- *     paths:
-  *
-}
-)
+ *     paths: {}
+ *   })
  * })
  *
+ * const generatedGlob = "src/generated/**" + "/*.ts"
+ * const merged = mergeManagedDocgenConfig({ exclude: [generatedGlob] }, canonical)
+ * const exclude = merged.exclude
  *
-const merged = mergeManagedDocgenConfig({ exclude: ["src/generated/**/*.ts"] }, canonical)
- * console.log(merged.exclude) // ["src/generated/**/*.ts"]
+ * console.log(Array.isArray(exclude) && exclude[0] === generatedGlob) // true
  * ```
  *
  * @category models

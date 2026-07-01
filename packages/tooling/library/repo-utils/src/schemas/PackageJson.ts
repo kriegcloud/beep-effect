@@ -1457,6 +1457,10 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
  * console.log(packageJson.name) // "@beep/example"
  * ```
  *
+ * @effects
+ * Runs strict Effect Schema decoding with excess-property rejection and fails
+ * with `S.SchemaError`; it performs no filesystem or process I/O.
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1485,6 +1489,11 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  * console.log(encoded.scripts?.check) // "tsgo -b tsconfig.json"
  * ```
  *
+ * @effects
+ * Decodes the input with strict package.json validation before encoding it back
+ * to the schema's external representation; failures are reported as
+ * `S.SchemaError`.
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1512,6 +1521,10 @@ export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  *
  * console.log(json.includes("\"type\":\"module\"")) // true
  * ```
+ *
+ * @effects
+ * Validates the package manifest and serializes the encoded value through the
+ * schema JSON-string encoder; failures are reported as `S.SchemaError`.
  *
  * @category validation
  * @since 0.0.0
@@ -1544,6 +1557,10 @@ export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<st
  *
  * console.log(pretty.includes("\n")) // true
  * ```
+ *
+ * @effects
+ * Validates and encodes the manifest, then pretty-prints the JSON payload;
+ * formatting failures surface as `DomainError`.
  *
  * @category validation
  * @since 0.0.0

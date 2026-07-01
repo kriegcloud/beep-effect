@@ -323,6 +323,11 @@ export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
  * console.log(Object.keys(normalized.dependencies ?? {})) // ["effect", "zod"]
  * ```
  *
+ * @effects
+ * Validates the package manifest through {@link encodePackageJsonEffect}, then
+ * canonicalizes key ordering in memory; failures are reported as
+ * `S.SchemaError`.
+ *
  * @category combinators
  * @since 0.0.0
  */

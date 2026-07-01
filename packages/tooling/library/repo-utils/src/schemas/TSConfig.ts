@@ -1709,6 +1709,10 @@ export const decodeTSConfigExit: (input: unknown) => Exit.Exit<TSConfig.Type, S.
  * console.log(config.compilerOptions?.strict) // true
  * ```
  *
+ * @effects
+ * Runs strict Effect Schema decoding and semantic normalization into
+ * `TSConfig`; failures are reported as `S.SchemaError`.
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1733,6 +1737,10 @@ export const decodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.Ty
  *
  * console.log(config.compilerOptions?.noEmit) // true
  * ```
+ *
+ * @effects
+ * Parses JSONC text through `@beep/schema/Jsonc`, then runs the same strict
+ * tsconfig schema decode; parse and validation failures are `S.SchemaError`s.
  *
  * @category validation
  * @since 0.0.0
@@ -1762,6 +1770,11 @@ export const decodeTSConfigFromJsoncTextEffect: (input: string) => Effect.Effect
  * console.log(encoded.compilerOptions?.moduleResolution) // "bundler"
  * ```
  *
+ * @effects
+ * Decodes the input with strict tsconfig validation before encoding it back to
+ * the schema's external representation; failures are reported as
+ * `S.SchemaError`.
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1786,6 +1799,10 @@ export const encodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.En
  *
  * console.log(json.includes("\"strict\":true")) // true
  * ```
+ *
+ * @effects
+ * Validates the tsconfig value and serializes the encoded representation
+ * through the schema JSON-string encoder; failures are `S.SchemaError`s.
  *
  * @category validation
  * @since 0.0.0
@@ -1815,6 +1832,10 @@ export const encodeTSConfigToJsonEffect: (input: unknown) => Effect.Effect<strin
  *
  * console.log(pretty.includes("\n")) // true
  * ```
+ *
+ * @effects
+ * Validates and encodes the tsconfig value, then pretty-prints the JSON
+ * payload; formatting failures surface as `DomainError`.
  *
  * @category validation
  * @since 0.0.0
