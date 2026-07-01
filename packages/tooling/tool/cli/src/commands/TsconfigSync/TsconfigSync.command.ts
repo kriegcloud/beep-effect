@@ -818,21 +818,6 @@ const pathSegments: (value: string) => ReadonlyArray<string> = flow(
   A.filter(Str.isNonEmpty)
 );
 
-const uniqueInInputOrder = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
-  const results = A.empty<string>();
-  let seen = HashSet.empty<string>();
-
-  for (const value of values) {
-    if (HashSet.has(seen, value)) {
-      continue;
-    }
-    seen = HashSet.add(seen, value);
-    A.appendInPlace(results, value);
-  }
-
-  return results;
-};
-
 const readStringArray = (value: unknown): ReadonlyArray<string> =>
   A.isArray(value) && A.every(value, P.isString) ? value : A.empty<string>();
 
@@ -898,7 +883,7 @@ const buildCanonicalTstycheTestFileMatch = (
     A.sort(byStringAscending)
   );
 
-  return uniqueInInputOrder([...workspacePatternEntries, ...explicitWorkspacePatterns]);
+  return A.dedupe([...workspacePatternEntries, ...explicitWorkspacePatterns]);
 };
 
 const SYNCPACK_SOURCE_ARRAY_PATTERN = /source:\s*\[(?<body>[\s\S]*?)\],/m;
@@ -931,7 +916,7 @@ const replaceSyncpackSources = (content: string, sources: ReadonlyArray<string>)
     : Effect.fail(DomainError.make({ message: "Failed to replace syncpack source array: source array not found" }));
 
 const buildCanonicalSyncpackSources = (workspacePatterns: ReadonlyArray<string>): ReadonlyArray<string> =>
-  uniqueInInputOrder(["package.json", ...A.map(workspacePatterns, (pattern) => `${pattern}/package.json`)]);
+  A.dedupe(["package.json", ...A.map(workspacePatterns, (pattern) => `${pattern}/package.json`)]);
 
 const chooseOwnerTsconfig = (paths: ReadonlyArray<string>): string | undefined => {
   const normalized = A.map(paths, toPosixPath);
@@ -1067,19 +1052,8 @@ const summaryCounts = (
   const currentSet = HashSet.fromIterable(currentItems);
   const expectedSet = HashSet.fromIterable(expectedItems);
 
-  let added = 0;
-  let removed = 0;
-
-  for (const entry of expectedSet) {
-    if (!HashSet.has(currentSet, entry)) {
-      added += 1;
-    }
-  }
-  for (const entry of currentSet) {
-    if (!HashSet.has(expectedSet, entry)) {
-      removed += 1;
-    }
-  }
+  const added = HashSet.size(HashSet.difference(expectedSet, currentSet));
+  const removed = HashSet.size(HashSet.difference(currentSet, expectedSet));
 
   const reordered = added === 0 && removed === 0 && !arraysEqual(currentItems, expectedItems);
 
@@ -1172,7 +1146,7 @@ const canonicalAliasEntriesForWorkspace = (
       ? A.empty<readonly [string, ReadonlyArray<string>]>()
       : ([[`${workspace.packageName}/*`, [workspace.wildcardAliasTarget]]] as const)),
     ...pipe(
-      O.getOrUndefined(O.fromUndefinedOr(workspace.subpathAliasTargets)) ?? R.empty(),
+      workspace.subpathAliasTargets ?? R.empty(),
       R.toEntries,
       A.map(([aliasKey, aliasTarget]) => [aliasKey, [aliasTarget]] as const)
     ),
@@ -1313,14 +1287,10 @@ const buildSubsetAdjacency = (
   for (const packageName of packageNames) {
     const depsOption = HashMap.get(adjacency, packageName);
 
-    let filteredDeps = HashSet.empty<string>();
-    if (O.isSome(depsOption)) {
-      for (const depName of depsOption.value) {
-        if (HashSet.has(packageSet, depName)) {
-          filteredDeps = HashSet.add(filteredDeps, depName);
-        }
-      }
-    }
+    const filteredDeps = O.match(depsOption, {
+      onNone: () => HashSet.empty<string>(),
+      onSome: (deps) => HashSet.intersection(packageSet, deps),
+    });
 
     subset = HashMap.set(subset, packageName, filteredDeps);
   }
@@ -1528,9 +1498,9 @@ const planPackageDocgenSync = Effect.fn(function* (
   const workspaceAliasSources = A.map(workspaces, (workspace) =>
     DocgenAliasSource.make({
       packageName: workspace.packageName,
-      rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
-      wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
-      subpathAliasTargets: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenSubpathAliasTargets)) ?? R.empty(),
+      rootAliasTarget: workspace.docgenRootAliasTarget ?? "",
+      wildcardAliasTarget: workspace.docgenWildcardAliasTarget ?? "",
+      subpathAliasTargets: workspace.docgenSubpathAliasTargets ?? R.empty(),
     })
   );
   const plannedChanges = A.empty<PlannedFileChange>();
@@ -1673,24 +1643,13 @@ export const syncTsconfigAtRoot: {
     const plannedChanges = A.empty<PlannedFileChange>();
 
     const rootReferenceChange = yield* planRootReferenceSync(rootDir, workspaces);
-    if (O.isSome(rootReferenceChange)) {
-      A.appendInPlace(plannedChanges, rootReferenceChange.value);
-    }
-
     const rootAliasChange = yield* planRootAliasSync(rootDir, workspaces);
-    if (O.isSome(rootAliasChange)) {
-      A.appendInPlace(plannedChanges, rootAliasChange.value);
-    }
-
     const rootTstycheChange = yield* planRootTstycheSync(rootDir, workspaces);
-    if (O.isSome(rootTstycheChange)) {
-      A.appendInPlace(plannedChanges, rootTstycheChange.value);
-    }
-
     const rootSyncpackChange = yield* planRootSyncpackSync(rootDir);
-    if (O.isSome(rootSyncpackChange)) {
-      A.appendInPlace(plannedChanges, rootSyncpackChange.value);
-    }
+    A.appendAllInPlace(
+      plannedChanges,
+      A.getSomes([rootReferenceChange, rootAliasChange, rootTstycheChange, rootSyncpackChange])
+    );
 
     const packageChanges = yield* planPackageReferenceSync(
       rootDir,
