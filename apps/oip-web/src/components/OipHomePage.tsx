@@ -127,7 +127,6 @@ function Hero({ content }: { readonly content: OipSiteContent }) {
     >
       <div className="relative z-10 flex min-h-[650px] flex-col justify-center px-5 py-10 sm:px-8 sm:py-14 lg:pl-[max(3rem,calc((100vw-80rem)/2+3rem))] lg:pr-14">
         <div className="max-w-[41rem] 2xl:max-w-[32rem]">
-          <p className={`${monoLabel} mb-5 text-[var(--oip-gold)]`}>{hero.citation}</p>
           <h1
             id="hero-title"
             className={`${displayClass} max-w-3xl text-5xl leading-[1.05] sm:text-6xl lg:text-7xl 2xl:text-[4.75rem]`}
@@ -156,9 +155,11 @@ function Hero({ content }: { readonly content: OipSiteContent }) {
 
       <div className="relative min-h-[420px] overflow-hidden bg-[var(--oip-soil)] lg:min-h-full lg:[clip-path:polygon(18%_0,100%_0,100%_100%,0_100%)]">
         <HeroVideo
-          poster={hero.videoPoster.src}
-          mp4={hero.video.src}
-          webm={hero.video.src.replace(/\.mp4$/, ".webm")}
+          clips={A.map(hero.clips, (clip) => ({
+            poster: clip.poster.src,
+            mp4: clip.video.src,
+            webm: clip.video.src.replace(/\.mp4$/, ".webm"),
+          }))}
         />
         <div className="absolute inset-0 bg-[linear-gradient(110deg,rgba(31,29,26,0.58),rgba(91,26,26,0.12),rgba(31,29,26,0.38))]" />
       </div>
@@ -204,30 +205,14 @@ function About({ content }: { readonly content: OipSiteContent }) {
                       sizes="(min-width: 1024px) 31vw, 90vw"
                     />
                   </div>
-                  <figcaption
-                    className={cn(
-                      "min-h-9 px-4 py-2 font-[family-name:var(--font-oip-mono)] text-[0.68rem] uppercase tracking-[0.12em]",
-                      isPortraitPanel ? "text-[var(--oip-cream-muted)]" : "text-[var(--oip-figure-caption)]"
-                    )}
-                  >
-                    {panel.image.credit}
-                  </figcaption>
                 </figure>
                 <div>
-                  <p className={`${monoLabel} text-[var(--oip-burgundy)]`}>{panel.kicker}</p>
-                  <h3 className={`${displayClass} mt-3 text-4xl leading-tight text-[var(--oip-heading)]`}>
-                    {panel.title}
-                  </h3>
+                  <h3 className={`${displayClass} text-4xl leading-tight text-[var(--oip-heading)]`}>{panel.title}</h3>
                   <p className="mt-4 text-base leading-7 text-[var(--oip-body)]">{panel.body}</p>
                 </div>
               </article>
             );
           })}
-        </div>
-        <div className="mt-14 border-t border-[var(--oip-rule)] pt-6 text-center">
-          <p className={`${displayClass} text-xl italic text-[var(--oip-walnut)]`}>
-            Each became part of how he reads a claim.
-          </p>
         </div>
       </div>
     </section>
@@ -243,16 +228,14 @@ function Practice({ content }: { readonly content: OipSiteContent }) {
     >
       <div className={sectionShell}>
         <header className="max-w-3xl">
-          <p className={`${monoLabel} text-[var(--oip-burgundy)]`}>Practice</p>
-          <h2 id="practice-title" className={`${displayClass} mt-4 text-5xl leading-tight text-[var(--oip-heading)]`}>
-            Five areas, one docket.
+          <h2 id="practice-title" className={`${displayClass} text-5xl leading-tight text-[var(--oip-heading)]`}>
+            Practice Areas
           </h2>
         </header>
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {A.map(content.practices, (practice) => (
             <article key={practice.id} className="rounded-lg border border-[var(--oip-rule)] bg-[var(--oip-card)] p-5">
-              <p className={`${monoLabel} text-[var(--oip-burgundy)]`}>{practice.id}</p>
-              <h3 className={`${displayClass} mt-4 min-h-[6rem] text-2xl leading-8 text-[var(--oip-heading)]`}>
+              <h3 className={`${displayClass} min-h-[3.5rem] text-2xl leading-8 text-[var(--oip-heading)]`}>
                 {practice.title}
               </h3>
               <p className="mt-4 text-sm leading-7 text-[var(--oip-body)]">{practice.body}</p>
