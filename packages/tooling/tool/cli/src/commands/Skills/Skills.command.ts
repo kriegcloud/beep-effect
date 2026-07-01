@@ -11,6 +11,8 @@ import { LiteralKit } from "@beep/schema";
 import { decodeTomlTextAs } from "@beep/schema/Toml";
 import { A, O, Str } from "@beep/utils";
 import { Console, Crypto, Effect, Encoding, FileSystem, Order, Path, pipe, Result } from "effect";
+import { dual } from "effect/Function";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -57,6 +59,9 @@ type SkillDrift =
   | {
       readonly _tag: "AgentsMirrorDrift";
     };
+
+type SkillDriftByTag<Tag extends SkillDrift["_tag"]> = Extract<SkillDrift, { readonly _tag: Tag }>;
+type SkillDriftLineFormatter<Tag extends SkillDrift["_tag"]> = (drift: SkillDriftByTag<Tag>) => string;
 
 /**
  * GitHub-backed skill source tracked by this checkout.
@@ -277,7 +282,11 @@ export const remoteSkillSources: ReadonlyArray<RemoteSkillSource> = [
   }),
 ];
 
-const remoteSkillSourcesByName = new Map(A.map(remoteSkillSources, (source) => [source.name, source] as const));
+const remoteSkillSourcesByName: Readonly<Record<string, RemoteSkillSource>> = pipe(
+  remoteSkillSources,
+  A.map((source) => [source.name, source] as const),
+  R.fromEntries
+);
 
 const checkFlag = Flag.boolean("check").pipe(
   Flag.withDescription("Report skill drift without writing files and exit non-zero when changes are needed")
@@ -575,7 +584,7 @@ const resolveSourcesToFetch = (
     return Effect.succeed(remoteSkillSources);
   }
 
-  const source = remoteSkillSourcesByName.get(selectedSkill.value);
+  const source = remoteSkillSourcesByName[selectedSkill.value];
   if (source === undefined) {
     return Effect.fail(
       SkillsCommandError.make({
@@ -643,15 +652,15 @@ const makeLockEntry = (computedHash: string, source: O.Option<RemoteSkillSource>
 
 const buildDesiredLock = Effect.fn("Skills.buildDesiredLock")(function* (
   repoRoot: string,
-  snapshotsByName: ReadonlyMap<string, SkillSnapshot>
+  snapshotsByName: Readonly<Record<string, SkillSnapshot>>
 ): Effect.fn.Return<SkillLockFile, SkillsCommandError, FileSystem.FileSystem | Path.Path | Crypto.Crypto> {
   const path = yield* Path.Path;
   const names = yield* readInstalledSkillNames(repoRoot);
   const entries: Array<readonly [string, SkillLockEntry]> = [];
 
   for (const name of names) {
-    const source = O.fromUndefinedOr(remoteSkillSourcesByName.get(name));
-    const hash = snapshotsByName.get(name)?.hash;
+    const source = O.fromUndefinedOr(remoteSkillSourcesByName[name]);
+    const hash = snapshotsByName[name]?.hash;
     const computedHash =
       hash ??
       (yield* hashSkillDirectory(path.join(repoRoot, CLAUDE_SKILLS_DIR, name), name).pipe(
@@ -698,11 +707,13 @@ const renderSkillsBlock = (names: ReadonlyArray<string>): string =>
  * @param configText - Existing Codex config text.
  * @param names - Skill names to render into the managed skills table.
  * @returns Codex config text with the managed skills table replaced or appended.
- *
  * @category commands
  * @since 0.0.0
  */
-export const renderCodexConfigWithSkills = (configText: string, names: ReadonlyArray<string>): string => {
+export const renderCodexConfigWithSkills: {
+  (configText: string, names: ReadonlyArray<string>): string;
+  (names: ReadonlyArray<string>): (configText: string) => string;
+} = dual(2, (configText: string, names: ReadonlyArray<string>): string => {
   const lines = Str.split(configText, "\n");
   const start = A.findFirstIndex(lines, (line) => /^\s*\[skills\]\s*$/.test(line));
   const skillsBlock = renderSkillsBlock(names);
@@ -722,7 +733,7 @@ export const renderCodexConfigWithSkills = (configText: string, names: ReadonlyA
   });
 
   return A.join([...A.take(lines, start.value), skillsBlock, ...A.drop(lines, end)], "\n");
-};
+});
 
 const renderDesiredCodexConfig = Effect.fn("Skills.renderDesiredCodexConfig")(function* (
   repoRoot: string
@@ -793,17 +804,16 @@ const writeAgentsMirror = Effect.fn("Skills.writeAgentsMirror")(function* (
     .pipe(SkillsCommandError.mapError(`Failed to link ${agentsSkillsDir} to .claude/skills.`, agentsSkillsDir));
 });
 
+const driftLineFormatters = {
+  RemoteSkillDrift: (drift): string => `- remote skill ${drift.name}`,
+  LockDrift: (): string => `- ${SKILLS_LOCK_PATH}`,
+  CodexConfigDrift: (): string => `- ${CODEX_CONFIG_PATH}`,
+  AgentsMirrorDrift: (): string => `- ${AGENTS_SKILLS_DIR}`,
+} satisfies { readonly [Tag in SkillDrift["_tag"]]: SkillDriftLineFormatter<Tag> };
+
 const driftLine = (drift: SkillDrift): string => {
-  switch (drift._tag) {
-    case "RemoteSkillDrift":
-      return `- remote skill ${drift.name}`;
-    case "LockDrift":
-      return `- ${SKILLS_LOCK_PATH}`;
-    case "CodexConfigDrift":
-      return `- ${CODEX_CONFIG_PATH}`;
-    case "AgentsMirrorDrift":
-      return `- ${AGENTS_SKILLS_DIR}`;
-  }
+  const formatter = driftLineFormatters[drift._tag] as (value: SkillDrift) => string;
+  return formatter(drift);
 };
 
 const printDriftReport = Effect.fn("Skills.printDriftReport")(function* (
@@ -855,7 +865,11 @@ export const runSkillsUpdate = Effect.fn("Skills.runSkillsUpdate")(function* (op
   const fetchedSnapshots = yield* Effect.forEach(sources, fetchRemoteSkillSnapshot, {
     concurrency: 3,
   });
-  const snapshotsByName = new Map(A.map(fetchedSnapshots, ([source, snapshot]) => [source.name, snapshot] as const));
+  const snapshotsByName: Readonly<Record<string, SkillSnapshot>> = pipe(
+    fetchedSnapshots,
+    A.map(([source, snapshot]) => [source.name, snapshot] as const),
+    R.fromEntries
+  );
   const drift: Array<SkillDrift> = [];
 
   for (const [source, snapshot] of fetchedSnapshots) {

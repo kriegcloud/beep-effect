@@ -11,6 +11,11 @@ import { describe, expect, it } from "vitest";
 const runSkillsCommand = Command.runWith(skillsCommand, { version: "0.0.0" });
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer, BunCrypto.layer);
 
+const provideScopedLayer =
+  <ROut, E2, RIn>(layer: Layer.Layer<ROut, E2, RIn>) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | E2, RIn | Exclude<R, ROut>> =>
+    Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context)))));
+
 const remoteGrillMeSkill = `---
 name: grill-me
 description: Ask focused planning questions until the decision tree is clear.
@@ -108,7 +113,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
         process.chdir(previousCwd);
         yield* fs.remove(tmpDir, { recursive: true, force: true });
       })
-  ).pipe(Effect.scoped, Effect.provide(CommandTestLayer));
+  ).pipe(provideScopedLayer(CommandTestLayer));
 
 const writeProjectFile = Effect.fn("SkillsCommandTest.writeProjectFile")(function* (
   relativePath: string,
