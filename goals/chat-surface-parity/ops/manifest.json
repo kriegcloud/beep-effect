@@ -16,7 +16,17 @@
     "exploration": "explorations/agent-chat-interface",
     "graduated": "2026-06-15"
   },
-  "dependsOn": ["goals/desktop-chat-surface"],
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
+  "dependsOn": [
+    "goals/desktop-chat-surface"
+  ],
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",

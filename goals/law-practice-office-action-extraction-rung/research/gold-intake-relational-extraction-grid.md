@@ -1,5 +1,7 @@
 # Gold-intake research note: Relational grounded-extraction grid with per-cell citations (2026-06-29)
 
+> Provenance ledger (nugget -> repo+license -> citation -> in-repo brick): [`research/SOURCES.md`](./SOURCES.md).
+
 > Non-invasive research note for the goal owner. This does **not** amend `SPEC.md`,
 > `PLAN.md`, `GOAL.md`, or the packet's phases/scope. The packet is `complete`
 > (P0-P3, PR #265). This is a Case-A *extend* capture: a forward-looking persistence

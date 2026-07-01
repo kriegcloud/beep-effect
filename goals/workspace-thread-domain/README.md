@@ -81,4 +81,6 @@ PGlite-proven db-admin migration, `@beep/anthropic` exists, the legacy
   same PR.
 - 2026-06-29: gold-intake research note added at
   research/gold-intake-conversation-branching.md (see for Turn sibling-variant
-  branchIndex conversation branching).
+  branchIndex conversation branching); provenance ledger at
+  [`research/SOURCES.md`](./research/SOURCES.md) (nugget -> upstream repo +
+  license, external research, in-repo bricks).

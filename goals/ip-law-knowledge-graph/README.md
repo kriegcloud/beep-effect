@@ -22,6 +22,16 @@ expectations.
   effect-ontology patterns) plus the flagged FalkorDB-vs-projection open
   question P0 must resolve (added 2026-06-11)
 
+## Source material
+
+- [research/SOURCES.md](./research/SOURCES.md) — provenance ledger for the
+  gold-intake material folded into this goal: the mined nugget
+  (`patents-mcp-server#7`, MIT) → upstream repo + license → external WIPO/EPO/CPC
+  standards → in-repo bricks (`@beep/rdf`, `@beep/semantic-web`) it composes.
+- **Source exploration dir:** `explorations/_gold-intake/` (cluster "IPC/CPC
+  classification SKOS taxonomy seed"; see `ROUTING.md`, `routing.json`,
+  `GOLD_SYNTHESIS.md`).
+
 ## Notes
 
-- 2026-06-29: gold-intake research note added at research/gold-intake-cpc-ipc-skos-seed.md (see for CPC/IPC classification taxonomy as a SKOS seed for the S7 WIPO-IPC slot).
+- 2026-06-29: gold-intake research note added at research/gold-intake-cpc-ipc-skos-seed.md (see for CPC/IPC classification taxonomy as a SKOS seed for the S7 WIPO-IPC slot); provenance ledger at research/SOURCES.md.

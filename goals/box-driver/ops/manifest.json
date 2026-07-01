@@ -10,6 +10,13 @@
   },
   "mission": "Implement @beep/box as a full-surface, generated, schema-first, Effect-first technical driver around box-node-sdk v10.11.1: a custom generator emits S.Class models and per-manager method wrappers from the SDK's own TypeScript types, hand-written code provides config/errors/service/streaming Layers, plus tests, docs, quality closure, PR babysitting, and Greptile 5/5 readiness.",
   "packetPath": "goals/box-driver",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "goalCommandMaxChars": 4000,
   "targetPackage": {
     "name": "@beep/box",
@@ -201,8 +208,16 @@
     "blocked": "The phase cannot proceed without a named decision, dependency, credential, or external-state change."
   },
   "phases": [
-    { "id": "P0", "name": "Packet Bootstrap", "status": "completed" },
-    { "id": "P1", "name": "Refresh Box SDK Inventory", "status": "pending" },
+    {
+      "id": "P0",
+      "name": "Packet Bootstrap",
+      "status": "completed"
+    },
+    {
+      "id": "P1",
+      "name": "Refresh Box SDK Inventory",
+      "status": "pending"
+    },
     {
       "id": "P2",
       "name": "Build Generator And Package Wiring",
@@ -218,15 +233,31 @@
       "name": "Hand-Written Config And Errors",
       "status": "pending"
     },
-    { "id": "P5", "name": "Effect Service And Layers", "status": "pending" },
-    { "id": "P6", "name": "Streaming Surfaces", "status": "pending" },
-    { "id": "P7", "name": "Tests Docs And Live Smoke", "status": "pending" },
+    {
+      "id": "P5",
+      "name": "Effect Service And Layers",
+      "status": "pending"
+    },
+    {
+      "id": "P6",
+      "name": "Streaming Surfaces",
+      "status": "pending"
+    },
+    {
+      "id": "P7",
+      "name": "Tests Docs And Live Smoke",
+      "status": "pending"
+    },
     {
       "id": "P8",
       "name": "Doctrine Record And Export Catalog And Local Quality Closure",
       "status": "pending"
     },
-    { "id": "P9", "name": "Commit PR CI Review Greptile", "status": "pending" }
+    {
+      "id": "P9",
+      "name": "Commit PR CI Review Greptile",
+      "status": "pending"
+    }
   ],
   "qualityCommands": [
     "bunx turbo run check test lint type-test --filter=@beep/box",

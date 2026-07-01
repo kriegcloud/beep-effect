@@ -26,6 +26,15 @@ fork gates the whole packet — including its sequencing dependency on sibling
 (Q7). Recommended answer pre-drafted in [`DECISIONS.md`](./DECISIONS.md); resolve
 the full set with `/grill-with-docs multi-provider-llm-dispatch-fallback`.
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — the provenance ledger tracing
+this packet's 8 gold nuggets to their upstream repos + licenses, the on-disk
+external citations, and the `@beep/*` capabilities they compose. Derived from the
+gold-intake cluster "Multi-provider LLM dispatch + graceful fallback"
+([ROUTING.md](../_gold-intake/ROUTING.md) ·
+[GOLD_SYNTHESIS.md](../_gold-intake/GOLD_SYNTHESIS.md)).
+
 ## Read This First
 
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.

@@ -20,6 +20,16 @@ detection, extraction, archive export, and manifest writing across the corpus
 core formats without implementing Box sync, document-management workflows,
 knowledge-graph ingestion, or OCR engines.
 
+## Source material
+
+The deferred OCR / PDF-diagnostics phase draws on 13 mined gold nuggets from the
+Gold-Intake initiative. Provenance — each nugget's upstream repo, license, and
+the in-repo capability it composes with — is tracked in
+[research/SOURCES.md](./research/SOURCES.md). Source exploration dir:
+[`explorations/_gold-intake/`](../../explorations/_gold-intake/) (cluster
+*"Layout-aware PDF extraction + OCR-need gating"*). The folded research note is
+[research/gold-intake-ocr-pdf-diagnostics.md](./research/gold-intake-ocr-pdf-diagnostics.md).
+
 ## Reading Order
 
 - [SPEC.md](./SPEC.md) - authoritative goal contract when it does not

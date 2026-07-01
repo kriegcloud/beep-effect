@@ -40,6 +40,7 @@ goals/<slug>/
 | `GOAL.md` | Compact `/goal` launcher for execution agents. It delegates to `SPEC.md` and must not become the normative spec. |
 | `ops/manifest.json` | Machine-readable routing: lifecycle, anchor document, launchers, phases, checks, assets. |
 | `research/` | Source-backed exploration, tradeoffs, inventories, and freshness-dated notes. |
+| `research/SOURCES.md` | Provenance ledger: mined sources, upstream licenses, external citations, in-repo bricks, and source-exploration cross-links (inherited at graduate; registered in `researchReports[]` + `currentSourceOfTruth[]`). |
 | `history/` | Archived outputs, closeouts, reflection logs, verification notes, and evidence. |
 | `history/reflections/` | Per-session agent reflections written at P3 Close (and on demand via `/reflect`). One immutable file per run, named `<YYYY-MM-DD>-<agent>.md`, with schema-validated YAML frontmatter (`ReflectionFrontmatter`); enforced by `bun run beep lint reflection-artifacts` for packets with `reflectionRequired: true`. Start from `_template/history/reflections/_TEMPLATE.md`. |
 | `ops/handoffs/` | Optional phase-specific handoffs or secondary execution packets. |
@@ -102,6 +103,20 @@ packet's `README.md` and `ops/manifest.json`.
 Completed packets are not always removed. Retain a completed packet only when it
 continues to serve as evidence, reference design, or launch context for follow-up
 work.
+
+## Completion gate
+
+A goal is not **achieved** — it may not be declared `complete` or
+`completed-retained` — until its work has shipped as a **pull request driven to
+mergeable via `/yeet`** (`bun run beep yeet`: repair → verify → publish `--pr`
+→ monitor, until GitHub checks and review are green and the branch is
+merge-ready). Passing local proof is necessary but not sufficient; the durable
+artifact of an achieved goal is the merged/mergeable PR.
+
+The gate is declared in every goal manifest as `completionGate` and binds
+regardless of a packet's phase names. Goals whose work shipped before this gate
+was introduced (2026-06-30) carry `completionGate.grandfathered: true` and are
+not reopened.
 
 ## Source Hierarchy
 

@@ -16,9 +16,19 @@
     "exploration": "explorations/atlas-synthesis",
     "graduated": "2026-06-17"
   },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
   "relatedPackets": {
     "productAuthority": "goals/agentic-professional-runtime",
-    "dependsOn": ["goals/epistemic-claim-lifecycle-gate"],
+    "dependsOn": [
+      "goals/epistemic-claim-lifecycle-gate"
+    ],
     "reference": [
       "goals/ip-law-knowledge-graph",
       "goals/oppold-corpus-pipeline"
@@ -77,9 +87,12 @@
   "stopConditions": [
     "Required source files are missing or materially contradictory.",
     "The epistemic-claim-lifecycle-gate public surface (ClaimGate/ClaimLifecycle/ClaimProjection, Evidence char-span) is not yet available.",
-    "The implementation would exceed named scope (multi-ref §103, §101/§112, a real GraphRAG ask, FalkorDB, or the 7-source ontology grounding).",
-    "The IR→law mapping cannot type a generic Entity/Relation into a law entity without product vocabulary leaking back into @beep/nlp.",
+    "The implementation would exceed named scope (multi-ref \u00a7103, \u00a7101/\u00a7112, a real GraphRAG ask, FalkorDB, or the 7-source ontology grounding).",
+    "The IR\u2192law mapping cannot type a generic Entity/Relation into a law entity without product vocabulary leaking back into @beep/nlp.",
     "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
     "The same blocker repeats after reasonable investigation."
+  ],
+  "researchReports": [
+    "research/SOURCES.md"
   ]
 }

@@ -1,5 +1,8 @@
 # Gold-intake research note: runtime governance primitives — previewable bulk mutation + tamper-evident agent audit trace (2026-06-29)
 
+> **Provenance:** full source/repo/license/citation ledger for this note lives in
+> [SOURCES.md](./SOURCES.md).
+
 > Non-invasive Case-A extend. This is a research note for the goal owner to act
 > on later. It does **not** change this packet's SPEC, PLAN, GOAL, phases, or
 > scope. It records two deferred governance capabilities surfaced by the

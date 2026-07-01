@@ -11,6 +11,13 @@
   "packetPath": "goals/fallow-debt-burndown",
   "lifecycle": "active",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -60,12 +67,36 @@
     "goals/fallow-quality-enforcement/research/feature-matrix.jsonc"
   ],
   "phases": [
-    { "id": "P0", "name": "Packet Authoring", "status": "done" },
-    { "id": "P1", "name": "Boundary Burn-Down", "status": "selected" },
-    { "id": "P2", "name": "Health Burn-Down", "status": "seeded" },
-    { "id": "P3", "name": "Security Triage", "status": "seeded" },
-    { "id": "P4", "name": "Dupes Cleanup", "status": "seeded" },
-    { "id": "P5", "name": "Ratchet Wiring", "status": "seeded" }
+    {
+      "id": "P0",
+      "name": "Packet Authoring",
+      "status": "done"
+    },
+    {
+      "id": "P1",
+      "name": "Boundary Burn-Down",
+      "status": "selected"
+    },
+    {
+      "id": "P2",
+      "name": "Health Burn-Down",
+      "status": "seeded"
+    },
+    {
+      "id": "P3",
+      "name": "Security Triage",
+      "status": "seeded"
+    },
+    {
+      "id": "P4",
+      "name": "Dupes Cleanup",
+      "status": "seeded"
+    },
+    {
+      "id": "P5",
+      "name": "Ratchet Wiring",
+      "status": "seeded"
+    }
   ],
   "verificationCommands": [
     "test \"$(wc -m < goals/fallow-debt-burndown/GOAL.md)\" -le 4000",

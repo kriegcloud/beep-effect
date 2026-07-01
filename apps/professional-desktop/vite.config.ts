@@ -1,6 +1,26 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
+import type { Plugin } from "vite";
+
+// Lexical 0.46 emits two prod bundles with a pure annotation before `return`.
+const lexicalReactProdModule =
+  /node_modules[\\/]@lexical[\\/]react[\\/]dist[\\/]Lexical(ContentEditable|ErrorBoundary)\.prod\.mjs(?:\?.*)?$/;
+const misplacedPureAnnotationBeforeReturn = /\/\*#__PURE__\*\/\s*(?=return\b)/g;
+
+const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
+  name: "beep:strip-misplaced-lexical-pure-annotations",
+  enforce: "pre",
+  transform(code, id) {
+    if (!lexicalReactProdModule.test(id)) {
+      return null;
+    }
+
+    const sanitizedCode = code.replace(misplacedPureAnnotationBeforeReturn, "");
+
+    return sanitizedCode === code ? null : { code: sanitizedCode, map: null };
+  },
+});
 
 const initialVendorChunkGroups = [
   { name: "react-vendor", test: /node_modules[\\/](react|react-dom)[\\/]/, priority: 50 },
@@ -16,7 +36,7 @@ const initialVendorChunkGroups = [
 
 export default defineConfig({
   clearScreen: false,
-  plugins: [react()],
+  plugins: [stripMisplacedLexicalPureAnnotations(), react()],
   build: {
     chunkSizeWarningLimit: 650,
     rolldownOptions: {

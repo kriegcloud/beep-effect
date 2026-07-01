@@ -31,9 +31,19 @@ them via `/grill-with-docs local-first-projection-sync`.
 5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, if present).
 6. [`MAP.md`](./MAP.md) - decomposition (stage 4, if present).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — provenance ledger joining the
+mined gold nugget (TalentScore#10) to its upstream repo + license, the external
+research citations, and the in-repo bricks the hub composes. Derived from the
+gold-intake cluster "Local-first projection sync (EventStreamHub)". Note the
+unresolved TalentScore license-of-record conflict (catalog MIT vs packet prose
+"commercial") flagged there.
+
 ## Trail
 
 <Dated one-liners, newest first: what each session did and where it stopped.>
 
+- 2026-06-30: provenance backfill — added research/SOURCES.md (nugget→repo→license→in-repo ledger); flagged TalentScore license-of-record conflict (catalog MIT vs prose "commercial").
 - 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.
 - 2026-06-29: packet opened from gold-intake cluster 'Local-first projection sync (EventStreamHub)' (1 nugget).

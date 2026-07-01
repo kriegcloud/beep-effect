@@ -9,9 +9,9 @@
       "Q1: Patterns-only kit vs also building the gov-legal MCP host and drivers?",
       "Q2: New dedicated gov-legal/USPTO MCP package (reusing the seam) vs extending NLP/M365?",
       "Q3: Build patterns natively on effect/unstable/ai vs wrap a third-party MCP framework?",
-      "Q4: Where the shared kit lives — new @beep/mcp-kit driver package vs foundation vs inline?",
+      "Q4: Where the shared kit lives \u2014 new @beep/mcp-kit driver package vs foundation vs inline?",
       "Q5: Per-source auth model (gate none|soft|hard) + tool-vanish vs graceful-degrade on absent key?",
-      "Q6: api_key_required wire channel — success-with-error-JSON vs tools/call isError:true wrapper?",
+      "Q6: api_key_required wire channel \u2014 success-with-error-JSON vs tools/call isError:true wrapper?",
       "Q7: Where the write-tool wall is enforced + how a gated call is audited (Activity table vs UsageRecord.metadata)?"
     ],
     "links": {
@@ -20,6 +20,9 @@
       "supersededBy": null
     },
     "created": "2026-06-29",
-    "updated": "2026-06-29"
+    "updated": "2026-06-29",
+    "sources": [
+      "research/SOURCES.md"
+    ]
   }
 }

@@ -26,6 +26,14 @@ recommended answer and six more pre-drafted forks live in
 [`DECISIONS.md`](./DECISIONS.md). Resolve via
 `run /grill-with-docs court-vocabulary-resolver`.
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — the provenance ledger tracing
+every decision back to its mined gold nugget (upstream repo + `file:line`), the
+upstream repo + license, the external research citation, and the in-repo
+`@beep/*` capability it composes. Derived from the gold-intake cluster "Court /
+jurisdiction controlled vocabulary" (14 nuggets).
+
 ## Read This First
 
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.

@@ -141,7 +141,8 @@ const generatedComposers = $I.compose(
   "federal-register",
   "ecfr",
   "dol",
-  "courtlistener"
+  "courtlistener",
+  "api-transport"
 );
 
 const composers = {
@@ -1579,3 +1580,19 @@ export const $DolId: Identity.IdentityComposer<"@beep/dol"> = composers.$DolId;
  * @category configuration
  */
 export const $CourtlistenerId: Identity.IdentityComposer<"@beep/courtlistener"> = composers.$CourtlistenerId;
+
+/**
+ * Identity composer for `@beep/api-transport`.
+ *
+ * @example
+ * ```typescript
+ * import { $ApiTransportId } from "@beep/identity"
+ *
+ * const id = $ApiTransportId.make("ApiTransport")
+ * void id
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $ApiTransportId: Identity.IdentityComposer<"@beep/api-transport"> = composers.$ApiTransportId;

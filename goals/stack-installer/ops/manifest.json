@@ -69,8 +69,13 @@
     }
   },
   "targets": {
-    "primary": ["macos", "windows"],
-    "bestEffort": ["linux"]
+    "primary": [
+      "macos",
+      "windows"
+    ],
+    "bestEffort": [
+      "linux"
+    ]
   },
   "defaults": {
     "providerAuthMode": "subscription",
@@ -477,5 +482,12 @@
     "P1 live drivers live under packages/drivers and are consumed by @beep/installer-server",
     "P1 live proof workflow is installer-owned; app runtime composition remains app-local"
   ],
-  "nextAction": "Keep P1 explicitly open on the missing Windows proof while making P1D the active execution lane. Resume the dedicated P1D branch/worktree from this packet truth, record the successful Linux-first repair-only Bun proof with installer-owned config and visible app-state evidence, then close and publish P1D. After P1D closes, run the real Windows proof intake/audit before starting P2."
+  "nextAction": "Keep P1 explicitly open on the missing Windows proof while making P1D the active execution lane. Resume the dedicated P1D branch/worktree from this packet truth, record the successful Linux-first repair-only Bun proof with installer-owned config and visible app-state evidence, then close and publish P1D. After P1D closes, run the real Windows proof intake/audit before starting P2.",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

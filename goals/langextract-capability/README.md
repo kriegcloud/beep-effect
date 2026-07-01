@@ -54,6 +54,17 @@ implementation proposal. The proposal review inventory is stored in
 [`research/reports/proposal-review-round-1.md`](./research/reports/proposal-review-round-1.md)
 with zero required findings.
 
+## Source material
+
+The gold-intake provenance for the folded research note lives in
+[`research/SOURCES.md`](./research/SOURCES.md): mined nuggets → upstream
+repos+licenses → external citations → composed `@beep/*` bricks. It derives from
+the `_gold-intake` initiative
+([`explorations/_gold-intake/`](../../explorations/_gold-intake/)) and the
+sibling exploration
+[`explorations/deterministic-doc-structure-extraction`](../../explorations/deterministic-doc-structure-extraction)
+(which owns the net-new streaming-gate + deterministic-regex half of the cluster).
+
 ## Notes
 
 - `@beep/langextract` belongs in `packages/foundation/capability/langextract`

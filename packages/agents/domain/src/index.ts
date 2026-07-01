@@ -34,22 +34,6 @@ export * as Entities from "./entities/index.js";
  */
 export * from "./entities/index.js";
 /**
- * Backward-compatible assistant turn value namespace.
- *
- * @example
- * ```ts
- * import { Turn } from "@beep/agents-domain"
- * import * as S from "effect/Schema"
- *
- * const content = S.decodeUnknownSync(Turn.AssistantContent.AssistantContent)({ blocks: [] })
- * console.log(content.blocks.length)
- * ```
- *
- * @category value-objects
- * @since 0.0.0
- */
-export * as Turn from "./turn/index.js";
-/**
  * Namespace export for assistant-content value objects.
  *
  * @example

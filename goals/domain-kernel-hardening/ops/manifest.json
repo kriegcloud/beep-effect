@@ -16,6 +16,13 @@
     "exploration": "explorations/domain-layer-hardening",
     "note": "First graduated slice of the domain-layer-hardening exploration (audit synthesis/10-21, decisions G1-G14 + N1-N8). Packets 2-7 named in explorations/domain-layer-hardening/MAP.md."
   },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -34,10 +41,26 @@
     }
   ],
   "phases": [
-    { "id": "P0", "name": "Research", "status": "pending" },
-    { "id": "P1", "name": "Implement", "status": "pending" },
-    { "id": "P2", "name": "Verify", "status": "pending" },
-    { "id": "P3", "name": "Close", "status": "pending" }
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "pending"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "pending"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "pending"
+    },
+    {
+      "id": "P3",
+      "name": "Close",
+      "status": "pending"
+    }
   ],
   "verificationCommands": [
     "test \"$(wc -m < goals/domain-kernel-hardening/GOAL.md)\" -le 4000",

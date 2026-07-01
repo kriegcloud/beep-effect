@@ -11,10 +11,8 @@ import { FileProcessingOperationError } from "@beep/file-processing/Operation";
 import { $LibpffId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { PosixPath } from "@beep/schema/PosixPath";
-import { A, Str } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { Effect, FileSystem, Match, Order, Path, Stream } from "effect";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 import { makeLibpffError } from "./Libpff.errors.js";
@@ -136,7 +134,7 @@ const operationFailure = (operation: ExportArchiveOperation, error: LibpffError)
         format: operation.format,
         message: "pffexport failed while exporting the archive.",
         operationId: operation.operationId,
-        ...R.getSomes({
+        ...O.getSomesStruct({
           details: O.map(O.fromUndefinedOr(error.exitCode), (exitCode) => ({ exitCode: `${exitCode}` })),
         }),
       })

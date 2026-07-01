@@ -33,6 +33,14 @@ Eight branch-closing decisions are pre-drafted with recommendations in
 5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, if present).
 6. [`MAP.md`](./MAP.md) - decomposition (stage 4, if present).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — the provenance ledger tracing
+every porting decision back to its gold nugget (upstream repo + `file:line`),
+upstream license + port discipline, external research citation, and the
+in-repo `@beep/*` brick it composes. Derived from the gold-intake cluster
+"Secure document download proxy (opaque TTL-gated links)" (2 nuggets).
+
 ## Trail
 
 - 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.

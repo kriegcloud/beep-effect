@@ -11,12 +11,26 @@
   "packetPath": "goals/yeet-pr-closeout-loop",
   "lifecycle": "active",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "mission": "Implement Yeet retry, targeted review-fix proof, affected repo-export checks, and PR closeout gates.",
   "ownership": {
     "family": "tooling",
-    "primaryPackages": ["@beep/repo-cli"],
-    "primaryPaths": ["packages/tooling/tool/cli"],
-    "docsPaths": [".claude/skills/yeet/SKILL.md", "goals/yeet-pr-closeout-loop"]
+    "primaryPackages": [
+      "@beep/repo-cli"
+    ],
+    "primaryPaths": [
+      "packages/tooling/tool/cli"
+    ],
+    "docsPaths": [
+      ".claude/skills/yeet/SKILL.md",
+      "goals/yeet-pr-closeout-loop"
+    ]
   },
   "agentLaunchers": [
     {

@@ -1,19 +1,15 @@
 /**
- * `@beep/govinfo/domain/values/SearchBody` exports.
+ * Barrel for the GovInfo `SearchBody` value object — the `POST /search` request
+ * payload carrying the query string, page size, offset-mark cursor, historical
+ * flag, result level, and sort directives.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The SearchBody value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { SearchBody } from "@beep/govinfo/domain/values/SearchBody/SearchBody.model";
- *
- * console.log(SearchBody);
- * ```
+ * The GovInfo `SearchBody` value object modeling the `POST /search` request
+ * payload.
  *
  * @category models
  * @since 0.0.0

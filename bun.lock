@@ -524,6 +524,13 @@
     "packages/drivers/ecfr": {
       "name": "@beep/ecfr",
       "version": "0.0.0",
+      "dependencies": {
+        "@beep/api-transport": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
@@ -588,6 +595,10 @@
       "name": "@beep/govinfo",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/api-transport": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -942,6 +953,19 @@
       },
       "devDependencies": {
         "@beep/test-utils": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/api-transport": {
+      "name": "@beep/api-transport",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1918,6 +1942,7 @@
     "eslint": "^10.6.0",
     "eslint-plugin-jsdoc": "^63.0.10",
     "eslint-plugin-tsdoc": "^0.5.2",
+    "exiftool-vendored": "^36.0.0",
     "fallow": "^2.103.0",
     "fast-xml-parser": "^5.9.3",
     "fast-xml-validator": "^1.1.1",
@@ -2116,6 +2141,8 @@
     "@beep/ai-sync": ["@beep/ai-sync@workspace:packages/tooling/library/ai-sync"],
 
     "@beep/anthropic": ["@beep/anthropic@workspace:packages/drivers/anthropic"],
+
+    "@beep/api-transport": ["@beep/api-transport@workspace:packages/foundation/capability/api-transport"],
 
     "@beep/architecture-lab-client": ["@beep/architecture-lab-client@workspace:packages/architecture-lab/client"],
 

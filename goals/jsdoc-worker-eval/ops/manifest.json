@@ -16,7 +16,11 @@
     "beep docgen quality-worker-eval-runpod"
   ],
   "providerPath": {
-    "supportedProviders": ["codex", "ollama", "lmstudio"],
+    "supportedProviders": [
+      "codex",
+      "ollama",
+      "lmstudio"
+    ],
     "providerArgumentRequired": true,
     "modelArgumentRequired": true,
     "codexSdkBaseUrlFlag": "--base-url",
@@ -110,5 +114,13 @@
     "Qwen-specific architecture doctrine",
     "auto-remediation write mode"
   ],
-  "nextAction": "Treat jsdoc-worker-eval as read-only evidence-complete. Plan cache/template cost reduction, human draft review, or write-mode auto-remediation as separate follow-up initiatives."
+  "nextAction": "Treat jsdoc-worker-eval as read-only evidence-complete. Plan cache/template cost reduction, human draft review, or write-mode auto-remediation as separate follow-up initiatives.",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate (lifecycle reports P0-P6 implemented, evidence-complete); not reopened."
+  }
 }

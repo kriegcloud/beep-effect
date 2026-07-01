@@ -44,6 +44,22 @@ Referenced, never merged: `goals/ip-law-knowledge-graph`,
 `goals/oppold-corpus-pipeline`. Consumed downstream by
 `law-practice-office-action-spike` via this slice's public surface only.
 
+## Source material
+
+Gold-intake provenance for the additive SHACL-severity / scoring research folded
+into this packet lives in
+[`research/SOURCES.md`](./research/SOURCES.md) - the nugget -> upstream repo +
+license -> external citation -> in-repo capability ledger for the cluster
+**"Claim-lifecycle gate (SHACL severity, transition guard, deterministic
+scoring)"**. It derives from the source exploration dir
+[`explorations/_gold-intake/`](../../explorations/_gold-intake/)
+([`ROUTING.md`](../../explorations/_gold-intake/ROUTING.md),
+[`routing.json`](../../explorations/_gold-intake/routing.json),
+[`GOLD_SYNTHESIS.md`](../../explorations/_gold-intake/GOLD_SYNTHESIS.md)) and
+backs the folded note
+[`research/gold-intake-claim-gate-shacl.md`](./research/gold-intake-claim-gate-shacl.md).
+Reference-only: this packet stays `completed-retained`.
+
 ## Current Phase
 
 `P3 Verify / close` — complete. The slice is graduated to minimum-viable

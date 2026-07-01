@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/CollectionContainer` exports.
+ * Barrel for the GovInfo `CollectionContainer` value object — the `/collections`
+ * listing response carrying its collection summary entries.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The CollectionContainer value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
- *
- * console.log(CollectionContainer);
- * ```
+ * The GovInfo `CollectionContainer` value object modeling a `/collections`
+ * listing response.
  *
  * @category models
  * @since 0.0.0
