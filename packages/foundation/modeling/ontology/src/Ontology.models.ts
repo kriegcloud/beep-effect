@@ -1,5 +1,5 @@
 /**
- *  OpenAPI component schemas modeled with Effect Schema.
+ * FOLIO OpenAPI component schemas modeled with Effect Schema.
  *
  * @see https://folio.openlegalstandard.org/openapi.json
  * @packageDocumentation
@@ -64,12 +64,12 @@ export type SourceType = typeof SourceType.Type;
 export const HttpUrl = S.String.check(
   S.isMinLength(1, {
     identifier: $I`HttpUrlMinLengthCheck`,
-    title: " HTTP URL Min Length",
+    title: "HTTP URL Min Length",
     description: "HTTP URL values must contain at least one character.",
   }),
   S.isMaxLength(2083, {
     identifier: $I`HttpUrlMaxLengthCheck`,
-    title: " HTTP URL Max Length",
+    title: "HTTP URL Max Length",
     description: "HTTP URL values must not exceed 2083 characters.",
   })
 ).pipe(
@@ -96,7 +96,7 @@ export const HttpUrl = S.String.check(
 export type HttpUrl = typeof HttpUrl.Type;
 
 /**
- * Information about the loaded  ontology graph.
+ * Information about the loaded FOLIO ontology graph.
  *
  * @example
  * ```ts
@@ -112,8 +112,8 @@ export const GraphInfo = S.Struct({
   num_classes: S.Int.check(
     S.isGreaterThan(0, {
       identifier: $I`GraphInfoNumClassesPositiveCheck`,
-      title: " Graph Class Count Positive",
-      description: "The  graph class count must be greater than zero.",
+      title: "FOLIO Graph Class Count Positive",
+      description: "The FOLIO graph class count must be greater than zero.",
     })
   ).annotateKey({
     title: "Num Classes",
@@ -123,8 +123,8 @@ export const GraphInfo = S.Struct({
   num_properties: S.Int.check(
     S.isGreaterThanOrEqualTo(0, {
       identifier: $I`GraphInfoNumPropertiesNonNegativeCheck`,
-      title: " Graph Property Count Non-Negative",
-      description: "The  graph object-property count must be zero or greater.",
+      title: "FOLIO Graph Property Count Non-Negative",
+      description: "The FOLIO graph object-property count must be zero or greater.",
     })
   ).annotateKey({
     title: "Num Properties",
@@ -133,12 +133,12 @@ export const GraphInfo = S.Struct({
   }),
   title: S.String.annotateKey({
     title: "Title",
-    description: "Title of the  ontology",
-    examples: [" Ontology"],
+    description: "Title of the FOLIO ontology",
+    examples: ["FOLIO Ontology"],
   }),
   description: S.String.annotateKey({
     title: "Description",
-    description: "Description of the  ontology",
+    description: "Description of the FOLIO ontology",
     examples: ["Federated Open Legal Information Ontology"],
   }),
   source_type: SourceType.annotateKey({
@@ -184,7 +184,7 @@ export const GraphInfo = S.Struct({
 }).pipe(
   $I.annoteSchema("GraphInfo", {
     description:
-      'Information about the loaded  ontology graph.\n\nThis model contains metadata about the  ontology graph that is currently\nloaded in the API, including its size, source, and descriptive information.\n\nAttributes:\n    num_classes: Total number of ontology classes in the graph\n    title: Title of the  ontology\n    description: Description of the  ontology\n    source_type: Source type of the ontology (http or github)\n    http_url: HTTP URL of the ontology source (when source_type is \'http\')\n    github_repo_owner: GitHub repository owner (when source_type is \'github\')\n    github_repo_name: GitHub repository name (when source_type is \'github\')\n    github_repo_branch: GitHub repository branch (when source_type is \'github\')\n\nExample:\n    ```json\n    {\n      "num_classes": 1025,\n      "title": " Ontology",\n      "description": "Federated Open Legal Information Ontology",\n      "source_type": "github",\n      "http_url": null,\n      "github_repo_owner": "alea-institute",\n      "github_repo_name": "folio",\n      "github_repo_branch": "2.0.0"\n    }\n    ```',
+      'Information about the loaded FOLIO ontology graph.\n\nThis model contains metadata about the FOLIO ontology graph that is currently\nloaded in the API, including its size, source, and descriptive information.\n\nAttributes:\n    num_classes: Total number of ontology classes in the graph\n    title: Title of the FOLIO ontology\n    description: Description of the FOLIO ontology\n    source_type: Source type of the ontology (http or github)\n    http_url: HTTP URL of the ontology source (when source_type is \'http\')\n    github_repo_owner: GitHub repository owner (when source_type is \'github\')\n    github_repo_name: GitHub repository name (when source_type is \'github\')\n    github_repo_branch: GitHub repository branch (when source_type is \'github\')\n\nExample:\n    ```json\n    {\n      "num_classes": 1025,\n      "title": "FOLIO Ontology",\n      "description": "Federated Open Legal Information Ontology",\n      "source_type": "github",\n      "http_url": null,\n      "github_repo_owner": "alea-institute",\n      "github_repo_name": "folio",\n      "github_repo_branch": "2.0.0"\n    }\n    ```',
   })
 );
 
@@ -204,7 +204,7 @@ export const GraphInfo = S.Struct({
 export type GraphInfo = typeof GraphInfo.Type;
 
 /**
- * Health status of the  API.
+ * Health status of the FOLIO API.
  *
  * @example
  * ```ts
@@ -258,12 +258,12 @@ export const HealthResponse = S.Struct({
     examples: ["healthy"],
   }),
   folio_graph: GraphInfo.annotateKey({
-    description: "Information about the loaded  ontology graph",
+    description: "Information about the loaded FOLIO ontology graph",
   }),
 }).pipe(
   $I.annoteSchema("HealthResponse", {
     description:
-      'Response model for the health check endpoint.\n\nThis model contains information about the API\'s health status and\nmetadata about the loaded  ontology graph.\n\nAttributes:\n    status: Health status of the API ("healthy" when operational)\n    folio_graph: Information about the loaded  ontology graph\n\nExample:\n    ```json\n    {\n      "status": "healthy",\n      "folio_graph": {\n        "num_classes": 1025,\n        "title": " Ontology",\n        "description": "Federated Open Legal Information Ontology",\n        "source_type": "github",\n        "http_url": null,\n        "github_repo_owner": "alea-institute",\n        "github_repo_name": "folio",\n        "github_repo_branch": "2.0.0"\n      }\n    }\n    ```',
+      'Response model for the health check endpoint.\n\nThis model contains information about the API\'s health status and\nmetadata about the loaded FOLIO ontology graph.\n\nAttributes:\n    status: Health status of the API ("healthy" when operational)\n    folio_graph: Information about the loaded FOLIO ontology graph\n\nExample:\n    ```json\n    {\n      "status": "healthy",\n      "folio_graph": {\n        "num_classes": 1025,\n        "title": "FOLIO Ontology",\n        "description": "Federated Open Legal Information Ontology",\n        "source_type": "github",\n        "http_url": null,\n        "github_repo_owner": "alea-institute",\n        "github_repo_name": "folio",\n        "github_repo_branch": "2.0.0"\n      }\n    }\n    ```',
   })
 );
 
@@ -283,7 +283,7 @@ export const HealthResponse = S.Struct({
 export type HealthResponse = typeof HealthResponse.Type;
 
 /**
- * OWL class model for the  ontology.
+ * OWL class model for the FOLIO ontology.
  *
  * @example
  * ```ts
@@ -477,7 +477,7 @@ export const OWLClass = S.Struct({
 }).pipe(
   $I.annoteSchema("OWLClass", {
     description:
-      "OWLClass model for the  package, which represents an OWL class in the \nontology/taxonomy style.\n\nTODO: think about future-proofing for next-gen roadmap.",
+      "OWLClass model for the FOLIO package, which represents an OWL class in the FOLIO\nontology/taxonomy style.\n\nTODO: think about future-proofing for next-gen roadmap.",
   })
 );
 
@@ -594,7 +594,7 @@ export const OWLObjectProperty = S.Struct({
 }).pipe(
   $I.annoteSchema("OWLObjectProperty", {
     description:
-      "OWLObjectProperty model for the  package, which represents an OWL object property\nthat connects two instances/classes in the ontology.",
+      "OWLObjectProperty model for the FOLIO package, which represents an OWL object property\nthat connects two instances/classes in the ontology.",
   })
 );
 
@@ -614,7 +614,7 @@ export const OWLObjectProperty = S.Struct({
 export type OWLObjectProperty = typeof OWLObjectProperty.Type;
 
 /**
- * A collection of OWL class objects from the  ontology.
+ * A collection of OWL class objects from the FOLIO ontology.
  *
  * @example
  * ```ts
@@ -629,7 +629,7 @@ export type OWLObjectProperty = typeof OWLObjectProperty.Type;
 export const OWLClassList = S.Struct({
   classes: S.Array(OWLClass).annotateKey({
     title: "Classes",
-    description: "List of OWLClass objects from the  ontology",
+    description: "List of OWLClass objects from the FOLIO ontology",
     examples: [
       [
         OWLClass.make({
@@ -652,7 +652,7 @@ export const OWLClassList = S.Struct({
 }).pipe(
   $I.annoteSchema("OWLClassList", {
     description:
-      'A collection of OWLClass objects from the  ontology.\n\nThis model represents a list of ontology classes returned by various\nendpoints, particularly the taxonomy endpoints that return multiple\nclasses of a specific type.\n\nAttributes:\n    classes: A list of OWLClass objects representing  ontology classes\n\nExample:\n    ```json\n    {\n      "classes": [\n        {\n          "iri": "R8pNPutX0TN6DlEqkyZuxSw",\n          "label": "Lessor",\n          "definition": "A party that grants a right to use something in return for payment.",\n          "subClassOf": ["oS5FqyVBbOYQbhqb0G28oZR"],\n          ...\n        },\n        ...\n      ]\n    }\n    ```',
+      'A collection of OWLClass objects from the FOLIO ontology.\n\nThis model represents a list of ontology classes returned by various\nendpoints, particularly the taxonomy endpoints that return multiple\nclasses of a specific type.\n\nAttributes:\n    classes: A list of OWLClass objects representing FOLIO ontology classes\n\nExample:\n    ```json\n    {\n      "classes": [\n        {\n          "iri": "R8pNPutX0TN6DlEqkyZuxSw",\n          "label": "Lessor",\n          "definition": "A party that grants a right to use something in return for payment.",\n          "subClassOf": ["oS5FqyVBbOYQbhqb0G28oZR"],\n          ...\n        },\n        ...\n      ]\n    }\n    ```',
   })
 );
 
@@ -672,7 +672,7 @@ export const OWLClassList = S.Struct({
 export type OWLClassList = typeof OWLClassList.Type;
 
 /**
- * A collection of OWL object properties from the  ontology.
+ * A collection of OWL object properties from the FOLIO ontology.
  *
  * @example
  * ```ts
@@ -687,7 +687,7 @@ export type OWLClassList = typeof OWLClassList.Type;
 export const OWLObjectPropertyList = S.Struct({
   properties: S.Array(OWLObjectProperty).annotateKey({
     title: "Properties",
-    description: "List of OWLObjectProperty objects from the  ontology",
+    description: "List of OWLObjectProperty objects from the FOLIO ontology",
     examples: [
       [
         OWLObjectProperty.make({
@@ -701,7 +701,7 @@ export const OWLObjectPropertyList = S.Struct({
 }).pipe(
   $I.annoteSchema("OWLObjectPropertyList", {
     description:
-      "A collection of OWLObjectProperty objects from the  ontology.\n\nAttributes:\n    properties: A list of OWLObjectProperty objects representing  ontology object properties",
+      "A collection of OWLObjectProperty objects from the FOLIO ontology.\n\nAttributes:\n    properties: A list of OWLObjectProperty objects representing FOLIO ontology object properties",
   })
 );
 
@@ -797,7 +797,7 @@ export const OWLSearchResult = S.Tuple([OWLClass, OWLSearchScore]).pipe(
 export type OWLSearchResult = typeof OWLSearchResult.Type;
 
 /**
- * Search results containing  ontology classes with relevance scores.
+ * Search results containing FOLIO ontology classes with relevance scores.
  *
  * @example
  * ```ts
@@ -829,7 +829,7 @@ export const OWLSearchResults = S.Struct({
 }).pipe(
   $I.annoteSchema("OWLSearchResults", {
     description:
-      'Search results containing  ontology classes with relevance scores.\n\nThis model represents the results of search operations that return ontology\nclasses along with relevance scores indicating how well each class matches\nthe search query.\n\nAttributes:\n    results: A list of tuples where each tuple contains an OWLClass and its\n            relevance score (higher scores indicate better matches)\n\nExample:\n    ```json\n    {\n      "results": [\n        [\n          {\n            "iri": "R8pNPutX0TN6DlEqkyZuxSw",\n            "label": "Lessor",\n            "definition": "A party that grants a right to use something in return for payment.",\n            ...\n          },\n          0.95\n        ],\n        ...\n      ]\n    }\n    ```',
+      'Search results containing FOLIO ontology classes with relevance scores.\n\nThis model represents the results of search operations that return ontology\nclasses along with relevance scores indicating how well each class matches\nthe search query.\n\nAttributes:\n    results: A list of tuples where each tuple contains an OWLClass and its\n            relevance score (higher scores indicate better matches)\n\nExample:\n    ```json\n    {\n      "results": [\n        [\n          {\n            "iri": "R8pNPutX0TN6DlEqkyZuxSw",\n            "label": "Lessor",\n            "definition": "A party that grants a right to use something in return for payment.",\n            ...\n          },\n          0.95\n        ],\n        ...\n      ]\n    }\n    ```',
   })
 );
 
@@ -849,7 +849,7 @@ export const OWLSearchResults = S.Struct({
 export type OWLSearchResults = typeof OWLSearchResults.Type;
 
 /**
- * Location segment in a  validation error.
+ * Location segment in a validation error.
  *
  * @example
  * ```ts
@@ -884,7 +884,7 @@ export const ValidationErrorLocationSegment = S.Union([S.String, S.Int]).pipe(
 export type ValidationErrorLocationSegment = typeof ValidationErrorLocationSegment.Type;
 
 /**
- * Validation error detail emitted by the  API.
+ * Validation error detail emitted by the API.
  *
  * @example
  * ```ts
@@ -922,7 +922,7 @@ export const ValidationError = S.Struct({
   ),
 }).pipe(
   $I.annoteSchema("ValidationError", {
-    description: "Validation error detail emitted by the  API.",
+    description: "Validation error detail emitted by the API.",
   })
 );
 
@@ -942,7 +942,7 @@ export const ValidationError = S.Struct({
 export type ValidationError = typeof ValidationError.Type;
 
 /**
- * HTTP validation error response emitted by the  API.
+ * HTTP validation error response emitted by the API.
  *
  * @example
  * ```ts
@@ -965,7 +965,7 @@ export const HTTPValidationError = S.Struct({
   ),
 }).pipe(
   $I.annoteSchema("HTTPValidationError", {
-    description: "HTTP validation error response emitted by the  API.",
+    description: "HTTP validation error response emitted by the API.",
   })
 );
 
