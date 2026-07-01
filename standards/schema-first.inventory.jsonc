@@ -21,7 +21,7 @@
     },
     {
       "file": "packages/agents/domain/src/entities/Agent/Agent.model.ts",
-      "symbol": "anonymous@63",
+      "symbol": "anonymous@64",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/agents-domain",
@@ -29,7 +29,7 @@
     },
     {
       "file": "packages/agents/domain/src/values/AssistantContent/AssistantContent.model.ts",
-      "symbol": "anonymous@234",
+      "symbol": "anonymous@242",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/agents-domain",
@@ -865,7 +865,7 @@
     },
     {
       "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@292",
+      "symbol": "anonymous@313",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -873,23 +873,7 @@
     },
     {
       "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@345",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@346",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/nlp",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@372",
+      "symbol": "anonymous@374",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -905,7 +889,7 @@
     },
     {
       "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@377",
+      "symbol": "anonymous@407",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",
@@ -913,7 +897,23 @@
     },
     {
       "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
-      "symbol": "anonymous@380",
+      "symbol": "anonymous@410",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@412",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/foundation/modeling/nlp/src/Graph/Schema.ts",
+      "symbol": "anonymous@415",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/nlp",

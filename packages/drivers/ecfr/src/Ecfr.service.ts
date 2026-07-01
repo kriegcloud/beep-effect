@@ -136,7 +136,7 @@ export class Ecfr extends Context.Service<Ecfr, EcfrShape>()($I`Ecfr`) {
    * @since 0.0.0
    */
   static readonly makeLayer = (
-    config = EcfrConfigInput.make()
+    config = EcfrConfigInput.make({})
   ): Layer.Layer<Ecfr, never, HttpClient.HttpClient | RateLimiter.RateLimiterStore> =>
     Layer.effect(Ecfr, makeFromResolved(resolveConfig(config)));
 
