@@ -123,7 +123,10 @@ The lego pieces already built. Authoritative inventories (link, never copy):
   `law-practice-office-action-extraction-rung` relational-grid, `ip-law-knowledge-graph` CPC/IPC,
   `agent-governance-control-plane`, `epistemic-claim-lifecycle-gate` claim-gate,
   `workspace-thread-domain` branching, `agentic-professional-runtime` agent-skills) — SPECs
-  untouched. Next: `/grill-with-docs` the four graduate-now wedges → shape → decompose → graduate.
+  untouched. Every gold-intake packet now carries a `research/SOURCES.md`
+  provenance ledger (mined nuggets + upstream repos/licenses + external
+  citations + in-repo bricks), registered in its manifest and cross-linked
+  exploration↔goal (2026-06-30). Next: `/grill-with-docs` the four graduate-now wedges → shape → decompose → graduate.
 
 ### Proposed
 

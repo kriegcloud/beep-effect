@@ -26,6 +26,16 @@ downstream slice. All seven branch-closing questions are pre-drafted with
 recommended answers in [`DECISIONS.md`](./DECISIONS.md) — resolve them via
 `/grill-with-docs uspto-patent-driver-depth`.
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — traceability ledger joining each
+of the 26 mined gold nuggets to its upstream repo + `file:line`, the upstream
+license + port discipline (AGPL CourtListener = clean-room only; MIT pattern
+sources = port-with-attribution), the external research citations, and the
+`@beep/*` capabilities this packet composes. Derived from the gold-intake cluster
+`USPTO/patent driver depth` ([ROUTING.md](../_gold-intake/ROUTING.md),
+[GOLD_SYNTHESIS.md](../_gold-intake/GOLD_SYNTHESIS.md)).
+
 ## Read This First
 
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.

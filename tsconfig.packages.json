@@ -169,6 +169,9 @@
       "path": "packages/epistemic/use-cases"
     },
     {
+      "path": "packages/foundation/capability/api-transport"
+    },
+    {
       "path": "packages/foundation/capability/chalk"
     },
     {

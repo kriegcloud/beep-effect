@@ -19,6 +19,13 @@ packet contracts, and reusable prompt assets that other initiatives inherit.
 - [ops/prompts/](./ops/prompts) and [ops/handoffs/](./ops/handoffs) — agent
   execution surfaces
 
+## Source material
+
+- [research/SOURCES.md](./research/SOURCES.md) — gold-intake provenance ledger: the
+  mined nuggets, upstream repos + licenses, external citations, and `@beep/*`
+  capabilities behind the governance research note. Source exploration dir:
+  [explorations/_gold-intake/](../../explorations/_gold-intake).
+
 ## Notes
 
 - Historical phase outputs and reflection material live under [history/](./history).

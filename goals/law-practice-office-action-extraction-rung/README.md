@@ -69,6 +69,16 @@ claim admission, and PR #265 carries the Yeet-published branch.
   follow-up closeout patch addresses those review findings before final
   monitor/closeout.
 
+## Source material
+
+Gold-intake provenance for the folded relational-grid pattern lives in
+[`research/SOURCES.md`](./research/SOURCES.md): the `mike#13` nugget, its
+AGPL-3.0 upstream + clean-room discipline, the external review-UX citations, and
+the `@beep/*` bricks it composes. Source exploration dir:
+[`explorations/_gold-intake/`](../../explorations/_gold-intake/) (cluster
+"Relational grounded-extraction grid (per-cell citations)"). The folded note is
+[`research/gold-intake-relational-extraction-grid.md`](./research/gold-intake-relational-extraction-grid.md).
+
 ## Notes
 
 - The fixed `OfficeActionReviewSpikeCandidates` list is retained only through

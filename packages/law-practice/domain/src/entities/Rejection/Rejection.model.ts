@@ -31,7 +31,7 @@ const $I = $LawPracticeDomainId.create("entities/Rejection/Rejection.model");
  *   createdAt: 1,
  *   createdByPrincipal: systemPrincipal,
  *   entityType: "LawPracticeRejection",
- *   fixtureKey: "rejection.102",
+ *   fixtureKey: "rejection-example",
  *   ground: { referenceFixtureKey: "prior-art.smith", statute: "102" },
  *   id: 7,
  *   officeActionFixtureKey: "office-action.first",

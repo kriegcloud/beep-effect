@@ -117,9 +117,20 @@ This initiative references existing packets without merging them:
 Those packets remain source context and evidence. This packet is the active
 authority for the professional runtime product direction.
 
+## Source material
+
+Gold-intake provenance for the agent-Skills / cost-tiered-routing /
+ethical-wall material folded into this packet lives in
+[research/SOURCES.md](./research/SOURCES.md) — the ledger joining each mined gold
+nugget to its upstream repo + license, external citation, and the in-repo
+`@beep/*` brick it composes. It derives from the source exploration dir
+[explorations/_gold-intake/](../../explorations/_gold-intake/) (cluster "Agent
+skills + cost-tiered routing + ethical-wall identity", route `mixed`, wave P1).
+
 ## Notes
 
 - 2026-06-29: gold-intake research note added at
   research/gold-intake-agent-skills-ethical-wall.md (see for agent Skills,
   cost-tiered tool routing, the not-legal-advice disclaimer gate, and
-  ethical-wall `CurrentUser` identity).
+  ethical-wall `CurrentUser` identity); provenance ledger at
+  research/SOURCES.md.

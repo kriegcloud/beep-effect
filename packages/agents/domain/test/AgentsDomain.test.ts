@@ -1,6 +1,14 @@
 import { fileURLToPath } from "node:url";
-import { Agent, AgentMode, assistantContentToDocument, TableBlock, Turn, YouTubeBlock } from "@beep/agents-domain";
-import * as TurnSubpath from "@beep/agents-domain/turn";
+import {
+  Agent,
+  AgentMode,
+  assistantContentToDocument,
+  AssistantBlock as RootAssistantBlock,
+  AssistantContent as RootAssistantContent,
+  TableBlock,
+  YouTubeBlock,
+} from "@beep/agents-domain";
+import * as AssistantContentSubpath from "@beep/agents-domain/values/AssistantContent";
 import {
   AssistantBlock,
   AssistantContent,
@@ -30,9 +38,7 @@ const assistantContentSchemaId = (schema: {
   }
   return schemaId;
 };
-const turnCompatibilityBarrelImportPattern =
-  /^\s*import\s+(?:type\s+)?[\s\S]*?\s+from\s+["']@beep\/agents-domain(?:\/turn)?["'];?/gmu;
-const assistantContentSymbolPattern = /\b(?:AssistantBlock|AssistantContent)\b/u;
+const legacyTurnImportPattern = /^\s*import\s+(?:type\s+)?[\s\S]*?\s+from\s+["']@beep\/agents-domain\/turn["'];?/gmu;
 const ignoredAgentsDirEntries = new Set(["dist", "docs", "node_modules"]);
 const isIgnoredAgentsDirEntry = (entry: string): boolean => ignoredAgentsDirEntries.has(entry) || entry.startsWith(".");
 const isAgentsSourceFile = (entryPath: string, sep: string): boolean =>
@@ -80,28 +86,24 @@ describe("@beep/agents-domain", () => {
       { numRuns: 25 }
     ));
 
-  it("preserves turn compatibility exports for assistant content blocks", () => {
-    const assistantContentDocument = S.toJsonSchemaDocument(Turn.AssistantContent.AssistantContent);
+  it("preserves assistant content exports from the canonical value-object path", () => {
+    const assistantContentDocument = S.toJsonSchemaDocument(AssistantContent);
 
-    expect(Turn.AssistantBlock).toBe(AssistantBlock);
-    expect(Turn.AssistantContent.AssistantBlock).toBe(AssistantBlock);
-    expect(TurnSubpath.AssistantBlock).toBe(AssistantBlock);
-    expect(TurnSubpath.AssistantContent.AssistantBlock).toBe(AssistantBlock);
-    expect(Turn.AssistantContent.AssistantContent).toBe(AssistantContent);
-    expect(TurnSubpath.AssistantContent.AssistantContent).toBe(AssistantContent);
-    expect(assistantContentSchemaId(Turn.AssistantContent.AssistantBlock)).toBe(
-      assistantContentSchemaId(AssistantBlock)
-    );
-    expect(assistantContentSchemaId(Turn.AssistantContent.AssistantContent)).toBe(
-      assistantContentSchemaId(AssistantContent)
-    );
+    expect(RootAssistantBlock).toBe(AssistantBlock);
+    expect(RootAssistantContent).toBe(AssistantContent);
+    expect(AssistantContentSubpath.AssistantBlock).toBe(AssistantBlock);
+    expect(AssistantContentSubpath.AssistantContent).toBe(AssistantContent);
+    expect(assistantContentSchemaId(RootAssistantBlock)).toBe(assistantContentSchemaId(AssistantBlock));
+    expect(assistantContentSchemaId(RootAssistantContent)).toBe(assistantContentSchemaId(AssistantContent));
     expect(assistantContentDocument.schema).toStrictEqual({ $ref: "#/$defs/AssistantContent" });
     expect(assistantContentDocument.definitions).toHaveProperty("AssistantContent");
-    expect(S.toJsonSchemaDocument(Turn.AssistantBlock)).toStrictEqual(S.toJsonSchemaDocument(AssistantBlock));
-    expect(S.toJsonSchemaDocument(TurnSubpath.AssistantBlock)).toStrictEqual(S.toJsonSchemaDocument(AssistantBlock));
+    expect(S.toJsonSchemaDocument(RootAssistantBlock)).toStrictEqual(S.toJsonSchemaDocument(AssistantBlock));
+    expect(S.toJsonSchemaDocument(AssistantContentSubpath.AssistantBlock)).toStrictEqual(
+      S.toJsonSchemaDocument(AssistantBlock)
+    );
     expect(assistantContentDocument).toStrictEqual(S.toJsonSchemaDocument(AssistantContent));
 
-    const decoded = S.decodeUnknownSync(Turn.AssistantBlock)({
+    const decoded = S.decodeUnknownSync(RootAssistantBlock)({
       type: "paragraph",
       children: [{ type: "text", text: "hello" }],
     });
@@ -109,7 +111,7 @@ describe("@beep/agents-domain", () => {
     expect(decoded).toStrictEqual(ParagraphBlock.make({ children: [TextInline.make({ text: "hello" })] }));
   });
 
-  it.effect("keeps agents source code off assistant content compatibility barrel imports", () =>
+  it.effect("keeps agents source code off removed turn subpath imports", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -145,11 +147,9 @@ describe("@beep/agents-domain", () => {
 
       for (const sourcePath of sourceFiles) {
         const sourceText = yield* fs.readFileString(sourcePath);
-        for (const match of sourceText.matchAll(turnCompatibilityBarrelImportPattern)) {
+        for (const match of sourceText.matchAll(legacyTurnImportPattern)) {
           const importDeclaration = match[0];
-          if (assistantContentSymbolPattern.test(importDeclaration)) {
-            violations.push({ importDeclaration, sourcePath: repoRelativePath(sourcePath) });
-          }
+          violations.push({ importDeclaration, sourcePath: repoRelativePath(sourcePath) });
         }
       }
 

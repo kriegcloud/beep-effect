@@ -54,6 +54,12 @@
         ]
       },
       {
+        "name": "@beep/api-transport",
+        "patterns": [
+          "packages/foundation/capability/api-transport/src/**"
+        ]
+      },
+      {
         "name": "@beep/architecture-lab-client",
         "patterns": [
           "packages/architecture-lab/client/src/**"
@@ -722,6 +728,19 @@
         ]
       },
       {
+        "from": "@beep/api-transport",
+        "allow": [
+          "@beep/api-transport",
+          "@beep/identity",
+          "@beep/utils"
+        ],
+        "allowTypeOnly": [
+          "@beep/api-transport",
+          "@beep/identity",
+          "@beep/utils"
+        ]
+      },
+      {
         "from": "@beep/architecture-lab-client",
         "allow": [
           "@beep/architecture-lab-client",
@@ -998,10 +1017,18 @@
       {
         "from": "@beep/ecfr",
         "allow": [
-          "@beep/ecfr"
+          "@beep/api-transport",
+          "@beep/ecfr",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/ecfr"
+          "@beep/api-transport",
+          "@beep/ecfr",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {
@@ -1180,10 +1207,18 @@
       {
         "from": "@beep/govinfo",
         "allow": [
-          "@beep/govinfo"
+          "@beep/api-transport",
+          "@beep/govinfo",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ],
         "allowTypeOnly": [
-          "@beep/govinfo"
+          "@beep/api-transport",
+          "@beep/govinfo",
+          "@beep/identity",
+          "@beep/schema",
+          "@beep/utils"
         ]
       },
       {

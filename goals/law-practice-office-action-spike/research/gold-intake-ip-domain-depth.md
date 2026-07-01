@@ -1,5 +1,8 @@
 # Gold-intake research note: IP-law domain depth — claim-chart, PTAB, clause taxonomy, prior-art (2026-06-29)
 
+> Provenance ledger (nugget → repo → license → citation → in-repo capability):
+> [`research/SOURCES.md`](./SOURCES.md).
+
 > Non-invasive Case-A extend. This is a research note for the goal owner to act
 > on later. It does NOT amend this packet's SPEC.md, PLAN.md, GOAL.md, phases,
 > or scope. The spike is `completed-retained`; everything below is deferred

@@ -12,6 +12,14 @@
   "lifecycle": "complete",
   "executionCapable": true,
   "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
   "relatedPackets": {
     "productAuthority": "goals/agentic-professional-runtime",
     "predecessor": "goals/law-practice-office-action-spike",
@@ -112,5 +120,8 @@
     "The implementation would require real client documents, provider secrets, or paid network calls for the required test proof.",
     "The implementation would exceed named scope before service-backed extraction is green.",
     "The same blocker repeats after reasonable investigation."
+  ],
+  "researchReports": [
+    "research/SOURCES.md"
   ]
 }

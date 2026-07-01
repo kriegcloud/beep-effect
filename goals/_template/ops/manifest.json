@@ -12,13 +12,28 @@
   "lifecycle": "active",
   "executionCapable": true,
   "reflectionRequired": true,
+  "provenance": {
+    "exploration": "explorations/<slug>",
+    "graduated": "YYYY-MM-DD"
+  },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
     "goals/<slug>/README.md",
     "goals/<slug>/SPEC.md",
     "goals/<slug>/PLAN.md",
-    "goals/<slug>/GOAL.md"
+    "goals/<slug>/GOAL.md",
+    "goals/<slug>/research/SOURCES.md"
+  ],
+  "researchReports": [
+    "research/SOURCES.md"
   ],
   "agentLaunchers": [
     {
@@ -47,6 +62,11 @@
     },
     {
       "id": "P3",
+      "name": "Yeet: PR to mergeable",
+      "status": "pending"
+    },
+    {
+      "id": "P4",
       "name": "Close",
       "status": "pending"
     }

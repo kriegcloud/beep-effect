@@ -16,6 +16,14 @@
     "source": "grilled design session (decisions locked before authorship)",
     "recorded": "2026-06-18"
   },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",

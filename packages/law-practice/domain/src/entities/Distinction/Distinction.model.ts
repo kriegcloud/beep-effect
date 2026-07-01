@@ -42,7 +42,7 @@ const $I = $LawPracticeDomainId.create("entities/Distinction/Distinction.model")
  *   id: 5,
  *   lifecycleState: "candidate",
  *   orgId: 1,
- *   rejectionFixtureKey: "rejection.102",
+ *   rejectionFixtureKey: "rejection-example",
  *   rowVersion: 1,
  *   schemaVersion: "0.0.0",
  *   source: "System",

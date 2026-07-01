@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/CollectionSummary` exports.
+ * Barrel for the GovInfo `CollectionSummary` value object — the summary
+ * metadata describing a single GovInfo collection.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The CollectionSummary value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
- *
- * console.log(CollectionSummary);
- * ```
+ * The GovInfo `CollectionSummary` value object modeling a single collection's
+ * summary metadata.
  *
  * @category models
  * @since 0.0.0

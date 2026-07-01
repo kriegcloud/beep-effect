@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/GranuleContainer` exports.
+ * Barrel for the GovInfo `GranuleContainer` value object — a package's
+ * `/granules` listing response carrying its granule metadata entries.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The GranuleContainer value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
- *
- * console.log(GranuleContainer);
- * ```
+ * The GovInfo `GranuleContainer` value object modeling a package's granule
+ * listing response.
  *
  * @category models
  * @since 0.0.0

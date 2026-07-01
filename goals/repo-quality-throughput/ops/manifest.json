@@ -7,11 +7,21 @@
     "created": "2026-06-06",
     "updated": "2026-06-06",
     "packetAnchorDocument": "SPEC.md",
-    "supersedes": ["repo-quality-acceleration"]
+    "supersedes": [
+      "repo-quality-acceleration"
+    ]
   },
   "packetPath": "goals/repo-quality-throughput",
   "lifecycle": "complete",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
   "mission": "Implement the selected End-to-End Green performance tasks and publish a mergeable PR.",
   "optimizationTarget": "End-to-End Green: edit, local repair, local blockers, commit, push, PR checks, review comments, and merge readiness.",
   "ownership": {
@@ -26,8 +36,16 @@
       "packages/tooling/library/repo-utils",
       "packages/tooling/library/repo-codegraph"
     ],
-    "workflowPaths": [".github/workflows", ".github/actions"],
-    "configPaths": ["turbo.json", "biome.jsonc", "lefthook.yml", "package.json"]
+    "workflowPaths": [
+      ".github/workflows",
+      ".github/actions"
+    ],
+    "configPaths": [
+      "turbo.json",
+      "biome.jsonc",
+      "lefthook.yml",
+      "package.json"
+    ]
   },
   "currentSourceOfTruth": [
     "AGENTS.md",
@@ -84,7 +102,10 @@
     "rqt-009",
     "rqt-010"
   ],
-  "rejectedTasks": ["rqt-011", "rqt-012"],
+  "rejectedTasks": [
+    "rqt-011",
+    "rqt-012"
+  ],
   "phases": [
     {
       "id": "P0",

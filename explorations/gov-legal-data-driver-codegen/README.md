@@ -33,6 +33,13 @@ with recommended answers in [`DECISIONS.md`](./DECISIONS.md) — resolve them vi
 5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, if present).
 6. [`MAP.md`](./MAP.md) - decomposition (stage 4, if present).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — the provenance ledger joining
+every mined gold nugget (19) to its upstream repo + `file:line`, the upstream
+license + port discipline, the external research cited on disk, and the
+`@beep/*` capabilities this packet composes.
+
 ## Trail
 
 - 2026-06-29: graduated into goals/gov-legal-data-driver-codegen.

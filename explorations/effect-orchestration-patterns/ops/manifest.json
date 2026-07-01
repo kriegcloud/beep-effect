@@ -6,13 +6,13 @@
     "status": "active",
     "stage": "research",
     "openQuestions": [
-      "Q1: Scope boundary — pure-Schedule layer now vs deferred stateful resilience stack",
-      "Q2: Package placement — where the pure retry policies and selector live",
-      "Q3: First slice — which driver migrates first to prove the shared retry module",
-      "Q4: Vendor/auth — build-time Layer.unwrap selector scope and secret boundary",
-      "Q5: Build-vs-buy — circuit breaker clean-room vs adopt a dependency",
-      "Q6: Degraded fan-out — extract a generic tagged-status combinator vs leave per-call",
-      "Q7: Rate limiter & stateful-resilience home — reuse v4 built-in, and where the stateful stack lives"
+      "Q1: Scope boundary \u2014 pure-Schedule layer now vs deferred stateful resilience stack",
+      "Q2: Package placement \u2014 where the pure retry policies and selector live",
+      "Q3: First slice \u2014 which driver migrates first to prove the shared retry module",
+      "Q4: Vendor/auth \u2014 build-time Layer.unwrap selector scope and secret boundary",
+      "Q5: Build-vs-buy \u2014 circuit breaker clean-room vs adopt a dependency",
+      "Q6: Degraded fan-out \u2014 extract a generic tagged-status combinator vs leave per-call",
+      "Q7: Rate limiter & stateful-resilience home \u2014 reuse v4 built-in, and where the stateful stack lives"
     ],
     "links": {
       "goals": [],
@@ -20,6 +20,9 @@
       "supersededBy": null
     },
     "created": "2026-06-29",
-    "updated": "2026-06-29"
+    "updated": "2026-06-29",
+    "sources": [
+      "research/SOURCES.md"
+    ]
   }
 }

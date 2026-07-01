@@ -3,8 +3,15 @@
   "status": "local_hardening_and_oip_s3_rename_applied_provider_dns_gates_remaining",
   "owner": "@beep-team",
   "app": "@beep/oip-web",
-  "dependsOn": ["oip-web-launch"],
-  "packages": ["@beep/oip-web", "@beep/sanity", "@beep/hubspot", "@beep/infra"],
+  "dependsOn": [
+    "oip-web-launch"
+  ],
+  "packages": [
+    "@beep/oip-web",
+    "@beep/sanity",
+    "@beep/hubspot",
+    "@beep/infra"
+  ],
   "providers": {
     "cms": "sanity",
     "crm": "hubspot",
@@ -99,5 +106,12 @@
     "bun run --cwd infra check",
     "bun run --cwd infra test",
     "bun run --cwd infra lint"
-  ]
+  ],
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

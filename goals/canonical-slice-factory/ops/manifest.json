@@ -8,7 +8,9 @@
     "updated": "2026-05-14",
     "packetAnchorDocument": "SPEC.md"
   },
-  "supersedes": ["repo-architecture-automation"],
+  "supersedes": [
+    "repo-architecture-automation"
+  ],
   "handoffPrompt": "ops/codex-handoff-prompt.md",
   "proofTarget": {
     "boundedContext": "architecture-lab",
@@ -128,5 +130,13 @@
       "driver package public wrappers",
       "richer structured and semantic writer primitives"
     ]
+  },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate (lifecycle 'v1-closed'); not reopened."
   }
 }

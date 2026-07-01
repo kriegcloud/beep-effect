@@ -8,18 +8,16 @@
  */
 
 /**
- * TODO
- *
- * @example
+ * The GovInfo search contract schemas: the request payload, the successful and
+ * failure response bodies, and the typed errors for the `POST /search` endpoint.
  *
  * @category models
  * @since 0.0.0
  */
-export * from "./Search.contract.ts";
+export * as Search from "./Search.contract.ts";
 /**
- * TODO
- *
- * @example
+ * The GovInfo search HTTP endpoint descriptor binding the `POST /search` route
+ * to its request payload and success/error response contracts.
  *
  * @category models
  * @since 0.0.0

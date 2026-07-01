@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/SearchResult` exports.
+ * Barrel for the GovInfo `SearchResult` value object — a single `POST /search`
+ * hit carrying its collection code, ingest and issue dates, download
+ * renditions, government authors, granule and package ids, links, and title.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The SearchResult value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { SearchResult } from "@beep/govinfo/domain/values/SearchResult/SearchResult.model";
- *
- * console.log(SearchResult);
- * ```
+ * The GovInfo `SearchResult` value object modeling a single search hit.
  *
  * @category models
  * @since 0.0.0

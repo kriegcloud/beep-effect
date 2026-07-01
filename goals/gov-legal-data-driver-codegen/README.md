@@ -36,17 +36,48 @@ Use this command for execution-capable sessions:
 5. [`research/`](./research/) - back-links to the source exploration's research.
 6. [`history/`](./history/) - evidence and closeouts, if present.
 
+## Source material
+
+This goal graduated from
+[`explorations/gov-legal-data-driver-codegen`](../../explorations/gov-legal-data-driver-codegen)
+— that exploration's `RESEARCH.md` / `DECISIONS.md` / `research/*.md` remain the
+primary research ledger. The mined gold nuggets (upstream repo + `file:line`),
+upstream licenses + port discipline, external citations, and the `@beep/*` bricks
+this packet composes are joined in
+[`research/SOURCES.md`](./research/SOURCES.md). Read it before porting any
+upstream pattern — licenses are load-bearing (AGPL = clean-room reimplement;
+unknown-license = reimplement-don't-copy).
+
 ## Current Phase
 
-**P0 — govinfo-finish + transformer-incubate.** Next concrete action: repair
-`packages/drivers/govinfo/package.json` (add `@beep/identity` + `@beep/schema`),
-then add a hand-authored `Govinfo.service.ts` / `Govinfo.config.ts` on top of the
-existing `Search` contract + value models and incubate the shared transformer via
-`HttpApiClient.make`'s `transformClient`.
+**Substrate delivered (P0 + P1 + P3 complete).** P2 (CourtListener + DOL) remains
+**gated-pending** on the data/source-terms matrix (Q8 default-deny) — do not start
+until the matrix exists. The remaining open work in this packet is P2 only.
 
 ## Latest Evidence
 
-Not started.
+2026-06-30 (claude, Opus 4.8):
+
+- **P0** — `@beep/govinfo` finished: manifest declares `@beep/identity` +
+  `@beep/schema` (+ `@beep/utils`); hand-authored `Govinfo.config`/`errors`/`service`
+  on the existing `Search` contract + value models; shared transformer applied via
+  `HttpApiClient.make`'s `transformClient`; api.data.gov `api_key` query-param auth
+  via `Config.redacted`. Offline test proves `X-RateLimit-*` parse + observable
+  snapshot + cache-hit-on-repeat (transport call-count == 1) + keyless-safe, no live
+  creds. `check`/`lint`/`test` green.
+- **P1** — keyless `@beep/ecfr` driver built on `HttpClient.mapRequest` (2nd
+  transformer consumer); committed Swagger-2.0 `openapi.json` + bespoke
+  `scripts/generate.ts` + package-private `src/_generated/*`; builds network-free.
+  eCFR `@effect/openapi-generator` Swagger-2.0 spike recorded with dialect warnings
+  + bespoke-renderer fallback decision in
+  [`research/2026-06-30-ecfr-generator-spike.md`](./research/2026-06-30-ecfr-generator-spike.md).
+- **P3** — codegen-drift lane wired in committed CI (`.github/workflows/check.yml`,
+  `git diff --exit-code`); codegen regenerate is byte-deterministic; the transformer
+  promoted to `@beep/api-transport` (`packages/foundation/capability/api-transport`)
+  with a README ≥2-consumer record (`@beep/govinfo` + `@beep/ecfr`, both
+  grep-verified). Closeout reflection at
+  [`history/reflections/2026-06-30-claude.md`](./history/reflections/2026-06-30-claude.md);
+  `bun run beep lint reflection-artifacts` passes.
 
 ## Notes
 

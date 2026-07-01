@@ -11,6 +11,7 @@
     "@babel/plugin-transform-modules-commonjs": "^8.0.1",
     "@babel/preset-react": "^8.0.1",
     "@base-ui/react": "^1.6.0",
+    "exiftool-vendored": "^36.0.0",
     "@better-auth/core": "^1.7.0-beta.10",
     "@better-auth/oauth-provider": "^1.7.0-beta.10",
     "@better-auth/passkey": "^1.7.0-beta.10",

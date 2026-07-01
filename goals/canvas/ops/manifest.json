@@ -35,8 +35,14 @@
     }
   },
   "targets": {
-    "primary": ["desktop"],
-    "bestEffort": ["linux", "macos", "windows"]
+    "primary": [
+      "desktop"
+    ],
+    "bestEffort": [
+      "linux",
+      "macos",
+      "windows"
+    ]
   },
   "defaults": {
     "platform": "cross-platform",
@@ -109,5 +115,12 @@
       "boundary translation tests for at least one domain error and one repository error"
     ]
   },
-  "nextAction": "Review P3 scope or select the next PRD slice to promote beyond the bootstrap shell."
+  "nextAction": "Review P3 scope or select the next PRD slice to promote beyond the bootstrap shell.",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

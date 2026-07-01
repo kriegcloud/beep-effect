@@ -35,6 +35,15 @@ Resolve them by running `/grill-with-docs deterministic-doc-structure-extraction
 5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, if present).
 6. [`MAP.md`](./MAP.md) - decomposition (stage 4, if present).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) is the provenance ledger: every mined
+gold nugget (upstream repo + `file:line`), its license + port discipline, the external
+research citation, and the in-repo `@beep/*` brick it composes. This packet owns the
+**netNew** half of the gold-intake cluster *"Anti-inference structured extraction +
+deterministic doc-structure"*; the anti-inference prompt-mode half is the sibling
+[`goals/langextract-capability`](../../goals/langextract-capability) Case-A note.
+
 ## Trail
 
 - 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.

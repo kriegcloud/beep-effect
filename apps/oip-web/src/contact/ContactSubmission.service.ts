@@ -14,10 +14,8 @@ import {
 } from "@beep/hubspot";
 import { $OipWebId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { A, Str } from "@beep/utils";
+import { A, O, Str } from "@beep/utils";
 import { Clock, Config, Effect, flow, Layer, pipe, Redacted } from "effect";
-import * as O from "effect/Option";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import { ContactSubmissionResponse, decodeContactSubmission } from "./ContactSubmission.model.ts";
@@ -59,11 +57,9 @@ class ContactSubmissionError extends TaggedErrorClass<ContactSubmissionError>($I
   ): ContactSubmissionError =>
     ContactSubmissionError.make({
       reason,
-      ...R.getSomes({
+      ...O.getSomesStruct({
         provider: O.fromUndefinedOr(options.provider),
         providerReason: O.fromUndefinedOr(options.providerReason),
-      }),
-      ...R.getSomes({
         status: O.fromUndefinedOr(options.status),
       }),
     });
@@ -173,7 +169,7 @@ const contactProperties = (submission: ContactSubmission): Readonly<Record<strin
   email: submission.email,
   firstname: submission.name,
   message: crmMessage(submission),
-  ...R.getSomes({
+  ...O.getSomesStruct({
     company: O.fromUndefinedOr(submission.company),
     phone: O.fromUndefinedOr(submission.phone),
   }),
@@ -248,7 +244,7 @@ const submitConfiguredContact = (
       ContactSubmissionError.fromReason("provider", {
         provider: "hubspot",
         providerReason: error.reason,
-        ...R.getSomes({ status: O.fromUndefinedOr(error.status) }),
+        ...O.getSomesStruct({ status: O.fromUndefinedOr(error.status) }),
       })
     )
   );
@@ -299,11 +295,9 @@ export const submitContact: (input: unknown) => Effect.Effect<ContactSubmissionR
           operation: "oip.contact.submit",
           outcome: "rejected",
           reason: error.reason,
-          ...R.getSomes({
+          ...O.getSomesStruct({
             provider: O.fromUndefinedOr(error.provider),
             providerReason: O.fromUndefinedOr(error.providerReason),
-          }),
-          ...R.getSomes({
             status: O.fromUndefinedOr(error.status),
           }),
         }),

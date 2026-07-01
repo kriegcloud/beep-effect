@@ -1,5 +1,8 @@
 # Gold-intake research note: anti-inference "pure-OCR" prompt-mode discipline (2026-06-29)
 
+> Full provenance ledger (nuggets → upstream repos+licenses → citations → in-repo
+> bricks): [`research/SOURCES.md`](./SOURCES.md).
+
 > Non-invasive Case-A pure-extend note for the `langextract-capability` goal owner.
 > It does NOT modify `SPEC.md`, `PLAN.md`, `GOAL.md`, phases, or scope. It records
 > reusable prompt-mode + candidate-scoring + chunking patterns that the existing
