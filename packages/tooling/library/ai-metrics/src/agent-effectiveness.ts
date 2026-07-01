@@ -1641,6 +1641,9 @@ const aggregateSummary = (
   return AgentEffectivenessDoctorSummary.make({ ...folded, status });
 };
 
+// crispen: retained as `A | null` for the two NullOr wire fields (latestScorecard/latestForwarder),
+// whose S.NullOr schema and `=== null` consumers require the null boundary; fold to Option only when
+// those fields become S.OptionFromNullOr.
 const firstOrNull: <A>(values: ReadonlyArray<A>) => A | null = flow(A.head, O.getOrNull);
 
 const dataRootDuckDbPath = (dataRoot: string): string => `${dataRoot}/derived/ai-metrics.duckdb`;
@@ -1903,8 +1906,14 @@ const queryAiMetricsSection = Effect.fn("AiMetrics.agentEffectiveness.queryAiMet
           target: latestForwarderRow.target,
           turnCount: latestForwarderRow.turnCount,
         });
-  const labelCount = firstOrNull(labelCountRows)?.count ?? 0;
-  const benchmarkRunCount = firstOrNull(benchmarkCountRows)?.count ?? 0;
+  const labelCount = A.head(labelCountRows).pipe(
+    O.map((row) => row.count),
+    O.getOrElse(() => 0)
+  );
+  const benchmarkRunCount = A.head(benchmarkCountRows).pipe(
+    O.map((row) => row.count),
+    O.getOrElse(() => 0)
+  );
   const unavailableMetrics = ["provider_model_token_cost"];
   const missingCore = latestForwarder === null || scorecard === null || A.isReadonlyArrayEmpty(sourceCoverage);
   const readinessWarnings =
