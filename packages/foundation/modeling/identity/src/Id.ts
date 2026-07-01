@@ -836,7 +836,7 @@ type BaseIdentity<Base extends TString.NonEmpty> =
 
 const SegmentCheck = S.makeFilterGroup(
   [
-    S.makeFilter((segment: string) => Str.isNonEmpty(segment), {
+    S.isNonEmpty({
       identifier: "@beep/identity/check/non-empty-segment",
       message: "Identity segments cannot be empty.",
     }),
@@ -859,11 +859,11 @@ const SegmentSchema = S.String.check(SegmentCheck);
 
 const ModuleSegmentCheck = S.makeFilterGroup(
   [
-    S.makeFilter((segment: string) => MODULE_CHARACTERS.test(segment), {
+    S.isPattern(MODULE_CHARACTERS, {
       identifier: "@beep/identity/check/module-characters",
       message: "Module segments must contain only alphanumeric characters, hyphens, or underscores.",
     }),
-    S.makeFilter((segment: string) => MODULE_LEADING_ALPHA.test(segment), {
+    S.isPattern(MODULE_LEADING_ALPHA, {
       identifier: "@beep/identity/check/module-leading-alpha",
       message: "Module segments must start with an alphabetic character to create valid accessors.",
     }),
@@ -877,11 +877,11 @@ const ModuleSegmentCheck = S.makeFilterGroup(
 const ModuleSegmentSchema = SegmentSchema.check(ModuleSegmentCheck);
 
 const BaseSegmentSchema = S.String.check(
-  S.makeFilter((base: string) => Str.isNonEmpty(base), {
+  S.isNonEmpty({
     identifier: "@beep/identity/check/non-empty-base",
     message: "Identity bases cannot be empty.",
   }),
-  S.makeFilter((base: string) => BASE_CHARACTERS.test(base), {
+  S.isPattern(BASE_CHARACTERS, {
     identifier: "@beep/identity/check/base-characters",
     message: "Identity bases must use alphanumeric, hyphen, or underscore characters and start/end with alphanumeric.",
   })
