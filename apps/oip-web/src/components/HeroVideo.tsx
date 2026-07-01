@@ -28,6 +28,16 @@ type SaveDataNavigator = Navigator & {
   };
 };
 
+const HTMLVideoElementCtor = globalThis.HTMLVideoElement;
+const isHTMLVideoElement = (value: unknown): value is HTMLVideoElement =>
+  P.isFunction(HTMLVideoElementCtor) && value instanceof HTMLVideoElementCtor;
+
+const DOMHtmlVideoElement = S.declare(isHTMLVideoElement).pipe(
+  $I.annoteSchema("DOMHtmlVideoElement", {
+    description: "A browser HTML video element.",
+  })
+);
+
 /**
  * A single rotating hero background clip: an optimized poster plus its background
  * video sources.
@@ -45,7 +55,7 @@ class HeroClipMedia extends S.Class<HeroClipMedia>($I`HeroClipMedia`)(
 
 class HeroVideoState extends S.Class<HeroVideoState>($I`HeroVideoState`)(
   {
-    element: S.NullOr(S.instanceOf(HTMLVideoElement)).pipe(SchemaUtils.withKeyDefaults(null)),
+    element: S.NullOr(DOMHtmlVideoElement).pipe(SchemaUtils.withKeyDefaults(null)),
     playing: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
   },
   $I.annote("HeroVideoState", {

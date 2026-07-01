@@ -525,6 +525,7 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
  *   email: "hello@example.com",
  *   lede: "Reach out.",
  *   notice: ["No attorney-client relationship is formed by this website."],
+ *   officePhone: "+16125550100",
  *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
  *   title: "Contact"
  * })
@@ -540,6 +541,7 @@ export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
     email: EmailString,
     lede: S.String,
     notice: S.Array(S.String),
+    officePhone: S.NonEmptyString,
     review: ReviewGate,
     title: S.String,
   },
