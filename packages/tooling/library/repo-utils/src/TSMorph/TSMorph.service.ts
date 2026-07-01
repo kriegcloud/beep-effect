@@ -207,7 +207,25 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
     description:
       "Typed error indicating that a TypeScript source file could not be loaded or normalized by TSMorphService.",
   })
-) {}
+) {
+  /**
+   * Construct a source-file error from a raw file path (decoded to an `Option`) and message.
+   *
+   * @since 0.0.0
+   * @category constructors
+   */
+  static at(
+    filePathInput: string,
+    message: string,
+    scopeId: O.Option<ProjectScopeId> = O.none()
+  ): TsMorphSourceFileError {
+    return TsMorphSourceFileError.make({
+      scopeId,
+      filePath: S.decodeOption(TypeScriptFilePath)(filePathInput),
+      message,
+    });
+  }
+}
 
 /**
  * Typed error returned when a symbol id cannot be resolved within a scope.
