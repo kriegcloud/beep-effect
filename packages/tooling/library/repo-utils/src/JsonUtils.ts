@@ -22,6 +22,8 @@ const compactGetter = SchemaGetter.stringifyJson();
  * using `SchemaGetter.stringifyJson`. Returns an Effect with `DomainError`
  * on serialization failure.
  *
+ * @effects Wraps schema-backed JSON stringification in `Effect`; no filesystem,
+ * process, or project traversal side effects are performed.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -29,8 +31,6 @@ const compactGetter = SchemaGetter.stringifyJson();
  * const program = Effect.map(jsonStringifyPretty({ ok: true }), (json) => json.length)
  * console.log(program)
  * ```
- * @effects Wraps schema-backed JSON stringification in `Effect`; no filesystem,
- * process, or project traversal side effects are performed.
  * @category utilities
  * @since 0.0.0
  */
@@ -48,6 +48,8 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
  * using `SchemaGetter.stringifyJson`. Returns an Effect with `DomainError`
  * on serialization failure.
  *
+ * @effects Wraps schema-backed JSON stringification in `Effect`; no filesystem,
+ * process, or project traversal side effects are performed.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -55,8 +57,6 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
  * const program = Effect.map(jsonStringifyCompact({ ok: true }), (json) => json.length)
  * console.log(program)
  * ```
- * @effects Wraps schema-backed JSON stringification in `Effect`; no filesystem,
- * process, or project traversal side effects are performed.
  * @category utilities
  * @since 0.0.0
  */
@@ -73,6 +73,8 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  * Parse a JSON string into an unknown value using `SchemaGetter.parseJson`.
  * For typed parsing, prefer `Schema.decodeUnknown(Schema.fromJsonString(MySchema))`.
  *
+ * @effects Wraps schema-backed JSON parsing in `Effect`; no filesystem,
+ * process, or project traversal side effects are performed.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -80,8 +82,6 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  * const program = Effect.map(jsonParse("{\"ok\":true}"), (value) => typeof value)
  * console.log(program)
  * ```
- * @effects Wraps schema-backed JSON parsing in `Effect`; no filesystem,
- * process, or project traversal side effects are performed.
  * @category utilities
  * @since 0.0.0
  */

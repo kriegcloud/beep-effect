@@ -1692,27 +1692,29 @@ export const decodeTSConfigExit: (input: unknown) => Exit.Exit<TSConfig.Type, S.
 /**
  * Decode an unknown value into a strict `TSConfig` as an Effect.
  *
+ * @param input - Unknown value decoded against the strict `TSConfig` schema.
+ * @returns An Effect that succeeds with the decoded `TSConfig` or fails with `S.SchemaError`.
  * @remarks
  * Semantic decoding keeps the SchemaStore-compatible shape while normalizing
  * loose JSON records into the schema-backed `TSConfig` model. Unknown compiler
  * option keys are rejected.
- *
- * @example
- * ```ts
- * import { Effect } from "effect"
- * import { decodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
- *
- * const config = Effect.runSync(
- *   decodeTSConfigEffect({ compilerOptions: { strict: true, noEmit: true } })
- * )
- *
- * console.log(config.compilerOptions?.strict) // true
- * ```
- *
  * @effects
  * Runs strict Effect Schema decoding and semantic normalization into
  * `TSConfig`; failures are reported as `S.SchemaError`.
- *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import { decodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
+ * const config = Effect.runSync(
+ *   decodeTSConfigEffect({ compilerOptions: { strict: true, noEmit: true } })
+ * )
+ * const strict = config.compilerOptions.pipe(
+ *   O.flatMap((options) => options.strict),
+ *   O.getOrElse(() => false)
+ * )
+ * console.log(strict) // true
+ * ```
  * @category validation
  * @since 0.0.0
  */
@@ -1725,23 +1727,24 @@ export const decodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.Ty
  * Supports comments and trailing commas through `@beep/schema/Jsonc`.
  * Encoding remains JSON-only and does not preserve comments.
  *
+ * @effects
+ * Parses JSONC text through `@beep/schema/Jsonc`, then runs the same strict
+ * tsconfig schema decode; parse and validation failures are `S.SchemaError`s.
  * @example
  * ```ts
  * import { Effect } from "effect"
+ * import * as O from "effect/Option"
  * import { decodeTSConfigFromJsoncTextEffect } from "@beep/repo-utils/schemas/TSConfig"
- *
  * const config = Effect.runSync(decodeTSConfigFromJsoncTextEffect(`{
  *   // Typecheck only
  *   "compilerOptions": { "noEmit": true }
  * }`))
- *
- * console.log(config.compilerOptions?.noEmit) // true
+ * const noEmit = config.compilerOptions.pipe(
+ *   O.flatMap((options) => options.noEmit),
+ *   O.getOrElse(() => false)
+ * )
+ * console.log(noEmit) // true
  * ```
- *
- * @effects
- * Parses JSONC text through `@beep/schema/Jsonc`, then runs the same strict
- * tsconfig schema decode; parse and validation failures are `S.SchemaError`s.
- *
  * @category validation
  * @since 0.0.0
  */
@@ -1758,23 +1761,19 @@ export const decodeTSConfigFromJsoncTextEffect: (input: string) => Effect.Effect
  * The input is first decoded with strict excess-property rejection so callers
  * do not accidentally encode malformed tsconfig objects.
  *
- * @example
- * ```ts
- * import { Effect } from "effect"
- * import { encodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
- *
- * const encoded = Effect.runSync(
- *   encodeTSConfigEffect({ compilerOptions: { strict: true, moduleResolution: "bundler" } })
- * )
- *
- * console.log(encoded.compilerOptions?.moduleResolution) // "bundler"
- * ```
- *
  * @effects
  * Decodes the input with strict tsconfig validation before encoding it back to
  * the schema's external representation; failures are reported as
  * `S.SchemaError`.
- *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { encodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
+ * const encoded = Effect.runSync(
+ *   encodeTSConfigEffect({ compilerOptions: { strict: true, moduleResolution: "bundler" } })
+ * )
+ * console.log(encoded.compilerOptions?.moduleResolution) // "bundler"
+ * ```
  * @category validation
  * @since 0.0.0
  */
@@ -1788,22 +1787,18 @@ export const encodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.En
 /**
  * Encode a strict `TSConfig` value to a compact JSON string as an Effect.
  *
+ * @effects
+ * Validates the tsconfig value and serializes the encoded representation
+ * through the schema JSON-string encoder; failures are `S.SchemaError`s.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { encodeTSConfigToJsonEffect } from "@beep/repo-utils/schemas/TSConfig"
- *
  * const json = Effect.runSync(
  *   encodeTSConfigToJsonEffect({ compilerOptions: { strict: true } })
  * )
- *
  * console.log(json.includes("\"strict\":true")) // true
  * ```
- *
- * @effects
- * Validates the tsconfig value and serializes the encoded representation
- * through the schema JSON-string encoder; failures are `S.SchemaError`s.
- *
  * @category validation
  * @since 0.0.0
  */
@@ -1820,23 +1815,18 @@ export const encodeTSConfigToJsonEffect: (input: unknown) => Effect.Effect<strin
  * @remarks
  * Pretty printing validates first, then formats the encoded shape with the
  * shared repo JSON renderer. Comments from JSONC input are not preserved.
- *
+ * @effects
+ * Validates and encodes the tsconfig value, then pretty-prints the JSON
+ * payload; formatting failures surface as `DomainError`.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { encodeTSConfigPrettyEffect } from "@beep/repo-utils/schemas/TSConfig"
- *
  * const pretty = Effect.runSync(
  *   encodeTSConfigPrettyEffect({ compilerOptions: { strict: true } })
  * )
- *
  * console.log(pretty.includes("\n")) // true
  * ```
- *
- * @effects
- * Validates and encodes the tsconfig value, then pretty-prints the JSON
- * payload; formatting failures surface as `DomainError`.
- *
  * @category validation
  * @since 0.0.0
  */

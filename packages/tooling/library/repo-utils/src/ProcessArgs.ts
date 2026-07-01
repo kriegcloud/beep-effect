@@ -167,15 +167,15 @@ export const toLiteralArgs = (dataArgs: ReadonlyArray<string>): ReadonlyArray<st
  * @param value - Candidate argument value.
  * @returns An Effect that succeeds with the value when it is a safe literal, or
  *   fails with {@link OptionInjectionError} when it is option-like.
+ * @effects Performs in-memory argument validation only; no child process is
+ * spawned and option-like values fail through the typed `OptionInjectionError`
+ * channel.
  * @example
  * ```ts
  * import { guardLiteralArg } from "@beep/repo-utils/ProcessArgs"
  * const program = guardLiteralArg("graphiti-mcp-falkordb-1")
  * console.log(program)
  * ```
- * @effects Performs in-memory argument validation only; no child process is
- * spawned and option-like values fail through the typed `OptionInjectionError`
- * channel.
  * @category guards
  * @since 0.0.0
  */

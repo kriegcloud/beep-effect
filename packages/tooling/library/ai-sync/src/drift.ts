@@ -37,6 +37,8 @@ const readPackageFile = Effect.fn("AiSync.readPackageFile")(function* (relativeP
 /**
  * Decode committed generated source metadata.
  *
+ * @effects Decodes committed generated metadata in memory and fails with
+ * `AiSyncError` if the generated constants no longer match the metadata schema.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -46,8 +48,6 @@ const readPackageFile = Effect.fn("AiSync.readPackageFile")(function* (relativeP
  *   console.log(sources.length)
  * )
  * ```
- * @effects Decodes committed generated metadata in memory and fails with
- * `AiSyncError` if the generated constants no longer match the metadata schema.
  * @category constants
  * @since 0.0.0
  */
@@ -65,6 +65,9 @@ export const getGeneratedSourceMetadata = Effect.fn("AiSync.getGeneratedSourceMe
 /**
  * Offline generated artifact freshness check.
  *
+ * @effects Reads committed generated schema and source-metadata files from the
+ * package root, decodes generated source metadata, and fails with
+ * `AiSyncError` when the generated artifacts are missing or stale.
  * @example
  * ```ts
  * import * as NodeServices from "@effect/platform-node/NodeServices"
@@ -78,9 +81,6 @@ export const getGeneratedSourceMetadata = Effect.fn("AiSync.getGeneratedSourceMe
  *
  * Effect.runPromise(program).then(console.log)
  * ```
- * @effects Reads committed generated schema and source-metadata files from the
- * package root, decodes generated source metadata, and fails with
- * `AiSyncError` when the generated artifacts are missing or stale.
  * @category validation
  * @since 0.0.0
  */
@@ -139,6 +139,8 @@ export const checkGeneratedArtifacts = Effect.fn("AiSync.checkGeneratedArtifacts
  *
  * @param options - Sources and fetcher used to compare committed hashes.
  * @returns Drift findings for sources whose current content differs.
+ * @effects Runs the supplied fetcher for each source with bounded concurrency,
+ * hashes each fetched body, and returns findings without writing files.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -161,8 +163,6 @@ export const checkGeneratedArtifacts = Effect.fn("AiSync.checkGeneratedArtifacts
  *
  * Effect.runPromise(program).then((findings) => console.log(findings.length))
  * ```
- * @effects Runs the supplied fetcher for each source with bounded concurrency,
- * hashes each fetched body, and returns findings without writing files.
  * @category validation
  * @since 0.0.0
  */
@@ -194,6 +194,9 @@ export const checkSourceDriftWithFetcher = <R>(options: {
 /**
  * Networked strict drift check against committed Tier-1 hashes.
  *
+ * @effects Fetches each committed Tier-1 source through the configured HTTP
+ * client, hashes the current response bodies, and reports drift findings
+ * without writing files.
  * @example
  * ```ts
  * import * as NodeServices from "@effect/platform-node/NodeServices"
@@ -209,9 +212,6 @@ export const checkSourceDriftWithFetcher = <R>(options: {
  *
  * Effect.runPromise(program).then(console.log)
  * ```
- * @effects Fetches each committed Tier-1 source through the configured HTTP
- * client, hashes the current response bodies, and reports drift findings
- * without writing files.
  * @category validation
  * @since 0.0.0
  */
@@ -225,6 +225,9 @@ export const checkStrictDrift = Effect.fn("AiSync.checkStrictDrift")(function* (
 /**
  * Fail when strict drift reports any findings.
  *
+ * @effects Executes the strict network drift check and fails with `AiSyncError`
+ * containing a source-by-source summary when any committed Tier-1 hash has
+ * drifted.
  * @example
  * ```ts
  * import * as NodeServices from "@effect/platform-node/NodeServices"
@@ -240,9 +243,6 @@ export const checkStrictDrift = Effect.fn("AiSync.checkStrictDrift")(function* (
  *
  * Effect.runPromise(program).then(console.log)
  * ```
- * @effects Executes the strict network drift check and fails with `AiSyncError`
- * containing a source-by-source summary when any committed Tier-1 hash has
- * drifted.
  * @category validation
  * @since 0.0.0
  */

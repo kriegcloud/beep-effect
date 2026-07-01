@@ -7,7 +7,7 @@
 
 "use client";
 
-import {thunkUndefined} from "@beep/utils";
+import { thunkUndefined } from "@beep/utils";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as O from "effect/Option";
 import { Atom } from "effect/unstable/reactivity";
@@ -32,17 +32,14 @@ const backToTopVisibleAtom = Atom.make((get) => {
   return window.scrollY > REVEAL_OFFSET_PX;
 });
 
-const scrollToTopAtom = Atom.writable(
-  thunkUndefined,
-  () => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+const scrollToTopAtom = Atom.writable(thunkUndefined, () => {
+  if (typeof window === "undefined") {
+    return;
   }
-);
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+});
 
 /**
  * Fixed bottom-right button that fades in once the visitor has scrolled past the

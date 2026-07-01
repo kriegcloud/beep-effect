@@ -186,7 +186,7 @@ export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
  * import { ObservedCauseReason } from "@beep/observability"
  *
  * const decodeReason = S.decodeUnknownSync(ObservedCauseReason)
- * const decoded = A.map(Cause.fail(new Error("boom")).reasons, decodeReason)
+ * const decoded = A.map(Cause.fail(new Error("boom")).reasons, (reason) => decodeReason(reason))
  * console.log(decoded.length) // 1
  * ```
  *

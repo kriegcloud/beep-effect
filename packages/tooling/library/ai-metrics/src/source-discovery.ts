@@ -604,12 +604,16 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
 /**
  * Discover local AI metrics transcript sources for the smoke target.
  *
+ * @effects
+ * - Stats configured Codex, Claude, and OpenClaw source roots.
+ * - Recursively scans JSONL transcript files up to `maxFiles`.
+ * - Reads Codex session metadata only far enough to derive source attribution.
+ * - Hashes private local paths and session identifiers before returning results.
  * @example
  * ```ts
  * import { AiMetricsSourceDiscoveryInput, discoverAiMetricsSources } from "@beep/repo-ai-metrics"
  * import { NodeServices } from "@effect/platform-node"
  * import { Effect } from "effect"
- *
  * const program = discoverAiMetricsSources(
  *   AiMetricsSourceDiscoveryInput.make({
  *     hashSalt: "salt",
@@ -619,12 +623,6 @@ const discoverOpenClawSource = Effect.fn("AiMetrics.discoverOpenClawSource")(fun
  * ).pipe(Effect.provide(NodeServices.layer))
  * console.log(program)
  * ```
- * @effects
- * - Stats configured Codex, Claude, and OpenClaw source roots.
- * - Recursively scans JSONL transcript files up to `maxFiles`.
- * - Reads Codex session metadata only far enough to derive source attribution.
- * - Hashes private local paths and session identifiers before returning results.
- *
  * @category services
  * @since 0.0.0
  */

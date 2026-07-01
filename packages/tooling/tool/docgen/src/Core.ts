@@ -189,12 +189,11 @@ const extractPrefixedNestedNamespaces = (
  * ```ts
  * import { extractFencedCodeBlocks, SKIP_TYPE_CHECKING_FENCE_METADATA } from "@beep/repo-docgen/Core"
  *
- * const markdown = `~~~ts ${SKIP_TYPE_CHECKING_FENCE_METADATA}
- * const intentionallyInvalid = <
- * ~~~`
+ * const fence = "~".repeat(3)
+ * const markdown = `${fence}ts ${SKIP_TYPE_CHECKING_FENCE_METADATA}\nconst intentionallyInvalid = <\n${fence}`
  * const [examples] = extractFencedCodeBlocks(markdown)
  *
- * console.log(examples.length)
+ * console.log(examples.length) // 0 — skip-type-checking fences are excluded
  * ```
  * @category constants
  * @since 0.0.0
@@ -205,14 +204,14 @@ export const SKIP_TYPE_CHECKING_FENCE_METADATA = "skip-type-checking";
  * Extracts type-checkable fenced code block text from markdown.
  *
  * @internal
+ * @param content - Markdown text scanned for fenced code blocks.
+ * @returns A tuple of the extracted example code strings and any parser warnings.
  * @remarks
  * Fences tagged with {@link SKIP_TYPE_CHECKING_FENCE_METADATA} are intentionally ignored.
  * Unterminated fences are reported as warnings so docgen can continue parsing the module.
- *
  * @example
  * ```ts
  * import { extractFencedCode } from "@beep/repo-docgen/Core"
- *
  * const [examples] = extractFencedCode("~~~ts\nconst value = 1\n~~~")
  * console.log(examples[0])
  * ```
@@ -239,13 +238,13 @@ const isTypeScriptFence = (metadata: string): boolean =>
  * Extracts type-checkable fenced TypeScript code blocks with their generated file extensions.
  *
  * @internal
+ * @param content - Markdown text scanned for fenced TypeScript code blocks.
+ * @returns A tuple of the extracted fenced code blocks with extensions and any parser warnings.
  * @remarks
  * `tsx` and `typescript jsx` fences are emitted as `.tsx`; `ts` and `typescript` fences are emitted as `.ts`.
- *
  * @example
  * ```ts
  * import { extractFencedCodeBlocks } from "@beep/repo-docgen/Core"
- *
  * const [examples] = extractFencedCodeBlocks("~~~tsx\nconst view = <div />\n~~~")
  * console.log(examples[0]?.extension)
  * ```
@@ -673,28 +672,23 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
 /**
  * Runs the full docgen workflow from source parsing through markdown emission.
  *
+ * @internal
  * @remarks
  * Full-package runs write a proof manifest after docs are emitted. Focused include runs skip the manifest
  * because the output set does not represent the whole package.
- *
- * @internal
- * @example
- * ```ts
- * import { Effect } from "effect"
- * import { program } from "@beep/repo-docgen/Core"
- *
- * const logged = program.pipe(
- *   Effect.tapError((error) => Effect.logError(error.message))
- * )
- *
- * console.log(logged)
- * ```
- *
  * @effects
  * - Reads configured source files and optional generated docs configuration from the current package.
  * - Writes markdown pages, generated example files, example `tsconfig.json`, and full-run proof manifests.
  * - Runs the configured TypeScript compiler against extracted examples and optionally executes them with Bun.
- *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { program } from "@beep/repo-docgen/Core"
+ * const logged = program.pipe(
+ *   Effect.tapError((error) => Effect.logError(error.message))
+ * )
+ * console.log(logged)
+ * ```
  * @category workflows
  * @since 0.0.0
  */

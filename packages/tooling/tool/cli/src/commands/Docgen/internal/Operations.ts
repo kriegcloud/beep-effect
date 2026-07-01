@@ -98,10 +98,8 @@ const byIssueAscending: Order.Order<DocgenExportAnalysis> = Order.mapInput(
  * @example
  * ```ts
  * import { DocgenPackageStatus } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * console.log(DocgenPackageStatus.is["configured-and-generated"]("configured-and-generated"))
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -120,11 +118,9 @@ export const DocgenPackageStatus = LiteralKit([
  * @example
  * ```ts
  * import type { DocgenPackageStatus } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const status: DocgenPackageStatus = "configured-not-generated"
  * console.log(status)
  * ```
- *
  * @category type-level
  * @since 0.0.0
  */
@@ -142,7 +138,6 @@ const DocgenJsonObject = S.Json.pipe(
  * @example
  * ```ts
  * import { DocgenConfigDocument } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const config = DocgenConfigDocument.make({
  *   srcDir: "src",
  *   outDir: "docs",
@@ -150,7 +145,6 @@ const DocgenJsonObject = S.Json.pipe(
  * })
  * console.log(config.srcDir)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -184,7 +178,6 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
  * @example
  * ```ts
  * import { DocgenWorkspacePackage } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const pkg = DocgenWorkspacePackage.make({
  *   name: "@beep/repo-cli",
  *   relativePath: "packages/tooling/tool/cli",
@@ -196,7 +189,6 @@ export class DocgenConfigDocument extends S.Class<DocgenConfigDocument>($I`Docge
  * })
  * console.log(pkg.docsOutputPath)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -221,10 +213,8 @@ export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`D
  * @example
  * ```ts
  * import { DocgenIssuePriority } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * console.log(DocgenIssuePriority.is.high("high"))
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -239,11 +229,9 @@ export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"]).pipe(
  * @example
  * ```ts
  * import type { DocgenIssuePriority } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const priority: DocgenIssuePriority = "medium"
  * console.log(priority)
  * ```
- *
  * @category type-level
  * @since 0.0.0
  */
@@ -255,10 +243,8 @@ export type DocgenIssuePriority = typeof DocgenIssuePriority.Type;
  * @example
  * ```ts
  * import { DocgenExportKind } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * console.log(DocgenExportKind.is["module-fileoverview"]("module-fileoverview"))
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -283,11 +269,9 @@ export const DocgenExportKind = LiteralKit([
  * @example
  * ```ts
  * import type { DocgenExportKind } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const kind: DocgenExportKind = "class"
  * console.log(kind)
  * ```
- *
  * @category type-level
  * @since 0.0.0
  */
@@ -299,7 +283,6 @@ export type DocgenExportKind = typeof DocgenExportKind.Type;
  * @example
  * ```ts
  * import { DocgenExportAnalysis } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const finding = DocgenExportAnalysis.make({
  *   name: "docgenCommand",
  *   kind: "const",
@@ -315,7 +298,6 @@ export type DocgenExportKind = typeof DocgenExportKind.Type;
  * })
  * console.log(finding.priority)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -345,7 +327,6 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
  * @example
  * ```ts
  * import { DocgenAnalysisSummary } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const summary = DocgenAnalysisSummary.make({
  *   totalExports: 12,
  *   fullyDocumented: 10,
@@ -357,7 +338,6 @@ export class DocgenExportAnalysis extends S.Class<DocgenExportAnalysis>($I`Docge
  * })
  * console.log(summary.missingDocumentation)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -385,7 +365,6 @@ export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`Doc
  *   DocgenAnalysisSummary,
  *   DocgenPackageAnalysis
  * } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const analysis = DocgenPackageAnalysis.make({
  *   packageName: "@beep/repo-cli",
  *   packagePath: "packages/tooling/tool/cli",
@@ -403,7 +382,6 @@ export class DocgenAnalysisSummary extends S.Class<DocgenAnalysisSummary>($I`Doc
  * })
  * console.log(analysis.packageName)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -426,7 +404,6 @@ export class DocgenPackageAnalysis extends S.Class<DocgenPackageAnalysis>($I`Doc
  * @example
  * ```ts
  * import { DocgenGenerationResult } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const result = DocgenGenerationResult.make({
  *   packageName: "@beep/repo-cli",
  *   packagePath: "packages/tooling/tool/cli",
@@ -435,7 +412,6 @@ export class DocgenPackageAnalysis extends S.Class<DocgenPackageAnalysis>($I`Doc
  * })
  * console.log(result.moduleCount)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -468,7 +444,6 @@ const isRunDocgenForPackageDataFirst = (args: IArguments): boolean =>
  * @example
  * ```ts
  * import { DocgenAggregateResult } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const result = DocgenAggregateResult.make({
  *   packageName: "@beep/repo-cli",
  *   packagePath: "packages/tooling/tool/cli",
@@ -477,7 +452,6 @@ const isRunDocgenForPackageDataFirst = (args: IArguments): boolean =>
  * })
  * console.log(result.fileCount)
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1271,16 +1245,14 @@ const copyDocsTree: (
 /**
  * Normalize a workspace-relative package path to the current generated docs output layout.
  *
+ * @param relativePath - Workspace-relative package path.
+ * @returns Current nested docs output path with the top-level workspace root trimmed.
  * @example
  * ```ts
  * import { normalizeDocsOutputPath } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const outputPath = normalizeDocsOutputPath("packages/tooling/tool/cli")
  * console.log(outputPath)
  * ```
- *
- * @param relativePath - Workspace-relative package path.
- * @returns Current nested docs output path with the top-level workspace root trimmed.
  * @category normalization
  * @since 0.0.0
  */
@@ -1290,17 +1262,15 @@ export const normalizeDocsOutputPath = (relativePath: string): string =>
 /**
  * Load a package-local `docgen.json` document.
  *
+ * @param absolutePackagePath - Absolute package path containing the `docgen.json` file to decode.
+ * @returns Parsed current-schema docgen configuration.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { loadDocgenConfigDocument } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const program = loadDocgenConfigDocument("/repo/packages/tooling/tool/cli")
  * console.log(Effect.isEffect(program))
  * ```
- *
- * @param absolutePackagePath - Absolute package path containing the `docgen.json` file to decode.
- * @returns Parsed current-schema docgen configuration.
  * @category decoding
  * @since 0.0.0
  */
@@ -1320,6 +1290,9 @@ export const loadDocgenConfigDocument: (
 /**
  * Build the repo-standard `docgen.json` document for a package.
  *
+ * @param targetPackage - Target workspace package.
+ * @param rootDir - Absolute repo root.
+ * @returns Bootstrapped docgen config using current repo defaults plus dependency-aware paths.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -1327,7 +1300,6 @@ export const loadDocgenConfigDocument: (
  *   DocgenWorkspacePackage,
  *   createDocgenConfigDocument
  * } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const target = DocgenWorkspacePackage.make({
  *   name: "@beep/repo-cli",
  *   relativePath: "packages/tooling/tool/cli",
@@ -1340,10 +1312,6 @@ export const loadDocgenConfigDocument: (
  * const program = createDocgenConfigDocument(target, "/repo")
  * console.log(Effect.isEffect(program))
  * ```
- *
- * @param targetPackage - Target workspace package.
- * @param rootDir - Absolute repo root.
- * @returns Bootstrapped docgen config using current repo defaults plus dependency-aware paths.
  * @category constructors
  * @since 0.0.0
  */
@@ -1385,19 +1353,17 @@ export const createDocgenConfigDocument: {
 /**
  * Discover all workspace packages relevant to docgen.
  *
+ * @param rootDir - Optional repo root override.
+ * @returns Sorted workspace package descriptors with current docgen status.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { discoverDocgenWorkspacePackages } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const program = discoverDocgenWorkspacePackages().pipe(
  *   Effect.map((packages) => packages.map((pkg) => pkg.relativePath))
  * )
  * console.log(Effect.isEffect(program))
  * ```
- *
- * @param rootDir - Optional repo root override.
- * @returns Sorted workspace package descriptors with current docgen status.
  * @category queries
  * @since 0.0.0
  */
@@ -1437,20 +1403,18 @@ export const discoverDocgenWorkspacePackages: (
 /**
  * Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path.
  *
+ * @param selector - Package selector supplied by the CLI.
+ * @param options - Optional repo root override.
+ * @returns Resolved workspace package descriptor.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { resolveDocgenWorkspacePackage } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const program = resolveDocgenWorkspacePackage("@beep/repo-cli").pipe(
  *   Effect.map((pkg) => pkg.docsOutputPath)
  * )
  * console.log(Effect.isEffect(program))
  * ```
- *
- * @param selector - Package selector supplied by the CLI.
- * @param options - Optional repo root override.
- * @returns Resolved workspace package descriptor.
  * @category queries
  * @since 0.0.0
  */
@@ -1501,6 +1465,8 @@ export const resolveDocgenWorkspacePackage: {
 /**
  * Analyze a package for missing docgen-required JSDoc.
  *
+ * @param targetPackage - Target workspace package.
+ * @returns Package analysis document grounded in the current repo package layout.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -1508,7 +1474,6 @@ export const resolveDocgenWorkspacePackage: {
  *   DocgenWorkspacePackage,
  *   analyzePackageDocumentation
  * } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const target = DocgenWorkspacePackage.make({
  *   name: "@beep/repo-cli",
  *   relativePath: "packages/tooling/tool/cli",
@@ -1523,9 +1488,6 @@ export const resolveDocgenWorkspacePackage: {
  * )
  * console.log(Effect.isEffect(program))
  * ```
- *
- * @param targetPackage - Target workspace package.
- * @returns Package analysis document grounded in the current repo package layout.
  * @category diagnostics
  * @since 0.0.0
  */
@@ -1564,6 +1526,9 @@ export const analyzePackageDocumentation: (
 /**
  * Render a human-first markdown report for a package analysis run.
  *
+ * @param analysis - Package analysis document.
+ * @param fixMode - Whether to emit checklist-focused output.
+ * @returns Human-first markdown report content.
  * @example
  * ```ts
  * import {
@@ -1571,7 +1536,6 @@ export const analyzePackageDocumentation: (
  *   DocgenPackageAnalysis,
  *   generateAnalysisReport
  * } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const analysis = DocgenPackageAnalysis.make({
  *   packageName: "@beep/repo-cli",
  *   packagePath: "packages/tooling/tool/cli",
@@ -1590,10 +1554,6 @@ export const analyzePackageDocumentation: (
  * const report = generateAnalysisReport(analysis, true)
  * console.log(report.includes("Fix Checklist"))
  * ```
- *
- * @param analysis - Package analysis document.
- * @param fixMode - Whether to emit checklist-focused output.
- * @returns Human-first markdown report content.
  * @category formatting
  * @since 0.0.0
  */
@@ -1713,6 +1673,8 @@ export const generateAnalysisReport: {
 /**
  * Encode a package analysis document as JSON text.
  *
+ * @param analysis - Package analysis document.
+ * @returns JSON representation suitable for writing to disk or stdout.
  * @example
  * ```ts
  * import {
@@ -1720,7 +1682,6 @@ export const generateAnalysisReport: {
  *   DocgenPackageAnalysis,
  *   generateAnalysisJson
  * } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const analysis = DocgenPackageAnalysis.make({
  *   packageName: "@beep/repo-cli",
  *   packagePath: "packages/tooling/tool/cli",
@@ -1739,9 +1700,6 @@ export const generateAnalysisReport: {
  * const json = generateAnalysisJson(analysis)
  * console.log(json.includes("\"packageName\": \"@beep/repo-cli\""))
  * ```
- *
- * @param analysis - Package analysis document.
- * @returns JSON representation suitable for writing to disk or stdout.
  * @category serialization
  * @since 0.0.0
  */
@@ -1750,26 +1708,23 @@ export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string =>
 /**
  * Aggregate generated package docs into the root `docs/generated/` layout.
  *
+ * @param options - Aggregate configuration for the docs copy step, including the clean flag and optional package selector.
+ * @returns Per-package aggregation results using the current nested layout.
  * @remarks
  * Aggregation rejects generated docs whose resolved source directory escapes
  * the package-local `docs/modules` tree.
- *
+ * @effects
+ * Reads package-local generated docs and writes the selected aggregate tree under `docs/generated/`.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { aggregateGeneratedDocs } from "@beep/repo-cli/commands/Docgen/internal/Operations"
- *
  * const program = aggregateGeneratedDocs({
  *   package: "packages/tooling/tool/cli",
  *   clean: false
  * }).pipe(Effect.map((results) => results.length))
  * console.log(Effect.isEffect(program))
  * ```
- *
- * @param options - Aggregate configuration for the docs copy step, including the clean flag and optional package selector.
- * @returns Per-package aggregation results using the current nested layout.
- * @effects
- * Reads package-local generated docs and writes the selected aggregate tree under `docs/generated/`.
  * @category workflows
  * @since 0.0.0
  */

@@ -716,6 +716,7 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
   /**
    * Backwards-compatible slice metadata for existing operation-plan callers.
    *
+   * @returns Legacy aggregate-oriented slice metadata derived from the plan target.
    * @example
    * ```ts
    * import { makeCanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
@@ -723,7 +724,6 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
    * const plan = makeCanonicalSliceOperationPlan()
    * console.log(plan.slice.boundedContext) // "architecture-lab"
    * ```
-   * @returns Legacy aggregate-oriented slice metadata derived from the plan target.
    * @category models
    * @since 0.0.0
    */
@@ -2589,6 +2589,7 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
 /**
  * Build a write-capable operation plan from the accepted WorkItem proof files.
  *
+ * @effects Reads accepted architecture proof files and existing package-level files under the provided repository root.
  * @example
  * ```ts
  * import { makeArchitectureOperationPlan } from "@beep/repo-cli/commands/Architecture"
@@ -2604,7 +2605,6 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
  *
  * Effect.runPromise(program.pipe(Effect.provide(NodeServices.layer))).then(console.log)
  * ```
- * @effects Reads accepted architecture proof files and existing package-level files under the provided repository root.
  * @category constructors
  * @since 0.0.0
  */
@@ -2673,6 +2673,7 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
 /**
  * Build a shell-only slice role package operation plan.
  *
+ * @effects Builds the shell package plan in memory; filesystem writes happen only when the plan is later applied.
  * @example
  * ```ts
  * import { makeArchitecturePackageOperationPlan } from "@beep/repo-cli/commands/Architecture/index"
@@ -2685,7 +2686,6 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
  *
  * Effect.runPromise(program).then(console.log)
  * ```
- * @effects Builds the shell package plan in memory; filesystem writes happen only when the plan is later applied.
  * @category constructors
  * @since 0.0.0
  */

@@ -187,7 +187,7 @@ export const withForm = formHook.withForm;
  *   return (
  *     <form.AppForm>
  *       <Form onSubmit={() => form.handleSubmit()}>
- *         <AddressFields form={form} fields="address" />
+ *         <AddressFields form={form} fields="address" legend="Mailing address" />
  *       </Form>
  *     </form.AppForm>
  *   )

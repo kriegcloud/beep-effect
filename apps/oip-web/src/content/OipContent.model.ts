@@ -293,6 +293,7 @@ export class NavItem extends S.Class<NavItem>($I`NavItem`)(
  * @category models
  * @since 0.0.0
  */
+// fallow-ignore-next-line unused-export
 export class HeroClip extends S.Class<HeroClip>($I`HeroClip`)(
   {
     poster: SiteAsset,
@@ -525,6 +526,7 @@ export class PressItem extends S.Class<PressItem>($I`PressItem`)(
  *   email: "hello@example.com",
  *   lede: "Reach out.",
  *   notice: ["No attorney-client relationship is formed by this website."],
+ *   officePhone: "+16125550100",
  *   review: new ReviewGate({ note: "Approved.", status: "approved" }),
  *   title: "Contact"
  * })
@@ -540,6 +542,7 @@ export class ContactContent extends S.Class<ContactContent>($I`ContactContent`)(
     email: EmailString,
     lede: S.String,
     notice: S.Array(S.String),
+    officePhone: S.NonEmptyString,
     review: ReviewGate,
     title: S.String,
   },

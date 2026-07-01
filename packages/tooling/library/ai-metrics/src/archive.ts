@@ -250,6 +250,11 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
  *
  * @remarks
  * The raw archive key is unwrapped only inside the crypto import boundary.
+ * @effects
+ * - Reads `globalThis.crypto` for AES-GCM key import, nonce generation, and encryption.
+ * - Creates the source-kind archive directory when missing.
+ * - Writes one JSON envelope unless the content-addressed object already exists.
+ * - Reads and decodes the existing envelope when the object is already archived.
  * @example
  * ```ts
  * import {
@@ -269,12 +274,6 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
  * const archiveObjectId = Effect.runPromise(Effect.map(program, (object) => object.archiveObjectId))
  * console.log(archiveObjectId)
  * ```
- * @effects
- * - Reads `globalThis.crypto` for AES-GCM key import, nonce generation, and encryption.
- * - Creates the source-kind archive directory when missing.
- * - Writes one JSON envelope unless the content-addressed object already exists.
- * - Reads and decodes the existing envelope when the object is already archived.
- *
  * @category services
  * @since 0.0.0
  */
@@ -364,6 +363,7 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
  * @remarks
  * P2 intentionally does not expose this as a CLI command.
  * Decryption is package-level verification support, not a user-facing CLI path.
+ * @effects Reads `globalThis.crypto` for AES-GCM key import and decryption.
  * @example
  * ```ts
  * import {
@@ -386,8 +386,6 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
  * })
  * console.log(program)
  * ```
- * @effects Reads `globalThis.crypto` for AES-GCM key import and decryption.
- *
  * @category services
  * @since 0.0.0
  */
@@ -419,14 +417,13 @@ export const decryptEncryptedRawArchiveEnvelope = Effect.fn("AiMetrics.decryptEn
 /**
  * Read and decode an encrypted raw archive envelope from disk.
  *
+ * @effects Reads and decodes one encrypted raw archive envelope JSON file.
  * @example
  * ```ts
  * import { readEncryptedRawArchiveEnvelope } from "@beep/repo-ai-metrics"
  * const program = readEncryptedRawArchiveEnvelope(".ai-metrics/raw/codex/raw-example.json")
  * console.log(program)
  * ```
- * @effects Reads and decodes one encrypted raw archive envelope JSON file.
- *
  * @category services
  * @since 0.0.0
  */

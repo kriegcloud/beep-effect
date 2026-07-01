@@ -5,9 +5,8 @@ import { LiteralKit } from "@beep/schema";
 import { BunRuntime } from "@effect/platform-bun";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
-import { Effect, FileSystem, HashMap, Layer, Match, Order, Path, pipe } from "effect";
+import { Effect, FileSystem, flow, HashMap, Layer, Match, MutableHashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
-import * as MutableHashSet from "effect/MutableHashSet";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -132,15 +131,13 @@ const hasExportModifier = (node: ts.Node): boolean =>
 const upperFirst = (value: string): string =>
   Str.length(value) === 0 ? value : `${Str.toUpperCase(Str.slice(0, 1)(value))}${Str.slice(1)(value)}`;
 
-const toIdentifier = (value: string): string =>
-  pipe(
-    value,
-    Str.replace(/[^A-Za-z0-9_$]+/g, " "),
-    Str.split(" "),
-    A.filter((part) => Str.length(part) > 0),
-    A.map(upperFirst),
-    A.join("")
-  );
+const toIdentifier = flow(
+  Str.replace(/[^A-Za-z0-9_$]+/g, " "),
+  Str.split(" "),
+  A.filter((part) => Str.length(part) > 0),
+  A.map(upperFirst),
+  A.join("")
+);
 
 // crispen: `JSON.stringify` is the exact JS string-literal escaper for codegen; the
 // schema JSON codec is Effect-only and would force this whole sync render layer into
@@ -1254,10 +1251,7 @@ const renderOperationsFile = (methods: ReadonlyArray<ManagerMethod>): string => 
   const byManager = A.groupBy(methods, (method) => method.managerName);
   const sortedManagers = A.sort(R.keys(byManager), ascending);
   const methodsOf = (managerName: string): ReadonlyArray<ManagerMethod> =>
-    pipe(
-      R.get(byManager, managerName),
-      O.getOrElse(() => A.empty<ManagerMethod>())
-    );
+    pipe(R.get(byManager, managerName), O.getOrElse(A.empty<ManagerMethod>));
 
   return `/**
  * Generated Box SDK operation wrappers.

@@ -89,7 +89,7 @@ export const scanChunk = (state: ScanState, text: string): [ScanState, Array<str
       continue;
     }
     Match.value(char).pipe(
-      Match.when(`"`, () => (inString = false)),
+      Match.when(`"`, () => (inString = true)),
       Match.when("[", () => {
         if (!inBlocksArray) {
           inBlocksArray = true;

@@ -327,6 +327,8 @@ const renderSchemasFile = (): string =>
 /**
  * Compute a public SHA-256 content hash.
  *
+ * @effects Uses the Web Crypto SHA-256 implementation when the returned Effect
+ * is executed; requires no Effect services.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -336,8 +338,6 @@ const renderSchemasFile = (): string =>
  *   console.log(hash.length)
  * )
  * ```
- * @effects Uses the Web Crypto SHA-256 implementation when the returned Effect
- * is executed; requires no Effect services.
  * @category utilities
  * @since 0.0.0
  */
@@ -357,6 +357,8 @@ export const hashSourceText: (value: string) => Effect.Effect<string, AiSyncErro
 /**
  * Fetch an upstream source body.
  *
+ * @effects Performs one HTTP GET through the active Effect HTTP client and
+ * fails with {@link AiSyncError} when the response cannot be fetched as text.
  * @example
  * ```ts
  * import { Effect } from "effect"
@@ -379,8 +381,6 @@ export const hashSourceText: (value: string) => Effect.Effect<string, AiSyncErro
  *
  * Effect.runPromise(program).then(console.log)
  * ```
- * @effects Performs one HTTP GET through the active Effect HTTP client and
- * fails with {@link AiSyncError} when the response cannot be fetched as text.
  * @category services
  * @since 0.0.0
  */
@@ -450,6 +450,9 @@ export const renderGeneratedSchemas = renderSchemasFile;
 /**
  * Generate committed schema and source metadata files.
  *
+ * @effects Fetches Tier-1 source bodies, computes content hashes, writes the
+ * committed generated schema and source-metadata files, and logs a completion
+ * message.
  * @example
  * ```ts
  * import * as NodeServices from "@effect/platform-node/NodeServices"
@@ -464,9 +467,6 @@ export const renderGeneratedSchemas = renderSchemasFile;
  *
  * Effect.runPromise(program).then(console.log)
  * ```
- * @effects Fetches Tier-1 source bodies, computes content hashes, writes the
- * committed generated schema and source-metadata files, and logs a completion
- * message.
  * @category workflows
  * @since 0.0.0
  */

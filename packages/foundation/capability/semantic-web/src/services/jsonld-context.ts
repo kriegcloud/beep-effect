@@ -55,11 +55,13 @@ export const JsonLdContextErrorReason = LiteralKit(["unknownTerm", "policyViolat
  * @example
  * ```ts
  * import { strictEqual } from "node:assert"
+ * import * as O from "effect/Option"
  * import { JsonLdContextError } from "@beep/semantic-web/services/jsonld-context"
  *
  * const error = JsonLdContextError.make({
  *   reason: "unknownTerm",
- *   message: "The term is not present in the active context."
+ *   message: "The term is not present in the active context.",
+ *   subject: O.none()
  * })
  * strictEqual(error.reason, "unknownTerm")
  * ```

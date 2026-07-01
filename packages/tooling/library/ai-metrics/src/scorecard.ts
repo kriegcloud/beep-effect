@@ -643,10 +643,10 @@ const ensureBenchmarkCaseExists = Effect.fn("AiMetrics.scorecard.ensureBenchmark
 /**
  * Read unlabeled tasks for human review.
  *
+ * @effects Ensures scorecard tables exist and queries DuckDB for unlabeled tasks in the selected window.
  * @example
  * ```ts
  * import { AiMetricsLabelQueueInput, queueAiMetricsLabels } from "@beep/repo-ai-metrics"
- *
  * const program = queueAiMetricsLabels(
  *   AiMetricsLabelQueueInput.make({
  *     limit: 20,
@@ -657,8 +657,6 @@ const ensureBenchmarkCaseExists = Effect.fn("AiMetrics.scorecard.ensureBenchmark
  * )
  * console.log(program)
  * ```
- * @effects Ensures scorecard tables exist and queries DuckDB for unlabeled tasks in the selected window.
- *
  * @category services
  * @since 0.0.0
  */
@@ -730,10 +728,10 @@ export const queueAiMetricsLabels: (
 /**
  * Add or replace the current structured human label for a task.
  *
+ * @effects Ensures scorecard tables exist, verifies the task exists, and upserts one DuckDB outcome-label row.
  * @example
  * ```ts
  * import { AiMetricsOutcomeLabelInput, addAiMetricsOutcomeLabel } from "@beep/repo-ai-metrics"
- *
  * const program = addAiMetricsOutcomeLabel(
  *   AiMetricsOutcomeLabelInput.make({
  *     agentTaskId: "task-1",
@@ -746,8 +744,6 @@ export const queueAiMetricsLabels: (
  * )
  * console.log(program)
  * ```
- * @effects Ensures scorecard tables exist, verifies the task exists, and upserts one DuckDB outcome-label row.
- *
  * @category services
  * @since 0.0.0
  */
@@ -821,10 +817,10 @@ export const addAiMetricsOutcomeLabel: (
 /**
  * Add or replace a deploy-safe benchmark case.
  *
+ * @effects Ensures scorecard tables exist and upserts one DuckDB benchmark-case row.
  * @example
  * ```ts
  * import { AiMetricsBenchmarkCaseInput, upsertAiMetricsBenchmarkCase } from "@beep/repo-ai-metrics"
- *
  * const program = upsertAiMetricsBenchmarkCase(
  *   AiMetricsBenchmarkCaseInput.make({
  *     benchmarkCaseId: "case-1",
@@ -835,8 +831,6 @@ export const addAiMetricsOutcomeLabel: (
  * )
  * console.log(program)
  * ```
- * @effects Ensures scorecard tables exist and upserts one DuckDB benchmark-case row.
- *
  * @category services
  * @since 0.0.0
  */
@@ -911,18 +905,16 @@ const caseFromRow = Effect.fn("AiMetrics.scorecard.caseFromRow")(function* (row:
 /**
  * List deploy-safe benchmark cases.
  *
+ * @effects Ensures scorecard tables exist and queries DuckDB for benchmark cases.
  * @example
  * ```ts
  * import { listAiMetricsBenchmarkCases } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const program = listAiMetricsBenchmarkCases.pipe(
  *   Effect.map((result) => result.cases.length)
  * )
  * console.log(program)
  * ```
- * @effects Ensures scorecard tables exist and queries DuckDB for benchmark cases.
- *
  * @category services
  * @since 0.0.0
  */
@@ -954,10 +946,10 @@ export const listAiMetricsBenchmarkCases: Effect.Effect<
 /**
  * Record an observed benchmark run for one config snapshot.
  *
+ * @effects Ensures scorecard tables exist, verifies the benchmark case exists, and upserts one DuckDB run row.
  * @example
  * ```ts
  * import { AiMetricsBenchmarkRunInput, recordAiMetricsBenchmarkRun } from "@beep/repo-ai-metrics"
- *
  * const program = recordAiMetricsBenchmarkRun(
  *   AiMetricsBenchmarkRunInput.make({
  *     benchmarkCaseId: "case-1",
@@ -969,8 +961,6 @@ export const listAiMetricsBenchmarkCases: Effect.Effect<
  * )
  * console.log(program)
  * ```
- * @effects Ensures scorecard tables exist, verifies the benchmark case exists, and upserts one DuckDB run row.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1400,10 +1390,13 @@ const writeWeeklyArtifacts = Effect.fn("AiMetrics.scorecard.writeWeeklyArtifacts
 /**
  * Generate and persist a weekly config-impact report.
  *
+ * @effects
+ * - Ensures scorecard tables exist and reads DuckDB task, label, benchmark, and coverage aggregates.
+ * - Upserts weekly scorecard rows.
+ * - Creates the report directory and writes Markdown plus JSON report artifacts.
  * @example
  * ```ts
  * import { AiMetricsWeeklyReportInput, generateAiMetricsWeeklyReport } from "@beep/repo-ai-metrics"
- *
  * const program = generateAiMetricsWeeklyReport(
  *   AiMetricsWeeklyReportInput.make({
  *     reportDir: ".beep/ai-metrics/reports",
@@ -1414,11 +1407,6 @@ const writeWeeklyArtifacts = Effect.fn("AiMetrics.scorecard.writeWeeklyArtifacts
  * )
  * console.log(program)
  * ```
- * @effects
- * - Ensures scorecard tables exist and reads DuckDB task, label, benchmark, and coverage aggregates.
- * - Upserts weekly scorecard rows.
- * - Creates the report directory and writes Markdown plus JSON report artifacts.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1489,11 +1477,11 @@ export const generateAiMetricsWeeklyReport: (
 /**
  * Render a label queue result as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the label cannot be encoded.
  * @example
  * ```ts
  * import { AiMetricsLabelQueueResult, aiMetricsLabelQueueToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const json = Effect.runPromise(
  *   aiMetricsLabelQueueToJson(
  *     AiMetricsLabelQueueResult.make({
@@ -1506,8 +1494,6 @@ export const generateAiMetricsWeeklyReport: (
  * )
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the label cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1524,11 +1510,11 @@ export const aiMetricsLabelQueueToJson: (
 /**
  * Render an outcome label as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the label cannot be encoded.
  * @example
  * ```ts
  * import { OutcomeLabel, aiMetricsOutcomeLabelToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const json = Effect.runPromise(
  *   aiMetricsOutcomeLabelToJson(
  *     OutcomeLabel.make({
@@ -1545,8 +1531,6 @@ export const aiMetricsLabelQueueToJson: (
  * )
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the label cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1560,11 +1544,11 @@ export const aiMetricsOutcomeLabelToJson: (result: OutcomeLabel) => Effect.Effec
 /**
  * Render a benchmark case as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the case cannot be encoded.
  * @example
  * ```ts
  * import { BenchmarkCase, aiMetricsBenchmarkCaseToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const json = Effect.runPromise(
  *   aiMetricsBenchmarkCaseToJson(
  *     BenchmarkCase.make({
@@ -1577,8 +1561,6 @@ export const aiMetricsOutcomeLabelToJson: (result: OutcomeLabel) => Effect.Effec
  * )
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the case cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -1633,11 +1615,11 @@ export const aiMetricsBenchmarkCaseListToJson: (
 /**
  * Render a benchmark run as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the run cannot be encoded.
  * @example
  * ```ts
  * import { BenchmarkRun, aiMetricsBenchmarkRunToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const json = Effect.runPromise(
  *   aiMetricsBenchmarkRunToJson(
  *     BenchmarkRun.make({
@@ -1653,8 +1635,6 @@ export const aiMetricsBenchmarkCaseListToJson: (
  * )
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsScorecardError` if the run cannot be encoded.
- *
  * @category utilities
  * @since 0.0.0
  */

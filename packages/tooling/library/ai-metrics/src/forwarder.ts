@@ -824,6 +824,11 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
 /**
  * Run durable ingest: encrypted raw archive, DuckDB projection, and Parquet export.
  *
+ * @effects
+ * - Scans local Codex, Claude, and OpenClaw source locations.
+ * - Reads selected source files and writes encrypted raw archive objects.
+ * - Writes config snapshot artifacts before and after derived storage succeeds.
+ * - Upserts derived rows into DuckDB and optionally refreshes Parquet exports.
  * @example
  * ```ts
  * import {
@@ -839,12 +844,6 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
  * const program = runAiMetricsForwarder(input)
  * console.log(program)
  * ```
- * @effects
- * - Scans local Codex, Claude, and OpenClaw source locations.
- * - Reads selected source files and writes encrypted raw archive objects.
- * - Writes config snapshot artifacts before and after derived storage succeeds.
- * - Upserts derived rows into DuckDB and optionally refreshes Parquet exports.
- *
  * @category services
  * @since 0.0.0
  */

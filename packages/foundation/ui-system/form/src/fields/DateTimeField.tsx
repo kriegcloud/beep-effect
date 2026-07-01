@@ -76,7 +76,8 @@ export interface DateTimeFieldProps
  *   )
  * }
  *
- * console.log(DateTime.formatIso(eventOptions.defaultValues.startsAt))
+ * const startsAt = eventOptions.defaultValues.startsAt
+ * console.log(startsAt === null ? "unset" : DateTime.formatIso(startsAt))
  * ```
  *
  * @category components

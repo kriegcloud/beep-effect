@@ -606,19 +606,17 @@ export class AiMetricsMirrorBundleResult extends S.Class<AiMetricsMirrorBundleRe
 /**
  * Locate the latest local mirror bundle pointer for a data root.
  *
+ * @effects Reads and decodes `.beep/ai-metrics/mirror/latest.json` under the selected data root.
  * @example
  * ```ts
  * import { locateLatestAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
  * import { NodeServices } from "@effect/platform-node"
  * import { Effect } from "effect"
- *
  * const program = locateLatestAiMetricsMirrorBundle(".beep/ai-metrics").pipe(
  *   Effect.provide(NodeServices.layer)
  * )
  * console.log(program)
  * ```
- * @effects Reads and decodes `.beep/ai-metrics/mirror/latest.json` under the selected data root.
- *
  * @category services
  * @since 0.0.0
  */
@@ -717,12 +715,17 @@ const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
  * @remarks
  * The source DuckDB database is attached read-only into a separate mirror
  * database so the active P6 proof database is never mutated by bundle builds.
+ * @effects
+ * - Checks for the source derived DuckDB database.
+ * - Removes and recreates bundle and mirror working directories.
+ * - Attaches the source DuckDB read-only into a temporary mirror database.
+ * - Writes sanitized Parquet tables, status JSON, manifest JSON, and latest pointer JSON.
+ * - Removes the temporary mirror working directory after a successful build.
  * @example
  * ```ts
  * import { AiMetricsMirrorBundleInput, buildAiMetricsMirrorBundle } from "@beep/repo-ai-metrics"
  * import { NodeServices } from "@effect/platform-node"
  * import { Effect } from "effect"
- *
  * const program = buildAiMetricsMirrorBundle(
  *   AiMetricsMirrorBundleInput.make({
  *     dataRoot: ".beep/ai-metrics",
@@ -731,13 +734,6 @@ const buildMirrorTables = Effect.fn("AiMetrics.buildMirrorTables")(function* ({
  * ).pipe(Effect.provide(NodeServices.layer))
  * console.log(program)
  * ```
- * @effects
- * - Checks for the source derived DuckDB database.
- * - Removes and recreates bundle and mirror working directories.
- * - Attaches the source DuckDB read-only into a temporary mirror database.
- * - Writes sanitized Parquet tables, status JSON, manifest JSON, and latest pointer JSON.
- * - Removes the temporary mirror working directory after a successful build.
- *
  * @category services
  * @since 0.0.0
  */

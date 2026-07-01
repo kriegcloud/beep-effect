@@ -238,10 +238,12 @@ export class RuntimeCandidateTask extends S.Class<RuntimeCandidateTask>($I`Runti
  * @example
  * ```ts
  * import { RuntimeDraftRecipient } from "@beep/agents-use-cases/public"
+ * import { EmailString } from "@beep/schema"
+ * import * as S from "effect/Schema"
  *
  * const recipient = RuntimeDraftRecipient.make({
  *   displayName: "Mira Park",
- *   email: "mira.park@example.test"
+ *   email: S.decodeUnknownSync(EmailString)("mira.park@example.test")
  * })
  *
  * console.log(recipient.email)
@@ -270,6 +272,8 @@ export class RuntimeDraftRecipient extends S.Class<RuntimeDraftRecipient>($I`Run
  *   RuntimeDraftRecipient,
  *   RuntimeEvidenceRef
  * } from "@beep/agents-use-cases/public"
+ * import { EmailString } from "@beep/schema"
+ * import * as S from "effect/Schema"
  *
  * const draft = RuntimeCandidateDraft.make({
  *   artifactId: "draft-artifact-001",
@@ -281,7 +285,12 @@ export class RuntimeDraftRecipient extends S.Class<RuntimeDraftRecipient>($I`Run
  *   producedByPrincipalId: "principal-agent-runtime-fixture",
  *   requiresApproval: true,
  *   subject: "Re: Cash need",
- *   to: [RuntimeDraftRecipient.make({ displayName: "Mira Park", email: "mira.park@example.test" })]
+ *   to: [
+ *     RuntimeDraftRecipient.make({
+ *       displayName: "Mira Park",
+ *       email: S.decodeUnknownSync(EmailString)("mira.park@example.test")
+ *     })
+ *   ]
  * })
  *
  * console.log(draft.requiresApproval) // true
