@@ -1437,14 +1437,26 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
 /**
  * Decode an unknown value into a strict `PackageJson` as an Effect.
  *
- * @param input - Unknown package.json-shaped value to validate and decode.
- * @returns Effect that yields a decoded strict package.json value.
+ * @remarks
+ * Excess top-level and nested properties are rejected. Use this when repo tools
+ * need package manifests that match the supported schema surface instead of
+ * permissively carrying unknown keys forward.
+ *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { decodePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
- * const program = decodePackageJsonEffect({ name: "@beep/example" })
- * console.log(program)
+ *
+ * const packageJson = Effect.runSync(
+ *   decodePackageJsonEffect({
+ *     name: "@beep/example",
+ *     dependencies: { effect: "catalog:" }
+ *   })
+ * )
+ *
+ * console.log(packageJson.name) // "@beep/example"
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1457,14 +1469,22 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  * The input is first decoded with strict excess-property rejection so callers
  * do not accidentally encode malformed package.json objects.
  *
- * @param input - Unknown package.json-shaped value to validate before encoding.
- * @returns Effect that yields the encoded package.json representation.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { encodePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
- * const program = encodePackageJsonEffect({ name: "@beep/example" })
- * console.log(program)
+ *
+ * const encoded = Effect.runSync(
+ *   encodePackageJsonEffect({
+ *     name: "@beep/example",
+ *     private: true,
+ *     scripts: { check: "tsgo -b tsconfig.json" }
+ *   })
+ * )
+ *
+ * console.log(encoded.scripts?.check) // "tsgo -b tsconfig.json"
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1478,14 +1498,21 @@ export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
 /**
  * Encode a strict `PackageJson` value to a compact JSON string as an Effect.
  *
- * @param input - Unknown package.json-shaped value to validate before encoding.
- * @returns Effect that yields a compact JSON string.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { encodePackageJsonToJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
- * const program = encodePackageJsonToJsonEffect({ name: "@beep/example" })
- * console.log(program)
+ *
+ * const json = Effect.runSync(
+ *   encodePackageJsonToJsonEffect({
+ *     name: "@beep/example",
+ *     type: "module"
+ *   })
+ * )
+ *
+ * console.log(json.includes("\"type\":\"module\"")) // true
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1499,14 +1526,25 @@ export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<st
 /**
  * Encode a strict `PackageJson` value to a pretty-printed JSON string.
  *
- * @param input - Unknown package.json-shaped value to validate before encoding.
- * @returns Effect that yields a formatted JSON string or a domain formatting error.
+ * @remarks
+ * Formatting happens after schema validation and encoding, so invalid manifest
+ * fields fail as schema errors before JSON rendering is attempted.
+ *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { encodePackageJsonPrettyEffect } from "@beep/repo-utils/schemas/PackageJson"
- * const program = encodePackageJsonPrettyEffect({ name: "@beep/example" })
- * console.log(program)
+ *
+ * const pretty = Effect.runSync(
+ *   encodePackageJsonPrettyEffect({
+ *     name: "@beep/example",
+ *     private: true
+ *   })
+ * )
+ *
+ * console.log(pretty.includes("\n")) // true
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */

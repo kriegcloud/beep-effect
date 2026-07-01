@@ -1,5 +1,5 @@
 /**
- * Technical errors raised by the Anthropic driver boundary.
+ * Typed technical errors raised by the Anthropic driver boundary.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -12,17 +12,24 @@ import * as S from "effect/Schema";
 const $I = $AnthropicId.create("Anthropic.errors");
 
 /**
- * Technical failure raised while running an Anthropic repair helper.
+ * Recoverable technical failure raised while running an Anthropic repair helper.
+ *
+ * @remarks
+ * Provider, retry-plan, and configuration failures are normalized into this
+ * tagged error so repair callers can handle one package-level error shape.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { RepairError } from "@beep/anthropic"
  *
  * const error = RepairError.make({
  *   message: "repair call failed",
  *   operation: "generate_tool_json",
  * })
- * console.log(error.message)
+ *
+ * strictEqual(error._tag, "RepairError")
+ * strictEqual(error.operation, "generate_tool_json")
  * ```
  *
  * @category errors

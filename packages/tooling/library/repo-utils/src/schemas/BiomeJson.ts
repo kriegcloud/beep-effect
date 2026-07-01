@@ -30,13 +30,34 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
 /**
  * Render JSON with the same Biome config that repository lint uses.
  *
- * @param filePath - Workspace-relative or absolute target path used for Biome formatting.
- * @param value - JSON-compatible value to render.
- * @returns Biome-formatted JSON text with a trailing newline.
+ * @remarks
+ * The `filePath` is passed to Biome as the stdin filename, so formatting follows
+ * the same parser and indentation rules Biome would choose for that target on
+ * disk. Invalid JSON-compatible values fail before the child process is spawned.
+ *
  * @example
  * ```ts
- * console.log("renderBiomeJson")
+ * import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node"
+ * import { Effect, Layer } from "effect"
+ * import { renderBiomeJson } from "@beep/repo-utils/schemas/BiomeJson"
+ *
+ * const PlatformLayer = NodeChildProcessSpawner.layer.pipe(
+ *   Layer.provideMerge(NodeServices.layer)
+ * )
+ *
+ * const formatted = await Effect.runPromise(
+ *   renderBiomeJson("package.json", { name: "@beep/example", private: true }).pipe(
+ *     Effect.provide(PlatformLayer)
+ *   )
+ * )
+ *
+ * console.log(formatted.endsWith("\n")) // true
  * ```
+ *
+ * @effects
+ * Locates the repository root, launches the workspace Biome binary, writes the
+ * encoded JSON to stdin, and reads stdout/stderr from the child process.
+ *
  * @category utilities
  * @since 0.0.0
  */

@@ -1,5 +1,5 @@
 /**
- * Effect service for Claude and Codex CLI status probes.
+ * Effect service for redacted Claude and Codex CLI status probes.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -23,14 +23,30 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>): Effect.Effect<str
   );
 
 /**
- * Product-neutral process runner used by provider CLI probes.
+ * Injectable process runner used by provider CLI auth probes.
+ *
+ * @remarks
+ * The service supplies the normalized provider, executable path, and status
+ * arguments. Custom runners should return captured stdout, stderr, and exit
+ * code without performing auth-status interpretation themselves.
  *
  * @example
  * ```ts
- * import type { AiProviderCliRunner } from "@beep/ai-provider-cli/AiProviderCli.service"
+ * import { Effect } from "effect"
+ * import { AiProviderCliProcessResult, type AiProviderCliRunner } from "@beep/ai-provider-cli"
  *
- * const value = {} as AiProviderCliRunner
- * console.log(value)
+ * const runner: AiProviderCliRunner = (provider, command, args) =>
+ *   Effect.succeed(
+ *     AiProviderCliProcessResult.make({
+ *       exitCode: provider === "claude" ? 0 : 1,
+ *       stderr: "",
+ *       stdout: `${command} ${args.join(" ")}`
+ *     })
+ *   )
+ *
+ * const result = Effect.runSync(runner("claude", "claude", ["auth", "status"]))
+ *
+ * console.log(result.stdout) // "claude auth status"
  * ```
  *
  * @category services
@@ -126,21 +142,63 @@ const makeService = (paths: AiProviderCliPaths, runner: AiProviderCliRunner): Ai
 });
 
 /**
- * Effect service for Claude and Codex CLI status checks.
+ * Effect service for redacted Claude and Codex CLI authentication checks.
+ *
+ * @remarks
+ * `checkAuth` maps provider-specific status commands to a stable
+ * `AiProviderCliAuthProbe`. It only treats exit code `0` as authenticated; the
+ * returned probe never includes raw account, token, stdout, or stderr data.
  *
  * @example
  * ```ts
- * import { AiProviderCli } from "@beep/ai-provider-cli/AiProviderCli.service"
+ * import { Effect } from "effect"
+ * import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliRunner } from "@beep/ai-provider-cli"
  *
- * console.log(AiProviderCli)
+ * const runner: AiProviderCliRunner = (provider, command) =>
+ *   Effect.succeed(
+ *     AiProviderCliProcessResult.make({
+ *       exitCode: provider === "claude" ? 0 : 1,
+ *       stderr: "",
+ *       stdout: command
+ *     })
+ *   )
+ *
+ * const program = Effect.gen(function* () {
+ *   const cli = yield* AiProviderCli
+ *   const probe = yield* cli.checkAuth("claude")
+ *   return probe.status
+ * }).pipe(Effect.provide(AiProviderCli.makeLayerFromRunner(runner)))
+ *
+ * console.log(Effect.runSync(program)) // "authenticated"
  * ```
+ *
+ * @effects
+ * Live layers spawn `claude auth status` or `codex login status` through
+ * `ChildProcessSpawner`; injected-runner layers perform only the effects
+ * encoded by the supplied runner.
  *
  * @category services
  * @since 0.0.0
  */
 export class AiProviderCli extends Context.Service<AiProviderCli, AiProviderCliShape>()($I`AiProviderCli`) {
   /**
-   * Build a live provider CLI layer.
+   * Build a live provider CLI layer backed by native child processes.
+   *
+   * @example
+   * ```ts
+   * import { AiProviderCli } from "@beep/ai-provider-cli"
+   *
+   * const layer = AiProviderCli.makeLayer({
+   *   claudePath: "claude",
+   *   codexPath: "codex"
+   * })
+   *
+   * console.log(layer)
+   * ```
+   *
+   * @effects
+   * Services produced by this layer spawn the configured provider CLI command
+   * whenever `checkAuth` is evaluated.
    *
    * @category layers
    * @since 0.0.0
@@ -160,6 +218,28 @@ export class AiProviderCli extends Context.Service<AiProviderCli, AiProviderCliS
 
   /**
    * Build a deterministic test layer from an injected command runner.
+   *
+   * @example
+   * ```ts
+   * import { Effect } from "effect"
+   * import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliRunner } from "@beep/ai-provider-cli"
+   *
+   * const runner: AiProviderCliRunner = (provider) =>
+   *   Effect.succeed(
+   *     AiProviderCliProcessResult.make({
+   *       exitCode: provider === "codex" ? 0 : 1,
+   *       stderr: "",
+   *       stdout: ""
+   *     })
+   *   )
+   *
+   * const program = Effect.gen(function* () {
+   *   const cli = yield* AiProviderCli
+   *   return yield* cli.checkAuth("codex")
+   * }).pipe(Effect.provide(AiProviderCli.makeLayerFromRunner(runner)))
+   *
+   * console.log(Effect.runSync(program).status) // "authenticated"
+   * ```
    *
    * @category layers
    * @since 0.0.0

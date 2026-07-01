@@ -1,5 +1,6 @@
 /**
- * Runtime configuration for the Anthropic driver.
+ * Runtime configuration defaults and schema-backed option models for the
+ * Anthropic driver.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -11,13 +12,23 @@ import * as S from "effect/Schema";
 const $I = $AnthropicId.create("Anthropic.config");
 
 /**
- * Environment variable read by the live Anthropic client layer.
+ * Environment binding used by {@link AnthropicLive} for the redacted API key.
+ *
+ * @remarks
+ * Store secret-reference strings in local configuration and let Effect Config
+ * plus the process environment resolve the actual value; this package never
+ * needs callers to pass a raw API key directly.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ANTHROPIC_API_KEY_ENV } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_API_KEY_ENV)
+ * const localEnv = {
+ *   [ANTHROPIC_API_KEY_ENV]: "op://BEEP_SECRETS/Anthropic/API Key",
+ * }
+ *
+ * strictEqual(localEnv.AI_ANTHROPIC_API_KEY, "op://BEEP_SECRETS/Anthropic/API Key")
  * ```
  *
  * @category configuration
@@ -26,7 +37,7 @@ const $I = $AnthropicId.create("Anthropic.config");
 export const ANTHROPIC_API_KEY_ENV = "AI_ANTHROPIC_API_KEY" as const;
 
 /**
- * Pinned default Claude model.
+ * Claude model used by the default language-model layer.
  *
  * @remarks
  * The generated `@effect/ai-anthropic` catalog validates streamed response
@@ -35,9 +46,12 @@ export const ANTHROPIC_API_KEY_ENV = "AI_ANTHROPIC_API_KEY" as const;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ANTHROPIC_DEFAULT_MODEL } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_DEFAULT_MODEL)
+ * const requestDefaults = { model: ANTHROPIC_DEFAULT_MODEL }
+ *
+ * strictEqual(requestDefaults.model, "claude-opus-4-6")
  * ```
  *
  * @category configuration
@@ -46,13 +60,18 @@ export const ANTHROPIC_API_KEY_ENV = "AI_ANTHROPIC_API_KEY" as const;
 export const ANTHROPIC_DEFAULT_MODEL = "claude-opus-4-6" as const;
 
 /**
- * Default token budget for rich assistant turns.
+ * Default maximum output-token budget for rich assistant turns.
  *
  * @example
  * ```ts
- * import { ANTHROPIC_DEFAULT_MAX_TOKENS } from "@beep/anthropic"
+ * import { strictEqual } from "node:assert"
+ * import { ANTHROPIC_DEFAULT_MAX_TOKENS, AnthropicLanguageModelOptions } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_DEFAULT_MAX_TOKENS)
+ * const options = AnthropicLanguageModelOptions.make({
+ *   maxTokens: ANTHROPIC_DEFAULT_MAX_TOKENS,
+ * })
+ *
+ * strictEqual(options.maxTokens, 16_384)
  * ```
  *
  * @category configuration
@@ -61,13 +80,19 @@ export const ANTHROPIC_DEFAULT_MODEL = "claude-opus-4-6" as const;
 export const ANTHROPIC_DEFAULT_MAX_TOKENS = 16_384 as const;
 
 /**
- * Number of acquisition attempts in the default turn execution plan.
+ * Maximum acquisition attempts in the default turn execution plan.
  *
  * @example
  * ```ts
- * import { ANTHROPIC_DEFAULT_RETRY_ATTEMPTS } from "@beep/anthropic"
+ * import { deepStrictEqual } from "node:assert"
+ * import { ANTHROPIC_DEFAULT_RETRY_ATTEMPTS, ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_DEFAULT_RETRY_ATTEMPTS)
+ * const defaultBackoffMillis = Array.from(
+ *   { length: ANTHROPIC_DEFAULT_RETRY_ATTEMPTS },
+ *   (_, attempt) => ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS * 2 ** attempt
+ * )
+ *
+ * deepStrictEqual(defaultBackoffMillis, [250, 500, 1000, 2000])
  * ```
  *
  * @category configuration
@@ -76,13 +101,16 @@ export const ANTHROPIC_DEFAULT_MAX_TOKENS = 16_384 as const;
 export const ANTHROPIC_DEFAULT_RETRY_ATTEMPTS = 4 as const;
 
 /**
- * Base delay for the default exponential retry schedule.
+ * Initial delay, in milliseconds, for the default exponential retry schedule.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS)
+ * const secondRetryDelayMillis = ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS * 2
+ *
+ * strictEqual(secondRetryDelayMillis, 500)
  * ```
  *
  * @category configuration
@@ -91,7 +119,7 @@ export const ANTHROPIC_DEFAULT_RETRY_ATTEMPTS = 4 as const;
 export const ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS = 250 as const;
 
 /**
- * Approximate static price table for usage attribution.
+ * Static model-price row used for approximate usage attribution.
  *
  * @remarks
  * Values are intentionally marked approximate; `UsageRecord` rows should use
@@ -99,6 +127,7 @@ export const ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS = 250 as const;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { AnthropicApproximatePrice, ANTHROPIC_DEFAULT_MODEL } from "@beep/anthropic"
  *
  * const price = AnthropicApproximatePrice.make({
@@ -106,7 +135,8 @@ export const ANTHROPIC_DEFAULT_RETRY_BASE_DELAY_MILLIS = 250 as const;
  *   model: ANTHROPIC_DEFAULT_MODEL,
  *   outputPerMillionTokensUsd: 75,
  * })
- * console.log(price.model)
+ *
+ * strictEqual(price.model, ANTHROPIC_DEFAULT_MODEL)
  * ```
  *
  * @category configuration
@@ -124,13 +154,15 @@ export class AnthropicApproximatePrice extends S.Class<AnthropicApproximatePrice
 ) {}
 
 /**
- * Approximate default price row for the pinned model.
+ * Approximate default price row paired with {@link ANTHROPIC_DEFAULT_MODEL}.
  *
  * @example
  * ```ts
- * import { ANTHROPIC_DEFAULT_APPROXIMATE_PRICE } from "@beep/anthropic"
+ * import { strictEqual } from "node:assert"
+ * import { ANTHROPIC_DEFAULT_APPROXIMATE_PRICE, ANTHROPIC_DEFAULT_MODEL } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_DEFAULT_APPROXIMATE_PRICE.model)
+ * strictEqual(ANTHROPIC_DEFAULT_APPROXIMATE_PRICE.model, ANTHROPIC_DEFAULT_MODEL)
+ * strictEqual(ANTHROPIC_DEFAULT_APPROXIMATE_PRICE.outputPerMillionTokensUsd, 75)
  * ```
  *
  * @category configuration
@@ -143,14 +175,24 @@ export const ANTHROPIC_DEFAULT_APPROXIMATE_PRICE = AnthropicApproximatePrice.mak
 });
 
 /**
- * Options accepted by Anthropic language-model layer helpers.
+ * Schema-backed options accepted by Anthropic language-model layer helpers.
+ *
+ * @remarks
+ * Missing fields are normalized by {@link makeAnthropicLanguageModelLayer};
+ * this schema models caller input, not the fully materialized provider config.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { AnthropicLanguageModelOptions } from "@beep/anthropic"
  *
- * const options = AnthropicLanguageModelOptions.make({})
- * console.log(options)
+ * const options = AnthropicLanguageModelOptions.make({
+ *   maxTokens: 1024,
+ *   model: "claude-opus-4-6",
+ * })
+ *
+ * strictEqual(options.maxTokens, 1024)
+ * strictEqual(options.model, "claude-opus-4-6")
  * ```
  *
  * @category models

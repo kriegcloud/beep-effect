@@ -27,8 +27,16 @@ type BuildDocgenAliasTargetsOptions = {
  *
  * @example
  * ```ts
- * console.log("CanonicalAliasTargets")
+ * import { CanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
+ *
+ * const targets = CanonicalAliasTargets.make({
+ *   rootAliasTarget: "./packages/example/src/index.ts",
+ *   wildcardAliasTarget: "./packages/example/src/*"
+ * })
+ *
+ * console.log(targets.wildcardAliasTarget) // "./packages/example/src/*"
  * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -77,12 +85,25 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
 /**
  * Resolve the canonical root export target from a package `exports` field.
  *
- * @param exportsField - Raw `exports` field value from `package.json`.
- * @returns The first relative `./...` target for the root export when one exists.
+ * @remarks
+ * Conditional export objects are searched in repo-preferred order:
+ * `types`, `import`, `default`, `require`, `node`, `bun`, then `browser`.
+ * If an export map only contains subpaths and no `"."` key, this returns
+ * `Option.none`.
+ *
  * @example
  * ```ts
- * console.log("resolveRootExportTarget")
+ * import * as O from "effect/Option"
+ * import { resolveRootExportTarget } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
+ *
+ * const target = resolveRootExportTarget({
+ *   ".": { types: "./dist/index.d.ts", import: "./src/index.ts" },
+ *   "./package.json": "./package.json"
+ * })
+ *
+ * console.log(O.getOrUndefined(target)) // "./dist/index.d.ts"
  * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -102,13 +123,19 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
 /**
  * Resolve a specific subpath export target from a package `exports` field.
  *
- * @param exportsField - Raw `exports` field value from `package.json`.
- * @param subpath - Package subpath key such as `"./*"`.
- * @returns The first relative `./...` target for the requested subpath when one exists.
  * @example
  * ```ts
- * console.log("resolveSubpathExportTarget")
+ * import * as O from "effect/Option"
+ * import { resolveSubpathExportTarget } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
+ *
+ * const target = resolveSubpathExportTarget(
+ *   { "./testing": { import: "./src/testing.ts" } },
+ *   "./testing"
+ * )
+ *
+ * console.log(O.getOrUndefined(target)) // "./src/testing.ts"
  * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -126,12 +153,15 @@ export const resolveSubpathExportTarget: {
 /**
  * Resolve the wildcard export target from a package `exports` field.
  *
- * @param exportsField - Raw `exports` field value from `package.json`.
- * @returns The first relative `./...` target for the `"./*"` subpath when one exists.
  * @example
  * ```ts
- * console.log("resolveWildcardExportTarget")
+ * import * as O from "effect/Option"
+ * import { resolveWildcardExportTarget } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
+ *
+ * const wildcard = resolveWildcardExportTarget({ "./*": "./src/*.ts" })
+ * console.log(O.getOrUndefined(wildcard)) // "./src/*.ts"
  * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -141,13 +171,20 @@ export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<str
 /**
  * Build root and wildcard alias targets for a package export target.
  *
- * @param packagePath - Workspace-relative package path used in tsconfig alias targets.
- * @param rootExportTarget - Canonical root export target resolved from the package `exports` field.
- * @returns Canonical root and wildcard alias targets for tsconfig path mapping.
+ * @remarks
+ * The wildcard target is derived from the directory that contains the root
+ * export. A root export at `./src/index.ts` therefore maps wildcards to
+ * `./src/*`, not to the package root.
+ *
  * @example
  * ```ts
- * console.log("buildCanonicalAliasTargets")
+ * import { buildCanonicalAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
+ *
+ * const targets = buildCanonicalAliasTargets("packages/example", "./src/index.ts")
+ * console.log(targets.rootAliasTarget) // "./packages/example/src/index.ts"
+ * console.log(targets.wildcardAliasTarget) // "./packages/example/src/*"
  * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -191,13 +228,24 @@ const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
  * Unlike root tsconfig aliases, docgen aliases should mirror source exports directly
  * so example imports resolve to concrete `*.ts` files.
  *
- * @param packagePath - Workspace-relative package path used in alias targets.
- * @param options - Canonical root target plus optional wildcard target resolved from package `exports`.
- * @returns Source alias targets suitable for docgen `examplesCompilerOptions.paths`.
+ * @remarks
+ * When the package manifest has no explicit wildcard export, the wildcard is
+ * inferred from the root export's containing directory. This keeps docgen
+ * examples compiling against source files without changing the published
+ * package's actual export surface.
+ *
  * @example
  * ```ts
- * console.log("buildDocgenAliasTargets")
+ * import { buildDocgenAliasTargets } from "@beep/repo-utils/schemas/TsconfigAliasTargets"
+ *
+ * const targets = buildDocgenAliasTargets("packages/example", {
+ *   rootExportTarget: "./src/index.ts",
+ *   wildcardExportTarget: "./src/*.ts"
+ * })
+ *
+ * console.log(targets.wildcardAliasTarget) // "./packages/example/src/*.ts"
  * ```
+ *
  * @category models
  * @since 0.0.0
  */

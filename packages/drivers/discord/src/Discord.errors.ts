@@ -12,42 +12,64 @@ import * as S from "effect/Schema";
 const $I = $DiscordId.create("Discord.errors");
 
 /**
- * Discord driver error reason vocabulary.
+ * Literal vocabulary for recoverable failures at the Discord REST boundary.
  *
  * @example
  * ```ts
- * import { DiscordErrorReason } from "@beep/discord/Discord.errors"
+ * import { DiscordErrorReason } from "@beep/discord"
  *
- * console.log(DiscordErrorReason)
+ * const isTransportFailure = DiscordErrorReason.is.transport("transport")
+ * console.log(isTransportFailure) // true
  * ```
  *
- * @category errors
+ * @category schemas
  * @since 0.0.0
  */
 export const DiscordErrorReason = LiteralKit(["request", "transport", "response-status", "response-decoding"]).pipe(
   $I.annoteSchema("DiscordErrorReason", {
-    description: "Technical failure reasons emitted by the Discord REST driver.",
+    description: "Literal vocabulary for recoverable failures at the Discord REST boundary.",
   })
 );
 
 /**
- * Runtime type for {@link DiscordErrorReason}.
+ * Type for {@link DiscordErrorReason}. {@inheritDoc DiscordErrorReason}
  *
- * @category errors
+ * @example
+ * ```ts
+ * import type { DiscordErrorReason } from "@beep/discord"
+ *
+ * const reason: DiscordErrorReason = "response-status"
+ * console.log(reason)
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type DiscordErrorReason = typeof DiscordErrorReason.Type;
 
 /**
- * Technical failure raised by the Discord driver boundary.
+ * Redacted technical failure raised by the Discord REST driver.
+ *
+ * @remarks
+ * `DiscordError` keeps the recovery reason, HTTP method, path, status, and a
+ * sanitized cause string while avoiding bot tokens and raw Discord response
+ * bodies.
  *
  * @example
  * ```ts
- * import { DiscordError } from "@beep/discord/Discord.errors"
+ * import { DiscordError } from "@beep/discord"
  *
- * console.log(DiscordError)
+ * const failure = DiscordError.make({
+ *   method: "GET",
+ *   path: "/channels/channel-1",
+ *   reason: "response-status",
+ *   status: 404
+ * })
+ *
+ * console.log(failure.reason) // "response-status"
  * ```
  *
+ * @see {@link DiscordErrorReason} for the reason vocabulary.
  * @category errors
  * @since 0.0.0
  */
@@ -61,6 +83,6 @@ export class DiscordError extends TaggedErrorClass<DiscordError>($I`DiscordError
     status: S.optionalKey(S.Finite),
   },
   $I.annote("DiscordError", {
-    description: "Redacted technical failure emitted by the Discord REST driver.",
+    description: "Redacted technical failure raised by the Discord REST driver.",
   })
 ) {}

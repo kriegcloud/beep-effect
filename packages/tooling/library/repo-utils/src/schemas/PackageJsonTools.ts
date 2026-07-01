@@ -305,15 +305,24 @@ export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
 /**
  * Normalize an unknown package.json value into a canonical encoded object.
  *
+ * @remarks
+ * Known record fields such as scripts and dependencies are sorted by key, while
+ * unsupported package.json shapes still fail through {@link decodePackageJsonEffect}.
+ * Unknown-but-schema-supported nested JSON is canonicalized recursively.
+ *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { normalizePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
- * const program = normalizePackageJsonEffect({
+ *
+ * const normalized = Effect.runSync(normalizePackageJsonEffect({
  *   name: "@beep/example",
- *   version: "0.0.0"
- * })
- * console.log(program)
+ *   dependencies: { zod: "^4.0.0", effect: "catalog:" }
+ * }))
+ *
+ * console.log(Object.keys(normalized.dependencies ?? {})) // ["effect", "zod"]
  * ```
+ *
  * @category combinators
  * @since 0.0.0
  */
