@@ -1,3 +1,4 @@
+import { EmailString } from "@beep/schema";
 import { Button } from "@beep/ui/components/ui/button";
 import { A } from "@beep/utils";
 import { useAtom } from "@effect/atom-react";
@@ -41,6 +42,8 @@ import {
 } from "@/content";
 import { OipAtomProvider } from "@/runtime/OipAtomProvider";
 import { oipBrowserRuntime } from "@/runtime/OipAtomRuntime";
+
+const contactFormEmail = Result.getOrThrow(S.decodeUnknownResult(EmailString)("tom@example.com"));
 
 vi.mock("next/image", () =>
   vi.importActual<typeof import("react")>("react").then((ReactModule) => {
@@ -511,7 +514,7 @@ describe("@beep/oip-web", { concurrent: false }, () => {
   it("sets the contact form timestamp through an Atom focus command", () => {
     render(
       <OipAtomProvider>
-        <ContactForm email="tom@example.com" initialSubmittedAt={0} status={undefined} />
+        <ContactForm email={contactFormEmail} initialSubmittedAt={0} status={undefined} />
       </OipAtomProvider>
     );
 

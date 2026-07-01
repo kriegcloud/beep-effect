@@ -8,7 +8,7 @@
 "use client";
 
 import { $OipWebId } from "@beep/identity";
-import { Email } from "@beep/schema";
+import { EmailString } from "@beep/schema";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";
@@ -82,7 +82,7 @@ const submitContactFormAtom = Atom.writable(
 
 class ContactFormProps extends S.Class<ContactFormProps>($I`ContactFormProps`)(
   {
-    email: Email,
+    email: EmailString,
     initialSubmittedAt: S.Finite,
     status: S.UndefinedOr(ContactSubmissionStatus),
   },
@@ -105,11 +105,7 @@ class ContactFormProps extends S.Class<ContactFormProps>($I`ContactFormProps`)(
  * @category components
  * @since 0.0.0
  */
-export function ContactForm({
-  email,
-  initialSubmittedAt,
-  status,
-}: ContactFormProps) {
+export function ContactForm({ email, initialSubmittedAt, status }: ContactFormProps) {
   const effectiveSubmittedAt = useAtomValue(effectiveSubmittedAtAtom(initialSubmittedAt));
   const markStarted = useAtomSet(markContactStartedAtom);
   const submitForm = useAtomSet(submitContactFormAtom);
