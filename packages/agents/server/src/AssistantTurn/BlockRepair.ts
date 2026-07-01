@@ -214,6 +214,12 @@ const toBlockRepairFailed = (message: string): BlockRepairFailed => BlockRepairF
 
 const PATCH_PATH_LIMIT = 128;
 
+/**
+ * Base schema fields shared by every summarized JSON Patch operation, carrying the redacted JSON Pointer path.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class PatchOpSummaryBase extends S.Class<PatchOpSummaryBase>($I`PatchOpSummaryBase`)(
   {
     path: S.String,
@@ -223,6 +229,12 @@ export class PatchOpSummaryBase extends S.Class<PatchOpSummaryBase>($I`PatchOpSu
   })
 ) {}
 
+/**
+ * Summary of a JSON Patch add operation, tagged with the `add` op discriminant.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class AddPatchOpSummary extends PatchOpSummaryBase.extend<AddPatchOpSummary>($I`AddPatchOpSummary`)(
   {
     op: S.tag("add"),
@@ -232,6 +244,12 @@ export class AddPatchOpSummary extends PatchOpSummaryBase.extend<AddPatchOpSumma
   })
 ) {}
 
+/**
+ * Summary of a JSON Patch remove operation, tagged with the `remove` op discriminant.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class RemovePatchOpSummary extends PatchOpSummaryBase.extend<RemovePatchOpSummary>($I`RemovePatchOpSummary`)(
   {
     op: S.tag("remove"),
@@ -241,6 +259,12 @@ export class RemovePatchOpSummary extends PatchOpSummaryBase.extend<RemovePatchO
   })
 ) {}
 
+/**
+ * Summary of a JSON Patch replace operation, tagged with the `replace` op discriminant.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class ReplacePatchOpSummary extends PatchOpSummaryBase.extend<ReplacePatchOpSummary>($I`ReplacePatchOpSummary`)(
   {
     op: S.tag("replace"),
@@ -250,6 +274,12 @@ export class ReplacePatchOpSummary extends PatchOpSummaryBase.extend<ReplacePatc
   })
 ) {}
 
+/**
+ * Tagged union of summarized JSON Patch operations discriminated on the `op` field.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const PatchOpSummary = S.Union([AddPatchOpSummary, RemovePatchOpSummary, ReplacePatchOpSummary]).pipe(
   S.toTaggedUnion("op"),
   $I.annoteSchema("PatchOpSummary", {
@@ -257,6 +287,12 @@ export const PatchOpSummary = S.Union([AddPatchOpSummary, RemovePatchOpSummary, 
   })
 );
 
+/**
+ * Runtime type of the {@link PatchOpSummary} tagged union of JSON Patch operation summaries.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type PatchOpSummary = typeof PatchOpSummary.Type;
 
 class PatchSummarization extends S.Class<PatchSummarization>($I`PatchSummarization`)(
@@ -275,7 +311,7 @@ class PatchSummarization extends S.Class<PatchSummarization>($I`PatchSummarizati
 // The `value` field of add/replace operations carries repaired assistant content
 // and is intentionally never logged.
 const summarizePatch = (patch: JsonPatch.JsonPatch): PatchSummarization =>
-  PatchSummarization.make({
+  S.decodeSync(PatchSummarization)({
     operations: A.length(patch),
     ops: A.map(patch, (operation) => ({ op: operation.op, path: redactString(operation.path, PATCH_PATH_LIMIT) })),
   });

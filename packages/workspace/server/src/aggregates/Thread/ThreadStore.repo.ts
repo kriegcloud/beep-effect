@@ -129,14 +129,14 @@ const turnIndexOrder = Order.mapInput(Order.Number, (turn: Turn) => turn.turnInd
 
 class InMemoryState extends S.Class<InMemoryState>($I`InMemoryState`)(
   {
-    messages: S.HashMap(S.Number, Message).pipe(
+    messages: S.HashMap(S.Finite, Message).pipe(
       S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Message>()))
     ),
     nextId: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(1))),
-    threads: S.HashMap(S.Number, Thread).pipe(
+    threads: S.HashMap(S.Finite, Thread).pipe(
       S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Thread>()))
     ),
-    turns: S.HashMap(S.Number, Turn).pipe(S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Turn>()))),
+    turns: S.HashMap(S.Finite, Turn).pipe(S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Turn>()))),
   },
   $I.annote("InMemoryState", {
     description: "In-memory state for the thread store",

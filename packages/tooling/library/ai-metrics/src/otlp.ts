@@ -477,6 +477,7 @@ const spanProjectionsFor = (
 /**
  * Read derived DuckDB rows and build redacted OTLP span projections.
  *
+ * @effects Reads derived session and turn rows from the configured DuckDB database.
  * @example
  * ```ts
  * import {
@@ -486,7 +487,6 @@ const spanProjectionsFor = (
  * } from "@beep/repo-ai-metrics"
  * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
  * import { Effect } from "effect"
- *
  * const input = AiMetricsOtlpExportInput.make({
  *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
  *   endpoint: AiMetricsOtlpEndpointSpec.make({
@@ -503,8 +503,6 @@ const spanProjectionsFor = (
  * )
  * console.log(program)
  * ```
- * @effects Reads derived session and turn rows from the configured DuckDB database.
- *
  * @category services
  * @since 0.0.0
  */
@@ -561,6 +559,7 @@ const runAiMetricsOtlpProjectionBatchExportUntraced: (
 /**
  * Emit a pre-resolved redacted AI metrics OTLP span projection batch.
  *
+ * @effects Emits one Effect span per projection into the active tracer.
  * @example
  * ```ts
  * import {
@@ -570,7 +569,6 @@ const runAiMetricsOtlpProjectionBatchExportUntraced: (
  *   runAiMetricsOtlpProjectionBatchExport
  * } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const input = AiMetricsOtlpExportInput.make({
  *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
  *   endpoint: AiMetricsOtlpEndpointSpec.make({
@@ -591,8 +589,6 @@ const runAiMetricsOtlpProjectionBatchExportUntraced: (
  * const exported = Effect.runPromise(runAiMetricsOtlpProjectionBatchExport(input, batch))
  * console.log(exported)
  * ```
- * @effects Emits one Effect span per projection into the active tracer.
- *
  * @category services
  * @since 0.0.0
  */
@@ -608,6 +604,7 @@ export const runAiMetricsOtlpProjectionBatchExport: {
 /**
  * Emit redacted AI metrics derived spans through the active Effect tracer.
  *
+ * @effects Reads derived DuckDB rows and emits redacted Effect spans into the active tracer.
  * @example
  * ```ts
  * import {
@@ -617,7 +614,6 @@ export const runAiMetricsOtlpProjectionBatchExport: {
  * } from "@beep/repo-ai-metrics"
  * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
  * import { Effect } from "effect"
- *
  * const input = AiMetricsOtlpExportInput.make({
  *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
  *   endpoint: AiMetricsOtlpEndpointSpec.make({
@@ -634,8 +630,6 @@ export const runAiMetricsOtlpProjectionBatchExport: {
  * )
  * console.log(program)
  * ```
- * @effects Reads derived DuckDB rows and emits redacted Effect spans into the active tracer.
- *
  * @category services
  * @since 0.0.0
  */

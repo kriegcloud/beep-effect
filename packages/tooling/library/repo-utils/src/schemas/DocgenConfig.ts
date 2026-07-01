@@ -53,17 +53,13 @@ const withRootRelativePrefix: {
  * These are source-relative globs applied before examples are compiled. Keep
  * generated and internal-package policy in the caller's config; this list is
  * only the repo-managed default backfill.
- *
  * @example
  * ```ts
  * import { DEFAULT_DOCGEN_EXCLUDE } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const internalGlob = "src/internal/**" + "/*.ts"
- * const excludesInternalSources = DEFAULT_DOCGEN_EXCLUDE.includes(internalGlob)
- *
+ * const excludesInternalSources = DEFAULT_DOCGEN_EXCLUDE.some((glob) => glob === internalGlob)
  * console.log(excludesInternalSources) // true
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -75,17 +71,14 @@ export const DEFAULT_DOCGEN_EXCLUDE = ["src/internal/**/*.ts"] as const;
  * @example
  * ```ts
  * import { DocgenAliasSource } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const source = DocgenAliasSource.make({
  *   packageName: "@beep/example",
  *   rootAliasTarget: "./packages/example/src/index.ts",
  *   wildcardAliasTarget: "./packages/example/src/*.ts",
  *   subpathAliasTargets: { "@beep/example/testing": "./packages/example/src/testing.ts" }
  * })
- *
  * console.log(source.rootAliasTarget) // "./packages/example/src/index.ts"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -107,7 +100,6 @@ export class DocgenAliasSource extends S.Class<DocgenAliasSource>($I`DocgenAlias
  * @example
  * ```ts
  * import { CanonicalDocgenConfigInput } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const input = CanonicalDocgenConfigInput.make({
  *   rootDir: "/repo",
  *   packageAbsolutePath: "/repo/packages/example",
@@ -116,10 +108,8 @@ export class DocgenAliasSource extends S.Class<DocgenAliasSource>($I`DocgenAlias
  *   directWorkspaceDependencies: ["@beep/schema"],
  *   workspaceAliasSources: []
  * })
- *
  * console.log(input.packageRelativePath) // "packages/example"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -144,11 +134,9 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
  * This shape intentionally mirrors the strict options docgen writes into each
  * package's `docgen.json`; examples should fail fast on unused locals,
  * unresolved aliases, and non-erasable TypeScript syntax.
- *
  * @example
  * ```ts
  * import { CanonicalDocgenExamplesCompilerOptions } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const options = CanonicalDocgenExamplesCompilerOptions.make({
  *   noEmit: true,
  *   strict: true,
@@ -177,10 +165,8 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
  *   jsx: "react-jsx",
  *   paths: { "@beep/example": ["./packages/example/src/index.ts"] }
  * })
- *
  * console.log(options.paths["@beep/example"]) // ["./packages/example/src/index.ts"]
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -229,7 +215,6 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  *   CanonicalDocgenConfig,
  *   CanonicalDocgenExamplesCompilerOptions
  * } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const internalGlob = "src/internal/**" + "/*.ts"
  * const config = CanonicalDocgenConfig.make({
  *   $schema: "../../packages/tooling/tool/docgen/schema.json",
@@ -264,10 +249,8 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
  *     paths: {}
  *   })
  * })
- *
  * console.log(config.exclude[0] === internalGlob) // true
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -291,13 +274,14 @@ const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<strin
 /**
  * Convert canonical docgen compiler options to a plain JSON-compatible object.
  *
+ * @param options - Canonical docgen examples compiler options model to serialize.
+ * @returns A JSON-compatible record mirroring the compiler option fields.
  * @example
  * ```ts
  * import {
  *   CanonicalDocgenExamplesCompilerOptions,
  *   toDocgenExamplesCompilerOptionsJson
  * } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const json = toDocgenExamplesCompilerOptionsJson(
  *   CanonicalDocgenExamplesCompilerOptions.make({
  *     noEmit: true,
@@ -328,10 +312,8 @@ const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<strin
  *     paths: { "@beep/example": ["./packages/example/src/index.ts"] }
  *   })
  * )
- *
  * console.log(json.moduleResolution) // "bundler"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -372,6 +354,8 @@ export const toDocgenExamplesCompilerOptionsJson = (
 /**
  * Convert the canonical docgen config model to a plain JSON-compatible object.
  *
+ * @param config - Canonical docgen config model to serialize.
+ * @returns A JSON-compatible object mirroring the docgen config fields.
  * @example
  * ```ts
  * import {
@@ -379,7 +363,6 @@ export const toDocgenExamplesCompilerOptionsJson = (
  *   CanonicalDocgenExamplesCompilerOptions,
  *   toCanonicalDocgenConfigJson
  * } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const json = toCanonicalDocgenConfigJson(
  *   CanonicalDocgenConfig.make({
  *     $schema: "../../packages/tooling/tool/docgen/schema.json",
@@ -415,10 +398,8 @@ export const toDocgenExamplesCompilerOptionsJson = (
  *     })
  *   })
  * )
- *
  * console.log(json.srcLink.endsWith("/src/")) // true
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -439,25 +420,26 @@ export const toCanonicalDocgenConfigJson = (
 /**
  * Collect direct workspace package dependencies from a package manifest.
  *
+ * @param packageJson - Package manifest whose dependency sections are scanned.
+ * @returns The deduplicated, sorted list of workspace (`@beep/*`) dependency names.
  * @remarks
  * The returned names are deduplicated and sorted across dependency,
  * development, peer, and optional dependency sections. Non-workspace packages
  * are intentionally ignored because docgen only needs path aliases for local
  * examples.
- *
  * @example
  * ```ts
  * import { collectDocgenWorkspaceDependencyNames } from "@beep/repo-utils/schemas/DocgenConfig"
- *
- * const names = collectDocgenWorkspaceDependencyNames({
- *   name: "@beep/example",
- *   dependencies: { "@beep/schema": "workspace:^", "effect": "catalog:" },
- *   devDependencies: { "@beep/utils": "workspace:^", "@beep/schema": "workspace:^" }
- * })
- *
+ * import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ * const names = collectDocgenWorkspaceDependencyNames(
+ *   decodePackageJson({
+ *     name: "@beep/example",
+ *     dependencies: { "@beep/schema": "workspace:^", "effect": "catalog:" },
+ *     devDependencies: { "@beep/utils": "workspace:^", "@beep/schema": "workspace:^" }
+ *   })
+ * )
  * console.log(names) // ["@beep/schema", "@beep/utils"]
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -480,24 +462,25 @@ export const collectDocgenWorkspaceDependencyNames = (packageJson: PackageJson.T
  * Missing root exports fall back to `./src/index.ts`; wildcard aliases are
  * emitted only when a wildcard export exists so docgen does not invent subpath
  * import support for packages that intentionally omit it.
- *
  * @example
  * ```ts
  * import { buildDocgenAliasSource } from "@beep/repo-utils/schemas/DocgenConfig"
- *
- * const source = buildDocgenAliasSource("@beep/example", "packages/example", {
- *   name: "@beep/example",
- *   exports: {
- *     ".": "./src/index.ts",
- *     "./testing": "./src/testing.ts",
- *     "./*": "./src/*.ts"
- *   }
- * })
- *
+ * import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ * const source = buildDocgenAliasSource(
+ *   "@beep/example",
+ *   "packages/example",
+ *   decodePackageJson({
+ *     name: "@beep/example",
+ *     exports: {
+ *       ".": "./src/index.ts",
+ *       "./testing": "./src/testing.ts",
+ *       "./*": "./src/*.ts"
+ *     }
+ *   })
+ * )
  * console.log(source.subpathAliasTargets?.["@beep/example/testing"])
  * // "./packages/example/src/testing.ts"
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -612,7 +595,9 @@ const buildDocgenExamplesPaths = (
  * The output is rooted from the package directory back to the repo root, so the
  * same builder works for shallow packages such as `packages/schema` and nested
  * packages such as `packages/tooling/library/repo-utils`.
- *
+ * @effects
+ * Requires the `Path.Path` service to compute root-relative schema and alias
+ * targets; it does not read or write files.
  * @example
  * ```ts
  * import { Effect, Path } from "effect"
@@ -620,7 +605,6 @@ const buildDocgenExamplesPaths = (
  *   CanonicalDocgenConfigInput,
  *   createCanonicalDocgenConfig
  * } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const input = CanonicalDocgenConfigInput.make({
  *   rootDir: "/repo",
  *   packageAbsolutePath: "/repo/packages/example",
@@ -629,21 +613,14 @@ const buildDocgenExamplesPaths = (
  *   directWorkspaceDependencies: [],
  *   workspaceAliasSources: []
  * })
- *
  * const srcLink = Effect.runSync(
  *   createCanonicalDocgenConfig(input).pipe(
  *     Effect.provide(Path.layer),
  *     Effect.map((config) => config.srcLink)
  *   )
  * )
- *
  * console.log(srcLink.endsWith("/packages/example/src/")) // true
  * ```
- *
- * @effects
- * Requires the `Path.Path` service to compute root-relative schema and alias
- * targets; it does not read or write files.
- *
  * @category models
  * @since 0.0.0
  */
@@ -709,7 +686,6 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  *   CanonicalDocgenExamplesCompilerOptions,
  *   mergeManagedDocgenConfig
  * } from "@beep/repo-utils/schemas/DocgenConfig"
- *
  * const canonical = CanonicalDocgenConfig.make({
  *   $schema: "../../packages/tooling/tool/docgen/schema.json",
  *   exclude: ["src/internal/**" + "/*.ts"],
@@ -743,14 +719,11 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  *     paths: {}
  *   })
  * })
- *
  * const generatedGlob = "src/generated/**" + "/*.ts"
  * const merged = mergeManagedDocgenConfig({ exclude: [generatedGlob] }, canonical)
  * const exclude = merged.exclude
- *
  * console.log(Array.isArray(exclude) && exclude[0] === generatedGlob) // true
  * ```
- *
  * @category models
  * @since 0.0.0
  */

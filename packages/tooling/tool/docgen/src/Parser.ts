@@ -197,6 +197,7 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
 /**
  * Parses exported interface declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseInterfaces, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -210,7 +211,6 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
  *
  * console.log(interfaces[0]?.name) // "User"
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -297,6 +297,7 @@ const getFunctionDeclarations = Effect.gen(function* () {
 /**
  * Parses exported function declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseFunctions, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -310,7 +311,6 @@ const getFunctionDeclarations = Effect.gen(function* () {
  *
  * console.log(functions[0]?.name) // "double"
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -346,6 +346,7 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
 /**
  * Parses exported type alias declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseTypeAliases, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -359,7 +360,6 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
  *
  * console.log(aliases[0]?.signature) // "type UserId = string"
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -389,6 +389,7 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
 /**
  * Parses exported constant declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseConstants, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -402,7 +403,6 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
  *
  * console.log(constants[0]?.name) // "MAX_RETRIES"
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -480,6 +480,7 @@ const parseNamedExports = (ed: ast.ExportDeclaration) => {
 /**
  * Parses manual export declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseExports, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -493,7 +494,6 @@ const parseNamedExports = (ed: ast.ExportDeclaration) => {
  *
  * console.log(exports[0]?.name) // "value"
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -540,6 +540,7 @@ const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration
 /**
  * Parses exported namespace declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseNamespaces, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -553,7 +554,6 @@ const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration
  *
  * console.log(namespaces[0]?.name) // "Helpers"
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -693,6 +693,7 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
 /**
  * Parses exported class declarations from the active source file.
  *
+ * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @example
  * ```ts
  * import { parseClasses, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -706,7 +707,6 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
  *
  * console.log(classes[0]?.signature.includes("constructor")) // true
  * ```
- * @effects Reads the active {@link Source} service; it does not touch the filesystem.
  * @category parsing
  * @since 0.0.0
  */
@@ -745,7 +745,7 @@ export const parseModuleDocumentation = Source.pipe(
  * @remarks
  * Module parsing fans out over the specialized parsers concurrently and then
  * preserves the original path metadata from the active {@link Source} service.
- *
+ * @effects Reads the active {@link Source} service and runs the declaration parsers concurrently.
  * @example
  * ```ts
  * import { parseModule, Source, SourceShape } from "@beep/repo-docgen/Parser"
@@ -759,7 +759,6 @@ export const parseModuleDocumentation = Source.pipe(
  *
  * console.log(module.constants[0]?.name) // "answer"
  * ```
- * @effects Reads the active {@link Source} service and runs the declaration parsers concurrently.
  * @category parsing
  * @since 0.0.0
  */

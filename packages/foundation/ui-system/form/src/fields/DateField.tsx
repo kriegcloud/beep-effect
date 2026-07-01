@@ -72,7 +72,8 @@ export interface DateFieldProps
  *   )
  * }
  *
- * console.log(DateTime.formatIso(scheduleOptions.defaultValues.startDate))
+ * const startDate = scheduleOptions.defaultValues.startDate
+ * console.log(startDate === null ? "unset" : DateTime.formatIso(startDate))
  * ```
  *
  * @category components

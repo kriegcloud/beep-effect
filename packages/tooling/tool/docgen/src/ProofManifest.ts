@@ -171,7 +171,6 @@ export class DocgenProofManifestFingerprint extends S.Class<DocgenProofManifestF
  * The manifest is a reuse proof, not a published API contract. Verification
  * treats changes to package inputs, generated outputs, or the docgen tool
  * version as stale.
- *
  * @example
  * ```ts
  * import {
@@ -179,7 +178,6 @@ export class DocgenProofManifestFingerprint extends S.Class<DocgenProofManifestF
  *   DocgenProofManifestFile,
  *   DocgenProofManifestFingerprint
  * } from "@beep/repo-docgen/ProofManifest"
- *
  * const source = DocgenProofManifestFile.make({
  *   path: "src/index.ts",
  *   sha256: "0".repeat(64),
@@ -204,7 +202,6 @@ export class DocgenProofManifestFingerprint extends S.Class<DocgenProofManifestF
  *   inputs: [source],
  *   outputs: []
  * })
- *
  * console.log(manifest.inputs.length) // 1
  * ```
  * @category models
@@ -388,25 +385,22 @@ const makeVerification = (options: {
 /**
  * Write the current package's docgen proof manifest after successful generation.
  *
+ * @returns The written package-local proof manifest.
  * @remarks
  * The effect fingerprints configured package inputs and generated docs before
  * writing `.beep/docgen/proof.json`. Call it only after docs have been
  * generated; otherwise the output fingerprint records a stale or empty docs
  * directory.
- *
+ * @effects Reads package inputs and generated docs, creates the manifest directory, and writes `.beep/docgen/proof.json`.
  * @example
  * ```ts
  * import { writeDocgenProofManifest } from "@beep/repo-docgen/ProofManifest"
  * import { Effect } from "effect"
- *
- * const packageName = writeDocgenProofManifest.pipe(
+ * const packageName = writeDocgenProofManifest().pipe(
  *   Effect.map((manifest) => manifest.packageName)
  * )
- *
  * console.log(packageName)
  * ```
- * @returns The written package-local proof manifest.
- * @effects Reads package inputs and generated docs, creates the manifest directory, and writes `.beep/docgen/proof.json`.
  * @category workflows
  * @since 0.0.0
  */
@@ -458,27 +452,24 @@ export const writeDocgenProofManifest = Effect.fn("DocgenProofManifest.writeDocg
 /**
  * Verify whether a package-local docgen proof manifest matches current inputs and outputs.
  *
+ * @param packagePath - Absolute package directory.
+ * @param packageName - Expected workspace package name.
+ * @returns Manifest verification status for reuse decisions.
  * @remarks
  * Missing manifests return `"missing"` instead of failing. Decode errors,
  * unreadable files, and digest collection failures use the typed
  * {@link Domain.DocgenError} channel.
- *
+ * @effects Reads `.beep/docgen/proof.json`, fingerprints package inputs and generated docs, and compares digests.
  * @example
  * ```ts
  * import { verifyDocgenProofManifest } from "@beep/repo-docgen/ProofManifest"
  * import { Effect } from "effect"
- *
  * const verificationStatus = verifyDocgenProofManifest(
  *   "/repo/packages/tooling/tool/docgen",
  *   "@beep/repo-docgen"
  * ).pipe(Effect.map((verification) => verification.status))
- *
  * console.log(verificationStatus)
  * ```
- * @param packagePath - Absolute package directory.
- * @param packageName - Expected workspace package name.
- * @returns Manifest verification status for reuse decisions.
- * @effects Reads `.beep/docgen/proof.json`, fingerprints package inputs and generated docs, and compares digests.
  * @category workflows
  * @since 0.0.0
  */

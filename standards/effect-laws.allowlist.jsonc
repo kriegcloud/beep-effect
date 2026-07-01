@@ -36,14 +36,6 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/drivers/box/scripts/generate.ts",
-      "kind": "new-map-set",
-      "reason": "The Box OpenAPI generator script uses native Set and Map collections for deterministic one-shot code generation indexes before emitting package source.",
-      "owner": "@beep/box",
-      "issue": "BOX-OPENAPI-GENERATOR-NATIVE-COLLECTIONS"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/drivers/ecfr/scripts/generate.ts",
       "kind": "native-switch",
       "reason": "The eCFR OpenAPI generator script maps JSON-schema type literals to Effect Schema expression strings via a native switch during one-shot build-time code generation; not domain logic.",
@@ -137,14 +129,6 @@
       "reason": "The sidecar build script is a one-shot Bun CLI outside production src/ that throws a native Error to abort the build when `rustc -vV` yields no parseable target triple, matching build-tool failure conventions rather than Effect runtime error flow.",
       "owner": "@beep/professional-desktop",
       "issue": "PROFESSIONAL-DESKTOP-BUILD-SIDECAR-TRIPLE-INVARIANT"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "packages/agents/server/src/AssistantTurn/ScanState.ts",
-      "kind": "native-switch",
-      "reason": "scanChunk is the hot per-character branch of the incremental streaming structured-output JSON extractor (property-test proven); the switch dispatches on a single char inside a per-character loop that runs for every byte of every chunk. Replacing it with a per-char Match.value matcher allocates and re-evaluates predicates per character, materially de-optimizing the streaming scanner whose purpose is incremental throughput. The native switch is the correct primitive here.",
-      "owner": "@beep/agents-server",
-      "issue": "AGENTS-SERVER-SCANSTATE-HOT-CHAR-SCANNER-SWITCH"
     },
     {
       "rule": "beep-laws/no-native-runtime",

@@ -64,11 +64,13 @@ export const JsonLdDocumentErrorReason = LiteralKit([
  * @example
  * ```ts
  * import { strictEqual } from "node:assert"
+ * import * as O from "effect/Option"
  * import { JsonLdDocumentError } from "@beep/semantic-web/services/jsonld-document"
  *
  * const error = JsonLdDocumentError.make({
  *   reason: "loaderPolicyViolation",
- *   message: "Remote document loading is disabled for this workflow."
+ *   message: "Remote document loading is disabled for this workflow.",
+ *   subject: O.none()
  * })
  * strictEqual(error.reason, "loaderPolicyViolation")
  * ```

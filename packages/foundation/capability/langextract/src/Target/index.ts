@@ -31,7 +31,7 @@ export const ExtractionTargetKind = LiteralKit(["entity", "relation", "attribute
 );
 
 /**
- * Type for {@link ExtractionTargetKind}. {@inheritDoc ExtractionTargetKind}
+ * {@inheritDoc ExtractionTargetKind}
  *
  * @example
  * ```ts

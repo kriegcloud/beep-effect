@@ -1,7 +1,11 @@
 {
   "version": 1,
   "generatedOn": "2026-07-01",
-  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
+  "scope": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx}",
+    "infra/**/*.ts"
+  ],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -2326,30 +2330,6 @@
       "line": 86,
       "owner": "@beep/workspace-tables",
       "reason": "Exception: golden converter round-trip test (decode -> toInsert -> fromRow) asserting concrete Thread/Turn/Message table column mappings and jsonb/text storage kinds; this is targeted table-projection coverage, not a schema-value property law for S.toArbitrary."
-    },
-    {
-      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-      "symbol": "AppendTurnInput",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/workspace-use-cases",
-      "reason": "Type-level parameter shape of the ThreadStoreShape.appendTurn port method (already an exception); its fields are existing annotated schemas (Document, MessageRole, branded ids) and the input is never decoded from untrusted input, so a wrapper codec adds no decode value."
-    },
-    {
-      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-      "symbol": "AppendTurnResult",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/workspace-use-cases",
-      "reason": "Type-level return shape of the ThreadStoreShape.appendTurn port method (already an exception); its turn/message fields are the existing annotated Turn and Message entity schemas, so the wrapper is an internal signature, not a serialization boundary."
-    },
-    {
-      "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",
-      "symbol": "CreateThreadInput",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/workspace-use-cases",
-      "reason": "Type-level parameter shape of the ThreadStoreShape.createThread port method (already an exception); its title/workspaceId fields are existing annotated schemas and the input is never decoded from untrusted input, so a wrapper codec adds no decode value."
     },
     {
       "file": "packages/workspace/use-cases/src/aggregates/Thread/ThreadStore.ts",

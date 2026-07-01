@@ -214,11 +214,11 @@ export const summarizeTranscriptText: (
 /**
  * Render a transcript ingest summary as JSON.
  *
+ * @effects Performs schema JSON encoding only; fails with `AiMetricsIngestError` if the summary cannot be encoded.
  * @example
  * ```ts
  * import { TranscriptIngestSummary, summaryToJson } from "@beep/repo-ai-metrics"
  * import { Effect } from "effect"
- *
  * const json = Effect.runPromise(
  *   summaryToJson(
  *     TranscriptIngestSummary.make({
@@ -233,8 +233,6 @@ export const summarizeTranscriptText: (
  * )
  * console.log(json)
  * ```
- * @effects Performs schema JSON encoding only; fails with `AiMetricsIngestError` if the summary cannot be encoded.
- *
  * @category services
  * @since 0.0.0
  */

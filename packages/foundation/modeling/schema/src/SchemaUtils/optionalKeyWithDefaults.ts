@@ -12,10 +12,10 @@ import * as S from "effect/Schema";
  * Creates an optional encoded key that decodes to a required value.
  *
  * @remarks
- * This is a v4 replacement for `S.optionalWith(schema, { exact: true,
- * default: () => value })`. Missing keys decode to `defaultValue`, but
- * encoding still requires a decoded value because the encoded side uses
- * `SchemaGetter.required()`.
+ * This is a v4 replacement for
+ * `S.optionalWith(schema, { exact: true, default: () => value })`. Missing
+ * keys decode to `defaultValue`, but encoding still requires a decoded value
+ * because the encoded side uses `SchemaGetter.required()`.
  *
  * @example
  * ```ts

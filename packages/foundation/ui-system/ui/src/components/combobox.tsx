@@ -351,7 +351,11 @@ function ComboboxLabel({ className, ...props }: ComboboxPrimitive.GroupLabel.Pro
  * export function ComboboxCollectionOptions() {
  *   return (
  *     <ComboboxCollection>
- *       <ComboboxItem value="open">Open</ComboboxItem>
+ *       {(item) => (
+ *         <ComboboxItem key={String(item)} value={item}>
+ *           {String(item)}
+ *         </ComboboxItem>
+ *       )}
  *     </ComboboxCollection>
  *   )
  * }

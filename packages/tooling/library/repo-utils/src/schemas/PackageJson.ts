@@ -1437,30 +1437,27 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
 /**
  * Decode an unknown value into a strict `PackageJson` as an Effect.
  *
+ * @param input - Unknown value decoded against the strict `PackageJson` schema.
+ * @returns An Effect that succeeds with the decoded `PackageJson` or fails with `S.SchemaError`.
  * @remarks
  * Excess top-level and nested properties are rejected. Use this when repo tools
  * need package manifests that match the supported schema surface instead of
  * permissively carrying unknown keys forward.
- *
+ * @effects
+ * Runs strict Effect Schema decoding with excess-property rejection and fails
+ * with `S.SchemaError`; it performs no filesystem or process I/O.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { decodePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
- *
  * const packageJson = Effect.runSync(
  *   decodePackageJsonEffect({
  *     name: "@beep/example",
  *     dependencies: { effect: "catalog:" }
  *   })
  * )
- *
  * console.log(packageJson.name) // "@beep/example"
  * ```
- *
- * @effects
- * Runs strict Effect Schema decoding with excess-property rejection and fails
- * with `S.SchemaError`; it performs no filesystem or process I/O.
- *
  * @category validation
  * @since 0.0.0
  */
@@ -1473,11 +1470,14 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  * The input is first decoded with strict excess-property rejection so callers
  * do not accidentally encode malformed package.json objects.
  *
+ * @effects
+ * Decodes the input with strict package.json validation before encoding it back
+ * to the schema's external representation; failures are reported as
+ * `S.SchemaError`.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { encodePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
- *
  * const encoded = Effect.runSync(
  *   encodePackageJsonEffect({
  *     name: "@beep/example",
@@ -1485,15 +1485,8 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  *     scripts: { check: "tsgo -b tsconfig.json" }
  *   })
  * )
- *
  * console.log(encoded.scripts?.check) // "tsgo -b tsconfig.json"
  * ```
- *
- * @effects
- * Decodes the input with strict package.json validation before encoding it back
- * to the schema's external representation; failures are reported as
- * `S.SchemaError`.
- *
  * @category validation
  * @since 0.0.0
  */
@@ -1507,25 +1500,21 @@ export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
 /**
  * Encode a strict `PackageJson` value to a compact JSON string as an Effect.
  *
+ * @effects
+ * Validates the package manifest and serializes the encoded value through the
+ * schema JSON-string encoder; failures are reported as `S.SchemaError`.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { encodePackageJsonToJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
- *
  * const json = Effect.runSync(
  *   encodePackageJsonToJsonEffect({
  *     name: "@beep/example",
  *     type: "module"
  *   })
  * )
- *
  * console.log(json.includes("\"type\":\"module\"")) // true
  * ```
- *
- * @effects
- * Validates the package manifest and serializes the encoded value through the
- * schema JSON-string encoder; failures are reported as `S.SchemaError`.
- *
  * @category validation
  * @since 0.0.0
  */
@@ -1542,26 +1531,21 @@ export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<st
  * @remarks
  * Formatting happens after schema validation and encoding, so invalid manifest
  * fields fail as schema errors before JSON rendering is attempted.
- *
+ * @effects
+ * Validates and encodes the manifest, then pretty-prints the JSON payload;
+ * formatting failures surface as `DomainError`.
  * @example
  * ```ts
  * import { Effect } from "effect"
  * import { encodePackageJsonPrettyEffect } from "@beep/repo-utils/schemas/PackageJson"
- *
  * const pretty = Effect.runSync(
  *   encodePackageJsonPrettyEffect({
  *     name: "@beep/example",
  *     private: true
  *   })
  * )
- *
  * console.log(pretty.includes("\n")) // true
  * ```
- *
- * @effects
- * Validates and encodes the manifest, then pretty-prints the JSON payload;
- * formatting failures surface as `DomainError`.
- *
  * @category validation
  * @since 0.0.0
  */

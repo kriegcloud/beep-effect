@@ -76,7 +76,8 @@ export interface TimeFieldProps
  *   )
  * }
  *
- * console.log(DateTime.formatIso(reminderOptions.defaultValues.reminderTime))
+ * const reminderTime = reminderOptions.defaultValues.reminderTime
+ * console.log(reminderTime === null ? "unset" : DateTime.formatIso(reminderTime))
  * ```
  *
  * @category components

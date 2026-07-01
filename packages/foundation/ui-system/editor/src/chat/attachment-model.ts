@@ -124,15 +124,15 @@ const AttachmentSizeBytes = S.Int.pipe(
  * @since 0.0.0
  */
 export class AttachmentTooLarge extends TaggedErrorClass<AttachmentTooLarge>($I`AttachmentTooLarge`)(
-	"AttachmentTooLarge",
-	{
-		filename: S.String,
-		size: S.Number,
-		maxBytes: S.Number,
-	},
-	$I.annote("AttachmentTooLarge", {
-		description: "A captured file rejected because it exceeds the (clamped) byte budget."
-	})
+  "AttachmentTooLarge",
+  {
+    filename: S.String,
+    size: S.Finite,
+    maxBytes: S.Finite,
+  },
+  $I.annote("AttachmentTooLarge", {
+    description: "A captured file rejected because it exceeds the (clamped) byte budget.",
+  })
 ) {}
 
 /**
@@ -154,15 +154,17 @@ export class AttachmentTooLarge extends TaggedErrorClass<AttachmentTooLarge>($I`
  * @category errors
  * @since 0.0.0
  */
-export class AttachmentInvalidMimeType extends TaggedErrorClass<AttachmentInvalidMimeType>($I`AttachmentInvalidMimeType`)(
-	"AttachmentTooLarge",
-	{
-		filename: S.String,
-		mimeType: S.String,
-	},
-	$I.annote("AttachmentInvalidMimeType", {
-		description: "A captured file rejected because its `file.type` is empty or not a recognized"
-	})
+export class AttachmentInvalidMimeType extends TaggedErrorClass<AttachmentInvalidMimeType>(
+  $I`AttachmentInvalidMimeType`
+)(
+  "AttachmentInvalidMimeType",
+  {
+    filename: S.String,
+    mimeType: S.String,
+  },
+  $I.annote("AttachmentInvalidMimeType", {
+    description: "A captured file rejected because its `file.type` is empty or not a recognized MIME type.",
+  })
 ) {}
 
 /**
@@ -186,16 +188,12 @@ export class AttachmentInvalidMimeType extends TaggedErrorClass<AttachmentInvali
  * @category errors
  * @since 0.0.0
  */
-export const AttachmentRejection = S.Union(
-	[
-		AttachmentTooLarge,
-		AttachmentInvalidMimeType
-	]
-).pipe(
-	S.toTaggedUnion("_tag"),
-	$I.annoteSchema("AttachmentRejection", {
-		description: "Why {@link ComposerAttachment.fromFile} declined to capture a file. A tagged\nunion so the capture pipeline can distinguish — and surface — an over-budget\nfile from one with an unrecognized MIME type, rather than collapsing both into\nan opaque `O.none()`."
-	})
+export const AttachmentRejection = S.Union([AttachmentTooLarge, AttachmentInvalidMimeType]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("AttachmentRejection", {
+    description:
+      "Why {@link ComposerAttachment.fromFile} declined to capture a file. A tagged\nunion so the capture pipeline can distinguish — and surface — an over-budget\nfile from one with an unrecognized MIME type, rather than collapsing both into\nan opaque `O.none()`.",
+  })
 );
 
 /**
@@ -324,7 +322,9 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
   ): Result.Result<ComposerAttachment, AttachmentRejection> => {
     const effectiveMaxBytes = Math.min(maxBytes, DEFAULT_MAX_ATTACHMENT_BYTES);
     if (!ComposerAttachment.isWithinSize(file, effectiveMaxBytes)) {
-      return Result.fail(AttachmentTooLarge.make({ filename: file.name, size: file.size, maxBytes: effectiveMaxBytes }));
+      return Result.fail(
+        AttachmentTooLarge.make({ filename: file.name, size: file.size, maxBytes: effectiveMaxBytes })
+      );
     }
     return Result.match(decodeMimeType(file.type), {
       onFailure: () => Result.fail(AttachmentInvalidMimeType.make({ filename: file.name, mimeType: file.type })),

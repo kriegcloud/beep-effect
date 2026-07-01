@@ -1164,16 +1164,13 @@ const printDocgenIndex = () =>
  * @remarks
  * The `quality` subcommand is advisory/report-only unless `--check` is used;
  * `local` plans from changed files before choosing a scoped or full docgen run.
- *
  * @example
  * ```ts
  * import { docgenCommand } from "@beep/repo-cli/commands/Docgen"
  * import { Command } from "effect/unstable/cli"
- *
  * const runDocgen = Command.runWith(docgenCommand, { version: "0.0.0" })
  * const qualityArgs = ["quality", "-p", "packages/tooling/tool/cli", "--json", "--score", "codex"]
  * const program = runDocgen(qualityArgs)
- *
  * console.log(qualityArgs.join(" "))
  * console.log(program)
  * ```

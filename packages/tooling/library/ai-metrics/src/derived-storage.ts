@@ -794,12 +794,12 @@ const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ens
 /**
  * Ensure the AI metrics derived DuckDB schema exists and has P4 columns.
  *
+ * @effects Creates or migrates DuckDB tables and schema metadata in the configured derived database.
  * @example
  * ```ts
  * import { ensureAiMetricsDerivedStorage } from "@beep/repo-ai-metrics"
  * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
  * import { Effect } from "effect"
- *
  * const program = ensureAiMetricsDerivedStorage.pipe(
  *   Effect.provide(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({
  *     databasePath: ".beep/ai-metrics/derived/ai-metrics.duckdb"
@@ -807,8 +807,6 @@ const ensureAiMetricsDerivedStorageRaw = Effect.fn("AiMetrics.derivedStorage.ens
  * )
  * console.log(program)
  * ```
- * @effects Creates or migrates DuckDB tables and schema metadata in the configured derived database.
- *
  * @category services
  * @since 0.0.0
  */
@@ -1237,6 +1235,11 @@ const recordTurnCount: (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>
 /**
  * Project sanitized AI metrics records into DuckDB and export Parquet snapshots.
  *
+ * @effects
+ * - Creates the derived DuckDB directory when missing.
+ * - Runs DuckDB table creation and migrations before writing rows.
+ * - Upserts ingest, source-file, archive, session, and turn projections inside a transaction.
+ * - Recreates the selected Parquet export directory for `latest` or `snapshot` exports.
  * @example
  * ```ts
  * import {
@@ -1245,7 +1248,6 @@ const recordTurnCount: (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>
  *   ConfigSnapshot,
  *   writeAiMetricsDerivedStorage
  * } from "@beep/repo-ai-metrics"
- *
  * const input = AiMetricsDerivedStorageWriteInput.make({
  *   configSnapshot: ConfigSnapshot.make({
  *     changedPaths: [],
@@ -1270,12 +1272,6 @@ const recordTurnCount: (records: ReadonlyArray<AiMetricsDerivedTranscriptRecord>
  * const write = writeAiMetricsDerivedStorage(input)
  * console.log(write)
  * ```
- * @effects
- * - Creates the derived DuckDB directory when missing.
- * - Runs DuckDB table creation and migrations before writing rows.
- * - Upserts ingest, source-file, archive, session, and turn projections inside a transaction.
- * - Recreates the selected Parquet export directory for `latest` or `snapshot` exports.
- *
  * @category services
  * @since 0.0.0
  */
