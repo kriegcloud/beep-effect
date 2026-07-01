@@ -324,6 +324,12 @@
         ]
       },
       {
+        "name": "@beep/mcp-kit",
+        "patterns": [
+          "packages/foundation/capability/mcp-kit/src/**"
+        ]
+      },
+      {
         "name": "@beep/md",
         "patterns": [
           "packages/foundation/modeling/md/src/**"
@@ -1439,6 +1445,19 @@
         ]
       },
       {
+        "from": "@beep/mcp-kit",
+        "allow": [
+          "@beep/identity",
+          "@beep/mcp-kit",
+          "@beep/schema"
+        ],
+        "allowTypeOnly": [
+          "@beep/identity",
+          "@beep/mcp-kit",
+          "@beep/schema"
+        ]
+      },
+      {
         "from": "@beep/md",
         "allow": [
           "@beep/identity",
@@ -1924,6 +1943,7 @@
         "allow": [
           "@beep/identity",
           "@beep/md",
+          "@beep/ontology",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/utils"
@@ -1931,6 +1951,7 @@
         "allowTypeOnly": [
           "@beep/identity",
           "@beep/md",
+          "@beep/ontology",
           "@beep/schema",
           "@beep/scratchpad",
           "@beep/utils"

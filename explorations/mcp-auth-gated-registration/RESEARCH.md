@@ -140,3 +140,25 @@ beep-effect already owns the entire MCP substrate; this packet is **patterns lay
 ---
 
 _Codex gate-1 folded 2026-06-29: 6 blocking + 5 advisory addressed._
+
+## 2026-07-01 — Align-stage Codex re-verification (addendum)
+
+Three read-only Codex sub-agents re-verified every load-bearing code claim
+above against current HEAD during the `/grill-with-docs` align session. **All
+confirmed** — full evidence with current `file:line` in
+[reviews/2026-07-01-codex-verification.md](./reviews/2026-07-01-codex-verification.md).
+Corrections superseding specific facts above:
+
+- **Effect pin is `4.0.0-beta.92`**, not beta.91 (root `package.json:158`).
+  `McpServer.ts`/`Toolkit.ts` unchanged by the bump — the `isError`,
+  `EnabledWhen`, span-parameters, and `2025-06-18` protocol findings all hold
+  at the lines cited in the review file.
+- **NLP capability path** is `packages/foundation/capability/nlp-processing`
+  (`@beep/nlp-processing`); references above to `foundation/capability/nlp`
+  are shorthand for it.
+- **New finding:** the optional-secret idiom
+  `Config.redacted(X).pipe(Config.option)` repeats inline across 7 drivers
+  with no shared helper — direct consolidation evidence for the kit's
+  `SourceAuth` registry.
+- `@beep/uspto` additionally scopes `X-API-KEY` to same-origin requests
+  (`Uspto.service.ts:249-255`) — port this discipline into the kit.

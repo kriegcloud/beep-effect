@@ -11,7 +11,7 @@ disclosure)"**.
 - **Route:** `new-exploration` → `explorations/mcp-auth-gated-registration` (P2 wave; histogram P1×11 / P2×12 / P3×5)
 - **Theme span:** `mcp-design`, `governance-ops`
 - **Gold-intake provenance:** [`../../_gold-intake/ROUTING.md`](../../_gold-intake/ROUTING.md) · [`../../_gold-intake/routing.json`](../../_gold-intake/routing.json) · [`../../_gold-intake/GOLD_SYNTHESIS.md`](../../_gold-intake/GOLD_SYNTHESIS.md)
-- **Packet codex review:** [`../reviews/2026-06-29-codex-research.md`](../reviews/2026-06-29-codex-research.md)
+- **Packet codex review:** [`../reviews/2026-06-29-codex-research.md`](../reviews/2026-06-29-codex-research.md) · [`../reviews/2026-07-01-codex-verification.md`](../reviews/2026-07-01-codex-verification.md) (align-stage re-verification, all claims confirmed, effect pin → beta.92)
 - **Packet research:** [`../RESEARCH.md`](../RESEARCH.md) · [`../DECISIONS.md`](../DECISIONS.md) · per-theme detail under [`./`](.)
 
 > This is an **exploration** packet (fuzzy front end), not a spec. The §1 nuggets

@@ -184,6 +184,9 @@
       "path": "packages/foundation/capability/langextract"
     },
     {
+      "path": "packages/foundation/capability/mcp-kit"
+    },
+    {
       "path": "packages/foundation/capability/nlp-processing"
     },
     {

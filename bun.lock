@@ -1028,6 +1028,19 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/foundation/capability/mcp-kit": {
+      "name": "@beep/mcp-kit",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/foundation/capability/nlp-processing": {
       "name": "@beep/nlp-processing",
       "version": "0.0.0",
@@ -1168,6 +1181,9 @@
     "packages/foundation/modeling/ontology": {
       "name": "@beep/ontology",
       "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/n3": "catalog:",
@@ -2234,6 +2250,8 @@
     "@beep/m365": ["@beep/m365@workspace:packages/drivers/m365"],
 
     "@beep/m365-mcp": ["@beep/m365-mcp@workspace:packages/drivers/m365-mcp"],
+
+    "@beep/mcp-kit": ["@beep/mcp-kit@workspace:packages/foundation/capability/mcp-kit"],
 
     "@beep/md": ["@beep/md@workspace:packages/foundation/modeling/md"],
 

@@ -1,15 +1,19 @@
 {
-  "name": "@beep/ontology",
+  "name": "@beep/mcp-kit",
   "version": "0.0.0",
-  "description": "Ontology modeling package",
+  "description": "Reusable MCP host-construction kit: credential-keyed toolkit composition, api_key_required envelope, tier-gate dispatch, progressive field-tier projection, span hygiene.",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/modeling/ontology",
+  "homepage": "https://github.com/beep-effect/beep-effect/tree/main/packages/foundation/capability/mcp-kit",
   "repository": {
     "type": "git",
     "url": "git@github.com:beep-effect/beep-effect.git",
-    "directory": "packages/foundation/modeling/ontology"
+    "directory": "packages/foundation/capability/mcp-kit"
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "capability"
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
@@ -56,15 +60,12 @@
     }
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
-    "@types/n3": "catalog:",
     "@types/node": "catalog:"
-  },
-  "beep": {
-    "family": "foundation",
-    "kind": "modeling"
   }
 }
