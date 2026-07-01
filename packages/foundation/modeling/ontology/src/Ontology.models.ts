@@ -8,12 +8,13 @@
 
 import { $OntologyId } from "@beep/identity/packages";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $OntologyId.create("Ontology.models");
 
 /**
- * Source type of the loaded  ontology.
+ * Source type of the loaded ontology.
  *
  * @example
  * ```ts
@@ -48,7 +49,7 @@ export const SourceType = LiteralKit(["http", "github"]).pipe(
 export type SourceType = typeof SourceType.Type;
 
 /**
- * HTTP URL string metadata shape from the  OpenAPI document.
+ * HTTP URL string metadata shape from the OpenAPI document.
  *
  * @example
  * ```ts
@@ -145,31 +146,39 @@ export const GraphInfo = S.Struct({
     description: "Source type of the ontology (http or github)",
     examples: ["github"],
   }),
-  http_url: S.optionalKey(
-    S.NullOr(HttpUrl).annotateKey({
+  http_url: HttpUrl.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Http Url",
       description: "HTTP URL of the ontology source (when source_type is 'http')",
     })
   ),
-  github_repo_owner: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  github_repo_owner: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Github Repo Owner",
       description: "GitHub repository owner (when source_type is 'github')",
-      examples: ["alea-institute"],
+      examples: [O.some("alea-institute")],
     })
   ),
-  github_repo_name: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  github_repo_name: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Github Repo Name",
       description: "GitHub repository name (when source_type is 'github')",
-      examples: ["folio"],
+      examples: [O.some("folio")],
     })
   ),
-  github_repo_branch: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  github_repo_branch: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Github Repo Branch",
       description: "GitHub repository branch (when source_type is 'github')",
-      examples: ["2.0.0"],
+      examples: [O.some("2.0.0")],
     })
   ),
 }).pipe(
@@ -289,131 +298,180 @@ export type HealthResponse = typeof HealthResponse.Type;
 export const OWLClass = S.Struct({
   iri: S.String.annotateKey({
     title: "Iri",
-    description: "{http://www.w3.org/2002/07/owl#}Class",
+    identifier: "https://www.w3.org/2002/07/owl#Class",
   }),
-  label: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  label: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Label",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}label",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#label",
     })
   ),
-  sub_class_of: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  sub_class_of: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Sub Class Of",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}subClassOf",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#subClassOf",
     })
   ),
-  parent_class_of: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  parent_class_of: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Parent Class Of",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}subClassOf",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#subClassOf",
     })
   ),
-  is_defined_by: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  is_defined_by: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Is Defined By",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}isDefinedBy",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#isDefinedBy",
     })
   ),
-  see_also: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  see_also: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "See Also",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}seeAlso",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#seeAlso",
     })
   ),
-  comment: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  comment: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Comment",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}comment",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#comment",
     })
   ),
-  deprecated: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)).annotateKey({
-    title: "Deprecated",
-    description: "{http://www.w3.org/2002/07/owl#}deprecated",
-    default: false,
-  }),
-  preferred_label: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  deprecated: S.Boolean.pipe(
+    SchemaUtils.withKeyDefaults(false),
+    S.annotateKey({
+      title: "Deprecated",
+      identifier: "https://www.w3.org/2002/07/owl#deprecated",
+      default: false,
+    })
+  ),
+  preferred_label: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Preferred Label",
-      description: "{http://www.w3.org/2004/02/skos/core#}prefLabel",
+      identifier: "https://www.w3.org/2004/02/skos/core#prefLabel",
     })
   ),
-  alternative_labels: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  alternative_labels: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Alternative Labels",
-      description: "{http://www.w3.org/2004/02/skos/core#}altLabel",
+      identifier: "https://www.w3.org/2004/02/skos/core#altLabel",
     })
   ),
-  translations: S.optionalKey(
-    S.Record(S.String, S.String).annotateKey({
+  translations: S.Record(S.String, S.String).pipe(
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Translations",
       description: "translations from other languages",
     })
   ),
-  hidden_label: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  hidden_label: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Hidden Label",
-      description: "{http://www.w3.org/2004/02/skos/core#}hiddenLabel",
+      identifier: "https://www.w3.org/2004/02/skos/core#hiddenLabel",
     })
   ),
-  definition: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  definition: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Definition",
-      description: "{http://www.w3.org/2004/02/skos/core#}definition",
+      identifier: "https://www.w3.org/2004/02/skos/core#definition",
     })
   ),
-  examples: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  examples: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Examples",
-      description: "{http://www.w3.org/2004/02/skos/core#}example",
+      identifier: "https://www.w3.org/2004/02/skos/core#example",
     })
   ),
-  notes: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  notes: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Notes",
-      description: "{http://www.w3.org/2004/02/skos/core#}note",
+      identifier: "https://www.w3.org/2004/02/skos/core#note",
     })
   ),
-  history_note: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  history_note: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "History Note",
-      description: "{http://www.w3.org/2004/02/skos/core#}historyNote",
+      identifier: "https://www.w3.org/2004/02/skos/core#historyNote",
     })
   ),
-  editorial_note: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  editorial_note: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Editorial Note",
-      description: "{http://www.w3.org/2004/02/skos/core#}editorialNote",
+      identifier: "https://www.w3.org/2004/02/skos/core#editorialNote",
     })
   ),
-  in_scheme: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  in_scheme: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "In Scheme",
-      description: "{http://www.w3.org/2004/02/skos/core#}inScheme",
+      identifier: "https://www.w3.org/2004/02/skos/core#inScheme",
     })
   ),
-  identifier: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  identifier: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Identifier",
-      description: "{http://purl.org/dc/elements/1.1/}identifier",
+      identifier: "https://purl.org/dc/elements/1.1/identifier",
     })
   ),
-  description: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  description: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Description",
-      description: "{http://purl.org/dc/elements/1.1/}description",
+      identifier: "https://purl.org/dc/elements/1.1/description",
     })
   ),
-  source: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  source: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Source",
-      description: "{http://purl.org/dc/elements/1.1/}source",
+      identifier: "https://purl.org/dc/elements/1.1/source",
     })
   ),
-  country: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  country: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Country",
-      description: "{http://www.loc.gov/mads/rdf/v1#}country",
+      identifier: "https://www.loc.gov/standards/mads/mads-outline-2-1.html#country",
     })
   ),
 }).pipe(
@@ -439,7 +497,7 @@ export const OWLClass = S.Struct({
 export type OWLClass = typeof OWLClass.Type;
 
 /**
- * OWL object property model for the  ontology.
+ * OWL object property model for the ontology.
  *
  * @example
  * ```ts
@@ -454,60 +512,83 @@ export type OWLClass = typeof OWLClass.Type;
 export const OWLObjectProperty = S.Struct({
   iri: S.String.annotateKey({
     title: "Iri",
-    description: "{http://www.w3.org/2002/07/owl#}ObjectProperty",
+    identifier: "https://www.w3.org/2002/07/owl#ObjectProperty",
   }),
-  label: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  label: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Label",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}label",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#label",
     })
   ),
-  sub_property_of: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  sub_property_of: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Sub Property Of",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}subPropertyOf",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#subPropertyOf",
     })
   ),
-  domain: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  domain: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Domain",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}domain",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#domain",
     })
   ),
-  range: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  range: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Range",
-      description: "{http://www.w3.org/2000/01/rdf-schema#}range",
+      identifier: "https://www.w3.org/2000/01/rdf-schema#range",
     })
   ),
-  inverse_of: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  inverse_of: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Inverse Of",
-      description: "{http://www.w3.org/2002/07/owl#}inverseOf",
+      identifier: "https://www.w3.org/2002/07/owl#inverseOf",
     })
   ),
-  preferred_label: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  preferred_label: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Preferred Label",
-      description: "{http://www.w3.org/2004/02/skos/core#}prefLabel",
+      identifier: "https://www.w3.org/2004/02/skos/core#prefLabel",
     })
   ),
-  alternative_labels: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  alternative_labels: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Alternative Labels",
-      description: "{http://www.w3.org/2004/02/skos/core#}altLabel",
+      identifier: "https://www.w3.org/2004/02/skos/core#altLabel",
     })
   ),
-  definition: S.optionalKey(
-    S.NullOr(S.String).annotateKey({
+  definition: S.String.pipe(
+    S.OptionFromOptionalNullOr,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Definition",
-      description: "{http://www.w3.org/2004/02/skos/core#}definition",
+      identifier: "https://www.w3.org/2004/02/skos/core#definition",
     })
   ),
-  examples: S.optionalKey(
-    S.Array(S.String).annotateKey({
+  examples: S.String.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Examples",
-      description: "{http://www.w3.org/2004/02/skos/core#}example",
+      identifier: "https://www.w3.org/2004/02/skos/core#example",
     })
   ),
 }).pipe(
@@ -552,15 +633,18 @@ export const OWLClassList = S.Struct({
     examples: [
       [
         OWLClass.make({
-          definition: "A party that grants a right to use something in return for payment.",
+          definition: O.some("A party that grants a right to use something in return for payment."),
           iri: "R8pNPutX0TN6DlEqkyZuxSw",
-          label: "Lessor",
+          label: O.some("Lessor"),
         }),
       ],
     ],
   }),
-  properties: S.optionalKey(
-    S.Array(OWLObjectProperty).annotateKey({
+  properties: OWLObjectProperty.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Properties",
       description: "List of OWLObjectProperty objects matching the search",
     })
@@ -607,9 +691,9 @@ export const OWLObjectPropertyList = S.Struct({
     examples: [
       [
         OWLObjectProperty.make({
-          definition: "A relationship indicating that something was drafted.",
+          definition: O.some("A relationship indicating that something was drafted."),
           iri: "R6qohvM786wjw0MNQJg9Dq",
-          label: "drafted",
+          label: O.some("drafted"),
         }),
       ],
     ],
@@ -733,9 +817,9 @@ export const OWLSearchResults = S.Struct({
       [
         [
           OWLClass.make({
-            definition: "A party that grants a right to use something in return for payment.",
+            definition: O.some("A party that grants a right to use something in return for payment."),
             iri: "R8pNPutX0TN6DlEqkyZuxSw",
-            label: "Lessor",
+            label: O.some("Lessor"),
           }),
           0.95,
         ],
@@ -822,13 +906,17 @@ export const ValidationError = S.Struct({
   type: S.String.annotateKey({
     title: "Error Type",
   }),
-  input: S.optionalKey(
-    S.Unknown.annotateKey({
+  input: S.Unknown.pipe(
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Input",
     })
   ),
-  ctx: S.optionalKey(
-    S.Record(S.String, S.Unknown).annotateKey({
+  ctx: S.Record(S.String, S.Unknown).pipe(
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Context",
     })
   ),
@@ -867,8 +955,11 @@ export type ValidationError = typeof ValidationError.Type;
  * @since 0.0.0
  */
 export const HTTPValidationError = S.Struct({
-  detail: S.optionalKey(
-    S.Array(ValidationError).annotateKey({
+  detail: ValidationError.pipe(
+    S.Array,
+    S.OptionFromOptionalKey,
+    SchemaUtils.withNoneDefault,
+    S.annotateKey({
       title: "Detail",
     })
   ),
