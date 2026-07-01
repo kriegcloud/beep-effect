@@ -7,7 +7,14 @@ import * as Str from "effect/String";
 const boxToken = pipe(
   Bun.env.CLOUD_BOX_TOKEN,
   O.fromUndefinedOr,
-  O.filter((value) => Str.trim(value).length > 0)
+  // Skip the live call when the token is absent, blank, or an unresolved
+  // 1Password `op://` reference (present when secrets are not resolved, e.g. no
+  // local `op` session). Mirrors the repo's isUnresolvedSecretReference guard so
+  // the suite runs the real API only when a resolved token is available (CI).
+  O.filter((value) => {
+    const trimmed = Str.trim(value);
+    return trimmed.length > 0 && !Str.startsWith("op://")(trimmed);
+  })
 );
 
 pipe(

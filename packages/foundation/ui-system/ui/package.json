@@ -41,6 +41,7 @@
     "@pigment-css/react": "catalog:",
     "@react-three/drei": "catalog:",
     "@react-three/fiber": "catalog:",
+    "@shadcn/react": "^0.2.0",
     "@tailwindcss/typography": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",

@@ -4,7 +4,13 @@ import { describe, expect, it, layer } from "@effect/vitest";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 
-const apiKey = pipe(Bun.env.FIRECRAWL_API_KEY, O.fromUndefinedOr, O.filter(Str.isNonEmpty));
+// Skip when the key is absent, blank, or an unresolved `op://` reference (present
+// when secrets are not resolved, e.g. no local `op` session).
+const apiKey = pipe(
+  Bun.env.FIRECRAWL_API_KEY,
+  O.fromUndefinedOr,
+  O.filter((value) => Str.isNonEmpty(value) && !Str.startsWith("op://")(value))
+);
 
 pipe(
   apiKey,

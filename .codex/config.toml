@@ -18,34 +18,16 @@
     name = "claude-frontend-lane"
     enabled = true
   [[skills.config]]
-    name = "effect-data"
-    enabled = true
-  [[skills.config]]
-    name = "effect-error-handling"
-    enabled = true
-  [[skills.config]]
     name = "effect-first-development"
     enabled = true
   [[skills.config]]
     name = "effect-services"
     enabled = true
   [[skills.config]]
-    name = "effect-v4"
-    enabled = true
-  [[skills.config]]
-    name = "effect-v4-errors"
-    enabled = true
-  [[skills.config]]
-    name = "effect-v4-http-ai"
-    enabled = true
-  [[skills.config]]
     name = "effect-v4-imports"
     enabled = true
   [[skills.config]]
-    name = "effect-v4-services"
-    enabled = true
-  [[skills.config]]
-    name = "eventlog-graph-specialist"
+    name = "explore"
     enabled = true
   [[skills.config]]
     name = "grill-me"
@@ -63,13 +45,7 @@
     name = "mcp-jetbrains"
     enabled = true
   [[skills.config]]
-    name = "mcp-lsmcp"
-    enabled = true
-  [[skills.config]]
-    name = "mcp-playwright"
-    enabled = true
-  [[skills.config]]
-    name = "portless"
+    name = "onepassword-secret-refs"
     enabled = true
   [[skills.config]]
     name = "ponytail"
@@ -90,7 +66,13 @@
     name = "ponytail-review"
     enabled = true
   [[skills.config]]
+    name = "portless"
+    enabled = true
+  [[skills.config]]
     name = "quality-review-fix-loop"
+    enabled = true
+  [[skills.config]]
+    name = "reflect"
     enabled = true
   [[skills.config]]
     name = "repo-symbol-discovery"
@@ -109,6 +91,9 @@
     enabled = true
   [[skills.config]]
     name = "turborepo"
+    enabled = true
+  [[skills.config]]
+    name = "yeet"
     enabled = true
 
   [mcp_servers.webstorm]

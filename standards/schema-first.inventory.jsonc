@@ -1918,22 +1918,6 @@
       "reason": "Synthetic golden fixture helper decodes branded file-processing IDs and PosixPath values for one deterministic office-action source artifact; property coverage belongs in the file-processing package schemas."
     },
     {
-      "file": "packages/law-practice/use-cases/src/IrToLaw/IrToLaw.ports.ts",
-      "symbol": "IrToLawShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/law-practice-use-cases",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/law-practice/use-cases/src/IrToLaw/IrToLaw.ports.ts",
-      "symbol": "LawEntities",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/law-practice-use-cases",
-      "reason": "Use-case aggregate of already schema-modeled domain entity instances (OfficeAction/Claim/Rejection/PriorArtReference/Distinction); a transient IrToLaw mapping result, not a persisted or wire contract."
-    },
-    {
       "file": "packages/law-practice/use-cases/src/OfficeActionReview/OfficeActionReview.ports.ts",
       "symbol": "OfficeActionReviewShape",
       "kind": "exported-interface",

@@ -145,7 +145,7 @@ Task reads a file outside default inputs:
     "build": {
       "inputs": [
         "$TURBO_DEFAULT$",
-        "$TURBO_ROOT$/shared-config.json" // file outside package
+        "../../shared-config.json" // file outside package
       ]
     }
   }
