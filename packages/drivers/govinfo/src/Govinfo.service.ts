@@ -14,13 +14,15 @@
 
 import { ApiAuth, makeApiTransport } from "@beep/api-transport";
 import { $GovinfoId } from "@beep/identity";
+import { URLStr } from "@beep/schema";
 import { O } from "@beep/utils";
 import { Cache, Config, Context, Effect, Layer } from "effect";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpApiClient from "effect/unstable/httpapi/HttpApiClient";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
-import { GovinfoApi } from "./domain/contracts/Api.ts";
+import { GovinfoApi } from "./domain/index.ts";
 import {
   GOVINFO_API_KEY_ENV,
   GOVINFO_API_KEY_PARAM,
@@ -57,14 +59,19 @@ export interface GovinfoShape {
   readonly search: (payload: Search.Payload) => Effect.Effect<Search.Success, GovinfoError>;
 }
 
-interface ResolvedConfig {
-  readonly apiKey: O.Option<Redacted.Redacted<string>>;
-  readonly apiUrl: string;
-}
+class ResolvedConfig extends S.Class<ResolvedConfig>($I`ResolvedConfig`)(
+  {
+    apiKey: S.String.pipe( S.Redacted, S.OptionFromNullishOr),
+    apiUrl: URLStr,
+  },
+  $I.annote("ResolvedConfig", {
+    description: "Configuration for the GovInfo driver.",
+  })
+) {}
 
 const resolveConfig = (input: GovinfoConfigInput): ResolvedConfig => ({
-  apiKey: O.fromUndefinedOr(input.apiKey),
-  apiUrl: input.apiUrl ?? GOVINFO_API_URL,
+  apiKey: O.fromNullishOr(input.apiKey),
+  apiUrl: URLStr.make(input.apiUrl ?? GOVINFO_API_URL),
 });
 
 const authFromKey = (apiKey: O.Option<Redacted.Redacted<string>>): ApiAuth =>
@@ -115,7 +122,7 @@ const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
 const makeFromEnvironment = Effect.fnUntraced(function* () {
   const apiKey = yield* Config.redacted(GOVINFO_API_KEY_ENV).pipe(Config.option);
   const apiUrl = yield* Config.string("GOVINFO_API_URL").pipe(Config.withDefault(GOVINFO_API_URL));
-  return yield* makeFromResolved({ apiKey, apiUrl });
+  return yield* makeFromResolved({ apiKey, apiUrl: URLStr.make(apiUrl) });
 });
 
 /**

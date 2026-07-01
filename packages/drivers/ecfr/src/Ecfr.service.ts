@@ -14,6 +14,7 @@
 
 import { ApiAuth, makeApiTransport } from "@beep/api-transport";
 import { $EcfrId } from "@beep/identity";
+import { URLStr } from "@beep/schema";
 import { Config, Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
@@ -49,12 +50,17 @@ export interface EcfrShape {
   readonly rateLimit: Effect.Effect<O.Option<RateLimitSnapshot>>;
 }
 
-interface ResolvedConfig {
-  readonly apiUrl: string;
-}
+class ResolvedConfig extends S.Class<ResolvedConfig>($I`ResolvedConfig`)(
+  {
+    apiUrl: URLStr,
+  },
+  $I.annote("ResolvedConfig", {
+    description: "Configuration for the eCFR driver.",
+  })
+) {}
 
 const resolveConfig = (input: EcfrConfigInput): ResolvedConfig => ({
-  apiUrl: input.apiUrl ?? ECFR_API_URL,
+  apiUrl: URLStr.make(input.apiUrl ?? ECFR_API_URL),
 });
 
 const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
@@ -100,7 +106,7 @@ const makeFromResolved = Effect.fnUntraced(function* (config: ResolvedConfig) {
 
 const makeFromEnvironment = Effect.fnUntraced(function* () {
   const apiUrl = yield* Config.string("ECFR_API_URL").pipe(Config.withDefault(ECFR_API_URL));
-  return yield* makeFromResolved({ apiUrl });
+  return yield* makeFromResolved({ apiUrl: URLStr.make(apiUrl) });
 });
 
 /**
@@ -130,7 +136,7 @@ export class Ecfr extends Context.Service<Ecfr, EcfrShape>()($I`Ecfr`) {
    * @since 0.0.0
    */
   static readonly makeLayer = (
-    config = EcfrConfigInput.make({})
+    config = EcfrConfigInput.make()
   ): Layer.Layer<Ecfr, never, HttpClient.HttpClient | RateLimiter.RateLimiterStore> =>
     Layer.effect(Ecfr, makeFromResolved(resolveConfig(config)));
 

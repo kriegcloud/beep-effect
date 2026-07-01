@@ -11,7 +11,7 @@
  */
 
 import { HttpApi, HttpApiGroup } from "effect/unstable/httpapi";
-import { Http } from "./Search/Search.http.ts";
+import * as Search from "./Search/index.ts";
 
 /**
  * Top-level GovInfo API group carrying the search endpoint.
@@ -26,7 +26,7 @@ import { Http } from "./Search/Search.http.ts";
  * @category contracts
  * @since 0.0.0
  */
-export const GovinfoApiGroup = HttpApiGroup.make("govinfo", { topLevel: true }).add(Http);
+export const GovinfoApiGroup = HttpApiGroup.make("govinfo", { topLevel: true }).add(Search.Http);
 
 /**
  * The assembled GovInfo `HttpApi`.

@@ -14,7 +14,7 @@
  * @category models
  * @since 0.0.0
  */
-export * from "./Search.contract.ts";
+export * as Search from "./Search.contract.ts";
 /**
  * The GovInfo search HTTP endpoint descriptor binding the `POST /search` route
  * to its request payload and success/error response contracts.

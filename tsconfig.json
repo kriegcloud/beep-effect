@@ -1118,9 +1118,6 @@
       "@beep/editor/youtube-node": [
         "./packages/foundation/ui-system/editor/src/youtube-node.tsx"
       ],
-      "@beep/agents-domain/turn": [
-        "./packages/agents/domain/src/turn/index.ts"
-      ],
       "@beep/pandoc-ast": [
         "./packages/foundation/modeling/pandoc-ast/src/index.ts"
       ],
