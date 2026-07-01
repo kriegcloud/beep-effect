@@ -1758,7 +1758,7 @@
   },
   "catalog": {
     "@1password/connect": "^1.4.2",
-    "@arizeai/phoenix-client": "6.11.1",
+    "@arizeai/phoenix-client": "6.11.2",
     "@azure/msal-node": "^5.3.0",
     "@azure/msal-node-extensions": "^5.3.0",
     "@babel/cli": "^8.0.1",
@@ -1894,7 +1894,7 @@
     "@vitest/browser-playwright": "^4.1.9",
     "@vitest/coverage-istanbul": "^4.1.9",
     "@vitest/coverage-v8": "^4.1.9",
-    "ai": "^7.0.7",
+    "ai": "^7.0.8",
     "babel-plugin-annotate-pure-calls": "^0.5.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "babel-plugin-transform-next-use-client": "^1.1.1",
@@ -2009,7 +2009,7 @@
 
     "@arizeai/openinference-vercel": ["@arizeai/openinference-vercel@2.8.1", "", { "dependencies": { "@arizeai/openinference-core": "2.3.0", "@arizeai/openinference-genai": "0.2.0", "@arizeai/openinference-semantic-conventions": "2.5.0", "@opentelemetry/core": "^1.30.1" }, "peerDependencies": { "@opentelemetry/api": ">=1.7.0 <2.0.0" } }, "sha512-gTgUSJd9HHTfNyI2ZoorPGHt1ID5LFtZZCDFmosXzdPzYoAzwknEC9Ja3iKKs+c27uvNiS6N5P8iyxf8qC+sDg=="],
 
-    "@arizeai/phoenix-client": ["@arizeai/phoenix-client@6.11.1", "", { "dependencies": { "@arizeai/openinference-semantic-conventions": "^2.5.0", "@arizeai/openinference-vercel": "^2.7.8", "@arizeai/phoenix-config": "0.1.4", "@arizeai/phoenix-otel": "1.0.2", "async": "^3.2.6", "openapi-fetch": "^0.17.0", "tiny-invariant": "^1.3.3", "zod": "^4.4.3" }, "peerDependencies": { "@anthropic-ai/sdk": "^0.35.0", "ai": "^6.0.90", "jest": ">=27", "openai": "^6.10.0", "vitest": ">=1" }, "optionalPeers": ["@anthropic-ai/sdk", "ai", "jest", "openai", "vitest"] }, "sha512-v8Secy8nz3Ah/VVLCRxETnv9ltELuSp2fmcY0vmoEB50Z5mzXpLNnyNsrVXyczeQ7eGz6y/FTHBPuwespzp2cg=="],
+    "@arizeai/phoenix-client": ["@arizeai/phoenix-client@6.11.2", "", { "dependencies": { "@arizeai/openinference-semantic-conventions": "^2.5.0", "@arizeai/openinference-vercel": "^2.8.1", "@arizeai/phoenix-config": "0.1.4", "@arizeai/phoenix-otel": "1.0.2", "async": "^3.2.6", "openapi-fetch": "^0.17.0", "tiny-invariant": "^1.3.3", "zod": "^4.4.3" }, "peerDependencies": { "@anthropic-ai/sdk": "^0.35.0", "ai": "^6.0.90", "jest": ">=27", "openai": "^6.10.0", "vitest": ">=1" }, "optionalPeers": ["@anthropic-ai/sdk", "ai", "jest", "openai", "vitest"] }, "sha512-2DMOkmSZIV36I+U2UX0rwkrv/U6TSkOmA4qG1pXLz7YpmM/BeJ5MVJxiZE8CosGkLGiSXSjziST7+bdckWsH7A=="],
 
     "@arizeai/phoenix-config": ["@arizeai/phoenix-config@0.1.4", "", {}, "sha512-GBgPCQWW2GIHqsV067Uqc2YLCapQTHWX2wuYQYILAos6m39+sDX4hunP4qUqBixbF8tR5zdybCO8iGRV+tEcBg=="],
 
