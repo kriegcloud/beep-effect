@@ -27,6 +27,14 @@ multiple routing items here as "NOT yet settled." Run
 questions one at a time (recommended answers pre-drafted in
 [`DECISIONS.md`](./DECISIONS.md)).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — provenance ledger joining the 11
+mined gold nuggets (with upstream repo + file:line + license) to the external
+research citations and the in-repo `@beep/*` bricks this packet composes. Start
+there to trace any decision back to its source. Derived from the gold-intake
+cluster "Citation lookup + verbatim-span grounding (hallucination guard)".
+
 ## Read This First
 
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.

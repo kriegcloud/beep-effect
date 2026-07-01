@@ -1,5 +1,8 @@
 # Gold-intake research note: agent Skills, cost-tiered routing, and ethical-wall identity (2026-06-29)
 
+> Provenance ledger (nuggets → upstream repos + licenses → citations → in-repo
+> bricks): [`research/SOURCES.md`](./SOURCES.md).
+
 > Non-invasive research note for the goal owner. This does **not** change
 > `SPEC.md`, `PLAN.md`, `GOAL.md`, phases, or scope. It is a Case-A extend:
 > evidence and recommended-integration notes layered onto the existing

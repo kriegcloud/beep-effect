@@ -11,6 +11,13 @@
   "packetPath": "goals/langextract-capability",
   "lifecycle": "active",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -97,9 +104,12 @@
     "research/reports/architecture-boundaries.md",
     "research/reports/extraction-alignment.md",
     "research/reports/testing-quality.md",
-    "research/gold-intake-anti-inference-prompt-mode.md"
+    "research/gold-intake-anti-inference-prompt-mode.md",
+    "research/SOURCES.md"
   ],
-  "proposalReviewReports": ["research/reports/proposal-review-round-1.md"],
+  "proposalReviewReports": [
+    "research/reports/proposal-review-round-1.md"
+  ],
   "proposalReviewLoop": {
     "zeroGate": "zero required improvement items",
     "loopBudget": 3,

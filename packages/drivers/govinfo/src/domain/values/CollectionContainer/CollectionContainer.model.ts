@@ -25,39 +25,40 @@ const $I = $GovinfoId.create("domain/values/CollectionContainer/CollectionContai
  */
 export class CollectionContainer extends S.Class<CollectionContainer>($I`CollectionContainer`)(
   {
-    /** change me */
+    /** Total number of packages available for the requested collection across all pages. */
     count: S.Int.pipe(
       S.check(S.makeFilterGroup([S.isInt32(), S.isGreaterThanOrEqualTo(0), S.isFinite()])),
       S.annotateKey({
-        description: "",
+        description: "Total number of packages available for the requested GovInfo collection across all pages.",
       })
     ),
 
-    /** change me */
+    /** Optional informational or status message returned by the GovInfo collections endpoint. */
     message: S.String.annotateKey({
-      description: "",
+      description: "Optional informational or status message returned by the GovInfo collections endpoint.",
     }),
 
-    /** change me */
+    /** API link to the next page of collection package results for continued pagination. */
     nextPage: S.String.annotateKey({
-      description: "",
+      description: "API link to the next page of collection package results, used to continue pagination.",
     }),
 
-    /** change me */
+    /** The current page of GovInfo package metadata entries for the requested collection. */
     packages: PackageInfo.pipe(
       S.Array,
       S.annotateKey({
-        description: "",
+        description: "The current page of GovInfo package metadata entries for the requested collection.",
       })
     ),
 
-    /** change me */
+    /** API link to the previous page of collection package results for backward pagination. */
     previousPage: S.String.annotateKey({
-      description: "",
+      description: "API link to the previous page of collection package results, used to page backward.",
     }),
   },
   $I.annote("CollectionContainer", {
-    description: "The CollectionContainer value object.",
+    description:
+      "A single page of a GovInfo collection response: the total package count, forward and backward pagination links, an optional API message, and the current page of package metadata.",
   })
 ) {}
 

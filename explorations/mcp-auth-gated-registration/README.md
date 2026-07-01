@@ -35,6 +35,16 @@ pre-drafted in [`DECISIONS.md`](./DECISIONS.md); resolve the full set with
 5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, if present).
 6. [`MAP.md`](./MAP.md) - decomposition (stage 4, if present).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) - the gold-intake provenance
+ledger: every mined nugget (upstream repo + `file:line`), each upstream
+repository's license and port discipline (clean-room vs port-with-attribution),
+the external research citations, and the `@beep/*` capabilities this packet
+composes. Derived from the gold-intake cluster "MCP server design (conditional
+registration, multi-provider auth, progressive disclosure)" - see
+[`../_gold-intake/ROUTING.md`](../_gold-intake/ROUTING.md).
+
 ## Trail
 
 <Dated one-liners, newest first: what each session did and where it stopped.>

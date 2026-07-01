@@ -1280,8 +1280,9 @@
         "./packages/drivers/federal-register/src/index.ts"
       ],
       "@beep/federal-register/*": ["./packages/drivers/federal-register/src/*"],
-      "@beep/ecfr": ["./packages/drivers/ecfr/src/index.ts"],
-      "@beep/ecfr/*": ["./packages/drivers/ecfr/src/*"],
+      "@beep/ecfr": [
+        "./packages/drivers/ecfr/src/index.ts"
+      ],
       "@beep/dol": ["./packages/drivers/dol/src/index.ts"],
       "@beep/dol/*": ["./packages/drivers/dol/src/*"],
       "@beep/courtlistener": ["./packages/drivers/courtlistener/src/index.ts"],
@@ -1318,6 +1319,12 @@
       ],
       "@beep/schema/AtURI": [
         "./packages/foundation/modeling/schema/src/AtURI.ts"
+      ],
+      "@beep/api-transport": [
+        "./packages/foundation/capability/api-transport/src/index.ts"
+      ],
+      "@beep/api-transport/*": [
+        "./packages/foundation/capability/api-transport/src/*"
       ]
     }
   }

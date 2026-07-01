@@ -11,6 +11,13 @@
   "packetPath": "goals/fallow-zero-dead-code",
   "lifecycle": "active",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -34,7 +41,10 @@
       "id": "fallow-quality-enforcement",
       "path": "goals/fallow-quality-enforcement",
       "relationship": "completes-seeded-tasks",
-      "tasks": ["fqe-005", "fqe-006"]
+      "tasks": [
+        "fqe-005",
+        "fqe-006"
+      ]
     }
   ],
   "requiredArtifacts": [
@@ -47,11 +57,31 @@
     "goals/fallow-quality-enforcement/research/knip-parity.jsonc"
   ],
   "phases": [
-    { "id": "P0", "name": "Triage", "status": "done" },
-    { "id": "P1", "name": "Remediate", "status": "done" },
-    { "id": "P2", "name": "Rebaseline", "status": "done" },
-    { "id": "P3", "name": "Promote", "status": "done" },
-    { "id": "P4", "name": "Close", "status": "in-progress" }
+    {
+      "id": "P0",
+      "name": "Triage",
+      "status": "done"
+    },
+    {
+      "id": "P1",
+      "name": "Remediate",
+      "status": "done"
+    },
+    {
+      "id": "P2",
+      "name": "Rebaseline",
+      "status": "done"
+    },
+    {
+      "id": "P3",
+      "name": "Promote",
+      "status": "done"
+    },
+    {
+      "id": "P4",
+      "name": "Close",
+      "status": "in-progress"
+    }
   ],
   "verificationCommands": [
     "test \"$(wc -m < goals/fallow-zero-dead-code/GOAL.md)\" -le 4000",

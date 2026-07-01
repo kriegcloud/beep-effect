@@ -59,7 +59,10 @@
       "packages/tooling/tool/cli/src/commands/AgentEffectiveness/index.ts"
     ]
   },
-  "inputPackets": ["goals/ai-metrics-stack", "goals/jsdoc-worker-eval"],
+  "inputPackets": [
+    "goals/ai-metrics-stack",
+    "goals/jsdoc-worker-eval"
+  ],
   "externalReferences": [
     "https://arize.com/docs/phoenix/llms.txt",
     "https://arize.com/docs/phoenix/integrations/developer-tools/coding-agents",
@@ -77,5 +80,12 @@
     "goals/agent-effectiveness-phoenix-enrichment",
     "goals/agent-effectiveness-workflow-integration"
   ],
-  "nextAction": "Use the follow-up goal packets for Phoenix-native enrichment or repo workflow integration instead of reopening Phase 1 closeout."
+  "nextAction": "Use the follow-up goal packets for Phoenix-native enrichment or repo workflow integration instead of reopening Phase 1 closeout.",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

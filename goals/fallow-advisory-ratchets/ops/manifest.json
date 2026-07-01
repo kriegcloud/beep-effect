@@ -11,6 +11,13 @@
   "packetPath": "goals/fallow-advisory-ratchets",
   "lifecycle": "active",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -55,15 +62,31 @@
     "standards/fallow.boundaries.provenance.jsonc"
   ],
   "phases": [
-    { "id": "P0", "name": "Packet Authoring", "status": "done" },
-    { "id": "P1", "name": "Dupes Ratchet", "status": "done" },
-    { "id": "P2", "name": "Health Ratchet", "status": "seeded" },
+    {
+      "id": "P0",
+      "name": "Packet Authoring",
+      "status": "done"
+    },
+    {
+      "id": "P1",
+      "name": "Dupes Ratchet",
+      "status": "done"
+    },
+    {
+      "id": "P2",
+      "name": "Health Ratchet",
+      "status": "seeded"
+    },
     {
       "id": "P3",
       "name": "Boundary And Flags Policy",
       "status": "in-progress"
     },
-    { "id": "P4", "name": "Guardrails And Close", "status": "seeded" }
+    {
+      "id": "P4",
+      "name": "Guardrails And Close",
+      "status": "seeded"
+    }
   ],
   "verificationCommands": [
     "test \"$(wc -m < goals/fallow-advisory-ratchets/GOAL.md)\" -le 4000",

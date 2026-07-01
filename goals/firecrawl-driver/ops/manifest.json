@@ -10,6 +10,13 @@
   },
   "mission": "Implement @beep/firecrawl as a schema-first, Effect-first technical driver around the modern Firecrawl v2 SDK, including watcher streams, fake/live Layers, tests, docs, quality closure, PR babysitting, and Greptile 5/5 readiness.",
   "packetPath": "goals/firecrawl-driver",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "goalCommandMaxChars": 4000,
   "targetPackage": {
     "name": "@beep/firecrawl",

@@ -1,5 +1,7 @@
 # Gold-intake research note: Turn sibling-variant `branchIndex` (2026-06-29)
 
+> Provenance ledger (nugget -> upstream repo + license, external research, in-repo bricks): [`SOURCES.md`](./SOURCES.md).
+
 Non-invasive Case-A extend note. The `workspace-thread-domain` packet is
 `completed-retained`; this note records a forward-looking, additive
 opportunity for the goal owner. It does **not** edit `SPEC.md`, `PLAN.md`,

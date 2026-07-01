@@ -11,7 +11,7 @@ import { SummaryItem } from "../SummaryItem/index.ts";
 const $I = $GovinfoId.create("domain/values/CollectionSummary/CollectionSummary.model");
 
 /**
- * The CollectionSummary value object.
+ * Ordered list of GovInfo collection summaries returned by the GovInfo `/collections` endpoint, one {@link SummaryItem} entry per available collection with its package and granule counts.
  *
  * @example
  * ```ts
@@ -25,7 +25,8 @@ const $I = $GovinfoId.create("domain/values/CollectionSummary/CollectionSummary.
  */
 export const CollectionSummary = S.Array(SummaryItem).pipe(
   $I.annoteSchema("CollectionSummary", {
-    description: "The CollectionSummary value object.",
+    description:
+      "Ordered list of GovInfo collection summaries returned by the GovInfo /collections endpoint; each entry describes one available collection and its package and granule counts.",
   })
 );
 

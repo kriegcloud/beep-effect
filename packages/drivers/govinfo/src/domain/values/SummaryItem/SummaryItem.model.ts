@@ -25,30 +25,31 @@ const $I = $GovinfoId.create("domain/values/SummaryItem/SummaryItem.model");
  */
 export class SummaryItem extends S.Class<SummaryItem>($I`SummaryItem`)(
   {
-    /** change me */
+    /** GovInfo collection abbreviation for this entry (for example BILLS, FR, or CREC). */
     collectionCode: S.String.annotateKey({
-      description: "",
+      description: "GovInfo collection abbreviation identifying the collection, such as BILLS, FR, or CREC.",
     }),
 
-    /** change me */
+    /** Human-readable display name of the GovInfo collection. */
     collectionName: S.String.annotateKey({
-      description: "",
+      description: "Human-readable display name of the GovInfo collection.",
     }),
 
-    /** change me */
+    /** Total number of granules contained in the collection. */
     granuleCount: Int64.annotateKey({
-      description: "",
+      description: "Total number of granules contained in the collection.",
     }),
 
-    /** change me */
+    /** Total number of packages contained in the collection. */
     packageCount: Int64.pipe(
       S.annotateKey({
-        description: "",
+        description: "Total number of packages contained in the collection.",
       })
     ),
   },
   $I.annote("SummaryItem", {
-    description: "The SummaryItem value object.",
+    description:
+      "A single collection entry in a GovInfo collections summary, pairing a collection's code and name with its package and granule counts.",
   })
 ) {}
 

@@ -11,6 +11,13 @@
   "packetPath": "goals/unified-ai-toolchain",
   "lifecycle": "active",
   "executionCapable": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -70,7 +77,9 @@
   "v2Completion": {
     "status": "active",
     "activeGate": "V2.1 Operator CLI",
-    "closedGates": ["V2/V3 packet bootstrap"],
+    "closedGates": [
+      "V2/V3 packet bootstrap"
+    ],
     "remainingGates": [
       "root beep ai-sync command group",
       "all registered repo agent config files validated during normal checks",

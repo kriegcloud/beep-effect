@@ -24,10 +24,22 @@
       "dataModel": "docs/data-model-wealth-management.md"
     }
   ],
-  "runtimeSlices": ["tenancy", "workspace", "agents", "epistemic"],
-  "verticalSlices": ["law-practice", "wealth-management"],
+  "runtimeSlices": [
+    "tenancy",
+    "workspace",
+    "agents",
+    "epistemic"
+  ],
+  "verticalSlices": [
+    "law-practice",
+    "wealth-management"
+  ],
   "documents": {
-    "root": ["README.md", "SPEC.md", "PLAN.md"],
+    "root": [
+      "README.md",
+      "SPEC.md",
+      "PLAN.md"
+    ],
     "product": [
       "docs/product-vision-law-practice.md",
       "docs/product-vision-todox.md",
@@ -48,7 +60,10 @@
       "docs/data-model-wealth-management.md",
       "docs/architecture-map.md"
     ],
-    "history": ["history/sources.md", "history/decision-log.md"],
+    "history": [
+      "history/sources.md",
+      "history/decision-log.md"
+    ],
     "fixtures": [
       "fixtures/runtime-data-loop/README.md",
       "fixtures/runtime-data-loop/validate-fixtures.mjs",
@@ -180,7 +195,9 @@
       "id": "P4",
       "name": "Native First-Run Onboarding Design",
       "status": "pending",
-      "outputs": ["docs/shared-capabilities.md"]
+      "outputs": [
+        "docs/shared-capabilities.md"
+      ]
     }
   ],
   "acceptanceChecks": [
@@ -193,5 +210,15 @@
     "Expected snapshots cite stable source spans from fixture bodies.",
     "The SDK contract is context packets plus candidate writes, not authoritative agent writes.",
     "The P3 proof runs both scenarios through an app-level package contract test."
-  ]
+  ],
+  "researchReports": [
+    "research/SOURCES.md"
+  ],
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

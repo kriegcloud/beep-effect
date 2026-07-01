@@ -26,54 +26,55 @@ const $I = $GovinfoId.create("domain/values/GranuleContainer/GranuleContainer.mo
  */
 export class GranuleContainer extends S.Class<GranuleContainer>($I`GranuleContainer`)(
   {
-    /** change me */
+    /** Total number of granules available for the package across all pages. */
     count: Int64.pipe(
       S.annotateKey({
-        description: "Signed 32-bit integers (commonly used integer type).",
+        description: "Total number of granules available for the package across all pages.",
       })
     ),
 
-    /** change me */
+    /** The current page of granule metadata records returned for the package. */
     granules: GranuleMetadata.pipe(
       S.Array,
       S.annotateKey({
-        description: "",
+        description: "The current page of granule metadata records returned for the package.",
       })
     ),
 
-    /** change me */
+    /** Informational or status message returned by the GovInfo granules endpoint. */
     message: S.String.annotateKey({
-      description: "",
+      description: "Informational or status message returned by the GovInfo granules endpoint.",
     }),
 
-    /** change me */
+    /** API link to the next page of granule results, present when more results remain. */
     nextPage: S.String.annotateKey({
-      description: "",
+      description: "API link to the next page of granule results, present when more results remain.",
     }),
 
-    /** change me */
+    /** Zero-based index of the first granule in this page within the full result set. */
     offset: S.Int.pipe(
       S.check(S.isInt32()),
       S.annotateKey({
-        description: "",
+        description: "Zero-based index of the first granule in this page within the full result set.",
       })
     ),
 
-    /** change me */
+    /** Maximum number of granule records returned per page. */
     pageSize: S.Int.pipe(
       S.check(S.isInt32()),
       S.annotateKey({
-        description: "",
+        description: "Maximum number of granule records returned per page.",
       })
     ),
 
-    /** change me */
+    /** API link to the previous page of granule results, present when an earlier page exists. */
     previousPage: S.String.annotateKey({
-      description: "",
+      description: "API link to the previous page of granule results, present when an earlier page exists.",
     }),
   },
   $I.annote("GranuleContainer", {
-    description: "The GranuleContainer value object.",
+    description:
+      "Paginated container for a GovInfo package's granules response, holding the current page of granule metadata plus total count and pagination cursors.",
   })
 ) {}
 

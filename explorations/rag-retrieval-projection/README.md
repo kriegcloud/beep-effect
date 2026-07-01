@@ -17,6 +17,14 @@ packet is the single designated owner of that retrieval/projection tier;
 `agent-memory-tiers-bitemporal-edges` and `goals/trustgraph-port` consume it
 rather than rebuild it.
 
+## Sources & provenance
+
+Every design decision traces back to its mined gold nugget, upstream repo + license, external
+citation, and in-repo capability in [`research/SOURCES.md`](./research/SOURCES.md) — the
+provenance ledger for the gold-intake cluster **"RAG ingestion + char-span chunking"** (14
+nuggets). Read it before implementing: it carries the AGPL clean-room boundary (courtlistener),
+the unknown-license reimplement rule (lawyergpt), and the RRF single-owner mandate.
+
 ## Next Open Question
 
 **Q2: First slice — what is the thin V1 vertical that graduates into a `goals/`

@@ -24,38 +24,39 @@ const $I = $GovinfoId.create("domain/values/PackageInfo/PackageInfo.model");
  */
 export class PackageInfo extends S.Class<PackageInfo>($I`PackageInfo`)(
   {
-    /** change me */
+    /** Number of the Congress that produced the package, for congressional collections. */
     congress: S.String.annotateKey({
-      description: "",
+      description: "Number of the Congress that produced the package, for congressional collections.",
     }),
 
-    /** change me */
+    /** Official publication date on which the package was issued. */
     dateIssued: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Official publication date on which the package was issued.",
     }),
 
-    /** change me */
+    /** GovInfo document class code categorizing the type of document in the package. */
     docClass: S.String.annotateKey({
-      description: "",
+      description: "GovInfo document class code categorizing the type of document in the package.",
     }),
 
-    /** change me */
+    /** Timestamp of the most recent modification to the package in GovInfo. */
     lastModified: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Timestamp of the most recent modification to the package in GovInfo.",
     }),
 
-    /** change me */
+    /** GovInfo API URL linking to this package's summary resource. */
     packageLink: S.String.annotateKey({
-      description: "",
+      description: "GovInfo API URL linking to this package's summary resource.",
     }),
 
-    /** change me */
+    /** Human-readable title of the package. */
     title: S.String.annotateKey({
-      description: "",
+      description: "Human-readable title of the package.",
     }),
   },
   $I.annote("PackageInfo", {
-    description: "The PackageInfo value object.",
+    description:
+      "Package-level metadata for a GovInfo package as returned by the /packages/{id}/summary endpoint, covering its issuing Congress, issuance and modification dates, document class, API link, and title.",
   })
 ) {}
 

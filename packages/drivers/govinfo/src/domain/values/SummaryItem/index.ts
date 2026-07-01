@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/SummaryItem` exports.
+ * Barrel for the GovInfo `SummaryItem` value object — a single entry within a
+ * GovInfo package or collection summary.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The SummaryItem value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { SummaryItem } from "@beep/govinfo/domain/values/SummaryItem/SummaryItem.model";
- *
- * console.log(SummaryItem);
- * ```
+ * The GovInfo `SummaryItem` value object modeling a single entry within a
+ * package or collection summary.
  *
  * @category models
  * @since 0.0.0

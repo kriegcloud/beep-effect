@@ -11,7 +11,9 @@ import { SearchResult } from "../SearchResult/index.ts";
 const $I = $GovinfoId.create("domain/values/SearchResponse/SearchResponse.model");
 
 /**
- * The SearchResponse value object.
+ * The response body returned by the GovInfo `POST /search` endpoint: the total
+ * number of matching results, the cursor for the next page, and the page of
+ * search result hits.
  *
  * @example
  * ```ts
@@ -28,21 +30,23 @@ export class SearchResponse extends S.Class<SearchResponse>($I`SearchResponse`)(
     count: S.Int.pipe(
       S.check(S.makeFilterGroup([S.isInt32(), S.isFinite(), S.isGreaterThanOrEqualTo(0)])),
       S.annotateKey({
-        description: "Signed 32-bit integers (commonly used integer type).",
+        description: "Total number of results across all pages that match the search query.",
       })
     ),
     offsetMark: S.String.annotateKey({
-      description: "",
+      description:
+        "Opaque pagination cursor identifying where the next page of results begins; pass it back as the request offsetMark to page forward.",
     }),
     results: SearchResult.pipe(
       S.Array,
       S.annotateKey({
-        description: "",
+        description: "The page of individual search result hits returned for this request.",
       })
     ),
   },
   $I.annote("SearchResponse", {
-    description: "The SearchResponse value object.",
+    description:
+      "Result payload of a GovInfo search: the total match count, the next-page cursor, and this page's search result hits.",
   })
 ) {}
 

@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/SearchResponse` exports.
+ * Barrel for the GovInfo `SearchResponse` value object — a page of `POST
+ * /search` results carrying the total match count, the offset-mark cursor for
+ * the next page, and the page of search-result hits.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The SearchResponse value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { SearchResponse } from "@beep/govinfo/domain/values/SearchResponse/SearchResponse.model";
- *
- * console.log(SearchResponse);
- * ```
+ * The GovInfo `SearchResponse` value object modeling a page of search results.
  *
  * @category models
  * @since 0.0.0

@@ -25,7 +25,7 @@ const $I = $GovinfoId.create("domain/values/Sort/Sort.model");
 export class SortBase extends S.Class<SortBase>($I`SortBase`)(
   {
     field: S.NonEmptyString.annotateKey({
-      description: "",
+      description: "The GovInfo search-result field to order results by.",
     }),
   },
   $I.annote("SortBase", {
@@ -73,7 +73,7 @@ export declare namespace SortBase {
 export class SortASC extends SortBase.extend<SortASC>($I`SortASC`)(
   {
     sortOrder: S.tag("ASC").annotateKey({
-      description: "",
+      description: "Ascending-order discriminant tag; orders results from lowest to highest value of the sort field.",
     }),
   },
   $I.annote("SortASC", {
@@ -121,11 +121,11 @@ export declare namespace SortASC {
 export class SortDESC extends SortBase.extend<SortDESC>($I`SortDESC`)(
   {
     sortOrder: S.tag("DESC").annotateKey({
-      description: "",
+      description: "Descending-order discriminant tag; orders results from highest to lowest value of the sort field.",
     }),
   },
   $I.annote("SortDESC", {
-    description: "The `SortDESC` value object. Sort in ascending order.",
+    description: "The `SortDESC` value object. Sort in descending order.",
   })
 ) {}
 
@@ -169,7 +169,7 @@ export declare namespace SortDESC {
 export const Sort = S.Union([SortASC, SortDESC]).pipe(
   S.toTaggedUnion("sortOrder"),
   $I.annoteSchema("Sort", {
-    description: "The `Sort` value object. Sort in ascending order.",
+    description: "A GovInfo sort directive pairing a result field with an ascending or descending order.",
   })
 );
 

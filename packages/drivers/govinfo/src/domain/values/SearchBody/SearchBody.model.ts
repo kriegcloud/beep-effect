@@ -26,26 +26,26 @@ const $I = $GovinfoId.create("domain/values/SearchBody/SearchBody.model");
 export class SearchBody extends S.Class<SearchBody>($I`SearchBody`)(
   {
     historical: S.Boolean.annotateKey({
-      description: "",
+      description: "Whether to include historical or superseded editions alongside current content in the results.",
     }),
     offsetMark: S.String.annotateKey({
-      description: "",
+      description: "Opaque pagination cursor identifying the page of results to return; pass \"*\" to request the first page.",
     }),
     pageSize: S.Finite.check(S.isInt32()).annotateKey({
-      description: "Signed 32-bit integers (commonly used integer type).",
+      description: "Maximum number of search results to return in a single page.",
     }),
     query: S.String.annotateKey({
-      description: "",
+      description: "GovInfo search query string, supporting field operators such as collection: and publishdate:.",
     }),
     resultLevel: S.String.annotateKey({
-      description: "",
+      description: "Granularity at which matching results are reported, such as package-level or granule-level hits.",
     }),
     sorts: S.Array(Sort).annotateKey({
-      description: "",
+      description: "Ordering directives that control the field and direction used to sort matching results.",
     }),
   },
   $I.annote("SearchBody", {
-    description: "The SearchBody value object.",
+    description: "Request body for the GovInfo POST /search endpoint, carrying the query, pagination cursor, historical scope, result granularity, and ordering of a search.",
   })
 ) {}
 

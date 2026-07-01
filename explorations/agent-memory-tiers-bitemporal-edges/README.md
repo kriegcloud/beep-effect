@@ -37,6 +37,15 @@ enforcement), all left open. Resolve via
 5. [`BRIEF.md`](./BRIEF.md) - shaped pitch (stage 3, if present).
 6. [`MAP.md`](./MAP.md) - decomposition (stage 4, if present).
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — the provenance ledger joining
+every design decision to its mined gold nugget (upstream repo + file:line), the
+upstream license + port discipline, the external research citation, and the
+in-repo `@beep/*` brick it composes. Derived from the gold-intake cluster
+"Four-tier agent-memory schema w/ confidence + conflict edges" (15 nuggets);
+see [`explorations/_gold-intake`](../_gold-intake/).
+
 ## Trail
 
 - 2026-06-29: research-complete — RESEARCH.md synthesized, codex gate-1 folded, DECISIONS pre-drafted.

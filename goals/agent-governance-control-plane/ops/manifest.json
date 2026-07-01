@@ -91,5 +91,15 @@
     "downstream initiatives should inherit this packet rather than re-creating repo-wide policy"
   ],
   "openQuestions": [],
-  "nextAction": "Execute P0 and formalize the repo-wide law canon in history/outputs/p0-foundation-and-law-canon.md."
+  "nextAction": "Execute P0 and formalize the repo-wide law canon in history/outputs/p0-foundation-and-law-canon.md.",
+  "researchReports": [
+    "research/SOURCES.md"
+  ],
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

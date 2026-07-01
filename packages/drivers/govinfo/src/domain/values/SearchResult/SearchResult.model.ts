@@ -10,7 +10,8 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/SearchResult/SearchResult.model");
 
 /**
- * The SearchResult value object.
+ * A single hit from a GovInfo search response, describing one matched package or
+ * granule (its collection, dates, authors, identifiers, links, and downloadable renditions).
  *
  * @example
  * ```ts
@@ -24,54 +25,55 @@ const $I = $GovinfoId.create("domain/values/SearchResult/SearchResult.model");
  */
 export class SearchResult extends S.Class<SearchResult>($I`SearchResult`)(
   {
-    /** change me */
+    /** GovInfo collection abbreviation the hit belongs to (for example `BILLS`, `FR`, or `CREC`). */
     collectionCode: S.String.annotateKey({
-      description: "",
+      description: "GovInfo collection abbreviation the hit belongs to (for example BILLS, FR, or CREC).",
     }),
-    /** change me */
+    /** Timestamp of when GovInfo ingested this content into its repository. */
     dateIngested: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Timestamp of when GovInfo ingested this content into its repository.",
     }),
-    /** change me */
+    /** Official publication date on which the content was issued. */
     dateIssued: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Official publication date on which the content was issued.",
     }),
-    /** change me */
+    /** Map of rendition/format name to the download URL for that rendition of the result. */
     download: S.Record(S.String, S.String).annotateKey({
-      description: "",
+      description: "Map of rendition/format name to the download URL for that rendition of the result.",
       documentation:
         "The download property on the SearchResult model is typed as object, and it's defined as a free-form object with arbitrary string properties. The TypeScript equivalent would be:",
     }),
-    /** change me */
+    /** Issuing government authors or agencies responsible for the content. */
     governmentAuthor: S.String.pipe(
       S.Array,
       S.annotateKey({
-        description: "",
+        description: "Issuing government authors or agencies responsible for the content.",
       })
     ),
-    /** change me */
+    /** Identifier of the granule within its parent GovInfo package, when the hit is a granule. */
     granuleId: S.String.annotateKey({
-      description: "",
+      description: "Identifier of the granule within its parent GovInfo package, when the hit is a granule.",
     }),
-    /** change me */
+    /** Timestamp of the most recent modification to the content. */
     lastModified: S.DateTimeUtcFromString.annotateKey({
-      description: "",
+      description: "Timestamp of the most recent modification to the content.",
     }),
-    /** change me */
+    /** GovInfo package identifier that uniquely names the containing package. */
     packageId: S.String.annotateKey({
-      description: "",
+      description: "GovInfo package identifier that uniquely names the containing package.",
     }),
-    /** change me */
+    /** API link to the package or granule that this result represents. */
     resultLink: S.String.annotateKey({
-      description: "",
+      description: "API link to the package or granule that this result represents.",
     }),
-    /** change me */
+    /** Human-readable title of the matched package or granule. */
     title: S.String.annotateKey({
-      description: "",
+      description: "Human-readable title of the matched package or granule.",
     }),
   },
   $I.annote("SearchResult", {
-    description: "The SearchResult value object.",
+    description:
+      "A single hit returned by the GovInfo search endpoint, describing one matched package or granule and how to retrieve its renditions.",
   })
 ) {}
 

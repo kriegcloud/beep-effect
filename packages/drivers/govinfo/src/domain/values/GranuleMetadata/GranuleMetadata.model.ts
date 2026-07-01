@@ -10,7 +10,8 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/GranuleMetadata/GranuleMetadata.model");
 
 /**
- * The GranuleMetadata value object.
+ * Metadata for a single granule within a GovInfo package, capturing its granule
+ * class, identifier, API link, content checksum, and title.
  *
  * @example
  * ```ts
@@ -24,33 +25,34 @@ const $I = $GovinfoId.create("domain/values/GranuleMetadata/GranuleMetadata.mode
  */
 export class GranuleMetadata extends S.Class<GranuleMetadata>($I`GranuleMetadata`)(
   {
-    /** change me */
+    /** GovInfo granule class categorizing the type of this granule within its package. */
     granuleClass: S.String.annotateKey({
-      description: "",
+      description: "GovInfo granule class categorizing the type of this granule within its package.",
     }),
 
-    /** change me */
+    /** Identifier of this granule within its parent GovInfo package. */
     granuleId: S.String.annotateKey({
-      description: "",
+      description: "Identifier of this granule within its parent GovInfo package.",
     }),
 
-    /** change me */
+    /** GovInfo API link used to fetch this granule's metadata or content. */
     granuleLink: S.String.annotateKey({
-      description: "",
+      description: "GovInfo API link used to fetch this granule's metadata or content.",
     }),
 
-    /** change me */
+    /** MD5 checksum of the granule's content, used to verify download integrity. */
     md5: S.String.annotateKey({
-      description: "",
+      description: "MD5 checksum of the granule's content, used to verify download integrity.",
     }),
 
-    /** change me */
+    /** Human-readable title of the granule. */
     title: S.String.annotateKey({
-      description: "",
+      description: "Human-readable title of the granule.",
     }),
   },
   $I.annote("GranuleMetadata", {
-    description: "The GranuleMetadata value object.",
+    description:
+      "Metadata for a single granule within a GovInfo package, capturing its granule class, identifier, API link, content checksum, and title.",
   })
 ) {}
 

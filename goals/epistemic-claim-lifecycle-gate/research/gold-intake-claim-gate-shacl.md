@@ -1,5 +1,8 @@
 # Gold-intake research note: SHACL severity warnings + deterministic scoring tier for the claim gate (2026-06-29)
 
+> Provenance ledger (nugget -> repo + license -> citation -> in-repo capability):
+> [`research/SOURCES.md`](./SOURCES.md).
+
 > Non-invasive research note for the goal owner. This does **not** edit
 > `SPEC.md`, `PLAN.md`, or `GOAL.md`, and does **not** change the
 > `completed-retained` status, phases, or scope of this packet. It is a

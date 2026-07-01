@@ -27,7 +27,7 @@ parked/killed exits at any stage.
 | Stage | Artifact | Non-negotiable rule |
 | --- | --- | --- |
 | capture | `CAPTURE.md` | Append-only. Never interrogate, reorganize, or summarize the dump. |
-| research | `RESEARCH.md` | Cite every external claim. In-repo inventory via `standards/repo-exports.catalog.md`, targeted code search, and local docs; mark gaps `NOT FOUND`. |
+| research | `RESEARCH.md` | Cite every external claim. In-repo inventory via `standards/repo-exports.catalog.md`, targeted code search, and local docs; mark gaps `NOT FOUND`. Maintain `research/SOURCES.md` (provenance ledger); never fabricate a source/URL/license. |
 | align | `DECISIONS.md` | One branch-closing question at a time, recommended answer first. Log every resolution; sync manifest `openQuestions`. |
 | shape | `BRIEF.md` | Problem, appetite, sketch, rabbit holes, no-gos — fat-marker fidelity, no over-specifying. |
 | decompose | `MAP.md` | Every major component cites an existing capability or is explicitly `NET-NEW`. |
