@@ -6,6 +6,7 @@
  */
 
 import { $UsptoId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $UsptoId.create("Uspto.config");
@@ -43,7 +44,7 @@ export const USPTO_API_URL = "https://api.uspto.gov";
 export class UsptoConfigInput extends S.Class<UsptoConfigInput>($I`UsptoConfigInput`)(
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    apiUrl: S.optionalKey(S.String),
+    apiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(USPTO_API_URL)),
   },
   $I.annote("UsptoConfigInput", {
     description: "Typed configuration for the USPTO Open Data Portal driver: API key and base URL.",

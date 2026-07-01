@@ -6,6 +6,8 @@
  */
 
 import { $PhoenixId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $PhoenixId.create("Phoenix.config");
@@ -47,8 +49,8 @@ export const PHOENIX_API_URL = "http://localhost:6006";
 export class PhoenixConfigInput extends S.Class<PhoenixConfigInput>($I`PhoenixConfigInput`)(
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    baseUrl: S.optionalKey(S.String),
-    headers: S.optionalKey(S.Record(S.String, S.String)),
+    baseUrl: S.String.pipe(SchemaUtils.withKeyDefaults(PHOENIX_API_URL)),
+    headers: S.Record(S.String, S.String).pipe(SchemaUtils.withKeyDefaults(R.empty())),
   },
   $I.annote("PhoenixConfigInput", {
     description: "Runtime configuration accepted by the Phoenix API driver layer.",

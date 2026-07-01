@@ -6,12 +6,16 @@
  */
 
 "use client";
-
+import { $OipWebId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import { useAtomMount, useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Atom } from "effect/unstable/reactivity";
 import Image from "next/image";
+
+const $I = $OipWebId.create("components/HeroVideo");
 
 /**
  * Optional Network Information API surface used to skip the video on
@@ -28,26 +32,33 @@ type SaveDataNavigator = Navigator & {
  * A single rotating hero background clip: an optimized poster plus its background
  * video sources.
  */
-type HeroClipMedia = {
-  readonly poster: string;
-  readonly mp4: string;
-  readonly webm?: string | undefined;
-};
+class HeroClipMedia extends S.Class<HeroClipMedia>($I`HeroClipMedia`)(
+  {
+    poster: S.String,
+    mp4: S.String,
+    webm: S.optionalKey(S.String),
+  },
+  $I.annote("HeroClipMedia", {
+    description: "A single rotating hero background clip: an optimized poster plus its background video sources.",
+  })
+) {}
 
-type HeroVideoState = {
-  readonly element: HTMLVideoElement | null;
-  readonly playing: boolean;
-};
-
-const emptyHeroVideoState: HeroVideoState = {
-  element: null,
-  playing: false,
-};
+class HeroVideoState extends S.Class<HeroVideoState>($I`HeroVideoState`)(
+  {
+    element: S.NullOr(S.instanceOf(HTMLVideoElement)).pipe(SchemaUtils.withKeyDefaults(null)),
+    playing: S.Boolean.pipe(SchemaUtils.withKeyDefaults(false)),
+  },
+  $I.annote("HeroVideoState", {
+    description: "The state of a single rotating hero background clip.",
+  })
+) {
+  static readonly empty = HeroVideoState.make();
+}
 
 const heroClipKey = (poster: string, mp4: string, webm: string | undefined): string =>
   `${poster}::${mp4}::${webm ?? ""}`;
 
-const heroVideoStateAtom = Atom.family((_key: string) => Atom.make<HeroVideoState>(emptyHeroVideoState));
+const heroVideoStateAtom = Atom.family((_key: string) => Atom.make<HeroVideoState>(HeroVideoState.empty));
 
 const heroVideoElementAtom = Atom.family((key: string) =>
   Atom.writable(
@@ -67,7 +78,10 @@ const heroVideoPlayingAtom = Atom.family((key: string) =>
     (get) => get(heroVideoStateAtom(key)).playing,
     (ctx, playing: boolean) => {
       const state = ctx.get(heroVideoStateAtom(key));
-      ctx.set(heroVideoStateAtom(key), { ...state, playing });
+      ctx.set(heroVideoStateAtom(key), {
+        ...state,
+        playing,
+      });
     }
   )
 );
@@ -77,7 +91,7 @@ const shouldSkipHeroVideo = (): boolean => {
     return true;
   }
 
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true) {
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
     return true;
   }
 

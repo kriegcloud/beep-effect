@@ -460,7 +460,7 @@ const resolveConfig = Effect.fn("Firecrawl.resolveConfig")(function* (input: Fir
 
   return {
     apiKey,
-    apiUrl: normalizeBaseUrl(input.apiUrl ?? FIRECRAWL_API_URL),
+    apiUrl: normalizeBaseUrl(input.apiUrl),
     backoffFactor: O.fromUndefinedOr(input.backoffFactor),
     maxRetries: O.fromUndefinedOr(input.maxRetries),
     timeoutMs: O.fromUndefinedOr(input.timeoutMs),

@@ -13,6 +13,7 @@ import { UnitInterval } from "@beep/schema/UnitInterval";
 import { Context, Effect, Inspectable, Layer } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { observeWinkWorkflow } from "./WinkObservability.ts";
 import type { DocumentTermSet, TverskyParams } from "@beep/nlp/Core/Similarity";
@@ -21,17 +22,50 @@ import type { BagOfWords, DocumentVector } from "@beep/nlp/Core/Vectorization";
 const $I = $WinkId.create("Wink/WinkSimilarity");
 const require = createRequire(import.meta.url);
 
-type SimilarityRuntime = {
-  readonly bow: {
-    readonly cosine: (left: Record<string, number>, right: Record<string, number>) => number;
-  };
-  readonly set: {
-    readonly tversky: (left: Set<string>, right: Set<string>, alpha: number, beta: number) => number;
-  };
-  readonly vector: {
-    readonly cosine: (left: ReadonlyArray<number>, right: ReadonlyArray<number>) => number;
-  };
+type BowSimilarity = {
+  readonly cosine: (left: Record<string, number>, right: Record<string, number>) => number;
 };
+
+type SetSimilarity = {
+  readonly tversky: (left: Set<string>, right: Set<string>, alpha: number, beta: number) => number;
+};
+
+type VectorSimilarity = {
+  readonly cosine: (left: ReadonlyArray<number>, right: ReadonlyArray<number>) => number;
+};
+
+// The wink-nlp similarity module's `bow`, `set`, and `vector` namespaces are
+// in-process native function handles, never decoded from external input;
+// structural `S.declare`s carry them through the runtime schema.
+const BowSimilarityFromSelf = S.declare((u: unknown): u is BowSimilarity => P.isObject(u)).pipe(
+  $I.annoteSchema("BowSimilarityFromSelf", {
+    description: "In-process wink-nlp bag-of-words cosine similarity handle carried through the service runtime.",
+  })
+);
+
+const SetSimilarityFromSelf = S.declare((u: unknown): u is SetSimilarity => P.isObject(u)).pipe(
+  $I.annoteSchema("SetSimilarityFromSelf", {
+    description: "In-process wink-nlp set Tversky similarity handle carried through the service runtime.",
+  })
+);
+
+const VectorSimilarityFromSelf = S.declare((u: unknown): u is VectorSimilarity => P.isObject(u)).pipe(
+  $I.annoteSchema("VectorSimilarityFromSelf", {
+    description: "In-process wink-nlp vector cosine similarity handle carried through the service runtime.",
+  })
+);
+
+class SimilarityRuntime extends S.Class<SimilarityRuntime>($I`SimilarityRuntime`)(
+  {
+    bow: BowSimilarityFromSelf,
+    set: SetSimilarityFromSelf,
+    vector: VectorSimilarityFromSelf,
+  },
+  $I.annote("SimilarityRuntime", {
+    description:
+      "In-process wink-nlp native similarity function bag: bag-of-words cosine, set Tversky, and vector cosine handles.",
+  })
+) {}
 
 type WinkSimilarityShape = {
   readonly bowCosine: (left: BagOfWords, right: BagOfWords) => Effect.Effect<SimilarityScore, SimilarityError>;
@@ -46,7 +80,7 @@ type WinkSimilarityShape = {
   ) => Effect.Effect<SimilarityScore, SimilarityError>;
 };
 
-const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utilities/similarity");
+const loadSimilarityRuntime = (): SimilarityRuntime => SimilarityRuntime.make(require("wink-nlp/utilities/similarity"));
 
 // effect-native-migration: WONTFIX (wink-nlp FFI requires native Set)
 const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => new Set(terms);

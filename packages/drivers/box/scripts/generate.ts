@@ -1,113 +1,159 @@
 #!/usr/bin/env bun
 
-import fs from "node:fs";
-import path from "node:path";
-import { Match } from "effect";
+import { $BoxId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
+import { BunRuntime } from "@effect/platform-bun";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
+import { Effect, FileSystem, HashMap, Layer, Match, Order, Path, pipe } from "effect";
+import * as A from "effect/Array";
+import * as MutableHashSet from "effect/MutableHashSet";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import ts from "typescript";
+import type { PlatformError } from "effect";
 
-type GeneratedDeclaration = {
-  readonly baseName?: string;
-  readonly fields?: readonly GeneratedField[];
-  readonly kind: "class" | "interface" | "type";
-  readonly name: string;
-  readonly schemaExpression?: string;
-};
+const $I = $BoxId.create("scripts/generate");
 
-type GeneratedField = {
-  readonly name: string;
-  readonly optional: boolean;
-  readonly schemaExpression: string;
-};
-
-type ManagerProperty = {
-  readonly className: string;
-  readonly managerName: string;
-};
-
-type ManagerMethod = {
-  readonly className: string;
-  readonly fileName: string;
-  readonly fullMethodName: string;
-  readonly managerName: string;
-  readonly methodName: string;
-  readonly parameters: readonly MethodParameter[];
-  readonly payloadName: string;
-  readonly returnType: string;
-  readonly successName: string;
-  readonly successSchemaExpression: string;
-};
-
-type MethodParameter = {
-  readonly name: string;
-  readonly optional: boolean;
-  readonly schemaExpression: string;
-  readonly typeText: string;
-};
-
-type GenerationState = {
-  readonly constrainedTypes: Set<string>;
-  readonly declarationNames: Set<string>;
-  readonly nonJsonDeclarationNames: Set<string>;
-};
-
-const repoRoot = path.resolve(import.meta.dirname, "../../../..");
-const packageRoot = path.resolve(import.meta.dirname, "..");
-const sdkRoot = path.resolve(repoRoot, "node_modules/box-node-sdk");
-const generatedRoot = path.resolve(packageRoot, "src/_generated");
-const modelsOutputPath = path.resolve(generatedRoot, "Box.models.gen.ts");
-const operationsOutputPath = path.resolve(generatedRoot, "Box.operations.gen.ts");
-
-const schemaDirectories = [path.resolve(sdkRoot, "lib/schemas"), path.resolve(sdkRoot, "lib/managers")];
-const clientPath = path.resolve(sdkRoot, "lib/client.d.ts");
+const scriptDir = import.meta.dirname;
 
 const BYTE_OR_EVENT_PATTERN = /\b(?:ByteStream|EventStream)\b/;
 
-const readFile = (filePath: string): string => fs.readFileSync(filePath, "utf8");
+/**
+ * The declaration flavour extracted from a Box SDK type surface: an `interface`,
+ * a `class`, or a `type` alias.
+ */
+const DeclarationKind = LiteralKit(["class", "interface", "type"]).pipe(
+  $I.annoteSchema("DeclarationKind", {
+    description: "The kind of declaration extracted from the Box SDK type surface.",
+  })
+);
 
-const writeFile = (filePath: string, content: string): void => {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${content.trimEnd()}\n`);
-};
+class GeneratedField extends S.Class<GeneratedField>($I`GeneratedField`)(
+  {
+    name: S.String,
+    optional: S.Boolean,
+    schemaExpression: S.String,
+  },
+  $I.annote("GeneratedField", {
+    description: "A single generated struct field with its schema expression.",
+  })
+) {}
 
-const findFiles = (directory: string): readonly string[] =>
-  fs
-    .readdirSync(directory, { withFileTypes: true })
-    .flatMap((entry) => {
-      const entryPath = path.resolve(directory, entry.name);
-      if (entry.isDirectory()) {
-        return [...findFiles(entryPath)];
-      }
-      return entry.name.endsWith(".d.ts") ? [entryPath] : [];
-    })
-    .sort((left, right) => left.localeCompare(right));
+// crispen: the optional fields stay schema-optional (`| undefined`) rather than
+// `Option` because the AST walker reads them via `?? default` / `!== undefined`;
+// `Option` would add wrapping noise here without enforcing any extra invariant.
+class GeneratedDeclaration extends S.Class<GeneratedDeclaration>($I`GeneratedDeclaration`)(
+  {
+    baseName: S.optional(S.String),
+    fields: GeneratedField.pipe(S.Array, S.optional),
+    kind: DeclarationKind,
+    name: S.String,
+    schemaExpression: S.optional(S.String),
+  },
+  $I.annote("GeneratedDeclaration", {
+    description: "A schema, model, or type declaration extracted from the Box SDK type surface.",
+  })
+) {}
 
-const sourceFileFor = (filePath: string): ts.SourceFile =>
-  ts.createSourceFile(filePath, readFile(filePath), ts.ScriptTarget.Latest, true);
+class MethodParameter extends S.Class<MethodParameter>($I`MethodParameter`)(
+  {
+    name: S.String,
+    optional: S.Boolean,
+    schemaExpression: S.String,
+    typeText: S.String,
+  },
+  $I.annote("MethodParameter", {
+    description: "A single Box SDK method parameter with its schema expression and source type text.",
+  })
+) {}
+
+class ManagerMethod extends S.Class<ManagerMethod>($I`ManagerMethod`)(
+  {
+    className: S.String,
+    fileName: S.String,
+    fullMethodName: S.String,
+    managerName: S.String,
+    methodName: S.String,
+    parameters: S.Array(MethodParameter),
+    payloadName: S.String,
+    returnType: S.String,
+    successName: S.String,
+    successSchemaExpression: S.String,
+  },
+  $I.annote("ManagerMethod", {
+    description: "A Box SDK manager method wrapped as a generated JSON operation.",
+  })
+) {}
+
+class ManagerProperty extends S.Class<ManagerProperty>($I`ManagerProperty`)(
+  {
+    className: S.String,
+    managerName: S.String,
+  },
+  $I.annote("ManagerProperty", {
+    description: "A Box SDK manager exposed as a property on the generated BoxClient.",
+  })
+) {}
+
+class BoxSdkPaths extends S.Class<BoxSdkPaths>($I`BoxSdkPaths`)(
+  {
+    clientPath: S.String,
+    modelsOutputPath: S.String,
+    operationsOutputPath: S.String,
+    schemaDirectories: S.Array(S.String),
+    sdkRoot: S.String,
+  },
+  $I.annote("BoxSdkPaths", {
+    description: "Filesystem paths the Box SDK generator reads from and writes to.",
+  })
+) {}
+
+// crispen: kept as a plain interface with effect collections — this is mutable
+// traversal state (accumulated during recursion), not a decodable data model, so a
+// schema would misrepresent it. See "When NOT to crispen".
+interface GenerationState {
+  readonly constrainedTypes: MutableHashSet.MutableHashSet<string>;
+  readonly declarationNames: MutableHashSet.MutableHashSet<string>;
+  readonly nonJsonDeclarationNames: MutableHashSet.MutableHashSet<string>;
+}
+
+const ascending = Order.make<string>((left, right) => Str.localeCompare(right)(left));
+const declarationNameOrder = Order.mapInput(ascending, (declaration: GeneratedDeclaration) => declaration.name);
+const managerPropertyOrder = Order.mapInput(ascending, (property: ManagerProperty) => property.managerName);
+const managerMethodOrder = Order.mapInput(ascending, (method: ManagerMethod) => method.fullMethodName);
 
 const hasExportModifier = (node: ts.Node): boolean =>
   ts.canHaveModifiers(node) &&
-  (ts.getModifiers(node) ?? []).some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
-
-const lowerFirst = (value: string): string =>
-  value.length === 0 ? value : `${value[0]?.toLowerCase()}${value.slice(1)}`;
+  A.some(ts.getModifiers(node) ?? A.empty<ts.Modifier>(), (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
 
 const upperFirst = (value: string): string =>
-  value.length === 0 ? value : `${value[0]?.toUpperCase()}${value.slice(1)}`;
+  Str.length(value) === 0 ? value : `${Str.toUpperCase(Str.slice(0, 1)(value))}${Str.slice(1)(value)}`;
 
 const toIdentifier = (value: string): string =>
-  value
-    .replace(/[^A-Za-z0-9_$]+/g, " ")
-    .split(" ")
-    .filter((part) => part.length > 0)
-    .map(upperFirst)
-    .join("");
+  pipe(
+    value,
+    Str.replace(/[^A-Za-z0-9_$]+/g, " "),
+    Str.split(" "),
+    A.filter((part) => Str.length(part) > 0),
+    A.map(upperFirst),
+    A.join("")
+  );
 
+// crispen: `JSON.stringify` is the exact JS string-literal escaper for codegen; the
+// schema JSON codec is Effect-only and would force this whole sync render layer into
+// Effect for zero correctness gain (see apps/professional-desktop scripts).
 const stringLiteral = (value: string): string => JSON.stringify(value);
 
 const literalExpression = (value: string | number | boolean): string => JSON.stringify(value);
 
-const schemaArray = (items: readonly string[]): string => `[${items.join(", ")}]`;
+const schemaArray = (items: ReadonlyArray<string>): string => `[${A.join(items, ", ")}]`;
 
+// crispen: kept native — this is a character-level scanner for balanced `.pipe(` at
+// the top level of a generated schema expression; `Str.*` helpers cannot express
+// positional `startsWith`/index reads, and it is a trust boundary for output shape.
 const finalTopLevelPipeOpenIndex = (expression: string): number | undefined => {
   let depth = 0;
   let pipeOpenIndex: number | undefined;
@@ -162,14 +208,16 @@ const finalTopLevelPipeOpenIndex = (expression: string): number | undefined => {
 const pipeExpression = (expression: string, operation: string): string => {
   const pipeOpenIndex = finalTopLevelPipeOpenIndex(expression);
 
-  return pipeOpenIndex === undefined ? `${expression}.pipe(${operation})` : `${expression.slice(0, -1)}, ${operation})`;
+  return pipeOpenIndex === undefined
+    ? `${expression}.pipe(${operation})`
+    : `${Str.slice(0, -1)(expression)}, ${operation})`;
 };
 
 const optionalExpression = (expression: string): string => pipeExpression(expression, "S.optionalKey");
 
 const shouldSkipDeclaration = (name: string): boolean =>
-  name.endsWith("Manager") ||
-  name.endsWith("ManagerInput") ||
+  Str.endsWith("Manager")(name) ||
+  Str.endsWith("ManagerInput")(name) ||
   name === "Authentication" ||
   name === "NetworkSession" ||
   name === "FetchResponse";
@@ -179,13 +227,13 @@ const fieldSchema = (field: GeneratedField): string =>
 
 const renderField = (field: GeneratedField): string => `${field.name}: ${fieldSchema(field)},`;
 
-const renderStructFields = (fields: string): string => (fields.length === 0 ? "" : `\n    ${fields}\n  `);
+const renderStructFields = (fields: string): string => (Str.length(fields) === 0 ? "" : `\n    ${fields}\n  `);
 
 const isIdentifierName = (value: string): boolean => /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(value);
 
 const propertyName = (name: string): string => (isIdentifierName(name) ? name : stringLiteral(name));
 
-const extractPropertyName = (name: ts.PropertyName, sourceFile: ts.SourceFile): string | undefined => {
+const extractPropertyName = (name: ts.PropertyName): string | undefined => {
   if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) {
     return name.text;
   }
@@ -228,7 +276,7 @@ const schemaForReference = (name: string, state: GenerationState): string =>
     Match.whenOr("number", "Number", () => "S.Finite"),
     Match.whenOr("boolean", "Boolean", () => "S.Boolean"),
     Match.whenOr("unknown", "any", "object", "Object", () => {
-      state.constrainedTypes.add(name);
+      MutableHashSet.add(state.constrainedTypes, name);
       return "S.Unknown";
     }),
     Match.when("DateTime", () => "BoxSdkDateTime"),
@@ -246,47 +294,47 @@ const schemaForReference = (name: string, state: GenerationState): string =>
       "PrivateKeyDecryptor",
       "RequestInit",
       () => {
-        state.constrainedTypes.add(name);
+        MutableHashSet.add(state.constrainedTypes, name);
         return "S.Unknown";
       }
     ),
-    Match.orElse(() => (state.declarationNames.has(name) ? `S.suspend(() => ${name})` : "S.Unknown"))
+    Match.orElse(() => (MutableHashSet.has(state.declarationNames, name) ? `S.suspend(() => ${name})` : "S.Unknown"))
   );
 
 const schemaForTypeLiteral = (node: ts.TypeLiteralNode, state: GenerationState): string => {
-  const fields: string[] = [];
-  const indexSignatures: string[] = [];
+  let fields = A.empty<string>();
+  let indexSignatures = A.empty<string>();
 
   for (const member of node.members) {
     if (ts.isPropertySignature(member) && member.type !== undefined) {
-      const name = extractPropertyName(member.name, node.getSourceFile());
+      const name = extractPropertyName(member.name);
       if (name === undefined || name === "rawData") {
         continue;
       }
       const schema = schemaForType(member.type, state);
-      fields.push(
+      fields = A.append(
+        fields,
         `${propertyName(name)}: ${member.questionToken === undefined ? schema : optionalExpression(schema)},`
       );
     }
     if (ts.isIndexSignatureDeclaration(member) && member.type !== undefined) {
-      indexSignatures.push(`S.Record(S.String, ${schemaForType(member.type, state)})`);
+      indexSignatures = A.append(indexSignatures, `S.Record(S.String, ${schemaForType(member.type, state)})`);
     }
   }
 
-  if (fields.length === 0 && indexSignatures.length > 0) {
-    return indexSignatures[0] ?? "S.Record(S.String, S.Unknown)";
+  if (A.isArrayEmpty(fields)) {
+    return pipe(
+      A.head(indexSignatures),
+      O.getOrElse(() => "S.Record(S.String, S.Unknown)")
+    );
   }
 
-  if (fields.length === 0) {
-    return "S.Record(S.String, S.Unknown)";
-  }
-
-  return `S.Struct({ ${fields.join(" ")} })`;
+  return `S.Struct({ ${A.join(fields, " ")} })`;
 };
 
 const schemaForUnion = (node: ts.UnionTypeNode, state: GenerationState): string => {
-  const literalValues: Array<string | number | boolean> = [];
-  const otherSchemas: string[] = [];
+  let literalValues = A.empty<string | number | boolean>();
+  let otherSchemas = A.empty<string>();
   let hasStringKeyword = false;
   let hasNumberKeyword = false;
   let hasBooleanKeyword = false;
@@ -324,31 +372,38 @@ const schemaForUnion = (node: ts.UnionTypeNode, state: GenerationState): string 
         hasUndefined = true;
         continue;
       }
-      literalValues.push(value);
+      literalValues = A.append(literalValues, value);
       continue;
     }
-    otherSchemas.push(schemaForType(type, state));
+    otherSchemas = A.append(otherSchemas, schemaForType(type, state));
   }
 
   if (hasStringKeyword) {
-    otherSchemas.push("S.String");
+    otherSchemas = A.append(otherSchemas, "S.String");
   }
   if (hasNumberKeyword) {
-    otherSchemas.push("S.Finite");
+    otherSchemas = A.append(otherSchemas, "S.Finite");
   }
   if (hasBooleanKeyword) {
-    otherSchemas.push("S.Boolean");
+    otherSchemas = A.append(otherSchemas, "S.Boolean");
   }
 
-  const literalSchema =
-    literalValues.length === 0 ? undefined : `LiteralKit([${literalValues.map(literalExpression).join(", ")}])`;
-  const baseSchemas = literalSchema === undefined ? otherSchemas : [literalSchema, ...otherSchemas];
-  const uniqueSchemas = [...new Set(baseSchemas)];
+  const literalSchema = A.isArrayEmpty(literalValues)
+    ? O.none<string>()
+    : O.some(`LiteralKit([${A.join(A.map(literalValues, literalExpression), ", ")}])`);
+  const baseSchemas = O.match(literalSchema, {
+    onNone: () => otherSchemas,
+    onSome: (schema) => A.prepend(otherSchemas, schema),
+  });
+  const uniqueSchemas = A.dedupe(baseSchemas);
   const base =
-    uniqueSchemas.length === 0
+    A.length(uniqueSchemas) === 0
       ? "S.Unknown"
-      : uniqueSchemas.length === 1
-        ? (uniqueSchemas[0] ?? "S.Unknown")
+      : A.length(uniqueSchemas) === 1
+        ? pipe(
+            A.head(uniqueSchemas),
+            O.getOrElse(() => "S.Unknown")
+          )
         : `S.Union(${schemaArray(uniqueSchemas)})`;
   const nullable = hasNull ? pipeExpression(base, "S.NullOr") : base;
   return hasUndefined ? pipeExpression(nullable, "S.UndefinedOr") : nullable;
@@ -368,7 +423,7 @@ const schemaForType = (node: ts.TypeNode, state: GenerationState): string => {
     return schemaForUnion(node, state);
   }
   if (ts.isIntersectionTypeNode(node)) {
-    state.constrainedTypes.add(node.getText());
+    MutableHashSet.add(state.constrainedTypes, node.getText());
     return "S.Unknown";
   }
   if (ts.isLiteralTypeNode(node)) {
@@ -379,15 +434,36 @@ const schemaForType = (node: ts.TypeNode, state: GenerationState): string => {
   }
   if (ts.isTypeReferenceNode(node)) {
     const name = typeNameText(node.typeName);
-    const typeArguments = node.typeArguments ?? [];
+    const typeArguments = node.typeArguments ?? A.empty<ts.TypeNode>();
     if (name === "Array" || name === "ReadonlyArray") {
-      return pipeExpression(schemaForType(typeArguments[0] ?? node, state), "S.Array");
+      return pipeExpression(
+        schemaForType(
+          pipe(
+            A.get(typeArguments, 0),
+            O.getOrElse(() => node)
+          ),
+          state
+        ),
+        "S.Array"
+      );
     }
     if (name === "Record") {
-      return `S.Record(S.String, ${schemaForType(typeArguments[1] ?? node, state)})`;
+      return `S.Record(S.String, ${schemaForType(
+        pipe(
+          A.get(typeArguments, 1),
+          O.getOrElse(() => node)
+        ),
+        state
+      )})`;
     }
     if (name === "Promise") {
-      return schemaForType(typeArguments[0] ?? node, state);
+      return schemaForType(
+        pipe(
+          A.get(typeArguments, 0),
+          O.getOrElse(() => node)
+        ),
+        state
+      );
     }
     return schemaForReference(name, state);
   }
@@ -397,13 +473,13 @@ const schemaForType = (node: ts.TypeNode, state: GenerationState): string => {
     Match.when(ts.SyntaxKind.NumberKeyword, () => "S.Finite"),
     Match.when(ts.SyntaxKind.BooleanKeyword, () => "S.Boolean"),
     Match.whenOr(ts.SyntaxKind.UnknownKeyword, ts.SyntaxKind.AnyKeyword, ts.SyntaxKind.ObjectKeyword, () => {
-      state.constrainedTypes.add(node.getText());
+      MutableHashSet.add(state.constrainedTypes, node.getText());
       return "S.Unknown";
     }),
     Match.when(ts.SyntaxKind.UndefinedKeyword, () => "S.Undefined"),
     Match.when(ts.SyntaxKind.NullKeyword, () => "S.Null"),
     Match.orElse(() => {
-      state.constrainedTypes.add(node.getText());
+      MutableHashSet.add(state.constrainedTypes, node.getText());
       return "S.Unknown";
     })
   );
@@ -412,23 +488,23 @@ const schemaForType = (node: ts.TypeNode, state: GenerationState): string => {
 const collectFields = (
   members: ts.NodeArray<ts.ClassElement | ts.TypeElement>,
   state: GenerationState
-): readonly GeneratedField[] => {
-  const fields: GeneratedField[] = [];
+): ReadonlyArray<GeneratedField> => {
+  let fields = A.empty<GeneratedField>();
 
   for (const member of members) {
     if ((ts.isPropertyDeclaration(member) || ts.isPropertySignature(member)) && member.type !== undefined) {
-      const name = extractPropertyName(member.name, member.getSourceFile());
+      const name = extractPropertyName(member.name);
       if (name === undefined || name === "rawData") {
         continue;
       }
-      fields.push({
+      fields = A.append(fields, {
         name: propertyName(name),
         optional: member.questionToken !== undefined,
         schemaExpression: schemaForType(member.type, state),
       });
     }
     if (ts.isIndexSignatureDeclaration(member) && member.type !== undefined) {
-      fields.push({
+      fields = A.append(fields, {
         name: "[key: string]",
         optional: false,
         schemaExpression: schemaForType(member.type, state),
@@ -436,7 +512,7 @@ const collectFields = (
     }
   }
 
-  return fields.filter((field) => field.name !== "[key: string]");
+  return A.filter(fields, (field) => field.name !== "[key: string]");
 };
 
 const declarationName = (statement: ts.Statement): string | undefined => {
@@ -449,42 +525,6 @@ const declarationName = (statement: ts.Statement): string | undefined => {
     return statement.name.text;
   }
   return undefined;
-};
-
-const collectDeclarationNames = (files: readonly string[]): Set<string> => {
-  const names = new Set<string>();
-
-  for (const file of files) {
-    const sourceFile = sourceFileFor(file);
-    for (const statement of sourceFile.statements) {
-      const name = declarationName(statement);
-      if (name !== undefined && hasExportModifier(statement) && !shouldSkipDeclaration(name)) {
-        names.add(name);
-      }
-    }
-  }
-
-  return names;
-};
-
-const collectNonJsonDeclarationNames = (files: readonly string[]): Set<string> => {
-  const names = new Set<string>();
-
-  for (const file of files) {
-    const sourceFile = sourceFileFor(file);
-    for (const statement of sourceFile.statements) {
-      const name = declarationName(statement);
-      if (
-        name !== undefined &&
-        hasExportModifier(statement) &&
-        BYTE_OR_EVENT_PATTERN.test(statement.getText(sourceFile))
-      ) {
-        names.add(name);
-      }
-    }
-  }
-
-  return names;
 };
 
 const typeReferencesNonJson = (node: ts.TypeNode, state: GenerationState): boolean => {
@@ -501,10 +541,10 @@ const typeReferencesNonJson = (node: ts.TypeNode, state: GenerationState): boole
     return typeReferencesNonJson(node.type, state);
   }
   if (ts.isUnionTypeNode(node) || ts.isIntersectionTypeNode(node)) {
-    return node.types.some((type) => typeReferencesNonJson(type, state));
+    return A.some(node.types, (type) => typeReferencesNonJson(type, state));
   }
   if (ts.isTypeLiteralNode(node)) {
-    return node.members.some((member) => {
+    return A.some(node.members, (member) => {
       if ((ts.isPropertySignature(member) || ts.isIndexSignatureDeclaration(member)) && member.type !== undefined) {
         return typeReferencesNonJson(member.type, state);
       }
@@ -514,108 +554,202 @@ const typeReferencesNonJson = (node: ts.TypeNode, state: GenerationState): boole
   if (ts.isTypeReferenceNode(node)) {
     const name = typeNameText(node.typeName);
     return (
-      state.nonJsonDeclarationNames.has(name) ||
-      (node.typeArguments ?? []).some((typeArgument) => typeReferencesNonJson(typeArgument, state))
+      MutableHashSet.has(state.nonJsonDeclarationNames, name) ||
+      A.some(node.typeArguments ?? A.empty<ts.TypeNode>(), (typeArgument) => typeReferencesNonJson(typeArgument, state))
     );
   }
 
   return false;
 };
 
-const declarationFromStatement = (
-  statement: ts.Statement,
-  state: GenerationState
-): GeneratedDeclaration | undefined => {
+const declarationFromStatement = (statement: ts.Statement, state: GenerationState): O.Option<GeneratedDeclaration> => {
   const name = declarationName(statement);
   if (name === undefined || !hasExportModifier(statement) || shouldSkipDeclaration(name)) {
-    return undefined;
+    return O.none();
   }
 
   if (ts.isInterfaceDeclaration(statement)) {
-    return {
+    return O.some({
       fields: collectFields(statement.members, state),
       kind: "interface",
       name,
-    };
+    });
   }
 
   if (ts.isClassDeclaration(statement)) {
-    const baseName = statement.heritageClauses
-      ?.flatMap((clause) => clause.types)
-      .map((heritage) => heritage.expression.getText(statement.getSourceFile()))
-      .find((candidate) => state.declarationNames.has(candidate));
+    const baseName = O.getOrUndefined(
+      pipe(
+        A.fromIterable(statement.heritageClauses ?? A.empty<ts.HeritageClause>()),
+        A.flatMap((clause) => A.fromIterable(clause.types)),
+        A.map((heritage) => heritage.expression.getText(statement.getSourceFile())),
+        A.findFirst((candidate) => MutableHashSet.has(state.declarationNames, candidate))
+      )
+    );
 
-    return {
+    return O.some({
       baseName,
       fields: collectFields(statement.members, state),
       kind: "class",
       name,
-    };
+    });
   }
 
   if (ts.isTypeAliasDeclaration(statement)) {
-    return {
+    return O.some({
       kind: "type",
       name,
       schemaExpression: schemaForType(statement.type, state),
-    };
+    });
   }
 
-  return undefined;
+  return O.none();
 };
 
-const sortDeclarations = (declarations: readonly GeneratedDeclaration[]): readonly GeneratedDeclaration[] => {
-  const declarationsByName = new Map(declarations.map((declaration) => [declaration.name, declaration]));
-  const sorted: GeneratedDeclaration[] = [];
-  const visited = new Set<string>();
-  const visiting = new Set<string>();
+const sortDeclarations = (declarations: ReadonlyArray<GeneratedDeclaration>): ReadonlyArray<GeneratedDeclaration> => {
+  const declarationsByName = HashMap.fromIterable(
+    A.map(declarations, (declaration) => [declaration.name, declaration] as const)
+  );
+  let sorted = A.empty<GeneratedDeclaration>();
+  const visited = MutableHashSet.empty<string>();
+  const visiting = MutableHashSet.empty<string>();
 
   const visit = (declaration: GeneratedDeclaration): void => {
-    if (visited.has(declaration.name)) {
+    if (MutableHashSet.has(visited, declaration.name)) {
       return;
     }
-    if (visiting.has(declaration.name)) {
+    if (MutableHashSet.has(visiting, declaration.name)) {
       return;
     }
 
-    visiting.add(declaration.name);
-    if (declaration.baseName !== undefined) {
-      const baseDeclaration = declarationsByName.get(declaration.baseName);
-      if (baseDeclaration !== undefined) {
-        visit(baseDeclaration);
-      }
-    }
-    visiting.delete(declaration.name);
-    visited.add(declaration.name);
-    sorted.push(declaration);
+    MutableHashSet.add(visiting, declaration.name);
+    pipe(
+      O.fromNullishOr(declaration.baseName),
+      O.flatMap((baseName) => HashMap.get(declarationsByName, baseName)),
+      O.match({ onNone: () => {}, onSome: visit })
+    );
+    MutableHashSet.remove(visiting, declaration.name);
+    MutableHashSet.add(visited, declaration.name);
+    sorted = A.append(sorted, declaration);
   };
 
-  for (const declaration of [...declarations].sort((left, right) => left.name.localeCompare(right.name))) {
+  for (const declaration of A.sort(declarations, declarationNameOrder)) {
     visit(declaration);
   }
 
   return sorted;
 };
 
-const collectDeclarations = (files: readonly string[], state: GenerationState): readonly GeneratedDeclaration[] => {
-  const declarations: GeneratedDeclaration[] = [];
+const sourceFileFor = Effect.fn("Box.generate.sourceFileFor")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath);
+  return ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+});
+
+const findFiles: (
+  directory: string
+) => Effect.Effect<ReadonlyArray<string>, PlatformError.PlatformError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  "Box.generate.findFiles"
+)(function* (directory: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const entries = yield* fs.readDirectory(directory);
+  const nested = yield* Effect.forEach(
+    entries,
+    Effect.fnUntraced(function* (entry: string) {
+      const entryPath = path.join(directory, entry);
+      const info = yield* fs.stat(entryPath);
+      if (info.type === "Directory") {
+        return yield* findFiles(entryPath);
+      }
+      return Str.endsWith(".d.ts")(entryPath) ? A.of(entryPath) : A.empty<string>();
+    }),
+    { concurrency: "unbounded" }
+  );
+  return A.sort(A.flatten(nested), ascending);
+});
+
+const writeGeneratedFile = Effect.fn("Box.generate.writeGeneratedFile")(function* (filePath: string, content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  yield* fs.makeDirectory(path.dirname(filePath), { recursive: true });
+  yield* fs.writeFileString(filePath, `${Str.trimEnd(content)}\n`);
+});
+
+const resolveBoxPaths = Effect.fnUntraced(function* () {
+  const path = yield* Path.Path;
+  const repoRoot = path.resolve(scriptDir, "../../../..");
+  const packageRoot = path.resolve(scriptDir, "..");
+  const sdkRoot = path.resolve(repoRoot, "node_modules/box-node-sdk");
+  const generatedRoot = path.resolve(packageRoot, "src/_generated");
+  return {
+    clientPath: path.resolve(sdkRoot, "lib/client.d.ts"),
+    modelsOutputPath: path.resolve(generatedRoot, "Box.models.gen.ts"),
+    operationsOutputPath: path.resolve(generatedRoot, "Box.operations.gen.ts"),
+    schemaDirectories: [path.resolve(sdkRoot, "lib/schemas"), path.resolve(sdkRoot, "lib/managers")],
+    sdkRoot,
+  } satisfies BoxSdkPaths;
+});
+
+const collectDeclarationNames = Effect.fn("Box.generate.collectDeclarationNames")(function* (
+  files: ReadonlyArray<string>
+) {
+  const names = MutableHashSet.empty<string>();
 
   for (const file of files) {
-    const sourceFile = sourceFileFor(file);
+    const sourceFile = yield* sourceFileFor(file);
     for (const statement of sourceFile.statements) {
-      const declaration = declarationFromStatement(statement, state);
-      if (declaration !== undefined) {
-        declarations.push(declaration);
+      const name = declarationName(statement);
+      if (name !== undefined && hasExportModifier(statement) && !shouldSkipDeclaration(name)) {
+        MutableHashSet.add(names, name);
       }
     }
   }
 
-  return sortDeclarations(declarations);
-};
+  return names;
+});
 
-const collectManagerProperties = (): readonly ManagerProperty[] => {
-  const sourceFile = sourceFileFor(clientPath);
-  const properties: ManagerProperty[] = [];
+const collectNonJsonDeclarationNames = Effect.fn("Box.generate.collectNonJsonDeclarationNames")(function* (
+  files: ReadonlyArray<string>
+) {
+  const names = MutableHashSet.empty<string>();
+
+  for (const file of files) {
+    const sourceFile = yield* sourceFileFor(file);
+    for (const statement of sourceFile.statements) {
+      const name = declarationName(statement);
+      if (
+        name !== undefined &&
+        hasExportModifier(statement) &&
+        BYTE_OR_EVENT_PATTERN.test(statement.getText(sourceFile))
+      ) {
+        MutableHashSet.add(names, name);
+      }
+    }
+  }
+
+  return names;
+});
+
+const collectDeclarations = Effect.fn("Box.generate.collectDeclarations")(function* (
+  files: ReadonlyArray<string>,
+  state: GenerationState
+) {
+  let declarations = A.empty<GeneratedDeclaration>();
+
+  for (const file of files) {
+    const sourceFile = yield* sourceFileFor(file);
+    declarations = A.appendAll(
+      declarations,
+      A.getSomes(A.map(sourceFile.statements, (statement) => declarationFromStatement(statement, state)))
+    );
+  }
+
+  return sortDeclarations(declarations);
+});
+
+const collectManagerProperties = Effect.fn("Box.generate.collectManagerProperties")(function* (clientPath: string) {
+  const sourceFile = yield* sourceFileFor(clientPath);
+  let properties = A.empty<ManagerProperty>();
 
   for (const statement of sourceFile.statements) {
     if (!ts.isClassDeclaration(statement) || statement.name?.text !== "BoxClient") {
@@ -630,43 +764,41 @@ const collectManagerProperties = (): readonly ManagerProperty[] => {
         continue;
       }
       const className = typeNameText(member.type.typeName);
-      if (className.endsWith("Manager")) {
-        properties.push({ className, managerName: member.name.text });
+      if (Str.endsWith("Manager")(className)) {
+        properties = A.append(properties, { className, managerName: member.name.text });
       }
     }
   }
 
-  return properties.sort((left, right) => left.managerName.localeCompare(right.managerName));
-};
+  return A.sort(properties, managerPropertyOrder);
+});
 
-const unwrapPromise = (typeNode: ts.TypeNode): ts.TypeNode => {
-  if (ts.isTypeReferenceNode(typeNode) && typeNameText(typeNode.typeName) === "Promise") {
-    return typeNode.typeArguments?.[0] ?? typeNode;
-  }
-  return typeNode;
-};
+const unwrapPromise = (typeNode: ts.TypeNode): ts.TypeNode =>
+  ts.isTypeReferenceNode(typeNode) && typeNameText(typeNode.typeName) === "Promise"
+    ? pipe(
+        A.get(typeNode.typeArguments ?? A.empty<ts.TypeNode>(), 0),
+        O.getOrElse(() => typeNode)
+      )
+    : typeNode;
 
 const methodHasDeprecatedTag = (member: ts.MethodDeclaration): boolean =>
-  ts.getJSDocTags(member).some((tag) => tag.tagName.text === "deprecated") ||
-  member.getFullText(member.getSourceFile()).includes("@deprecated");
+  A.some(ts.getJSDocTags(member), (tag) => tag.tagName.text === "deprecated") ||
+  Str.includes("@deprecated")(member.getFullText(member.getSourceFile()));
 
-const collectManagerMethods = (
-  managerProperties: readonly ManagerProperty[],
-  state: GenerationState
-): {
-  readonly deprecated: readonly string[];
-  readonly generated: readonly ManagerMethod[];
-  readonly skipped: readonly string[];
-  readonly wrapped: readonly string[];
-} => {
-  const generated: ManagerMethod[] = [];
-  const skipped: string[] = [];
-  const deprecated: string[] = [];
-  const wrapped: string[] = [];
+const collectManagerMethods = Effect.fn("Box.generate.collectManagerMethods")(function* (
+  managerProperties: ReadonlyArray<ManagerProperty>,
+  state: GenerationState,
+  sdkRoot: string
+) {
+  const path = yield* Path.Path;
+  let generated = A.empty<ManagerMethod>();
+  let skipped = A.empty<string>();
+  let deprecated = A.empty<string>();
+  let wrapped = A.empty<string>();
 
   for (const property of managerProperties) {
     const managerFile = path.resolve(sdkRoot, "lib/managers", `${property.managerName}.d.ts`);
-    const sourceFile = sourceFileFor(managerFile);
+    const sourceFile = yield* sourceFileFor(managerFile);
 
     for (const statement of sourceFile.statements) {
       if (!ts.isClassDeclaration(statement) || statement.name?.text !== property.className) {
@@ -680,26 +812,30 @@ const collectManagerMethods = (
 
         const methodName = member.name.text;
         const fullMethodName = `${property.managerName}.${methodName}`;
-        const signatureText = `${member.type.getText(sourceFile)} ${member.parameters.map((parameter) => parameter.type?.getText(sourceFile) ?? "").join(" ")}`;
+        const signatureText = `${member.type.getText(sourceFile)} ${A.join(
+          A.map(member.parameters, (parameter) => parameter.type?.getText(sourceFile) ?? ""),
+          " "
+        )}`;
         const referencesNonJson =
           typeReferencesNonJson(member.type, state) ||
-          member.parameters.some(
+          A.some(
+            member.parameters,
             (parameter) => parameter.type !== undefined && typeReferencesNonJson(parameter.type, state)
           );
 
         if (methodHasDeprecatedTag(member)) {
-          deprecated.push(fullMethodName);
+          deprecated = A.append(deprecated, fullMethodName);
           continue;
         }
 
-        wrapped.push(fullMethodName);
+        wrapped = A.append(wrapped, fullMethodName);
 
         if (BYTE_OR_EVENT_PATTERN.test(signatureText) || referencesNonJson) {
-          skipped.push(fullMethodName);
+          skipped = A.append(skipped, fullMethodName);
           continue;
         }
 
-        const parameters = member.parameters.map((parameter) => ({
+        const parameters = A.map(member.parameters, (parameter) => ({
           name: parameter.name.getText(sourceFile),
           optional: parameter.questionToken !== undefined,
           schemaExpression: parameter.type === undefined ? "S.Unknown" : schemaForType(parameter.type, state),
@@ -707,7 +843,7 @@ const collectManagerMethods = (
         }));
         const operationName = `${toIdentifier(property.managerName)}${toIdentifier(methodName)}`;
 
-        generated.push({
+        generated = A.append(generated, {
           className: property.className,
           fileName: path.basename(managerFile),
           fullMethodName,
@@ -724,12 +860,12 @@ const collectManagerMethods = (
   }
 
   return {
-    deprecated: deprecated.sort((left, right) => left.localeCompare(right)),
-    generated: generated.sort((left, right) => left.fullMethodName.localeCompare(right.fullMethodName)),
-    skipped: skipped.sort((left, right) => left.localeCompare(right)),
-    wrapped: wrapped.sort((left, right) => left.localeCompare(right)),
+    deprecated: A.sort(deprecated, ascending),
+    generated: A.sort(generated, managerMethodOrder),
+    skipped: A.sort(skipped, ascending),
+    wrapped: A.sort(wrapped, ascending),
   };
-};
+});
 
 const renderDeclaration = (declaration: GeneratedDeclaration): string => {
   const description = `Generated Box SDK schema for ${declaration.name}.`;
@@ -773,7 +909,9 @@ export type ${declaration.name} = typeof ${declaration.name}.Type;
 `;
   }
 
-  const fields = renderStructFields((declaration.fields ?? []).map(renderField).join("\n    "));
+  const fields = renderStructFields(
+    pipe(declaration.fields ?? A.empty<GeneratedField>(), A.map(renderField), A.join("\n    "))
+  );
 
   if (declaration.baseName !== undefined) {
     return `/**
@@ -822,15 +960,17 @@ export class ${declaration.name} extends S.Class<${declaration.name}>($I\`${decl
 
 const renderPayload = (method: ManagerMethod): string => {
   const fields = renderStructFields(
-    method.parameters
-      .map((parameter) =>
+    pipe(
+      method.parameters,
+      A.map((parameter) =>
         renderField({
           name: propertyName(parameter.name),
           optional: parameter.optional,
           schemaExpression: parameter.schemaExpression,
         })
-      )
-      .join("\n    ")
+      ),
+      A.join("\n    ")
+    )
   );
   const description = `Payload for Box SDK method ${method.fullMethodName}.`;
 
@@ -898,11 +1038,11 @@ export type ${method.successName} = typeof ${method.successName}.Type;
 };
 
 const renderModelsFile = (
-  declarations: readonly GeneratedDeclaration[],
-  methods: readonly ManagerMethod[],
-  methodNames: readonly string[]
+  declarations: ReadonlyArray<GeneratedDeclaration>,
+  methods: ReadonlyArray<ManagerMethod>,
+  methodNames: ReadonlyArray<string>
 ): string => {
-  const renderedMethodNames = methodNames.map(stringLiteral).join(",\n  ");
+  const renderedMethodNames = A.join(A.map(methodNames, stringLiteral), ",\n  ");
 
   return `/**
  * Generated Box SDK schemas, payloads, and success models.
@@ -1064,19 +1204,21 @@ export const BoxMethodName = LiteralKit([
  */
 export type BoxMethodName = typeof BoxMethodName.Type;
 
-${declarations.map(renderDeclaration).join("\n")}
-${methods.map(renderPayload).join("\n")}
-${methods.map(renderSuccess).join("\n")}
+${A.join(A.map(declarations, renderDeclaration), "\n")}
+${A.join(A.map(methods, renderPayload), "\n")}
+${A.join(A.map(methods, renderSuccess), "\n")}
 `;
 };
 
-const renderOperationShape = (managerName: string, methods: readonly ManagerMethod[]): string =>
-  `readonly ${propertyName(managerName)}: {\n${methods
-    .map(
+const renderOperationShape = (managerName: string, methods: ReadonlyArray<ManagerMethod>): string =>
+  `readonly ${propertyName(managerName)}: {\n${A.join(
+    A.map(
+      methods,
       (method) =>
         `    readonly ${propertyName(method.methodName)}: (payload: M.${method.payloadName}) => Effect.Effect<M.${method.successName}, BoxError>;`
-    )
-    .join("\n")}\n  };`;
+    ),
+    "\n"
+  )}\n  };`;
 
 const argumentExpression = (parameter: MethodParameter): string => {
   if (parameter.name === "cancellationToken") {
@@ -1099,18 +1241,23 @@ const renderOperationMethod = (method: ManagerMethod): string =>
         payload,
         (decoded, signal) =>
           invokeSdkMethod(client, ${stringLiteral(method.managerName)}, ${stringLiteral(method.methodName)}, [
-            ${method.parameters.map(argumentExpression).join(",\n            ")}
+            ${A.join(A.map(method.parameters, argumentExpression), ",\n            ")}
           ])
       ),`;
 
-const renderOperationManager = (managerName: string, methods: readonly ManagerMethod[]): string =>
+const renderOperationManager = (managerName: string, methods: ReadonlyArray<ManagerMethod>): string =>
   `${propertyName(managerName)}: {
-    ${methods.map(renderOperationMethod).join("\n    ")}
+    ${A.join(A.map(methods, renderOperationMethod), "\n    ")}
   },`;
 
-const renderOperationsFile = (methods: readonly ManagerMethod[]): string => {
-  const byManager = Map.groupBy(methods, (method) => method.managerName);
-  const sortedManagers = [...byManager.keys()].sort((left, right) => left.localeCompare(right));
+const renderOperationsFile = (methods: ReadonlyArray<ManagerMethod>): string => {
+  const byManager = A.groupBy(methods, (method) => method.managerName);
+  const sortedManagers = A.sort(R.keys(byManager), ascending);
+  const methodsOf = (managerName: string): ReadonlyArray<ManagerMethod> =>
+    pipe(
+      R.get(byManager, managerName),
+      O.getOrElse(() => A.empty<ManagerMethod>())
+    );
 
   return `/**
  * Generated Box SDK operation wrappers.
@@ -1164,7 +1311,10 @@ export type BoxRunSdkCall = <Payload, Success>(
  * @since 0.0.0
  */
 export type BoxGeneratedOperations = {
-  ${sortedManagers.map((managerName) => renderOperationShape(managerName, byManager.get(managerName) ?? [])).join("\n  ")}
+  ${A.join(
+    A.map(sortedManagers, (managerName) => renderOperationShape(managerName, methodsOf(managerName))),
+    "\n  "
+  )}
 };
 
 const readProperty = (value: unknown, key: PropertyKey): unknown => (P.isObject(value) ? Reflect.get(value, key) : undefined);
@@ -1242,36 +1392,69 @@ const invokeSdkMethod = (
  * @since 0.0.0
  */
 export const makeGeneratedOperations = (client: unknown, runSdkCall: BoxRunSdkCall): BoxGeneratedOperations => ({
-  ${sortedManagers.map((managerName) => renderOperationManager(managerName, byManager.get(managerName) ?? [])).join("\n  ")}
+  ${A.join(
+    A.map(sortedManagers, (managerName) => renderOperationManager(managerName, methodsOf(managerName))),
+    "\n  "
+  )}
 });
 `;
 };
 
-const main = (): void => {
-  const sourceFiles = schemaDirectories.flatMap(findFiles);
-  const declarationNames = collectDeclarationNames(sourceFiles);
-  const nonJsonDeclarationNames = collectNonJsonDeclarationNames(sourceFiles);
+const generate = Effect.gen(function* () {
+  const paths = yield* resolveBoxPaths();
+  const sourceFiles = yield* Effect.forEach(paths.schemaDirectories, findFiles, { concurrency: "unbounded" }).pipe(
+    Effect.map(A.flatten)
+  );
+  const declarationNames = yield* collectDeclarationNames(sourceFiles);
+  const nonJsonDeclarationNames = yield* collectNonJsonDeclarationNames(sourceFiles);
   const state: GenerationState = {
-    constrainedTypes: new Set<string>(),
+    constrainedTypes: MutableHashSet.empty<string>(),
     declarationNames,
     nonJsonDeclarationNames,
   };
-  const declarations = collectDeclarations(sourceFiles, state);
-  const managerProperties = collectManagerProperties();
-  const methods = collectManagerMethods(managerProperties, state);
+  const declarations = yield* collectDeclarations(sourceFiles, state);
+  const managerProperties = yield* collectManagerProperties(paths.clientPath);
+  const methods = yield* collectManagerMethods(managerProperties, state, paths.sdkRoot);
 
-  writeFile(modelsOutputPath, renderModelsFile(declarations, methods.generated, methods.wrapped));
-  writeFile(operationsOutputPath, renderOperationsFile(methods.generated));
+  yield* writeGeneratedFile(paths.modelsOutputPath, renderModelsFile(declarations, methods.generated, methods.wrapped));
+  yield* writeGeneratedFile(paths.operationsOutputPath, renderOperationsFile(methods.generated));
 
-  console.log(`Generated ${declarations.length} Box model schemas.`);
-  console.log(`Generated ${methods.generated.length} Box JSON operations.`);
-  console.log(`Skipped ${methods.skipped.length} byte/event operations: ${methods.skipped.join(", ") || "none"}.`);
-  console.log(
-    `Skipped ${methods.deprecated.length} deprecated operations: ${methods.deprecated.join(", ") || "none"}.`
+  const constrainedTypes = A.sort(A.fromIterable(state.constrainedTypes), ascending);
+
+  yield* Effect.log(`Generated ${A.length(declarations)} Box model schemas.`);
+  yield* Effect.log(`Generated ${A.length(methods.generated)} Box JSON operations.`);
+  yield* Effect.log(
+    `Skipped ${A.length(methods.skipped)} byte/event operations: ${A.match(methods.skipped, {
+      onEmpty: () => "none",
+      onNonEmpty: (values) => A.join(values, ", "),
+    })}.`
   );
-  console.log(
-    `Constrained dynamic SDK types: ${[...state.constrainedTypes].sort((left, right) => left.localeCompare(right)).join(", ") || "none"}.`
+  yield* Effect.log(
+    `Skipped ${A.length(methods.deprecated)} deprecated operations: ${A.match(methods.deprecated, {
+      onEmpty: () => "none",
+      onNonEmpty: (values) => A.join(values, ", "),
+    })}.`
   );
-};
+  yield* Effect.log(
+    `Constrained dynamic SDK types: ${A.match(constrainedTypes, {
+      onEmpty: () => "none",
+      onNonEmpty: (values) => A.join(values, ", "),
+    })}.`
+  );
+}).pipe(Effect.withSpan("Box.generate"));
 
-main();
+const MainLive = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
+
+// Build the platform layers into a Context once and provide it at this entry point,
+// keeping scope lifetimes correct and satisfying effect(strictEffectProvide).
+const program = Effect.scoped(
+  Layer.build(MainLive).pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* generate.pipe(Effect.provide(context));
+      })
+    )
+  )
+);
+
+BunRuntime.runMain(program);

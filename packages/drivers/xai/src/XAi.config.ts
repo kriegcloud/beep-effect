@@ -6,6 +6,8 @@
  */
 
 import { $XaiId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $XaiId.create("XAi.config");
@@ -80,11 +82,11 @@ export const XAI_WEBSOCKET_URL = "wss://api.x.ai";
 export class XAiConfigInput extends S.Class<XAiConfigInput>($I`XAiConfigInput`)(
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    apiUrl: S.optionalKey(S.String),
-    headers: S.optionalKey(S.Record(S.String, S.String)),
+    apiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(XAI_API_URL)),
+    headers: S.Record(S.String, S.String).pipe(SchemaUtils.withKeyDefaults(R.empty())),
     managementApiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    managementApiUrl: S.optionalKey(S.String),
-    websocketUrl: S.optionalKey(S.String),
+    managementApiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(XAI_MANAGEMENT_API_URL)),
+    websocketUrl: S.String.pipe(SchemaUtils.withKeyDefaults(XAI_WEBSOCKET_URL)),
   },
   $I.annote("XAiConfigInput", {
     description: "Runtime configuration accepted by the xAI driver layer.",

@@ -134,8 +134,8 @@ const normalizeBaseUrl = flow(Str.replace(/\/+$/, ""), URLStr.make);
 
 const resolveConfig = (config: PhoenixConfigInput): ResolvedPhoenixConfig => ({
   apiKey: O.fromUndefinedOr(config.apiKey),
-  baseUrl: normalizeBaseUrl(config.baseUrl ?? PHOENIX_API_URL),
-  headers: config.headers ?? {},
+  baseUrl: normalizeBaseUrl(config.baseUrl),
+  headers: config.headers,
 });
 
 const resolvedHeaders = (config: ResolvedPhoenixConfig): Readonly<Record<string, string>> => ({

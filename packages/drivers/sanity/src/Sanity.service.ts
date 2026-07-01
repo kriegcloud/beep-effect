@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import { SANITY_API_VERSION, SanityConfigInput } from "./Sanity.config.ts";
+import { SanityConfigInput } from "./Sanity.config.ts";
 import { SanityError } from "./Sanity.errors.ts";
 import type { Redacted as RedactedType } from "effect";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -186,7 +186,7 @@ const resolveConfig = Effect.fn("Sanity.resolveConfig")(function* (
   return ResolvedSanityConfig.make({
     apiHost: normalizeBaseUrl(input.apiHost ?? "https://api.sanity.io"),
     apiToken: O.fromUndefinedOr(input.apiToken),
-    apiVersion: input.apiVersion ?? SANITY_API_VERSION,
+    apiVersion: input.apiVersion,
     dataset,
     headers: input.headers ?? {},
     projectId,

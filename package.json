@@ -166,7 +166,7 @@
     "framer-motion": "^12.42.0",
     "frimousse": "0.3.0",
     "handlebars": "^4.7.9",
-    "i18next": "^26.3.3",
+    "i18next": "^26.3.4",
     "image-size": "^2.0.2",
     "input-otp": "^1.4.2",
     "jsdom": "^29.1.1",

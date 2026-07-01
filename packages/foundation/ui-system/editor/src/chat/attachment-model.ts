@@ -19,8 +19,9 @@
  */
 
 import { $EditorId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
 import { ImageMimeType, MimeType } from "@beep/schema/MimeType";
-import { Data, Result } from "effect";
+import { Result } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $EditorId.create("chat/attachment-model");
@@ -122,11 +123,17 @@ const AttachmentSizeBytes = S.Int.pipe(
  * @category errors
  * @since 0.0.0
  */
-export class AttachmentTooLarge extends Data.TaggedError("AttachmentTooLarge")<{
-  readonly filename: string;
-  readonly size: number;
-  readonly maxBytes: number;
-}> {}
+export class AttachmentTooLarge extends TaggedErrorClass<AttachmentTooLarge>($I`AttachmentTooLarge`)(
+	"AttachmentTooLarge",
+	{
+		filename: S.String,
+		size: S.Number,
+		maxBytes: S.Number,
+	},
+	$I.annote("AttachmentTooLarge", {
+		description: "A captured file rejected because it exceeds the (clamped) byte budget."
+	})
+) {}
 
 /**
  * A captured file rejected because its `file.type` is empty or not a recognized
@@ -147,10 +154,16 @@ export class AttachmentTooLarge extends Data.TaggedError("AttachmentTooLarge")<{
  * @category errors
  * @since 0.0.0
  */
-export class AttachmentInvalidMimeType extends Data.TaggedError("AttachmentInvalidMimeType")<{
-  readonly filename: string;
-  readonly mimeType: string;
-}> {}
+export class AttachmentInvalidMimeType extends TaggedErrorClass<AttachmentInvalidMimeType>($I`AttachmentInvalidMimeType`)(
+	"AttachmentTooLarge",
+	{
+		filename: S.String,
+		mimeType: S.String,
+	},
+	$I.annote("AttachmentInvalidMimeType", {
+		description: "A captured file rejected because its `file.type` is empty or not a recognized"
+	})
+) {}
 
 /**
  * Why {@link ComposerAttachment.fromFile} declined to capture a file. A tagged
@@ -173,7 +186,37 @@ export class AttachmentInvalidMimeType extends Data.TaggedError("AttachmentInval
  * @category errors
  * @since 0.0.0
  */
-export type AttachmentRejection = AttachmentTooLarge | AttachmentInvalidMimeType;
+export const AttachmentRejection = S.Union(
+	[
+		AttachmentTooLarge,
+		AttachmentInvalidMimeType
+	]
+).pipe(
+	S.toTaggedUnion("_tag"),
+	$I.annoteSchema("AttachmentRejection", {
+		description: "Why {@link ComposerAttachment.fromFile} declined to capture a file. A tagged\nunion so the capture pipeline can distinguish — and surface — an over-budget\nfile from one with an unrecognized MIME type, rather than collapsing both into\nan opaque `O.none()`."
+	})
+);
+
+/**
+ * Companion type for {@link AttachmentRejection}.
+ *
+ * @example
+ * ```ts
+ * import { AttachmentInvalidMimeType, type AttachmentRejection } from "@beep/editor/chat"
+ *
+ * const rejection: AttachmentRejection = new AttachmentInvalidMimeType({
+ *   filename: "payload.bin",
+ *   mimeType: "",
+ * })
+ *
+ * console.log(rejection._tag) // "AttachmentInvalidMimeType"
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type AttachmentRejection = typeof AttachmentRejection.Type;
 
 // Monotonic id source for captured attachments — ephemeral UI identity only, so
 // a simple counter suffices (no persistence, no cross-session stability needed).
@@ -281,10 +324,10 @@ export class ComposerAttachment extends S.Class<ComposerAttachment>($I`ComposerA
   ): Result.Result<ComposerAttachment, AttachmentRejection> => {
     const effectiveMaxBytes = Math.min(maxBytes, DEFAULT_MAX_ATTACHMENT_BYTES);
     if (!ComposerAttachment.isWithinSize(file, effectiveMaxBytes)) {
-      return Result.fail(new AttachmentTooLarge({ filename: file.name, size: file.size, maxBytes: effectiveMaxBytes }));
+      return Result.fail(AttachmentTooLarge.make({ filename: file.name, size: file.size, maxBytes: effectiveMaxBytes }));
     }
     return Result.match(decodeMimeType(file.type), {
-      onFailure: () => Result.fail(new AttachmentInvalidMimeType({ filename: file.name, mimeType: file.type })),
+      onFailure: () => Result.fail(AttachmentInvalidMimeType.make({ filename: file.name, mimeType: file.type })),
       onSuccess: (mimeType) => {
         attachmentSequence += 1;
         return Result.succeed(

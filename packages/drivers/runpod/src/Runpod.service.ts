@@ -220,8 +220,8 @@ const normalizeBaseUrl = Str.replace(/\/+$/, "");
 const resolveConfig = (config: RunpodConfigInput): ResolvedRunpodConfig =>
   ResolvedRunpodConfig.make({
     apiKey: O.fromUndefinedOr(config.apiKey),
-    apiUrl: normalizeBaseUrl(config.apiUrl ?? RUNPOD_API_URL),
-    headers: config.headers ?? {},
+    apiUrl: normalizeBaseUrl(config.apiUrl),
+    headers: config.headers,
   });
 
 const decodeQueryValueOption = S.decodeUnknownOption(RunpodQueryValue);

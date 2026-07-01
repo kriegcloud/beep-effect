@@ -15,13 +15,14 @@ import { getSomesStruct } from "@beep/utils/Option";
 import { Config, Context, Duration, Effect, flow, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
 import { M365Auth } from "./M365.auth.ts";
-import { M365ConfigInput, resolveM365Config } from "./M365.config.ts";
+import { M365ConfigInput, ResolvedM365Config, resolveM365Config } from "./M365.config.ts";
 import { M365Error } from "./M365.errors.ts";
 import {
   GraphCollection,
@@ -35,18 +36,48 @@ import {
 } from "./M365.schemas.ts";
 import type * as HttpClientResponse from "effect/unstable/http/HttpClientResponse";
 import type { M365AuthShape, M365InteractiveAuthorizer } from "./M365.auth.ts";
-import type { ResolvedM365Config } from "./M365.config.ts";
 
 const $I = $M365Id.create("M365.service");
 
-type QueryValue = number | string;
-type QueryParam = readonly [key: string, value: O.Option<QueryValue>];
+const QueryValue = S.Union([S.Finite, S.String]).pipe(
+  $I.annoteSchema("QueryValue", {
+    description: "Scalar Microsoft Graph query-parameter value.",
+  })
+);
+type QueryValue = typeof QueryValue.Type;
 
-type M365Runtime = {
-  readonly auth: M365AuthShape;
-  readonly client: HttpClient.HttpClient;
-  readonly config: ResolvedM365Config;
-};
+const QueryParam = S.Tuple([S.String, S.Option(QueryValue)]).pipe(
+  $I.annoteSchema("QueryParam", {
+    description: "Microsoft Graph query-parameter key paired with its optional scalar value.",
+  })
+);
+type QueryParam = typeof QueryParam.Type;
+
+// The service runtime's token provider and HTTP client are in-process handles,
+// never decoded from external input; structural `S.declare`s carry them through
+// the runtime schema alongside the already-decoded resolved config.
+const M365AuthShapeFromSelf = S.declare((u: unknown): u is M365AuthShape => P.isObject(u)).pipe(
+  $I.annoteSchema("M365AuthShapeFromSelf", {
+    description: "In-process delegated Graph token-provider shape carried through the service runtime.",
+  })
+);
+
+const HttpClientFromSelf = S.declare((u: unknown): u is HttpClient.HttpClient => P.isObject(u)).pipe(
+  $I.annoteSchema("HttpClientFromSelf", {
+    description: "In-process Effect HttpClient carried through the service runtime.",
+  })
+);
+
+class M365Runtime extends S.Class<M365Runtime>($I`M365Runtime`)(
+  {
+    auth: M365AuthShapeFromSelf,
+    client: HttpClientFromSelf,
+    config: ResolvedM365Config,
+  },
+  $I.annote("M365Runtime", {
+    description: "In-process Microsoft Graph service runtime: token provider, HTTP client, and resolved config.",
+  })
+) {}
 
 const REQUEST_ACCEPT = "application/json";
 const ALL_SITES_SEARCH = "*";
@@ -1104,7 +1135,7 @@ export class M365 extends Context.Service<M365, M365Shape>()($I`M365`) {
       Effect.gen(function* () {
         const auth = yield* M365Auth;
         const client = yield* HttpClient.HttpClient;
-        return M365.of(makeService({ auth, client, config: resolveM365Config(config) }));
+        return M365.of(makeService(M365Runtime.make({ auth, client, config: resolveM365Config(config) })));
       })
     );
 

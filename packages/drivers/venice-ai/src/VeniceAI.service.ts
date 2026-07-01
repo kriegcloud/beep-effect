@@ -6,7 +6,7 @@
  */
 
 import { $VeniceAiId } from "@beep/identity";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
 import { decodeJsonString } from "@beep/schema/Json";
 import { A, Str } from "@beep/utils";
 import { Config, Context, Effect, flow, Layer, pipe, Result, Stream } from "effect";
@@ -317,8 +317,8 @@ export class VeniceAIRequestOptions extends S.Class<VeniceAIRequestOptions>($I`V
 export class VeniceAIConfigInput extends S.Class<VeniceAIConfigInput>($I`VeniceAIConfigInput`)(
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    baseUrl: S.optionalKey(S.String),
-    headers: S.optionalKey(S.Record(S.String, S.String)),
+    baseUrl: S.String.pipe(SchemaUtils.withKeyDefaults(VENICE_API_URL)),
+    headers: S.Record(S.String, S.String).pipe(SchemaUtils.withKeyDefaults(R.empty())),
   },
   $I.annote("VeniceAIConfigInput", {
     description: "Runtime configuration accepted by the Venice AI driver layer.",
@@ -1312,8 +1312,8 @@ const resolveConfig = (config: VeniceAIConfigInput, redactedApiKey?: Redacted.Re
     O.fromUndefinedOr(redactedApiKey),
     O.orElse(() => O.fromUndefinedOr(config.apiKey))
   ),
-  baseUrl: normalizeBaseUrl(config.baseUrl ?? VENICE_API_URL),
-  headers: config.headers ?? {},
+  baseUrl: normalizeBaseUrl(config.baseUrl),
+  headers: config.headers,
 });
 
 const isJsonContentType = (contentType: string): boolean => Str.includes("application/json")(contentType);
