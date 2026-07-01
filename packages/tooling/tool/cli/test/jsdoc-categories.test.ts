@@ -43,6 +43,50 @@ describe("JSDoc category taxonomy", () => {
     });
   });
 
+  it("accepts the newly promoted canonical roles", () => {
+    expect(isCanonicalJSDocCategory("annotations")).toBe(true);
+    expect(isCanonicalJSDocCategory("math")).toBe(true);
+    expect(isCanonicalJSDocCategory("pattern-matching")).toBe(true);
+  });
+
+  it("aliases Effect-style role labels to canonical slugs", () => {
+    expect(normalizeJSDocCategory("transforming")).toMatchObject({
+      canonical: "mapping",
+      status: "alias",
+    });
+    expect(normalizeJSDocCategory("converting")).toMatchObject({
+      canonical: "mapping",
+      status: "alias",
+    });
+    expect(normalizeJSDocCategory("mutations")).toMatchObject({
+      canonical: "setters",
+      status: "alias",
+    });
+    expect(normalizeJSDocCategory("utility types")).toMatchObject({
+      canonical: "type-level",
+      status: "alias",
+    });
+    expect(normalizeJSDocCategory("do notation")).toMatchObject({
+      canonical: "combinators",
+      status: "alias",
+    });
+    expect(normalizeJSDocCategory("equivalence")).toMatchObject({
+      canonical: "predicates",
+      status: "alias",
+    });
+  });
+
+  it("treats spaced or cased forms of the new canonicals as aliases", () => {
+    expect(normalizeJSDocCategory("pattern matching")).toMatchObject({
+      canonical: "pattern-matching",
+      status: "alias",
+    });
+    expect(normalizeJSDocCategory("Annotations")).toMatchObject({
+      canonical: "annotations",
+      status: "alias",
+    });
+  });
+
   it("rejects structural graph metadata as symbol categories", () => {
     expect(normalizeJSDocCategory("exports")).toMatchObject({
       status: "rejected",
