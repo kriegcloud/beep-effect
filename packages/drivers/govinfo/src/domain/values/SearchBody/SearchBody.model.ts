@@ -29,7 +29,8 @@ export class SearchBody extends S.Class<SearchBody>($I`SearchBody`)(
       description: "Whether to include historical or superseded editions alongside current content in the results.",
     }),
     offsetMark: S.String.annotateKey({
-      description: "Opaque pagination cursor identifying the page of results to return; pass \"*\" to request the first page.",
+      description:
+        'Opaque pagination cursor identifying the page of results to return; pass "*" to request the first page.',
     }),
     pageSize: S.Finite.check(S.isInt32()).annotateKey({
       description: "Maximum number of search results to return in a single page.",
@@ -45,7 +46,8 @@ export class SearchBody extends S.Class<SearchBody>($I`SearchBody`)(
     }),
   },
   $I.annote("SearchBody", {
-    description: "Request body for the GovInfo POST /search endpoint, carrying the query, pagination cursor, historical scope, result granularity, and ordering of a search.",
+    description:
+      "Request body for the GovInfo POST /search endpoint, carrying the query, pagination cursor, historical scope, result granularity, and ordering of a search.",
   })
 ) {}
 
