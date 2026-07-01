@@ -214,11 +214,11 @@ const normalizeBaseUrl = Str.replace(/\/+$/, "");
 
 const resolveConfig = (config: XAiConfigInput): ResolvedXAiConfig => ({
   apiKey: O.fromUndefinedOr(config.apiKey),
-  apiUrl: normalizeBaseUrl(config.apiUrl ?? XAI_API_URL),
-  headers: config.headers ?? {},
+  apiUrl: normalizeBaseUrl(config.apiUrl),
+  headers: config.headers,
   managementApiKey: O.fromUndefinedOr(config.managementApiKey),
-  managementApiUrl: normalizeBaseUrl(config.managementApiUrl ?? XAI_MANAGEMENT_API_URL),
-  websocketUrl: normalizeBaseUrl(config.websocketUrl ?? XAI_WEBSOCKET_URL),
+  managementApiUrl: normalizeBaseUrl(config.managementApiUrl),
+  websocketUrl: normalizeBaseUrl(config.websocketUrl),
 });
 
 const isJsonContentType = (contentType: string): boolean => Str.includes("application/json")(contentType);

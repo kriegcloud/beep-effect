@@ -1,5 +1,11 @@
 /**
- * Product-neutral DuckDB execution service.
+ * Product-neutral DuckDB execution service and native Node API layer builders.
+ *
+ * @remarks
+ * The service boundary exposes SQL execution, read queries, transactions, and
+ * table-to-Parquet export without leaking `@duckdb/node-api` connection types
+ * into domain packages. The native implementation uses a shared connection and
+ * serializes access so in-memory databases preserve state across operations.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -20,14 +26,16 @@ const $I = $DuckdbId.create("DuckDb.service");
 const decodeRows = S.decodeUnknownEffect(DuckDbRows);
 
 /**
- * Parameter values accepted by the DuckDB Node API.
+ * Positional or named parameters accepted by DuckDB statements.
  *
  * @example
  * ```ts
  * import type { DuckDbQueryParameters } from "@beep/duckdb"
  *
- * const params: DuckDbQueryParameters = { id: "run-1" }
- * console.log(params)
+ * const positional = ["run-1", 42] satisfies DuckDbQueryParameters
+ * const named = { id: "run-1", value: 42 } satisfies DuckDbQueryParameters
+ *
+ * console.log([positional.length, named.id]) // [2, "run-1"]
  * ```
  *
  * @category models
@@ -36,57 +44,120 @@ const decodeRows = S.decodeUnknownEffect(DuckDbRows);
 export type DuckDbQueryParameters = Array<DuckDBValue> | Record<string, DuckDBValue>;
 
 /**
- * Narrow adapter accepted by {@link DuckDb.makeLayer}.
+ * Adapter contract accepted by {@link DuckDb.makeLayer}.
+ *
+ * @remarks
+ * Use this interface when a test, host application, or alternate runtime wants
+ * to provide DuckDB behavior without depending on the native Node API
+ * implementation exported by this package. Implementations should normalize
+ * recoverable failures into {@link DuckDbError}.
  *
  * @example
  * ```ts
- * import type { DuckDbClient } from "@beep/duckdb"
+ * import type { DuckDbClient, DuckDbRows } from "@beep/duckdb"
  * import { Effect } from "effect"
  *
  * const client: DuckDbClient = {
  *   copyTableToParquet: () => Effect.void,
- *   query: () => Effect.succeed([]),
+ *   query: (statement) => Effect.succeed([{ statement }] satisfies DuckDbRows),
  *   run: () => Effect.void,
  *   runMany: () => Effect.void,
  *   withTransaction: (use) => use(client)
  * }
  *
- * console.log(client)
+ * const program = Effect.gen(function* () {
+ *   yield* client.runMany(["create table events (id varchar)"])
+ *   return yield* client.query("select 1")
+ * })
+ *
+ * Effect.runPromise(program).then((rows) => console.log(rows[0]?.statement)) // "select 1"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export interface DuckDbClient {
+  /**
+   * Export a table through DuckDB's Parquet writer.
+   *
+   * @effects
+   * Requests DuckDB to write a Parquet file at `request.filePath`.
+   *
+   * @since 0.0.0
+   */
   readonly copyTableToParquet: (request: DuckDbParquetExport) => Effect.Effect<void, DuckDbError>;
+  /**
+   * Run a SQL statement that returns JSON-compatible rows.
+   *
+   * @since 0.0.0
+   */
   readonly query: (
     statement: string,
     parameters?: DuckDbQueryParameters | undefined
   ) => Effect.Effect<DuckDbRows, DuckDbError>;
+  /**
+   * Run a SQL statement for its side effects.
+   *
+   * @effects
+   * Executes the supplied SQL against the backing DuckDB connection; mutation
+   * semantics come from the statement itself.
+   *
+   * @since 0.0.0
+   */
   readonly run: (statement: string, parameters?: DuckDbQueryParameters | undefined) => Effect.Effect<void, DuckDbError>;
+  /**
+   * Run statements in input order, stopping at the first failure.
+   *
+   * @effects
+   * Applies each statement to the backing DuckDB connection sequentially.
+   *
+   * @since 0.0.0
+   */
   readonly runMany: (statements: ReadonlyArray<string>) => Effect.Effect<void, DuckDbError>;
+  /**
+   * Execute work inside a DuckDB transaction.
+   *
+   * @remarks
+   * Native implementations begin a transaction for the outer call, commit on
+   * success, and roll back on failure. Calls made on an already transactional
+   * client reuse the active transaction client instead of opening a nested
+   * DuckDB transaction.
+   *
+   * @effects
+   * Mutates transaction state on the backing connection with `BEGIN`,
+   * `COMMIT`, or `ROLLBACK`.
+   *
+   * @since 0.0.0
+   */
   readonly withTransaction: <A, R>(
     use: (transaction: DuckDbClient) => Effect.Effect<A, DuckDbError, R>
   ) => Effect.Effect<A, DuckDbError, R>;
 }
 
 /**
- * Runtime shape exposed by the {@link DuckDb} service.
+ * Runtime shape exposed by the {@link DuckDb} service tag.
+ *
+ * @remarks
+ * Application code depends on this service shape rather than on native
+ * `@duckdb/node-api` connection objects. The shape mirrors {@link DuckDbClient}
+ * so production layers, host adapters, and tests can share the same boundary.
  *
  * @example
  * ```ts
- * import type { DuckDbShape } from "@beep/duckdb"
+ * import type { DuckDbRows, DuckDbShape } from "@beep/duckdb"
  * import { Effect } from "effect"
  *
  * const service: DuckDbShape = {
  *   copyTableToParquet: () => Effect.void,
- *   query: () => Effect.succeed([]),
+ *   query: () => Effect.succeed([{ count: 1 }] satisfies DuckDbRows),
  *   run: () => Effect.void,
  *   runMany: () => Effect.void,
  *   withTransaction: (use) => use(service)
  * }
  *
- * console.log(service)
+ * Effect.runPromise(service.query("select count(*) as count")).then((rows) =>
+ *   console.log(rows[0]?.count)
+ * ) // 1
  * ```
  *
  * @category services
@@ -344,12 +415,31 @@ const makeNodeLayer = (options: DuckDbConnectionOptions): Layer.Layer<DuckDb> =>
 /**
  * Effect service for product-neutral DuckDB execution.
  *
+ * @remarks
+ * Yield this service from Effect programs that need DuckDB execution. Use
+ * {@link DuckDb.makeNodeLayer} for managed native connection lifetime, or
+ * {@link DuckDb.makeLayer} when tests or host code provide a compatible
+ * adapter.
+ *
  * @example
  * ```ts
- * import { DuckDb } from "@beep/duckdb"
+ * import { DuckDb, type DuckDbClient, type DuckDbRows } from "@beep/duckdb"
+ * import { Effect } from "effect"
  *
- * const service = DuckDb
- * console.log(service)
+ * const client: DuckDbClient = {
+ *   copyTableToParquet: () => Effect.void,
+ *   query: () => Effect.succeed([{ ok: true }] satisfies DuckDbRows),
+ *   run: () => Effect.void,
+ *   runMany: () => Effect.void,
+ *   withTransaction: (use) => use(client)
+ * }
+ *
+ * const program = Effect.gen(function* () {
+ *   const duckdb = yield* DuckDb
+ *   return yield* duckdb.query("select true as ok")
+ * }).pipe(Effect.provide(DuckDb.makeLayer(client)))
+ *
+ * Effect.runPromise(program).then((rows) => console.log(rows[0]?.ok)) // true
  * ```
  *
  * @category services
@@ -359,21 +449,30 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
   /**
    * Build a Layer from a narrow product-neutral DuckDB adapter.
    *
+   * @remarks
+   * This constructor does not acquire a native DuckDB connection. It only
+   * installs the supplied adapter under the {@link DuckDb} service key, which
+   * is useful for tests and host-owned database runtimes.
+   *
    * @example
    * ```ts
-   * import { DuckDb, type DuckDbClient } from "@beep/duckdb"
+   * import { DuckDb, type DuckDbClient, type DuckDbRows } from "@beep/duckdb"
    * import { Effect } from "effect"
    *
    * const client: DuckDbClient = {
    *   copyTableToParquet: () => Effect.void,
-   *   query: () => Effect.succeed([]),
+   *   query: () => Effect.succeed([{ id: "run-1" }] satisfies DuckDbRows),
    *   run: () => Effect.void,
    *   runMany: () => Effect.void,
    *   withTransaction: (use) => use(client)
    * }
    *
-   * const layer = DuckDb.makeLayer(client)
-   * console.log(layer)
+   * const program = Effect.gen(function* () {
+   *   const duckdb = yield* DuckDb
+   *   return yield* duckdb.query("select 'run-1' as id")
+   * }).pipe(Effect.provide(DuckDb.makeLayer(client)))
+   *
+   * Effect.runPromise(program).then((rows) => console.log(rows[0]?.id)) // "run-1"
    * ```
    *
    * @category layers
@@ -384,15 +483,28 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
   /**
    * Build a native DuckDB Node API client.
    *
+   * @remarks
+   * The returned client lazily opens one shared native connection on first use
+   * and serializes operations through that connection. Prefer
+   * {@link DuckDb.makeNodeLayer} when the connection should be closed with an
+   * Effect scope finalizer.
+   *
    * @example
    * ```ts
    * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
+   * import { Effect } from "effect"
    *
    * const client = DuckDb.makeNodeClient(DuckDbConnectionOptions.make({
-   *   databasePath: "metrics.duckdb"
+   *   databasePath: ":memory:"
    * }))
    *
-   * console.log(client)
+   * const program = Effect.gen(function* () {
+   *   yield* client.run("create table events (id varchar)")
+   *   yield* client.run("insert into events values ($id)", { id: "run-1" })
+   *   return yield* client.query("select id from events order by id")
+   * })
+   *
+   * Effect.runPromise(program).then((rows) => console.log(rows.length)) // 1
    * ```
    *
    * @category constructors
@@ -403,15 +515,27 @@ export class DuckDb extends Context.Service<DuckDb, DuckDbShape>()($I`DuckDb`) {
   /**
    * Build the native DuckDB Node API service layer.
    *
+   * @remarks
+   * The layer registers a scope finalizer that closes both the shared
+   * connection and DuckDB instance. Use this constructor for application code
+   * that wants native resources tied to an Effect scope.
+   *
    * @example
    * ```ts
    * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
+   * import { Effect } from "effect"
    *
    * const layer = DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({
-   *   databasePath: "metrics.duckdb"
+   *   databasePath: ":memory:"
    * }))
    *
-   * console.log(layer)
+   * const program = Effect.gen(function* () {
+   *   const duckdb = yield* DuckDb
+   *   yield* duckdb.run("create table events (id varchar)")
+   *   return yield* duckdb.query("select count(*) as count from events")
+   * }).pipe(Effect.provide(layer))
+   *
+   * Effect.runPromise(program).then((rows) => console.log(rows.length)) // 1
    * ```
    *
    * @category layers

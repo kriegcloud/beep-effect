@@ -12,7 +12,7 @@ import * as S from "effect/Schema";
 import { FetchHttpClient } from "effect/unstable/http";
 import * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientRequest from "effect/unstable/http/HttpClientRequest";
-import { HUBSPOT_CRM_API_URL, HUBSPOT_FORMS_API_URL, HubSpotConfigInput } from "./HubSpot.config.ts";
+import { HubSpotConfigInput } from "./HubSpot.config.ts";
 import { HubSpotError } from "./HubSpot.errors.ts";
 import type { Redacted as RedactedType } from "effect";
 import type * as HttpClientError from "effect/unstable/http/HttpClientError";
@@ -301,8 +301,8 @@ const resolveConfig = Effect.fn("HubSpot.resolveConfig")(function* (
   return ResolvedHubSpotConfig.make({
     accountId,
     accessToken: O.fromUndefinedOr(input.accessToken),
-    crmApiUrl: normalizeBaseUrl(input.crmApiUrl ?? HUBSPOT_CRM_API_URL),
-    formsApiUrl: normalizeBaseUrl(input.formsApiUrl ?? HUBSPOT_FORMS_API_URL),
+    crmApiUrl: normalizeBaseUrl(input.crmApiUrl),
+    formsApiUrl: normalizeBaseUrl(input.formsApiUrl),
     headers: input.headers ?? {},
   });
 });

@@ -245,7 +245,7 @@ export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: 
  *   example: "@param input - Raw input value."
  * }
  * const tagSchema = make("param", meta)
- * console.log(tagSchema.ast.annotations.jsDocTagMetadata?._tag)
+ * console.log(tagSchema.ast.annotations?.jsDocTagMetadata?._tag)
  * ```
  * @category models
  * @since 0.0.0

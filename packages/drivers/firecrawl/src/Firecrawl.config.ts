@@ -6,6 +6,7 @@
  */
 
 import { $FirecrawlId } from "@beep/identity/packages";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $FirecrawlId.create("Firecrawl.config");
@@ -46,7 +47,7 @@ export const FIRECRAWL_API_URL = "https://api.firecrawl.dev";
 export class FirecrawlConfigInput extends S.Class<FirecrawlConfigInput>($I`FirecrawlConfigInput`)(
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    apiUrl: S.optionalKey(S.String),
+    apiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(FIRECRAWL_API_URL)),
     backoffFactor: S.optionalKey(S.Finite),
     maxRetries: S.optionalKey(S.Finite),
     timeoutMs: S.optionalKey(S.Finite),

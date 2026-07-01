@@ -43,7 +43,20 @@ import { PosixPath } from "@beep/schema/PosixPath";
 import { makeTikaAppFileProcessingEngine, TikaAppEngineConfig } from "@beep/tika";
 import { makeUsptoError, normalizeUsptoApplicationNumber, normalizeUsptoPatentNumber, Uspto } from "@beep/uspto";
 import { A, Str } from "@beep/utils";
-import { Console, Context, Effect, FileSystem, Layer, Match, Order, Path, Ref, Result, Stream } from "effect";
+import {
+  Console,
+  Context,
+  Effect,
+  FileSystem,
+  Layer,
+  Match,
+  MutableHashSet,
+  Order,
+  Path,
+  Ref,
+  Result,
+  Stream,
+} from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -747,6 +760,20 @@ const prepareExtractOutputDir = Effect.fn("CorpusCommandService.prepareExtractOu
     .pipe(CorpusCommandError.mapError(`Failed creating extract output "${childrenRoot}".`));
 });
 
+const dedupeBySha256 = <A extends { readonly sha256: string }>(
+  records: ReadonlyArray<A>
+): { readonly duplicatesSkipped: number; readonly kept: ReadonlyArray<A> } => {
+  const seen = MutableHashSet.empty<string>();
+  const kept = A.filter(records, (record) => {
+    if (MutableHashSet.has(seen, record.sha256)) {
+      return false;
+    }
+    MutableHashSet.add(seen, record.sha256);
+    return true;
+  });
+  return { duplicatesSkipped: A.length(records) - A.length(kept), kept };
+};
+
 const selectExtractRecords = (
   allRecords: ReadonlyArray<CorpusProvenanceRecord>,
   options: CorpusExtractOptions
@@ -756,18 +783,10 @@ const selectExtractRecords = (
       ? allRecords
       : A.filter(allRecords, (record) => record.sourceLabel === options.sourceLabel);
 
-  const seenDigests = new Set<string>();
-  const unique: Array<CorpusProvenanceRecord> = [];
-  let duplicatesSkipped = 0;
-  for (const record of labeled) {
-    if (!options.includeDuplicates && seenDigests.has(record.sha256)) {
-      duplicatesSkipped += 1;
-      continue;
-    }
-    seenDigests.add(record.sha256);
-    unique.push(record);
-  }
-  const selected = options.maxFiles === undefined ? unique : A.take(unique, Math.max(0, Math.floor(options.maxFiles)));
+  const { duplicatesSkipped, kept } = options.includeDuplicates
+    ? { duplicatesSkipped: 0, kept: labeled }
+    : dedupeBySha256(labeled);
+  const selected = options.maxFiles === undefined ? kept : A.take(kept, Math.max(0, Math.floor(options.maxFiles)));
   return { duplicatesSkipped, selected };
 };
 
@@ -1411,24 +1430,14 @@ const buildOrganizePlan = (
   restoredByLabelPath: ReadonlyMap<string, MatchedRestorationRecord>,
   clientByLabel: ReadonlyMap<string, string>
 ): { readonly duplicatesSkipped: number; readonly plan: ReadonlyArray<OrganizePlanRow> } => {
-  const seenDigests = new Set<string>();
-  let duplicatesSkipped = 0;
-  const plan: Array<OrganizePlanRow> = [];
-
-  for (const record of allRecords) {
-    if (seenDigests.has(record.sha256)) {
-      duplicatesSkipped += 1;
-      continue;
-    }
-    seenDigests.add(record.sha256);
-    plan.push(
-      planOrganizeRow(
-        record,
-        restoredByLabelPath.get(labelPathKey(record.sourceLabel, record.relativePath)),
-        clientByLabel.get(record.sourceLabel)
-      )
-    );
-  }
+  const { duplicatesSkipped, kept } = dedupeBySha256(allRecords);
+  const plan = A.map(kept, (record) =>
+    planOrganizeRow(
+      record,
+      restoredByLabelPath.get(labelPathKey(record.sourceLabel, record.relativePath)),
+      clientByLabel.get(record.sourceLabel)
+    )
+  );
 
   return { duplicatesSkipped, plan };
 };

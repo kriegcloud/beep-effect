@@ -6,6 +6,7 @@
  */
 
 import { $SanityId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $SanityId.create("Sanity.config");
@@ -66,7 +67,7 @@ export class SanityConfigInput extends S.Class<SanityConfigInput>($I`SanityConfi
   {
     apiHost: S.optionalKey(S.String),
     apiToken: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    apiVersion: S.optionalKey(SanityApiVersion),
+    apiVersion: SanityApiVersion.pipe(SchemaUtils.withKeyDefaults(SANITY_API_VERSION)),
     dataset: S.optionalKey(SanityDataset),
     headers: S.optionalKey(S.Record(S.String, S.String)),
     projectId: S.optionalKey(SanityProjectId),

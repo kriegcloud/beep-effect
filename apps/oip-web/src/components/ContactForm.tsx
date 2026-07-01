@@ -7,13 +7,19 @@
 
 "use client";
 
+import { $OipWebId } from "@beep/identity";
+import { Email } from "@beep/schema";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
+import * as S from "effect/Schema";
 import { Atom } from "effect/unstable/reactivity";
 import * as AsyncResult from "effect/unstable/reactivity/AsyncResult";
-import { OipContactHttpApiClient } from "../contact/ContactSubmission.http";
-import { contactSubmissionPayloadFromFormData } from "../contact/ContactSubmission.model";
-import type { ContactSubmissionStatus } from "../contact/ContactSubmission.model";
+import {
+  ContactSubmissionStatus,
+  contactSubmissionPayloadFromFormData,
+  OipContactHttpApiClient,
+} from "../contact/index.ts";
 
+const $I = $OipWebId.create("components/ContactForm");
 const inputClass =
   "min-h-11 rounded-md border border-[color-mix(in_oklab,var(--oip-on-soil)_22%,transparent)] bg-[color-mix(in_oklab,var(--oip-soil)_18%,transparent)] px-3 py-2 text-sm text-[var(--oip-on-soil)] outline-none transition-colors placeholder:text-[color-mix(in_oklab,var(--oip-on-soil)_52%,transparent)] focus:border-[var(--oip-gold)] focus:ring-3 focus:ring-[color-mix(in_oklab,var(--oip-gold)_35%,transparent)]";
 const labelClass = "grid gap-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--oip-on-burgundy-accent)]";
@@ -23,10 +29,15 @@ const submittedAtAtom = Atom.make(0);
 const submitContactAtom = OipContactHttpApiClient.mutation("contact", "submit");
 const contactReactivityKeys = ["oip-contact"] as const;
 
-type SubmitContactForm = {
-  readonly form: HTMLFormElement;
-  readonly initialSubmittedAt: number;
-};
+class SubmitContactForm extends S.Class<SubmitContactForm>($I`SubmitContactForm`)(
+  {
+    form: S.instanceOf(HTMLFormElement),
+    initialSubmittedAt: S.Finite,
+  },
+  $I.annote("SubmitContactForm", {
+    description: "A form for submitting contact information.",
+  })
+) {}
 
 const currentTimestamp = (): number => Math.trunc(globalThis.performance.timeOrigin + globalThis.performance.now());
 
@@ -69,6 +80,17 @@ const submitContactFormAtom = Atom.writable(
   }
 );
 
+class ContactFormProps extends S.Class<ContactFormProps>($I`ContactFormProps`)(
+  {
+    email: Email,
+    initialSubmittedAt: S.Finite,
+    status: S.UndefinedOr(ContactSubmissionStatus),
+  },
+  $I.annote("ContactFormProps", {
+    description: "The return type of the ContactForm component.",
+  })
+) {}
+
 /**
  * Renders the OIP contact form.
  *
@@ -87,11 +109,7 @@ export function ContactForm({
   email,
   initialSubmittedAt,
   status,
-}: {
-  readonly email: string;
-  readonly initialSubmittedAt: number;
-  readonly status: ContactSubmissionStatus | undefined;
-}) {
+}: ContactFormProps) {
   const effectiveSubmittedAt = useAtomValue(effectiveSubmittedAtAtom(initialSubmittedAt));
   const markStarted = useAtomSet(markContactStartedAtom);
   const submitForm = useAtomSet(submitContactFormAtom);

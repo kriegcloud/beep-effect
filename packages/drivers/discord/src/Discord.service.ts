@@ -27,7 +27,6 @@ import type * as HttpClientResponse from "effect/unstable/http/HttpClientRespons
 
 const $I = $DiscordId.create("Discord.service");
 
-const DISCORD_API_URL = "https://discord.com/api/v10";
 const normalizeBaseUrl = Str.replace(/\/+$/, "");
 const decodeChannelRequest = S.decodeUnknownEffect(DiscordChannelRequest);
 const decodeCreateMessageRequest = S.decodeUnknownEffect(DiscordCreateMessageRequest);
@@ -132,7 +131,7 @@ const executeJson = Effect.fn("Discord.executeJson")(function* (
 });
 
 const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput): DiscordShape => {
-  const baseUrl = normalizeBaseUrl(config.baseUrl ?? DISCORD_API_URL);
+  const baseUrl = normalizeBaseUrl(config.baseUrl);
 
   return {
     createMessage: Effect.fn("Discord.createMessage")(function* (rawRequest, botToken) {

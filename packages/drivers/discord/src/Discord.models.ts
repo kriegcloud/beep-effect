@@ -6,9 +6,25 @@
  */
 
 import { $DiscordId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $DiscordId.create("Discord.models");
+
+/**
+ * Discord's public REST v10 base URL.
+ *
+ * @example
+ * ```ts
+ * import { DISCORD_API_URL } from "@beep/discord"
+ *
+ * console.log(DISCORD_API_URL) // "https://discord.com/api/v10"
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
+export const DISCORD_API_URL = "https://discord.com/api/v10";
 
 /**
  * Runtime configuration accepted by {@link Discord.makeLayer}.
@@ -35,7 +51,9 @@ const $I = $DiscordId.create("Discord.models");
  */
 export class DiscordConfigInput extends S.Class<DiscordConfigInput>($I`DiscordConfigInput`)(
   {
-    baseUrl: S.optionalKey(S.String),
+    baseUrl: S.String.pipe(SchemaUtils.withKeyDefaults(DISCORD_API_URL)).annotateKey({
+      description: "Discord REST base URL; defaults to Discord's public v10 API.",
+    }),
   },
   $I.annote("DiscordConfigInput", {
     description: "Runtime configuration accepted by the Discord REST driver layer.",

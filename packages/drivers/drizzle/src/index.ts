@@ -1,6 +1,12 @@
 /**
  * `@beep/drizzle` driver-level capability wrapper for product-neutral database execution.
  *
+ * @remarks
+ * Import from this package boundary for the stable Drizzle driver surface.
+ * `Drizzle` owns execution and transaction ports, `DrizzleError` owns
+ * technical failure normalization, and `EntityTable` owns metadata-only
+ * schema-to-table projection.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */

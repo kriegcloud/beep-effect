@@ -17,8 +17,9 @@ import { getSomesStruct } from "@beep/utils/Option";
 import { Context, Effect, Layer, pipe, Redacted } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { resolveM365Config } from "./M365.config.ts";
+import { ResolvedM365Config, resolveM365Config } from "./M365.config.ts";
 import { M365Error } from "./M365.errors.ts";
 import type {
   AccountInfo,
@@ -27,18 +28,45 @@ import type {
   CryptoProvider,
   PublicClientApplication,
 } from "@azure/msal-node";
-import type { M365ConfigInput, ResolvedM365Config } from "./M365.config.ts";
+import type { M365ConfigInput } from "./M365.config.ts";
 
 const $I = $M365Id.create("M365.auth");
 
 type ICachePlugin = NonNullable<NonNullable<Configuration["cache"]>["cachePlugin"]>;
 
-type M365AuthRuntime = {
-  readonly crypto: CryptoProvider;
-  readonly interactiveAuthorizer: O.Option<M365InteractiveAuthorizer>;
-  readonly pca: PublicClientApplication;
-  readonly resolved: ResolvedM365Config;
-};
+// Opaque MSAL handles are constructed in-process (via a dynamic import, so no
+// static constructor exists for `S.instanceOf`) and never decoded from external
+// input; a structural `S.declare` carries them through the runtime schema.
+const CryptoProviderFromSelf = S.declare((u: unknown): u is CryptoProvider => P.isObject(u)).pipe(
+  $I.annoteSchema("CryptoProviderFromSelf", {
+    description: "In-process MSAL CryptoProvider handle carried through the auth runtime.",
+  })
+);
+
+const PublicClientApplicationFromSelf = S.declare((u: unknown): u is PublicClientApplication => P.isObject(u)).pipe(
+  $I.annoteSchema("PublicClientApplicationFromSelf", {
+    description: "In-process MSAL PublicClientApplication handle carried through the auth runtime.",
+  })
+);
+
+const InteractiveAuthorizerFromSelf = S.declare((u: unknown): u is M365InteractiveAuthorizer => P.isFunction(u)).pipe(
+  $I.annoteSchema("InteractiveAuthorizerFromSelf", {
+    description: "Host-supplied interactive authorizer function carried through the auth runtime.",
+  })
+);
+
+class M365AuthRuntime extends S.Class<M365AuthRuntime>($I`M365AuthRuntime`)(
+  {
+    crypto: CryptoProviderFromSelf,
+    interactiveAuthorizer: S.Option(InteractiveAuthorizerFromSelf),
+    pca: PublicClientApplicationFromSelf,
+    resolved: ResolvedM365Config,
+  },
+  $I.annote("M365AuthRuntime", {
+    description:
+      "In-process MSAL auth runtime: crypto provider, public client, resolved config, and optional host authorizer.",
+  })
+) {}
 
 /**
  * Authorization request passed from the MSAL token provider to the host-owned
@@ -323,12 +351,12 @@ export class M365Auth extends Context.Service<M365Auth, M365AuthShape>()($I`M365
           },
         });
         const crypto = new Msal.CryptoProvider();
-        const runtime = {
+        const runtime = M365AuthRuntime.make({
           crypto,
           interactiveAuthorizer: O.fromUndefinedOr(options.interactiveAuthorizer),
           pca,
           resolved,
-        };
+        });
         return M365Auth.of({ acquireToken: acquireToken(runtime) });
       })
     );

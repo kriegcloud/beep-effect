@@ -113,8 +113,8 @@ const normalizeUrl = Str.replace(/\/+$/, "");
 
 const resolveConfig = (config: RunpodDocsConfigInput): ResolvedRunpodDocsConfig =>
   ResolvedRunpodDocsConfig.make({
-    headers: config.headers ?? {},
-    indexUrl: config.indexUrl ?? RUNPOD_DOCS_INDEX_URL,
+    headers: config.headers,
+    indexUrl: config.indexUrl,
   });
 
 const nonEmptyTrimmed: (value: string) => O.Option<string> = flow(Str.trim, O.liftPredicate(Str.isNonEmpty));

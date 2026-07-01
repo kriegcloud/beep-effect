@@ -6,6 +6,8 @@
  */
 
 import { $RunpodId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $RunpodId.create("Runpod.config");
@@ -60,8 +62,8 @@ export const RUNPOD_DOCS_INDEX_URL = "https://docs.runpod.io/llms.txt";
 export class RunpodConfigInput extends S.Class<RunpodConfigInput>($I`RunpodConfigInput`)(
   {
     apiKey: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    apiUrl: S.optionalKey(S.String),
-    headers: S.optionalKey(S.Record(S.String, S.String)),
+    apiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(RUNPOD_API_URL)),
+    headers: S.Record(S.String, S.String).pipe(SchemaUtils.withKeyDefaults(R.empty())),
   },
   $I.annote("RunpodConfigInput", {
     description: "Runtime configuration accepted by the Runpod REST API driver layer.",
@@ -86,8 +88,8 @@ export class RunpodConfigInput extends S.Class<RunpodConfigInput>($I`RunpodConfi
  */
 export class RunpodDocsConfigInput extends S.Class<RunpodDocsConfigInput>($I`RunpodDocsConfigInput`)(
   {
-    headers: S.optionalKey(S.Record(S.String, S.String)),
-    indexUrl: S.optionalKey(S.String),
+    headers: S.Record(S.String, S.String).pipe(SchemaUtils.withKeyDefaults(R.empty())),
+    indexUrl: S.String.pipe(SchemaUtils.withKeyDefaults(RUNPOD_DOCS_INDEX_URL)),
   },
   $I.annote("RunpodDocsConfigInput", {
     description: "Runtime configuration accepted by the Runpod documentation index driver layer.",

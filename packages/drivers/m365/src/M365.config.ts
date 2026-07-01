@@ -6,6 +6,7 @@
  */
 
 import { $M365Id } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import { O } from "@beep/utils";
 import { HashSet, pipe } from "effect";
 import * as A from "effect/Array";
@@ -141,8 +142,10 @@ const requestsNoWriteScope = (scopes: ReadonlyArray<string>): boolean =>
  * Public-client (delegated, auth-code + PKCE) configuration. `tenantId` and
  * `clientId` are not secrets; `clientSecret` is reserved (and `S.Redacted`) for
  * a future confidential-client path and is unused by the v1 public-client flow.
- * This is an application-boundary input the host constructs, so optional fields
- * stay `S.optionalKey`; {@link resolveM365Config} folds them into `Option`.
+ * This is an application-boundary input the host constructs: constant-default
+ * fields (`scopes`, `redirectUri`, `graphBaseUrl`, `maxRetries`) carry their
+ * defaults in the schema, so the host may omit them and {@link resolveM365Config}
+ * only derives `authority` and folds the genuinely-absent fields into `Option`.
  *
  * Requested `scopes` may not include any {@link M365_RESERVED_WRITE_SCOPES}
  * entry — read-only by construction.
@@ -176,17 +179,17 @@ export class M365ConfigInput extends S.Class<M365ConfigInput>($I`M365ConfigInput
     clientSecret: S.optionalKey(S.String.pipe(S.RedactedFromValue)).annotateKey({
       description: "Reserved confidential-client secret; redacted and unused by the v1 public-client flow.",
     }),
-    graphBaseUrl: S.optionalKey(S.String).annotateKey({
+    graphBaseUrl: S.String.pipe(SchemaUtils.withKeyDefaults(GRAPH_API_BASE_URL)).annotateKey({
       description: "Graph base URL override; defaults to the pinned v1.0 endpoint.",
     }),
-    maxRetries: S.optionalKey(S.Int).annotateKey({
+    maxRetries: S.Int.pipe(SchemaUtils.withKeyDefaults(DEFAULT_MAX_RETRIES)).annotateKey({
       description: "Throttle-retry budget honored on 429/503; defaults to DEFAULT_MAX_RETRIES.",
     }),
-    redirectUri: S.optionalKey(S.String).annotateKey({
+    redirectUri: S.String.pipe(SchemaUtils.withKeyDefaults(DEFAULT_REDIRECT_URI)).annotateKey({
       description: "Loopback redirect URI base for the interactive authorizer; defaults to http://localhost.",
     }),
-    scopes: S.optionalKey(
-      S.Array(S.String).check(
+    scopes: S.Array(S.String)
+      .check(
         S.makeFilter(requestsNoWriteScope, {
           identifier: $I`M365ReadOnlyScopes`,
           title: "M365 read-only scopes",
@@ -194,9 +197,10 @@ export class M365ConfigInput extends S.Class<M365ConfigInput>($I`M365ConfigInput
           message: "Reserved write scope requested; the v1 Microsoft 365 driver is read-only.",
         })
       )
-    ).annotateKey({
-      description: "Requested delegated scopes; defaults to M365_READ_SCOPES. Reserved write scopes are rejected.",
-    }),
+      .pipe(SchemaUtils.withKeyDefaults(M365_READ_SCOPES))
+      .annotateKey({
+        description: "Requested delegated scopes; defaults to M365_READ_SCOPES. Reserved write scopes are rejected.",
+      }),
     tokenCachePath: S.optionalKey(S.String).annotateKey({
       description: "Filesystem path for the encrypted MSAL token cache; in-memory cache when omitted.",
     }),
@@ -273,10 +277,10 @@ export const resolveM365Config = (input: M365ConfigInput): ResolvedM365Config =>
       O.map(normalizeBaseUrl),
       O.getOrElse(() => `${DEFAULT_AUTHORITY_HOST}/${input.tenantId}`)
     ),
-    scopes: input.scopes ?? M365_READ_SCOPES,
-    redirectUri: normalizeBaseUrl(input.redirectUri ?? DEFAULT_REDIRECT_URI),
-    graphBaseUrl: normalizeBaseUrl(input.graphBaseUrl ?? GRAPH_API_BASE_URL),
-    maxRetries: input.maxRetries ?? DEFAULT_MAX_RETRIES,
+    scopes: input.scopes,
+    redirectUri: normalizeBaseUrl(input.redirectUri),
+    graphBaseUrl: normalizeBaseUrl(input.graphBaseUrl),
+    maxRetries: input.maxRetries,
     tokenCachePath: O.fromUndefinedOr(input.tokenCachePath),
     clientSecret: O.fromUndefinedOr(input.clientSecret),
   });

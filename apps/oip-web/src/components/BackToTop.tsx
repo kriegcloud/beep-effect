@@ -7,6 +7,7 @@
 
 "use client";
 
+import {thunkUndefined} from "@beep/utils";
 import { useAtomSet, useAtomValue } from "@effect/atom-react";
 import * as O from "effect/Option";
 import { Atom } from "effect/unstable/reactivity";
@@ -32,7 +33,7 @@ const backToTopVisibleAtom = Atom.make((get) => {
 });
 
 const scrollToTopAtom = Atom.writable(
-  () => undefined,
+  thunkUndefined,
   () => {
     if (typeof window === "undefined") {
       return;

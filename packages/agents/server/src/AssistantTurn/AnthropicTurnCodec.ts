@@ -118,7 +118,12 @@ const CheckedAssistantBlock = S.Union([
   CheckedCodeBlock,
   CheckedTableBlock,
   CheckedYouTubeBlock,
-]).pipe(S.toTaggedUnion("type"));
+]).pipe(
+  S.toTaggedUnion("type"),
+  $I.annoteSchema("CheckedAssistantBlock", {
+    description: "A checked assistant block.",
+  })
+);
 
 /**
  * Per-block Anthropic codec for decoding individually streamed array elements.

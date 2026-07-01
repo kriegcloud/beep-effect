@@ -226,7 +226,7 @@ const isSameUsptoHost = (url: string, usptoHost: O.Option<string>): boolean =>
 
 const resolveConfig = (input: UsptoConfigInput): ResolvedUsptoConfig => ({
   apiKey: O.fromUndefinedOr(input.apiKey),
-  apiUrl: normalizeBaseUrl(input.apiUrl ?? USPTO_API_URL),
+  apiUrl: normalizeBaseUrl(input.apiUrl),
 });
 
 const statusError = (status: number): UsptoError =>

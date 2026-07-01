@@ -6,6 +6,7 @@
  */
 
 import { $HubspotId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $HubspotId.create("HubSpot.config");
@@ -62,8 +63,8 @@ export class HubSpotConfigInput extends S.Class<HubSpotConfigInput>($I`HubSpotCo
   {
     accountId: S.optionalKey(S.String),
     accessToken: S.optionalKey(S.String.pipe(S.RedactedFromValue)),
-    crmApiUrl: S.optionalKey(S.String),
-    formsApiUrl: S.optionalKey(S.String),
+    crmApiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(HUBSPOT_CRM_API_URL)),
+    formsApiUrl: S.String.pipe(SchemaUtils.withKeyDefaults(HUBSPOT_FORMS_API_URL)),
     headers: S.optionalKey(S.Record(S.String, S.String)),
   },
   $I.annote("HubSpotConfigInput", {
