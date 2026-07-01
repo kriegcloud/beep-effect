@@ -348,9 +348,6 @@ function Clients({ content }: { readonly content: OipSiteContent }) {
             );
           })}
         </ul>
-        <p className={`${displayClass} mt-8 text-center text-lg italic text-[var(--oip-walnut)]`}>
-          Selected matters - 1997 to present. Client marks are review-gated before launch.
-        </p>
       </div>
     </section>
   );
