@@ -13,18 +13,38 @@ import * as S from "effect/Schema";
 const $I = $LawPracticeDomainId.create("entities/OfficeAction/OfficeAction.model");
 
 /**
- * USPTO office action context. Pinned to the matter it prosecutes (the matter
- * wall) and the patent asset under examination, plus the bare application number
- * carried on the action.
+ * USPTO office action entity for a patent asset under examination.
+ *
+ * Links the action to the prosecuting matter and patent asset fixture while
+ * carrying the application number extracted from the action.
  *
  * @example
  * ```ts
  * import { OfficeAction } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(OfficeAction.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const action = S.decodeUnknownSync(OfficeAction)({
+ *   applicationNumber: "18/123,456",
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   entityType: "LawPracticeOfficeAction",
+ *   fixtureKey: "office-action.first",
+ *   id: 4,
+ *   matterFixtureKey: "matter.hinge",
+ *   orgId: 1,
+ *   patentAssetFixtureKey: "patent-asset.hinge",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(action.applicationNumber) // "18/123,456"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class OfficeAction extends BaseEntity.Class<OfficeAction>($I`OfficeAction`)(
@@ -52,6 +72,6 @@ export class OfficeAction extends BaseEntity.Class<OfficeAction>($I`OfficeAction
     },
   },
   $I.annote("OfficeAction", {
-    description: "USPTO office action context.",
+    description: "USPTO office action entity for a patent asset under examination.",
   })
 ) {}

@@ -18,9 +18,18 @@ const $I = $WorkspaceUseCasesId.create("aggregates/Thread/Thread.errors");
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
  * import { ThreadStoreNotFound } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * console.log(ThreadStoreNotFound)
+ * const error = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const threadId = yield* S.decodeUnknownEffect(Workspace.ThreadId)(42)
+ *     return new ThreadStoreNotFound({ threadId })
+ *   })
+ * )
+ * console.log(error._tag) // "ThreadStoreNotFound"
  * ```
  *
  * @category errors
@@ -42,9 +51,18 @@ export class ThreadStoreNotFound extends TaggedErrorClass<ThreadStoreNotFound>($
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import * as Workspace from "@beep/shared-domain/identity/Workspace"
  * import { ThreadStoreConflict } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * console.log(ThreadStoreConflict)
+ * const error = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const threadId = yield* S.decodeUnknownEffect(Workspace.ThreadId)(42)
+ *     return new ThreadStoreConflict({ threadId, reason: "stale title" })
+ *   })
+ * )
+ * console.log(error.reason) // "stale title"
  * ```
  *
  * @category errors
@@ -69,7 +87,8 @@ export class ThreadStoreConflict extends TaggedErrorClass<ThreadStoreConflict>($
  * ```ts
  * import { ThreadStoreUnavailable } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * console.log(ThreadStoreUnavailable)
+ * const error = new ThreadStoreUnavailable({ reason: "database unavailable" })
+ * console.log(error._tag) // "ThreadStoreUnavailable"
  * ```
  *
  * @category errors
@@ -93,8 +112,14 @@ export class ThreadStoreUnavailable extends TaggedErrorClass<ThreadStoreUnavaila
  * ```ts
  * import type { ThreadStoreError } from "@beep/workspace-use-cases/aggregates/Thread/server"
  *
- * const value = {} as ThreadStoreError
- * console.log(value)
+ * type ErrorTag = ThreadStoreError["_tag"]
+ *
+ * const handledTags: ReadonlyArray<ErrorTag> = [
+ *   "ThreadStoreNotFound",
+ *   "ThreadStoreConflict",
+ *   "ThreadStoreUnavailable",
+ * ]
+ * console.log(handledTags.includes("ThreadStoreConflict")) // true
  * ```
  *
  * @category errors

@@ -40,10 +40,11 @@ const decodeEvidence = S.decodeUnknownSync(Evidence);
  * ```ts
  * import { officeActionExtractionTargets } from "@beep/law-practice-use-cases/OfficeActionReview"
  *
- * console.log(officeActionExtractionTargets.map((target) => target.name))
+ * const targetNames = officeActionExtractionTargets.map((target) => target.name)
+ * console.log(targetNames.includes("distinction")) // true
  * ```
  *
- * @category models
+ * @category configuration
  * @since 0.0.0
  */
 export const officeActionExtractionTargets: LangExtractRequest["targets"] = [
@@ -136,11 +137,13 @@ const extractionRequestFrom = (input: OfficeActionReviewInput, sourceText: strin
  * ```ts
  * import type { OfficeActionReviewDeps } from "@beep/law-practice-use-cases/OfficeActionReview"
  *
- * const accept = (deps: OfficeActionReviewDeps) => deps.irToLaw
- * console.log(accept)
+ * type DependencyName = keyof OfficeActionReviewDeps
+ * const requiredDeps: ReadonlyArray<DependencyName> = ["fileProcessing", "gate", "irToLaw", "langExtract", "transition"]
+ *
+ * console.log(requiredDeps.includes("irToLaw")) // true
  * ```
  *
- * @category models
+ * @category services
  * @since 0.0.0
  */
 export interface OfficeActionReviewDeps {
@@ -158,11 +161,70 @@ export interface OfficeActionReviewDeps {
  *
  * @example
  * ```ts
+ * import { ArtifactId, ArtifactLocator, ContentDigest, OperationId, SourceArtifact } from "@beep/file-processing/Artifact"
+ * import { FileProcessingOperationError } from "@beep/file-processing/Operation"
+ * import type { FileProcessingServiceShape } from "@beep/file-processing/Service"
+ * import { IrToLawShape } from "@beep/law-practice-use-cases/IrToLaw"
  * import { makeOfficeActionReview } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import { OfficeActionReviewInput } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import type { OfficeActionReviewDeps } from "@beep/law-practice-use-cases/OfficeActionReview"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ * import { Effect, Exit } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(typeof makeOfficeActionReview)
+ * const fileProcessing: FileProcessingServiceShape = {
+ *   detect: () => Effect.never,
+ *   exportArchive: () => Effect.never,
+ *   extract: () => Effect.never,
+ *   process: () =>
+ *     Effect.fail(
+ *       FileProcessingOperationError.fromReason("file-extraction-failed", {
+ *         message: "Fixture text unavailable."
+ *       })
+ *     )
+ * }
+ *
+ * const deps: OfficeActionReviewDeps = {
+ *   fileProcessing,
+ *   gate: { evaluate: () => Effect.never },
+ *   irToLaw: IrToLawShape.make({ toLaw: () => Effect.never }),
+ *   langExtract: { extract: () => Effect.never },
+ *   transition: { advance: () => Effect.never }
+ * }
+ *
+ * const digestHex = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * const program = Effect.gen(function* () {
+ *   const relativePath = yield* S.decodeUnknownEffect(PosixPath)("fixtures/office-action.txt")
+ *   const artifactId = yield* S.decodeUnknownEffect(ArtifactId)(`artifact:${digestHex}`)
+ *   const digest = yield* S.decodeUnknownEffect(ContentDigest)(`sha256:${digestHex}`)
+ *   const operationId = yield* S.decodeUnknownEffect(OperationId)(`operation:${digestHex}`)
+ *   const input = OfficeActionReviewInput.make({
+ *     matterFixtureKey: "matter.spike",
+ *     officeActionFixtureKey: "office-action.spike",
+ *     operationId,
+ *     sourceArtifact: SourceArtifact.make({
+ *       digest,
+ *       extension: "txt",
+ *       id: artifactId,
+ *       locator: ArtifactLocator.make({ kind: "synthetic", value: relativePath }),
+ *       name: "office-action.txt",
+ *       relativePath,
+ *       sizeBytes: NonNegativeInt.make(21),
+ *       text: "Claim 1 rejected."
+ *     })
+ *   })
+ *
+ *   const exit = yield* Effect.exit(makeOfficeActionReview(deps).review(input))
+ *   return Exit.isFailure(exit)
+ * })
+ *
+ * Effect.runPromise(program).then(console.log) // true
  * ```
  *
+ * @effects The returned `review` workflow invokes the injected file-processing
+ * service, LangExtract service, IR-to-law mapper, claim gate, and lifecycle
+ * transition in order.
  * @category constructors
  * @since 0.0.0
  */

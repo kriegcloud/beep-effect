@@ -1,5 +1,5 @@
 /**
- * Attach static methods to a schema.
+ * Attach helper statics to schema objects.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -69,20 +69,32 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
 };
 
 /**
- * Attach static methods to a schema object. Designed to be used with `.pipe()`.
+ * Attach static methods to a schema object while preserving them across later
+ * `annotate` calls.
+ *
+ * @remarks
+ * Existing configurable properties may be replaced, identical statics are
+ * ignored, and conflicting non-configurable properties raise an internal
+ * tagged error. Use this for schema companion helpers that should travel with
+ * the schema value instead of living as separate module-level functions.
  *
  * @example
  * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
  * import * as S from "effect/Schema"
  * import { withStatics } from "@beep/schema/SchemaUtils/withStatics"
  *
+ * const $I = $SchemaId.create("Docs")
  * const MySchema = S.String.pipe(
  *   withStatics(() => ({
  *     empty: ""
- *   }))
+ *   })),
+ *   $I.annoteSchema("MySchema", {
+ *     description: "A string schema with companion statics."
+ *   })
  * )
  *
- * console.log(MySchema.empty)
+ * console.log(MySchema.empty) // ""
  * ```
  *
  * @since 0.0.0

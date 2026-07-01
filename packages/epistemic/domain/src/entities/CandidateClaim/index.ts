@@ -10,12 +10,12 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/entities/CandidateClaim"
+ * import { CandidateClaim } from "@beep/epistemic-domain/entities/CandidateClaim"
  *
- * console.log(Module)
+ * console.log(CandidateClaim.definition.entityId.resource)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export * from "./CandidateClaim.model.js";

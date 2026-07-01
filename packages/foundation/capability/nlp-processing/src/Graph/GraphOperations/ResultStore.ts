@@ -288,9 +288,18 @@ const makeResultStore = Effect.gen(function* () {
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ResultStoreLive } from "@beep/nlp-processing/Graph/GraphOperations/ResultStore"
+ * import { ResultStore } from "@beep/nlp-processing/Graph/GraphOperations/ResultStore"
  *
- * console.log(ResultStoreLive)
+ * const stats = await Effect.runPromise(
+ *   Effect.gen(function* () {
+ *     const store = yield* ResultStore
+ *     return yield* store.stats
+ *   }).pipe(Effect.provide(ResultStoreLive))
+ * )
+ *
+ * stats.size
  * ```
  *
  * @since 0.0.0
@@ -303,9 +312,19 @@ export const ResultStoreLive: Layer.Layer<ResultStore> = Layer.effect(ResultStor
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { ResultStoreTest } from "@beep/nlp-processing/Graph/GraphOperations/ResultStore"
+ * import { ResultStore } from "@beep/nlp-processing/Graph/GraphOperations/ResultStore"
  *
- * console.log(ResultStoreTest)
+ * const empty = await Effect.runPromise(
+ *   Effect.gen(function* () {
+ *     const store = yield* ResultStore
+ *     const stats = yield* store.stats
+ *     return stats.size === 0
+ *   }).pipe(Effect.provide(ResultStoreTest))
+ * )
+ *
+ * empty
  * ```
  *
  * @since 0.0.0

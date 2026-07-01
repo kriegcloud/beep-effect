@@ -28,7 +28,7 @@ const $I = $EpistemicDomainId.create("values/ClaimProjection/ClaimProjectionView
  * console.log(counts.admitted)
  * ```
  *
- * @category models
+ * @category read-models
  * @since 0.0.0
  */
 export class ClaimStateCounts extends S.Class<ClaimStateCounts>($I`ClaimStateCounts`)(
@@ -62,7 +62,7 @@ export class ClaimStateCounts extends S.Class<ClaimStateCounts>($I`ClaimStateCou
  * console.log(view.total)
  * ```
  *
- * @category models
+ * @category read-models
  * @since 0.0.0
  */
 export class ClaimProjectionView extends S.Class<ClaimProjectionView>($I`ClaimProjectionView`)(

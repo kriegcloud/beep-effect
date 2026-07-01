@@ -1,5 +1,5 @@
 /**
- * Shared-kernel Organization table metadata.
+ * Shared-kernel organization table metadata projection.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -9,13 +9,20 @@ import { EntityTable } from "@beep/drizzle";
 import { Organization } from "@beep/shared-domain/entities";
 
 /**
- * PGLite/Postgres Drizzle table for the shared Organization entity.
+ * Postgres Drizzle table metadata for tenant organizations.
+ *
+ * @remarks
+ * The table is projected from `Organization.Model`, including the unique slug
+ * index and license-tier lookup metadata defined in the shared domain entity.
  *
  * @example
  * ```ts
+ * import { getTableConfig } from "drizzle-orm/pg-core"
  * import { Organization } from "@beep/shared-tables/entities"
  *
- * console.log(Organization.Table.definition.tableName)
+ * const config = getTableConfig(Organization.Table)
+ *
+ * console.log(config.name) // "shared_organization"
  * ```
  *
  * @category tables

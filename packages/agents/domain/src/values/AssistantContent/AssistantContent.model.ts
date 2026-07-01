@@ -110,7 +110,15 @@ export const InlineNode = S.Union([TextInline, LinkInline]).pipe(
 );
 
 /**
- * Runtime type for {@link InlineNode}.
+ * Type accepted by the {@link InlineNode} schema.
+ *
+ * @example
+ * ```ts
+ * import type { InlineNode } from "@beep/agents-domain/values/AssistantContent"
+ *
+ * const inline = { type: "text", text: "Hello" } satisfies InlineNode
+ * console.log(inline.type)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0
@@ -461,7 +469,18 @@ export const AssistantBlock = S.Union([
 );
 
 /**
- * Runtime type for {@link AssistantBlock}.
+ * Type accepted by the {@link AssistantBlock} schema.
+ *
+ * @example
+ * ```ts
+ * import type { AssistantBlock } from "@beep/agents-domain/values/AssistantContent"
+ *
+ * const block = {
+ *   type: "paragraph",
+ *   children: [{ type: "text", text: "Hello" }],
+ * } satisfies AssistantBlock
+ * console.log(block.type)
+ * ```
  *
  * @category value-objects
  * @since 0.0.0

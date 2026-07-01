@@ -16,7 +16,8 @@ import { makeNamedNode } from "../Rdf.ts";
  * ```ts
  * import { XSD_NAMESPACE } from "@beep/rdf/Vocab/Xsd"
  *
- * console.log(XSD_NAMESPACE)
+ * const stringDatatypeIri = `${XSD_NAMESPACE}string`
+ * console.log(stringDatatypeIri) // "http://www.w3.org/2001/XMLSchema#string"
  * ```
  *
  * @since 0.0.0
@@ -31,11 +32,12 @@ export const XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema#" as const;
  * ```ts
  * import { XSD_STRING } from "@beep/rdf/Vocab/Xsd"
  *
- * console.log(XSD_STRING)
+ * console.log(XSD_STRING.value) // "http://www.w3.org/2001/XMLSchema#string"
+ * console.log(XSD_STRING.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const XSD_STRING = makeNamedNode(`${XSD_NAMESPACE}string`);
 
@@ -46,11 +48,12 @@ export const XSD_STRING = makeNamedNode(`${XSD_NAMESPACE}string`);
  * ```ts
  * import { XSD_ANY_URI } from "@beep/rdf/Vocab/Xsd"
  *
- * console.log(XSD_ANY_URI)
+ * console.log(XSD_ANY_URI.value) // "http://www.w3.org/2001/XMLSchema#anyURI"
+ * console.log(XSD_ANY_URI.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const XSD_ANY_URI = makeNamedNode(`${XSD_NAMESPACE}anyURI`);
 
@@ -61,11 +64,12 @@ export const XSD_ANY_URI = makeNamedNode(`${XSD_NAMESPACE}anyURI`);
  * ```ts
  * import { XSD_BOOLEAN } from "@beep/rdf/Vocab/Xsd"
  *
- * console.log(XSD_BOOLEAN)
+ * console.log(XSD_BOOLEAN.value) // "http://www.w3.org/2001/XMLSchema#boolean"
+ * console.log(XSD_BOOLEAN.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const XSD_BOOLEAN = makeNamedNode(`${XSD_NAMESPACE}boolean`);
 
@@ -76,11 +80,12 @@ export const XSD_BOOLEAN = makeNamedNode(`${XSD_NAMESPACE}boolean`);
  * ```ts
  * import { XSD_INTEGER } from "@beep/rdf/Vocab/Xsd"
  *
- * console.log(XSD_INTEGER)
+ * console.log(XSD_INTEGER.value) // "http://www.w3.org/2001/XMLSchema#integer"
+ * console.log(XSD_INTEGER.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const XSD_INTEGER = makeNamedNode(`${XSD_NAMESPACE}integer`);
 
@@ -91,10 +96,11 @@ export const XSD_INTEGER = makeNamedNode(`${XSD_NAMESPACE}integer`);
  * ```ts
  * import { XSD_DOUBLE } from "@beep/rdf/Vocab/Xsd"
  *
- * console.log(XSD_DOUBLE)
+ * console.log(XSD_DOUBLE.value) // "http://www.w3.org/2001/XMLSchema#double"
+ * console.log(XSD_DOUBLE.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
- * @category models
+ * @category constants
  */
 export const XSD_DOUBLE = makeNamedNode(`${XSD_NAMESPACE}double`);

@@ -12,8 +12,11 @@
  * @example
  * ```ts
  * import { assistantBlockOutput } from "@beep/agents-server/AssistantTurn"
+ * import * as S from "effect/Schema"
  *
- * console.log(assistantBlockOutput.codec)
+ * const decodeBlock = S.decodeUnknownSync(S.fromJsonString(assistantBlockOutput.codec))
+ * const block = decodeBlock('{"type":"paragraph","children":[{"type":"text","text":"Hi"}]}')
+ * console.log(block.type) // "paragraph"
  * ```
  *
  * @category codecs
@@ -25,9 +28,19 @@ export * from "./AnthropicTurnCodec.js";
  *
  * @example
  * ```ts
+ * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
  * import { AnthropicTurnKernel } from "@beep/agents-server/AssistantTurn"
+ * import { Effect, Stream } from "effect"
  *
- * console.log(AnthropicTurnKernel)
+ * const program = Effect.gen(function* () {
+ *   const kernel = yield* AgentTurnKernel
+ *   return yield* kernel.streamTurn([{ role: "user", text: "Summarize this" }]).pipe(
+ *     Stream.take(0),
+ *     Stream.runCollect
+ *   )
+ * }).pipe(Effect.provide(AnthropicTurnKernel))
+ *
+ * Effect.runPromise(program).then((blocks) => console.log(blocks.length)) // 0
  * ```
  *
  * @category layers
@@ -39,9 +52,21 @@ export * from "./AnthropicTurnKernel.js";
  *
  * @example
  * ```ts
- * import { repairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import { IssueReport, makeRepairInvalidBlocks } from "@beep/agents-server/AssistantTurn"
+ * import { Effect } from "effect"
  *
- * console.log(repairInvalidBlocks)
+ * const repair = makeRepairInvalidBlocks(() =>
+ *   Effect.succeed(
+ *     '{"repairs":[{"index":0,"block":{"type":"paragraph","children":[{"type":"text","text":"Fixed"}]}}]}'
+ *   )
+ * )
+ * const issue = IssueReport.make({
+ *   index: 0,
+ *   raw: '{"type":"paragraph","children":[{"type":"text","text":1}]}',
+ *   report: "/children/0/text Expected string",
+ * })
+ *
+ * Effect.runPromise(repair([issue])).then((blocks) => console.log(blocks.length)) // 1
  * ```
  *
  * @category combinators
@@ -55,7 +80,8 @@ export * from "./BlockRepair.js";
  * ```ts
  * import { initialScanState, scanChunk } from "@beep/agents-server/AssistantTurn"
  *
- * console.log(initialScanState, scanChunk)
+ * const [, completed] = scanChunk(initialScanState, '{"blocks":[{"type":"paragraph"}]}')
+ * console.log(completed.length) // 1
  * ```
  *
  * @category parsing

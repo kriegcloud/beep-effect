@@ -108,8 +108,10 @@ const getCandidateComments = (sourceCode: SourceCode, node: Rule.Node): Readonly
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { requireCategoryTagRule } from "@beep/repo-configs/eslint/RequireCategoryTagRule"
- * console.log(requireCategoryTagRule)
+ *
+ * strictEqual(requireCategoryTagRule.meta.docs?.description, "Require @category tag on exported symbols")
  * ```
  * @category configuration
  * @since 0.0.0

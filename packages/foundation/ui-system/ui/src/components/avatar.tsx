@@ -11,13 +11,20 @@ interface AvatarProps extends React.ComponentPropsWithoutRef<"span"> {
 }
 
 /**
- * Avatar component.
+ * Circular avatar frame for an image with fallback content.
  *
  * @example
  * ```tsx
- * import { Avatar } from "@beep/ui/components/avatar"
+ * import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar"
  *
- * console.log(Avatar)
+ * export function UserAvatar() {
+ *   return (
+ *     <Avatar>
+ *       <AvatarImage src="/avatars/ada.png" alt="Ada Lovelace" />
+ *       <AvatarFallback>AL</AvatarFallback>
+ *     </Avatar>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -75,13 +82,24 @@ const avatarImageStatusAtom = Atom.family((src: string | undefined) =>
 );
 
 /**
- * Avatar image component.
+ * Avatar image that renders only after the source loads successfully.
+ *
+ * @remarks
+ * `onLoadingStatusChange` is notified for terminal `loaded` and `error`
+ * states so callers can coordinate external fallback behavior.
  *
  * @example
  * ```tsx
- * import { AvatarImage } from "@beep/ui/components/avatar"
+ * import { Avatar, AvatarFallback, AvatarImage } from "@beep/ui/components/avatar"
  *
- * console.log(AvatarImage)
+ * export function ProfileAvatarImage() {
+ *   return (
+ *     <Avatar>
+ *       <AvatarImage src="/avatars/grace.png" alt="Grace Hopper" />
+ *       <AvatarFallback>GH</AvatarFallback>
+ *     </Avatar>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -113,13 +131,19 @@ function AvatarImage({ className, src, alt, onLoadingStatusChange, ...props }: A
 }
 
 /**
- * Avatar fallback component.
+ * Fallback initials or icon shown when no avatar image is available.
  *
  * @example
  * ```tsx
- * import { AvatarFallback } from "@beep/ui/components/avatar"
+ * import { Avatar, AvatarFallback } from "@beep/ui/components/avatar"
  *
- * console.log(AvatarFallback)
+ * export function InitialsAvatar() {
+ *   return (
+ *     <Avatar>
+ *       <AvatarFallback>NP</AvatarFallback>
+ *     </Avatar>
+ *   )
+ * }
  * ```
  *
  * @category components

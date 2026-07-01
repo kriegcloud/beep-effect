@@ -10,11 +10,12 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-use-cases/ClaimLifecycle"
+ * import { strictEqual } from "node:assert"
+ * import * as ClaimLifecycle from "@beep/epistemic-use-cases/ClaimLifecycle"
  *
- * console.log(Module)
+ * strictEqual(typeof ClaimLifecycle.makeClaimTransition, "function")
  * ```
-
+ *
  * @category services
  * @since 0.0.0
  */

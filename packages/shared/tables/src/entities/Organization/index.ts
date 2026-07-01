@@ -1,7 +1,7 @@
 /**
- * Shared Organization table metadata.
+ * Public exports for shared tenant organization table metadata.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * from "./Organization.table.js";

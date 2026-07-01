@@ -33,8 +33,58 @@ interface LangExtractServiceShape {
  * @example
  * ```ts
  * import { LangExtractService } from "@beep/langextract/Service"
+ * import { LangExtractDiagnostics, LangExtractRequest, LangExtractResult } from "@beep/langextract/Extraction"
+ * import { ExtractionTarget } from "@beep/langextract/Target"
+ * import { DocumentId } from "@beep/nlp/Core"
+ * import { Contract } from "@beep/nlp/Handoff"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import { Effect, Layer } from "effect"
  *
- * console.log(LangExtractService)
+ * const documentId = DocumentId.make("doc-1")
+ * const provenance = Contract.Provenance.make({
+ *   generatedBy: "@beep/langextract:test",
+ *   source: documentId,
+ *   timestamp: 0
+ * })
+ * const annotatedDocument = Contract.AnnotatedDocument.make({
+ *   chunks: [],
+ *   entities: [],
+ *   provenance,
+ *   relations: [],
+ *   version: "nlp-ir/1.0"
+ * })
+ * const TestLangExtract = Layer.succeed(
+ *   LangExtractService,
+ *   LangExtractService.of({
+ *     extract: (request) =>
+ *       Effect.succeed(
+ *         LangExtractResult.make({
+ *           annotatedDocument,
+ *           diagnostics: LangExtractDiagnostics.make({
+ *             alignedCount: NonNegativeInt.make(0),
+ *             candidateCount: NonNegativeInt.make(0),
+ *             promptChars: NonNegativeInt.make(request.text.length),
+ *             unalignedCount: NonNegativeInt.make(0)
+ *           }),
+ *           documentId: request.documentId,
+ *           extractions: [],
+ *           text: request.text
+ *         })
+ *       )
+ *   })
+ * )
+ * const request = LangExtractRequest.make({
+ *   documentId,
+ *   targets: [ExtractionTarget.make({ kind: "entity", name: "person" })],
+ *   text: "Ada Lovelace wrote notes."
+ * })
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* LangExtractService
+ *   return yield* service.extract(request)
+ * }).pipe(Effect.provide(TestLangExtract))
+ *
+ * Effect.runPromise(program).then((result) => console.log(result.documentId))
  * ```
  *
  * @category services
@@ -168,9 +218,43 @@ export const make = Effect.fn("LangExtractService.make")(function* () {
  *
  * @example
  * ```ts
- * import { layer } from "@beep/langextract/Service"
+ * import { LangExtractService, layer } from "@beep/langextract/Service"
+ * import { ExtractionTarget } from "@beep/langextract/Target"
+ * import { LangExtractRequest } from "@beep/langextract/Extraction"
+ * import { DocumentId } from "@beep/nlp/Core"
+ * import { Effect, Layer, Stream } from "effect"
+ * import { LanguageModel, Response } from "effect/unstable/ai"
  *
- * console.log(layer)
+ * const usage = Response.Usage.make({
+ *   inputTokens: { cacheRead: undefined, cacheWrite: undefined, total: 10, uncached: 10 },
+ *   outputTokens: { reasoning: undefined, text: 8, total: 8 }
+ * })
+ * const TestLanguageModel = Layer.effect(
+ *   LanguageModel.LanguageModel,
+ *   LanguageModel.make({
+ *     generateText: () =>
+ *       Effect.succeed([
+ *         Response.makePart("text", {
+ *           text: JSON.stringify({ extractions: [{ label: "person", text: "Ada Lovelace" }] })
+ *         }),
+ *         Response.makePart("finish", { reason: "stop", response: undefined, usage })
+ *       ]),
+ *     streamText: () => Stream.empty
+ *   })
+ * )
+ * const request = LangExtractRequest.make({
+ *   documentId: DocumentId.make("doc-1"),
+ *   targets: [ExtractionTarget.make({ kind: "entity", name: "person" })],
+ *   text: "Ada Lovelace wrote notes."
+ * })
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* LangExtractService
+ *   const result = yield* service.extract(request)
+ *   return result.diagnostics.alignedCount
+ * }).pipe(Effect.provide(layer), Effect.provide(TestLanguageModel))
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
  *
  * @category layers

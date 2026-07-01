@@ -29,17 +29,27 @@ class Props extends S.Class<Props>($I`Props`)({
 }) {}
 
 /**
- * Content editable component.
+ * Lexical content-editable surface with a padding-aligned placeholder.
  *
+ * @remarks
  * The placeholder overlay shares the editable's padding so the empty-state
- * cursor aligns with the placeholder text (when a custom `className` changes the
- * editable padding, pass a matching `placeholderClassName`).
+ * cursor aligns with the placeholder text. When a custom `className` changes
+ * the editable padding, pass a matching `placeholderClassName`.
  *
  * @example
  * ```tsx
+ * import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary"
+ * import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin"
  * import { ContentEditable } from "@beep/ui/components/editor/editor-ui/content-editable"
  *
- * console.log(ContentEditable)
+ * export function BodyEditorPlugin() {
+ *   return (
+ *     <RichTextPlugin
+ *       contentEditable={<ContentEditable placeholder="Start typing ..." />}
+ *       ErrorBoundary={LexicalErrorBoundary}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @category components

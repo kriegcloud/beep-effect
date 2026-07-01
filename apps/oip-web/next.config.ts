@@ -49,6 +49,31 @@ export default defineBeepNextConfig({
       qualities: [50, 60, 75],
     },
     redirects: () => Promise.resolve(oipRedirects()),
+    // The production/PWA build uses webpack (`build:pwa`), which cannot bundle
+    // `node:*` builtins that leak into the client graph via @beep/schema ->
+    // @beep/utils (NodeUrl/Path). Those helpers are server-only and never run on
+    // the client, so for the client bundle we strip the `node:` scheme and stub
+    // the builtins to an empty module. Turbopack (`build`) resolves these
+    // natively and ignores this hook.
+    webpack: (config, { isServer, webpack }) => {
+      if (!isServer) {
+        config.plugins = config.plugins ?? [];
+        config.plugins.push(
+          new webpack.NormalModuleReplacementPlugin(/^node:/u, (resource: { request: string }) => {
+            resource.request = resource.request.replace(/^node:/u, "");
+          })
+        );
+        config.resolve = config.resolve ?? {};
+        config.resolve.fallback = {
+          ...config.resolve.fallback,
+          fs: false,
+          module: false,
+          path: false,
+          url: false,
+        };
+      }
+      return config;
+    },
   },
   securityHeaders: {
     headers: securityHeaders,

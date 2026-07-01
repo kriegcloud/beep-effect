@@ -26,12 +26,19 @@ const serviceUnavailableBody = WorkItemUseCases.WorkItemActionFailed.make({
  *
  * @example
  * ```ts
- * import { WorkItemHttpStatus } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import {
+ *   WorkItemHttpStatus,
+ *   type WorkItemHttpStatus as WorkItemHttpStatusType
+ * } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemHttpStatus)
+ * const isHttpStatus = S.is(WorkItemHttpStatus)
+ * const created: WorkItemHttpStatusType = 201
+ *
+ * console.log(isHttpStatus(created)) // true
  * ```
  *
- * @category handlers
+ * @category schemas
  * @since 0.0.0
  */
 export const WorkItemHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503]).pipe(
@@ -44,7 +51,16 @@ export const WorkItemHttpStatus = LiteralKit([200, 201, 404, 409, 422, 503]).pip
 /**
  * Runtime type for {@link WorkItemHttpStatus}.
  *
- * @category handlers
+ * @example
+ * ```ts
+ * import type { WorkItemHttpStatus } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ *
+ * const acceptsStatus = (status: WorkItemHttpStatus) => status
+ *
+ * console.log(acceptsStatus(503)) // 503
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type WorkItemHttpStatus = typeof WorkItemHttpStatus.Type;
@@ -56,10 +72,15 @@ export type WorkItemHttpStatus = typeof WorkItemHttpStatus.Type;
  * ```ts
  * import { WorkItemHttpResponse } from "@beep/architecture-lab-server/aggregates/WorkItem"
  *
- * console.log(WorkItemHttpResponse)
+ * const response = WorkItemHttpResponse.make({
+ *   status: 201,
+ *   body: { id: "work-item-1" }
+ * })
+ *
+ * console.log(response.status) // 201
  * ```
  *
- * @category handlers
+ * @category dtos
  * @since 0.0.0
  */
 export class WorkItemHttpResponse extends S.Class<WorkItemHttpResponse>($I`WorkItemHttpResponse`)(
@@ -78,9 +99,17 @@ export class WorkItemHttpResponse extends S.Class<WorkItemHttpResponse>($I`WorkI
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { toWorkItemHttpError } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(toWorkItemHttpError)
+ * const id = S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * const response = toWorkItemHttpError(
+ *   WorkItemUseCases.WorkItemNotFound.make({ workItemId: id })
+ * )
+ *
+ * console.log(response.status) // 404
  * ```
  *
  * @category handlers
@@ -109,10 +138,38 @@ const toSuccess =
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { makeWorkItemHttpHandlers } from "@beep/architecture-lab-server/aggregates/WorkItem"
+ * import { WorkItem as WorkItemUseCases } from "@beep/architecture-lab-use-cases/public"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeWorkItemHttpHandlers)
+ * const id = S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * const workItem = DomainWorkItem.create(
+ *   DomainWorkItem.CreateWorkItemInput.make({
+ *     id,
+ *     title: "Document server handlers",
+ *     priority: O.none()
+ *   })
+ * )
+ * const handlers = makeWorkItemHttpHandlers({
+ *   archive: () => Effect.succeed(workItem),
+ *   assign: () => Effect.succeed(workItem),
+ *   complete: () => Effect.succeed(workItem),
+ *   create: () => Effect.succeed(workItem),
+ *   get: () => Effect.succeed(workItem),
+ *   list: () => Effect.succeed([workItem]),
+ *   reopen: () => Effect.succeed(workItem)
+ * })
+ *
+ * Effect.runPromise(
+ *   handlers.get(WorkItemUseCases.GetWorkItemQuery.make({ id }))
+ * ).then((response) => console.log(response.status)) // 200
  * ```
+ *
+ * @effects Returned handlers execute the injected WorkItem use-case effects and
+ * convert typed WorkItem action failures to HTTP response envelopes.
  *
  * @category handlers
  * @since 0.0.0

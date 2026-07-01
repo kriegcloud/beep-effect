@@ -86,9 +86,15 @@ type AcpProtocolLogEventMember<T extends AcpProtocolLogDirection> = {
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AcpProtocolLogEvent } from "@beep/acp/protocol"
  *
- * console.log(AcpProtocolLogEvent.ast)
+ * const event = S.decodeUnknownSync(AcpProtocolLogEvent)({
+ *   direction: "incoming",
+ *   stage: "raw",
+ *   payload: "{}"
+ * })
+ * console.log(event.direction)
  * ```
  *
  * @category observability
@@ -175,9 +181,15 @@ export class AcpProtocolLoggingOptions extends S.Class<AcpProtocolLoggingOptions
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { AcpIncomingNotification } from "@beep/acp/protocol"
  *
- * console.log(AcpIncomingNotification.ast)
+ * const notification = S.decodeUnknownSync(AcpIncomingNotification)({
+ *   _tag: "ExtNotification",
+ *   method: "x/custom",
+ *   params: { ok: true }
+ * })
+ * console.log(notification.method)
  * ```
  *
  * @category schemas
@@ -294,10 +306,13 @@ const textFromWire = (value: string | Uint8Array): string => (P.isString(value) 
  *   makeAcpPatchedProtocol({
  *     stdio,
  *     serverRequestMethods: HashSet.empty()
- *   })
+ *   }).pipe(Effect.map((protocol) => typeof protocol.request))
  * )
+ * console.log(program)
  * ```
  *
+ * @effects Allocates scoped protocol queues, forks transport fibers, and reads
+ * from or writes to the supplied `Stdio` streams when the returned Effect runs.
  * @category constructors
  * @since 0.0.0
  */

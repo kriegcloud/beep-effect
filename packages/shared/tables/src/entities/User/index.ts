@@ -1,7 +1,7 @@
 /**
- * Shared User table metadata.
+ * Public exports for shared human user table metadata.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * from "./User.table.ts";

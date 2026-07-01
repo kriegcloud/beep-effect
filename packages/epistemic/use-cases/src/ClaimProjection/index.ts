@@ -10,11 +10,12 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-use-cases/ClaimProjection"
+ * import { strictEqual } from "node:assert"
+ * import * as ClaimProjection from "@beep/epistemic-use-cases/ClaimProjection"
  *
- * console.log(Module)
+ * strictEqual(ClaimProjection.projectClaims([]).total, 0)
  * ```
-
+ *
  * @category use-cases
  * @since 0.0.0
  */

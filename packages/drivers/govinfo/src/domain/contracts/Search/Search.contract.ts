@@ -15,46 +15,76 @@ import { SearchResponse } from "../../values/SearchResponse/index.ts";
 const $I = $GovinfoId.create("domain/contracts/Search/Search.contract");
 
 /**
- * Request payload for the GovInfo `POST /search` endpoint: the search body
- * carrying the query, pagination cursor, and result-shaping directives.
+ * Request body accepted by the GovInfo search endpoint.
+ *
+ * @remarks
+ * GovInfo search is a POST endpoint. `offsetMark` normally starts as `"*"`
+ * and the API returns the next cursor in response pagination links.
  *
  * @example
  * ```ts
  * import { Payload } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ * import * as S from "effect/Schema"
  *
- * console.log(Payload)
+ * const payload = S.decodeUnknownSync(Payload)({
+ *   historical: false,
+ *   offsetMark: "*",
+ *   pageSize: 10,
+ *   query: "collection:(CREC) congress:118",
+ *   resultLevel: "default",
+ *   sorts: [{ field: "publishdate", sortOrder: "DESC" }]
+ * })
+ *
+ * console.log(payload.query)
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class Payload extends SearchBody.extend<Payload>($I`Payload`)(
   {},
   $I.annote("Payload", {
-    description:
-      "Request body sent to the GovInfo POST /search endpoint, carrying the query string, page size, offset-mark cursor, historical flag, result level, and sort directives.",
+    description: "Request body accepted by the GovInfo search endpoint.",
   })
 ) {}
 
 /**
- * Successful (HTTP 200) response body for the GovInfo `POST /search` endpoint:
- * the total match count, next-page cursor, and the page of search hits.
+ * Successful GovInfo search response body.
  *
  * @example
  * ```ts
  * import { Success } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ * import * as S from "effect/Schema"
  *
- * console.log(Success)
+ * const response = S.decodeUnknownSync(Success)({
+ *   count: 1,
+ *   offsetMark: "next-cursor",
+ *   results: [
+ *     {
+ *       collectionCode: "CREC",
+ *       dateIngested: "2024-01-03T00:00:00Z",
+ *       dateIssued: "2024-01-03T00:00:00Z",
+ *       download: { pdfLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/pdf" },
+ *       governmentAuthor: ["Government Publishing Office"],
+ *       granuleId: "CREC-2024-01-03-pt1-PgH1",
+ *       lastModified: "2024-01-04T12:00:00Z",
+ *       packageId: "CREC-2024-01-03",
+ *       resultLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/summary",
+ *       title: "Congressional Record, January 3, 2024"
+ *     }
+ *   ]
+ * })
+ *
+ * console.log(response.count)
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class Success extends SearchResponse.extend<Success>($I`Success`)(
   {},
   $I.annote("Success", {
-    description:
-      "Successful HTTP 200 response from the GovInfo POST /search endpoint, holding the total result count, the offset-mark cursor for the next page, and the page of search-result hits.",
+    description: "Successful GovInfo search response body.",
     status: HttpStatus2XX.From.Enum.Ok,
   })
 ) {}
@@ -65,8 +95,13 @@ export class Success extends SearchResponse.extend<Success>($I`Success`)(
  * @example
  * ```ts
  * import { FailureBadRequest } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ * import * as S from "effect/Schema"
  *
- * console.log(FailureBadRequest)
+ * const failure = S.decodeUnknownSync(FailureBadRequest)({
+ *   status: 400
+ * })
+ *
+ * console.log(failure._tag)
  * ```
  *
  * @category errors
@@ -79,8 +114,7 @@ export class FailureBadRequest extends TaggedErrorClass<FailureBadRequest>($I`Fa
     status: S.tag(HttpStatus4XX.From.Enum.BadRequest),
   },
   $I.annote("FailureBadRequest", {
-    description:
-      "HTTP 400 error body returned when the GovInfo search request is malformed or rejected, such as an invalid query string or unsupported search parameters.",
+    description: "Bad-request failure returned when GovInfo rejects the submitted search payload.",
   })
 ) {}
 
@@ -90,8 +124,13 @@ export class FailureBadRequest extends TaggedErrorClass<FailureBadRequest>($I`Fa
  * @example
  * ```ts
  * import { FailureNotFound } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ * import * as S from "effect/Schema"
  *
- * console.log(FailureNotFound)
+ * const failure = S.decodeUnknownSync(FailureNotFound)({
+ *   status: 404
+ * })
+ *
+ * console.log(failure.status)
  * ```
  *
  * @category errors
@@ -104,8 +143,7 @@ export class FailureNotFound extends TaggedErrorClass<FailureNotFound>($I`Failur
     status: S.tag(HttpStatus4XX.From.Enum.NotFound),
   },
   $I.annote("FailureNotFound", {
-    description:
-      "HTTP 404 error body returned when the GovInfo search endpoint or the requested resource cannot be located.",
+    description: "Not-found failure returned when the GovInfo search route or resource is unavailable.",
   })
 ) {}
 
@@ -115,8 +153,13 @@ export class FailureNotFound extends TaggedErrorClass<FailureNotFound>($I`Failur
  * @example
  * ```ts
  * import { FailureInternalServerError } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ * import * as S from "effect/Schema"
  *
- * console.log(FailureInternalServerError)
+ * const failure = S.decodeUnknownSync(FailureInternalServerError)({
+ *   status: 500
+ * })
+ *
+ * console.log(failure._tag)
  * ```
  *
  * @category errors
@@ -131,8 +174,7 @@ export class FailureInternalServerError extends TaggedErrorClass<FailureInternal
     status: S.tag(HttpStatus5XX.From.Enum.InternalServerError),
   },
   $I.annote("FailureInternalServerError", {
-    description:
-      "HTTP 500 error body returned when the GovInfo search endpoint encounters an unexpected server-side failure while processing the request.",
+    description: "Internal-server-error failure returned when GovInfo reports an unexpected server-side error.",
   })
 ) {}
 
@@ -142,8 +184,11 @@ export class FailureInternalServerError extends TaggedErrorClass<FailureInternal
  * @example
  * ```ts
  * import { Failure } from "@beep/govinfo/domain/contracts/Search/Search.contract"
+ * import * as S from "effect/Schema"
  *
- * console.log(Failure.ast)
+ * const isSearchFailure = S.is(Failure)
+ *
+ * console.log(isSearchFailure({ _tag: "FailureNotFound", status: 404 }))
  * ```
  *
  * @category errors
@@ -156,8 +201,7 @@ export const Failure = S.Union([
 ]).pipe(
   S.toTaggedUnion("_tag"),
   $I.annoteSchema("Failure", {
-    description:
-      "Discriminated union of the error responses the GovInfo search endpoint can return, covering the 400 bad-request, 404 not-found, and 500 internal-server-error bodies.",
+    description: "Tagged union of typed GovInfo search endpoint failures.",
   })
 );
 

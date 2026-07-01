@@ -14,13 +14,18 @@ import type * as DomainWorker from "@beep/architecture-lab-domain/entities/Worke
 import type * as DomainWorkPriority from "@beep/architecture-lab-domain/values/WorkPriority";
 
 /**
- * WorkItem persistence table name.
+ * Physical Postgres table name for persisted architecture lab WorkItems.
  *
  * @example
  * ```ts
  * import { WORK_ITEM_TABLE_NAME } from "@beep/architecture-lab-tables/aggregates/WorkItem"
  *
- * console.log(WORK_ITEM_TABLE_NAME)
+ * const tableName = WORK_ITEM_TABLE_NAME
+ * if (tableName !== "architecture_lab_work_item") {
+ *   throw new Error("unexpected WorkItem table name")
+ * }
+ *
+ * console.log(tableName)
  * ```
  *
  * @category tables
@@ -29,13 +34,22 @@ import type * as DomainWorkPriority from "@beep/architecture-lab-domain/values/W
 export const WORK_ITEM_TABLE_NAME = "architecture_lab_work_item" as const;
 
 /**
- * WorkItem persistence projection.
+ * Drizzle table projection for architecture lab WorkItem aggregates.
  *
  * @example
  * ```ts
- * import { workItemTable } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import {
+ *   WORK_ITEM_TABLE_NAME,
+ *   workItemTable
+ * } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import { getTableName } from "drizzle-orm"
  *
- * console.log(workItemTable)
+ * const tableName = getTableName(workItemTable)
+ * if (tableName !== WORK_ITEM_TABLE_NAME || workItemTable.assigneeId.name !== "assignee_id") {
+ *   throw new Error("unexpected WorkItem table projection")
+ * }
+ *
+ * console.log(`${tableName}:${workItemTable.assigneeId.name}`)
  * ```
  *
  * @category tables
@@ -52,14 +66,31 @@ export const workItemTable = pgTable(WORK_ITEM_TABLE_NAME, {
 });
 
 /**
- * Selected WorkItem row.
+ * Selected row shape returned by queries against {@link workItemTable}.
  *
  * @example
  * ```ts
+ * import {
+ *   WorkItemId,
+ *   WorkItemStatus,
+ *   WorkItemTitle
+ * } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
  * import type { WorkItemRow } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkItemRow
- * console.log(value)
+ * const row = {
+ *   assigneeId: S.decodeUnknownSync(WorkerId)(1),
+ *   createdAt: new Date(0),
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   priority: WorkPriority.Enum.high,
+ *   status: WorkItemStatus.Enum.assigned,
+ *   title: S.decodeUnknownSync(WorkItemTitle)("Document topology"),
+ *   updatedAt: new Date(0)
+ * } satisfies WorkItemRow
+ *
+ * console.log(row.status)
  * ```
  *
  * @category tables
@@ -68,14 +99,29 @@ export const workItemTable = pgTable(WORK_ITEM_TABLE_NAME, {
 export type WorkItemRow = typeof workItemTable.$inferSelect;
 
 /**
- * Insertable WorkItem row.
+ * Insert row shape accepted by writes to {@link workItemTable}.
  *
  * @example
  * ```ts
+ * import {
+ *   WorkItemId,
+ *   WorkItemStatus,
+ *   WorkItemTitle
+ * } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
  * import type { WorkItemInsert } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkItemInsert
- * console.log(value)
+ * const insert = {
+ *   assigneeId: S.decodeUnknownSync(WorkerId)(1),
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   priority: WorkPriority.Enum.normal,
+ *   status: WorkItemStatus.Enum.open,
+ *   title: S.decodeUnknownSync(WorkItemTitle)("Document topology")
+ * } satisfies WorkItemInsert
+ *
+ * console.log(insert.priority)
  * ```
  *
  * @category tables
@@ -84,13 +130,36 @@ export type WorkItemRow = typeof workItemTable.$inferSelect;
 export type WorkItemInsert = typeof workItemTable.$inferInsert;
 
 /**
- * Convert a WorkItem aggregate to its persistence row shape.
+ * Convert a WorkItem aggregate to the insert row accepted by {@link workItemTable}.
  *
  * @example
  * ```ts
+ * import {
+ *   WorkItem,
+ *   WorkItemId,
+ *   WorkItemTitle
+ * } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
  * import { toWorkItemInsert } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(toWorkItemInsert)
+ * const assignee = S.decodeUnknownSync(WorkerId)(1)
+ * const workItem = WorkItem.make({
+ *   assignee: O.some(assignee),
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   priority: O.some(WorkPriority.Enum.high),
+ *   status: "assigned",
+ *   title: S.decodeUnknownSync(WorkItemTitle)("Document topology")
+ * })
+ *
+ * const insert = toWorkItemInsert(workItem)
+ * if (insert.assigneeId !== assignee || insert.priority !== "high") {
+ *   throw new Error("expected WorkItem insert projection")
+ * }
+ *
+ * console.log(`${insert.assigneeId}:${insert.priority}`)
  * ```
  *
  * @category tables
@@ -105,13 +174,38 @@ export const toWorkItemInsert = (workItem: DomainWorkItem.WorkItem): WorkItemIns
 });
 
 /**
- * Convert a selected persistence row into a WorkItem aggregate.
+ * Decode a selected WorkItem row back into the domain aggregate.
  *
  * @example
  * ```ts
- * import { fromWorkItemRow } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import {
+ *   WorkItemId,
+ *   WorkItemStatus,
+ *   WorkItemTitle
+ * } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkerId } from "@beep/architecture-lab-domain/entities/Worker"
+ * import { WorkPriority } from "@beep/architecture-lab-domain/values/WorkPriority"
+ * import { fromWorkItemRow, type WorkItemRow } from "@beep/architecture-lab-tables/aggregates/WorkItem"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(fromWorkItemRow)
+ * const assignee = S.decodeUnknownSync(WorkerId)(1)
+ * const row = {
+ *   assigneeId: assignee,
+ *   createdAt: new Date(0),
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   priority: WorkPriority.Enum.high,
+ *   status: WorkItemStatus.Enum.assigned,
+ *   title: S.decodeUnknownSync(WorkItemTitle)("Document topology"),
+ *   updatedAt: new Date(0)
+ * } satisfies WorkItemRow
+ *
+ * const workItem = fromWorkItemRow(row)
+ * if (O.getOrThrow(workItem.assignee) !== assignee) {
+ *   throw new Error("expected WorkItem assignee")
+ * }
+ *
+ * console.log(workItem.status)
  * ```
  *
  * @category tables

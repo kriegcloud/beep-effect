@@ -1,5 +1,5 @@
 /**
- * A module containing a schema utility which provides a default value
+ * Decoding-default helpers for optional encoded keys.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -29,7 +29,12 @@ const $I = $SchemaId.create("SchemaUtils/withEncodeDefault");
  * console.log(S.decodeUnknownSync(Settings)({}).status) // "draft"
  * ```
  *
- * @template TSchema - Schema receiving the decoding default.
+ * @remarks
+ * This is the decoded-value counterpart to Effect's
+ * `Schema.withDecodingDefaultKey`: the default thunk returns the schema's
+ * decoded `Type`, not its encoded representation.
+ *
+ * @typeParam TSchema - Schema receiving the decoding default.
  * @param self - Schema receiving the decoding default.
  * @param defaultValue - Lazy default value used when the encoded key is missing.
  * @returns A schema helper when data-last, or the schema with the decoding

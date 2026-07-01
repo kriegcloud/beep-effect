@@ -15,19 +15,30 @@ import type { GetContextPacket } from "./ProfessionalRuntime.queries.js";
  *
  * @example
  * ```ts
+ * import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agents-use-cases/proof"
  * import type { ProfessionalRuntimeSdk } from "@beep/agents-use-cases/public"
  *
- * declare const sdk: ProfessionalRuntimeSdk
- * console.log(sdk)
+ * const sdk: ProfessionalRuntimeSdk = makeInMemoryProfessionalRuntimeSdk([])
+ * console.log(typeof sdk.getContextPacket) // "function"
  * ```
  *
  * @category services
  * @since 0.0.0
  */
 export interface ProfessionalRuntimeSdk {
+  /**
+   * Resolve the evidence-bounded context packet for a scenario artifact.
+   *
+   * @since 0.0.0
+   */
   readonly getContextPacket: (
     query: GetContextPacket
   ) => Effect.Effect<SdkContextPacket, ProfessionalRuntimeValidationError>;
+  /**
+   * Validate and accept a candidate output set proposal for deterministic proof flows.
+   *
+   * @since 0.0.0
+   */
   readonly proposeCandidateOutputSet: (
     command: ProposeCandidateOutputSet
   ) => Effect.Effect<CandidateOutputSet, ProfessionalRuntimeValidationError>;

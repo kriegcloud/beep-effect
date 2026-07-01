@@ -1,5 +1,5 @@
 /**
- * Typed errors for provider CLI probes.
+ * Typed failure payloads for Claude and Codex CLI auth probes.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -12,13 +12,27 @@ import * as S from "effect/Schema";
 const $I = $AiProviderCliId.create("AiProviderCli.errors");
 
 /**
- * Technical provider CLI failure.
+ * Redacted technical failure from a provider CLI status probe.
+ *
+ * @remarks
+ * The error keeps the provider, operation, command, and optional process
+ * details needed for diagnostics. Callers should continue treating stdout and
+ * stderr as redacted diagnostic text, not as a stable account-status API.
  *
  * @example
  * ```ts
- * import { AiProviderCliError } from "@beep/ai-provider-cli/AiProviderCli.errors"
+ * import { AiProviderCliError } from "@beep/ai-provider-cli"
  *
- * console.log(AiProviderCliError)
+ * const error = AiProviderCliError.make({
+ *   command: "claude",
+ *   exitCode: 127,
+ *   message: "Failed to execute provider CLI status command.",
+ *   operation: "checkAuth",
+ *   provider: "claude",
+ *   stderr: "command not found"
+ * })
+ *
+ * console.log(error.operation) // "checkAuth"
  * ```
  *
  * @category errors

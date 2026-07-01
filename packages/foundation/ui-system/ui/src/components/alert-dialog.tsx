@@ -6,13 +6,39 @@ import { cn } from "../lib/index.ts";
 import type * as React from "react";
 
 /**
- * Alert dialog component.
+ * Modal confirmation root for destructive or high-friction decisions.
  *
  * @example
  * ```tsx
- * import { AlertDialog } from "@beep/ui/components/alert-dialog"
+ * import {
+ *   AlertDialog,
+ *   AlertDialogAction,
+ *   AlertDialogCancel,
+ *   AlertDialogContent,
+ *   AlertDialogDescription,
+ *   AlertDialogFooter,
+ *   AlertDialogHeader,
+ *   AlertDialogTitle,
+ *   AlertDialogTrigger
+ * } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialog)
+ * export function DeleteRecordDialog() {
+ *   return (
+ *     <AlertDialog>
+ *       <AlertDialogTrigger>Delete record</AlertDialogTrigger>
+ *       <AlertDialogContent size="sm">
+ *         <AlertDialogHeader>
+ *           <AlertDialogTitle>Delete this record?</AlertDialogTitle>
+ *           <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+ *         </AlertDialogHeader>
+ *         <AlertDialogFooter>
+ *           <AlertDialogCancel>Cancel</AlertDialogCancel>
+ *           <AlertDialogAction variant="destructive">Delete</AlertDialogAction>
+ *         </AlertDialogFooter>
+ *       </AlertDialogContent>
+ *     </AlertDialog>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -23,13 +49,22 @@ function AlertDialog({ ...props }: AlertDialogPrimitive.Root.Props) {
 }
 
 /**
- * Alert dialog trigger component.
+ * Control that opens an alert dialog.
  *
  * @example
  * ```tsx
- * import { AlertDialogTrigger } from "@beep/ui/components/alert-dialog"
+ * import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogTrigger } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogTrigger)
+ * export function ArchiveTrigger() {
+ *   return (
+ *     <AlertDialog>
+ *       <AlertDialogTrigger>Archive account</AlertDialogTrigger>
+ *       <AlertDialogContent>
+ *         <AlertDialogTitle>Archive this account?</AlertDialogTitle>
+ *       </AlertDialogContent>
+ *     </AlertDialog>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -40,13 +75,21 @@ function AlertDialogTrigger({ ...props }: AlertDialogPrimitive.Trigger.Props) {
 }
 
 /**
- * Alert dialog portal component.
+ * Portal target for alert dialog overlay and popup content.
  *
  * @example
  * ```tsx
- * import { AlertDialogPortal } from "@beep/ui/components/alert-dialog"
+ * import { AlertDialog, AlertDialogOverlay, AlertDialogPortal } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogPortal)
+ * export function CustomAlertDialogPortal() {
+ *   return (
+ *     <AlertDialog open>
+ *       <AlertDialogPortal>
+ *         <AlertDialogOverlay />
+ *       </AlertDialogPortal>
+ *     </AlertDialog>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -57,13 +100,21 @@ function AlertDialogPortal({ ...props }: AlertDialogPrimitive.Portal.Props) {
 }
 
 /**
- * Alert dialog overlay component.
+ * Backdrop layer that dims the page behind an alert dialog.
  *
  * @example
  * ```tsx
- * import { AlertDialogOverlay } from "@beep/ui/components/alert-dialog"
+ * import { AlertDialog, AlertDialogOverlay, AlertDialogPortal } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogOverlay)
+ * export function BlockingBackdrop() {
+ *   return (
+ *     <AlertDialog open>
+ *       <AlertDialogPortal>
+ *         <AlertDialogOverlay className="bg-black/60" />
+ *       </AlertDialogPortal>
+ *     </AlertDialog>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -83,13 +134,22 @@ function AlertDialogOverlay({ className, ...props }: AlertDialogPrimitive.Backdr
 }
 
 /**
- * Alert dialog content component.
+ * Centered alert dialog surface with built-in portal and overlay.
  *
  * @example
  * ```tsx
- * import { AlertDialogContent } from "@beep/ui/components/alert-dialog"
+ * import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogContent)
+ * export function CompactConfirmation() {
+ *   return (
+ *     <AlertDialog open>
+ *       <AlertDialogContent size="sm">
+ *         <AlertDialogTitle>Reset workspace?</AlertDialogTitle>
+ *         <AlertDialogDescription>Saved drafts stay available.</AlertDialogDescription>
+ *       </AlertDialogContent>
+ *     </AlertDialog>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -119,13 +179,21 @@ function AlertDialogContent({
 }
 
 /**
- * Alert dialog header component.
+ * Header layout for alert dialog titles, descriptions, and optional media.
  *
  * @example
  * ```tsx
- * import { AlertDialogHeader } from "@beep/ui/components/alert-dialog"
+ * import { AlertDialogDescription, AlertDialogHeader, AlertDialogMedia, AlertDialogTitle } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogHeader)
+ * export function WarningDialogHeader() {
+ *   return (
+ *     <AlertDialogHeader>
+ *       <AlertDialogMedia>!</AlertDialogMedia>
+ *       <AlertDialogTitle>Transfer ownership?</AlertDialogTitle>
+ *       <AlertDialogDescription>The new owner can manage billing.</AlertDialogDescription>
+ *     </AlertDialogHeader>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -145,13 +213,20 @@ function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">)
 }
 
 /**
- * Alert dialog footer component.
+ * Footer layout for alert dialog cancel and action controls.
  *
  * @example
  * ```tsx
- * import { AlertDialogFooter } from "@beep/ui/components/alert-dialog"
+ * import { AlertDialogAction, AlertDialogCancel, AlertDialogFooter } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogFooter)
+ * export function ConfirmationActions() {
+ *   return (
+ *     <AlertDialogFooter>
+ *       <AlertDialogCancel>Keep draft</AlertDialogCancel>
+ *       <AlertDialogAction variant="destructive">Discard draft</AlertDialogAction>
+ *     </AlertDialogFooter>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -171,13 +246,15 @@ function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">)
 }
 
 /**
- * Alert dialog media component.
+ * Visual slot for an icon or status marker in an alert dialog header.
  *
  * @example
  * ```tsx
  * import { AlertDialogMedia } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogMedia)
+ * export function DestructiveDialogIcon() {
+ *   return <AlertDialogMedia className="text-destructive">!</AlertDialogMedia>
+ * }
  * ```
  *
  * @category components
@@ -197,13 +274,15 @@ function AlertDialogMedia({ className, ...props }: React.ComponentProps<"div">) 
 }
 
 /**
- * Alert dialog title component.
+ * Accessible title announced as the alert dialog heading.
  *
  * @example
  * ```tsx
  * import { AlertDialogTitle } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogTitle)
+ * export function RemoveMemberTitle() {
+ *   return <AlertDialogTitle>Remove this member?</AlertDialogTitle>
+ * }
  * ```
  *
  * @category components
@@ -223,13 +302,15 @@ function AlertDialogTitle({ className, ...props }: React.ComponentProps<typeof A
 }
 
 /**
- * Alert dialog description component.
+ * Supporting copy announced with the alert dialog title.
  *
  * @example
  * ```tsx
  * import { AlertDialogDescription } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogDescription)
+ * export function RemoveMemberDescription() {
+ *   return <AlertDialogDescription>The member loses access immediately.</AlertDialogDescription>
+ * }
  * ```
  *
  * @category components
@@ -252,13 +333,19 @@ function AlertDialogDescription({
 }
 
 /**
- * Alert dialog action component.
+ * Primary close action styled with the shared button variants.
  *
  * @example
  * ```tsx
  * import { AlertDialogAction } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogAction)
+ * export function DestructiveDialogAction() {
+ *   return (
+ *     <AlertDialogAction variant="destructive" size="sm">
+ *       Delete project
+ *     </AlertDialogAction>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -281,13 +368,19 @@ function AlertDialogAction({
 }
 
 /**
- * Alert dialog cancel component.
+ * Secondary close action for dismissing the alert dialog.
  *
  * @example
  * ```tsx
  * import { AlertDialogCancel } from "@beep/ui/components/alert-dialog"
  *
- * console.log(AlertDialogCancel)
+ * export function DialogCancelButton() {
+ *   return (
+ *     <AlertDialogCancel variant="outline" size="sm">
+ *       Cancel
+ *     </AlertDialogCancel>
+ *   )
+ * }
  * ```
  *
  * @category components

@@ -31,7 +31,7 @@ const DistinctionKind = LiteralKit(["missing_limitation"]);
  * console.log(detail.kind) // "missing_limitation"
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
 export const DistinctionDetail = DistinctionKind.toTaggedUnion("kind")({
@@ -43,17 +43,20 @@ export const DistinctionDetail = DistinctionKind.toTaggedUnion("kind")({
 );
 
 /**
- * Runtime type for {@link DistinctionDetail}.
+ * Type-level tagged union produced by {@link DistinctionDetail}.
  *
  * @example
  * ```ts
  * import type { DistinctionDetail } from "@beep/law-practice-domain"
  *
- * const detail: DistinctionDetail = { kind: "missing_limitation", limitation: "a hinge" }
+ * const detail = {
+ *   kind: "missing_limitation",
+ *   limitation: "a hinge coupling the lid to the base",
+ * } satisfies DistinctionDetail
  * console.log(detail.kind)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type DistinctionDetail = typeof DistinctionDetail.Type;

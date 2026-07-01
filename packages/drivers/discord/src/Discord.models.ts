@@ -11,15 +11,25 @@ import * as S from "effect/Schema";
 const $I = $DiscordId.create("Discord.models");
 
 /**
- * Discord driver configuration.
+ * Runtime configuration accepted by {@link Discord.makeLayer}.
+ *
+ * @remarks
+ * Omit `baseUrl` for Discord's public v10 API. Tests and local adapters can
+ * provide a replacement base URL; the service layer normalizes trailing slashes
+ * before building request paths.
  *
  * @example
  * ```ts
- * import { DiscordConfigInput } from "@beep/discord/Discord.models"
+ * import { DiscordConfigInput } from "@beep/discord"
  *
- * console.log(DiscordConfigInput)
+ * const config = DiscordConfigInput.make({
+ *   baseUrl: "https://discord.example.test/api/v10/"
+ * })
+ *
+ * console.log(config.baseUrl)
  * ```
  *
+ * @see {@link Discord.makeLayer}
  * @category models
  * @since 0.0.0
  */
@@ -28,18 +38,22 @@ export class DiscordConfigInput extends S.Class<DiscordConfigInput>($I`DiscordCo
     baseUrl: S.optionalKey(S.String),
   },
   $I.annote("DiscordConfigInput", {
-    description: "Optional Discord API base URL override for tests and local adapters.",
+    description: "Runtime configuration accepted by the Discord REST driver layer.",
   })
 ) {}
 
 /**
- * Discord channel lookup request.
+ * Request payload for proving a Discord channel can be reached.
  *
  * @example
  * ```ts
- * import { DiscordChannelRequest } from "@beep/discord/Discord.models"
+ * import { DiscordChannelRequest } from "@beep/discord"
  *
- * console.log(DiscordChannelRequest)
+ * const request = DiscordChannelRequest.make({
+ *   channelId: "123456789012345678"
+ * })
+ *
+ * console.log(request.channelId)
  * ```
  *
  * @category models
@@ -50,18 +64,27 @@ export class DiscordChannelRequest extends S.Class<DiscordChannelRequest>($I`Dis
     channelId: S.NonEmptyString,
   },
   $I.annote("DiscordChannelRequest", {
-    description: "Discord channel lookup request.",
+    description: "Request payload for proving a Discord channel can be reached.",
   })
 ) {}
 
 /**
- * Discord message creation request.
+ * Request payload for creating a Discord proof message.
+ *
+ * @remarks
+ * The service sends the content with `allowed_mentions.parse` set to an empty
+ * array so proof messages do not notify users, roles, or everyone mentions.
  *
  * @example
  * ```ts
- * import { DiscordCreateMessageRequest } from "@beep/discord/Discord.models"
+ * import { DiscordCreateMessageRequest } from "@beep/discord"
  *
- * console.log(DiscordCreateMessageRequest)
+ * const request = DiscordCreateMessageRequest.make({
+ *   channelId: "123456789012345678",
+ *   content: "P1 Discord proof"
+ * })
+ *
+ * console.log(request.content)
  * ```
  *
  * @category models
@@ -73,18 +96,30 @@ export class DiscordCreateMessageRequest extends S.Class<DiscordCreateMessageReq
     content: S.NonEmptyString,
   },
   $I.annote("DiscordCreateMessageRequest", {
-    description: "Discord message creation request with deterministic content.",
+    description: "Request payload for creating a Discord proof message.",
   })
 ) {}
 
 /**
- * Redacted Discord channel proof metadata.
+ * Sanitized metadata returned after a successful channel lookup.
+ *
+ * @remarks
+ * The proof keeps the channel identifier, HTTP status, and optional guild/name
+ * metadata needed for liveness evidence without retaining the raw Discord
+ * response payload.
  *
  * @example
  * ```ts
- * import { DiscordChannelProof } from "@beep/discord/Discord.models"
+ * import { DiscordChannelProof } from "@beep/discord"
  *
- * console.log(DiscordChannelProof)
+ * const proof = DiscordChannelProof.make({
+ *   channelId: "123456789012345678",
+ *   guildId: "987654321098765432",
+ *   name: "proof-channel",
+ *   status: 200
+ * })
+ *
+ * console.log(proof.name)
  * ```
  *
  * @category models
@@ -98,18 +133,29 @@ export class DiscordChannelProof extends S.Class<DiscordChannelProof>($I`Discord
     status: S.Finite,
   },
   $I.annote("DiscordChannelProof", {
-    description: "Sanitized Discord channel lookup proof.",
+    description: "Sanitized metadata returned after a successful channel lookup.",
   })
 ) {}
 
 /**
- * Redacted Discord message proof metadata.
+ * Sanitized metadata returned after a successful proof message creation.
+ *
+ * @remarks
+ * The proof records identifiers, HTTP status, and Discord's optional timestamp
+ * while excluding message content and authorization data.
  *
  * @example
  * ```ts
- * import { DiscordMessageProof } from "@beep/discord/Discord.models"
+ * import { DiscordMessageProof } from "@beep/discord"
  *
- * console.log(DiscordMessageProof)
+ * const proof = DiscordMessageProof.make({
+ *   channelId: "123456789012345678",
+ *   messageId: "111111111111111111",
+ *   status: 200,
+ *   timestamp: "2026-05-14T14:30:00.000Z"
+ * })
+ *
+ * console.log(proof.messageId)
  * ```
  *
  * @category models
@@ -123,6 +169,6 @@ export class DiscordMessageProof extends S.Class<DiscordMessageProof>($I`Discord
     timestamp: S.optionalKey(S.String),
   },
   $I.annote("DiscordMessageProof", {
-    description: "Sanitized Discord message proof metadata.",
+    description: "Sanitized metadata returned after a successful proof message creation.",
   })
 ) {}

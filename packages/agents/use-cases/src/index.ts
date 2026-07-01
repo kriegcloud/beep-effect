@@ -10,9 +10,11 @@
  *
  * @example
  * ```ts
- * import * as RuntimeUseCases from "@beep/agents-use-cases/public"
+ * import { TurnHistoryItem } from "@beep/agents-use-cases"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeUseCases)
+ * const item = S.decodeUnknownSync(TurnHistoryItem)({ role: "user", text: "Hello" })
+ * console.log(item.role) // "user"
  * ```
  *
  * @category protocols

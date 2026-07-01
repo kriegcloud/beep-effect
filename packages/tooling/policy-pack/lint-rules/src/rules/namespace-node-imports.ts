@@ -40,6 +40,22 @@ const soleNamespaceImport = (node: ESTree.ImportDeclaration): O.Option<ESTree.Im
   return specifier?.type === "ImportNamespaceSpecifier" ? O.some(specifier) : O.none();
 };
 
+/**
+ * Oxlint rule that requires canonical namespace aliases for `node:` built-in
+ * module imports, such as `NodeFSP` for `node:fs/promises`.
+ *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import plugin from "@beep/lint-rules/oxlint"
+ *
+ * const description = plugin.rules["namespace-node-imports"]?.meta.docs.description
+ *
+ * strictEqual(description?.includes("Node.js built-in modules"), true)
+ * ```
+ * @category tools
+ * @since 0.1.0
+ */
 export default defineRule({
   meta: {
     type: "problem",

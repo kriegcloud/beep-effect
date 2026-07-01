@@ -24,7 +24,8 @@ import type { PostgresError } from "@beep/postgres";
  * ```ts
  * import { migrationsFolder } from "@beep/db-admin"
  *
- * console.log(migrationsFolder)
+ * const usesDbAdminDrizzleFolder = migrationsFolder.endsWith("/drizzle")
+ * console.log(usesDbAdminDrizzleFolder) // true
  * ```
  *
  * @category configuration
@@ -39,7 +40,8 @@ export const migrationsFolder: string = fileURLToPath(new URL("../drizzle", impo
  * ```ts
  * import { migrationsSchema } from "@beep/db-admin"
  *
- * console.log(migrationsSchema)
+ * const journalSchema = migrationsSchema === "drizzle" ? migrationsSchema : "public"
+ * console.log(journalSchema) // "drizzle"
  * ```
  *
  * @category configuration
@@ -54,12 +56,21 @@ export const migrationsSchema = "drizzle" as const;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { migrateOnBoot } from "@beep/db-admin"
  *
- * console.log(migrateOnBoot)
+ * const bootProgram = migrateOnBoot.pipe(
+ *   Effect.as("db-admin migrations are current")
+ * )
+ * console.log(Effect.isEffect(bootProgram)) // true
  * ```
  *
- * @category constructors
+ * @effects
+ * - Requires {@link PostgresDrizzle} when executed.
+ * - Reads db-admin Drizzle migration files from {@link migrationsFolder}.
+ * - Applies pending migrations into {@link migrationsSchema} and logs success.
+ *
+ * @category workflows
  * @since 0.0.0
  */
 export const migrateOnBoot: Effect.Effect<undefined, PostgresError, PostgresDrizzle> = Effect.gen(function* () {

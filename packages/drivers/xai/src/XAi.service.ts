@@ -82,10 +82,16 @@ export type XAiWebSocketEndpointMethodName = Extract<
  * import { XAiNoBodyResponse } from "@beep/xai"
  *
  * const method: XAiEndpointMethod = () =>
- *   Effect.succeed(XAiNoBodyResponse.make({ headers: {}, status: 204 }))
+ *   Effect.succeed(new XAiNoBodyResponse({ headers: {}, status: 204 }))
  *
- * console.log(method)
+ * const tag = Effect.runSync(Effect.map(method(), (response) => response._tag))
+ * console.log(tag) // "NoBody"
  * ```
+ *
+ * @effects
+ * Runs one HTTP-backed xAI endpoint request with already resolved driver
+ * configuration. Request, transport, and response failures are reported as
+ * `XAiError` values in the Effect error channel.
  *
  * @category models
  * @since 0.0.0
@@ -149,8 +155,19 @@ export interface XAiWebSocketSession {
  *     sendText: () => Effect.void
  *   })
  *
- * console.log(connect)
+ * const sent = Effect.runSync(
+ *   connect().pipe(
+ *     Effect.flatMap((session) => session.sendText("ping")),
+ *     Effect.map(() => "sent")
+ *   )
+ * )
+ * console.log(sent) // "sent"
  * ```
+ *
+ * @effects
+ * Opens an xAI WebSocket session. The returned handle writes frames through
+ * `sendBytes`, `sendJson`, or `sendText`; connection and frame failures are
+ * reported as `XAiError` values in the Effect error channel.
  *
  * @category models
  * @since 0.0.0

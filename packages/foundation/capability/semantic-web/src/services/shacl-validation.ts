@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -36,13 +35,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ShaclSeverity } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclSeverity)
+ * const severity = S.decodeUnknownSync(ShaclSeverity)("violation")
+ * strictEqual(severity, "violation")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const ShaclSeverity = LiteralKit(["info", "warning", "violation"]).pipe(
   $I.annoteSchema("ShaclSeverity", {
@@ -55,13 +57,19 @@ export const ShaclSeverity = LiteralKit(["info", "warning", "violation"]).pipe(
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ShaclPropertyShape } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclPropertyShape)
+ * const shape = S.decodeUnknownSync(ShaclPropertyShape)({
+ *   path: { termType: "NamedNode", value: "https://example.com/name" },
+ *   minCount: 1
+ * })
+ * strictEqual(shape.path.value, "https://example.com/name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclPropertyShape`)(
   {
@@ -84,13 +92,24 @@ export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclProp
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ShaclNodeShape } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclNodeShape)
+ * const shape = S.decodeUnknownSync(ShaclNodeShape)({
+ *   targetClass: { termType: "NamedNode", value: "https://example.com/Person" },
+ *   properties: [
+ *     {
+ *       path: { termType: "NamedNode", value: "https://example.com/name" },
+ *       minCount: 1
+ *     }
+ *   ]
+ * })
+ * strictEqual(shape.properties.length, 1)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ShaclNodeShape extends S.Class<ShaclNodeShape>($I`ShaclNodeShape`)(
   {
@@ -112,13 +131,21 @@ export class ShaclNodeShape extends S.Class<ShaclNodeShape>($I`ShaclNodeShape`)(
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ShaclValidationViolation } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclValidationViolation)
+ * const violation = S.decodeUnknownSync(ShaclValidationViolation)({
+ *   focusNode: "https://example.com/alice",
+ *   path: { termType: "NamedNode", value: "https://example.com/name" },
+ *   message: "Expected at least one value.",
+ *   severity: "violation"
+ * })
+ * strictEqual(violation.severity, "violation")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ShaclValidationViolation extends S.Class<ShaclValidationViolation>($I`ShaclValidationViolation`)(
   {
@@ -138,13 +165,20 @@ export class ShaclValidationViolation extends S.Class<ShaclValidationViolation>(
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ShaclValidationRequest } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclValidationRequest)
+ * const request = S.decodeUnknownSync(ShaclValidationRequest)({
+ *   dataset: { quads: [] },
+ *   shapes: [],
+ *   maxResults: 10
+ * })
+ * strictEqual(request.shapes.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`ShaclValidationRequest`)(
   {
@@ -166,13 +200,19 @@ export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`S
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ShaclValidationResult } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclValidationResult)
+ * const result = ShaclValidationResult.make({
+ *   conforms: true,
+ *   violations: [],
+ *   truncated: false
+ * })
+ * strictEqual(result.conforms, true)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`ShaclValidationResult`)(
   {
@@ -191,13 +231,18 @@ export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`Sha
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ShaclValidationError } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclValidationError)
+ * const error = ShaclValidationError.make({
+ *   reason: "invalidShape",
+ *   message: "maxCount must be greater than or equal to minCount."
+ * })
+ * strictEqual(error.reason, "invalidShape")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class ShaclValidationError extends TaggedErrorClass<ShaclValidationError>($I`ShaclValidationError`)(
   "ShaclValidationError",
@@ -234,13 +279,38 @@ export interface ShaclValidationServiceShape {
  *
  * @example
  * ```ts
- * import { ShaclValidationService } from "@beep/semantic-web/services/shacl-validation"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   ShaclValidationRequest,
+ *   ShaclValidationResult,
+ *   ShaclValidationService
+ * } from "@beep/semantic-web/services/shacl-validation"
  *
- * console.log(ShaclValidationService)
+ * const request = S.decodeUnknownSync(ShaclValidationRequest)({
+ *   dataset: { quads: [] },
+ *   shapes: []
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ShaclValidationService
+ *   return yield* service.validate(request)
+ * })
+ *
+ * const result = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     ShaclValidationService,
+ *     ShaclValidationService.of({
+ *       validate: () => Effect.succeed(ShaclValidationResult.make({ conforms: true, violations: [], truncated: false }))
+ *     })
+ *   )
+ * )
+ * strictEqual(result.conforms, true)
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class ShaclValidationService extends Context.Service<ShaclValidationService, ShaclValidationServiceShape>()(
   $I`ShaclValidationService`

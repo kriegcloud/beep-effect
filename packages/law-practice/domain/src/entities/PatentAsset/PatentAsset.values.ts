@@ -11,36 +11,38 @@ import { LiteralKit } from "@beep/schema";
 const $I = $LawPracticeDomainId.create("entities/PatentAsset/PatentAsset.values");
 
 /**
- * Patent asset status vocabulary represented in proof seeds.
+ * Patent asset lifecycle status accepted by the law-practice proof fixtures.
  *
  * @example
  * ```ts
  * import { PatentAssetStatus } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(PatentAssetStatus.is.pre_filing("pre_filing"))
+ * const status = S.decodeUnknownSync(PatentAssetStatus)("pre_filing")
+ * console.log(status) // "pre_filing"
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
 export const PatentAssetStatus = LiteralKit(["pre_filing"]).pipe(
   $I.annoteSchema("PatentAssetStatus", {
-    description: "Patent asset status vocabulary represented in proof seeds.",
+    description: "Patent asset lifecycle status accepted by law-practice proof fixtures.",
   })
 );
 
 /**
- * Runtime type for {@link PatentAssetStatus}.
+ * Type-level literal union produced by {@link PatentAssetStatus}.
  *
  * @example
  * ```ts
  * import type { PatentAssetStatus } from "@beep/law-practice-domain"
  *
- * const value: PatentAssetStatus = "pre_filing"
- * console.log(value)
+ * const status = "pre_filing" satisfies PatentAssetStatus
+ * console.log(status)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type PatentAssetStatus = typeof PatentAssetStatus.Type;

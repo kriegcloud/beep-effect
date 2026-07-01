@@ -719,17 +719,14 @@ export type M365Shape = {
   readonly listSites: (request: M365ListSitesRequest) => Effect.Effect<M365SiteCollection, M365Error>;
 };
 
-const decodeListDrivesRequest = S.decodeUnknownEffect(M365ListDrivesRequest);
-const decodeListSitesRequest = S.decodeUnknownEffect(M365ListSitesRequest);
-const decodeGetSiteRequest = S.decodeUnknownEffect(M365GetSiteRequest);
-const decodeDeltaDriveItemsRequest = S.decodeUnknownEffect(M365DeltaDriveItemsRequest);
-const decodeDownloadDriveItemContentRequest = S.decodeUnknownEffect(M365DownloadDriveItemContentRequest);
-const decodeGetListItemRequest = S.decodeUnknownEffect(M365GetListItemRequest);
-const decodeListDriveItemVersionsRequest = S.decodeUnknownEffect(M365ListDriveItemVersionsRequest);
-const decodeListMessagesRequest = S.decodeUnknownEffect(M365ListMessagesRequest);
-const decodeGetMessageRequest = S.decodeUnknownEffect(M365GetMessageRequest);
-const decodeListEventsRequest = S.decodeUnknownEffect(M365ListEventsRequest);
-const decodeGetEventRequest = S.decodeUnknownEffect(M365GetEventRequest);
+// Decode a request schema at the M365 boundary, translating any decode failure into the
+// uniform "request encoding" M365Error for the given resource (was 11 identical consts + pipes).
+const decodeRequest =
+  <Sch extends S.Top>(schema: Sch, resource: string) =>
+  (rawRequest: unknown): Effect.Effect<Sch["Type"], M365Error, Sch["DecodingServices"]> =>
+    S.decodeUnknownEffect(schema)(rawRequest).pipe(
+      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource }))
+    );
 
 const splitScopes = flow(Str.split(","), A.map(Str.trim), A.filter(Str.isNonEmpty));
 
@@ -973,17 +970,13 @@ const loadEnvConfig = Effect.fn("M365.loadEnvConfig")(function* () {
 
 const makeService = (runtime: M365Runtime): M365Shape => ({
   deltaDriveItems: Effect.fn("M365.deltaDriveItems")(function* (rawRequest) {
-    const request = yield* decodeDeltaDriveItemsRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "driveItems" }))
-    );
+    const request = yield* decodeRequest(M365DeltaDriveItemsRequest, "driveItems")(rawRequest);
     const url = yield* deltaUrl(runtime.config, request);
     const collection = yield* executeJson(runtime, url, M365DriveItemCollection, "driveItems");
     return yield* annotateCollectionCount(collection);
   }),
   downloadDriveItemContent: Effect.fn("M365.downloadDriveItemContent")(function* (rawRequest) {
-    const request = yield* decodeDownloadDriveItemContentRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "driveItems" }))
-    );
+    const request = yield* decodeRequest(M365DownloadDriveItemContentRequest, "driveItems")(rawRequest);
     const url = graphUrl(runtime.config, `/drives/${request.driveId}/items/${request.itemId}`, [
       ["$select", O.some(GRAPH_DRIVE_ITEM_SELECT)],
     ]);
@@ -1001,47 +994,35 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     return M365DownloadedContent.make({ bytes, item });
   }),
   getEvent: Effect.fn("M365.getEvent")(function* (rawRequest) {
-    const request = yield* decodeGetEventRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "events" }))
-    );
+    const request = yield* decodeRequest(M365GetEventRequest, "events")(rawRequest);
     const url = graphUrl(runtime.config, mailboxPath(request.userId, `events/${request.eventId}`));
     return yield* executeJson(runtime, url, GraphEvent, "events");
   }),
   getListItem: Effect.fn("M365.getListItem")(function* (rawRequest) {
-    const request = yield* decodeGetListItemRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "listItems" }))
-    );
+    const request = yield* decodeRequest(M365GetListItemRequest, "listItems")(rawRequest);
     const url = graphUrl(runtime.config, `/sites/${request.siteId}/lists/${request.listId}/items/${request.itemId}`, [
       ["$expand", O.some("fields")],
     ]);
     return yield* executeJson(runtime, url, GraphListItem, "listItems");
   }),
   getMessage: Effect.fn("M365.getMessage")(function* (rawRequest) {
-    const request = yield* decodeGetMessageRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "messages" }))
-    );
+    const request = yield* decodeRequest(M365GetMessageRequest, "messages")(rawRequest);
     const url = graphUrl(runtime.config, mailboxPath(request.userId, `messages/${request.messageId}`));
     return yield* executeJson(runtime, url, GraphMessage, "messages");
   }),
   getSite: Effect.fn("M365.getSite")(function* (rawRequest) {
-    const request = yield* decodeGetSiteRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "sites" }))
-    );
+    const request = yield* decodeRequest(M365GetSiteRequest, "sites")(rawRequest);
     const url = graphUrl(runtime.config, `/sites/${request.siteId}`);
     return yield* executeJson(runtime, url, GraphSite, "sites");
   }),
   listDriveItemVersions: Effect.fn("M365.listDriveItemVersions")(function* (rawRequest) {
-    const request = yield* decodeListDriveItemVersionsRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "driveItemVersions" }))
-    );
+    const request = yield* decodeRequest(M365ListDriveItemVersionsRequest, "driveItemVersions")(rawRequest);
     const url = graphUrl(runtime.config, `/drives/${request.driveId}/items/${request.itemId}/versions`);
     const collection = yield* executeJson(runtime, url, M365DriveItemVersionCollection, "driveItemVersions");
     return yield* annotateCollectionCount(collection);
   }),
   listDrives: Effect.fn("M365.listDrives")(function* (rawRequest) {
-    const request = yield* decodeListDrivesRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "drives" }))
-    );
+    const request = yield* decodeRequest(M365ListDrivesRequest, "drives")(rawRequest);
     const path = pipe(
       O.fromUndefinedOr(request.siteId),
       O.match({
@@ -1053,9 +1034,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     return yield* annotateCollectionCount(collection);
   }),
   listEvents: Effect.fn("M365.listEvents")(function* (rawRequest) {
-    const request = yield* decodeListEventsRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "events" }))
-    );
+    const request = yield* decodeRequest(M365ListEventsRequest, "events")(rawRequest);
     const url = graphUrl(runtime.config, mailboxPath(request.userId, "events"), [
       ["$top", O.fromUndefinedOr(request.top)],
     ]);
@@ -1063,9 +1042,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     return yield* annotateCollectionCount(collection);
   }),
   listMessages: Effect.fn("M365.listMessages")(function* (rawRequest) {
-    const request = yield* decodeListMessagesRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "messages" }))
-    );
+    const request = yield* decodeRequest(M365ListMessagesRequest, "messages")(rawRequest);
     const url = graphUrl(runtime.config, mailboxPath(request.userId, "messages"), [
       ["$filter", O.fromUndefinedOr(request.filter)],
       ["$top", O.fromUndefinedOr(request.top)],
@@ -1074,9 +1051,7 @@ const makeService = (runtime: M365Runtime): M365Shape => ({
     return yield* annotateCollectionCount(collection);
   }),
   listSites: Effect.fn("M365.listSites")(function* (rawRequest) {
-    const request = yield* decodeListSitesRequest(rawRequest).pipe(
-      Effect.mapError((cause) => M365Error.fromReason("request encoding", { cause, resource: "sites" }))
-    );
+    const request = yield* decodeRequest(M365ListSitesRequest, "sites")(rawRequest);
     const search = request.search ?? ALL_SITES_SEARCH;
     const collection = yield* executeJson(
       runtime,

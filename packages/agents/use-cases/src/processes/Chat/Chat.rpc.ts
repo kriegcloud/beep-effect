@@ -22,11 +22,17 @@ import { ChatActionError } from "./Chat.errors.ts";
 /**
  * Lists the threads in a workspace, most recent activity first.
  *
+ * @remarks
+ * The request payload is a workspace id, the response is the workspace's
+ * thread read model array, and all handler-side failures are translated to
+ * {@link ChatActionError} before crossing the wire.
+ *
  * @example
  * ```ts
- * import { ListThreadsRpc } from "@beep/agents-use-cases/public"
+ * import { ChatRpcs, ListThreadsRpc } from "@beep/agents-use-cases/public"
  *
- * console.log(ListThreadsRpc)
+ * const registered = ChatRpcs.requests.get("ListThreads")
+ * console.log(registered === ListThreadsRpc) // true
  * ```
  *
  * @category protocols
@@ -41,11 +47,17 @@ export const ListThreadsRpc = Rpc.make("ListThreads", {
 /**
  * Creates a new thread in a workspace.
  *
+ * @remarks
+ * The payload carries the target workspace and initial title. The sidecar owns
+ * persistence and returns the created thread or a client-safe
+ * {@link ChatActionError}.
+ *
  * @example
  * ```ts
- * import { CreateThreadRpc } from "@beep/agents-use-cases/public"
+ * import { ChatRpcs, CreateThreadRpc } from "@beep/agents-use-cases/public"
  *
- * console.log(CreateThreadRpc)
+ * const registered = ChatRpcs.requests.get("CreateThread")
+ * console.log(registered === CreateThreadRpc) // true
  * ```
  *
  * @category protocols
@@ -60,11 +72,16 @@ export const CreateThreadRpc = Rpc.make("CreateThread", {
 /**
  * Reads the persisted timeline read-model for a thread.
  *
+ * @remarks
+ * This query reads already-persisted timeline state; assistant turn generation
+ * happens through {@link SendMessageRpc} and {@link EditMessageRpc}.
+ *
  * @example
  * ```ts
- * import { GetTimelineRpc } from "@beep/agents-use-cases/public"
+ * import { ChatRpcs, GetTimelineRpc } from "@beep/agents-use-cases/public"
  *
- * console.log(GetTimelineRpc)
+ * const registered = ChatRpcs.requests.get("GetTimeline")
+ * console.log(registered === GetTimelineRpc) // true
  * ```
  *
  * @category protocols
@@ -80,11 +97,20 @@ export const GetTimelineRpc = Rpc.make("GetTimeline", {
  * Sends a message to a thread and streams the assistant turn back, one
  * rich-text block at a time as each finishes generating.
  *
+ * @remarks
+ * The declaration marks success as a stream of {@link AssistantBlock} values.
+ * Every request failure uses the typed {@link ChatActionError} channel.
+ *
  * @example
  * ```ts
- * import { SendMessageRpc } from "@beep/agents-use-cases/public"
+ * import { ChatRpcs, SendMessageRpc } from "@beep/agents-use-cases/public"
+ * import * as RpcSchema from "effect/unstable/rpc/RpcSchema"
  *
- * console.log(SendMessageRpc)
+ * const registered = ChatRpcs.requests.get("SendMessage")
+ * const streamsBlocks =
+ *   registered !== undefined && RpcSchema.isStreamSchema(registered.successSchema)
+ *
+ * console.log(registered === SendMessageRpc, streamsBlocks) // true true
  * ```
  *
  * @category protocols
@@ -101,11 +127,21 @@ export const SendMessageRpc = Rpc.make("SendMessage", {
  * Edits an existing turn's message and re-streams the regenerated assistant
  * turn back, one rich-text block at a time.
  *
+ * @remarks
+ * The payload identifies both the thread and the turn being edited. Like
+ * {@link SendMessageRpc}, success is a stream and failures are normalized to
+ * {@link ChatActionError}.
+ *
  * @example
  * ```ts
- * import { EditMessageRpc } from "@beep/agents-use-cases/public"
+ * import { ChatRpcs, EditMessageRpc } from "@beep/agents-use-cases/public"
+ * import * as RpcSchema from "effect/unstable/rpc/RpcSchema"
  *
- * console.log(EditMessageRpc)
+ * const registered = ChatRpcs.requests.get("EditMessage")
+ * const streamsBlocks =
+ *   registered !== undefined && RpcSchema.isStreamSchema(registered.successSchema)
+ *
+ * console.log(registered === EditMessageRpc, streamsBlocks) // true true
  * ```
  *
  * @category protocols
@@ -131,7 +167,7 @@ export const EditMessageRpc = Rpc.make("EditMessage", {
  * ```ts
  * import { ChatRpcs } from "@beep/agents-use-cases/public"
  *
- * console.log(ChatRpcs.requests)
+ * console.log([...ChatRpcs.requests.keys()].sort())
  * ```
  *
  * @category protocols

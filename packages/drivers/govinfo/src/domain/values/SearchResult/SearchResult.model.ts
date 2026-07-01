@@ -10,92 +10,127 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/SearchResult/SearchResult.model");
 
 /**
- * A single hit from a GovInfo search response, describing one matched package or
- * granule (its collection, dates, authors, identifiers, links, and downloadable renditions).
+ * Single GovInfo search hit with package, granule, and download metadata.
+ *
+ * @remarks
+ * Search results may refer to a whole package or a package granule. GovInfo
+ * package and granule identifiers are unique and can be used to retrieve
+ * summaries, metadata, and content from retrieval endpoints.
  *
  * @example
  * ```ts
  * import { SearchResult } from "@beep/govinfo/domain/values/SearchResult/SearchResult.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SearchResult);
+ * const result = S.decodeUnknownSync(SearchResult)({
+ *   collectionCode: "FR",
+ *   dateIngested: "2024-01-05T00:00:00Z",
+ *   dateIssued: "2024-01-04T00:00:00Z",
+ *   download: {
+ *     pdfLink: "https://api.govinfo.gov/packages/FR-2024-01-04/pdf",
+ *     xmlLink: "https://api.govinfo.gov/packages/FR-2024-01-04/xml"
+ *   },
+ *   governmentAuthor: ["National Archives and Records Administration"],
+ *   granuleId: "2024-00001",
+ *   lastModified: "2024-01-05T14:30:00Z",
+ *   packageId: "FR-2024-01-04",
+ *   resultLink: "https://api.govinfo.gov/packages/FR-2024-01-04/summary",
+ *   title: "Federal Register, Volume 89 Issue 2"
+ * });
+ *
+ * console.log(result.packageId);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class SearchResult extends S.Class<SearchResult>($I`SearchResult`)(
   {
-    /** GovInfo collection abbreviation the hit belongs to (for example `BILLS`, `FR`, or `CREC`). */
+    /** GovInfo collection code for the result. */
     collectionCode: S.String.annotateKey({
-      description: "GovInfo collection abbreviation the hit belongs to (for example BILLS, FR, or CREC).",
+      description: "GovInfo collection code for the result.",
     }),
-    /** Timestamp of when GovInfo ingested this content into its repository. */
+    /** Time the result was ingested into GovInfo. */
     dateIngested: S.DateTimeUtcFromString.annotateKey({
-      description: "Timestamp of when GovInfo ingested this content into its repository.",
+      description: "Time the result was ingested into GovInfo.",
     }),
-    /** Official publication date on which the content was issued. */
+    /** Publication date for the package or granule content. */
     dateIssued: S.DateTimeUtcFromString.annotateKey({
-      description: "Official publication date on which the content was issued.",
+      description: "Publication date for the package or granule content.",
     }),
-    /** Map of rendition/format name to the download URL for that rendition of the result. */
+    /** Map of available download format names to API URLs. */
     download: S.Record(S.String, S.String).annotateKey({
-      description: "Map of rendition/format name to the download URL for that rendition of the result.",
-      documentation:
-        "The download property on the SearchResult model is typed as object, and it's defined as a free-form object with arbitrary string properties. The TypeScript equivalent would be:",
+      description: "Map of available download format names to API URLs.",
+      documentation: "GovInfo commonly returns keys such as pdfLink, xmlLink, modsLink, premisLink, and zipLink.",
     }),
-    /** Issuing government authors or agencies responsible for the content. */
+    /** Government authors credited for the result. */
     governmentAuthor: S.String.pipe(
       S.Array,
       S.annotateKey({
-        description: "Issuing government authors or agencies responsible for the content.",
+        description: "Government authors credited for the result.",
       })
     ),
-    /** Identifier of the granule within its parent GovInfo package, when the hit is a granule. */
+    /** Granule identifier when the result targets a package subsection. */
     granuleId: S.String.annotateKey({
-      description: "Identifier of the granule within its parent GovInfo package, when the hit is a granule.",
+      description: "Granule identifier when the result targets a package subsection.",
     }),
-    /** Timestamp of the most recent modification to the content. */
+    /** Time GovInfo last added or updated the result. */
     lastModified: S.DateTimeUtcFromString.annotateKey({
-      description: "Timestamp of the most recent modification to the content.",
+      description: "Time GovInfo last added or updated the result.",
     }),
-    /** GovInfo package identifier that uniquely names the containing package. */
+    /** Unique GovInfo package identifier. */
     packageId: S.String.annotateKey({
-      description: "GovInfo package identifier that uniquely names the containing package.",
+      description: "Unique GovInfo package identifier.",
     }),
-    /** API link to the package or granule that this result represents. */
+    /** API URL for the result summary. */
     resultLink: S.String.annotateKey({
-      description: "API link to the package or granule that this result represents.",
+      description: "API URL for the result summary.",
     }),
-    /** Human-readable title of the matched package or granule. */
+    /** Display title for the search result. */
     title: S.String.annotateKey({
-      description: "Human-readable title of the matched package or granule.",
+      description: "Display title for the search result.",
     }),
   },
   $I.annote("SearchResult", {
-    description:
-      "A single hit returned by the GovInfo search endpoint, describing one matched package or granule and how to retrieve its renditions.",
+    description: "Single GovInfo search hit with package, granule, and download metadata.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link SearchResult} value object.
+ * Companion namespace for {@link SearchResult} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SearchResult {
   /**
-   * The companion encoded type for {@link SearchResult}.
+   * Encoded JSON shape accepted by {@link SearchResult}.
    *
    * @example
    * ```ts
-   * import type { SearchResult } from "@beep/govinfo/domain/values/SearchResult/SearchResult.model";
+   * import { SearchResult } from "@beep/govinfo/domain/values/SearchResult/SearchResult.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SearchResult.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(SearchResult)({
+   *   collectionCode: "FR",
+   *   dateIngested: "2024-01-05T00:00:00Z",
+   *   dateIssued: "2024-01-04T00:00:00Z",
+   *   download: {
+   *     pdfLink: "https://api.govinfo.gov/packages/FR-2024-01-04/pdf"
+   *   },
+   *   governmentAuthor: ["National Archives and Records Administration"],
+   *   granuleId: "2024-00001",
+   *   lastModified: "2024-01-05T14:30:00Z",
+   *   packageId: "FR-2024-01-04",
+   *   resultLink: "https://api.govinfo.gov/packages/FR-2024-01-04/summary",
+   *   title: "Federal Register, Volume 89 Issue 2"
+   * });
+   * const encoded: SearchResult.Encoded = S.encodeSync(SearchResult)(decoded);
+   *
+   * console.log(encoded.collectionCode);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SearchResult.Encoded;

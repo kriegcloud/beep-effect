@@ -20,13 +20,20 @@ const alertVariants = cva(
 );
 
 /**
- * Alert component.
+ * Status message container with default and destructive variants.
  *
  * @example
  * ```tsx
- * import { Alert } from "@beep/ui/components/alert"
+ * import { Alert, AlertDescription, AlertTitle } from "@beep/ui/components/alert"
  *
- * console.log(Alert)
+ * export function PaymentAlert() {
+ *   return (
+ *     <Alert variant="destructive">
+ *       <AlertTitle>Payment failed</AlertTitle>
+ *       <AlertDescription>Update the card before the next billing attempt.</AlertDescription>
+ *     </Alert>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -37,13 +44,19 @@ function Alert({ className, variant, ...props }: React.ComponentProps<"div"> & V
 }
 
 /**
- * Alert title component.
+ * Prominent heading text inside an {@link Alert}.
  *
  * @example
  * ```tsx
- * import { AlertTitle } from "@beep/ui/components/alert"
+ * import { Alert, AlertTitle } from "@beep/ui/components/alert"
  *
- * console.log(AlertTitle)
+ * export function SyncAlertTitle() {
+ *   return (
+ *     <Alert>
+ *       <AlertTitle>Sync complete</AlertTitle>
+ *     </Alert>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -63,13 +76,20 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * Alert description component.
+ * Supporting body copy inside an {@link Alert}.
  *
  * @example
  * ```tsx
- * import { AlertDescription } from "@beep/ui/components/alert"
+ * import { Alert, AlertDescription, AlertTitle } from "@beep/ui/components/alert"
  *
- * console.log(AlertDescription)
+ * export function InviteAlertDescription() {
+ *   return (
+ *     <Alert>
+ *       <AlertTitle>Invite sent</AlertTitle>
+ *       <AlertDescription>The teammate will receive a setup link by email.</AlertDescription>
+ *     </Alert>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -89,13 +109,23 @@ function AlertDescription({ className, ...props }: React.ComponentProps<"div">) 
 }
 
 /**
- * Alert action component.
+ * Right-aligned action slot for compact alert controls.
  *
  * @example
  * ```tsx
- * import { AlertAction } from "@beep/ui/components/alert"
+ * import { Alert, AlertAction, AlertDescription, AlertTitle } from "@beep/ui/components/alert"
  *
- * console.log(AlertAction)
+ * export function RetryAlertAction() {
+ *   return (
+ *     <Alert>
+ *       <AlertTitle>Upload paused</AlertTitle>
+ *       <AlertDescription>Reconnect to continue sending files.</AlertDescription>
+ *       <AlertAction>
+ *         <button type="button">Retry</button>
+ *       </AlertAction>
+ *     </Alert>
+ *   )
+ * }
  * ```
  *
  * @category components

@@ -124,11 +124,20 @@ const CheckedAssistantBlock = S.Union([
  * Per-block Anthropic codec for decoding individually streamed array elements.
  * Used to validate each completed `"blocks"` element slice as it arrives.
  *
+ * @remarks
+ * The codec includes the server-only provider checks for mermaid declarations,
+ * rectangular tables, and bare YouTube video ids. Importing this module can
+ * fail fast if `CheckedAssistantBlock` grows a schema feature that Anthropic's
+ * structured-output JSON Schema cannot express.
+ *
  * @example
  * ```ts
  * import { assistantBlockOutput } from "@beep/agents-server/AnthropicTurnCodec"
+ * import * as S from "effect/Schema"
  *
- * console.log(assistantBlockOutput.codec)
+ * const decodeBlock = S.decodeUnknownSync(S.fromJsonString(assistantBlockOutput.codec))
+ * const block = decodeBlock('{"type":"paragraph","children":[{"type":"text","text":"Hi"}]}')
+ * console.log(block.type) // "paragraph"
  * ```
  *
  * @category codecs
@@ -141,11 +150,19 @@ export const assistantBlockOutput = AnthropicStructuredOutput.toCodecAnthropic(C
  * feeds the forced-tool parameters; its `codec` is the provider's end-of-turn
  * decoder for the complete `AssistantContent` envelope.
  *
+ * @remarks
+ * Use {@link assistantBlockOutput} for incremental streamed element decoding;
+ * use this whole-envelope codec at the provider boundary when validating the
+ * completed forced-tool response.
+ *
  * @example
  * ```ts
  * import { assistantOutput } from "@beep/agents-server/AnthropicTurnCodec"
+ * import * as S from "effect/Schema"
  *
- * console.log(assistantOutput.jsonSchema)
+ * const decodeContent = S.decodeUnknownSync(S.fromJsonString(assistantOutput.codec))
+ * const content = decodeContent('{"blocks":[{"type":"paragraph","children":[{"type":"text","text":"Done"}]}]}')
+ * console.log(content.blocks.length) // 1
  * ```
  *
  * @category codecs

@@ -13,10 +13,10 @@
  * import { Blockchain } from "@beep/data"
  *
  * const ethTicker = Blockchain.Networks.Ethereum.ticker
- * console.log(ethTicker) // "ETH"
+ * console.assert(ethTicker === "ETH")
  *
  * const btcTicker = Blockchain.Networks.Bitcoin.ticker
- * console.log(btcTicker) // "BTC"
+ * console.assert(btcTicker === "BTC")
  * ```
  *
  * @category constants

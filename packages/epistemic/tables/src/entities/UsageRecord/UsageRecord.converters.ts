@@ -17,8 +17,32 @@ import type { Table } from "./UsageRecord.table.ts";
  * ```ts
  * import type { UsageRecordRow } from "@beep/epistemic-tables/entities/UsageRecord"
  *
- * const value = {} as UsageRecordRow
- * console.log(value)
+ * const row = {
+ *   activityId: 7,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: null,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: "EpistemicUsageRecord",
+ *   id: 10,
+ *   inputTokens: 12,
+ *   latencyMillis: null,
+ *   metadata: { trace: "fixture" },
+ *   model: "fixture-model",
+ *   orgId: 1,
+ *   outputTokens: 34,
+ *   provider: "fixture",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 46,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * } satisfies UsageRecordRow
+ *
+ * console.log(row.provider)
  * ```
  *
  * @category tables
@@ -33,8 +57,31 @@ export type UsageRecordRow = typeof Table.$inferSelect;
  * ```ts
  * import type { UsageRecordInsert } from "@beep/epistemic-tables/entities/UsageRecord"
  *
- * const value = {} as UsageRecordInsert
- * console.log(value)
+ * const insert = {
+ *   activityId: 7,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: null,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: "EpistemicUsageRecord",
+ *   inputTokens: 12,
+ *   latencyMillis: null,
+ *   metadata: { trace: "fixture" },
+ *   model: "fixture-model",
+ *   orgId: 1,
+ *   outputTokens: 34,
+ *   provider: "fixture",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 46,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * } satisfies UsageRecordInsert
+ *
+ * console.log(insert.provider)
  * ```
  *
  * @category tables
@@ -54,9 +101,36 @@ const decodeUsageRecordRow = S.decodeUnknownSync(UsageRecord);
  *
  * @example
  * ```ts
- * import { toUsageRecordInsert } from "@beep/epistemic-tables/entities/UsageRecord"
+ * import { fromUsageRecordRow, toUsageRecordInsert } from "@beep/epistemic-tables/entities/UsageRecord"
+ * import type { UsageRecordRow } from "@beep/epistemic-tables/entities/UsageRecord"
  *
- * console.log(toUsageRecordInsert)
+ * const row = {
+ *   activityId: 7,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: null,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: "EpistemicUsageRecord",
+ *   id: 10,
+ *   inputTokens: 12,
+ *   latencyMillis: null,
+ *   metadata: { trace: "fixture" },
+ *   model: "fixture-model",
+ *   orgId: 1,
+ *   outputTokens: 34,
+ *   provider: "fixture",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 46,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * } satisfies UsageRecordRow
+ *
+ * const insert = toUsageRecordInsert(fromUsageRecordRow(row))
+ * console.log("id" in insert) // false
  * ```
  *
  * @category tables
@@ -73,8 +147,35 @@ export const toUsageRecordInsert = (usageRecord: UsageRecord): UsageRecordInsert
  * @example
  * ```ts
  * import { fromUsageRecordRow } from "@beep/epistemic-tables/entities/UsageRecord"
+ * import type { UsageRecordRow } from "@beep/epistemic-tables/entities/UsageRecord"
  *
- * console.log(fromUsageRecordRow)
+ * const row = {
+ *   activityId: 7,
+ *   actor: { kind: "System", component: "Runtime" },
+ *   costUsdApproxMicros: null,
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   credentialReference: null,
+ *   entityType: "EpistemicUsageRecord",
+ *   id: 10,
+ *   inputTokens: 12,
+ *   latencyMillis: null,
+ *   metadata: { trace: "fixture" },
+ *   model: "fixture-model",
+ *   orgId: 1,
+ *   outputTokens: 34,
+ *   provider: "fixture",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "Agent",
+ *   totalTokens: 46,
+ *   unitCount: null,
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * } satisfies UsageRecordRow
+ *
+ * const usage = fromUsageRecordRow(row)
+ * console.log(usage.provider)
  * ```
  *
  * @category tables

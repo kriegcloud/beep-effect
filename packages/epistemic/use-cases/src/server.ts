@@ -11,9 +11,10 @@
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import * as ClaimGate from "@beep/epistemic-use-cases/ClaimGate"
  *
- * console.log(ClaimGate)
+ * strictEqual(typeof ClaimGate.makeClaimGate, "function")
  * ```
  *
  * @category services
@@ -25,9 +26,10 @@ export * as ClaimGate from "./ClaimGate/index.js";
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import * as ClaimLifecycle from "@beep/epistemic-use-cases/ClaimLifecycle"
  *
- * console.log(ClaimLifecycle)
+ * strictEqual(typeof ClaimLifecycle.makeClaimTransition, "function")
  * ```
  *
  * @category services

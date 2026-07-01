@@ -1,5 +1,5 @@
 /**
- * Experimental effect/Schema models for Box Node SDK payloads.
+ * Recursive serialized-data value schemas for Box payload fragments.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -11,14 +11,17 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/values/SerializedData/SerializedData.model");
 
 /**
- * Namespace for {@link SerializedData} containing the recursive encoded type.
+ * Type-level namespace for {@link SerializedData} recursive encoded values.
  *
  * @example
  * ```ts
- * import type * as BoxSchemas from "@beep/box/experimental/Box.schemas"
+ * import type { SerializedData } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
  *
- * const encoded: BoxSchemas.SerializedData.Encoded = ["report.pdf", 1024, true, null]
- * console.log(encoded)
+ * const encoded: SerializedData.Encoded = {
+ *   file: ["report.pdf", 1024, true, null]
+ * }
+ *
+ * console.log(JSON.stringify(encoded))
  * ```
  *
  * @category type-level
@@ -26,7 +29,16 @@ const $I = $BoxId.create("experimental/domain/values/SerializedData/SerializedDa
  */
 export declare namespace SerializedData {
   /**
-   * The encoded form of {@link SerializedData}, expressed recursively to break the schema cycle.
+   * Encoded recursive payload accepted by {@link SerializedData}.
+   *
+   * @example
+   * ```ts
+   * import type { SerializedData } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
+   *
+   * const encoded: SerializedData.Encoded = ["report.pdf", 1024, true, null]
+   *
+   * console.log(Array.isArray(encoded))
+   * ```
    *
    * @category type-level
    * @since 0.0.0
@@ -42,18 +54,20 @@ export declare namespace SerializedData {
 }
 
 /**
- * Recursive schema for serializable Box payload data: primitives, lists, and string-keyed maps.
+ * Recursive value schema for serializable Box payload fragments: primitives, lists, and string-keyed maps.
  *
  * @example
  * ```ts
- * import * as BoxSchemas from "@beep/box/experimental/Box.schemas"
+ * import { SerializedData } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
  * import * as S from "effect/Schema"
  *
- * const decoded = S.decodeUnknownSync(BoxSchemas.SerializedData)({ name: "report.pdf", size: 1024 })
- * console.log(decoded)
+ * const decoded = S.decodeUnknownSync(SerializedData)({ name: "report.pdf", size: 1024 })
+ * const encoded: SerializedData.Encoded = S.encodeSync(SerializedData)(decoded)
+ *
+ * console.log(JSON.stringify(encoded))
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const SerializedData = S.Union([
@@ -67,12 +81,22 @@ export const SerializedData = S.Union([
 ]).pipe(
   $I.annoteSchema("SerializedData", {
     description:
-      "A schema for serializable data types used in the Box driver, including undefined, null, booleans, numbers, strings, lists, and maps.",
+      "Recursive value schema for serializable Box payload fragments: primitives, lists, and string-keyed maps.",
   })
 );
 
 /**
- * {@inheritDoc SerializedData}
+ * Runtime value type decoded by {@link SerializedData}.
+ *
+ * @example
+ * ```ts
+ * import { SerializedData } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
+ * import * as S from "effect/Schema"
+ *
+ * const decoded: SerializedData = S.decodeUnknownSync(SerializedData)(["file.txt", 42, false])
+ *
+ * console.log(JSON.stringify(decoded))
+ * ```
  *
  * @category type-level
  * @since 0.0.0
@@ -80,13 +104,13 @@ export const SerializedData = S.Union([
 export type SerializedData = typeof SerializedData.Type;
 
 /**
- * Namespace for {@link SerializedDataList} containing the recursive encoded type.
+ * Type-level namespace for {@link SerializedDataList} recursive encoded arrays.
  *
  * @example
  * ```ts
- * import type * as BoxSchemas from "@beep/box/experimental/Box.schemas"
+ * import type { SerializedDataList } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
  *
- * const encoded: BoxSchemas.SerializedDataList.Encoded = ["file.txt", 42, false]
+ * const encoded: SerializedDataList.Encoded = ["file.txt", 42, false]
  * console.log(encoded.length)
  * ```
  *
@@ -95,7 +119,16 @@ export type SerializedData = typeof SerializedData.Type;
  */
 export declare namespace SerializedDataList {
   /**
-   * The encoded form of {@link SerializedDataList}: a readonly array of encoded serialized data.
+   * Encoded readonly array accepted by {@link SerializedDataList}.
+   *
+   * @example
+   * ```ts
+   * import type { SerializedDataList } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
+   *
+   * const encoded: SerializedDataList.Encoded = ["file.txt", 42, false]
+   *
+   * console.log(encoded.length)
+   * ```
    *
    * @category type-level
    * @since 0.0.0
@@ -104,29 +137,40 @@ export declare namespace SerializedDataList {
 }
 
 /**
- * Schema for lists of serializable Box payload data.
+ * Value schema for arrays of serializable Box payload fragments.
  *
  * @example
  * ```ts
- * import * as BoxSchemas from "@beep/box/experimental/Box.schemas"
+ * import { SerializedDataList } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
  * import * as S from "effect/Schema"
  *
- * const decoded = S.decodeUnknownSync(BoxSchemas.SerializedDataList)(["file.txt", 42, true])
- * console.log(decoded)
+ * const decoded = S.decodeUnknownSync(SerializedDataList)(["file.txt", 42, true])
+ * const encoded: SerializedDataList.Encoded = S.encodeSync(SerializedDataList)(decoded)
+ *
+ * console.log(encoded.length)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const SerializedDataList = S.Array(S.suspend((): S.Codec<SerializedData.Encoded> => SerializedData)).pipe(
   $I.annoteSchema("SerializedDataList", {
-    description:
-      "A schema for serializable data lists used in the Box driver, containing encoded serialized data elements.",
+    description: "Value schema for arrays of serializable Box payload fragments.",
   })
 );
 
 /**
- * {@inheritDoc SerializedDataList}
+ * Runtime value type decoded by {@link SerializedDataList}.
+ *
+ * @example
+ * ```ts
+ * import { SerializedDataList } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
+ * import * as S from "effect/Schema"
+ *
+ * const decoded: SerializedDataList = S.decodeUnknownSync(SerializedDataList)(["file.txt", 42, true])
+ *
+ * console.log(decoded.length)
+ * ```
  *
  * @category type-level
  * @since 0.0.0
@@ -134,14 +178,15 @@ export const SerializedDataList = S.Array(S.suspend((): S.Codec<SerializedData.E
 export type SerializedDataList = typeof SerializedDataList.Type;
 
 /**
- * Namespace for {@link SerializedDataMap} containing the recursive encoded type.
+ * Type-level namespace for {@link SerializedDataMap} recursive encoded records.
  *
  * @example
  * ```ts
- * import type * as BoxSchemas from "@beep/box/experimental/Box.schemas"
+ * import type { SerializedDataMap } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
  *
- * const encoded: BoxSchemas.SerializedDataMap.Encoded = { name: "report.pdf", size: 1024 }
- * console.log(encoded)
+ * const encoded: SerializedDataMap.Encoded = { name: "report.pdf", size: 1024 }
+ *
+ * console.log(JSON.stringify(encoded))
  * ```
  *
  * @category type-level
@@ -149,7 +194,16 @@ export type SerializedDataList = typeof SerializedDataList.Type;
  */
 export declare namespace SerializedDataMap {
   /**
-   * The encoded form of {@link SerializedDataMap}: string keys to encoded serialized data values.
+   * Encoded string-keyed record accepted by {@link SerializedDataMap}.
+   *
+   * @example
+   * ```ts
+   * import type { SerializedDataMap } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
+   *
+   * const encoded: SerializedDataMap.Encoded = { name: "report.pdf", size: 1024 }
+   *
+   * console.log(Object.keys(encoded).length)
+   * ```
    *
    * @category type-level
    * @since 0.0.0
@@ -160,18 +214,20 @@ export declare namespace SerializedDataMap {
 }
 
 /**
- * Schema for string-keyed maps of serializable Box payload data.
+ * Value schema for string-keyed maps of serializable Box payload fragments.
  *
  * @example
  * ```ts
- * import * as BoxSchemas from "@beep/box/experimental/Box.schemas"
+ * import { SerializedDataMap } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
  * import * as S from "effect/Schema"
  *
- * const decoded = S.decodeUnknownSync(BoxSchemas.SerializedDataMap)({ name: "report.pdf", size: 1024 })
- * console.log(decoded)
+ * const decoded = S.decodeUnknownSync(SerializedDataMap)({ name: "report.pdf", size: 1024 })
+ * const encoded: SerializedDataMap.Encoded = S.encodeSync(SerializedDataMap)(decoded)
+ *
+ * console.log(JSON.stringify(encoded))
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const SerializedDataMap = S.Record(
@@ -179,13 +235,25 @@ export const SerializedDataMap = S.Record(
   S.suspend((): S.Codec<SerializedData.Encoded> => SerializedData)
 ).pipe(
   $I.annoteSchema("SerializedDataMap", {
-    description:
-      "A schema for serializable data maps used in the Box driver, mapping string keys to encoded serialized data values.",
+    description: "Value schema for string-keyed maps of serializable Box payload fragments.",
   })
 );
 
 /**
- * {@inheritDoc SerializedDataMap}
+ * Runtime value type decoded by {@link SerializedDataMap}.
+ *
+ * @example
+ * ```ts
+ * import { SerializedDataMap } from "@beep/box/experimental/domain/values/SerializedData/SerializedData.model"
+ * import * as S from "effect/Schema"
+ *
+ * const decoded: SerializedDataMap = S.decodeUnknownSync(SerializedDataMap)({
+ *   name: "report.pdf",
+ *   size: 1024
+ * })
+ *
+ * console.log(Object.keys(decoded).length)
+ * ```
  *
  * @category type-level
  * @since 0.0.0

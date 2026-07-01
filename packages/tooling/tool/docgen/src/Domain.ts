@@ -109,7 +109,7 @@ export class Position extends S.Class<Position>($I`Position`)({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -183,7 +183,7 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -236,7 +236,7 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -298,7 +298,7 @@ export class Class extends S.TaggedClass<Class>($I`Class`)("Class", {
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -351,7 +351,7 @@ export class Interface extends S.TaggedClass<Interface>($I`Interface`)("Interfac
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -404,7 +404,7 @@ export class Function extends S.TaggedClass<Function>($I`Function`)("Function", 
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -457,7 +457,7 @@ export class TypeAlias extends S.TaggedClass<TypeAlias>($I`TypeAlias`)("TypeAlia
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -501,15 +501,11 @@ export class Constant extends S.TaggedClass<Constant>($I`Constant`)("Constant", 
 }
 
 /**
- * These are manual exports, like:
+ * Represents a named export declaration that is documented separately from its original declaration.
  *
- * ```ts skip-type-checking
- * const _null = ...
- *
- * export {
- *
- * }
- * ```
+ * @remarks
+ * Namespace export declarations are marked with `isNamespaceExport` so the printer can label
+ * `export * as Name from "./module.js"` differently from named export lists.
  *
  * @example
  * ```ts
@@ -518,7 +514,7 @@ export class Constant extends S.TaggedClass<Constant>($I`Constant`)("Constant", 
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -574,7 +570,7 @@ export class Export extends S.TaggedClass<Export>($I`Export`)("Export", {
  *   since: ["0.0.0"],
  *   deprecated: [],
  *   examples: [],
- *   category: ["model"],
+ *   category: ["models"],
  *   throws: [],
  *   sees: [],
  *   tags: {}
@@ -630,8 +626,35 @@ export class Namespace extends S.TaggedClass<Namespace>($I`Namespace`)("Namespac
  *
  * @example
  * ```ts
- * import { Module } from "@beep/repo-docgen/Domain"
- * console.log(Module)
+ * import { Project } from "ts-morph"
+ * import { Doc, Module } from "@beep/repo-docgen/Domain"
+ * import { SourceShape } from "@beep/repo-docgen/Parser"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("src/example.ts", "export const value = 1")
+ * const source = SourceShape.new(["src", "example.ts"], sourceFile)
+ * const doc = Doc.new("Example module.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["models"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const module = Module.new(source, "example.ts", {
+ *   doc,
+ *   path: ["src", "example.ts"],
+ *   classes: [],
+ *   interfaces: [],
+ *   functions: [],
+ *   typeAliases: [],
+ *   constants: [],
+ *   exports: [],
+ *   namespaces: []
+ * })
+ *
+ * console.log(module.path)
  * ```
  * @category models
  * @since 0.0.0
@@ -686,13 +709,51 @@ type FileNewOptions = {
 };
 
 /**
- * A comparator function for sorting `Module` objects by their file path,
- * represented as a lowercase string.
+ * Ordering that sorts modules by their normalized lowercase source path.
  *
  * @example
  * ```ts
- * import { ByPath } from "@beep/repo-docgen/Domain"
- * console.log(ByPath)
+ * import * as A from "effect/Array"
+ * import { Project } from "ts-morph"
+ * import { ByPath, Doc, Module } from "@beep/repo-docgen/Domain"
+ * import { SourceShape } from "@beep/repo-docgen/Parser"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("src/a.ts", "")
+ * const doc = Doc.new("Example module.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["models"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const first = Module.new(SourceShape.new(["src", "a.ts"], sourceFile), "a.ts", {
+ *   doc,
+ *   path: ["src", "a.ts"],
+ *   classes: [],
+ *   interfaces: [],
+ *   functions: [],
+ *   typeAliases: [],
+ *   constants: [],
+ *   exports: [],
+ *   namespaces: []
+ * })
+ * const second = Module.new(SourceShape.new(["src", "b.ts"], sourceFile), "b.ts", {
+ *   doc,
+ *   path: ["src", "b.ts"],
+ *   classes: [],
+ *   interfaces: [],
+ *   functions: [],
+ *   typeAliases: [],
+ *   constants: [],
+ *   exports: [],
+ *   namespaces: []
+ * })
+ *
+ * const sorted = A.sort(ByPath)([second, first])
+ * console.log(sorted[0]?.name)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -745,7 +806,8 @@ export class File extends S.Class<File>($I`File`)({
  * @example
  * ```ts
  * import { DocgenErrorTypeId } from "@beep/repo-docgen/Domain"
- * console.log(DocgenErrorTypeId)
+ *
+ * console.log(Symbol.keyFor(DocgenErrorTypeId))
  * ```
  * @category symbols
  * @since 0.0.0
@@ -780,12 +842,19 @@ export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
 export class DocgenError extends TaggedErrorClass<DocgenError>($I`DocgenError`)("DocgenError", { message: S.String }) {}
 
 /**
- * Represents a handle to the currently executing process.
+ * Service shape for the process APIs used by docgen.
  *
  * @example
  * ```ts
- * import { Process } from "@beep/repo-docgen/Domain"
- * console.log(Process)
+ * import { Effect } from "effect"
+ *
+ * const fakeProcess = {
+ *   argv: Effect.succeed(["bun", "docgen"]),
+ *   cwd: Effect.succeed("/workspace/packages/tooling/tool/docgen"),
+ *   platform: Effect.succeed("linux")
+ * }
+ *
+ * console.log(fakeProcess.platform)
  * ```
  * @category services
  * @since 0.0.0
@@ -803,12 +872,21 @@ const defaultProcess: ProcessShape = {
 };
 
 /**
- * Represents a handle to the currently executing process.
+ * Service exposing the current process working directory, platform, and argument vector.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { Process } from "@beep/repo-docgen/Domain"
- * console.log(Process)
+ *
+ * const cwd = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const process = yield* Process
+ *     return yield* process.cwd
+ *   }).pipe(Effect.provide(Process.layer))
+ * )
+ *
+ * console.log(cwd.length > 0)
  * ```
  * @category services
  * @since 0.0.0

@@ -52,7 +52,10 @@ const errorMessage = (error: unknown): string => (error instanceof Error ? error
  * ```tsx
  * import { MermaidView } from "@beep/editor/mermaid-view"
  *
- * console.log(MermaidView.name) // "MermaidView"
+ * const props = { renderKey: "checkout-flow", source: "graph TD; A-->B" }
+ * const diagram = <MermaidView {...props} />
+ *
+ * console.log(props.renderKey) // "checkout-flow"
  * ```
  *
  * @category components

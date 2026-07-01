@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box task assignment entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/TaskAssignment/TaskAssignment.model");
 
 /**
+ * Experimental schema anchor for assignments of Box tasks to principals.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(TaskAssignment.make({
+ * const decoded = S.decodeUnknownSync(TaskAssignment)({});
+ * const encoded: TaskAssignment.Encoded = S.encodeSync(TaskAssignment)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class TaskAssignment extends S.Class<TaskAssignment>($I`TaskAssignment`)(
   {},
   $I.annote("TaskAssignment", {
-    description: "TODO",
+    description: "Experimental schema anchor for assignments of Box tasks to principals.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link TaskAssignment}
+ * Type-level companion namespace for {@link TaskAssignment} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = TaskAssignment.make({});
+ * const encoded: TaskAssignment.Encoded = S.encodeSync(TaskAssignment)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace TaskAssignment {
   /**
-   * Companion encoded type for {@link TaskAssignment}.
+   * Encoded payload accepted by the {@link TaskAssignment} entity schema.
    *
    * @example
    * ```ts
-   * import type { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
+   * import { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: TaskAssignment.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: TaskAssignment.Encoded = S.encodeSync(TaskAssignment)(TaskAssignment.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof TaskAssignment.Encoded;
 }
-
-/**
- * Companion runtime type for {@link TaskAssignment}.
- *
- * @example
- * ```ts
- * import type { TaskAssignment } from "@beep/box/experimental/domain/entities/TaskAssignment/TaskAssignment.model";
- *
- * const useValue = (_value: TaskAssignment) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type TaskAssignment = typeof TaskAssignment.Type;

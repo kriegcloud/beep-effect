@@ -49,9 +49,36 @@ export interface ToggleGroupFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { ToggleGroupField } from "@beep/form/fields/ToggleGroupField"
+ * import * as S from "effect/Schema"
  *
- * console.log(ToggleGroupField)
+ * const AlignmentSchema = S.Struct({ align: S.String })
+ * const alignmentOptions = [
+ *   { value: "left", label: "Left" },
+ *   { value: "center", label: "Center" },
+ * ]
+ * const alignmentFormOptions = makeFormOptions({
+ *   schema: AlignmentSchema,
+ *   defaultValues: { align: "left" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function AlignmentForm() {
+ *   const form = useAppForm(alignmentFormOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="align">
+ *           {() => <ToggleGroupField label="Alignment" options={alignmentOptions} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(alignmentFormOptions.defaultValues.align) // "left"
  * ```
  *
  * @category components

@@ -16,16 +16,34 @@ import * as S from "effect/Schema";
 const $I = $EpistemicDomainId.create("entities/CandidateClaim/CandidateClaim.model");
 
 /**
- * Candidate claim proposed by an agent with source evidence.
+ * Candidate claim proposed by an agent and tracked through admission.
  *
  * @example
  * ```ts
  * import { CandidateClaim } from "@beep/epistemic-domain"
+ * import * as Epistemic from "@beep/shared-domain/identity/Epistemic"
+ * import * as S from "effect/Schema"
  *
- * console.log(CandidateClaim.definition.entityId.tableName)
+ * const claim = S.decodeUnknownSync(CandidateClaim)({
+ *   createdAt: 1,
+ *   createdByPrincipal: { kind: "System", component: "Runtime" },
+ *   entityType: Epistemic.CandidateClaimId.entityType,
+ *   fixtureKey: "claim:patentability",
+ *   id: 1,
+ *   lifecycle: "candidate",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   snapshot: { text: "The application describes a processor." },
+ *   source: "Agent",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: { kind: "System", component: "Runtime" }
+ * })
+ *
+ * console.log(claim.lifecycle)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class CandidateClaim extends BaseEntity.Class<CandidateClaim>($I`CandidateClaim`)(

@@ -52,14 +52,19 @@ export type SystemComponent = typeof SystemComponent.Type;
  *
  * @example
  * ```ts
- * import type { UserPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import { UserPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import * as S from "effect/Schema"
  *
- * declare const principal: UserPrincipal
+ * const principal = S.decodeUnknownSync(UserPrincipal)({
+ *   kind: "User",
+ *   userId: 1
+ * })
+ *
  * console.log(principal.kind)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class UserPrincipal extends S.Class<UserPrincipal>($I`UserPrincipal`)(
   {
@@ -76,14 +81,19 @@ export class UserPrincipal extends S.Class<UserPrincipal>($I`UserPrincipal`)(
  *
  * @example
  * ```ts
- * import type { ServiceAccountPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import { ServiceAccountPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import * as S from "effect/Schema"
  *
- * declare const principal: ServiceAccountPrincipal
+ * const principal = S.decodeUnknownSync(ServiceAccountPrincipal)({
+ *   kind: "ServiceAccount",
+ *   serviceAccountId: 1
+ * })
+ *
  * console.log(principal.kind)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ServiceAccountPrincipal extends S.Class<ServiceAccountPrincipal>($I`ServiceAccountPrincipal`)(
   {
@@ -101,14 +111,21 @@ export class ServiceAccountPrincipal extends S.Class<ServiceAccountPrincipal>($I
  *
  * @example
  * ```ts
- * import type { AgentPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import { AgentPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import * as S from "effect/Schema"
  *
- * declare const principal: AgentPrincipal
+ * const principal = S.decodeUnknownSync(AgentPrincipal)({
+ *   agentId: 1,
+ *   agentVersionId: 2,
+ *   kind: "Agent",
+ *   onBehalfOfUserId: 3
+ * })
+ *
  * console.log(principal.kind)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class AgentPrincipal extends S.Class<AgentPrincipal>($I`AgentPrincipal`)(
   {
@@ -128,14 +145,19 @@ export class AgentPrincipal extends S.Class<AgentPrincipal>($I`AgentPrincipal`)(
  *
  * @example
  * ```ts
- * import type { ConnectorAccountPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import { ConnectorAccountPrincipal } from "@beep/shared-domain/entity/Principal"
+ * import * as S from "effect/Schema"
  *
- * declare const principal: ConnectorAccountPrincipal
+ * const principal = S.decodeUnknownSync(ConnectorAccountPrincipal)({
+ *   connectorAccountId: 1,
+ *   kind: "ConnectorAccount"
+ * })
+ *
  * console.log(principal.kind)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ConnectorAccountPrincipal extends S.Class<ConnectorAccountPrincipal>($I`ConnectorAccountPrincipal`)(
   {
@@ -181,12 +203,18 @@ export class SystemPrincipal extends S.Class<SystemPrincipal>($I`SystemPrincipal
  * @example
  * ```ts
  * import { Principal } from "@beep/shared-domain/entity/Principal"
+ * import * as S from "effect/Schema"
  *
- * console.log(Principal)
+ * const principal = S.decodeUnknownSync(Principal)({
+ *   kind: "System",
+ *   component: "Runtime"
+ * })
+ *
+ * console.log(principal.kind) // "System"
  * ```
  *
- * @since 0.0.0
  * @category schemas
+ * @since 0.0.0
  */
 export const Principal = S.Union([
   UserPrincipal,

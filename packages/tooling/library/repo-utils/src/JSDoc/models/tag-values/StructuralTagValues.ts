@@ -12,10 +12,19 @@ import { empty, nameField, optionalDesc, optionalName, optionalType, typeField }
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/StructuralTagValues");
 
 /**
+ * Schema-backed value for a parsed `param` tag occurrence: documents a function parameter.
+ *
  * @example
  * ```ts
  * import { ParamValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(ParamValue)
+ *
+ * const tag = ParamValue.make({
+ *   type: "string",
+ *   name: "input",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "param" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -29,10 +38,18 @@ export class ParamValue extends S.TaggedClass<ParamValue>($I`ParamValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `returns` tag occurrence: documents the return value.
+ *
  * @example
  * ```ts
  * import { ReturnsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(ReturnsValue)
+ *
+ * const tag = ReturnsValue.make({
+ *   type: "boolean",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "returns" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -46,10 +63,18 @@ export class ReturnsValue extends S.TaggedClass<ReturnsValue>($I`ReturnsValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `throws` tag occurrence: documents an exception a function may throw.
+ *
  * @example
  * ```ts
  * import { ThrowsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(ThrowsValue)
+ *
+ * const tag = ThrowsValue.make({
+ *   type: "Error",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "throws" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -63,10 +88,19 @@ export class ThrowsValue extends S.TaggedClass<ThrowsValue>($I`ThrowsValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `template` tag occurrence: documents a type parameter.
+ *
  * @example
  * ```ts
  * import { TemplateValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(TemplateValue)
+ *
+ * const tag = TemplateValue.make({
+ *   type: "T",
+ *   name: "Example",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "template" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -80,10 +114,19 @@ export class TemplateValue extends S.TaggedClass<TemplateValue>($I`TemplateValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `typeParam` tag occurrence: TSDoc type parameter documentation.
+ *
  * @example
  * ```ts
  * import { TypeParamValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(TypeParamValue)
+ *
+ * const tag = TypeParamValue.make({
+ *   type: "T",
+ *   name: "Example",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "typeParam" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -97,10 +140,15 @@ export class TypeParamValue extends S.TaggedClass<TypeParamValue>($I`TypeParamVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `type` tag occurrence: specifies a type annotation.
+ *
  * @example
  * ```ts
  * import { TypeValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(TypeValue)
+ *
+ * const tag = TypeValue.make({ type: "ReadonlyArray<string>" })
+ * const tagName: "type" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -114,10 +162,19 @@ export class TypeValue extends S.TaggedClass<TypeValue>($I`TypeValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `typedef` tag occurrence: defines a custom type.
+ *
  * @example
  * ```ts
  * import { TypedefValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(TypedefValue)
+ *
+ * const tag = TypedefValue.make({
+ *   type: "Record<string, string>",
+ *   name: "Example",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "typedef" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -131,10 +188,18 @@ export class TypedefValue extends S.TaggedClass<TypedefValue>($I`TypedefValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `callback` tag occurrence: documents a callback function type.
+ *
  * @example
  * ```ts
  * import { CallbackValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(CallbackValue)
+ *
+ * const tag = CallbackValue.make({
+ *   name: "Example",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "callback" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -148,10 +213,15 @@ export class CallbackValue extends S.TaggedClass<CallbackValue>($I`CallbackValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `augments` tag occurrence: indicates a class extends another.
+ *
  * @example
  * ```ts
  * import { AugmentsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(AugmentsValue)
+ *
+ * const tag = AugmentsValue.make({ type: "BaseParser" })
+ * const tagName: "augments" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -165,10 +235,15 @@ export class AugmentsValue extends S.TaggedClass<AugmentsValue>($I`AugmentsValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `implements` tag occurrence: indicates interface implementation.
+ *
  * @example
  * ```ts
  * import { ImplementsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(ImplementsValue)
+ *
+ * const tag = ImplementsValue.make({ type: "Disposable" })
+ * const tagName: "implements" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -182,10 +257,18 @@ export class ImplementsValue extends S.TaggedClass<ImplementsValue>($I`Implement
 ) {}
 
 /**
+ * Schema-backed value for a parsed `class` tag occurrence: marks a function as a constructor.
+ *
  * @example
  * ```ts
  * import { ClassValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(ClassValue)
+ *
+ * const tag = ClassValue.make({
+ *   name: "Example",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "class" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -199,10 +282,15 @@ export class ClassValue extends S.TaggedClass<ClassValue>($I`ClassValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `enum` tag occurrence: documents an enum-like object.
+ *
  * @example
  * ```ts
  * import { EnumValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(EnumValue)
+ *
+ * const tag = EnumValue.make({ type: "string" })
+ * const tagName: "enum" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -216,10 +304,15 @@ export class EnumValue extends S.TaggedClass<EnumValue>($I`EnumValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `async` tag occurrence: marks a function as asynchronous.
+ *
  * @example
  * ```ts
  * import { AsyncValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(AsyncValue)
+ *
+ * const tag = AsyncValue.make({})
+ * const tagName: "async" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -233,10 +326,15 @@ export class AsyncValue extends S.TaggedClass<AsyncValue>($I`AsyncValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `generator` tag occurrence: marks a function as a generator.
+ *
  * @example
  * ```ts
  * import { GeneratorValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(GeneratorValue)
+ *
+ * const tag = GeneratorValue.make({})
+ * const tagName: "generator" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -250,10 +348,18 @@ export class GeneratorValue extends S.TaggedClass<GeneratorValue>($I`GeneratorVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `yields` tag occurrence: documents a generator's yield value.
+ *
  * @example
  * ```ts
  * import { YieldsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- * console.log(YieldsValue)
+ *
+ * const tag = YieldsValue.make({
+ *   type: "string",
+ *   description: "Next chunk."
+ * })
+ * const tagName: "yields" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

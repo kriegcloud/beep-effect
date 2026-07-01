@@ -84,9 +84,16 @@ export type BoxByteStream = Stream.Stream<Uint8Array, BoxError, never>;
  *
  * @example
  * ```ts
- * import type { BoxPartAccumulator } from "@beep/box"
+ * import { BoxPartAccumulator } from "@beep/box"
  *
- * type LastIndex = BoxPartAccumulator["lastIndex"]
+ * const accumulator = BoxPartAccumulator.make({
+ *   fileHash: "sha1-empty",
+ *   fileSize: 0,
+ *   lastIndex: -1,
+ *   parts: [],
+ *   uploadPartUrl: "https://upload.box.com/session"
+ * })
+ * console.log(accumulator.parts.length)
  * ```
  *
  * @category models
@@ -165,7 +172,15 @@ class BoxUploadWithPreflightCheckRequestBody extends S.Class<BoxUploadWithPrefli
  * ```ts
  * import type { BoxCreateUserAvatarPayload } from "@beep/box"
  *
- * type RequestBody = BoxCreateUserAvatarPayload["requestBody"]
+ * const payload = {
+ *   requestBody: {
+ *     pic: new Uint8Array([137, 80, 78, 71]),
+ *     picContentType: "image/png",
+ *     picFileName: "avatar.png"
+ *   },
+ *   userId: "12345"
+ * } satisfies BoxCreateUserAvatarPayload
+ * console.log(payload.requestBody.pic.byteLength)
  * ```
  *
  * @category models
@@ -264,7 +279,16 @@ export class BoxGetFileThumbnailByIdPayload extends S.Class<BoxGetFileThumbnailB
  * ```ts
  * import type { BoxUploadFileVersionPayload } from "@beep/box"
  *
- * type RequestBody = BoxUploadFileVersionPayload["requestBody"]
+ * const payload = {
+ *   fileId: "12345",
+ *   requestBody: {
+ *     attributes: { name: "document-v2.txt" },
+ *     file: new Uint8Array([118, 50]),
+ *     fileContentType: "text/plain",
+ *     fileFileName: "document-v2.txt"
+ *   }
+ * } satisfies BoxUploadFileVersionPayload
+ * console.log(payload.requestBody.attributes.name)
  * ```
  *
  * @category models
@@ -288,7 +312,18 @@ export class BoxUploadFileVersionPayload extends S.Class<BoxUploadFileVersionPay
  * ```ts
  * import type { BoxUploadFilePayload } from "@beep/box"
  *
- * type RequestBody = BoxUploadFilePayload["requestBody"]
+ * const payload = {
+ *   requestBody: {
+ *     attributes: {
+ *       name: "document.txt",
+ *       parent: { id: "0" }
+ *     },
+ *     file: new Uint8Array([104, 105]),
+ *     fileContentType: "text/plain",
+ *     fileFileName: "document.txt"
+ *   }
+ * } satisfies BoxUploadFilePayload
+ * console.log(payload.requestBody.attributes.parent.id)
  * ```
  *
  * @category models
@@ -311,7 +346,19 @@ export class BoxUploadFilePayload extends S.Class<BoxUploadFilePayload>($I`BoxUp
  * ```ts
  * import type { BoxUploadWithPreflightCheckPayload } from "@beep/box"
  *
- * type RequestBody = BoxUploadWithPreflightCheckPayload["requestBody"]
+ * const payload = {
+ *   requestBody: {
+ *     attributes: {
+ *       name: "document.txt",
+ *       parent: { id: "0" },
+ *       size: 2
+ *     },
+ *     file: new Uint8Array([104, 105]),
+ *     fileContentType: "text/plain",
+ *     fileFileName: "document.txt"
+ *   }
+ * } satisfies BoxUploadWithPreflightCheckPayload
+ * console.log(payload.requestBody.attributes.size)
  * ```
  *
  * @category models
@@ -336,7 +383,15 @@ export class BoxUploadWithPreflightCheckPayload extends S.Class<BoxUploadWithPre
  * ```ts
  * import type { BoxUploadFilePartByUrlPayload } from "@beep/box"
  *
- * type Headers = BoxUploadFilePartByUrlPayload["headersInput"]
+ * const payload = {
+ *   headersInput: {
+ *     contentRange: "bytes 0-1/2",
+ *     digest: "sha=abc123"
+ *   },
+ *   requestBody: new Uint8Array([104, 105]),
+ *   url: "https://upload.box.com/api/2.0/files/upload_sessions/abc/parts"
+ * } satisfies BoxUploadFilePartByUrlPayload
+ * console.log(new URL(payload.url).hostname)
  * ```
  *
  * @category models
@@ -363,7 +418,15 @@ export class BoxUploadFilePartByUrlPayload extends S.Class<BoxUploadFilePartByUr
  * ```ts
  * import type { BoxUploadFilePartPayload } from "@beep/box"
  *
- * type Headers = BoxUploadFilePartPayload["headersInput"]
+ * const payload = {
+ *   headersInput: {
+ *     contentRange: "bytes 0-1/2",
+ *     digest: "sha=abc123"
+ *   },
+ *   requestBody: new Uint8Array([104, 105]),
+ *   uploadSessionId: "upload-session-id"
+ * } satisfies BoxUploadFilePartPayload
+ * console.log(payload.headersInput.contentRange)
  * ```
  *
  * @category models
@@ -386,9 +449,20 @@ export class BoxUploadFilePartPayload extends S.Class<BoxUploadFilePartPayload>(
  *
  * @example
  * ```ts
+ * import { BoxPartAccumulator } from "@beep/box"
  * import type { BoxChunkedUploadReducerPayload } from "@beep/box"
  *
- * type Acc = BoxChunkedUploadReducerPayload["acc"]
+ * const payload = {
+ *   acc: BoxPartAccumulator.make({
+ *     fileHash: "sha1-empty",
+ *     fileSize: 2,
+ *     lastIndex: -1,
+ *     parts: [],
+ *     uploadPartUrl: "https://upload.box.com/session"
+ *   }),
+ *   chunk: new Uint8Array([104, 105])
+ * } satisfies BoxChunkedUploadReducerPayload
+ * console.log(payload.acc.lastIndex + payload.chunk.byteLength)
  * ```
  *
  * @category models
@@ -413,7 +487,13 @@ export class BoxChunkedUploadReducerPayload extends S.Class<BoxChunkedUploadRedu
  * ```ts
  * import type { BoxUploadBigFilePayload } from "@beep/box"
  *
- * type FileSize = BoxUploadBigFilePayload["fileSize"]
+ * const payload = {
+ *   file: new Uint8Array([104, 105]),
+ *   fileName: "large-document.txt",
+ *   fileSize: 2,
+ *   parentFolderId: "0"
+ * } satisfies BoxUploadBigFilePayload
+ * console.log(`${payload.fileName}:${payload.fileSize}`)
  * ```
  *
  * @category models
@@ -488,7 +568,13 @@ export class BoxGetZipDownloadContentPayload extends S.Class<BoxGetZipDownloadCo
  * ```ts
  * import type { BoxDownloadZipPayload } from "@beep/box"
  *
- * type RequestBody = BoxDownloadZipPayload["requestBody"]
+ * const payload = {
+ *   requestBody: {
+ *     downloadFileName: "case-files.zip",
+ *     items: [{ id: "12345", type: "file" }]
+ *   }
+ * } satisfies BoxDownloadZipPayload
+ * console.log(payload.requestBody.items.length)
  * ```
  *
  * @category models
@@ -922,8 +1008,25 @@ const runEventStreamSdkCall = <Payload>(
  * @example
  * ```ts
  * import { makeStreamingOperations } from "@beep/box"
+ * import { Effect } from "effect"
  *
- * console.log(makeStreamingOperations)
+ * const operations = makeStreamingOperations({
+ *   uploads: {
+ *     uploadFile: () => Promise.resolve({ entries: [], totalCount: 1 })
+ *   }
+ * })
+ *
+ * const program = operations.uploads.uploadFile({
+ *   requestBody: {
+ *     attributes: {
+ *       name: "document.txt",
+ *       parent: { id: "0" }
+ *     },
+ *     file: new Uint8Array([104, 105])
+ *   }
+ * })
+ *
+ * Effect.runPromise(program).then((files) => console.log(files.totalCount))
  * ```
  *
  * @category constructors

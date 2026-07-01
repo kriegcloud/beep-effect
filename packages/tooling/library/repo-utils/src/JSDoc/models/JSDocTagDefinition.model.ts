@@ -29,9 +29,31 @@ const defaultIsDeprecated = (): boolean => false;
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { JSDocTagDefinition } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * console.log(JSDocTagDefinition)
+ * const definition = JSDocTagDefinition.make({
+ *   _tag: "param",
+ *   synonyms: [],
+ *   overview: "Documents a function parameter.",
+ *   tagKind: "block",
+ *   specifications: ["tsdocCore"],
+ *   applicableTo: ["function"],
+ *   astDerivable: "partial",
+ *   astDerivableNote: "Parameter names are AST-derived; prose is authored.",
+ *   parameters: {
+ *     syntax: "@param name - description",
+ *     acceptsType: false,
+ *     acceptsName: true,
+ *     acceptsDescription: true,
+ *     allowedValues: O.none()
+ *   },
+ *   relatedTags: ["typeParam"],
+ *   isDeprecated: false,
+ *   deprecatedNote: O.none(),
+ *   example: "@param input - Raw input value."
+ * })
+ * console.log(definition._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -109,7 +131,25 @@ export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagD
  * ```ts
  * import { JSDocTagDefinition } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * console.log(JSDocTagDefinition)
+ * const encoded: JSDocTagDefinition.Encoded = {
+ *   _tag: "param",
+ *   synonyms: [],
+ *   overview: "Documents a function parameter.",
+ *   tagKind: "block",
+ *   specifications: ["tsdocCore"],
+ *   applicableTo: ["function"],
+ *   astDerivable: "partial",
+ *   astDerivableNote: "Parameter names are AST-derived; prose is authored.",
+ *   parameters: {
+ *     syntax: "@param name - description",
+ *     acceptsType: false,
+ *     acceptsName: true,
+ *     acceptsDescription: true
+ *   },
+ *   relatedTags: ["typeParam"],
+ *   example: "@param input - Raw input value."
+ * }
+ * console.log(encoded._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -145,9 +185,28 @@ export declare namespace JSDocTagDefinition {
  * @param input - Encoded JSDoc tag definition candidate to refine.
  * @example
  * ```ts
- * import { assertJsDoc } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
+ * import { JSDocTagDefinition, assertJsDoc } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * console.log(assertJsDoc)
+ * const encoded: JSDocTagDefinition.Encoded = {
+ *   _tag: "param",
+ *   synonyms: [],
+ *   overview: "Documents a function parameter.",
+ *   tagKind: "block",
+ *   specifications: ["tsdocCore"],
+ *   applicableTo: ["function"],
+ *   astDerivable: "partial",
+ *   astDerivableNote: "Parameter names are AST-derived; prose is authored.",
+ *   parameters: {
+ *     syntax: "@param name - description",
+ *     acceptsType: false,
+ *     acceptsName: true,
+ *     acceptsDescription: true
+ *   },
+ *   relatedTags: ["typeParam"],
+ *   example: "@param input - Raw input value."
+ * }
+ * assertJsDoc(encoded)
+ * console.log(encoded._tag)
  * ```
  * @category models
  * @since 0.0.0
@@ -166,9 +225,27 @@ export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: 
  * @returns Specialized schema for the provided tag metadata payload.
  * @example
  * ```ts
- * import { make } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
+ * import { JSDocTagDefinition, make } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
- * console.log(make)
+ * const meta: Omit<JSDocTagDefinition.Encoded, "_tag"> = {
+ *   synonyms: [],
+ *   overview: "Documents a function parameter.",
+ *   tagKind: "block",
+ *   specifications: ["tsdocCore"],
+ *   applicableTo: ["function"],
+ *   astDerivable: "partial",
+ *   astDerivableNote: "Parameter names are AST-derived; prose is authored.",
+ *   parameters: {
+ *     syntax: "@param name - description",
+ *     acceptsType: false,
+ *     acceptsName: true,
+ *     acceptsDescription: true
+ *   },
+ *   relatedTags: ["typeParam"],
+ *   example: "@param input - Raw input value."
+ * }
+ * const tagSchema = make("param", meta)
+ * console.log(tagSchema.ast.annotations.jsDocTagMetadata?._tag)
  * ```
  * @category models
  * @since 0.0.0

@@ -49,7 +49,18 @@ export class AiMetricsArchiveError extends TaggedErrorClass<AiMetricsArchiveErro
  * @example
  * ```ts
  * import { AiMetricsEncryptedRawArchiveEnvelope } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsEncryptedRawArchiveEnvelope)
+ *
+ * const envelope = AiMetricsEncryptedRawArchiveEnvelope.make({
+ *   algorithm: "AES-256-GCM",
+ *   archiveObjectId: "raw-0123456789abcdef",
+ *   ciphertextBase64: "AAAA",
+ *   encryptedAtEpochMillis: 1_717_000_000_000,
+ *   nonceBase64: "AAAAAAAAAAAAAAAA",
+ *   plaintextContentHash: "content-hash",
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash"
+ * })
+ * console.log(envelope.algorithm)
  * ```
  * @category models
  * @since 0.0.0
@@ -78,7 +89,18 @@ export class AiMetricsEncryptedRawArchiveEnvelope extends S.Class<AiMetricsEncry
  * @example
  * ```ts
  * import { AiMetricsRawArchiveObject } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsRawArchiveObject)
+ *
+ * const object = AiMetricsRawArchiveObject.make({
+ *   algorithm: "AES-256-GCM",
+ *   archiveObjectId: "raw-0123456789abcdef",
+ *   archivePath: ".beep/ai-metrics/raw/codex/raw-0123456789abcdef.json",
+ *   created: true,
+ *   encryptedAtEpochMillis: 1_717_000_000_000,
+ *   plaintextContentHash: "content-hash",
+ *   sourceKind: "codex",
+ *   sourcePathHash: "source-hash"
+ * })
+ * console.log(object.created)
  * ```
  * @category models
  * @since 0.0.0
@@ -234,6 +256,7 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
  *   AiMetricsTranscriptSource,
  *   writeEncryptedRawArchiveObject
  * } from "@beep/repo-ai-metrics"
+ * import { NodeServices } from "@effect/platform-node"
  * import { Effect, Redacted } from "effect"
  * const program = writeEncryptedRawArchiveObject({
  *   content: "{\"type\":\"event_msg\"}",
@@ -242,9 +265,16 @@ const readExistingArchiveObject = Effect.fn("AiMetrics.readExistingArchiveObject
  *   rawArchiveKey: Redacted.make("base64-32-byte-key"),
  *   sourceKind: AiMetricsTranscriptSource.Enum.codex,
  *   sourcePath: "session.jsonl"
- * })
- * console.log(Effect.map(program, (object) => object.archiveObjectId))
+ * }).pipe(Effect.provide(NodeServices.layer))
+ * const archiveObjectId = Effect.runPromise(Effect.map(program, (object) => object.archiveObjectId))
+ * console.log(archiveObjectId)
  * ```
+ * @effects
+ * - Reads `globalThis.crypto` for AES-GCM key import, nonce generation, and encryption.
+ * - Creates the source-kind archive directory when missing.
+ * - Writes one JSON envelope unless the content-addressed object already exists.
+ * - Reads and decodes the existing envelope when the object is already archived.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -356,6 +386,8 @@ export const writeEncryptedRawArchiveObject = Effect.fn("AiMetrics.writeEncrypte
  * })
  * console.log(program)
  * ```
+ * @effects Reads `globalThis.crypto` for AES-GCM key import and decryption.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -393,6 +425,8 @@ export const decryptEncryptedRawArchiveEnvelope = Effect.fn("AiMetrics.decryptEn
  * const program = readEncryptedRawArchiveEnvelope(".ai-metrics/raw/codex/raw-example.json")
  * console.log(program)
  * ```
+ * @effects Reads and decodes one encrypted raw archive envelope JSON file.
+ *
  * @category services
  * @since 0.0.0
  */

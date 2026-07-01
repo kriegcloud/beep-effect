@@ -67,7 +67,23 @@ class RuntimeFixtureSeedInput extends S.Class<RuntimeFixtureSeedInput>($I`Runtim
  * ```ts
  * import { RuntimeFixtureInput } from "@beep/agents-use-cases/proof"
  *
- * console.log(RuntimeFixtureInput)
+ * const fixture = RuntimeFixtureInput.make({
+ *   body: "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+ *   email: {
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     sourceSpans: ["law-email-001-s2"],
+ *     subject: "Provisional patent help",
+ *     threadId: "thread-law-001"
+ *   },
+ *   seed: {
+ *     organization: { organizationId: "org-law-fixture" },
+ *     scenarioId: "law-patent-intake",
+ *     workspace: { workspaceId: "workspace-law-fixture" }
+ *   }
+ * })
+ *
+ * console.log(fixture.email.scenarioId)
  * ```
  *
  * @category models
@@ -682,12 +698,46 @@ const fixtureRunnerForScenario: (scenarioId: string) => (input: RuntimeFixtureIn
 /**
  * Run one deterministic runtime data-loop fixture.
  *
+ * @remarks
+ * Dispatches by `input.email.scenarioId`, verifies that seed and email
+ * scenario ids match, and checks that the fixture body contains every source
+ * span required by the selected scenario.
+ *
  * @example
  * ```ts
- * import { runRuntimeFixture } from "@beep/agents-use-cases/proof"
+ * import { RuntimeFixtureInput, runRuntimeFixture } from "@beep/agents-use-cases/proof"
+ * import { Effect } from "effect"
  *
- * console.log(runRuntimeFixture)
+ * const fixture = RuntimeFixtureInput.make({
+ *   body: [
+ *     "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+ *     "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
+ *     "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
+ *     "[span:law-email-001-s5] Please schedule an intake call next week."
+ *   ].join("\n"),
+ *   email: {
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     sourceSpans: ["law-email-001-s2", "law-email-001-s3", "law-email-001-s4", "law-email-001-s5"],
+ *     subject: "Provisional patent help",
+ *     threadId: "thread-law-001"
+ *   },
+ *   seed: {
+ *     organization: { organizationId: "org-law-fixture" },
+ *     scenarioId: "law-patent-intake",
+ *     workspace: { workspaceId: "workspace-law-fixture" }
+ *   }
+ * })
+ *
+ * Effect.runPromise(runRuntimeFixture(fixture)).then((outputSet) =>
+ *   console.log(outputSet.scenarioId)
+ * )
  * ```
+ *
+ * @effects Runs only deterministic in-memory fixture generation; no network,
+ * storage, or model services are required. Fails with
+ * {@link ProfessionalRuntimeValidationError} for unknown scenarios, mismatched
+ * scenario ids, or missing source-span markers.
  *
  * @category testing
  * @since 0.0.0

@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box AI text generation entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/AiTextGen/AiTextGen.model");
 
 /**
+ * Experimental schema anchor for Box AI text generation response resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(AiTextGen.make({
+ * const decoded = S.decodeUnknownSync(AiTextGen)({});
+ * const encoded: AiTextGen.Encoded = S.encodeSync(AiTextGen)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class AiTextGen extends S.Class<AiTextGen>($I`AiTextGen`)(
   {},
   $I.annote("AiTextGen", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box AI text generation response resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link AiTextGen}
+ * Type-level companion namespace for {@link AiTextGen} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = AiTextGen.make({});
+ * const encoded: AiTextGen.Encoded = S.encodeSync(AiTextGen)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace AiTextGen {
   /**
-   * Companion encoded type for {@link AiTextGen}.
+   * Encoded payload accepted by the {@link AiTextGen} entity schema.
    *
    * @example
    * ```ts
-   * import type { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
+   * import { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: AiTextGen.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: AiTextGen.Encoded = S.encodeSync(AiTextGen)(AiTextGen.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof AiTextGen.Encoded;
 }
-
-/**
- * Companion runtime type for {@link AiTextGen}.
- *
- * @example
- * ```ts
- * import type { AiTextGen } from "@beep/box/experimental/domain/entities/AiTextGen/AiTextGen.model";
- *
- * const useValue = (_value: AiTextGen) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type AiTextGen = typeof AiTextGen.Type;

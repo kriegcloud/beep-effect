@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box workflow entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Workflow/Workflow.model");
 
 /**
+ * Experimental schema anchor for Box workflow resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Workflow.make({
+ * const decoded = S.decodeUnknownSync(Workflow)({});
+ * const encoded: Workflow.Encoded = S.encodeSync(Workflow)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Workflow extends S.Class<Workflow>($I`Workflow`)(
   {},
   $I.annote("Workflow", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box workflow resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Workflow}
+ * Type-level companion namespace for {@link Workflow} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Workflow.make({});
+ * const encoded: Workflow.Encoded = S.encodeSync(Workflow)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Workflow {
   /**
-   * Companion encoded type for {@link Workflow}.
+   * Encoded payload accepted by the {@link Workflow} entity schema.
    *
    * @example
    * ```ts
-   * import type { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
+   * import { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Workflow.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Workflow.Encoded = S.encodeSync(Workflow)(Workflow.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Workflow.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Workflow}.
- *
- * @example
- * ```ts
- * import type { Workflow } from "@beep/box/experimental/domain/entities/Workflow/Workflow.model";
- *
- * const useValue = (_value: Workflow) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Workflow = typeof Workflow.Type;

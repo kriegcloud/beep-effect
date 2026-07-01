@@ -279,13 +279,16 @@ export const thunkEffectSucceed = <A>(a: A) => thunkEffect(Effect.succeed(a));
  * @example
  * ```ts
  * import { thunkEffectSucceedNull } from "@beep/utils/thunk"
+ * import { Effect } from "effect"
  *
- * const eff = thunkEffectSucceedNull()
+ * const value = Effect.runSync(thunkEffectSucceedNull())
  *
- * console.log(eff)
+ * console.log(value)
  * ```
  *
- * @category utilities
+ * @effects Creates a pure `Effect` that succeeds with `null`; no services are
+ * required and execution is left to the caller.
+ * @category constructors
  * @since 0.0.0
  */
 export const thunkEffectSucceedNull = (..._: ReadonlyArray<unknown>) => Effect.succeed(null);

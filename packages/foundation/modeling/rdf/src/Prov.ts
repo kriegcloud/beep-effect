@@ -109,9 +109,11 @@ export type ObjectRef = typeof ObjectRef.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ProvDateTimeEncoded } from "@beep/rdf/Prov"
  *
- * console.log(ProvDateTimeEncoded)
+ * const encoded = S.decodeUnknownSync(ProvDateTimeEncoded)("2024-01-02T03:04:05Z")
+ * console.log(encoded) // "2024-01-02T03:04:05Z"
  * ```
  *
  * @since 0.0.0
@@ -154,9 +156,11 @@ export type ProvDateTimeEncoded = typeof ProvDateTimeEncoded.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ProvDateTime } from "@beep/rdf/Prov"
  *
- * console.log(ProvDateTime)
+ * const instant = S.decodeUnknownSync(ProvDateTime)("2024-01-02T03:04:05Z")
+ * console.log(instant)
  * ```
  *
  * @since 0.0.0
@@ -199,9 +203,13 @@ export type ProvDateTime = typeof ProvDateTime.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { LifecycleTimes } from "@beep/rdf/Prov"
  *
- * console.log(LifecycleTimes)
+ * const times = S.decodeUnknownSync(LifecycleTimes)({
+ *   observedAt: "2024-01-02T03:04:05Z"
+ * })
+ * console.log(times.observedAt._tag) // "Some"
  * ```
  *
  * @since 0.0.0
@@ -363,9 +371,15 @@ export class Agent extends S.Class<Agent>($I`Agent`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SoftwareAgent } from "@beep/rdf/Prov"
  *
- * console.log(SoftwareAgent)
+ * const agent = S.decodeUnknownSync(SoftwareAgent)({
+ *   provType: "SoftwareAgent",
+ *   id: "agent:ingest-worker",
+ *   name: "ingest-worker"
+ * })
+ * console.log(agent.provType) // "SoftwareAgent"
  * ```
  *
  * @since 0.0.0
@@ -396,9 +410,15 @@ export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Plan } from "@beep/rdf/Prov"
  *
- * console.log(Plan)
+ * const plan = S.decodeUnknownSync(Plan)({
+ *   provType: "Plan",
+ *   id: "plan:refresh",
+ *   name: "Refresh dataset"
+ * })
+ * console.log(plan.provType) // "Plan"
  * ```
  *
  * @since 0.0.0
@@ -429,9 +449,15 @@ export class Plan extends S.Class<Plan>($I`Plan`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Collection } from "@beep/rdf/Prov"
  *
- * console.log(Collection)
+ * const collection = S.decodeUnknownSync(Collection)({
+ *   provType: "Collection",
+ *   id: "collection:bundle",
+ *   hadMember: ["entity:source", "entity:derived"]
+ * })
+ * console.log(collection.hadMember.length) // 2
  * ```
  *
  * @since 0.0.0
@@ -462,9 +488,15 @@ export class Collection extends S.Class<Collection>($I`Collection`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Person } from "@beep/rdf/Prov"
  *
- * console.log(Person)
+ * const person = S.decodeUnknownSync(Person)({
+ *   provType: "Person",
+ *   id: "person:ada",
+ *   name: "Ada"
+ * })
+ * console.log(person.provType) // "Person"
  * ```
  *
  * @since 0.0.0
@@ -495,9 +527,15 @@ export class Person extends S.Class<Person>($I`Person`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Organization } from "@beep/rdf/Prov"
  *
- * console.log(Organization)
+ * const organization = S.decodeUnknownSync(Organization)({
+ *   provType: "Organization",
+ *   id: "org:beep",
+ *   name: "Beep"
+ * })
+ * console.log(organization.provType) // "Organization"
  * ```
  *
  * @since 0.0.0
@@ -539,9 +577,14 @@ const relationMetadata = (canonicalName: string, overview: string, profile: "min
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Usage } from "@beep/rdf/Prov"
  *
- * console.log(Usage)
+ * const usage = S.decodeUnknownSync(Usage)({
+ *   activity: "activity:build",
+ *   entity: "entity:source"
+ * })
+ * console.log(usage.activity) // "activity:build"
  * ```
  *
  * @since 0.0.0
@@ -564,9 +607,14 @@ export class Usage extends S.Class<Usage>($I`Usage`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Generation } from "@beep/rdf/Prov"
  *
- * console.log(Generation)
+ * const generation = S.decodeUnknownSync(Generation)({
+ *   entity: "entity:artifact",
+ *   activity: "activity:build"
+ * })
+ * console.log(generation.entity) // "entity:artifact"
  * ```
  *
  * @since 0.0.0
@@ -589,9 +637,15 @@ export class Generation extends S.Class<Generation>($I`Generation`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Association } from "@beep/rdf/Prov"
  *
- * console.log(Association)
+ * const association = S.decodeUnknownSync(Association)({
+ *   activity: "activity:build",
+ *   agent: "agent:ci",
+ *   hadPlan: "plan:refresh"
+ * })
+ * console.log(association.agent) // "agent:ci"
  * ```
  *
  * @since 0.0.0
@@ -614,9 +668,14 @@ export class Association extends S.Class<Association>($I`Association`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Attribution } from "@beep/rdf/Prov"
  *
- * console.log(Attribution)
+ * const attribution = S.decodeUnknownSync(Attribution)({
+ *   entity: "entity:artifact",
+ *   agent: "agent:ci"
+ * })
+ * console.log(attribution.entity) // "entity:artifact"
  * ```
  *
  * @since 0.0.0
@@ -638,9 +697,15 @@ export class Attribution extends S.Class<Attribution>($I`Attribution`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Delegation } from "@beep/rdf/Prov"
  *
- * console.log(Delegation)
+ * const delegation = S.decodeUnknownSync(Delegation)({
+ *   delegate: "agent:worker",
+ *   responsible: "agent:service",
+ *   activity: "activity:build"
+ * })
+ * console.log(delegation.delegate) // "agent:worker"
  * ```
  *
  * @since 0.0.0
@@ -663,9 +728,14 @@ export class Delegation extends S.Class<Delegation>($I`Delegation`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Derivation } from "@beep/rdf/Prov"
  *
- * console.log(Derivation)
+ * const derivation = S.decodeUnknownSync(Derivation)({
+ *   generatedEntity: "entity:derived",
+ *   usedEntity: "entity:source"
+ * })
+ * console.log(derivation.usedEntity) // "entity:source"
  * ```
  *
  * @since 0.0.0
@@ -687,9 +757,14 @@ export class Derivation extends S.Class<Derivation>($I`Derivation`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PrimarySource } from "@beep/rdf/Prov"
  *
- * console.log(PrimarySource)
+ * const source = S.decodeUnknownSync(PrimarySource)({
+ *   entity: "entity:claim",
+ *   source: "entity:record"
+ * })
+ * console.log(source.source) // "entity:record"
  * ```
  *
  * @since 0.0.0
@@ -711,9 +786,14 @@ export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Quotation } from "@beep/rdf/Prov"
  *
- * console.log(Quotation)
+ * const quotation = S.decodeUnknownSync(Quotation)({
+ *   entity: "entity:quote",
+ *   source: "entity:transcript"
+ * })
+ * console.log(quotation.entity) // "entity:quote"
  * ```
  *
  * @since 0.0.0
@@ -735,9 +815,14 @@ export class Quotation extends S.Class<Quotation>($I`Quotation`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Revision } from "@beep/rdf/Prov"
  *
- * console.log(Revision)
+ * const revision = S.decodeUnknownSync(Revision)({
+ *   entity: "entity:v2",
+ *   source: "entity:v1"
+ * })
+ * console.log(revision.source) // "entity:v1"
  * ```
  *
  * @since 0.0.0
@@ -759,9 +844,15 @@ export class Revision extends S.Class<Revision>($I`Revision`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Start } from "@beep/rdf/Prov"
  *
- * console.log(Start)
+ * const start = S.decodeUnknownSync(Start)({
+ *   activity: "activity:build",
+ *   trigger: "entity:commit",
+ *   atTime: "2024-01-02T03:04:05Z"
+ * })
+ * console.log(start.activity) // "activity:build"
  * ```
  *
  * @since 0.0.0
@@ -784,9 +875,15 @@ export class Start extends S.Class<Start>($I`Start`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { End } from "@beep/rdf/Prov"
  *
- * console.log(End)
+ * const end = S.decodeUnknownSync(End)({
+ *   activity: "activity:build",
+ *   trigger: "entity:artifact",
+ *   atTime: "2024-01-02T03:05:06Z"
+ * })
+ * console.log(end.trigger) // "entity:artifact"
  * ```
  *
  * @since 0.0.0
@@ -815,7 +912,7 @@ export class End extends S.Class<End>($I`End`)(
  * const decoded = S.decodeUnknownSync(ProvRecord)({ provType: "Agent", name: "bob" })
  *
  * if (S.is(Agent)(decoded)) {
- *
+ *   console.log(decoded.provType) // "Agent"
  * }
  * ```
  *
@@ -914,9 +1011,13 @@ export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
  *
  * @example
  * ```ts
- * import { ProvO } from "@beep/rdf/Prov"
+ * import * as S from "effect/Schema"
+ * import { ProvBundle, ProvO } from "@beep/rdf/Prov"
  *
- * console.log(ProvO)
+ * const provenance = S.decodeUnknownSync(ProvO)({ records: [] })
+ * if (S.is(ProvBundle)(provenance)) {
+ *   console.log(provenance.records.length) // 0
+ * }
  * ```
  *
  * @since 0.0.0

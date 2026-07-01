@@ -1,18 +1,22 @@
 /**
- * Anthropic Claude driver package.
+ * Public Anthropic Claude driver entry point for configuration, layers, repair
+ * helpers, and typed technical errors.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Package version for `@beep/anthropic`.
+ * Package version published by the `@beep/anthropic` entry point.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { VERSION } from "@beep/anthropic"
  *
- * console.log(VERSION)
+ * const packageCoordinate = `@beep/anthropic@${VERSION}`
+ *
+ * strictEqual(packageCoordinate, "@beep/anthropic@0.0.0")
  * ```
  *
  * @category configuration
@@ -21,56 +25,29 @@
 export const VERSION = "0.0.0" as const;
 
 /**
- * Runtime configuration exports for the Anthropic driver.
- *
- * @example
- * ```ts
- * import { ANTHROPIC_DEFAULT_MODEL } from "@beep/anthropic"
- *
- * console.log(ANTHROPIC_DEFAULT_MODEL)
- * ```
+ * Runtime configuration exports for Anthropic model defaults, retry defaults,
+ * and usage-pricing metadata.
  *
  * @category configuration
  * @since 0.0.0
  */
 export * from "./Anthropic.config.ts";
 /**
- * Technical Anthropic driver errors.
- *
- * @example
- * ```ts
- * import { RepairError } from "@beep/anthropic"
- *
- * console.log(RepairError)
- * ```
+ * Typed technical errors surfaced by the Anthropic repair boundary.
  *
  * @category errors
  * @since 0.0.0
  */
 export * from "./Anthropic.errors.ts";
 /**
- * Product-neutral Anthropic repair-call utilities.
- *
- * @example
- * ```ts
- * import { generateAnthropicToolJson } from "@beep/anthropic"
- *
- * console.log(generateAnthropicToolJson)
- * ```
+ * Product-neutral Anthropic forced-tool repair utilities.
  *
  * @category combinators
  * @since 0.0.0
  */
 export * from "./Anthropic.repair.ts";
 /**
- * Effect AI Layer and execution-plan exports for the Anthropic driver.
- *
- * @example
- * ```ts
- * import { AnthropicTurnPlan } from "@beep/anthropic"
- *
- * console.log(AnthropicTurnPlan)
- * ```
+ * Effect AI client, language-model layer, and acquisition retry-plan exports.
  *
  * @category layers
  * @since 0.0.0

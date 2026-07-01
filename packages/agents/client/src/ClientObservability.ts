@@ -59,8 +59,9 @@ const otlpBaseUrl = ((): string => {
  * @example
  * ```ts
  * import { ClientObservabilityLive } from "@beep/agents-client"
+ * import { Layer } from "effect"
  *
- * console.log(ClientObservabilityLive)
+ * console.log(Layer.isLayer(ClientObservabilityLive)) // true
  * ```
  *
  * @category layers

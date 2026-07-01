@@ -12,7 +12,8 @@
  * ```ts
  * import { AssistantTurn } from "@beep/agents-use-cases/server"
  *
- * console.log(AssistantTurn.BlockRepairFailed)
+ * const error = AssistantTurn.BlockRepairFailed.make({ message: "repair call failed" })
+ * console.log(error.message)
  * ```
  *
  * @category errors
@@ -26,7 +27,8 @@ export * as AssistantTurn from "./processes/AssistantTurn/server.js";
  * ```ts
  * import { BlockRepairFailed } from "@beep/agents-use-cases/server"
  *
- * console.log(BlockRepairFailed)
+ * const error = BlockRepairFailed.make({ message: "repair call failed" })
+ * console.log(error._tag) // "BlockRepairFailed"
  * ```
  *
  * @category errors

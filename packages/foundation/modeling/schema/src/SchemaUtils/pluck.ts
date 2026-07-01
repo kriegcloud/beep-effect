@@ -47,7 +47,7 @@ import type { TUnsafe } from "@beep/types";
  * console.log(encodeColumn1(2)); // { column1: "2" }
  * ```
  *
- * @template P - Property key to extract from the struct schema.
+ * @typeParam P - Property key to extract from the struct schema.
  * @param key - Struct field to keep on the encoded side and expose on the
  * decoded side.
  * @returns A schema that decodes a one-property struct into the selected field

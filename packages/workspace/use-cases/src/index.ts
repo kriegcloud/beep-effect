@@ -13,7 +13,8 @@
  * ```ts
  * import { VERSION } from "@beep/workspace-use-cases"
  *
- * console.log(VERSION)
+ * const isInitialPackageVersion = VERSION === "0.0.0"
+ * console.log(isInitialPackageVersion) // true
  * ```
  *
  * @category use-cases

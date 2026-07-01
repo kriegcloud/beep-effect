@@ -1161,12 +1161,23 @@ const printDocgenIndex = () =>
 /**
  * Human-first docgen command suite.
  *
+ * @remarks
+ * The `quality` subcommand is advisory/report-only unless `--check` is used;
+ * `local` plans from changed files before choosing a scoped or full docgen run.
+ *
  * @example
  * ```ts
  * import { docgenCommand } from "@beep/repo-cli/commands/Docgen"
- * console.log(docgenCommand)
+ * import { Command } from "effect/unstable/cli"
+ *
+ * const runDocgen = Command.runWith(docgenCommand, { version: "0.0.0" })
+ * const qualityArgs = ["quality", "-p", "packages/tooling/tool/cli", "--json", "--score", "codex"]
+ * const program = runDocgen(qualityArgs)
+ *
+ * console.log(qualityArgs.join(" "))
+ * console.log(program)
  * ```
- * @category use-cases
+ * @category cli-commands
  * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(

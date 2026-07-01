@@ -48,8 +48,10 @@ const $I = $FileProcessingId.create("Service");
  * ```ts
  * import type { FileProcessingEngineShape } from "@beep/file-processing/Service"
  *
- * const engine = {} as FileProcessingEngineShape
- * console.log(engine)
+ * type EngineMethod = keyof Pick<FileProcessingEngineShape, "detect" | "exportArchive" | "extract">
+ * const method: EngineMethod = "detect"
+ *
+ * console.log(method) // "detect"
  * ```
  *
  * @category services
@@ -71,8 +73,10 @@ export type FileProcessingEngineShape = {
  * ```ts
  * import type { FileProcessingServiceShape } from "@beep/file-processing/Service"
  *
- * const service = {} as FileProcessingServiceShape
- * console.log(service)
+ * type ServiceMethod = keyof FileProcessingServiceShape
+ * const method: ServiceMethod = "process"
+ *
+ * console.log(method) // "process"
  * ```
  *
  * @category services
@@ -92,9 +96,19 @@ export type FileProcessingServiceShape = {
  *
  * @example
  * ```ts
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
  * import { FileProcessingService } from "@beep/file-processing/Service"
+ * import { makeFileProcessingServiceLayer } from "@beep/file-processing/Service"
+ * import { TestFileProcessingEngine } from "@beep/file-processing/test"
+ * import { Effect } from "effect"
  *
- * console.log(FileProcessingService)
+ * const program = FileProcessingService.pipe(
+ *   Effect.map((service) => typeof service.process),
+ *   Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])),
+ *   Effect.provide(BunCrypto.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log) // "function"
  * ```
  *
  * @category services
@@ -218,10 +232,18 @@ export const collectSourceOutcomeRecords = (
  * @returns Layer for {@link FileProcessingService}.
  * @example
  * ```ts
- * import { makeFileProcessingServiceLayer } from "@beep/file-processing/Service"
+ * import * as BunCrypto from "@effect/platform-bun/BunCrypto"
+ * import { FileProcessingService, makeFileProcessingServiceLayer } from "@beep/file-processing/Service"
+ * import { TestFileProcessingEngine } from "@beep/file-processing/test"
+ * import { Effect } from "effect"
  *
- * const layer = makeFileProcessingServiceLayer([])
- * console.log(layer)
+ * const program = FileProcessingService.pipe(
+ *   Effect.map((service) => typeof service.detect),
+ *   Effect.provide(makeFileProcessingServiceLayer([TestFileProcessingEngine])),
+ *   Effect.provide(BunCrypto.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log) // "function"
  * ```
  *
  * @category layers

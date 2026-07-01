@@ -12,7 +12,7 @@
  * ```typescript
  * import { Calendar } from "@beep/data/internal"
  *
- * console.log(Calendar.MonthNameValues[0])
+ * console.assert(Calendar.MonthNameValues[0] === "january")
  * ```
  *
  * @category constants

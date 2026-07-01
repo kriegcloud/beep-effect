@@ -60,7 +60,18 @@ export class ServerObservabilityConfig extends S.Class<ServerObservabilityConfig
  * ```typescript
  * import { ServerObservabilityConfig, toOtlpResource } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
+ * const config = ServerObservabilityConfig.make({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: true,
+ *   otlpResourceAttributes: { region: "local" },
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep-api",
+ *   serviceVersion: "0.0.0"
+ * })
  * const resource = toOtlpResource(config)
  * console.log(resource.serviceName)
  * ```

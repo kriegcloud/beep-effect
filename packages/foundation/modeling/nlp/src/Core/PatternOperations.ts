@@ -15,9 +15,10 @@ import type { EntityPatternElement, LiteralPatternElement, PatternElement, POSPa
  *
  * @example
  * ```ts
+ * import { pos } from "@beep/nlp/Core/PatternBuilders"
  * import { isPOSElement } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(isPOSElement)
+ * console.log(isPOSElement(pos("NOUN"))) // true
  * ```
  *
  * @since 0.0.0
@@ -31,9 +32,10 @@ export const isPOSElement = (element: PatternElement): element is POSPatternElem
  *
  * @example
  * ```ts
+ * import { entity } from "@beep/nlp/Core/PatternBuilders"
  * import { isEntityElement } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(isEntityElement)
+ * console.log(isEntityElement(entity("EMAIL"))) // true
  * ```
  *
  * @since 0.0.0
@@ -47,9 +49,10 @@ export const isEntityElement = (element: PatternElement): element is EntityPatte
  *
  * @example
  * ```ts
+ * import { literal } from "@beep/nlp/Core/PatternBuilders"
  * import { isLiteralElement } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(isLiteralElement)
+ * console.log(isLiteralElement(literal("Effect"))) // true
  * ```
  *
  * @since 0.0.0
@@ -63,9 +66,10 @@ export const isLiteralElement = (element: PatternElement): element is LiteralPat
  *
  * @example
  * ```ts
+ * import { optionalLiteral } from "@beep/nlp/Core/PatternBuilders"
  * import { extractElementValues } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(extractElementValues)
+ * console.log(extractElementValues(optionalLiteral("Inc."))) // ["", "Inc."]
  * ```
  *
  * @since 0.0.0
@@ -78,9 +82,10 @@ export const extractElementValues = (element: PatternElement): ReadonlyArray<str
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { extractBracketContent } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(extractBracketContent)
+ * console.log(O.getOrThrow(extractBracketContent("[ADJ|NOUN]"))) // "ADJ|NOUN"
  * ```
  *
  * @since 0.0.0
@@ -96,7 +101,7 @@ export const extractBracketContent = (value: string): O.Option<string> =>
  * ```ts
  * import { splitBracketValues } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(splitBracketValues)
+ * console.log(splitBracketValues("ADJ | NOUN")) // ["ADJ", "NOUN"]
  * ```
  *
  * @since 0.0.0
@@ -111,7 +116,7 @@ export const splitBracketValues = (content: string): ReadonlyArray<string> => A.
  * ```ts
  * import { joinBracketValues } from "@beep/nlp/Core/PatternOperations"
  *
- * console.log(joinBracketValues)
+ * console.log(joinBracketValues(["ADJ", "NOUN"])) // "[ADJ|NOUN]"
  * ```
  *
  * @since 0.0.0

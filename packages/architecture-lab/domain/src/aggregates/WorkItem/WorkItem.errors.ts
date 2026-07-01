@@ -18,9 +18,16 @@ const $I = $ArchitectureLabDomainId.create("aggregates/WorkItem/WorkItem.errors"
  *
  * @example
  * ```ts
- * import { WorkItemAlreadyArchived } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemAlreadyArchived, WorkItemId } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemAlreadyArchived)
+ * const error = WorkItemAlreadyArchived.make({
+ *   workItemId: S.decodeUnknownSync(WorkItemId)("work-item-1")
+ * })
+ *
+ * if (error._tag !== "WorkItemAlreadyArchived") {
+ *   throw new Error("expected archived WorkItem failure")
+ * }
  * ```
  *
  * @category errors
@@ -42,9 +49,18 @@ export class WorkItemAlreadyArchived extends TaggedErrorClass<WorkItemAlreadyArc
  *
  * @example
  * ```ts
- * import { WorkItemInvalidTransition } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemId, WorkItemInvalidTransition } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemInvalidTransition)
+ * const error = WorkItemInvalidTransition.fromStatus({
+ *   workItemId: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   from: "completed",
+ *   to: "assigned"
+ * })
+ *
+ * if (error.from !== "completed" || error.to !== "assigned") {
+ *   throw new Error("expected transition details")
+ * }
  * ```
  *
  * @category errors
@@ -67,7 +83,23 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
   /**
    * Create a typed WorkItem transition failure from lifecycle values.
    *
-   * @category errors
+   * @example
+   * ```ts
+   * import { WorkItemId, WorkItemInvalidTransition } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+   * import * as S from "effect/Schema"
+   *
+   * const error = WorkItemInvalidTransition.fromStatus({
+   *   workItemId: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+   *   from: "archived",
+   *   to: "open"
+   * })
+   *
+   * if (error._tag !== "WorkItemInvalidTransition") {
+   *   throw new Error("expected transition failure")
+   * }
+   * ```
+   *
+   * @category factories
    * @since 0.0.0
    */
   static fromStatus(input: {
@@ -88,9 +120,16 @@ export class WorkItemInvalidTransition extends TaggedErrorClass<WorkItemInvalidT
  *
  * @example
  * ```ts
- * import { WorkItemAssigneeRequired } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemAssigneeRequired, WorkItemId } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemAssigneeRequired)
+ * const error = WorkItemAssigneeRequired.make({
+ *   workItemId: S.decodeUnknownSync(WorkItemId)("work-item-1")
+ * })
+ *
+ * if (error._tag !== "WorkItemAssigneeRequired") {
+ *   throw new Error("expected assignee failure")
+ * }
  * ```
  *
  * @category errors
@@ -112,10 +151,16 @@ export class WorkItemAssigneeRequired extends TaggedErrorClass<WorkItemAssigneeR
  *
  * @example
  * ```ts
- * import type { WorkItemDomainError } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItemAssigneeRequired, WorkItemId, type WorkItemDomainError } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * const value = {} as WorkItemDomainError
- * console.log(value)
+ * const error: WorkItemDomainError = WorkItemAssigneeRequired.make({
+ *   workItemId: S.decodeUnknownSync(WorkItemId)("work-item-1")
+ * })
+ *
+ * if (error._tag !== "WorkItemAssigneeRequired") {
+ *   throw new Error("expected WorkItem domain error union member")
+ * }
  * ```
  *
  * @category errors
@@ -129,8 +174,18 @@ export type WorkItemDomainError = WorkItemAlreadyArchived | WorkItemInvalidTrans
  * @example
  * ```ts
  * import { WorkItemDomainError } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemDomainError)
+ * const decoded = S.decodeUnknownSync(WorkItemDomainError)({
+ *   _tag: "WorkItemInvalidTransition",
+ *   workItemId: "work-item-1",
+ *   from: "completed",
+ *   to: "assigned"
+ * })
+ *
+ * if (decoded._tag !== "WorkItemInvalidTransition") {
+ *   throw new Error("expected decoded domain error")
+ * }
  * ```
  *
  * @category errors

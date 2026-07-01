@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box zip download entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/ZipDownload/ZipDownload.model");
 
 /**
+ * Experimental schema anchor for Box zip download resources and status payloads.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(ZipDownload.make({
+ * const decoded = S.decodeUnknownSync(ZipDownload)({});
+ * const encoded: ZipDownload.Encoded = S.encodeSync(ZipDownload)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class ZipDownload extends S.Class<ZipDownload>($I`ZipDownload`)(
   {},
   $I.annote("ZipDownload", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box zip download resources and status payloads.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link ZipDownload}
+ * Type-level companion namespace for {@link ZipDownload} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = ZipDownload.make({});
+ * const encoded: ZipDownload.Encoded = S.encodeSync(ZipDownload)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace ZipDownload {
   /**
-   * Companion encoded type for {@link ZipDownload}.
+   * Encoded payload accepted by the {@link ZipDownload} entity schema.
    *
    * @example
    * ```ts
-   * import type { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
+   * import { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: ZipDownload.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: ZipDownload.Encoded = S.encodeSync(ZipDownload)(ZipDownload.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof ZipDownload.Encoded;
 }
-
-/**
- * Companion runtime type for {@link ZipDownload}.
- *
- * @example
- * ```ts
- * import type { ZipDownload } from "@beep/box/experimental/domain/entities/ZipDownload/ZipDownload.model";
- *
- * const useValue = (_value: ZipDownload) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type ZipDownload = typeof ZipDownload.Type;

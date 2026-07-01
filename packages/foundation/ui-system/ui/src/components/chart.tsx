@@ -19,11 +19,16 @@ type TooltipNameType = number | string;
  * ```tsx
  * import type { ChartConfig } from "@beep/ui/components/chart"
  *
- * const config: ChartConfig = { revenue: { label: "Revenue", color: "var(--chart-1)" } }
- * console.log(config.revenue?.label)
+ * const config = {
+ *   revenue: { label: "Revenue", color: "var(--chart-1)" },
+ *   expenses: {
+ *     label: "Expenses",
+ *     theme: { light: "var(--chart-2)", dark: "var(--chart-3)" }
+ *   }
+ * } satisfies ChartConfig
  * ```
  *
- * @category components
+ * @category type-level
  * @since 0.0.0
  */
 export type ChartConfig = Record<
@@ -55,9 +60,22 @@ function useChart() {
  *
  * @example
  * ```tsx
- * import { ChartContainer } from "@beep/ui/components/chart"
+ * import { ChartContainer, type ChartConfig } from "@beep/ui/components/chart"
+ * import { Line, LineChart } from "recharts"
  *
- * console.log(ChartContainer)
+ * const config = {
+ *   revenue: { label: "Revenue", color: "var(--chart-1)" }
+ * } satisfies ChartConfig
+ *
+ * export function RevenueChart() {
+ *   return (
+ *     <ChartContainer config={config}>
+ *       <LineChart data={[{ month: "Jul", revenue: 4200 }]}>
+ *         <Line dataKey="revenue" stroke="var(--color-revenue)" />
+ *       </LineChart>
+ *     </ChartContainer>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -123,11 +141,21 @@ const sanitizeChartSelectorId = (id: string): string => Str.replace(/[^A-Za-z0-9
 /**
  * Injects per-theme CSS custom properties for a chart's configured series colors.
  *
+ * @remarks
+ * Chart ids, series keys, and color values are sanitized before they are
+ * serialized into the generated style tag.
+ *
  * @example
  * ```tsx
- * import { ChartStyle } from "@beep/ui/components/chart"
+ * import { ChartStyle, type ChartConfig } from "@beep/ui/components/chart"
  *
- * console.log(ChartStyle)
+ * const config = {
+ *   revenue: { label: "Revenue", color: "hsl(210 90% 48%)" }
+ * } satisfies ChartConfig
+ *
+ * export function StaticChartVariables() {
+ *   return <ChartStyle id="revenue-chart" config={config} />
+ * }
  * ```
  *
  * @category components
@@ -178,9 +206,23 @@ ${A.join(
  *
  * @example
  * ```tsx
- * import { ChartTooltip } from "@beep/ui/components/chart"
+ * import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@beep/ui/components/chart"
+ * import { Bar, BarChart } from "recharts"
  *
- * console.log(ChartTooltip)
+ * const config = {
+ *   cases: { label: "Cases", color: "var(--chart-1)" }
+ * } satisfies ChartConfig
+ *
+ * export function CasesTooltipChart() {
+ *   return (
+ *     <ChartContainer config={config}>
+ *       <BarChart data={[{ week: "W1", cases: 8 }]}>
+ *         <ChartTooltip content={<ChartTooltipContent />} />
+ *         <Bar dataKey="cases" fill="var(--color-cases)" />
+ *       </BarChart>
+ *     </ChartContainer>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -193,9 +235,23 @@ const ChartTooltip = RechartsPrimitive.Tooltip;
  *
  * @example
  * ```tsx
- * import { ChartTooltipContent } from "@beep/ui/components/chart"
+ * import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@beep/ui/components/chart"
+ * import { Line, LineChart } from "recharts"
  *
- * console.log(ChartTooltipContent)
+ * const config = {
+ *   signed: { label: "Signed", color: "var(--chart-2)" }
+ * } satisfies ChartConfig
+ *
+ * export function SignedTooltipChart() {
+ *   return (
+ *     <ChartContainer config={config}>
+ *       <LineChart data={[{ month: "Jul", signed: 14 }]}>
+ *         <ChartTooltip content={<ChartTooltipContent indicator="line" />} />
+ *         <Line dataKey="signed" stroke="var(--color-signed)" />
+ *       </LineChart>
+ *     </ChartContainer>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -341,9 +397,23 @@ function ChartTooltipContent({
  *
  * @example
  * ```tsx
- * import { ChartLegend } from "@beep/ui/components/chart"
+ * import { ChartContainer, ChartLegend, ChartLegendContent, type ChartConfig } from "@beep/ui/components/chart"
+ * import { Area, AreaChart } from "recharts"
  *
- * console.log(ChartLegend)
+ * const config = {
+ *   active: { label: "Active", color: "var(--chart-1)" }
+ * } satisfies ChartConfig
+ *
+ * export function ActiveLegendChart() {
+ *   return (
+ *     <ChartContainer config={config}>
+ *       <AreaChart data={[{ month: "Jul", active: 32 }]}>
+ *         <ChartLegend content={<ChartLegendContent />} />
+ *         <Area dataKey="active" fill="var(--color-active)" />
+ *       </AreaChart>
+ *     </ChartContainer>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -356,9 +426,25 @@ const ChartLegend = RechartsPrimitive.Legend;
  *
  * @example
  * ```tsx
- * import { ChartLegendContent } from "@beep/ui/components/chart"
+ * import { ChartContainer, ChartLegend, ChartLegendContent, type ChartConfig } from "@beep/ui/components/chart"
+ * import { Bar, BarChart } from "recharts"
  *
- * console.log(ChartLegendContent)
+ * const config = {
+ *   open: { label: "Open", color: "var(--chart-1)" },
+ *   closed: { label: "Closed", color: "var(--chart-2)" }
+ * } satisfies ChartConfig
+ *
+ * export function MatterLegendChart() {
+ *   return (
+ *     <ChartContainer config={config}>
+ *       <BarChart data={[{ month: "Jul", open: 12, closed: 7 }]}>
+ *         <ChartLegend content={<ChartLegendContent hideIcon />} />
+ *         <Bar dataKey="open" fill="var(--color-open)" />
+ *         <Bar dataKey="closed" fill="var(--color-closed)" />
+ *       </BarChart>
+ *     </ChartContainer>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -435,17 +521,4 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
   return configLabelKey in config ? config[configLabelKey] : config[key];
 }
 
-/**
- * Chart component suite exports.
- *
- * @example
- * ```tsx
- * import { ChartContainer } from "@beep/ui/components/chart"
- *
- * console.log(ChartContainer)
- * ```
- *
- * @category components
- * @since 0.0.0
- */
 export { ChartContainer, ChartLegend, ChartLegendContent, ChartStyle, ChartTooltip, ChartTooltipContent };

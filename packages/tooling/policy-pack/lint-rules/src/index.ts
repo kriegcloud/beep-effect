@@ -16,11 +16,10 @@
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert/strict"
  * import { VERSION } from "@beep/lint-rules"
  *
- * if (VERSION.length > 0) {
- *   // version is a non-empty semver string
- * }
+ * strictEqual(VERSION, "0.1.0")
  * ```
  * @category configuration
  * @since 0.1.0
@@ -32,11 +31,17 @@ export const VERSION = "0.1.0" as const;
  *
  * @example
  * ```ts
+ * import { deepStrictEqual } from "node:assert/strict"
  * import { RULE_NAMES } from "@beep/lint-rules"
  *
- * const count: number = RULE_NAMES.length
+ * deepStrictEqual(RULE_NAMES, [
+ *   "no-native-error",
+ *   "no-bigint-literals",
+ *   "no-empty-named-blocks",
+ *   "prefer-array-flat-map"
+ * ])
  * ```
- * @category rules
+ * @category configuration
  * @since 0.1.0
  */
 export const RULE_NAMES = [
@@ -49,7 +54,16 @@ export const RULE_NAMES = [
 /**
  * The slug of a single GritQL rule shipped by this package.
  *
- * @category rules
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import type { RuleName } from "@beep/lint-rules"
+ *
+ * const name: RuleName = "prefer-array-flat-map"
+ *
+ * strictEqual(name, "prefer-array-flat-map")
+ * ```
+ * @category type-level
  * @since 0.1.0
  */
 export type RuleName = (typeof RULE_NAMES)[number];
@@ -59,7 +73,16 @@ export type RuleName = (typeof RULE_NAMES)[number];
  * `error` is mandatory (Biome exits 1). The advisory-to-mandatory transition flips
  * this value in the rule's `.grit` file.
  *
- * @category rules
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import type { RuleSeverity } from "@beep/lint-rules"
+ *
+ * const severity: RuleSeverity = "warn"
+ *
+ * strictEqual(severity, "warn")
+ * ```
+ * @category type-level
  * @since 0.1.0
  */
 export type RuleSeverity = "warn" | "error";
@@ -89,11 +112,13 @@ type RuleMetadata = {
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert/strict"
  * import { RULES } from "@beep/lint-rules"
  *
- * const sev = RULES["no-bigint-literals"].severity
+ * strictEqual(RULES["no-bigint-literals"].severity, "warn")
+ * strictEqual(RULES["prefer-array-flat-map"].severity, "error")
  * ```
- * @category rules
+ * @category configuration
  * @since 0.1.0
  */
 export const RULES: { readonly [K in RuleName]: RuleMetadata } = {
@@ -135,12 +160,14 @@ export const RULES: { readonly [K in RuleName]: RuleMetadata } = {
  * @returns The absolute filesystem path to `<name>.grit`.
  * @example
  * ```ts
+ * import { ok } from "node:assert/strict"
  * import { rulePath } from "@beep/lint-rules"
  *
  * const grit = rulePath("no-bigint-literals")
- * // -> ".../packages/tooling/policy-pack/lint-rules/rules/no-bigint-literals.grit"
+ *
+ * ok(grit.endsWith("/rules/no-bigint-literals.grit"))
  * ```
- * @category rules
+ * @category configuration
  * @since 0.1.0
  */
 export const rulePath = (name: RuleName): string =>
@@ -152,11 +179,14 @@ export const rulePath = (name: RuleName): string =>
  * @returns The absolute filesystem path to the `rules/` directory.
  * @example
  * ```ts
+ * import { ok } from "node:assert/strict"
  * import { rulesDir } from "@beep/lint-rules"
  *
  * const dir = rulesDir()
+ *
+ * ok(dir.endsWith("/rules/"))
  * ```
- * @category rules
+ * @category configuration
  * @since 0.1.0
  */
 export const rulesDir = (): string => decodeURIComponent(new URL("../rules/", import.meta.url).pathname);

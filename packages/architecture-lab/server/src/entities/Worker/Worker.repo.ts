@@ -40,10 +40,29 @@ const getStoredWorker = Effect.fn("ArchitectureLab.WorkerRepository.getStored")(
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { makeInMemoryWorkerRepository } from "@beep/architecture-lab-server/entities/Worker"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeInMemoryWorkerRepository)
+ * const program = Effect.gen(function* () {
+ *   const repository = yield* makeInMemoryWorkerRepository()
+ *   const worker = DomainWorker.create(
+ *     DomainWorker.CreateWorkerInput.make({
+ *       id: S.decodeUnknownSync(DomainWorker.WorkerId)(1),
+ *       organizationId: S.decodeUnknownSync(DomainWorker.WorkerOrganizationId)(10),
+ *       displayName: "Avery Reviewer"
+ *     })
+ *   )
+ *   yield* repository.create(worker)
+ *   return yield* repository.list
+ * })
+ *
+ * Effect.runPromise(program).then((workers) => console.log(workers.length)) // 1
  * ```
+ *
+ * @effects Allocates an in-memory `Ref` and mutates that process-local store
+ * for create, get, and list repository calls.
  *
  * @category repositories
  * @since 0.0.0
@@ -122,9 +141,20 @@ const getDrizzleWorker = Effect.fn("ArchitectureLab.WorkerRepository.getDrizzle"
  * @example
  * ```ts
  * import { makeDrizzleWorkerRepository } from "@beep/architecture-lab-server/entities/Worker"
+ * import { Effect } from "effect"
  *
- * console.log(makeDrizzleWorkerRepository)
+ * const program = makeDrizzleWorkerRepository().pipe(
+ *   Effect.flatMap((repository) => repository.list),
+ *   Effect.catchTag("WorkerRepositoryUnavailable", (error) => Effect.succeed([error.reason]))
+ * )
+ * const describe = <A, E, R>(_effect: Effect.Effect<A, E, R>) => "Postgres-backed Worker repository wired"
+ *
+ * console.log(describe(program)) // "Postgres-backed Worker repository wired"
  * ```
+ *
+ * @effects Requires `PostgresDrizzle`; executes `select` and `insert`
+ * statements against the Worker table and redacts driver failures to
+ * `WorkerRepositoryUnavailable`.
  *
  * @category repositories
  * @since 0.0.0
@@ -171,8 +201,14 @@ export const makeDrizzleWorkerRepository = Effect.fn("ArchitectureLab.WorkerRepo
  * @example
  * ```ts
  * import { makeWorkerRepository } from "@beep/architecture-lab-server/entities/Worker"
+ * import { Effect } from "effect"
  *
- * console.log(makeWorkerRepository)
+ * const program = makeWorkerRepository().pipe(
+ *   Effect.flatMap((repository) => repository.list),
+ *   Effect.map((workers) => workers.length)
+ * )
+ *
+ * Effect.runPromise(program).then((count) => console.log(count)) // 0
  * ```
  *
  * @category repositories

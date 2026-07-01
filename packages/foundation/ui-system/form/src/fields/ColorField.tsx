@@ -52,9 +52,30 @@ type ColorControlProps = {
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { ColorField } from "@beep/form/fields/ColorField"
+ * import * as S from "effect/Schema"
  *
- * console.log(ColorField)
+ * const ThemeSchema = S.Struct({ accent: S.String })
+ * const themeOptions = makeFormOptions({
+ *   schema: ThemeSchema,
+ *   defaultValues: { accent: "#3366ff" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ThemeForm() {
+ *   const form = useAppForm(themeOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="accent">{() => <ColorField label="Accent color" />}</form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(themeOptions.defaultValues.accent) // "#3366ff"
  * ```
  *
  * @category components

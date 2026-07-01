@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -33,13 +32,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdContextErrorReason } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(JsonLdContextErrorReason)
+ * const reason = S.decodeUnknownSync(JsonLdContextErrorReason)("unknownTerm")
+ * strictEqual(reason, "unknownTerm")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdContextErrorReason = LiteralKit(["unknownTerm", "policyViolation", "compactionFailure"]).pipe(
   $I.annoteSchema("JsonLdContextErrorReason", {
@@ -52,13 +54,18 @@ export const JsonLdContextErrorReason = LiteralKit(["unknownTerm", "policyViolat
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { JsonLdContextError } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(JsonLdContextError)
+ * const error = JsonLdContextError.make({
+ *   reason: "unknownTerm",
+ *   message: "The term is not present in the active context."
+ * })
+ * strictEqual(error.reason, "unknownTerm")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class JsonLdContextError extends TaggedErrorClass<JsonLdContextError>($I`JsonLdContextError`)(
   "JsonLdContextError",
@@ -78,13 +85,21 @@ export class JsonLdContextError extends TaggedErrorClass<JsonLdContextError>($I`
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { NormalizeJsonLdContextRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(NormalizeJsonLdContextRequest)
+ * const request = S.decodeUnknownSync(NormalizeJsonLdContextRequest)({
+ *   context: {
+ *     "@vocab": "https://schema.org/",
+ *     terms: { name: "https://schema.org/name" }
+ *   }
+ * })
+ * strictEqual(request.context.terms.name, "https://schema.org/name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class NormalizeJsonLdContextRequest extends S.Class<NormalizeJsonLdContextRequest>(
   $I`NormalizeJsonLdContextRequest`
@@ -106,13 +121,21 @@ export class NormalizeJsonLdContextRequest extends S.Class<NormalizeJsonLdContex
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ExpandJsonLdTermRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(ExpandJsonLdTermRequest)
+ * const request = S.decodeUnknownSync(ExpandJsonLdTermRequest)({
+ *   context: {
+ *     terms: { name: "https://schema.org/name" }
+ *   },
+ *   term: "name"
+ * })
+ * strictEqual(request.term, "name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ExpandJsonLdTermRequest extends S.Class<ExpandJsonLdTermRequest>($I`ExpandJsonLdTermRequest`)(
   {
@@ -133,13 +156,19 @@ export class ExpandJsonLdTermRequest extends S.Class<ExpandJsonLdTermRequest>($I
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { ExpandJsonLdTermResult } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(ExpandJsonLdTermResult)
+ * const result = S.decodeUnknownSync(ExpandJsonLdTermResult)({
+ *   term: "name",
+ *   iri: "https://schema.org/name"
+ * })
+ * strictEqual(result.iri, "https://schema.org/name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class ExpandJsonLdTermResult extends S.Class<ExpandJsonLdTermResult>($I`ExpandJsonLdTermResult`)(
   {
@@ -157,13 +186,21 @@ export class ExpandJsonLdTermResult extends S.Class<ExpandJsonLdTermResult>($I`E
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { CompactJsonLdIriRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(CompactJsonLdIriRequest)
+ * const request = S.decodeUnknownSync(CompactJsonLdIriRequest)({
+ *   context: {
+ *     terms: { name: "https://schema.org/name" }
+ *   },
+ *   iri: "https://schema.org/name"
+ * })
+ * strictEqual(request.iri, "https://schema.org/name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class CompactJsonLdIriRequest extends S.Class<CompactJsonLdIriRequest>($I`CompactJsonLdIriRequest`)(
   {
@@ -184,13 +221,19 @@ export class CompactJsonLdIriRequest extends S.Class<CompactJsonLdIriRequest>($I
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { CompactJsonLdIriResult } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(CompactJsonLdIriResult)
+ * const result = S.decodeUnknownSync(CompactJsonLdIriResult)({
+ *   iri: "https://schema.org/name",
+ *   term: "name"
+ * })
+ * strictEqual(result.term, "name")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class CompactJsonLdIriResult extends S.Class<CompactJsonLdIriResult>($I`CompactJsonLdIriResult`)(
   {
@@ -208,13 +251,19 @@ export class CompactJsonLdIriResult extends S.Class<CompactJsonLdIriResult>($I`C
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { MergeJsonLdContextsRequest } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(MergeJsonLdContextsRequest)
+ * const request = S.decodeUnknownSync(MergeJsonLdContextsRequest)({
+ *   left: { terms: { name: "https://schema.org/name" } },
+ *   right: { terms: { knows: "https://schema.org/knows" } }
+ * })
+ * strictEqual(request.right.terms.knows, "https://schema.org/knows")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class MergeJsonLdContextsRequest extends S.Class<MergeJsonLdContextsRequest>($I`MergeJsonLdContextsRequest`)(
   {
@@ -256,13 +305,42 @@ export interface JsonLdContextServiceShape {
  *
  * @example
  * ```ts
- * import { JsonLdContextService } from "@beep/semantic-web/services/jsonld-context"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   ExpandJsonLdTermRequest,
+ *   ExpandJsonLdTermResult,
+ *   JsonLdContextService
+ * } from "@beep/semantic-web/services/jsonld-context"
  *
- * console.log(JsonLdContextService)
+ * const request = S.decodeUnknownSync(ExpandJsonLdTermRequest)({
+ *   context: { terms: { name: "https://schema.org/name" } },
+ *   term: "name"
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* JsonLdContextService
+ *   return yield* service.expandTerm(request)
+ * })
+ *
+ * const result = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     JsonLdContextService,
+ *     JsonLdContextService.of({
+ *       compactIri: () => Effect.die("not used"),
+ *       expandTerm: () =>
+ *         Effect.succeed(S.decodeUnknownSync(ExpandJsonLdTermResult)({ term: "name", iri: "https://schema.org/name" })),
+ *       merge: () => Effect.die("not used"),
+ *       normalize: () => Effect.die("not used")
+ *     })
+ *   )
+ * )
+ * strictEqual(result.iri, "https://schema.org/name")
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class JsonLdContextService extends Context.Service<JsonLdContextService, JsonLdContextServiceShape>()(
   $I`JsonLdContextService`

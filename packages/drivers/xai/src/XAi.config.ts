@@ -17,7 +17,8 @@ const $I = $XaiId.create("XAi.config");
  * ```ts
  * import { XAI_API_URL } from "@beep/xai"
  *
- * console.log(XAI_API_URL)
+ * const hostname = new URL(XAI_API_URL).hostname
+ * console.log(hostname) // "api.x.ai"
  * ```
  *
  * @category utilities
@@ -32,7 +33,8 @@ export const XAI_API_URL = "https://api.x.ai";
  * ```ts
  * import { XAI_MANAGEMENT_API_URL } from "@beep/xai"
  *
- * console.log(XAI_MANAGEMENT_API_URL)
+ * const hostname = new URL(XAI_MANAGEMENT_API_URL).hostname
+ * console.log(hostname) // "management-api.x.ai"
  * ```
  *
  * @category utilities
@@ -47,7 +49,8 @@ export const XAI_MANAGEMENT_API_URL = "https://management-api.x.ai";
  * ```ts
  * import { XAI_WEBSOCKET_URL } from "@beep/xai"
  *
- * console.log(XAI_WEBSOCKET_URL)
+ * const protocol = new URL(XAI_WEBSOCKET_URL).protocol
+ * console.log(protocol) // "wss:"
  * ```
  *
  * @category utilities

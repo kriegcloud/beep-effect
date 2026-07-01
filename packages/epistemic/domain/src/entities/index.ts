@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/entities"
+ * import { Activity } from "@beep/epistemic-domain/entities"
  *
- * console.log(Module)
+ * console.log(Activity.definition.entityId.tableName)
  * ```
 
  * @category entities
@@ -24,9 +24,9 @@ export * from "./Activity/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/entities"
+ * import { CandidateClaim } from "@beep/epistemic-domain/entities"
  *
- * console.log(Module)
+ * console.log(CandidateClaim.definition.entityId.tableName)
  * ```
 
  * @category entities
@@ -38,9 +38,9 @@ export * from "./CandidateClaim/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/entities"
+ * import { Evidence } from "@beep/epistemic-domain/entities"
  *
- * console.log(Module)
+ * console.log(Evidence.definition.entityId.tableName)
  * ```
 
  * @category entities
@@ -52,9 +52,9 @@ export * from "./Evidence/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/entities"
+ * import { UsageRecord } from "@beep/epistemic-domain/entities"
  *
- * console.log(Module)
+ * console.log(UsageRecord.definition.entityId.tableName)
  * ```
 
  * @category entities

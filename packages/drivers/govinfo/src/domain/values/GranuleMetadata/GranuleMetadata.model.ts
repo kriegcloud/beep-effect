@@ -10,71 +10,91 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/GranuleMetadata/GranuleMetadata.model");
 
 /**
- * Metadata for a single granule within a GovInfo package, capturing its granule
- * class, identifier, API link, content checksum, and title.
+ * Metadata row for a GovInfo granule inside a package.
+ *
+ * @remarks
+ * A granule is a subsection of a GovInfo package, such as a Federal Register
+ * notice, a Congressional Record speech, or a chapter-level subdivision.
  *
  * @example
  * ```ts
  * import { GranuleMetadata } from "@beep/govinfo/domain/values/GranuleMetadata/GranuleMetadata.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(GranuleMetadata);
+ * const granule = S.decodeUnknownSync(GranuleMetadata)({
+ *   granuleClass: "HOUSE",
+ *   granuleId: "CREC-2024-01-03-pt1-PgH1",
+ *   granuleLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules/CREC-2024-01-03-pt1-PgH1/summary",
+ *   md5: "d41d8cd98f00b204e9800998ecf8427e",
+ *   title: "House proceedings"
+ * });
+ *
+ * console.log(granule.granuleId);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class GranuleMetadata extends S.Class<GranuleMetadata>($I`GranuleMetadata`)(
   {
-    /** GovInfo granule class categorizing the type of this granule within its package. */
+    /** Collection-specific granule classification. */
     granuleClass: S.String.annotateKey({
-      description: "GovInfo granule class categorizing the type of this granule within its package.",
+      description: "Collection-specific granule classification.",
     }),
 
-    /** Identifier of this granule within its parent GovInfo package. */
+    /** Unique GovInfo granule identifier within its package. */
     granuleId: S.String.annotateKey({
-      description: "Identifier of this granule within its parent GovInfo package.",
+      description: "Unique GovInfo granule identifier within its package.",
     }),
 
-    /** GovInfo API link used to fetch this granule's metadata or content. */
+    /** API URL for retrieving the granule summary. */
     granuleLink: S.String.annotateKey({
-      description: "GovInfo API link used to fetch this granule's metadata or content.",
+      description: "API URL for retrieving the granule summary.",
     }),
 
-    /** MD5 checksum of the granule's content, used to verify download integrity. */
+    /** MD5 hash exposed by GovInfo for granule content integrity checks. */
     md5: S.String.annotateKey({
-      description: "MD5 checksum of the granule's content, used to verify download integrity.",
+      description: "MD5 hash exposed by GovInfo for granule content integrity checks.",
     }),
 
-    /** Human-readable title of the granule. */
+    /** Display title for the granule. */
     title: S.String.annotateKey({
-      description: "Human-readable title of the granule.",
+      description: "Display title for the granule.",
     }),
   },
   $I.annote("GranuleMetadata", {
-    description:
-      "Metadata for a single granule within a GovInfo package, capturing its granule class, identifier, API link, content checksum, and title.",
+    description: "Metadata row for a GovInfo granule inside a package.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link GranuleMetadata} value object.
+ * Companion namespace for {@link GranuleMetadata} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace GranuleMetadata {
   /**
-   * The companion encoded type for {@link GranuleMetadata}.
+   * Encoded JSON shape accepted by {@link GranuleMetadata}.
    *
    * @example
    * ```ts
-   * import type { GranuleMetadata } from "@beep/govinfo/domain/values/GranuleMetadata/GranuleMetadata.model";
+   * import { GranuleMetadata } from "@beep/govinfo/domain/values/GranuleMetadata/GranuleMetadata.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: GranuleMetadata.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(GranuleMetadata)({
+   *   granuleClass: "HOUSE",
+   *   granuleId: "CREC-2024-01-03-pt1-PgH1",
+   *   granuleLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules/CREC-2024-01-03-pt1-PgH1/summary",
+   *   md5: "d41d8cd98f00b204e9800998ecf8427e",
+   *   title: "House proceedings"
+   * });
+   * const encoded: GranuleMetadata.Encoded = S.encodeSync(GranuleMetadata)(decoded);
+   *
+   * console.log(encoded.title);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof GranuleMetadata.Encoded;

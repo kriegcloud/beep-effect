@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box placeholder search result value-object schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("entities/PLACEHOLDER/PLACEHOLDER.model");
 
 /**
+ * Experimental placeholder value-object schema reserved for Box search result modeling.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
- * import { PLACEHOLDER } from "@beep/box/experimental/domain/values/PLACEHOLDER/PLACEHOLDER.model";
+ * import { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(PLACEHOLDER.make({
+ * const decoded = S.decodeUnknownSync(PLACEHOLDER)({});
+ * const encoded: PLACEHOLDER.Encoded = S.encodeSync(PLACEHOLDER)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class PLACEHOLDER extends S.Class<PLACEHOLDER>($I`PLACEHOLDER`)(
   {},
   $I.annote("PLACEHOLDER", {
-    description: "TODO",
+    description: "Experimental placeholder value-object schema reserved for Box search result modeling.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link PLACEHOLDER}
+ * Type-level companion namespace for {@link PLACEHOLDER} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = PLACEHOLDER.make({});
+ * const encoded: PLACEHOLDER.Encoded = S.encodeSync(PLACEHOLDER)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace PLACEHOLDER {
   /**
-   * Companion encoded type for {@link PLACEHOLDER}.
+   * Encoded payload accepted by the {@link PLACEHOLDER} value-object schema.
    *
    * @example
    * ```ts
-   * import type { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
+   * import { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: PLACEHOLDER.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: PLACEHOLDER.Encoded = S.encodeSync(PLACEHOLDER)(PLACEHOLDER.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof PLACEHOLDER.Encoded;
 }
-
-/**
- * Companion runtime type for {@link PLACEHOLDER}.
- *
- * @example
- * ```ts
- * import type { PLACEHOLDER } from "@beep/box/experimental/domain/values/SearchResult/PLACEHOLDER.model";
- *
- * const useValue = (_value: PLACEHOLDER) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type PLACEHOLDER = typeof PLACEHOLDER.Type;

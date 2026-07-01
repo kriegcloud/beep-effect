@@ -1,21 +1,8 @@
 /**
- * TODO
+ * Experimental Box Folder entity export surface.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-/**
- * TODO
- *
- * @example
- * ```ts
- * import { Folder } from "@beep/box/experimental/domain/entities/Folder/Folder.model";
- *
- * console.log(Folder)
- * ```
- *
- * @category models
- * @since 0.0.0
- */
 export * as Folder from "./Folder.model.ts";

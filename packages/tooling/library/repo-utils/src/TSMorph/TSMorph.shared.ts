@@ -65,7 +65,49 @@ const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
  * @example
  * ```ts
  * import { byTsMorphSymbolAscending } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = byTsMorphSymbolAscending
+ * import { Symbol as TsMorphSymbol } from "@beep/repo-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeSymbol = S.decodeUnknownSync(TsMorphSymbol)
+ * const helper = decodeSymbol({
+ *   id: "src/User.ts::createUser#FunctionDeclaration",
+ *   filePath: "src/User.ts",
+ *   name: "createUser",
+ *   qualifiedName: "createUser",
+ *   kind: "FunctionDeclaration",
+ *   category: "function",
+ *   signature: "export function createUser() {}",
+ *   docstring: null,
+ *   summary: null,
+ *   decorators: [],
+ *   keywords: ["createUser", "FunctionDeclaration", "function"],
+ *   parentId: null,
+ *   startLine: 8,
+ *   endLine: 8,
+ *   byteOffset: 40,
+ *   byteLength: 32,
+ *   contentHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ * })
+ * const model = decodeSymbol({
+ *   id: "src/User.ts::User#ClassDeclaration",
+ *   filePath: "src/User.ts",
+ *   name: "User",
+ *   qualifiedName: "User",
+ *   kind: "ClassDeclaration",
+ *   category: "class",
+ *   signature: "export class User {}",
+ *   docstring: null,
+ *   summary: "User model.",
+ *   decorators: [],
+ *   keywords: ["User", "ClassDeclaration", "class"],
+ *   parentId: null,
+ *   startLine: 1,
+ *   endLine: 1,
+ *   byteOffset: 0,
+ *   byteLength: 20,
+ *   contentHash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+ * })
+ * console.log(byTsMorphSymbolAscending(helper, model))
  * ```
  * @category utilities
  * @since 0.0.0
@@ -94,7 +136,31 @@ const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput
  * @example
  * ```ts
  * import { byNormalizedDiagnosticAscending } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = byNormalizedDiagnosticAscending
+ * import { TsMorphDiagnostic } from "@beep/repo-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeDiagnostic = S.decodeUnknownSync(TsMorphDiagnostic)
+ * const missingName = decodeDiagnostic({
+ *   category: "error",
+ *   code: 2304,
+ *   message: "Cannot find name 'User'.",
+ *   source: null,
+ *   startLine: 1,
+ *   startColumn: 8,
+ *   endLine: 1,
+ *   endColumn: 12
+ * })
+ * const unusedLocal = decodeDiagnostic({
+ *   category: "warning",
+ *   code: 6133,
+ *   message: "'user' is declared but its value is never read.",
+ *   source: "ts",
+ *   startLine: 4,
+ *   startColumn: 7,
+ *   endLine: 4,
+ *   endColumn: 11
+ * })
+ * console.log(byNormalizedDiagnosticAscending(missingName, unusedLocal))
  * ```
  * @category utilities
  * @since 0.0.0
@@ -120,7 +186,14 @@ const firstSignatureLine = (text: string): string =>
  * @example
  * ```ts
  * import { readDocstring } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = readDocstring
+ * import { Project } from "ts-morph"
+ *
+ * const sourceFile = new Project({ useInMemoryFileSystem: true }).createSourceFile(
+ *   "src/example.ts",
+ *   "/** Reads source text. *\/\nexport function readSourceText() {}"
+ * )
+ * const docstring = readDocstring(sourceFile.getFunctionOrThrow("readSourceText"))
+ * console.log(docstring)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -148,7 +221,14 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
  * @example
  * ```ts
  * import { readDecorators } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = readDecorators
+ * import { Project } from "ts-morph"
+ *
+ * const sourceFile = new Project({ useInMemoryFileSystem: true }).createSourceFile(
+ *   "src/example.ts",
+ *   "@sealed\nexport class User {}"
+ * )
+ * const decorators = readDecorators(sourceFile.getClassOrThrow("User"))
+ * console.log(decorators)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -166,7 +246,14 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
  * @example
  * ```ts
  * import { readSignature } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = readSignature
+ * import { Project } from "ts-morph"
+ *
+ * const sourceFile = new Project({ useInMemoryFileSystem: true }).createSourceFile(
+ *   "src/example.ts",
+ *   "export function readSourceText(filePath: string): string { return filePath }"
+ * )
+ * const signature = readSignature(sourceFile.getFunctionOrThrow("readSourceText"))
+ * console.log(signature)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -190,7 +277,10 @@ export const readSignature = (node: OutlineDeclaration): string => {
  * @example
  * ```ts
  * import { makeSummary } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = makeSummary
+ * import * as O from "effect/Option"
+ *
+ * const summary = makeSummary(O.some("Reads source text."))
+ * console.log(summary)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -207,7 +297,11 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @example
  * ```ts
  * import { makeKeywords } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = makeKeywords
+ *
+ * const keywords = makeKeywords("readSourceText", "TSMorphService.readSourceText", {
+ *   kind: "MethodDeclaration"
+ * })
+ * console.log(keywords)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -246,7 +340,31 @@ export const makeKeywords: {
  * @example
  * ```ts
  * import { makeScopeSymbolSearchText } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = makeScopeSymbolSearchText
+ * import { SourceText, Symbol as TsMorphSymbol } from "@beep/repo-utils"
+ * import * as S from "effect/Schema"
+ *
+ * const symbol = S.decodeUnknownSync(TsMorphSymbol)({
+ *   id: "src/User.ts::User#ClassDeclaration",
+ *   filePath: "src/User.ts",
+ *   name: "User",
+ *   qualifiedName: "User",
+ *   kind: "ClassDeclaration",
+ *   category: "class",
+ *   signature: "export class User {}",
+ *   docstring: "Represents an application user.",
+ *   summary: "User model.",
+ *   decorators: [],
+ *   keywords: ["User", "ClassDeclaration", "class"],
+ *   parentId: null,
+ *   startLine: 1,
+ *   endLine: 1,
+ *   byteOffset: 0,
+ *   byteLength: 20,
+ *   contentHash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+ * })
+ * const sourceText = S.decodeUnknownSync(SourceText)("export class User {}")
+ * const searchText = makeScopeSymbolSearchText(symbol, sourceText)
+ * console.log(searchText.includes("application user"))
  * ```
  * @category utilities
  * @since 0.0.0
@@ -294,7 +412,9 @@ const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessag
  * @example
  * ```ts
  * import { flattenDiagnosticMessageText } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = flattenDiagnosticMessageText
+ *
+ * const message = flattenDiagnosticMessageText("TS2304: Cannot find name 'x'.")
+ * console.log(message)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -322,7 +442,10 @@ const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe
  * @example
  * ```ts
  * import { normalizeDiagnosticCategory } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = normalizeDiagnosticCategory
+ * import { DiagnosticCategory } from "ts-morph"
+ *
+ * const category = normalizeDiagnosticCategory(DiagnosticCategory.Error)
+ * console.log(category)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -336,7 +459,12 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  * @example
  * ```ts
  * import { NamedDeclaration } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * console.log(NamedDeclaration)
+ *
+ * const declaration = NamedDeclaration.make({
+ *   name: "readSourceText",
+ *   kind: "MethodDeclaration"
+ * })
+ * console.log(declaration.kind)
  * ```
  * @category models
  * @since 0.0.0
@@ -374,7 +502,14 @@ export class NamedDeclaration extends S.Class<NamedDeclaration>($I`NamedDeclarat
  * @example
  * ```ts
  * import { getDeclarationName } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = getDeclarationName
+ * import { Project } from "ts-morph"
+ *
+ * const sourceFile = new Project({ useInMemoryFileSystem: true }).createSourceFile(
+ *   "src/example.ts",
+ *   "export interface SearchSymbolsRequest { query: string }"
+ * )
+ * const declaration = getDeclarationName(sourceFile.getInterfaceOrThrow("SearchSymbolsRequest"))
+ * console.log(declaration)
  * ```
  * @category utilities
  * @since 0.0.0
@@ -432,7 +567,10 @@ export const getDeclarationName = (declaration: OutlineDeclaration): O.Option<Na
  * @example
  * ```ts
  * import { pipeQualifiedName } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- * const value = pipeQualifiedName
+ * import * as O from "effect/Option"
+ *
+ * const qualifiedName = pipeQualifiedName(O.none(), "SearchSymbolsRequest")
+ * console.log(qualifiedName)
  * ```
  * @category utilities
  * @since 0.0.0

@@ -11,18 +11,36 @@ import { SearchResult } from "../SearchResult/index.ts";
 const $I = $GovinfoId.create("domain/values/SearchResponse/SearchResponse.model");
 
 /**
- * The response body returned by the GovInfo `POST /search` endpoint: the total
- * number of matching results, the cursor for the next page, and the page of
- * search result hits.
+ * GovInfo search response with a result count, cursor, and hits.
  *
  * @example
  * ```ts
  * import { SearchResponse } from "@beep/govinfo/domain/values/SearchResponse/SearchResponse.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SearchResponse);
+ * const response = S.decodeUnknownSync(SearchResponse)({
+ *   count: 1,
+ *   offsetMark: "next-cursor",
+ *   results: [
+ *     {
+ *       collectionCode: "FR",
+ *       dateIngested: "2024-01-05T00:00:00Z",
+ *       dateIssued: "2024-01-04T00:00:00Z",
+ *       download: { pdfLink: "https://api.govinfo.gov/packages/FR-2024-01-04/pdf" },
+ *       governmentAuthor: ["National Archives and Records Administration"],
+ *       granuleId: "2024-00001",
+ *       lastModified: "2024-01-05T14:30:00Z",
+ *       packageId: "FR-2024-01-04",
+ *       resultLink: "https://api.govinfo.gov/packages/FR-2024-01-04/summary",
+ *       title: "Federal Register, Volume 89 Issue 2"
+ *     }
+ *   ]
+ * });
+ *
+ * console.log(response.results.length);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class SearchResponse extends S.Class<SearchResponse>($I`SearchResponse`)(
@@ -30,45 +48,63 @@ export class SearchResponse extends S.Class<SearchResponse>($I`SearchResponse`)(
     count: S.Int.pipe(
       S.check(S.makeFilterGroup([S.isInt32(), S.isFinite(), S.isGreaterThanOrEqualTo(0)])),
       S.annotateKey({
-        description: "Total number of results across all pages that match the search query.",
+        description: "Total number of matching GovInfo search results.",
       })
     ),
     offsetMark: S.String.annotateKey({
-      description:
-        "Opaque pagination cursor identifying where the next page of results begins; pass it back as the request offsetMark to page forward.",
+      description: "Cursor returned by GovInfo for retrieving the next search page.",
     }),
     results: SearchResult.pipe(
       S.Array,
       S.annotateKey({
-        description: "The page of individual search result hits returned for this request.",
+        description: "Search hits returned for the current page.",
       })
     ),
   },
   $I.annote("SearchResponse", {
-    description:
-      "Result payload of a GovInfo search: the total match count, the next-page cursor, and this page's search result hits.",
+    description: "GovInfo search response with a result count, cursor, and hits.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link SearchResponse} value object.
+ * Companion namespace for {@link SearchResponse} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SearchResponse {
   /**
-   * The companion encoded type for {@link SearchResponse}.
+   * Encoded JSON shape accepted by {@link SearchResponse}.
    *
    * @example
    * ```ts
-   * import type { SearchResponse } from "@beep/govinfo/domain/values/SearchResponse/SearchResponse.model";
+   * import { SearchResponse } from "@beep/govinfo/domain/values/SearchResponse/SearchResponse.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SearchResponse.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(SearchResponse)({
+   *   count: 1,
+   *   offsetMark: "next-cursor",
+   *   results: [
+   *     {
+   *       collectionCode: "FR",
+   *       dateIngested: "2024-01-05T00:00:00Z",
+   *       dateIssued: "2024-01-04T00:00:00Z",
+   *       download: { pdfLink: "https://api.govinfo.gov/packages/FR-2024-01-04/pdf" },
+   *       governmentAuthor: ["National Archives and Records Administration"],
+   *       granuleId: "2024-00001",
+   *       lastModified: "2024-01-05T14:30:00Z",
+   *       packageId: "FR-2024-01-04",
+   *       resultLink: "https://api.govinfo.gov/packages/FR-2024-01-04/summary",
+   *       title: "Federal Register, Volume 89 Issue 2"
+   *     }
+   *   ]
+   * });
+   * const encoded: SearchResponse.Encoded = S.encodeSync(SearchResponse)(decoded);
+   *
+   * console.log(encoded.offsetMark);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SearchResponse.Encoded;

@@ -13,7 +13,7 @@
  * ```ts
  * import * as IrToLaw from "@beep/law-practice-use-cases/IrToLaw"
  *
- * console.log(IrToLaw)
+ * console.log(Object.keys(IrToLaw).includes("makeIrToLaw")) // true
  * ```
  *
  * @category services
@@ -27,7 +27,7 @@ export * as IrToLaw from "./IrToLaw/index.js";
  * ```ts
  * import * as OfficeActionReview from "@beep/law-practice-use-cases/OfficeActionReview"
  *
- * console.log(OfficeActionReview)
+ * console.log(Object.keys(OfficeActionReview).includes("makeOfficeActionReview")) // true
  * ```
  *
  * @category services

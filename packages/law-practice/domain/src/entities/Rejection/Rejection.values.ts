@@ -33,7 +33,7 @@ const RejectionStatute = LiteralKit(["102", "103", "101", "112"]);
  * console.log(ground.statute) // "102"
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
 export const RejectionGround = RejectionStatute.toTaggedUnion("statute")({
@@ -49,17 +49,21 @@ export const RejectionGround = RejectionStatute.toTaggedUnion("statute")({
 );
 
 /**
- * Runtime type for {@link RejectionGround}.
+ * Type-level tagged union produced by {@link RejectionGround}.
  *
  * @example
  * ```ts
  * import type { RejectionGround } from "@beep/law-practice-domain"
  *
- * const ground: RejectionGround = { statute: "101" }
+ * const ground = {
+ *   combinationRationale: "Smith teaches the hinge and Jones teaches the latch.",
+ *   referenceFixtureKeys: ["prior-art.smith", "prior-art.jones"],
+ *   statute: "103",
+ * } satisfies RejectionGround
  * console.log(ground.statute)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type RejectionGround = typeof RejectionGround.Type;

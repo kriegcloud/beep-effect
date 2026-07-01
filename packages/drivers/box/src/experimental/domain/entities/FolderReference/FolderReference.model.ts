@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box folder reference entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/FolderReference/FolderReference.model");
 
 /**
+ * Experimental schema anchor for lightweight Box folder references embedded in other payloads.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(FolderReference.make({
+ * const decoded = S.decodeUnknownSync(FolderReference)({});
+ * const encoded: FolderReference.Encoded = S.encodeSync(FolderReference)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class FolderReference extends S.Class<FolderReference>($I`FolderReference`)(
   {},
   $I.annote("FolderReference", {
-    description: "TODO",
+    description: "Experimental schema anchor for lightweight Box folder references embedded in other payloads.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link FolderReference}
+ * Type-level companion namespace for {@link FolderReference} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = FolderReference.make({});
+ * const encoded: FolderReference.Encoded = S.encodeSync(FolderReference)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace FolderReference {
   /**
-   * Companion encoded type for {@link FolderReference}.
+   * Encoded payload accepted by the {@link FolderReference} entity schema.
    *
    * @example
    * ```ts
-   * import type { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
+   * import { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: FolderReference.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: FolderReference.Encoded = S.encodeSync(FolderReference)(FolderReference.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof FolderReference.Encoded;
 }
-
-/**
- * Companion runtime type for {@link FolderReference}.
- *
- * @example
- * ```ts
- * import type { FolderReference } from "@beep/box/experimental/domain/entities/FolderReference/FolderReference.model";
- *
- * const useValue = (_value: FolderReference) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type FolderReference = typeof FolderReference.Type;

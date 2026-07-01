@@ -387,12 +387,63 @@ const printNamespace: {
  * Renders a single documented entity into markdown.
  *
  * @internal
- * @param printable - Documented entity to render.
- * @returns Effect that renders markdown for the provided entity.
+ * @remarks
+ * Rendering depends on the active {@link Configuration.Configuration} and {@link Parser.Source}
+ * so generated pages can include theme-compatible fences and source links.
+ *
  * @example
  * ```ts
+ * import { Effect, Layer } from "effect"
+ * import { Project } from "ts-morph"
+ * import {
+ *   DEFAULT_THEME,
+ *   Configuration,
+ *   ConfigurationShape,
+ *   defaultCompilerOptions
+ * } from "@beep/repo-docgen/Configuration"
+ * import { Constant, Doc, Position } from "@beep/repo-docgen/Domain"
+ * import { Source, SourceShape } from "@beep/repo-docgen/Parser"
  * import { print } from "@beep/repo-docgen/Printer"
- * console.log(print)
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("src/example.ts", "export const answer = 42")
+ * const source = SourceShape.new(["src", "example.ts"], sourceFile)
+ * const config = ConfigurationShape.make({
+ *   enableSearch: true,
+ *   enforceDescriptions: false,
+ *   enforceExamples: true,
+ *   enforceVersion: true,
+ *   examplesCompilerOptions: defaultCompilerOptions,
+ *   exclude: [],
+ *   include: [],
+ *   outDir: "docs",
+ *   parseCompilerOptions: defaultCompilerOptions,
+ *   projectHomepage: "https://github.com/beep-effect/beep-effect",
+ *   projectName: "@beep/repo-docgen",
+ *   runExamples: false,
+ *   srcDir: "src",
+ *   srcLink: "https://github.com/beep-effect/beep-effect/blob/main/packages/tooling/tool/docgen/src",
+ *   theme: DEFAULT_THEME,
+ *   tscExecutable: "tsc"
+ * })
+ * const doc = Doc.new("The answer exported by the example module.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: ["console.log(42)"],
+ *   category: ["constants"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Constant.new("answer", doc, {
+ *   signature: "declare const answer: 42",
+ *   position: Position.new(1, 14)
+ * })
+ * const markdown = Effect.runSync(
+ *   print(model).pipe(Effect.provide(Layer.mergeAll(Configuration.layer(config), Source.layer(source))))
+ * )
+ *
+ * console.log(markdown.includes("answer"))
  * ```
  * @category formatting
  * @since 0.0.0
@@ -435,12 +486,72 @@ const sortByName: <
 /**
  * Renders a parsed module into markdown grouped by documentation category.
  *
- * @param module - Module to render.
- * @returns Effect that renders markdown for the provided module.
+ * @remarks
+ * Printables are sorted by category and then by symbol name. Symbols with no
+ * `@category` are grouped under the legacy `utils` fallback.
+ *
  * @example
  * ```ts
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ * import {
+ *   DEFAULT_THEME,
+ *   Configuration,
+ *   ConfigurationShape,
+ *   defaultCompilerOptions
+ * } from "@beep/repo-docgen/Configuration"
+ * import { Constant, Doc, Module, Position } from "@beep/repo-docgen/Domain"
+ * import { SourceShape } from "@beep/repo-docgen/Parser"
  * import { printModule } from "@beep/repo-docgen/Printer"
- * console.log(printModule)
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("src/example.ts", "export const answer = 42")
+ * const source = SourceShape.new(["src", "example.ts"], sourceFile)
+ * const config = ConfigurationShape.make({
+ *   enableSearch: true,
+ *   enforceDescriptions: false,
+ *   enforceExamples: true,
+ *   enforceVersion: true,
+ *   examplesCompilerOptions: defaultCompilerOptions,
+ *   exclude: [],
+ *   include: [],
+ *   outDir: "docs",
+ *   parseCompilerOptions: defaultCompilerOptions,
+ *   projectHomepage: "https://github.com/beep-effect/beep-effect",
+ *   projectName: "@beep/repo-docgen",
+ *   runExamples: false,
+ *   srcDir: "src",
+ *   srcLink: "https://github.com/beep-effect/beep-effect/blob/main/packages/tooling/tool/docgen/src",
+ *   theme: DEFAULT_THEME,
+ *   tscExecutable: "tsc"
+ * })
+ * const doc = Doc.new("Example module.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["models"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const constant = Constant.new("answer", doc, {
+ *   signature: "declare const answer: 42",
+ *   position: Position.new(1, 14)
+ * })
+ * const module = Module.new(source, "example.ts", {
+ *   doc,
+ *   path: ["src", "example.ts"],
+ *   classes: [],
+ *   interfaces: [],
+ *   functions: [],
+ *   typeAliases: [],
+ *   constants: [constant],
+ *   exports: [],
+ *   namespaces: []
+ * })
+ * const markdown = Effect.runSync(printModule(module).pipe(Effect.provide(Configuration.layer(config))))
+ *
+ * console.log(markdown.includes("# models"))
  * ```
  * @category formatting
  * @since 0.0.0
@@ -481,13 +592,39 @@ export const printModule = (module: Domain.Module) =>
 /**
  * Builds the front matter used for a generated module documentation page.
  *
- * @param module - Module whose page metadata is being rendered.
- * @param navOrder - Navigation order to assign in the generated site.
- * @returns Front matter block for the module page.
  * @example
  * ```ts
+ * import { Project } from "ts-morph"
+ * import { Doc, Module } from "@beep/repo-docgen/Domain"
+ * import { SourceShape } from "@beep/repo-docgen/Parser"
  * import { printFrontMatter } from "@beep/repo-docgen/Printer"
- * console.log(printFrontMatter)
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("src/example.ts", "")
+ * const source = SourceShape.new(["src", "example.ts"], sourceFile)
+ * const doc = Doc.new("Example module.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["models"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const module = Module.new(source, "example.ts", {
+ *   doc,
+ *   path: ["src", "example.ts"],
+ *   classes: [],
+ *   interfaces: [],
+ *   functions: [],
+ *   typeAliases: [],
+ *   constants: [],
+ *   exports: [],
+ *   namespaces: []
+ * })
+ *
+ * const frontMatter = printFrontMatter(module, 3)
+ * console.log(frontMatter.includes("nav_order: 3"))
  * ```
  * @category formatting
  * @since 0.0.0

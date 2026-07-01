@@ -5,16 +5,20 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
- * Button variants component.
+ * Class factory for shared button visual variants and sizes.
  *
  * @example
  * ```tsx
+ * import { strictEqual } from "node:assert"
  * import { buttonVariants } from "@beep/ui/components/button"
  *
- * console.log(buttonVariants)
+ * const destructiveSmall = buttonVariants({ variant: "destructive", size: "sm" })
+ * const iconOnly = buttonVariants({ variant: "ghost", size: "icon" })
+ * const classes = [destructiveSmall, iconOnly].join(" ")
+ * strictEqual(classes.includes("text-destructive"), true)
  * ```
  *
- * @category components
+ * @category utilities
  * @since 0.0.0
  */
 const buttonVariants = cva(
@@ -53,13 +57,19 @@ const buttonVariants = cva(
 );
 
 /**
- * Button component.
+ * Base interactive button with shared variant and size styling.
  *
  * @example
  * ```tsx
  * import { Button } from "@beep/ui/components/button"
  *
- * console.log(Button)
+ * export function SaveButton() {
+ *   return (
+ *     <Button variant="default" size="sm" type="submit">
+ *       Save changes
+ *     </Button>
+ *   )
+ * }
  * ```
  *
  * @category components

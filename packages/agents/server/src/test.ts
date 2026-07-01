@@ -14,8 +14,10 @@ import { initialScanState } from "./AssistantTurn/index.ts";
  * @example
  * ```ts
  * import { AgentsServerInitialScanState } from "@beep/agents-server/test"
+ * import { scanChunk } from "@beep/agents-server/AssistantTurn"
  *
- * console.log(AgentsServerInitialScanState)
+ * const [, completed] = scanChunk(AgentsServerInitialScanState, '{"blocks":[{"type":"paragraph"}]}')
+ * console.log(completed.length) // 1
  * ```
  *
  * @category testing

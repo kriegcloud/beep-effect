@@ -1,30 +1,60 @@
 /**
- * Package entry point for `@beep/architecture-lab-ui`.
+ * Public UI view-model package for the architecture lab proof surface.
+ *
+ * @remarks
+ * This package does not render components directly. It projects canonical
+ * architecture-lab domain aggregates into client-renderable read models for
+ * proof apps and downstream UI packages.
  *
  * @packageDocumentation
- * @category models
+ * @category read-models
  * @since 0.0.0
  */
 
 /**
- * Package version for the architecture lab UI role.
+ * Version marker for the architecture lab UI view-model package.
  *
  * @example
  * ```ts
  * import { VERSION } from "@beep/architecture-lab-ui"
  *
- * console.log(VERSION)
+ * const expectedVersion: typeof VERSION = "0.0.0"
+ * const isExpectedVersion = VERSION === expectedVersion
+ *
+ * if (!isExpectedVersion) {
+ *   throw new Error("unexpected architecture lab UI version")
+ * }
  * ```
  *
- * @category models
+ * @category constants
  * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
 
 /**
- * Direct WorkItem UI namespace export.
+ * WorkItem UI namespace for client-renderable WorkItem summaries.
  *
- * @category models
+ * @example
+ * ```ts
+ * import { defaultWorkItemPublicConfig } from "@beep/architecture-lab-config/public"
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import { WorkItem } from "@beep/architecture-lab-ui"
+ * import * as S from "effect/Schema"
+ *
+ * const workItem = DomainWorkItem.create(
+ *   DomainWorkItem.CreateWorkItemInput.make({
+ *     id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *     title: "Document topology"
+ *   })
+ * )
+ * const summary = WorkItem.toWorkItemSummaryViewModel(workItem, defaultWorkItemPublicConfig)
+ *
+ * if (summary.statusLabel !== "OPEN") {
+ *   throw new Error("expected WorkItem namespace to expose UI summary mapping")
+ * }
+ * ```
+ *
+ * @category read-models
  * @since 0.0.0
  */
 export * as WorkItem from "./aggregates/WorkItem/index.js";

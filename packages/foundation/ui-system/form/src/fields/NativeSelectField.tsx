@@ -46,9 +46,36 @@ export interface NativeSelectFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { NativeSelectField } from "@beep/form/fields/NativeSelectField"
+ * import * as S from "effect/Schema"
  *
- * console.log(NativeSelectField)
+ * const PrioritySchema = S.Struct({ priority: S.String })
+ * const priorityOptions = [
+ *   { value: "low", label: "Low" },
+ *   { value: "high", label: "High" },
+ * ]
+ * const priorityFormOptions = makeFormOptions({
+ *   schema: PrioritySchema,
+ *   defaultValues: { priority: "low" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function PriorityForm() {
+ *   const form = useAppForm(priorityFormOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="priority">
+ *           {() => <NativeSelectField label="Priority" options={priorityOptions} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(priorityFormOptions.defaultValues.priority) // "low"
  * ```
  *
  * @category components

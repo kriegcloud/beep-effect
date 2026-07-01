@@ -38,9 +38,32 @@ export interface CheckboxFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { CheckboxField } from "@beep/form/fields/CheckboxField"
+ * import * as S from "effect/Schema"
  *
- * console.log(CheckboxField)
+ * const ConsentSchema = S.Struct({ accept: S.Boolean })
+ * const consentOptions = makeFormOptions({
+ *   schema: ConsentSchema,
+ *   defaultValues: { accept: false },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ConsentForm() {
+ *   const form = useAppForm(consentOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="accept">
+ *           {() => <CheckboxField label="Accept the terms" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(consentOptions.defaultValues.accept) // false
  * ```
  *
  * @category components

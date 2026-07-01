@@ -186,11 +186,57 @@ const validateOutputSet = (
 /**
  * Create an in-memory SDK facade over deterministic runtime fixture inputs.
  *
+ * @remarks
+ * The facade looks up fixtures by scenario id, validates requested scope and
+ * artifact ids, and only accepts proposed output sets that exactly match the
+ * deterministic fixture output.
+ *
  * @example
  * ```ts
- * import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agents-use-cases/proof"
+ * import {
+ *   RuntimeFixtureInput,
+ *   makeInMemoryProfessionalRuntimeSdk
+ * } from "@beep/agents-use-cases/proof"
+ * import { GetContextPacket, RuntimeScope } from "@beep/agents-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(makeInMemoryProfessionalRuntimeSdk)
+ * const fixture = RuntimeFixtureInput.make({
+ *   body: [
+ *     "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+ *     "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
+ *     "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
+ *     "[span:law-email-001-s5] Please schedule an intake call next week."
+ *   ].join("\n"),
+ *   email: {
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     sourceSpans: ["law-email-001-s2", "law-email-001-s3", "law-email-001-s4", "law-email-001-s5"],
+ *     subject: "Provisional patent help",
+ *     threadId: "thread-law-001"
+ *   },
+ *   seed: {
+ *     organization: { organizationId: "org-law-fixture" },
+ *     scenarioId: "law-patent-intake",
+ *     workspace: { workspaceId: "workspace-law-fixture" }
+ *   }
+ * })
+ *
+ * const sdk = makeInMemoryProfessionalRuntimeSdk([fixture])
+ * const program = sdk.getContextPacket(
+ *   GetContextPacket.make({
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     scope: RuntimeScope.make({
+ *       organizationId: "org-law-fixture",
+ *       threadId: "thread-law-001",
+ *       workspaceId: "workspace-law-fixture"
+ *     })
+ *   })
+ * )
+ *
+ * Effect.runPromise(program).then((packet) =>
+ *   console.log(packet.request.artifactId)
+ * )
  * ```
  *
  * @category constructors

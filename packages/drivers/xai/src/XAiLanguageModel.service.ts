@@ -163,12 +163,23 @@ const streamChatCompletion = (
  *
  * @example
  * ```ts
- * import { XAiLanguageModel } from "@beep/xai"
+ * import { Effect } from "effect"
+ * import { XAi, XAiLanguageModel } from "@beep/xai"
  *
- * const languageModel = XAiLanguageModel.make({ model: "grok-3" })
+ * const ready = Effect.runSync(
+ *   XAiLanguageModel.make({ model: "grok-3" }).pipe(
+ *     Effect.provide(XAi.layer),
+ *     Effect.map(() => "language-model-ready")
+ *   )
+ * )
  *
- * console.log(languageModel)
+ * console.log(ready) // "language-model-ready"
  * ```
+ *
+ * @effects
+ * Reads the `XAi` service from context and builds an Effect AI language-model
+ * adapter. The returned service sends future chat completion and streaming
+ * requests through xAI and maps driver failures into Effect AI errors.
  *
  * @category constructors
  * @since 0.0.0

@@ -34,11 +34,27 @@ const isRepositoryUnavailable = S.is(WorkerRepositoryUnavailable);
 /**
  * Translate repository failures to public Worker action failures.
  *
+ * @remarks
+ * Repository availability details are intentionally redacted to
+ * {@link WORKER_ACTION_UNAVAILABLE_REASON}; not-found and conflict failures
+ * keep the Worker id and conflict reason needed by callers.
+ *
  * @example
  * ```ts
- * import { toWorkerActionError } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
+ * import {
+ *   WorkerRepositoryNotFound,
+ *   toWorkerActionError
+ * } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import * as S from "effect/Schema"
  *
- * console.log(toWorkerActionError)
+ * const publicError = toWorkerActionError(
+ *   WorkerRepositoryNotFound.make({
+ *     workerId: S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ *   })
+ * )
+ *
+ * console.log(publicError._tag) // "WorkerNotFound"
  * ```
  *
  * @category use-cases
@@ -58,14 +74,49 @@ export const toWorkerActionError = (error: WorkerRepositoryError): WorkerActionE
 };
 
 /**
- * Build Worker use-cases from the server repository port.
+ * Build Worker use cases from the server repository port.
+ *
+ * @remarks
+ * `create` constructs the domain entity before delegating to the repository.
+ * `list` loads the repository result first and applies the optional status
+ * filter in the use-case layer.
  *
  * @example
  * ```ts
- * import { makeWorkerUseCases } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
+ * import {
+ *   ListWorkersQuery,
+ *   makeWorkerUseCases,
+ *   type WorkerRepositoryShape
+ * } from "@beep/architecture-lab-use-cases/entities/Worker/server"
+ * import { Effect } from "effect"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(makeWorkerUseCases)
+ * const id = S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ * const worker = DomainWorker.create(
+ *   DomainWorker.CreateWorkerInput.make({
+ *     id,
+ *     organizationId: S.decodeUnknownSync(DomainWorker.WorkerOrganizationId)(10),
+ *     displayName: "Avery Reviewer"
+ *   })
+ * )
+ * const repository: WorkerRepositoryShape = {
+ *   create: (created) => Effect.succeed(created),
+ *   get: () => Effect.succeed(worker),
+ *   list: Effect.succeed([worker])
+ * }
+ * const useCases = makeWorkerUseCases(repository)
+ * const query = ListWorkersQuery.make({ status: O.some("active") })
+ *
+ * Effect.runPromise(useCases.list(query)).then((workers) => console.log(workers.length)) // 1
  * ```
+ *
+ * @effects
+ * - `create` builds a domain Worker and delegates persistence to
+ *   `repository.create`.
+ * - `get` reads through `repository.get`; `list` reads `repository.list` and
+ *   filters the loaded array in memory.
  *
  * @category use-cases
  * @since 0.0.0

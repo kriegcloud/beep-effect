@@ -14,17 +14,39 @@ import * as S from "effect/Schema";
 const $I = $LawPracticeDomainId.create("entities/Claim/Claim.model");
 
 /**
- * Patent claim context. Carries the claim number, its full text, and whether it
- * is an independent claim; pinned to the patent asset that owns it.
+ * Patent claim entity for a single numbered claim under a patent asset.
+ *
+ * Carries the claim number, full claim text, and independent/dependent marker
+ * while linking back to the patent asset fixture that owns it.
  *
  * @example
  * ```ts
  * import { Claim } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(Claim.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const claim = S.decodeUnknownSync(Claim)({
+ *   claimNumber: 1,
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   entityType: "LawPracticeClaim",
+ *   fixtureKey: "claim.1",
+ *   id: 2,
+ *   independent: true,
+ *   orgId: 1,
+ *   patentAssetFixtureKey: "patent-asset.spike",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   text: "1. A hinge assembly comprising a lid and a base.",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(claim.independent) // true
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Claim extends BaseEntity.Class<Claim>($I`Claim`)(
@@ -56,6 +78,6 @@ export class Claim extends BaseEntity.Class<Claim>($I`Claim`)(
     },
   },
   $I.annote("Claim", {
-    description: "Patent claim context.",
+    description: "Patent claim entity for a single numbered claim under a patent asset.",
   })
 ) {}

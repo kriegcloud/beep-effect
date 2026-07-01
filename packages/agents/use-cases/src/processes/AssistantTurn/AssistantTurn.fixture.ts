@@ -93,9 +93,20 @@ const toIndexedBlocks = (history: ReadonlyArray<TurnHistoryItem>): ReadonlyArray
  *
  * @example
  * ```ts
+ * import { AgentTurnKernel } from "@beep/agents-use-cases/public"
  * import { FixtureTurnKernel } from "@beep/agents-use-cases/proof"
+ * import { Effect, Stream } from "effect"
  *
- * console.log(FixtureTurnKernel)
+ * const program = Effect.gen(function* () {
+ *   const kernel = yield* AgentTurnKernel
+ *   const blocks = yield* Stream.runCollect(
+ *     kernel.streamTurn([{ role: "user", text: "hello" }])
+ *   )
+ *
+ *   return blocks.map((block) => block.index)
+ * }).pipe(Effect.provide(FixtureTurnKernel))
+ *
+ * Effect.runPromise(program).then(console.log) // [0, 1, 2, 3]
  * ```
  *
  * @category fixtures

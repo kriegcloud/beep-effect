@@ -10,12 +10,14 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values/ClaimGate"
+ * import { ClaimGateResult } from "@beep/epistemic-domain/values/ClaimGate"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const result = S.decodeUnknownSync(ClaimGateResult)({ verdict: "admitted" })
+ * console.log(result.verdict)
  * ```
 
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./ClaimGateResult.model.js";

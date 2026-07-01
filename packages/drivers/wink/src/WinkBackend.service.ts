@@ -140,9 +140,22 @@ const makeWinkBackend = Effect.gen(function* () {
  *
  * @example
  * ```ts
- * import { WinkBackendLive } from "@beep/wink"
+ * import { Effect, Layer } from "effect"
+ * import { NLPBackend } from "@beep/nlp-processing/Backend/NLPBackend"
+ * import { WinkBackendLive, WinkEngineLive } from "@beep/wink"
  *
- * console.log(WinkBackendLive)
+ * const readCapabilities = Effect.gen(function* () {
+ *   const backend = yield* NLPBackend
+ *   return backend.capabilities.tokenization
+ * })
+ *
+ * const supportsTokenization = await Effect.runPromise(
+ *   readCapabilities.pipe(
+ *     Effect.provide(WinkBackendLive.pipe(Layer.provide(WinkEngineLive)))
+ *   )
+ * )
+ *
+ * supportsTokenization === true
  * ```
  *
  * @since 0.0.0

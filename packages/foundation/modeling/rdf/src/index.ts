@@ -8,6 +8,14 @@
 /**
  * Package version.
  *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/rdf"
+ *
+ * const isInitialVersion = VERSION === "0.0.0"
+ * console.log(isInitialVersion) // true
+ * ```
+ *
  * @category configuration
  * @since 0.0.0
  */

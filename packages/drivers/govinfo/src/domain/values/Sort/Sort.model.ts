@@ -10,188 +10,243 @@ import * as S from "effect/Schema";
 const $I = $GovinfoId.create("domain/values/Sort/Sort.model");
 
 /**
- * The `SortBase` value object.
+ * Shared GovInfo search sort field.
+ *
+ * @remarks
+ * GovInfo currently documents `score`, `publishdate`, `lastModified`, and
+ * `title` as supported search sort fields. This schema keeps the field open so
+ * new GovInfo sort fields can be represented without a package release.
  *
  * @example
  * ```ts
  * import { SortBase } from "@beep/govinfo/domain/values/Sort/Sort.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SortBase);
+ * const sort = S.decodeUnknownSync(SortBase)({
+ *   field: "publishdate"
+ * });
+ *
+ * console.log(sort.field);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class SortBase extends S.Class<SortBase>($I`SortBase`)(
   {
     field: S.NonEmptyString.annotateKey({
-      description: "The GovInfo search-result field to order results by.",
+      description: "GovInfo search field used for ordering results.",
     }),
   },
   $I.annote("SortBase", {
-    description: "The base `Sort` value object.",
+    description: "Shared GovInfo search sort field.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link SortBase} value object.
+ * Companion namespace for {@link SortBase} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SortBase {
   /**
-   * The companion encoded type for {@link SortBase}.
+   * Encoded JSON shape accepted by {@link SortBase}.
    *
    * @example
    * ```ts
-   * import type { SortBase } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import { SortBase } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SortBase.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(SortBase)({
+   *   field: "lastModified"
+   * });
+   * const encoded: SortBase.Encoded = S.encodeSync(SortBase)(decoded);
+   *
+   * console.log(encoded.field);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SortBase.Encoded;
 }
 
 /**
- * The Sort value object.
+ * Ascending GovInfo search sort directive.
  *
  * @example
  * ```ts
  * import { SortASC } from "@beep/govinfo/domain/values/Sort/Sort.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SortASC);
+ * const sort = S.decodeUnknownSync(SortASC)({
+ *   field: "title",
+ *   sortOrder: "ASC"
+ * });
+ *
+ * console.log(sort.sortOrder);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class SortASC extends SortBase.extend<SortASC>($I`SortASC`)(
   {
     sortOrder: S.tag("ASC").annotateKey({
-      description: "Ascending-order discriminant tag; orders results from lowest to highest value of the sort field.",
+      description: "Ascending GovInfo search sort direction.",
     }),
   },
   $I.annote("SortASC", {
-    description: "The `SortASC` value object. Sort in ascending order.",
+    description: "Ascending GovInfo search sort directive.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link SortASC} value object.
+ * Companion namespace for {@link SortASC} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SortASC {
   /**
-   * The companion encoded type for {@link SortASC}.
+   * Encoded JSON shape accepted by {@link SortASC}.
    *
    * @example
    * ```ts
-   * import type { SortASC } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import { SortASC } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SortASC.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(SortASC)({
+   *   field: "title",
+   *   sortOrder: "ASC"
+   * });
+   * const encoded: SortASC.Encoded = S.encodeSync(SortASC)(decoded);
+   *
+   * console.log(encoded.sortOrder);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SortASC.Encoded;
 }
 
 /**
- * The SortDESC value object.
+ * Descending GovInfo search sort directive.
+ *
+ * @remarks
+ * GovInfo relevance sorting uses `field: "score"` with `sortOrder: "DESC"`;
+ * ascending score ordering is not documented as supported by the API.
  *
  * @example
  * ```ts
  * import { SortDESC } from "@beep/govinfo/domain/values/Sort/Sort.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(SortDESC);
+ * const sort = S.decodeUnknownSync(SortDESC)({
+ *   field: "score",
+ *   sortOrder: "DESC"
+ * });
+ *
+ * console.log(sort.field);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class SortDESC extends SortBase.extend<SortDESC>($I`SortDESC`)(
   {
     sortOrder: S.tag("DESC").annotateKey({
-      description: "Descending-order discriminant tag; orders results from highest to lowest value of the sort field.",
+      description: "Descending GovInfo search sort direction.",
     }),
   },
   $I.annote("SortDESC", {
-    description: "The `SortDESC` value object. Sort in descending order.",
+    description: "Descending GovInfo search sort directive.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link SortDESC} value object.
+ * Companion namespace for {@link SortDESC} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace SortDESC {
   /**
-   * The companion encoded type for {@link SortDESC}.
+   * Encoded JSON shape accepted by {@link SortDESC}.
    *
    * @example
    * ```ts
-   * import type { SortDESC } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import { SortDESC } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: SortDESC.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(SortDESC)({
+   *   field: "score",
+   *   sortOrder: "DESC"
+   * });
+   * const encoded: SortDESC.Encoded = S.encodeSync(SortDESC)(decoded);
+   *
+   * console.log(encoded.field);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof SortDESC.Encoded;
 }
 
 /**
- * The Sort value object.
+ * GovInfo search sort directive tagged by `sortOrder`.
  *
  * @example
  * ```ts
  * import { Sort } from "@beep/govinfo/domain/values/Sort/Sort.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Sort);
+ * const sort = S.decodeUnknownSync(Sort)({
+ *   field: "lastModified",
+ *   sortOrder: "DESC"
+ * });
+ *
+ * console.log(sort.sortOrder);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export const Sort = S.Union([SortASC, SortDESC]).pipe(
   S.toTaggedUnion("sortOrder"),
   $I.annoteSchema("Sort", {
-    description: "A GovInfo sort directive pairing a result field with an ascending or descending order.",
+    description: "GovInfo search sort directive tagged by sortOrder.",
   })
 );
 
 /**
- * The companion namespace for the {@link Sort} value object.
+ * Companion namespace for {@link Sort} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Sort {
   /**
-   * The companion encoded type for {@link Sort}.
+   * Encoded JSON shape accepted by {@link Sort}.
    *
    * @example
    * ```ts
-   * import type { Sort } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import { Sort } from "@beep/govinfo/domain/values/Sort/Sort.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Sort.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(Sort)({
+   *   field: "publishdate",
+   *   sortOrder: "DESC"
+   * });
+   * const encoded: Sort.Encoded = S.encodeSync(Sort)(decoded);
+   *
+   * console.log(encoded.sortOrder);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Sort.Encoded;

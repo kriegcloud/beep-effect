@@ -12,91 +12,132 @@ import { GranuleMetadata } from "../GranuleMetadata/index.ts";
 const $I = $GovinfoId.create("domain/values/GranuleContainer/GranuleContainer.model");
 
 /**
- * The GranuleContainer value object.
+ * Paginated GovInfo granule listing for a package.
+ *
+ * @remarks
+ * Package granule listings expose subsections of a document package and use
+ * `offsetMark`/page URLs for traversal, similar to collection pages.
  *
  * @example
  * ```ts
  * import { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(GranuleContainer);
+ * const container = S.decodeUnknownSync(GranuleContainer)({
+ *   count: 1n,
+ *   granules: [
+ *     {
+ *       granuleClass: "HOUSE",
+ *       granuleId: "CREC-2024-01-03-pt1-PgH1",
+ *       granuleLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules/CREC-2024-01-03-pt1-PgH1/summary",
+ *       md5: "d41d8cd98f00b204e9800998ecf8427e",
+ *       title: "House proceedings"
+ *     }
+ *   ],
+ *   message: "",
+ *   nextPage: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules?offsetMark=next&pageSize=100",
+ *   offset: 0,
+ *   pageSize: 100,
+ *   previousPage: ""
+ * });
+ *
+ * console.log(container.granules[0]?.granuleId);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class GranuleContainer extends S.Class<GranuleContainer>($I`GranuleContainer`)(
   {
-    /** Total number of granules available for the package across all pages. */
+    /** Total matching granules reported by GovInfo. */
     count: Int64.pipe(
       S.annotateKey({
-        description: "Total number of granules available for the package across all pages.",
+        description: "Total matching granules reported by GovInfo.",
       })
     ),
 
-    /** The current page of granule metadata records returned for the package. */
+    /** Granule summaries returned for the current page. */
     granules: GranuleMetadata.pipe(
       S.Array,
       S.annotateKey({
-        description: "The current page of granule metadata records returned for the package.",
+        description: "Granule summaries returned for the current page.",
       })
     ),
 
-    /** Informational or status message returned by the GovInfo granules endpoint. */
+    /** Human-readable API message, when GovInfo includes one. */
     message: S.String.annotateKey({
-      description: "Informational or status message returned by the GovInfo granules endpoint.",
+      description: "Human-readable API message, when GovInfo includes one.",
     }),
 
-    /** API link to the next page of granule results, present when more results remain. */
+    /** URL for the next page of granule results. */
     nextPage: S.String.annotateKey({
-      description: "API link to the next page of granule results, present when more results remain.",
+      description: "URL for the next page of granule results.",
     }),
 
-    /** Zero-based index of the first granule in this page within the full result set. */
+    /** Numeric offset reported by older GovInfo granule list responses. */
     offset: S.Int.pipe(
       S.check(S.isInt32()),
       S.annotateKey({
-        description: "Zero-based index of the first granule in this page within the full result set.",
+        description: "Numeric offset reported by older GovInfo granule list responses.",
       })
     ),
 
-    /** Maximum number of granule records returned per page. */
+    /** Number of granules requested for the current page. */
     pageSize: S.Int.pipe(
       S.check(S.isInt32()),
       S.annotateKey({
-        description: "Maximum number of granule records returned per page.",
+        description: "Number of granules requested for the current page.",
       })
     ),
 
-    /** API link to the previous page of granule results, present when an earlier page exists. */
+    /** URL for the previous page of granule results. */
     previousPage: S.String.annotateKey({
-      description: "API link to the previous page of granule results, present when an earlier page exists.",
+      description: "URL for the previous page of granule results.",
     }),
   },
   $I.annote("GranuleContainer", {
-    description:
-      "Paginated container for a GovInfo package's granules response, holding the current page of granule metadata plus total count and pagination cursors.",
+    description: "Paginated GovInfo granule listing for a package.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link GranuleContainer} value object.
+ * Companion namespace for {@link GranuleContainer} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace GranuleContainer {
   /**
-   * The companion encoded type for {@link GranuleContainer}.
+   * Encoded JSON shape accepted by {@link GranuleContainer}.
    *
    * @example
    * ```ts
-   * import type { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
+   * import { GranuleContainer } from "@beep/govinfo/domain/values/GranuleContainer/GranuleContainer.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: GranuleContainer.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(GranuleContainer)({
+   *   count: 1n,
+   *   granules: [
+   *     {
+   *       granuleClass: "HOUSE",
+   *       granuleId: "CREC-2024-01-03-pt1-PgH1",
+   *       granuleLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules/CREC-2024-01-03-pt1-PgH1/summary",
+   *       md5: "d41d8cd98f00b204e9800998ecf8427e",
+   *       title: "House proceedings"
+   *     }
+   *   ],
+   *   message: "",
+   *   nextPage: "https://api.govinfo.gov/packages/CREC-2024-01-03/granules?offsetMark=next&pageSize=100",
+   *   offset: 0,
+   *   pageSize: 100,
+   *   previousPage: ""
+   * });
+   * const encoded: GranuleContainer.Encoded = S.encodeSync(GranuleContainer)(decoded);
+   *
+   * console.log(encoded.pageSize);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof GranuleContainer.Encoded;

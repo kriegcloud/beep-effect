@@ -86,11 +86,37 @@ const formHook = createFormHook({
  * pre-registered. Pair with the schema-first builders in
  * `@beep/form/core/FormOptions`.
  *
+ * @remarks
+ * The returned form instance owns all TanStack form state and exposes the
+ * registered field components through `form.AppField`. Field components should
+ * be rendered inside `<form.AppForm>` so their provider-backed hooks resolve.
+ *
  * @example
  * ```tsx
- * import { useAppForm } from "@beep/form/hooks/useAppForm"
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
+ * import * as S from "effect/Schema"
  *
- * console.log(useAppForm)
+ * const LoginSchema = S.Struct({ email: S.String })
+ * const loginOptions = makeFormOptions({
+ *   schema: LoginSchema,
+ *   defaultValues: { email: "" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function LoginForm() {
+ *   const form = useAppForm(loginOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="email">{(field) => <field.Text label="Email" />}</form.AppField>
+ *         <form.Submit>Sign in</form.Submit>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(loginOptions.defaultValues.email) // ""
  * ```
  *
  * @category hooks
@@ -105,7 +131,18 @@ export const useAppForm = formHook.useAppForm;
  * ```tsx
  * import { withForm } from "@beep/form/hooks/useAppForm"
  *
- * console.log(withForm)
+ * export const ProfileFields = withForm({
+ *   defaultValues: { name: "" },
+ *   props: { legend: "Profile" },
+ *   render: ({ form, legend }) => (
+ *     <fieldset>
+ *       <legend>{legend}</legend>
+ *       <form.AppField name="name">{(field) => <field.Text label="Name" />}</form.AppField>
+ *     </fieldset>
+ *   ),
+ * })
+ *
+ * console.log(ProfileFields.name) // "Render"
  * ```
  *
  * @category hooks
@@ -119,9 +156,44 @@ export const withForm = formHook.withForm;
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { withFieldGroup } from "@beep/form/hooks/useAppForm"
+ * import * as S from "effect/Schema"
  *
- * console.log(withFieldGroup)
+ * const AddressFields = withFieldGroup({
+ *   defaultValues: { line1: "", city: "" },
+ *   props: { legend: "Mailing address" },
+ *   render: ({ group, legend }) => (
+ *     <fieldset>
+ *       <legend>{legend}</legend>
+ *       <group.AppField name="line1">{(field) => <field.Text label="Address" />}</group.AppField>
+ *       <group.AppField name="city">{(field) => <field.Text label="City" />}</group.AppField>
+ *     </fieldset>
+ *   ),
+ * })
+ *
+ * const CheckoutSchema = S.Struct({
+ *   address: S.Struct({ line1: S.String, city: S.String }),
+ * })
+ * const checkoutOptions = makeFormOptions({
+ *   schema: CheckoutSchema,
+ *   defaultValues: { address: { line1: "", city: "" } },
+ *   validateOn: "change",
+ * })
+ *
+ * export function CheckoutForm() {
+ *   const form = useAppForm(checkoutOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <AddressFields form={form} fields="address" />
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(checkoutOptions.defaultValues.address.city) // ""
  * ```
  *
  * @category hooks

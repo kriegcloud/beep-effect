@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box retention policy entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/RetentionPolicy/RetentionPolicy.model");
 
 /**
+ * Experimental schema anchor for Box retention policy resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { RetentionPolicy } from "@beep/box/experimental/domain/entities/RetentionPolicy/RetentionPolicy.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(RetentionPolicy.make({
+ * const decoded = S.decodeUnknownSync(RetentionPolicy)({});
+ * const encoded: RetentionPolicy.Encoded = S.encodeSync(RetentionPolicy)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class RetentionPolicy extends S.Class<RetentionPolicy>($I`RetentionPolicy`)(
   {},
   $I.annote("RetentionPolicy", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box retention policy resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link RetentionPolicy}
+ * Type-level companion namespace for {@link RetentionPolicy} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { RetentionPolicy } from "@beep/box/experimental/domain/entities/RetentionPolicy/RetentionPolicy.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = RetentionPolicy.make({});
+ * const encoded: RetentionPolicy.Encoded = S.encodeSync(RetentionPolicy)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace RetentionPolicy {
   /**
-   * Companion encoded type for {@link RetentionPolicy}.
+   * Encoded payload accepted by the {@link RetentionPolicy} entity schema.
    *
    * @example
    * ```ts
-   * import type { RetentionPolicy } from "@beep/box/experimental/domain/entities/RetentionPolicy/RetentionPolicy.model";
+   * import { RetentionPolicy } from "@beep/box/experimental/domain/entities/RetentionPolicy/RetentionPolicy.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: RetentionPolicy.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: RetentionPolicy.Encoded = S.encodeSync(RetentionPolicy)(RetentionPolicy.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof RetentionPolicy.Encoded;
 }
-
-/**
- * Companion runtime type for {@link RetentionPolicy}.
- *
- * @example
- * ```ts
- * import type { RetentionPolicy } from "@beep/box/experimental/domain/entities/RetentionPolicy/RetentionPolicy.model";
- *
- * const useValue = (_value: RetentionPolicy) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type RetentionPolicy = typeof RetentionPolicy.Type;

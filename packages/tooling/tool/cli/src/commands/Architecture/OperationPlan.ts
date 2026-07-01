@@ -24,7 +24,9 @@ const $I = $RepoCliId.create("commands/Architecture/OperationPlan");
  * @example
  * ```ts
  * import { ArchitectureDomainKind } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitectureDomainKind)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureDomainKind)("aggregates")) // true
  * ```
  * @category models
  * @since 0.0.0
@@ -49,7 +51,9 @@ export type ArchitectureDomainKind = typeof ArchitectureDomainKind.Type;
  * @example
  * ```ts
  * import { ArchitecturePlanStage } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitecturePlanStage)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitecturePlanStage)("persistence")) // true
  * ```
  * @category models
  * @since 0.0.0
@@ -74,7 +78,9 @@ export type ArchitecturePlanStage = typeof ArchitecturePlanStage.Type;
  * @example
  * ```ts
  * import { ArchitectureSliceRole } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitectureSliceRole)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureSliceRole)("use-cases")) // true
  * ```
  * @category models
  * @since 0.0.0
@@ -190,7 +196,9 @@ export type ArchitectureOperationKind = typeof ArchitectureOperationKind.Type;
  * @example
  * ```ts
  * import { ArchitectureWriterKind } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitectureWriterKind)
+ * import * as S from "effect/Schema"
+ *
+ * console.log(S.is(ArchitectureWriterKind)("package-json")) // true
  * ```
  * @category models
  * @since 0.0.0
@@ -403,7 +411,14 @@ const OperationSource = ArchitectureOperationSource.pipe(
  * @example
  * ```ts
  * import { ArchitectureSliceRolePlan } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitectureSliceRolePlan)
+ *
+ * const role = ArchitectureSliceRolePlan.make({
+ *   exports: ["."],
+ *   packageName: "@beep/research-lab-domain",
+ *   path: "packages/research-lab/domain",
+ *   role: "domain"
+ * })
+ * console.log(role.packageName) // "@beep/research-lab-domain"
  * ```
  * @category models
  * @since 0.0.0
@@ -426,7 +441,15 @@ export class ArchitectureSliceRolePlan extends S.Class<ArchitectureSliceRolePlan
  * @example
  * ```ts
  * import { ArchitecturePlanTarget } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitecturePlanTarget)
+ *
+ * const target = ArchitecturePlanTarget.make({
+ *   boundedContext: "research-lab",
+ *   concept: "Experiment",
+ *   conceptPath: "aggregates/Experiment",
+ *   domainKind: "aggregates",
+ *   stage: "core"
+ * })
+ * console.log(target.conceptPath) // "aggregates/Experiment"
  * ```
  * @category models
  * @since 0.0.0
@@ -450,7 +473,16 @@ export class ArchitecturePlanTarget extends S.Class<ArchitecturePlanTarget>($I`A
  * @example
  * ```ts
  * import { WriteFileOperation } from "@beep/repo-cli/commands/Architecture"
- * console.log(WriteFileOperation)
+ *
+ * const operation = WriteFileOperation.make({
+ *   content: "export const VERSION = \"0.0.0\"",
+ *   description: "Write the package index.",
+ *   kind: "write-file",
+ *   path: "packages/research-lab/domain/src/index.ts",
+ *   role: "domain",
+ *   writer: "template"
+ * })
+ * console.log(operation.writeMode) // "write-if-missing"
  * ```
  * @category models
  * @since 0.0.0
@@ -525,7 +557,14 @@ export class WritePackageJsonOperation extends S.Class<WritePackageJsonOperation
  * @example
  * ```ts
  * import { EnsureFileOperation } from "@beep/repo-cli/commands/Architecture"
- * console.log(EnsureFileOperation)
+ *
+ * const operation = EnsureFileOperation.make({
+ *   description: "Confirm the domain index exists.",
+ *   kind: "ensure-file",
+ *   path: "packages/research-lab/domain/src/index.ts",
+ *   role: "domain"
+ * })
+ * console.log(operation.conflictPolicy) // "require-present"
  * ```
  * @category models
  * @since 0.0.0
@@ -552,7 +591,13 @@ export class EnsureFileOperation extends S.Class<EnsureFileOperation>($I`EnsureF
  * @example
  * ```ts
  * import { EnsureAbsentPathOperation } from "@beep/repo-cli/commands/Architecture"
- * console.log(EnsureAbsentPathOperation)
+ *
+ * const operation = EnsureAbsentPathOperation.make({
+ *   description: "Remove the retired proof fixture.",
+ *   kind: "ensure-absent-path",
+ *   path: "packages/fixture-lab"
+ * })
+ * console.log(operation.writeMode) // "remove-if-present"
  * ```
  * @category models
  * @since 0.0.0
@@ -577,8 +622,16 @@ export class EnsureAbsentPathOperation extends S.Class<EnsureAbsentPathOperation
  *
  * @example
  * ```ts
- * import { ArchitectureOperation } from "@beep/repo-cli/commands/Architecture"
- * console.log(ArchitectureOperation)
+ * import { ArchitectureOperation, EnsureFileOperation } from "@beep/repo-cli/commands/Architecture"
+ * import * as S from "effect/Schema"
+ *
+ * const operation = EnsureFileOperation.make({
+ *   description: "Confirm the use-case barrel exists.",
+ *   kind: "ensure-file",
+ *   path: "packages/research-lab/use-cases/src/index.ts",
+ *   role: "use-cases"
+ * })
+ * console.log(S.is(ArchitectureOperation)(operation)) // true
  * ```
  * @category models
  * @since 0.0.0
@@ -633,8 +686,18 @@ export class ArchitectureOperationCheck extends S.Class<ArchitectureOperationChe
  *
  * @example
  * ```ts
- * import { CanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
- * console.log(CanonicalSliceOperationPlan)
+ * import {
+ *   CanonicalSliceOperationPlan,
+ *   defaultArchitecturePlanTarget,
+ * } from "@beep/repo-cli/commands/Architecture"
+ *
+ * const plan = CanonicalSliceOperationPlan.make({
+ *   operations: [],
+ *   roles: [],
+ *   schemaVersion: "architecture-operation-plan/v1",
+ *   target: defaultArchitecturePlanTarget
+ * })
+ * console.log(plan.slice.aggregate) // "WorkItem"
  * ```
  * @category models
  * @since 0.0.0
@@ -653,6 +716,13 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
   /**
    * Backwards-compatible slice metadata for existing operation-plan callers.
    *
+   * @example
+   * ```ts
+   * import { makeCanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
+   *
+   * const plan = makeCanonicalSliceOperationPlan()
+   * console.log(plan.slice.boundedContext) // "architecture-lab"
+   * ```
    * @returns Legacy aggregate-oriented slice metadata derived from the plan target.
    * @category models
    * @since 0.0.0
@@ -676,7 +746,15 @@ export class CanonicalSliceOperationPlan extends S.Class<CanonicalSliceOperation
  * @example
  * ```ts
  * import { OperationPlanCheckResult } from "@beep/repo-cli/commands/Architecture"
- * console.log(OperationPlanCheckResult)
+ *
+ * const result = OperationPlanCheckResult.make({
+ *   differingPaths: [],
+ *   idempotent: false,
+ *   missingPaths: ["packages/research-lab/domain/src/index.ts"],
+ *   operationStatuses: [],
+ *   unexpectedPaths: []
+ * })
+ * console.log(result.missingPaths.length) // 1
  * ```
  * @category models
  * @since 0.0.0
@@ -702,7 +780,13 @@ export class OperationPlanCheckResult extends S.Class<OperationPlanCheckResult>(
  * @example
  * ```ts
  * import { OperationPlanApplyResult } from "@beep/repo-cli/commands/Architecture"
- * console.log(OperationPlanApplyResult)
+ *
+ * const result = OperationPlanApplyResult.make({
+ *   removedPaths: [],
+ *   skippedPaths: ["packages/research-lab/domain/package.json"],
+ *   writtenPaths: ["packages/research-lab/domain/src/index.ts"]
+ * })
+ * console.log(result.writtenPaths.length) // 1
  * ```
  * @category models
  * @since 0.0.0
@@ -2456,7 +2540,9 @@ const decodeOperationPlanJson = S.decodeUnknownEffect(S.fromJsonString(Canonical
  * @example
  * ```ts
  * import { makeCanonicalSliceOperationPlan } from "@beep/repo-cli/commands/Architecture"
- * console.log(makeCanonicalSliceOperationPlan)
+ *
+ * const plan = makeCanonicalSliceOperationPlan()
+ * console.log(plan.target.concept) // "WorkItem"
  * ```
  * @category constructors
  * @since 0.0.0
@@ -2506,8 +2592,19 @@ export const makeCanonicalSliceOperationPlan = (): CanonicalSliceOperationPlan =
  * @example
  * ```ts
  * import { makeArchitectureOperationPlan } from "@beep/repo-cli/commands/Architecture"
- * console.log(makeArchitectureOperationPlan)
+ * import { NodeServices } from "@effect/platform-node"
+ * import { Effect } from "effect"
+ *
+ * const program = makeArchitectureOperationPlan("/workspace/beep-effect", {
+ *   boundedContext: "research-lab",
+ *   concept: "Experiment",
+ *   domainKind: "aggregates",
+ *   stage: "core"
+ * }).pipe(Effect.map((plan) => plan.target.concept))
+ *
+ * Effect.runPromise(program.pipe(Effect.provide(NodeServices.layer))).then(console.log)
  * ```
+ * @effects Reads accepted architecture proof files and existing package-level files under the provided repository root.
  * @category constructors
  * @since 0.0.0
  */
@@ -2583,10 +2680,12 @@ export const makeArchitectureOperationPlan = Effect.fn(function* (
  *
  * const program = Effect.map(
  *   makeArchitecturePackageOperationPlan({ boundedContext: "research-lab", role: "domain" }),
- *   (plan) => plan.operations.length,
+ *   (plan) => plan.roles[0]?.packageName,
  * )
- * console.log(program)
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
+ * @effects Builds the shell package plan in memory; filesystem writes happen only when the plan is later applied.
  * @category constructors
  * @since 0.0.0
  */
@@ -2616,8 +2715,17 @@ export const makeArchitecturePackageOperationPlan = Effect.fn(function* (input: 
  *
  * @example
  * ```ts
- * import { encodeCanonicalSliceOperationPlanJson } from "@beep/repo-cli/commands/Architecture"
- * console.log(encodeCanonicalSliceOperationPlanJson)
+ * import {
+ *   encodeCanonicalSliceOperationPlanJson,
+ *   makeCanonicalSliceOperationPlan,
+ * } from "@beep/repo-cli/commands/Architecture"
+ * import { Effect } from "effect"
+ *
+ * const program = encodeCanonicalSliceOperationPlanJson(makeCanonicalSliceOperationPlan()).pipe(
+ *   Effect.map((json) => json.includes("architecture-operation-plan/v1"))
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category codecs
  * @since 0.0.0
@@ -2629,8 +2737,20 @@ export const encodeCanonicalSliceOperationPlanJson = encodeOperationPlanJson;
  *
  * @example
  * ```ts
- * import { decodeCanonicalSliceOperationPlanJson } from "@beep/repo-cli/commands/Architecture"
- * console.log(decodeCanonicalSliceOperationPlanJson)
+ * import {
+ *   decodeCanonicalSliceOperationPlanJson,
+ *   encodeCanonicalSliceOperationPlanJson,
+ *   makeCanonicalSliceOperationPlan,
+ * } from "@beep/repo-cli/commands/Architecture"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const json = yield* encodeCanonicalSliceOperationPlanJson(makeCanonicalSliceOperationPlan())
+ *   const plan = yield* decodeCanonicalSliceOperationPlanJson(json)
+ *   return plan.schemaVersion
+ * })
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category codecs
  * @since 0.0.0

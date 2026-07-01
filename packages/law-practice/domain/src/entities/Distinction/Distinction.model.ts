@@ -16,21 +16,44 @@ import { DistinctionDetail } from "./Distinction.values.ts";
 const $I = $LawPracticeDomainId.create("entities/Distinction/Distinction.model");
 
 /**
- * A distinction asserted to overcome a rejection: the argued
- * {@link DistinctionDetail} (e.g. a missing limitation), anchored to the source
- * text via a {@link TextAnchor}, carrying its admission
- * {@link ClaimLifecycle} state. Pinned to the claim it defends and the rejection
- * it answers. Both the lifecycle literal and the JSONB-persisted anchor and
- * detail survive storage.
+ * Distinction entity asserted to overcome a rejection against a claim.
+ *
+ * Stores the argued {@link DistinctionDetail}, a source {@link TextAnchor}, and
+ * the {@link ClaimLifecycle} state while linking to the claim it defends and the
+ * rejection it answers.
  *
  * @example
  * ```ts
  * import { Distinction } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(Distinction.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const distinction = S.decodeUnknownSync(Distinction)({
+ *   anchor: { endChar: 58, quote: "does not disclose the hinged lid", startChar: 21 },
+ *   claimFixtureKey: "claim.1",
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   detail: {
+ *     kind: "missing_limitation",
+ *     limitation: "a hinge coupling the lid to the base",
+ *   },
+ *   entityType: "LawPracticeDistinction",
+ *   fixtureKey: "distinction.hinge",
+ *   id: 5,
+ *   lifecycleState: "candidate",
+ *   orgId: 1,
+ *   rejectionFixtureKey: "rejection-example",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(distinction.detail.kind) // "missing_limitation"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Distinction extends BaseEntity.Class<Distinction>($I`Distinction`)(
@@ -66,6 +89,6 @@ export class Distinction extends BaseEntity.Class<Distinction>($I`Distinction`)(
     },
   },
   $I.annote("Distinction", {
-    description: "A distinction asserted to overcome a rejection.",
+    description: "Distinction entity asserted to overcome a rejection against a claim.",
   })
 ) {}

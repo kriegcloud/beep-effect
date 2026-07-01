@@ -7,16 +7,20 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
- * Button group variants component.
+ * Class factory for segmented horizontal or vertical button groups.
  *
  * @example
  * ```tsx
+ * import { strictEqual } from "node:assert"
  * import { buttonGroupVariants } from "@beep/ui/components/button-group"
  *
- * console.log(buttonGroupVariants)
+ * const horizontal = buttonGroupVariants({ orientation: "horizontal" })
+ * const vertical = buttonGroupVariants({ orientation: "vertical" })
+ * const classes = `${horizontal} ${vertical}`
+ * strictEqual(classes.includes("flex-col"), true)
  * ```
  *
- * @category components
+ * @category utilities
  * @since 0.0.0
  */
 const buttonGroupVariants = cva(
@@ -37,13 +41,21 @@ const buttonGroupVariants = cva(
 );
 
 /**
- * Button group component.
+ * Segmented control container for adjacent buttons and inputs.
  *
  * @example
  * ```tsx
+ * import { Button } from "@beep/ui/components/button"
  * import { ButtonGroup } from "@beep/ui/components/button-group"
  *
- * console.log(ButtonGroup)
+ * export function ApprovalButtonGroup() {
+ *   return (
+ *     <ButtonGroup orientation="horizontal">
+ *       <Button variant="outline">Reject</Button>
+ *       <Button>Approve</Button>
+ *     </ButtonGroup>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -66,13 +78,21 @@ function ButtonGroup({
 }
 
 /**
- * Button group text component.
+ * Non-interactive text segment that aligns with grouped controls.
  *
  * @example
  * ```tsx
- * import { ButtonGroupText } from "@beep/ui/components/button-group"
+ * import { Button } from "@beep/ui/components/button"
+ * import { ButtonGroup, ButtonGroupText } from "@beep/ui/components/button-group"
  *
- * console.log(ButtonGroupText)
+ * export function CurrencyButtonGroup() {
+ *   return (
+ *     <ButtonGroup>
+ *       <ButtonGroupText>USD</ButtonGroupText>
+ *       <Button variant="outline">Convert</Button>
+ *     </ButtonGroup>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -98,13 +118,22 @@ function ButtonGroupText({ className, render, ...props }: useRender.ComponentPro
 }
 
 /**
- * Button group separator component.
+ * Divider that matches grouped button orientation.
  *
  * @example
  * ```tsx
- * import { ButtonGroupSeparator } from "@beep/ui/components/button-group"
+ * import { Button } from "@beep/ui/components/button"
+ * import { ButtonGroup, ButtonGroupSeparator } from "@beep/ui/components/button-group"
  *
- * console.log(ButtonGroupSeparator)
+ * export function SplitActionGroup() {
+ *   return (
+ *     <ButtonGroup>
+ *       <Button>Save</Button>
+ *       <ButtonGroupSeparator orientation="vertical" />
+ *       <Button variant="outline">Save as</Button>
+ *     </ButtonGroup>
+ *   )
+ * }
  * ```
  *
  * @category components

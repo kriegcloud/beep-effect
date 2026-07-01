@@ -27,7 +27,8 @@ const textDecoder = new TextDecoder();
  * ```typescript
  * import { OtlpPacketKind } from "@beep/observability/experimental/server"
  *
- * console.log(OtlpPacketKind)
+ * const kind: OtlpPacketKind = OtlpPacketKind.Enum.traces
+ * console.log(kind) // "traces"
  * ```
  *
  * @since 0.0.0
@@ -62,7 +63,8 @@ export type OtlpPacketKind = typeof OtlpPacketKind.Type;
  * ```typescript
  * import { OtlpPacketEncoding } from "@beep/observability/experimental/server"
  *
- * console.log(OtlpPacketEncoding)
+ * const encoding: OtlpPacketEncoding = OtlpPacketEncoding.Enum.json
+ * console.log(encoding) // "json"
  * ```
  *
  * @since 0.0.0
@@ -95,9 +97,20 @@ export type OtlpPacketEncoding = typeof OtlpPacketEncoding.Type;
  *
  * @example
  * ```typescript
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
  * import { OtlpPacket } from "@beep/observability/experimental/server"
  *
- * console.log(OtlpPacket)
+ * const zero = S.decodeUnknownSync(NonNegativeInt)(0)
+ * const packet = OtlpPacket.make({
+ *   capturedAtMs: zero,
+ *   contentType: "application/json",
+ *   encoding: "json",
+ *   kind: "traces",
+ *   preview: "{}",
+ *   size: zero
+ * })
+ * console.log(packet.kind) // "traces"
  * ```
  *
  * @since 0.0.0
@@ -262,9 +275,15 @@ const makeLayer = (encoding: OtlpPacketEncoding, baseLayer: Layer.Layer<OtlpSeri
  *
  * @example
  * ```typescript
- * import { layerJson } from "@beep/observability/experimental/server"
+ * import { Effect } from "effect"
+ * import { OtlpPacketLab, layerJson } from "@beep/observability/experimental/server"
  *
- * console.log(layerJson)
+ * const snapshot = Effect.gen(function* () {
+ *   const lab = yield* OtlpPacketLab
+ *   return yield* lab.snapshot
+ * }).pipe(Effect.provide(layerJson))
+ *
+ * console.log(snapshot)
  * ```
  *
  * @since 0.0.0
@@ -277,9 +296,15 @@ export const layerJson = makeLayer("json", OtlpSerialization.layerJson);
  *
  * @example
  * ```typescript
- * import { layerProtobuf } from "@beep/observability/experimental/server"
+ * import { Effect } from "effect"
+ * import { OtlpPacketLab, layerProtobuf } from "@beep/observability/experimental/server"
  *
- * console.log(layerProtobuf)
+ * const snapshot = Effect.gen(function* () {
+ *   const lab = yield* OtlpPacketLab
+ *   return yield* lab.snapshot
+ * }).pipe(Effect.provide(layerProtobuf))
+ *
+ * console.log(snapshot)
  * ```
  *
  * @since 0.0.0

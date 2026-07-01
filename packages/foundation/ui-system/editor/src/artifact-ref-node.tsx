@@ -17,6 +17,21 @@ import type { JSX } from "react";
  * Serialized wire shape of {@link ArtifactRefNode} — pinned to the
  * `@beep/lexical-schema` encoded contract.
  *
+ * @example
+ * ```ts
+ * import type { SerializedArtifactRefNode } from "@beep/editor/artifact-ref-node"
+ *
+ * const payload = {
+ *   type: "artifact-ref",
+ *   version: 1,
+ *   artifactId: "artifact-123",
+ *   label: "Quarterly report",
+ * } satisfies SerializedArtifactRefNode
+ *
+ * const artifactId: string = payload.artifactId
+ * console.log(artifactId) // "artifact-123"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

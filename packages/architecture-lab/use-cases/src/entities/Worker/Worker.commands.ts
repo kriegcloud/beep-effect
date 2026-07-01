@@ -15,13 +15,21 @@ import * as S from "effect/Schema";
 const $I = $ArchitectureLabUseCasesId.create("entities/Worker/Worker.commands");
 
 /**
- * Create Worker command.
+ * Command payload accepted by the Worker creation use case.
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { CreateWorkerCommand } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(CreateWorkerCommand)
+ * const command = CreateWorkerCommand.make({
+ *   id: S.decodeUnknownSync(DomainWorker.WorkerId)(1),
+ *   organizationId: S.decodeUnknownSync(DomainWorker.WorkerOrganizationId)(10),
+ *   displayName: "Avery Reviewer"
+ * })
+ *
+ * console.log(command.displayName) // "Avery Reviewer"
  * ```
  *
  * @category commands
@@ -40,16 +48,22 @@ export class CreateWorkerCommand extends S.Class<CreateWorkerCommand>($I`CreateW
 ) {}
 
 /**
- * Get Worker query.
+ * Query payload for loading one Worker by id.
  *
  * @example
  * ```ts
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { GetWorkerQuery } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import * as S from "effect/Schema"
  *
- * console.log(GetWorkerQuery)
+ * const query = GetWorkerQuery.make({
+ *   id: S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ * })
+ *
+ * console.log(query.id) // 1
  * ```
  *
- * @category commands
+ * @category queries
  * @since 0.0.0
  */
 export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
@@ -63,16 +77,19 @@ export class GetWorkerQuery extends S.Class<GetWorkerQuery>($I`GetWorkerQuery`)(
 ) {}
 
 /**
- * List Workers query.
+ * Query payload for listing Workers, optionally constrained by lifecycle status.
  *
  * @example
  * ```ts
  * import { ListWorkersQuery } from "@beep/architecture-lab-use-cases/entities/Worker"
+ * import * as O from "effect/Option"
  *
- * console.log(ListWorkersQuery)
+ * const query = ListWorkersQuery.make({ status: O.some("active") })
+ *
+ * console.log(O.getOrUndefined(query.status)) // "active"
  * ```
  *
- * @category commands
+ * @category queries
  * @since 0.0.0
  */
 export class ListWorkersQuery extends S.Class<ListWorkersQuery>($I`ListWorkersQuery`)(

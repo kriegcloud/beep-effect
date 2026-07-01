@@ -82,9 +82,21 @@ export class BoxCcgConfig extends S.Class<BoxCcgConfig>($I`BoxCcgConfig`)(
  *
  * @example
  * ```ts
- * import { BoxConfig } from "@beep/box"
+ * import { BoxConfig, BoxDeveloperTokenConfig } from "@beep/box"
+ * import { Effect, Layer, Redacted } from "effect"
  *
- * console.log(BoxConfig)
+ * const ConfigLive = Layer.succeed(
+ *   BoxConfig,
+ *   BoxDeveloperTokenConfig.make({ token: Redacted.make("box-token") })
+ * )
+ *
+ * const token = Effect.runSync(
+ *   BoxConfig.pipe(
+ *     Effect.map((config) => Redacted.value(config.token)),
+ *     Effect.provide(ConfigLive)
+ *   )
+ * )
+ * console.log(token)
  * ```
  *
  * @category services
@@ -97,9 +109,21 @@ export class BoxConfig extends Context.Service<BoxConfig, BoxDeveloperTokenConfi
  *
  * @example
  * ```ts
- * import { BoxConfigLayer } from "@beep/box"
+ * import { BoxConfig, BoxConfigLayer } from "@beep/box"
+ * import { ConfigProvider, Effect, Redacted } from "effect"
  *
- * console.log(BoxConfigLayer)
+ * const ConfigLive = ConfigProvider.layer(
+ *   ConfigProvider.fromUnknown({ CLOUD_BOX_TOKEN: "box-token" })
+ * )
+ *
+ * const token = Effect.runSync(
+ *   BoxConfig.pipe(
+ *     Effect.map((config) => Redacted.value(config.token)),
+ *     Effect.provide(BoxConfigLayer),
+ *     Effect.provide(ConfigLive)
+ *   )
+ * )
+ * console.log(token)
  * ```
  *
  * @category layers
@@ -124,9 +148,21 @@ export const BoxConfigLayer = Layer.effect(
  *
  * @example
  * ```ts
- * import { layer } from "@beep/box"
+ * import { BoxConfig, layer } from "@beep/box"
+ * import { ConfigProvider, Effect, Redacted } from "effect"
  *
- * console.log(layer)
+ * const ConfigLive = ConfigProvider.layer(
+ *   ConfigProvider.fromUnknown({ CLOUD_BOX_TOKEN: "box-token" })
+ * )
+ *
+ * const token = Effect.runSync(
+ *   BoxConfig.pipe(
+ *     Effect.map((config) => Redacted.value(config.token)),
+ *     Effect.provide(layer),
+ *     Effect.provide(ConfigLive)
+ *   )
+ * )
+ * console.log(token)
  * ```
  *
  * @category layers
@@ -139,11 +175,17 @@ export const layer = BoxConfigLayer;
  *
  * @example
  * ```ts
- * import { layerConfig } from "@beep/box"
- * import { Redacted } from "effect"
+ * import { BoxConfig, layerConfig } from "@beep/box"
+ * import { Effect, Redacted } from "effect"
  *
- * const layer = layerConfig(Redacted.make("box-token"))
- * console.log(layer)
+ * const ConfigLive = layerConfig(Redacted.make("box-token"))
+ * const token = Effect.runSync(
+ *   BoxConfig.pipe(
+ *     Effect.map((config) => Redacted.value(config.token)),
+ *     Effect.provide(ConfigLive)
+ *   )
+ * )
+ * console.log(token)
  * ```
  *
  * @category layers

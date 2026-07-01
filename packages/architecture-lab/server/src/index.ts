@@ -13,10 +13,12 @@
  * ```ts
  * import { VERSION } from "@beep/architecture-lab-server"
  *
- * console.log(VERSION)
+ * const version = VERSION
+ *
+ * console.log(version === "0.0.0") // true
  * ```
  *
- * @category handlers
+ * @category configuration
  * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;

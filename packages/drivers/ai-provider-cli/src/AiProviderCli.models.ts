@@ -1,5 +1,5 @@
 /**
- * Data models for provider CLI probes.
+ * Schema-backed payloads for Claude and Codex CLI auth probes.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -12,13 +12,20 @@ import * as S from "effect/Schema";
 const $I = $AiProviderCliId.create("AiProviderCli.models");
 
 /**
- * AI provider CLI vocabulary.
+ * Supported local AI provider CLI identifiers.
+ *
+ * @remarks
+ * The vocabulary is intentionally limited to CLIs this driver knows how to
+ * probe: Claude uses `claude auth status`, and Codex uses `codex login status`.
  *
  * @example
  * ```ts
- * import { AiProviderCliProvider } from "@beep/ai-provider-cli/AiProviderCli.models"
+ * import * as S from "effect/Schema"
+ * import { AiProviderCliProvider } from "@beep/ai-provider-cli"
  *
- * console.log(AiProviderCliProvider)
+ * const provider = S.decodeUnknownSync(AiProviderCliProvider)("claude")
+ *
+ * console.log(provider) // "claude"
  * ```
  *
  * @category models
@@ -31,7 +38,16 @@ export const AiProviderCliProvider = LiteralKit(["claude", "codex"]).pipe(
 );
 
 /**
- * Runtime type for {@link AiProviderCliProvider}.
+ * Type for a supported local AI provider CLI identifier.
+ *
+ * @example
+ * ```ts
+ * import type { AiProviderCliProvider } from "@beep/ai-provider-cli"
+ *
+ * const provider: AiProviderCliProvider = "codex"
+ *
+ * console.log(provider) // "codex"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -39,13 +55,21 @@ export const AiProviderCliProvider = LiteralKit(["claude", "codex"]).pipe(
 export type AiProviderCliProvider = typeof AiProviderCliProvider.Type;
 
 /**
- * Provider CLI authentication status.
+ * Redacted authentication state inferred from a provider CLI exit code.
+ *
+ * @remarks
+ * `authenticated` means the provider status command exited with code `0`.
+ * `not-authenticated` means the command ran and returned a non-zero exit code;
+ * transport and spawning failures are represented by `AiProviderCliError`.
  *
  * @example
  * ```ts
- * import { AiProviderCliAuthStatus } from "@beep/ai-provider-cli/AiProviderCli.models"
+ * import * as S from "effect/Schema"
+ * import { AiProviderCliAuthStatus } from "@beep/ai-provider-cli"
  *
- * console.log(AiProviderCliAuthStatus)
+ * const status = S.decodeUnknownSync(AiProviderCliAuthStatus)("authenticated")
+ *
+ * console.log(status) // "authenticated"
  * ```
  *
  * @category models
@@ -58,7 +82,16 @@ export const AiProviderCliAuthStatus = LiteralKit(["authenticated", "not-authent
 );
 
 /**
- * Runtime type for {@link AiProviderCliAuthStatus}.
+ * Type for the redacted provider CLI authentication state.
+ *
+ * @example
+ * ```ts
+ * import type { AiProviderCliAuthStatus } from "@beep/ai-provider-cli"
+ *
+ * const status: AiProviderCliAuthStatus = "not-authenticated"
+ *
+ * console.log(status) // "not-authenticated"
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -66,13 +99,24 @@ export const AiProviderCliAuthStatus = LiteralKit(["authenticated", "not-authent
 export type AiProviderCliAuthStatus = typeof AiProviderCliAuthStatus.Type;
 
 /**
- * Provider CLI process result.
+ * Captured provider CLI status process output.
+ *
+ * @remarks
+ * This model is for runner boundaries and tests. Public auth probes collapse
+ * the process result into a redacted status and do not expose raw stdout or
+ * stderr.
  *
  * @example
  * ```ts
- * import { AiProviderCliProcessResult } from "@beep/ai-provider-cli/AiProviderCli.models"
+ * import { AiProviderCliProcessResult } from "@beep/ai-provider-cli"
  *
- * console.log(AiProviderCliProcessResult)
+ * const result = AiProviderCliProcessResult.make({
+ *   exitCode: 0,
+ *   stderr: "",
+ *   stdout: "claude auth status"
+ * })
+ *
+ * console.log(result.exitCode) // 0
  * ```
  *
  * @category models
@@ -90,13 +134,23 @@ export class AiProviderCliProcessResult extends S.Class<AiProviderCliProcessResu
 ) {}
 
 /**
- * Redacted provider CLI authentication probe.
+ * Redacted provider CLI authentication probe result.
+ *
+ * @remarks
+ * The probe records the executable name and normalized auth status only. It
+ * deliberately omits stdout, stderr, account identifiers, and token material.
  *
  * @example
  * ```ts
- * import { AiProviderCliAuthProbe } from "@beep/ai-provider-cli/AiProviderCli.models"
+ * import { AiProviderCliAuthProbe } from "@beep/ai-provider-cli"
  *
- * console.log(AiProviderCliAuthProbe)
+ * const probe = AiProviderCliAuthProbe.make({
+ *   command: "codex",
+ *   provider: "codex",
+ *   status: "not-authenticated"
+ * })
+ *
+ * console.log(probe.command) // "codex"
  * ```
  *
  * @category models

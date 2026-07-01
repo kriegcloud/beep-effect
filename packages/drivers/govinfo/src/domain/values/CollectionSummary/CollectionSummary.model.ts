@@ -11,60 +11,89 @@ import { SummaryItem } from "../SummaryItem/index.ts";
 const $I = $GovinfoId.create("domain/values/CollectionSummary/CollectionSummary.model");
 
 /**
- * Ordered list of GovInfo collection summaries returned by the GovInfo `/collections` endpoint, one {@link SummaryItem} entry per available collection with its package and granule counts.
+ * List of GovInfo collections and their package/granule counts.
  *
  * @example
  * ```ts
  * import { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(CollectionSummary);
+ * const summary = S.decodeUnknownSync(CollectionSummary)([
+ *   {
+ *     collectionCode: "CREC",
+ *     collectionName: "Congressional Record",
+ *     granuleCount: 1200n,
+ *     packageCount: 450n
+ *   }
+ * ]);
+ *
+ * console.log(summary[0]?.collectionCode);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export const CollectionSummary = S.Array(SummaryItem).pipe(
   $I.annoteSchema("CollectionSummary", {
-    description:
-      "Ordered list of GovInfo collection summaries returned by the GovInfo /collections endpoint; each entry describes one available collection and its package and granule counts.",
+    description: "List of GovInfo collections and their package/granule counts.",
   })
 );
 
 /**
- * Companion type for {@link CollectionSummary}.
+ * Decoded collection summary array type.
  *
  * @example
  * ```ts
- * import type { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+ * import { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+ * import type { CollectionSummary as CollectionSummaryValue } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+ * import * as S from "effect/Schema";
  *
- * const useValue = (_value: CollectionSummary) => true;
- * console.log(useValue);
+ * const summary: CollectionSummaryValue = S.decodeUnknownSync(CollectionSummary)([
+ *   {
+ *     collectionCode: "CREC",
+ *     collectionName: "Congressional Record",
+ *     granuleCount: 1200n,
+ *     packageCount: 450n
+ *   }
+ * ]);
+ *
+ * console.log(summary.length);
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type CollectionSummary = typeof CollectionSummary.Type;
 
 /**
- * The companion namespace for the {@link CollectionSummary} value object.
+ * Companion namespace for {@link CollectionSummary} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace CollectionSummary {
   /**
-   * The companion encoded type for {@link CollectionSummary}.
+   * Encoded JSON shape accepted by {@link CollectionSummary}.
    *
    * @example
    * ```ts
-   * import type { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+   * import { CollectionSummary } from "@beep/govinfo/domain/values/CollectionSummary/CollectionSummary.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: CollectionSummary.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(CollectionSummary)([
+   *   {
+   *     collectionCode: "FR",
+   *     collectionName: "Federal Register",
+   *     granuleCount: 3000n,
+   *     packageCount: 1500n
+   *   }
+   * ]);
+   * const encoded: CollectionSummary.Encoded = S.encodeSync(CollectionSummary)(decoded);
+   *
+   * console.log(encoded[0]?.collectionName);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof CollectionSummary.Encoded;

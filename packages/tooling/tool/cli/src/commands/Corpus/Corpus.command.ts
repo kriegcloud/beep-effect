@@ -212,9 +212,11 @@ const corpusSalvageCommand = Command.make(
  * @example
  * ```ts
  * import { corpusCommand } from "@beep/repo-cli/commands/Corpus"
- * console.log(corpusCommand)
+ *
+ * const commandGroups = { corpus: corpusCommand }
+ * console.log(Object.keys(commandGroups)) // ["corpus"]
  * ```
- * @category use-cases
+ * @category cli-commands
  * @since 0.0.0
  */
 export const corpusCommand = Command.make("corpus", {}, () => printCorpusIndex).pipe(

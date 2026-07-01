@@ -25,10 +25,15 @@ const $I = $EpistemicUseCasesId.create("ClaimGate/ClaimGate.ports");
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
  * import type { ClaimGateShape } from "@beep/epistemic-use-cases/ClaimGate"
  *
- * const accept = (shape: ClaimGateShape) => shape
- * console.log(accept)
+ * const shape: ClaimGateShape = {
+ *   evaluate: () => Effect.succeed({ verdict: "admitted" })
+ * }
+ *
+ * strictEqual(typeof shape.evaluate, "function")
  * ```
  *
  * @category services
@@ -46,9 +51,25 @@ export interface ClaimGateShape {
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
  * import { ClaimGate } from "@beep/epistemic-use-cases/ClaimGate"
  *
- * console.log(ClaimGate)
+ * const hasEvaluate = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const gate = yield* ClaimGate
+ *     return typeof gate.evaluate === "function"
+ *   }).pipe(
+ *     Effect.provideService(
+ *       ClaimGate,
+ *       ClaimGate.of({
+ *         evaluate: () => Effect.succeed({ verdict: "admitted" })
+ *       })
+ *     )
+ *   )
+ * )
+ *
+ * strictEqual(hasEvaluate, true)
  * ```
  *
  * @category services
@@ -63,10 +84,12 @@ export class ClaimGate extends Context.Service<ClaimGate, ClaimGateShape>()($I`C
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { ClaimGateLayer } from "@beep/epistemic-use-cases/ClaimGate"
  *
- * const accept = (layer: ClaimGateLayer) => layer
- * console.log(accept)
+ * const describesLayer = (_layer: ClaimGateLayer) => "requires-shacl-validation"
+ *
+ * strictEqual(describesLayer.length > 0, true)
  * ```
  *
  * @category layers

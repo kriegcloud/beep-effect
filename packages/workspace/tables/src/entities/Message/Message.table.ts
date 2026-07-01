@@ -15,7 +15,10 @@ import { Message } from "@beep/workspace-domain/entities/Message";
  * ```ts
  * import { Message } from "@beep/workspace-tables/entities"
  *
- * console.log(Message.Table.definition.tableName)
+ * const tableName: "workspace_message" = Message.Table.definition.tableName
+ * const contentStorage: "jsonb" = Message.Table.definition.persisted.content.storageKind
+ *
+ * console.log(`${tableName}:${contentStorage}`)
  * ```
  *
  * @category tables

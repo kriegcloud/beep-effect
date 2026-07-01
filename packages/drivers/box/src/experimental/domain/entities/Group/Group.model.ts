@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box group entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Group/Group.model");
 
 /**
+ * Experimental schema anchor for Box group resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Group.make({
+ * const decoded = S.decodeUnknownSync(Group)({});
+ * const encoded: Group.Encoded = S.encodeSync(Group)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Group extends S.Class<Group>($I`Group`)(
   {},
   $I.annote("Group", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box group resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Group}
+ * Type-level companion namespace for {@link Group} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Group.make({});
+ * const encoded: Group.Encoded = S.encodeSync(Group)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Group {
   /**
-   * Companion encoded type for {@link Group}.
+   * Encoded payload accepted by the {@link Group} entity schema.
    *
    * @example
    * ```ts
-   * import type { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
+   * import { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Group.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Group.Encoded = S.encodeSync(Group)(Group.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Group.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Group}.
- *
- * @example
- * ```ts
- * import type { Group } from "@beep/box/experimental/domain/entities/Group/Group.model";
- *
- * const useValue = (_value: Group) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Group = typeof Group.Type;

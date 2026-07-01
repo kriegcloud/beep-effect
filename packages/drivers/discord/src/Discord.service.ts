@@ -188,15 +188,67 @@ const makeService = (client: HttpClient.HttpClient, config: DiscordConfigInput):
 };
 
 /**
- * Effect service for Discord REST API calls.
+ * Discord REST boundary for channel liveness checks and proof message creation.
+ *
+ * @remarks
+ * The service validates request objects before issuing HTTP, maps transport and
+ * decoding failures into {@link DiscordError}, and returns sanitized proof
+ * models instead of raw Discord payloads.
  *
  * @example
  * ```ts
- * import { Discord } from "@beep/discord/Discord.service"
+ * import {
+ *   Discord,
+ *   DiscordChannelRequest,
+ *   DiscordConfigInput
+ * } from "@beep/discord"
+ * import { Effect, Layer, Redacted } from "effect"
+ * import * as HttpClient from "effect/unstable/http/HttpClient"
+ * import * as HttpClientResponse from "effect/unstable/http/HttpClientResponse"
  *
- * console.log(Discord)
+ * const TestHttpClient = Layer.succeed(
+ *   HttpClient.HttpClient,
+ *   HttpClient.make((request) =>
+ *     Effect.succeed(
+ *       HttpClientResponse.fromWeb(
+ *         request,
+ *         Response.json({
+ *           guild_id: "guild-1",
+ *           id: "channel-1",
+ *           name: "proof-channel"
+ *         })
+ *       )
+ *     )
+ *   )
+ * )
+ *
+ * const DiscordTest = Discord.makeLayer(
+ *   DiscordConfigInput.make({
+ *     baseUrl: "https://discord.example.test/api/v10"
+ *   })
+ * ).pipe(Layer.provide(TestHttpClient))
+ *
+ * const program = Effect.gen(function* () {
+ *   const discord = yield* Discord
+ *   const proof = yield* discord.getChannel(
+ *     DiscordChannelRequest.make({ channelId: "channel-1" }),
+ *     Redacted.make("bot-token")
+ *   )
+ *   return proof.name ?? "unnamed"
+ * }).pipe(Effect.provide(DiscordTest))
+ *
+ * const channelName = await Effect.runPromise(program)
+ * console.log(channelName) // "proof-channel"
  * ```
  *
+ * @effects
+ * - Sends authenticated `GET /channels/:id` and
+ *   `POST /channels/:id/messages` requests through the provided HTTP client.
+ * - Reads the redacted bot token to set Discord's `Authorization` header.
+ * - Creates proof messages with Discord mentions disabled.
+ *
+ * @see {@link DiscordConfigInput} for base URL configuration.
+ * @see {@link DiscordError} for typed failures.
  * @category services
  * @since 0.0.0
  */

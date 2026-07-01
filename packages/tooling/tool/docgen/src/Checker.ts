@@ -250,13 +250,47 @@ export function checkExports(models: ReadonlyArray<Domain.Export>) {
 /**
  * Checks a parsed module and all of its documented members for required docgen annotations.
  *
+ * @remarks
+ * The check uses the module's source file for code-frame locations and the
+ * active {@link Configuration.Configuration} service for enforcement flags.
+ *
  * @param module - Module model to validate.
  * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
+ * import { Configuration, ConfigurationShape, DEFAULT_THEME, defaultCompilerOptions } from "@beep/repo-docgen/Configuration"
  * import { checkModule } from "@beep/repo-docgen/Checker"
- * console.log(checkModule)
+ * import { parseModule, Source, SourceShape } from "@beep/repo-docgen/Parser"
+ * import { Effect } from "effect"
+ * import { Project } from "ts-morph"
+ *
+ * const project = new Project({ useInMemoryFileSystem: true })
+ * const sourceFile = project.createSourceFile("sample.ts", "export const undocumented = 1")
+ * const source = SourceShape.new(["sample.ts"], sourceFile)
+ * const config = ConfigurationShape.make({
+ *   enableSearch: false,
+ *   enforceDescriptions: true,
+ *   enforceExamples: true,
+ *   enforceVersion: true,
+ *   examplesCompilerOptions: defaultCompilerOptions,
+ *   exclude: [],
+ *   include: [],
+ *   outDir: "docs",
+ *   parseCompilerOptions: defaultCompilerOptions,
+ *   projectHomepage: "",
+ *   projectName: "@beep/example",
+ *   runExamples: false,
+ *   srcDir: "src",
+ *   srcLink: "",
+ *   theme: DEFAULT_THEME,
+ *   tscExecutable: "tsc"
+ * })
+ * const parsedModule = Effect.runSync(parseModule.pipe(Effect.provide(Source.layer(source))))
+ * const errors = Effect.runSync(checkModule(parsedModule).pipe(Effect.provide(Configuration.layer(config))))
+ *
+ * console.log(errors.length) // 3
  * ```
+ * @effects Reads parser source metadata from the parsed module and consults the active docgen configuration service.
  * @category predicates
  * @since 0.0.0
  */

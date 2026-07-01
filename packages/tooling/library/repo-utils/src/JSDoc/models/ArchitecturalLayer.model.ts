@@ -19,7 +19,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ArchitecturalLayer.model");
  * ```ts
  * import { ArchitecturalLayer } from "@beep/repo-utils/JSDoc/models/ArchitecturalLayer.model"
  *
- * console.log(ArchitecturalLayer)
+ * const layer = ArchitecturalLayer.Enum.DomainEntity
+ * console.log(ArchitecturalLayer.is.DomainEntity(layer))
  * ```
  * @category models
  * @since 0.0.0

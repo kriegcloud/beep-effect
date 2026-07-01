@@ -32,8 +32,13 @@ const OnePasswordReferenceChecks = S.makeFilterGroup([
  * @example
  * ```ts
  * import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(OnePasswordReference)
+ * const reference = S.decodeUnknownSync(OnePasswordReference)(
+ *   "op://BEEP_SECRETS/OpenAI/api_key"
+ * )
+ *
+ * console.log(reference.startsWith("op://")) // true
  * ```
  *
  * @category value-objects
@@ -51,6 +56,19 @@ export const OnePasswordReference = S.String.check(OnePasswordReferenceChecks).p
 /**
  * Runtime type for {@link OnePasswordReference}.
  *
+ * @example
+ * ```ts
+ * import { OnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
+ * import type { OnePasswordReference as OnePasswordReferenceValue } from "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
+ * import * as S from "effect/Schema"
+ *
+ * const reference: OnePasswordReferenceValue = S.decodeUnknownSync(OnePasswordReference)(
+ *   "op://BEEP_SECRETS/OpenAI/api_key"
+ * )
+ *
+ * console.log(reference)
+ * ```
+ *
  * @category value-objects
  * @since 0.0.0
  */
@@ -63,7 +81,8 @@ export type OnePasswordReference = typeof OnePasswordReference.Type;
  * ```ts
  * import { isOnePasswordReference } from "@beep/shared-domain/values/OnePasswordReference/OnePasswordReference.model"
  *
- * console.log(isOnePasswordReference)
+ * console.log(isOnePasswordReference("op://BEEP_SECRETS/OpenAI/api_key")) // true
+ * console.log(isOnePasswordReference("sk-live-secret")) // false
  * ```
  *
  * @category guards

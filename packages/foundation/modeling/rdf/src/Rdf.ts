@@ -277,9 +277,11 @@ export type PrefixLabel = typeof PrefixLabel.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Curie } from "@beep/rdf/Rdf"
  *
- * console.log(Curie)
+ * const compact = S.decodeUnknownSync(Curie)("schema:name")
+ * console.log(compact) // "schema:name"
  * ```
  *
  * @since 0.0.0
@@ -314,9 +316,11 @@ export type Curie = typeof Curie.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { LanguageTag } from "@beep/rdf/Rdf"
  *
- * console.log(LanguageTag)
+ * const tag = S.decodeUnknownSync(LanguageTag)("en-US")
+ * console.log(tag) // "en-US"
  * ```
  *
  * @since 0.0.0
@@ -364,9 +368,14 @@ export type LanguageTag = typeof LanguageTag.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { NamedNode } from "@beep/rdf/Rdf"
  *
- * console.log(NamedNode)
+ * const node = S.decodeUnknownSync(NamedNode)({
+ *   termType: "NamedNode",
+ *   value: "https://example.org/person/alice"
+ * })
+ * console.log(node.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
@@ -390,9 +399,14 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BlankNode } from "@beep/rdf/Rdf"
  *
- * console.log(BlankNode)
+ * const node = S.decodeUnknownSync(BlankNode)({
+ *   termType: "BlankNode",
+ *   value: "b0"
+ * })
+ * console.log(node.value) // "b0"
  * ```
  *
  * @since 0.0.0
@@ -429,9 +443,16 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Literal } from "@beep/rdf/Rdf"
  *
- * console.log(Literal)
+ * const literal = S.decodeUnknownSync(Literal)({
+ *   termType: "Literal",
+ *   value: "Alice",
+ *   language: "en",
+ *   datatype: { termType: "NamedNode", value: "http://www.w3.org/2001/XMLSchema#string" }
+ * })
+ * console.log(literal.termType) // "Literal"
  * ```
  *
  * @since 0.0.0
@@ -457,9 +478,14 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { DefaultGraph } from "@beep/rdf/Rdf"
  *
- * console.log(DefaultGraph)
+ * const graph = S.decodeUnknownSync(DefaultGraph)({
+ *   termType: "DefaultGraph",
+ *   value: ""
+ * })
+ * console.log(graph.value) // ""
  * ```
  *
  * @since 0.0.0
@@ -494,9 +520,14 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Term } from "@beep/rdf/Rdf"
  *
- * console.log(Term)
+ * const term = S.decodeUnknownSync(Term)({
+ *   termType: "NamedNode",
+ *   value: "https://example.org/person/alice"
+ * })
+ * console.log(term.termType) // "NamedNode"
  * ```
  *
  * @since 0.0.0
@@ -546,9 +577,14 @@ export type Term = typeof Term.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Subject } from "@beep/rdf/Rdf"
  *
- * console.log(Subject)
+ * const subject = S.decodeUnknownSync(Subject)({
+ *   termType: "BlankNode",
+ *   value: "subject0"
+ * })
+ * console.log(subject.termType) // "BlankNode"
  * ```
  *
  * @since 0.0.0
@@ -582,9 +618,15 @@ export type Subject = typeof Subject.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { ObjectTerm } from "@beep/rdf/Rdf"
  *
- * console.log(ObjectTerm)
+ * const object = S.decodeUnknownSync(ObjectTerm)({
+ *   termType: "Literal",
+ *   value: "Alice",
+ *   datatype: { termType: "NamedNode", value: "http://www.w3.org/2001/XMLSchema#string" }
+ * })
+ * console.log(object.termType) // "Literal"
  * ```
  *
  * @since 0.0.0
@@ -618,9 +660,14 @@ export type ObjectTerm = typeof ObjectTerm.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { GraphTerm } from "@beep/rdf/Rdf"
  *
- * console.log(GraphTerm)
+ * const graph = S.decodeUnknownSync(GraphTerm)({
+ *   termType: "DefaultGraph",
+ *   value: ""
+ * })
+ * console.log(graph.termType) // "DefaultGraph"
  * ```
  *
  * @since 0.0.0
@@ -654,9 +701,20 @@ export type GraphTerm = typeof GraphTerm.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { Quad } from "@beep/rdf/Rdf"
  *
- * console.log(Quad)
+ * const quad = S.decodeUnknownSync(Quad)({
+ *   subject: { termType: "NamedNode", value: "https://example.org/person/alice" },
+ *   predicate: { termType: "NamedNode", value: "https://schema.org/name" },
+ *   object: {
+ *     termType: "Literal",
+ *     value: "Alice",
+ *     datatype: { termType: "NamedNode", value: "http://www.w3.org/2001/XMLSchema#string" }
+ *   },
+ *   graph: { termType: "DefaultGraph", value: "" }
+ * })
+ * console.log(quad.predicate.value) // "https://schema.org/name"
  * ```
  *
  * @since 0.0.0
@@ -680,9 +738,15 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
  *
  * @example
  * ```ts
- * import { Dataset } from "@beep/rdf/Rdf"
+ * import { makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/rdf/Rdf"
  *
- * console.log(Dataset)
+ * const quad = makeQuad(
+ *   makeNamedNode("https://example.org/person/alice"),
+ *   makeNamedNode("https://schema.org/name"),
+ *   makeLiteral("Alice", "http://www.w3.org/2001/XMLSchema#string")
+ * )
+ * const dataset = makeDataset([quad])
+ * console.log(dataset.quads.length) // 1
  * ```
  *
  * @since 0.0.0
@@ -703,9 +767,14 @@ export class Dataset extends S.Class<Dataset>($I`Dataset`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { NamespaceBinding } from "@beep/rdf/Rdf"
  *
- * console.log(NamespaceBinding)
+ * const binding = S.decodeUnknownSync(NamespaceBinding)({
+ *   prefix: "schema",
+ *   namespace: "https://schema.org/"
+ * })
+ * console.log(binding.prefix) // "schema"
  * ```
  *
  * @since 0.0.0
@@ -727,9 +796,13 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { PrefixMap } from "@beep/rdf/Rdf"
  *
- * console.log(PrefixMap)
+ * const prefixes = S.decodeUnknownSync(PrefixMap)({
+ *   schema: "https://schema.org/"
+ * })
+ * console.log(Object.keys(prefixes)) // ["schema"]
  * ```
  *
  * @since 0.0.0

@@ -49,9 +49,13 @@ const $I = $NlpProcessingId.create("Graph/GraphOperations/Types");
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { MAX_PARALLEL_CONCURRENCY } from "@beep/nlp-processing/Graph/GraphOperations/Types"
  *
- * console.log(MAX_PARALLEL_CONCURRENCY) // 64
+ * const requested = MAX_PARALLEL_CONCURRENCY + 10
+ * const bounded = Math.min(requested, MAX_PARALLEL_CONCURRENCY)
+ *
+ * strictEqual(bounded, 64)
  * ```
  *
  * @since 0.0.0

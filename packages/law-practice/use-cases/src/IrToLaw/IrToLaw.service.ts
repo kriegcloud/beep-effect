@@ -179,10 +179,17 @@ const buildLawEntities = Effect.fn("law_practice.ir_to_law.build_entities")(func
  * @example
  * ```ts
  * import { makeIrToLaw } from "@beep/law-practice-use-cases/IrToLaw"
+ * import { Effect, Exit } from "effect"
  *
- * console.log(typeof makeIrToLaw().toLaw)
+ * const mapper = makeIrToLaw()
+ * const program = Effect.exit(mapper.toLaw([]))
+ *
+ * Effect.runPromise(program).then((exit) => console.log(Exit.isFailure(exit))) // true
  * ```
  *
+ * @effects The returned `toLaw` method validates required grounded extraction
+ * labels, decodes the law-practice entity bundle, and reports missing or
+ * unaligned labels through the typed `IrToLawExtractionError` channel.
  * @category constructors
  * @since 0.0.0
  */

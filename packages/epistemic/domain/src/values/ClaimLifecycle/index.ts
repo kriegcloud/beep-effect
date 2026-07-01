@@ -10,9 +10,10 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values/ClaimLifecycle"
+ * import { ClaimInvalidTransition } from "@beep/epistemic-domain/values/ClaimLifecycle"
  *
- * console.log(Module)
+ * const error = ClaimInvalidTransition.between("candidate", "admitted")
+ * console.log(error._tag)
  * ```
 
  * @category errors
@@ -24,12 +25,12 @@ export * from "./ClaimLifecycle.errors.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values/ClaimLifecycle"
+ * import { ClaimLifecycle } from "@beep/epistemic-domain/values/ClaimLifecycle"
  *
- * console.log(Module)
+ * console.log(ClaimLifecycle.Enum.candidate)
  * ```
 
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./ClaimLifecycle.model.js";

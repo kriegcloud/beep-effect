@@ -1,5 +1,5 @@
 /**
- * Shared-kernel Drizzle schema aggregate exports.
+ * Aggregate Drizzle schema metadata exported by the shared tables package.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -14,17 +14,29 @@ type DbSchemaShape = {
 };
 
 /**
- * Shared-kernel Drizzle schema aggregate.
+ * Metadata-only Drizzle schema aggregate for shared product tables.
  *
- * @since 0.0.0
+ * @remarks
+ * This aggregate is intended for callers that need the shared table set as one
+ * object, such as Drizzle schema wiring. It does not create a connection,
+ * repository, migration, or query executor.
+ *
  * @example
  * ```ts
+ * import { getTableConfig } from "drizzle-orm/pg-core"
  * import { DbSchema } from "@beep/shared-tables/Schema"
  *
- * console.log(DbSchema)
+ * const tableNames = [
+ *   getTableConfig(DbSchema.membership).name,
+ *   getTableConfig(DbSchema.organization).name,
+ *   getTableConfig(DbSchema.user).name
+ * ]
+ *
+ * console.log(tableNames.join(", "))
  * ```
  *
  * @category tables
+ * @since 0.0.0
  */
 export const DbSchema: DbSchemaShape = {
   organization: Organization.Table,
@@ -33,17 +45,20 @@ export const DbSchema: DbSchemaShape = {
 };
 
 /**
- * Type for {@link DbSchema}.
+ * Type contract for the shared Drizzle schema aggregate.
  *
- * @since 0.0.0
  * @example
  * ```ts
- * import type { DbSchema } from "@beep/shared-tables/Schema"
+ * import { getTableConfig } from "drizzle-orm/pg-core"
+ * import { DbSchema } from "@beep/shared-tables/Schema"
+ * import type { DbSchema as DbSchemaContract } from "@beep/shared-tables/Schema"
  *
- * const value = {} as DbSchema
- * console.log(value)
+ * const schema = DbSchema satisfies DbSchemaContract
+ *
+ * console.log(getTableConfig(schema.organization).name)
  * ```
  *
  * @category tables
+ * @since 0.0.0
  */
 export type DbSchema = DbSchemaShape;

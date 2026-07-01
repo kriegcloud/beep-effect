@@ -48,7 +48,8 @@ export * from "./M365.service.ts";
  * ```ts
  * import { VERSION } from "@beep/m365"
  *
- * console.log(VERSION)
+ * const isInitialPackageVersion = VERSION === "0.0.0"
+ * console.log(isInitialPackageVersion) // true
  * ```
  *
  * @category constants

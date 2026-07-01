@@ -276,13 +276,20 @@ export const validateResolvedPath = (options: {
  *
  * @example
  * ```ts
+ * import * as BunFileSystem from "@effect/platform-bun/BunFileSystem"
+ * import * as BunPath from "@effect/platform-bun/BunPath"
  * import { resolvePathWithinRoot } from "@beep/file-processing/PathSafety"
- * import { Effect } from "effect"
+ * import { Effect, Layer } from "effect"
  *
- * const program = resolvePathWithinRoot({ root: "/srv/data", candidate: "reports/q1.csv" })
- * // program: Effect.Effect<string, PathSafetyError, FileSystem.FileSystem | Path.Path>
+ * const program = resolvePathWithinRoot({ root: ".", candidate: "README.md" }).pipe(
+ *   Effect.map((resolved) => resolved.endsWith("README.md")),
+ *   Effect.provide(Layer.mergeAll(BunFileSystem.layer, BunPath.layer))
+ * )
+ *
+ * Effect.runPromise(program).then(console.log) // true
  * ```
  *
+ * @effects Reads canonical filesystem paths through `FileSystem.realPath` and depends on the platform `Path` service for candidate resolution.
  * @category guards
  * @since 0.0.0
  */

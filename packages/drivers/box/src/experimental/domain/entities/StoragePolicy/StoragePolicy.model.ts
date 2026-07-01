@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box storage policy entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/StoragePolicy/StoragePolicy.model");
 
 /**
+ * Experimental schema anchor for Box storage policy resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { StoragePolicy } from "@beep/box/experimental/domain/entities/StoragePolicy/StoragePolicy.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(StoragePolicy.make({
+ * const decoded = S.decodeUnknownSync(StoragePolicy)({});
+ * const encoded: StoragePolicy.Encoded = S.encodeSync(StoragePolicy)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class StoragePolicy extends S.Class<StoragePolicy>($I`StoragePolicy`)(
   {},
   $I.annote("StoragePolicy", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box storage policy resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link StoragePolicy}
+ * Type-level companion namespace for {@link StoragePolicy} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { StoragePolicy } from "@beep/box/experimental/domain/entities/StoragePolicy/StoragePolicy.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = StoragePolicy.make({});
+ * const encoded: StoragePolicy.Encoded = S.encodeSync(StoragePolicy)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace StoragePolicy {
   /**
-   * Companion encoded type for {@link StoragePolicy}.
+   * Encoded payload accepted by the {@link StoragePolicy} entity schema.
    *
    * @example
    * ```ts
-   * import type { StoragePolicy } from "@beep/box/experimental/domain/entities/StoragePolicy/StoragePolicy.model";
+   * import { StoragePolicy } from "@beep/box/experimental/domain/entities/StoragePolicy/StoragePolicy.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: StoragePolicy.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: StoragePolicy.Encoded = S.encodeSync(StoragePolicy)(StoragePolicy.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof StoragePolicy.Encoded;
 }
-
-/**
- * Companion runtime type for {@link StoragePolicy}.
- *
- * @example
- * ```ts
- * import type { StoragePolicy } from "@beep/box/experimental/domain/entities/StoragePolicy/StoragePolicy.model";
- *
- * const useValue = (_value: StoragePolicy) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type StoragePolicy = typeof StoragePolicy.Type;

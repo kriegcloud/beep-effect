@@ -1,6 +1,5 @@
 /**
- * Contains a helper schema to create an `S.Struct.Field` property that is
- * optional and has defaults.
+ * Optional-key schema helper with decoded defaults.
  *
  * @since 0.0.0
  * @packageDocumentation
@@ -10,21 +9,29 @@ import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 /**
- * Helper to create an optional key with a default value.
+ * Creates an optional encoded key that decodes to a required value.
  *
- * Replaces `S.optionalWith(schema, { exact: true, default: () => val })` in v4.
+ * @remarks
+ * This is a v4 replacement for `S.optionalWith(schema, { exact: true,
+ * default: () => value })`. Missing keys decode to `defaultValue`, but
+ * encoding still requires a decoded value because the encoded side uses
+ * `SchemaGetter.required()`.
  *
  * @example
  * ```ts
- * import { optionalKeyWithDefault } from "@beep/schema/SchemaUtils/optionalKeyWithDefaults"
  * import * as S from "effect/Schema"
+ * import { optionalKeyWithDefault } from "@beep/schema/SchemaUtils/optionalKeyWithDefaults"
  *
  * const Settings = S.Struct({ label: optionalKeyWithDefault(S.String, "draft") })
- * console.log(S.decodeUnknownSync(Settings)({}).label)
+ * const settings = S.decodeUnknownSync(Settings)({})
+ *
+ * console.log(settings.label) // "draft"
  * ```
  *
- * @since 0.0.0
+ * @param schema - Schema for the required decoded value.
+ * @param defaultValue - Decoded value used when the encoded key is absent.
  * @category utilities
+ * @since 0.0.0
  */
 export const optionalKeyWithDefault: {
   <S extends S.Top>(schema: S, defaultValue: S["Type"]): S.decodeTo<S.toType<S>, S.optionalKey<S>>;

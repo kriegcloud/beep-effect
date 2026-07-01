@@ -24,14 +24,19 @@ import type * as O from "effect/Option";
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import type { CodecStatics } from "@beep/schema/SchemaUtils/withCodecStatics"
+ * import { withCodecStatics } from "@beep/schema/SchemaUtils/withCodecStatics"
  * import * as S from "effect/Schema"
  *
- * const accept = (statics: CodecStatics<typeof S.String>) => statics.is("x")
- * console.log(accept)
+ * const Slug = S.NonEmptyString.pipe(withCodecStatics)
+ * const acceptsCodecStatics = (statics: CodecStatics<typeof S.NonEmptyString>) =>
+ *   O.isSome(statics.decodeOption("post"))
+ *
+ * console.log(acceptsCodecStatics(Slug)) // true
  * ```
  *
- * @template Sch - The schema the statics decode/guard.
+ * @typeParam Sch - Schema the statics decode and guard.
  * @category models
  * @since 0.0.0
  */
@@ -76,7 +81,7 @@ export interface CodecStatics<Sch extends S.Top> {
  * console.log(Slug.fromUnknown("post")) // "post"
  * ```
  *
- * @template Sch - The schema receiving the codec statics.
+ * @typeParam Sch - Schema receiving the codec statics.
  * @param self - The schema receiving the codec statics.
  * @returns The schema with `is`, `fromUnknown`, and `decodeOption` attached.
  * @category constructors

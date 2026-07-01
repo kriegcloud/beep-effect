@@ -12,11 +12,13 @@
  * ```ts
  * import { VERSION } from "@beep/shared-domain"
  *
- * console.log(VERSION)
+ * const packageVersion = VERSION
+ *
+ * console.log(packageVersion === "0.0.0") // true
  * ```
  *
- * @since 0.0.0
  * @category configuration
+ * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
 

@@ -12,7 +12,7 @@
  * ```ts
  * import * as Module from "@beep/law-practice-use-cases/IrToLaw"
  *
- * console.log(Module.IrToLawExtractionError)
+ * console.log(Object.keys(Module).includes("IrToLawExtractionError")) // true
  * ```
  *
  * @category errors
@@ -26,7 +26,7 @@ export * from "./IrToLaw.errors.js";
  * ```ts
  * import * as Module from "@beep/law-practice-use-cases/IrToLaw"
  *
- * console.log(Module)
+ * console.log(Object.keys(Module).includes("IrToLaw")) // true
  * ```
  *
  * @category services
@@ -40,7 +40,7 @@ export * from "./IrToLaw.ports.js";
  * ```ts
  * import * as Module from "@beep/law-practice-use-cases/IrToLaw"
  *
- * console.log(Module)
+ * console.log(Object.keys(Module).includes("makeIrToLaw")) // true
  * ```
  *
  * @category services

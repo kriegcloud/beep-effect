@@ -12,7 +12,8 @@
  * @example
  * ```ts
  * import { VERSION } from "@beep/ai-sync"
- * console.log(VERSION)
+ *
+ * console.log(VERSION === "0.0.0")
  * ```
  * @category constants
  * @since 0.0.0
@@ -24,8 +25,16 @@ export const VERSION = "0.0.0" as const;
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { checkGeneratedArtifacts } from "@beep/ai-sync"
- * console.log(checkGeneratedArtifacts)
+ *
+ * const program = checkGeneratedArtifacts().pipe(
+ *   Effect.map((report) => report.mode),
+ *   Effect.provide(NodeServices.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category services
  * @since 0.0.0
@@ -50,7 +59,11 @@ export * from "./models.ts";
  * @example
  * ```ts
  * import { CodexConfig } from "@beep/ai-sync"
- * console.log(CodexConfig.ast)
+ *
+ * const config = CodexConfig.make({
+ *   mcp_servers: { local: { command: "node" } }
+ * })
+ * console.log(config.mcp_servers?.local?.command)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -73,8 +86,13 @@ export * from "./source-map.ts";
  *
  * @example
  * ```ts
- * import { codexMcpServersToClaudeMcpJson } from "@beep/ai-sync"
- * console.log(codexMcpServersToClaudeMcpJson)
+ * import { CodexConfig, codexMcpServersToClaudeMcpJson } from "@beep/ai-sync"
+ *
+ * const config = CodexConfig.make({
+ *   mcp_servers: { local: { command: "node" } }
+ * })
+ * const mcpJson = codexMcpServersToClaudeMcpJson(config)
+ * console.log(mcpJson.mcpServers.local?.command)
  * ```
  * @category interop
  * @since 0.0.0
@@ -85,8 +103,19 @@ export * from "./transforms.ts";
  *
  * @example
  * ```ts
+ * import * as NodeServices from "@effect/platform-node/NodeServices"
+ * import { Effect } from "effect"
  * import { validateRepoConfig } from "@beep/ai-sync"
- * console.log(validateRepoConfig)
+ *
+ * const program = validateRepoConfig({
+ *   repoRoot: "/workspace/repo",
+ *   config: ".codex/config.toml"
+ * }).pipe(
+ *   Effect.map((result) => result.schemaId),
+ *   Effect.provide(NodeServices.layer)
+ * )
+ *
+ * Effect.runPromise(program).then(console.log)
  * ```
  * @category validation
  * @since 0.0.0

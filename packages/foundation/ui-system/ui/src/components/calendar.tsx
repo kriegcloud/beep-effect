@@ -8,13 +8,22 @@ import type * as React from "react";
 import type { DayButton } from "react-day-picker";
 
 /**
- * Calendar component.
+ * Styled DayPicker calendar using the shared button variants.
  *
  * @example
  * ```tsx
  * import { Calendar } from "@beep/ui/components/calendar"
  *
- * console.log(Calendar)
+ * export function DueDateCalendar() {
+ *   return (
+ *     <Calendar
+ *       mode="single"
+ *       selected={new Date("2026-07-15T12:00:00.000Z")}
+ *       buttonVariant="outline"
+ *       showOutsideDays={false}
+ *     />
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -146,13 +155,15 @@ function Calendar({
 }
 
 /**
- * Calendar day button component.
+ * Day cell button that mirrors DayPicker selection and range modifiers.
  *
  * @example
  * ```tsx
- * import { CalendarDayButton } from "@beep/ui/components/calendar"
+ * import { Calendar, CalendarDayButton } from "@beep/ui/components/calendar"
  *
- * console.log(CalendarDayButton)
+ * export function CalendarWithDefaultDayButton() {
+ *   return <Calendar mode="range" components={{ DayButton: CalendarDayButton }} />
+ * }
  * ```
  *
  * @category components

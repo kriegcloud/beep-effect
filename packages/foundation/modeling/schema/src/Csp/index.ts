@@ -5,7 +5,9 @@
  * ```ts
  * import * as Csp from "@beep/schema/Csp"
  *
- * console.log(Object.keys(Csp).includes("Header"))
+ * const value = Csp.createDirectiveValue("default-src", "'self'")
+ *
+ * console.log(value) // "default-src 'self'"
  * ```
  *
  * @packageDocumentation

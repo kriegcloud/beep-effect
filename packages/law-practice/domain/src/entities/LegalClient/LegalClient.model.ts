@@ -14,16 +14,34 @@ import { LegalClientStatus } from "./LegalClient.values.ts";
 const $I = $LawPracticeDomainId.create("entities/LegalClient/LegalClient.model");
 
 /**
- * Legal client context.
+ * Legal client entity that owns law-practice contacts and matters.
  *
  * @example
  * ```ts
  * import { LegalClient } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(LegalClient.definition.entityId.tableName)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const client = S.decodeUnknownSync(LegalClient)({
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   displayName: "Acme Robotics",
+ *   entityType: "LawPracticeLegalClient",
+ *   fixtureKey: "legal-client.acme",
+ *   id: 1,
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   status: "active_client",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(client.status) // "active_client"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class LegalClient extends BaseEntity.Class<LegalClient>($I`LegalClient`)(
@@ -47,6 +65,6 @@ export class LegalClient extends BaseEntity.Class<LegalClient>($I`LegalClient`)(
     },
   },
   $I.annote("LegalClient", {
-    description: "Legal client context.",
+    description: "Legal client entity that owns law-practice contacts and matters.",
   })
 ) {}

@@ -10,9 +10,11 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values"
+ * import { ClaimGateSeverity } from "@beep/epistemic-domain/values"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const severity = S.decodeUnknownSync(ClaimGateSeverity)("violation")
+ * console.log(severity)
  * ```
 
  * @category value-objects
@@ -24,9 +26,9 @@ export * from "./ClaimGate/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values"
+ * import { ClaimLifecycle } from "@beep/epistemic-domain/values"
  *
- * console.log(Module)
+ * console.log(ClaimLifecycle.Enum.admitted)
  * ```
 
  * @category value-objects
@@ -38,12 +40,19 @@ export * from "./ClaimLifecycle/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values"
+ * import { ClaimStateCounts } from "@beep/epistemic-domain/values"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const counts = S.decodeUnknownSync(ClaimStateCounts)({
+ *   admitted: 1,
+ *   candidate: 2,
+ *   consistency_checked: 0,
+ *   shape_valid: 1
+ * })
+ * console.log(counts.admitted)
  * ```
 
- * @category value-objects
+ * @category read-models
  * @since 0.0.0
  */
 export * from "./ClaimProjection/index.js";
@@ -52,9 +61,11 @@ export * from "./ClaimProjection/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values"
+ * import { Confidence } from "@beep/epistemic-domain/values"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const confidence = S.decodeUnknownSync(Confidence)(0.88)
+ * console.log(confidence)
  * ```
 
  * @category value-objects

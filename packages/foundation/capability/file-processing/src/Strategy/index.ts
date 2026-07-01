@@ -19,7 +19,7 @@ const $I = $FileProcessingId.create("Strategy");
  * ```ts
  * import { FileProcessingOperationKind } from "@beep/file-processing/Strategy"
  *
- * console.log(FileProcessingOperationKind)
+ * console.log(FileProcessingOperationKind.Options.includes("process")) // true
  * ```
  *
  * @category schemas
@@ -46,7 +46,7 @@ export type FileProcessingOperationKind = typeof FileProcessingOperationKind.Typ
  * ```ts
  * import { FileProcessingEngineFamily } from "@beep/file-processing/Strategy"
  *
- * console.log(FileProcessingEngineFamily)
+ * console.log(FileProcessingEngineFamily.Options.includes("tika")) // true
  * ```
  *
  * @category schemas
@@ -73,7 +73,7 @@ export type FileProcessingEngineFamily = typeof FileProcessingEngineFamily.Type;
  * ```ts
  * import { FileFormatFamily } from "@beep/file-processing/Strategy"
  *
- * console.log(FileFormatFamily)
+ * console.log(FileFormatFamily.Options.includes("pdf-text-layer")) // true
  * ```
  *
  * @category schemas
@@ -115,7 +115,7 @@ export type FileFormatFamily = typeof FileFormatFamily.Type;
  * ```ts
  * import { FileProcessingCapability } from "@beep/file-processing/Strategy"
  *
- * console.log(FileProcessingCapability)
+ * console.log(FileProcessingCapability.Options.includes("export-children")) // true
  * ```
  *
  * @category schemas
@@ -147,7 +147,7 @@ export type FileProcessingCapability = typeof FileProcessingCapability.Type;
  * ```ts
  * import { FileProcessingSupportDisposition } from "@beep/file-processing/Strategy"
  *
- * console.log(FileProcessingSupportDisposition)
+ * console.log(FileProcessingSupportDisposition.Options.includes("deferred")) // true
  * ```
  *
  * @category schemas
@@ -174,7 +174,7 @@ export type FileProcessingSupportDisposition = typeof FileProcessingSupportDispo
  * ```ts
  * import { FileProcessingSkipReason } from "@beep/file-processing/Strategy"
  *
- * console.log(FileProcessingSkipReason)
+ * console.log(FileProcessingSkipReason.Options.includes("operation-not-required")) // true
  * ```
  *
  * @category schemas
@@ -332,8 +332,18 @@ export class UnsupportedSelectedStrategy extends S.Class<UnsupportedSelectedStra
  * @example
  * ```ts
  * import { SelectedStrategy } from "@beep/file-processing/Strategy"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
  *
- * console.log(SelectedStrategy)
+ * const program = S.decodeUnknownEffect(SelectedStrategy)({
+ *   disposition: "deferred",
+ *   engine: "libpff",
+ *   format: "pst",
+ *   operationKind: "export-archive",
+ *   skipReason: "engine-unavailable"
+ * })
+ *
+ * Effect.runPromise(program).then((strategy) => console.log(strategy.disposition)) // "deferred"
  * ```
  *
  * @category models
@@ -365,7 +375,15 @@ export type SelectedStrategy = typeof SelectedStrategy.Type;
  * ```ts
  * import { FileProcessingEngineDescriptor } from "@beep/file-processing/Strategy"
  *
- * console.log(FileProcessingEngineDescriptor)
+ * const descriptor = FileProcessingEngineDescriptor.make({
+ *   capabilities: ["detect", "extract-text"],
+ *   engine: "tika",
+ *   name: "apache-tika",
+ *   supportedFormats: ["docx", "pdf-text-layer"],
+ *   version: "2.9.0"
+ * })
+ *
+ * console.log(descriptor.supportedFormats.includes("docx")) // true
  * ```
  *
  * @category models

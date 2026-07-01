@@ -1,5 +1,5 @@
 /**
- * Anthropic Effect AI layers and acquisition retry plan.
+ * Effect AI layers and acquisition retry plans for the Anthropic provider.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -19,14 +19,24 @@ import {
 } from "./Anthropic.config.ts";
 
 /**
- * Live Anthropic client layer.
+ * Live Anthropic HTTP client layer backed by Effect Config and Fetch.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { AnthropicLive } from "@beep/anthropic"
+ * import type { AnthropicClient } from "@effect/ai-anthropic"
+ * import type { Config, Layer } from "effect"
  *
- * console.log(AnthropicLive)
+ * const layer: Layer.Layer<AnthropicClient.AnthropicClient, Config.ConfigError, never> =
+ *   AnthropicLive
+ *
+ * strictEqual(typeof layer, "object")
  * ```
+ *
+ * @effects
+ * - Reads `AI_ANTHROPIC_API_KEY` from Effect Config when the layer is acquired.
+ * - Provides the Fetch HTTP client used by downstream Anthropic requests.
  *
  * @category layers
  * @since 0.0.0
@@ -42,13 +52,25 @@ const normalizeOptions = (options: AnthropicLanguageModelOptions): Required<Anth
 });
 
 /**
- * Build an Anthropic language-model layer.
+ * Build an Anthropic language-model layer from caller options plus package defaults.
+ *
+ * @remarks
+ * The helper normalizes missing `model` and `maxTokens` values before building
+ * the Effect AI Anthropic language-model layer.
  *
  * @example
  * ```ts
- * import { makeAnthropicLanguageModelLayer } from "@beep/anthropic"
+ * import { strictEqual } from "node:assert"
+ * import { AnthropicLanguageModelOptions, makeAnthropicLanguageModelLayer } from "@beep/anthropic"
  *
- * console.log(makeAnthropicLanguageModelLayer())
+ * const layer = makeAnthropicLanguageModelLayer(
+ *   AnthropicLanguageModelOptions.make({
+ *     maxTokens: 1024,
+ *     model: "claude-opus-4-6",
+ *   })
+ * )
+ *
+ * strictEqual(typeof layer, "object")
  * ```
  *
  * @category layers
@@ -70,9 +92,15 @@ export const makeAnthropicLanguageModelLayer = (
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { AnthropicLanguageModelLive } from "@beep/anthropic"
+ * import type { Config, Layer } from "effect"
+ * import type * as LanguageModel from "effect/unstable/ai/LanguageModel"
  *
- * console.log(AnthropicLanguageModelLive)
+ * const layer: Layer.Layer<LanguageModel.LanguageModel, Config.ConfigError, never> =
+ *   AnthropicLanguageModelLive
+ *
+ * strictEqual(typeof layer, "object")
  * ```
  *
  * @category layers
@@ -91,9 +119,12 @@ export const AnthropicLanguageModelLive = makeAnthropicLanguageModelLayer();
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { makeAnthropicTurnPlan } from "@beep/anthropic"
  *
- * console.log(makeAnthropicTurnPlan())
+ * const plan = makeAnthropicTurnPlan()
+ *
+ * strictEqual(typeof plan, "object")
  * ```
  *
  * @category configuration
@@ -112,9 +143,10 @@ export const makeAnthropicTurnPlan = () =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { AnthropicTurnPlan } from "@beep/anthropic"
  *
- * console.log(AnthropicTurnPlan)
+ * strictEqual(typeof AnthropicTurnPlan, "object")
  * ```
  *
  * @category configuration

@@ -12,13 +12,19 @@ import * as S from "effect/Schema";
 const $I = $ArchitectureLabConfigId.create("WorkItemConfig");
 
 /**
- * Client-safe WorkItem configuration.
+ * Client-safe feature flags for WorkItem behavior.
  *
  * @example
  * ```ts
  * import { WorkItemPublicConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemPublicConfig)
+ * const config = S.decodeUnknownSync(WorkItemPublicConfig)({
+ *   assignmentEnabled: true,
+ *   reopenCompletedEnabled: false
+ * })
+ *
+ * console.log(config.reopenCompletedEnabled) // false
  * ```
  *
  * @category configuration
@@ -36,13 +42,19 @@ export class WorkItemPublicConfig extends S.Class<WorkItemPublicConfig>($I`WorkI
 ) {}
 
 /**
- * Server-only WorkItem configuration.
+ * Server-only repository and migration settings for WorkItem persistence.
  *
  * @example
  * ```ts
  * import { WorkItemServerConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemServerConfig)
+ * const config = S.decodeUnknownSync(WorkItemServerConfig)({
+ *   repositoryName: "architecture-lab-work-items",
+ *   migrationSchemaName: "architecture_lab"
+ * })
+ *
+ * console.log(config.repositoryName) // "architecture-lab-work-items"
  * ```
  *
  * @category configuration
@@ -60,13 +72,18 @@ export class WorkItemServerConfig extends S.Class<WorkItemServerConfig>($I`WorkI
 ) {}
 
 /**
- * Secret WorkItem configuration.
+ * Secret-reference configuration for the WorkItem backing connection.
  *
  * @example
  * ```ts
  * import { WorkItemSecretConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemSecretConfig)
+ * const config = S.decodeUnknownSync(WorkItemSecretConfig)({
+ *   connectionName: "architecture-lab-proof"
+ * })
+ *
+ * console.log(config.connectionName) // "architecture-lab-proof"
  * ```
  *
  * @category configuration
@@ -83,13 +100,17 @@ export class WorkItemSecretConfig extends S.Class<WorkItemSecretConfig>($I`WorkI
 ) {}
 
 /**
- * Default client-safe WorkItem configuration.
+ * Default browser-safe WorkItem feature flags used by test and local layers.
  *
  * @example
  * ```ts
  * import { defaultWorkItemPublicConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
  *
- * console.log(defaultWorkItemPublicConfig)
+ * const bothActionsEnabled =
+ *   defaultWorkItemPublicConfig.assignmentEnabled &&
+ *   defaultWorkItemPublicConfig.reopenCompletedEnabled
+ *
+ * console.log(bothActionsEnabled) // true
  * ```
  *
  * @category configuration
@@ -101,13 +122,13 @@ export const defaultWorkItemPublicConfig = WorkItemPublicConfig.make({
 });
 
 /**
- * Default server WorkItem configuration.
+ * Default server-side WorkItem repository and migration names.
  *
  * @example
  * ```ts
  * import { defaultWorkItemServerConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
  *
- * console.log(defaultWorkItemServerConfig)
+ * console.log(defaultWorkItemServerConfig.migrationSchemaName) // "architecture_lab"
  * ```
  *
  * @category configuration
@@ -119,13 +140,13 @@ export const defaultWorkItemServerConfig = WorkItemServerConfig.make({
 });
 
 /**
- * Default secret WorkItem configuration.
+ * Default WorkItem secret reference name for local proof wiring.
  *
  * @example
  * ```ts
  * import { defaultWorkItemSecretConfig } from "@beep/architecture-lab-config/aggregates/WorkItem"
  *
- * console.log(defaultWorkItemSecretConfig)
+ * console.log(defaultWorkItemSecretConfig.connectionName) // "architecture-lab-proof"
  * ```
  *
  * @category configuration

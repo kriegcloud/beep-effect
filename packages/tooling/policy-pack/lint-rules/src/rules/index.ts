@@ -5,6 +5,21 @@ import noInlineSchemaCompile from "./no-inline-schema-compile.ts";
 import noManualEffectRuntimeInTests from "./no-manual-effect-runtime-in-tests.ts";
 import noOpaqueInstanceFields from "./no-opaque-instance-fields.ts";
 
+/**
+ * Oxlint plugin that exposes the repo-local TypeScript policy rules under the
+ * `beep` plugin namespace.
+ *
+ * @example
+ * ```ts
+ * import { ok } from "node:assert/strict"
+ * import plugin from "@beep/lint-rules/oxlint"
+ *
+ * ok(plugin.rules["no-inline-schema-compile"])
+ * ok(plugin.rules["namespace-node-imports"])
+ * ```
+ * @category tools
+ * @since 0.1.0
+ */
 export default definePlugin({
   meta: {
     name: "beep",

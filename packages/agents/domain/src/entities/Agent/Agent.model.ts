@@ -1,5 +1,5 @@
 /**
- * Agents agent entity model.
+ * Persisted agent entity schema for fixture-backed runtime agents.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -15,7 +15,8 @@ import { AgentMode } from "./Agent.values.js";
 const $I = $AgentsDomainId.create("entities/Agent/Agent.model");
 
 /**
- * Agent definition available to the runtime proof.
+ * Persisted agent record that binds a fixture key to one skill fixture and
+ * execution mode.
  *
  * @example
  * ```ts
@@ -24,7 +25,7 @@ const $I = $AgentsDomainId.create("entities/Agent/Agent.model");
  * console.log(Agent.definition.entityId.entityType)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Agent extends BaseEntity.Class<Agent>($I`Agent`)(
@@ -52,7 +53,7 @@ export class Agent extends BaseEntity.Class<Agent>($I`Agent`)(
     },
   },
   $I.annote("Agent", {
-    description: "Agent definition available to the runtime proof.",
+    description: "Persisted agent record that binds a fixture key to one skill fixture and execution mode.",
   })
 ) {
   static readonly toTagged = () =>

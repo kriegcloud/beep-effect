@@ -9,6 +9,16 @@ import type { ESTree } from "@oxlint/plugins";
  * arguments, identifier slots, binding targets, and import-export names. All
  * carry a `type` discriminant, so they narrow without `unknown` or `as`.
  *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import type { AstNode } from "../../src/rules/utils"
+ *
+ * type CarriesDiscriminant = AstNode extends { readonly type: string } ? true : false
+ * const carriesDiscriminant: CarriesDiscriminant = true
+ *
+ * strictEqual(carriesDiscriminant, true)
+ * ```
  * @category models
  * @since 0.1.0
  */
@@ -23,6 +33,15 @@ export type AstNode =
 /**
  * A slot that may also be empty (the typed AST exposes nullable child positions).
  *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import type { MaybeNode } from "../../src/rules/utils"
+ *
+ * const emptySlot: MaybeNode = null
+ *
+ * strictEqual(emptySlot, null)
+ * ```
  * @category models
  * @since 0.1.0
  */
@@ -35,6 +54,13 @@ export type MaybeNode = AstNode | null | undefined;
  *
  * @param node - The opaque AST node to narrow.
  * @returns `true` when `node` carries a `type` discriminant (an expression).
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import { asExpression } from "../../src/rules/utils"
+ *
+ * strictEqual(asExpression.name, "asExpression")
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -66,6 +92,14 @@ const isExpressionWrapper = (node: AstNode): node is ExpressionWrapper =>
  *
  * @param node - The node (or empty slot) to unwrap.
  * @returns The innermost non-wrapper node, or `None` for an empty slot.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import { unwrapExpression } from "../../src/rules/utils"
+ *
+ * strictEqual(O.isNone(unwrapExpression(null)), true)
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -83,6 +117,16 @@ export const unwrapExpression = (node: MaybeNode): O.Option<AstNode> => {
  * A peeled member access: the unwrapped receiver (`object`) and the raw property
  * slot, ready to feed to `getPropertyName` / `isIdentifier`.
  *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import type { MemberAccess } from "../../src/rules/utils"
+ *
+ * const access: MemberAccess = { object: O.none(), property: null }
+ *
+ * strictEqual(O.isNone(access.object), true)
+ * ```
  * @category models
  * @since 0.1.0
  */
@@ -98,6 +142,14 @@ export type MemberAccess = {
  *
  * @param node - The candidate member-access node (or empty slot).
  * @returns The unwrapped receiver and raw property, or `None` when not a member access.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import { unwrapMemberExpression } from "../../src/rules/utils"
+ *
+ * strictEqual(O.isNone(unwrapMemberExpression(null)), true)
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -124,6 +176,14 @@ const carriedSlot = (expression: AstNode): unknown =>
  *
  * @param node - The node (or empty slot) to read a name from.
  * @returns The string name/value, or `None` when absent or non-string.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import { getPropertyName } from "../../src/rules/utils"
+ *
+ * strictEqual(O.isNone(getPropertyName(null)), true)
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -136,6 +196,14 @@ export const getPropertyName = (node: MaybeNode): O.Option<string> =>
  * @param node - The already-unwrapped candidate node.
  * @param name - When provided, also require the identifier to carry this exact name.
  * @returns `true` when `node` is a matching identifier.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import { isIdentifier } from "../../src/rules/utils"
+ *
+ * strictEqual(isIdentifier(O.none(), "Effect"), false)
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -153,6 +221,14 @@ export const isIdentifier = (node: O.Option<AstNode>, name?: string): boolean =>
  *
  * @param node - The node (or empty slot) to read a literal value from.
  * @returns The string literal value, or `None` when not a string literal.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import { literalStringValue } from "../../src/rules/utils"
+ *
+ * strictEqual(O.isNone(literalStringValue(undefined)), true)
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -166,6 +242,14 @@ export const literalStringValue = (node: MaybeNode): O.Option<string> =>
  *
  * @param node - The node (or empty slot) to read an identifier name from.
  * @returns The identifier name, or `None` when not an identifier.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import * as O from "effect/Option"
+ * import { identifierName } from "../../src/rules/utils"
+ *
+ * strictEqual(O.isNone(identifierName(null)), true)
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -178,6 +262,15 @@ export const identifierName = (node: MaybeNode): O.Option<string> =>
  * A value (non-type) import specifier, classified by how it binds a local name.
  * `named` carries the original exported name; `namespace`/`default` bind the module itself.
  *
+ * @example
+ * ```ts
+ * import { deepStrictEqual } from "node:assert/strict"
+ * import type { ImportBinding } from "../../src/rules/utils"
+ *
+ * const binding: ImportBinding = { kind: "named", imported: "Effect", local: "Effect" }
+ *
+ * deepStrictEqual(binding, { kind: "named", imported: "Effect", local: "Effect" })
+ * ```
  * @category models
  * @since 0.1.0
  */
@@ -208,6 +301,13 @@ const MODULE_BINDING_KINDS = HashMap.fromIterable<string, "namespace" | "default
  *
  * @param specifier - The import specifier AST node to classify.
  * @returns The binding (kind + local name, plus `imported` for named), or `None` for type-only.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import { classifyImportSpecifier } from "../../src/rules/utils"
+ *
+ * strictEqual(classifyImportSpecifier.name, "classifyImportSpecifier")
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -236,6 +336,15 @@ const normalizePath = (path: string): string => path.replaceAll("\\", "/");
  * @param filename - The absolute (or already-relative) file path from the lint context.
  * @param cwd - The lint working directory (repo root).
  * @returns The repo-relative path, forward-slash normalized.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import { toRepoPath } from "../../src/rules/utils"
+ *
+ * const relative = toRepoPath("/repo/packages/example/src/index.ts", "/repo")
+ *
+ * strictEqual(relative, "packages/example/src/index.ts")
+ * ```
  * @category utilities
  * @since 0.1.0
  */
@@ -256,6 +365,14 @@ export const toRepoPath: {
  * @param path - The repo-relative path to test.
  * @param suffix - The repo-relative suffix to match on a path boundary.
  * @returns `true` when `path` is exactly `suffix` or ends with `/suffix`.
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import { pathMatchesSuffix } from "../../src/rules/utils"
+ *
+ * strictEqual(pathMatchesSuffix("packages/demo/src/File.ts", "src/File.ts"), true)
+ * strictEqual(pathMatchesSuffix("packages/demo/src/NotFile.ts", "src/File.ts"), false)
+ * ```
  * @category utilities
  * @since 0.1.0
  */

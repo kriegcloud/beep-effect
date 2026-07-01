@@ -18,7 +18,8 @@ import { ExtractionCandidate } from "@beep/langextract/Extraction";
  * ```ts
  * import { OfficeActionReviewSpikeCandidates } from "@beep/law-practice-use-cases/test"
  *
- * console.log(OfficeActionReviewSpikeCandidates.length)
+ * const labels = OfficeActionReviewSpikeCandidates.map((candidate) => candidate.label)
+ * console.log(labels.includes("rejection_reference")) // true
  * ```
  *
  * @category fixtures

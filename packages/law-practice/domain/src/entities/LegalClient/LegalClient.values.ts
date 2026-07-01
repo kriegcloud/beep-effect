@@ -11,36 +11,38 @@ import { LiteralKit } from "@beep/schema";
 const $I = $LawPracticeDomainId.create("entities/LegalClient/LegalClient.values");
 
 /**
- * Legal client status vocabulary represented in proof seeds.
+ * Legal client lifecycle status accepted by the law-practice proof fixtures.
  *
  * @example
  * ```ts
  * import { LegalClientStatus } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(LegalClientStatus.is.active_client("active_client"))
+ * const status = S.decodeUnknownSync(LegalClientStatus)("active_client")
+ * console.log(status) // "active_client"
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
 export const LegalClientStatus = LiteralKit(["active_client"]).pipe(
   $I.annoteSchema("LegalClientStatus", {
-    description: "Legal client status vocabulary represented in proof seeds.",
+    description: "Legal client lifecycle status accepted by law-practice proof fixtures.",
   })
 );
 
 /**
- * Runtime type for {@link LegalClientStatus}.
+ * Type-level literal union produced by {@link LegalClientStatus}.
  *
  * @example
  * ```ts
  * import type { LegalClientStatus } from "@beep/law-practice-domain"
  *
- * const value: LegalClientStatus = "active_client"
- * console.log(value)
+ * const status = "active_client" satisfies LegalClientStatus
+ * console.log(status)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type LegalClientStatus = typeof LegalClientStatus.Type;

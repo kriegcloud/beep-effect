@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box upload session entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/UploadSession/UploadSession.model");
 
 /**
+ * Experimental schema anchor for Box chunked upload session resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(UploadSession.make({
+ * const decoded = S.decodeUnknownSync(UploadSession)({});
+ * const encoded: UploadSession.Encoded = S.encodeSync(UploadSession)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class UploadSession extends S.Class<UploadSession>($I`UploadSession`)(
   {},
   $I.annote("UploadSession", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box chunked upload session resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link UploadSession}
+ * Type-level companion namespace for {@link UploadSession} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = UploadSession.make({});
+ * const encoded: UploadSession.Encoded = S.encodeSync(UploadSession)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace UploadSession {
   /**
-   * Companion encoded type for {@link UploadSession}.
+   * Encoded payload accepted by the {@link UploadSession} entity schema.
    *
    * @example
    * ```ts
-   * import type { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
+   * import { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: UploadSession.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: UploadSession.Encoded = S.encodeSync(UploadSession)(UploadSession.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof UploadSession.Encoded;
 }
-
-/**
- * Companion runtime type for {@link UploadSession}.
- *
- * @example
- * ```ts
- * import type { UploadSession } from "@beep/box/experimental/domain/entities/UploadSession/UploadSession.model";
- *
- * const useValue = (_value: UploadSession) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type UploadSession = typeof UploadSession.Type;

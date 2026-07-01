@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box user entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/User/User.model");
 
 /**
+ * Experimental schema anchor for Box user resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { User } from "@beep/box/experimental/domain/entities/User/User.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(User.make({
+ * const decoded = S.decodeUnknownSync(User)({});
+ * const encoded: User.Encoded = S.encodeSync(User)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class User extends S.Class<User>($I`User`)(
   {},
   $I.annote("User", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box user resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link User}
+ * Type-level companion namespace for {@link User} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { User } from "@beep/box/experimental/domain/entities/User/User.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = User.make({});
+ * const encoded: User.Encoded = S.encodeSync(User)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace User {
   /**
-   * Companion encoded type for {@link User}.
+   * Encoded payload accepted by the {@link User} entity schema.
    *
    * @example
    * ```ts
-   * import type { User } from "@beep/box/experimental/domain/entities/User/User.model";
+   * import { User } from "@beep/box/experimental/domain/entities/User/User.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: User.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: User.Encoded = S.encodeSync(User)(User.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof User.Encoded;
 }
-
-/**
- * Companion runtime type for {@link User}.
- *
- * @example
- * ```ts
- * import type { User } from "@beep/box/experimental/domain/entities/User/User.model";
- *
- * const useValue = (_value: User) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type User = typeof User.Type;

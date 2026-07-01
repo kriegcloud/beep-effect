@@ -49,6 +49,14 @@ export const SendOn = LiteralKit(["enter", "modifierEnter"]).pipe(
 /**
  * The keystroke that submits the message.
  *
+ * @example
+ * ```ts
+ * import type { SendOn } from "@beep/editor/chat"
+ *
+ * const sendOn: SendOn = "modifierEnter"
+ * console.log(sendOn) // "modifierEnter"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -95,6 +103,18 @@ export class ComposerFeatures extends S.Class<ComposerFeatures>($I`ComposerFeatu
 
 /**
  * Typed callback applied to the editor when a slash/mention option is selected.
+ *
+ * @example
+ * ```ts
+ * import type { EditorEffect } from "@beep/editor/chat"
+ *
+ * const focusEditor: EditorEffect = (editor) => {
+ *   editor.focus()
+ * }
+ *
+ * const callbackArity = focusEditor.length
+ * console.log(callbackArity) // 1
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -200,6 +220,18 @@ const isMentionSource = (u: unknown): u is MentionSource => P.isFunction(u);
 
 /**
  * Schema for {@link MentionSource}.
+ *
+ * @example
+ * ```ts
+ * import { MentionOption, MentionSource } from "@beep/editor/chat"
+ * import * as S from "effect/Schema"
+ *
+ * const source = (query: string) => [
+ *   MentionOption.make({ id: query, label: `@${query}` }),
+ * ]
+ *
+ * console.log(S.is(MentionSource)(source)) // true
+ * ```
  *
  * @category configuration
  * @since 0.0.0

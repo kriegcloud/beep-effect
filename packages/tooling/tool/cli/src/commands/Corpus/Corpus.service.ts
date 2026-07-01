@@ -159,8 +159,13 @@ export interface CorpusCommandServiceShape {
  *
  * @example
  * ```ts
- * import { CorpusCommandService } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusCommandService)
+ * import { CorpusCommandService, CorpusCatalogOptions } from "@beep/repo-cli/commands/Corpus"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.map(CorpusCommandService, (service) =>
+ *   service.catalogCorpus(CorpusCatalogOptions.make({ corpusRoot: "/data/corpus" }))
+ * )
+ * console.log(program.pipe !== undefined) // true
  * ```
  * @category services
  * @since 0.0.0
@@ -1995,7 +2000,9 @@ const makeCorpusCommandService = Effect.fn("CorpusCommandService.make")(function
  * @example
  * ```ts
  * import { CorpusCommandServiceLive } from "@beep/repo-cli/commands/Corpus"
- * console.log(CorpusCommandServiceLive)
+ *
+ * const layers = { corpus: CorpusCommandServiceLive }
+ * console.log(Object.keys(layers)) // ["corpus"]
  * ```
  * @category layers
  * @since 0.0.0
@@ -2010,9 +2017,14 @@ export const CorpusCommandServiceLive: Layer.Layer<CorpusCommandService, never, 
  * @returns Summary counts for the catalog run.
  * @example
  * ```ts
- * import { catalogCorpus } from "@beep/repo-cli/commands/Corpus"
- * console.log(catalogCorpus)
+ * import { catalogCorpus, CorpusCatalogOptions } from "@beep/repo-cli/commands/Corpus"
+ * import { Effect } from "effect"
+ *
+ * const options = CorpusCatalogOptions.make({ corpusRoot: "/data/corpus" })
+ * const sourceFileCount = catalogCorpus(options).pipe(Effect.map((summary) => summary.sourceFiles))
+ * console.log(sourceFileCount.pipe !== undefined) // true
  * ```
+ * @effects Delegates to `CorpusCommandService`; the live service reads provenance JSONL, scans recycle-bin metadata, writes DuckDB/report artifacts, and logs a summary.
  * @category use-cases
  * @since 0.0.0
  */
@@ -2030,9 +2042,20 @@ export const catalogCorpus = Effect.fn("Corpus.catalogCorpus")(function* (
  * @returns Summary counts for the extraction run.
  * @example
  * ```ts
- * import { extractCorpus } from "@beep/repo-cli/commands/Corpus"
- * console.log(extractCorpus)
+ * import { extractCorpus, CorpusExtractOptions } from "@beep/repo-cli/commands/Corpus"
+ * import { Effect } from "effect"
+ *
+ * const options = CorpusExtractOptions.make({
+ *   corpusRoot: "/data/corpus",
+ *   exportChildren: true,
+ *   includeDuplicates: false,
+ *   overwrite: false,
+ *   tikaJarPath: "/opt/tika/tika-app.jar"
+ * })
+ * const sourceCount = extractCorpus(options).pipe(Effect.map((summary) => summary.sourceCount))
+ * console.log(sourceCount.pipe !== undefined) // true
  * ```
+ * @effects Delegates to `CorpusCommandService`; the live service reads manifests, invokes libpff/Tika processing engines, writes staging artifacts, and logs extraction counts.
  * @category use-cases
  * @since 0.0.0
  */
@@ -2050,9 +2073,14 @@ export const extractCorpus = Effect.fn("Corpus.extractCorpus")(function* (
  * @returns Summary counts for the enrichment run.
  * @example
  * ```ts
- * import { enrichCorpus } from "@beep/repo-cli/commands/Corpus"
- * console.log(enrichCorpus)
+ * import { enrichCorpus, CorpusEnrichOptions } from "@beep/repo-cli/commands/Corpus"
+ * import { Effect } from "effect"
+ *
+ * const options = CorpusEnrichOptions.make({ corpusRoot: "/data/corpus", maxLookups: 25 })
+ * const resolvedCount = enrichCorpus(options).pipe(Effect.map((summary) => summary.resolved))
+ * console.log(resolvedCount.pipe !== undefined) // true
  * ```
+ * @effects Delegates to `CorpusCommandService`; the live service reads organized/extracted text artifacts, calls USPTO APIs, writes enrichment manifests and DuckDB tables, and logs lookup counts.
  * @category use-cases
  * @since 0.0.0
  */
@@ -2070,9 +2098,14 @@ export const enrichCorpus = Effect.fn("Corpus.enrichCorpus")(function* (
  * @returns Summary counts for the organize run.
  * @example
  * ```ts
- * import { organizeCorpus } from "@beep/repo-cli/commands/Corpus"
- * console.log(organizeCorpus)
+ * import { organizeCorpus, CorpusOrganizeOptions } from "@beep/repo-cli/commands/Corpus"
+ * import { Effect } from "effect"
+ *
+ * const options = CorpusOrganizeOptions.make({ corpusRoot: "/data/corpus", overwrite: false })
+ * const docketFiles = organizeCorpus(options).pipe(Effect.map((summary) => summary.docketFiles))
+ * console.log(docketFiles.pipe !== undefined) // true
  * ```
+ * @effects Delegates to `CorpusCommandService`; the live service reads catalog manifests, creates or clears organized output directories, copies or symlinks artifacts, writes manifests/tables, and logs taxonomy counts.
  * @category use-cases
  * @since 0.0.0
  */
@@ -2090,9 +2123,14 @@ export const organizeCorpus = Effect.fn("Corpus.organizeCorpus")(function* (
  * @returns Summary counts for the verification run.
  * @example
  * ```ts
- * import { verifySalvage } from "@beep/repo-cli/commands/Corpus"
- * console.log(verifySalvage)
+ * import { verifySalvage, CorpusSalvageOptions } from "@beep/repo-cli/commands/Corpus"
+ * import { Effect } from "effect"
+ *
+ * const options = CorpusSalvageOptions.make({ corpusRoot: "/data/corpus", sampleStride: 10 })
+ * const matchedCount = verifySalvage(options).pipe(Effect.map((summary) => summary.matched))
+ * console.log(matchedCount.pipe !== undefined) // true
  * ```
+ * @effects Delegates to `CorpusCommandService`; the live service reads provenance records, hashes raw files, writes verification reports, and logs mismatch/missing counts.
  * @category use-cases
  * @since 0.0.0
  */
@@ -2109,9 +2147,11 @@ export const verifySalvage = Effect.fn("Corpus.verifySalvage")(function* (
  * @example
  * ```ts
  * import { printCorpusIndex } from "@beep/repo-cli/commands/Corpus"
- * console.log(printCorpusIndex)
+ *
+ * console.log(printCorpusIndex.pipe !== undefined) // true
  * ```
- * @category use-cases
+ * @effects Writes the corpus command index to the configured console when the returned Effect is executed.
+ * @category cli-commands
  * @since 0.0.0
  */
 export const printCorpusIndex = printLines([

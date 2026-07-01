@@ -13,10 +13,17 @@
  * ```ts
  * import { VERSION } from "@beep/architecture-lab-domain"
  *
- * console.log(VERSION)
+ * const expectedVersion: typeof VERSION = "0.0.0"
+ * const isExpectedVersion = VERSION === expectedVersion
+ *
+ * console.log(isExpectedVersion)
+ *
+ * if (VERSION !== expectedVersion) {
+ *   throw new Error("unexpected architecture lab domain version")
+ * }
  * ```
  *
- * @category aggregates
+ * @category constants
  * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;

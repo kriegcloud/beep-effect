@@ -80,9 +80,11 @@ export type CauseClassification = typeof CauseClassification.Type;
  *
  * @example
  * ```typescript
- * import { ExitOutcome } from "@beep/observability"
+ * import { Exit } from "effect"
+ * import { summarizeExit } from "@beep/observability"
  *
- * console.log(ExitOutcome)
+ * const outcome = summarizeExit(Exit.succeed("ok")).outcome
+ * console.log(outcome) // "success"
  * ```
  *
  * @since 0.0.0
@@ -245,9 +247,13 @@ const ObservedExitSummaryTagged = CauseClassification.toTaggedUnion("classificat
  *
  * @example
  * ```typescript
- * import { ObservedExitSummary } from "@beep/observability"
+ * import { Exit } from "effect"
+ * import * as S from "effect/Schema"
+ * import { ObservedExitSummary, summarizeExit } from "@beep/observability"
  *
- * console.log(ObservedExitSummary)
+ * const summary = summarizeExit(Exit.fail(new Error("boom")))
+ * const decoded = S.decodeUnknownSync(ObservedExitSummary)(summary)
+ * console.log(decoded.outcome) // "failure"
  * ```
  *
  * @since 0.0.0

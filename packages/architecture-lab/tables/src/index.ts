@@ -7,13 +7,18 @@
  */
 
 /**
- * Package version for the architecture lab tables role.
+ * Package version constant published by the architecture lab tables entry point.
  *
  * @example
  * ```ts
  * import { VERSION } from "@beep/architecture-lab-tables"
  *
- * console.log(VERSION)
+ * const version: typeof VERSION = "0.0.0"
+ * if (version !== VERSION) {
+ *   throw new Error("unexpected tables package version")
+ * }
+ *
+ * console.log(version)
  * ```
  *
  * @category tables

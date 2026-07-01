@@ -22,7 +22,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTDerivability.model");
  * ```ts
  * import { ASTDerivability } from "@beep/repo-utils/JSDoc/models/ASTDerivability.model"
  *
- * console.log(ASTDerivability)
+ * const derivability = ASTDerivability.Enum.full
+ * console.log(ASTDerivability.is.full(derivability))
  * ```
  * @category models
  * @since 0.0.0

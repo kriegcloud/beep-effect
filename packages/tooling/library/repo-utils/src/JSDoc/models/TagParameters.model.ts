@@ -14,9 +14,17 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagParameters.model");
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { TagParameters } from "@beep/repo-utils/JSDoc/models/TagParameters.model"
  *
- * console.log(TagParameters)
+ * const parameters = TagParameters.make({
+ *   syntax: "@param name - description",
+ *   acceptsType: false,
+ *   acceptsName: true,
+ *   acceptsDescription: true,
+ *   allowedValues: O.none()
+ * })
+ * console.log(parameters.acceptsName)
  * ```
  * @category models
  * @since 0.0.0

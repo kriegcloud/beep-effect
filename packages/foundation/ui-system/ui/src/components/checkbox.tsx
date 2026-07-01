@@ -5,13 +5,15 @@ import { CheckIcon } from "@phosphor-icons/react";
 import { cn } from "../lib/index.ts";
 
 /**
- * Checkbox component.
+ * Accessible checkbox control with checked and invalid styling.
  *
  * @example
  * ```tsx
  * import { Checkbox } from "@beep/ui/components/checkbox"
  *
- * console.log(Checkbox)
+ * export function TermsCheckbox() {
+ *   return <Checkbox aria-label="Accept terms" defaultChecked />
+ * }
  * ```
  *
  * @category components

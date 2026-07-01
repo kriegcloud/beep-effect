@@ -24,8 +24,10 @@ const $I = $EpistemicDomainId.create("values/EvidenceSpan/EvidenceSpan.model");
  * @example
  * ```ts
  * import { Confidence } from "@beep/epistemic-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(Confidence)
+ * const confidence = S.decodeUnknownSync(Confidence)(0.92)
+ * console.log(confidence) // 0.92
  * ```
  *
  * @category schemas
@@ -38,13 +40,15 @@ export const Confidence = UnitInterval;
  *
  * @example
  * ```ts
- * import type { Confidence } from "@beep/epistemic-domain"
+ * import { Confidence } from "@beep/epistemic-domain"
+ * import type { Confidence as ConfidenceValue } from "@beep/epistemic-domain"
+ * import * as S from "effect/Schema"
  *
- * const value: Confidence = 0.92 as Confidence
+ * const value: ConfidenceValue = S.decodeUnknownSync(Confidence)(0.92)
  * console.log(value)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type Confidence = typeof Confidence.Type;
@@ -70,7 +74,7 @@ export type Confidence = typeof Confidence.Type;
  * console.log(span.endChar)
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export class EvidenceSpan extends S.Class<EvidenceSpan>($I`EvidenceSpan`)(

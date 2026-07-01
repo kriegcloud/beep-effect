@@ -29,7 +29,9 @@ const $I = $RepoAiMetricsId.create("otlp");
  * @example
  * ```ts
  * import { AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST } from "@beep/repo-ai-metrics"
- * console.log(AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST)
+ *
+ * const carriesSessionId = AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST.includes("session.id")
+ * console.log(carriesSessionId)
  * ```
  * @category constants
  * @since 0.0.0
@@ -65,7 +67,10 @@ export const AI_METRICS_OTLP_ATTRIBUTE_ALLOWLIST = [
  * @example
  * ```ts
  * import { AiMetricsOtlpAttributeValue } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsOtlpAttributeValue)
+ * import * as S from "effect/Schema"
+ *
+ * const isAttributeValue = S.is(AiMetricsOtlpAttributeValue)(42)
+ * console.log(isAttributeValue)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -96,7 +101,12 @@ export type AiMetricsOtlpAttributeValue = typeof AiMetricsOtlpAttributeValue.Typ
  * @example
  * ```ts
  * import { AiMetricsOtlpExportError } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsOtlpExportError)
+ *
+ * const error = AiMetricsOtlpExportError.make({
+ *   cause: "duckdb read failed",
+ *   message: "Failed to read AI metrics OTLP rows."
+ * })
+ * console.log(error.message)
  * ```
  * @category errors
  * @since 0.0.0
@@ -153,7 +163,16 @@ export class AiMetricsOtlpExportInput extends S.Class<AiMetricsOtlpExportInput>(
  * @example
  * ```ts
  * import { AiMetricsOtlpSpanProjection } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsOtlpSpanProjection)
+ *
+ * const projection = AiMetricsOtlpSpanProjection.make({
+ *   attributes: {
+ *     "ai_metrics.event_name": "codex.event_msg",
+ *     "ai_metrics.line_number": 1,
+ *     "openinference.span.kind": "CHAIN"
+ *   },
+ *   spanName: "ai_metrics.turn"
+ * })
+ * console.log(projection.attributes["ai_metrics.event_name"])
  * ```
  * @category models
  * @since 0.0.0
@@ -173,8 +192,23 @@ export class AiMetricsOtlpSpanProjection extends S.Class<AiMetricsOtlpSpanProjec
  *
  * @example
  * ```ts
- * import { AiMetricsOtlpSpanProjectionBatch } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsOtlpSpanProjectionBatch)
+ * import {
+ *   AiMetricsOtlpSpanProjection,
+ *   AiMetricsOtlpSpanProjectionBatch
+ * } from "@beep/repo-ai-metrics"
+ *
+ * const batch = AiMetricsOtlpSpanProjectionBatch.make({
+ *   ingestRunId: "forwarder-1",
+ *   projections: [
+ *     AiMetricsOtlpSpanProjection.make({
+ *       attributes: { "ai_metrics.event_name": "codex.event_msg" },
+ *       spanName: "ai_metrics.turn"
+ *     })
+ *   ],
+ *   sessionSpanCount: 0,
+ *   turnSpanCount: 1
+ * })
+ * console.log(batch.projections.length)
  * ```
  * @category models
  * @since 0.0.0
@@ -199,7 +233,16 @@ export class AiMetricsOtlpSpanProjectionBatch extends S.Class<AiMetricsOtlpSpanP
  * @example
  * ```ts
  * import { AiMetricsOtlpExportResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsOtlpExportResult)
+ *
+ * const result = AiMetricsOtlpExportResult.make({
+ *   endpointTraceUrl: "http://127.0.0.1:6006/projects/default/traces",
+ *   ingestRunId: "forwarder-1",
+ *   sessionSpanCount: 2,
+ *   spanCount: 12,
+ *   target: "local",
+ *   turnSpanCount: 10
+ * })
+ * console.log(result.spanCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -436,9 +479,32 @@ const spanProjectionsFor = (
  *
  * @example
  * ```ts
- * import { readAiMetricsOtlpSpanProjections } from "@beep/repo-ai-metrics"
- * console.log(readAiMetricsOtlpSpanProjections)
+ * import {
+ *   AiMetricsOtlpEndpointSpec,
+ *   AiMetricsOtlpExportInput,
+ *   readAiMetricsOtlpSpanProjections
+ * } from "@beep/repo-ai-metrics"
+ * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
+ * import { Effect } from "effect"
+ *
+ * const input = AiMetricsOtlpExportInput.make({
+ *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   endpoint: AiMetricsOtlpEndpointSpec.make({
+ *     baseUrl: "http://127.0.0.1:6006",
+ *     protocol: "http/protobuf",
+ *     resourceAttributes: {},
+ *     signalScope: "traces_only",
+ *     traceUrl: "http://127.0.0.1:6006/projects/default/traces"
+ *   }),
+ *   target: "local"
+ * })
+ * const program = readAiMetricsOtlpSpanProjections(input).pipe(
+ *   Effect.provide(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: input.duckDbPath })))
+ * )
+ * console.log(program)
  * ```
+ * @effects Reads derived session and turn rows from the configured DuckDB database.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -497,9 +563,36 @@ const runAiMetricsOtlpProjectionBatchExportUntraced: (
  *
  * @example
  * ```ts
- * import { runAiMetricsOtlpProjectionBatchExport } from "@beep/repo-ai-metrics"
- * console.log(runAiMetricsOtlpProjectionBatchExport)
+ * import {
+ *   AiMetricsOtlpEndpointSpec,
+ *   AiMetricsOtlpExportInput,
+ *   AiMetricsOtlpSpanProjectionBatch,
+ *   runAiMetricsOtlpProjectionBatchExport
+ * } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const input = AiMetricsOtlpExportInput.make({
+ *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   endpoint: AiMetricsOtlpEndpointSpec.make({
+ *     baseUrl: "http://127.0.0.1:6006",
+ *     protocol: "http/protobuf",
+ *     resourceAttributes: {},
+ *     signalScope: "traces_only",
+ *     traceUrl: "http://127.0.0.1:6006/projects/default/traces"
+ *   }),
+ *   target: "local"
+ * })
+ * const batch = AiMetricsOtlpSpanProjectionBatch.make({
+ *   ingestRunId: "forwarder-1",
+ *   projections: [],
+ *   sessionSpanCount: 0,
+ *   turnSpanCount: 0
+ * })
+ * const exported = Effect.runPromise(runAiMetricsOtlpProjectionBatchExport(input, batch))
+ * console.log(exported)
  * ```
+ * @effects Emits one Effect span per projection into the active tracer.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -517,9 +610,32 @@ export const runAiMetricsOtlpProjectionBatchExport: {
  *
  * @example
  * ```ts
- * import { runAiMetricsOtlpExport } from "@beep/repo-ai-metrics"
- * console.log(runAiMetricsOtlpExport)
+ * import {
+ *   AiMetricsOtlpEndpointSpec,
+ *   AiMetricsOtlpExportInput,
+ *   runAiMetricsOtlpExport
+ * } from "@beep/repo-ai-metrics"
+ * import { DuckDb, DuckDbConnectionOptions } from "@beep/duckdb"
+ * import { Effect } from "effect"
+ *
+ * const input = AiMetricsOtlpExportInput.make({
+ *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   endpoint: AiMetricsOtlpEndpointSpec.make({
+ *     baseUrl: "http://127.0.0.1:6006",
+ *     protocol: "http/protobuf",
+ *     resourceAttributes: {},
+ *     signalScope: "traces_only",
+ *     traceUrl: "http://127.0.0.1:6006/projects/default/traces"
+ *   }),
+ *   target: "local"
+ * })
+ * const program = runAiMetricsOtlpExport(input).pipe(
+ *   Effect.provide(DuckDb.makeNodeLayer(DuckDbConnectionOptions.make({ databasePath: input.duckDbPath })))
+ * )
+ * console.log(program)
  * ```
+ * @effects Reads derived DuckDB rows and emits redacted Effect spans into the active tracer.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -541,8 +657,22 @@ export const runAiMetricsOtlpExport: (
  *
  * @example
  * ```ts
- * import { otlpExportResultToJson } from "@beep/repo-ai-metrics"
- * console.log(otlpExportResultToJson)
+ * import { AiMetricsOtlpExportResult, otlpExportResultToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   otlpExportResultToJson(
+ *     AiMetricsOtlpExportResult.make({
+ *       endpointTraceUrl: "http://127.0.0.1:6006/projects/default/traces",
+ *       ingestRunId: "forwarder-1",
+ *       sessionSpanCount: 0,
+ *       spanCount: 0,
+ *       target: "local",
+ *       turnSpanCount: 0
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0

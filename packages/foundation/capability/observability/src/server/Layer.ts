@@ -18,10 +18,20 @@ import type { DevToolsSpanFilter } from "./DevTools.ts";
  *
  * @example
  * ```typescript
- * import { Layer } from "effect"
  * import { ServerObservabilityConfig, layerLocalLgtmServer } from "@beep/observability/server"
  *
- * declare const config: ServerObservabilityConfig
+ * const config = ServerObservabilityConfig.make({
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   environment: "test",
+ *   minLogLevel: "Info",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: false,
+ *   otlpResourceAttributes: {},
+ *   prometheusPrefix: "beep",
+ *   serviceName: "beep-api",
+ *   serviceVersion: "0.0.0"
+ * })
  * const ObservabilityLive = layerLocalLgtmServer(config)
  * console.log(ObservabilityLive)
  * ```

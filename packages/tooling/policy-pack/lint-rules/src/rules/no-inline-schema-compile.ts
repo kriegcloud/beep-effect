@@ -60,6 +60,22 @@ const messageHigh = (method: string) =>
 const messageMedium = (method: string) =>
   `Hoist Schema.${method}(...) to module scope: the compiled function is rebuilt on every call. Move it to a module-level const.`;
 
+/**
+ * Oxlint rule that reports Effect Schema decoder and encoder compiler calls
+ * created inside function bodies instead of hoisted module constants.
+ *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import plugin from "@beep/lint-rules/oxlint"
+ *
+ * const description = plugin.rules["no-inline-schema-compile"]?.meta.docs.description
+ *
+ * strictEqual(description?.includes("hoist them to module scope"), true)
+ * ```
+ * @category tools
+ * @since 0.1.0
+ */
 export default defineRule({
   meta: {
     type: "problem",

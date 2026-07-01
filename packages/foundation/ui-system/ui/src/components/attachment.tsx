@@ -26,13 +26,22 @@ const attachmentVariants = cva(
 );
 
 /**
- * Attachment component.
+ * File attachment shell with state, size, and orientation styling hooks.
  *
  * @example
  * ```tsx
- * import { Attachment } from "@beep/ui/components/attachment"
+ * import { Attachment, AttachmentContent, AttachmentDescription, AttachmentTitle } from "@beep/ui/components/attachment"
  *
- * console.log(Attachment)
+ * export function UploadedInvoiceAttachment() {
+ *   return (
+ *     <Attachment state="done" size="sm" orientation="horizontal">
+ *       <AttachmentContent>
+ *         <AttachmentTitle>invoice-q2.pdf</AttachmentTitle>
+ *         <AttachmentDescription>248 KB</AttachmentDescription>
+ *       </AttachmentContent>
+ *     </Attachment>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -77,13 +86,21 @@ const attachmentMediaVariants = cva(
 );
 
 /**
- * Attachment media component.
+ * Media slot for an attachment icon, spinner, or thumbnail image.
  *
  * @example
  * ```tsx
- * import { AttachmentMedia } from "@beep/ui/components/attachment"
+ * import { Attachment, AttachmentMedia } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentMedia)
+ * export function AttachmentPreview() {
+ *   return (
+ *     <Attachment orientation="vertical">
+ *       <AttachmentMedia variant="image">
+ *         <img src="/files/receipt.png" alt="Receipt preview" />
+ *       </AttachmentMedia>
+ *     </Attachment>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -105,13 +122,20 @@ function AttachmentMedia({
 }
 
 /**
- * Attachment content component.
+ * Text column for attachment titles and descriptions.
  *
  * @example
  * ```tsx
- * import { AttachmentContent } from "@beep/ui/components/attachment"
+ * import { AttachmentContent, AttachmentDescription, AttachmentTitle } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentContent)
+ * export function AttachmentSummary() {
+ *   return (
+ *     <AttachmentContent>
+ *       <AttachmentTitle>contract.pdf</AttachmentTitle>
+ *       <AttachmentDescription>Processing scan</AttachmentDescription>
+ *     </AttachmentContent>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -131,13 +155,15 @@ function AttachmentContent({ className, ...props }: React.ComponentProps<"div">)
 }
 
 /**
- * Attachment title component.
+ * Truncated primary label for an attachment.
  *
  * @example
  * ```tsx
  * import { AttachmentTitle } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentTitle)
+ * export function AttachmentFileName() {
+ *   return <AttachmentTitle>signed-engagement-letter.pdf</AttachmentTitle>
+ * }
  * ```
  *
  * @category components
@@ -157,13 +183,15 @@ function AttachmentTitle({ className, ...props }: React.ComponentProps<"span">) 
 }
 
 /**
- * Attachment description component.
+ * Secondary attachment metadata such as size, status, or error text.
  *
  * @example
  * ```tsx
  * import { AttachmentDescription } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentDescription)
+ * export function AttachmentUploadStatus() {
+ *   return <AttachmentDescription>Uploading 62%</AttachmentDescription>
+ * }
  * ```
  *
  * @category components
@@ -184,13 +212,20 @@ function AttachmentDescription({ className, ...props }: React.ComponentProps<"sp
 }
 
 /**
- * Attachment actions component.
+ * Action cluster positioned inside an attachment.
  *
  * @example
  * ```tsx
- * import { AttachmentActions } from "@beep/ui/components/attachment"
+ * import { AttachmentAction, AttachmentActions } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentActions)
+ * export function AttachmentMenuActions() {
+ *   return (
+ *     <AttachmentActions>
+ *       <AttachmentAction aria-label="Download attachment">Download</AttachmentAction>
+ *       <AttachmentAction aria-label="Remove attachment" variant="ghost">Remove</AttachmentAction>
+ *     </AttachmentActions>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -210,13 +245,19 @@ function AttachmentActions({ className, ...props }: React.ComponentProps<"div">)
 }
 
 /**
- * Attachment action button component.
+ * Button styled for attachment-level commands.
  *
  * @example
  * ```tsx
  * import { AttachmentAction } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentAction)
+ * export function RemoveAttachmentAction() {
+ *   return (
+ *     <AttachmentAction variant="ghost" size="icon-xs" aria-label="Remove attachment">
+ *       Remove
+ *     </AttachmentAction>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -235,13 +276,19 @@ function AttachmentAction({ className, variant, size = "icon-xs", ...props }: Re
 }
 
 /**
- * Attachment trigger component.
+ * Full-surface button overlay for making an attachment clickable.
  *
  * @example
  * ```tsx
- * import { AttachmentTrigger } from "@beep/ui/components/attachment"
+ * import { Attachment, AttachmentTrigger } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentTrigger)
+ * export function OpenableAttachment() {
+ *   return (
+ *     <Attachment>
+ *       <AttachmentTrigger aria-label="Open attachment" />
+ *     </Attachment>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -265,13 +312,28 @@ function AttachmentTrigger({ className, render, type, ...props }: useRender.Comp
 }
 
 /**
- * Attachment group component.
+ * Horizontally scrollable group of attachment cards.
  *
  * @example
  * ```tsx
- * import { AttachmentGroup } from "@beep/ui/components/attachment"
+ * import { Attachment, AttachmentContent, AttachmentGroup, AttachmentTitle } from "@beep/ui/components/attachment"
  *
- * console.log(AttachmentGroup)
+ * export function AttachmentTray() {
+ *   return (
+ *     <AttachmentGroup>
+ *       <Attachment size="xs">
+ *         <AttachmentContent>
+ *           <AttachmentTitle>tax-return.pdf</AttachmentTitle>
+ *         </AttachmentContent>
+ *       </Attachment>
+ *       <Attachment size="xs">
+ *         <AttachmentContent>
+ *           <AttachmentTitle>w2.pdf</AttachmentTitle>
+ *         </AttachmentContent>
+ *       </Attachment>
+ *     </AttachmentGroup>
+ *   )
+ * }
  * ```
  *
  * @category components

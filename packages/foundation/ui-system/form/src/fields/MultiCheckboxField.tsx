@@ -44,9 +44,36 @@ export interface MultiCheckboxFieldProps {
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { MultiCheckboxField } from "@beep/form/fields/MultiCheckboxField"
+ * import * as S from "effect/Schema"
  *
- * console.log(MultiCheckboxField)
+ * const ToppingsSchema = S.Struct({ toppings: S.Array(S.String) })
+ * const toppingOptions = [
+ *   { value: "mushroom", label: "Mushroom" },
+ *   { value: "pepper", label: "Pepper" },
+ * ]
+ * const toppingsFormOptions = makeFormOptions({
+ *   schema: ToppingsSchema,
+ *   defaultValues: { toppings: ["mushroom"] },
+ *   validateOn: "change",
+ * })
+ *
+ * export function ToppingsForm() {
+ *   const form = useAppForm(toppingsFormOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="toppings">
+ *           {() => <MultiCheckboxField label="Toppings" options={toppingOptions} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(toppingsFormOptions.defaultValues.toppings.join(", ")) // "mushroom"
  * ```
  *
  * @category components

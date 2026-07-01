@@ -3,13 +3,26 @@ import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "../../editor/editor-ui/content-editable.js";
 
 /**
- * Plugins component.
+ * Rich-text plugin stack for the editor block.
+ *
+ * @remarks
+ * Render this inside a `LexicalComposer`. The higher-level {@link Editor}
+ * component wires that provider for normal use.
  *
  * @example
  * ```tsx
+ * import { LexicalComposer } from "@lexical/react/LexicalComposer"
  * import { Plugins } from "@beep/ui/components/blocks/editor-00/plugins"
+ * import { editorTheme } from "@beep/ui/components/editor/themes/editor-theme"
+ * import { nodes } from "@beep/ui/components/blocks/editor-00/nodes"
  *
- * console.log(Plugins)
+ * export function BareEditorPlugins() {
+ *   return (
+ *     <LexicalComposer initialConfig={{ namespace: "Docs", theme: editorTheme, nodes, onError: (error) => { throw error } }}>
+ *       <Plugins />
+ *     </LexicalComposer>
+ *   )
+ * }
  * ```
  *
  * @category components

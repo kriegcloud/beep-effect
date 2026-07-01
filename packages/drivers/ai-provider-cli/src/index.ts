@@ -1,26 +1,82 @@
 /**
- * Native provider CLI driver package.
+ * Claude and Codex CLI status-probe driver.
+ *
+ * @remarks
+ * The public entry point exposes redacted models, typed errors, and the
+ * `AiProviderCli` service used to check local CLI authentication without
+ * returning raw account or token output.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Public provider CLI driver error exports.
+ * Redacted provider CLI error exports.
+ *
+ * @example
+ * ```ts
+ * import { AiProviderCliError } from "@beep/ai-provider-cli"
+ *
+ * const error = AiProviderCliError.make({
+ *   command: "codex",
+ *   message: "Failed to execute provider CLI status command.",
+ *   operation: "checkAuth",
+ *   provider: "codex",
+ *   stderr: "not logged in"
+ * })
+ *
+ * console.log(error.provider) // "codex"
+ * ```
  *
  * @category errors
  * @since 0.0.0
  */
 export * from "./AiProviderCli.errors.ts";
 /**
- * Public provider CLI driver model exports.
+ * Schema-backed provider CLI probe model exports.
+ *
+ * @example
+ * ```ts
+ * import { AiProviderCliAuthProbe } from "@beep/ai-provider-cli"
+ *
+ * const probe = AiProviderCliAuthProbe.make({
+ *   command: "claude",
+ *   provider: "claude",
+ *   status: "authenticated"
+ * })
+ *
+ * console.log(probe.status) // "authenticated"
+ * ```
  *
  * @category models
  * @since 0.0.0
  */
 export * from "./AiProviderCli.models.ts";
 /**
- * Public provider CLI driver service exports.
+ * Effect service exports for Claude and Codex auth probes.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { AiProviderCli, AiProviderCliProcessResult, type AiProviderCliRunner } from "@beep/ai-provider-cli"
+ *
+ * const runner: AiProviderCliRunner = (provider, command) =>
+ *   Effect.succeed(
+ *     AiProviderCliProcessResult.make({
+ *       exitCode: provider === "claude" ? 0 : 1,
+ *       stderr: "",
+ *       stdout: command
+ *     })
+ *   )
+ *
+ * const program = Effect.gen(function* () {
+ *   const cli = yield* AiProviderCli
+ *   const probe = yield* cli.checkAuth("claude")
+ *   return probe.status
+ * }).pipe(Effect.provide(AiProviderCli.makeLayerFromRunner(runner)))
+ *
+ * console.log(Effect.runSync(program)) // "authenticated"
+ * ```
  *
  * @category services
  * @since 0.0.0

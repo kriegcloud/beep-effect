@@ -12,10 +12,18 @@ import { nameField, optionalDesc, optionalName, optionalType } from "./_fields.j
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/OrganizationalTagValues");
 
 /**
+ * Schema-backed value for a parsed `module` tag occurrence: declares a module.
+ *
  * @example
  * ```ts
  * import { ModuleValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(ModuleValue)
+ *
+ * const tag = ModuleValue.make({
+ *   type: "module",
+ *   name: "@beep/repo-utils"
+ * })
+ * const tagName: "module" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -29,10 +37,18 @@ export class ModuleValue extends S.TaggedClass<ModuleValue>($I`ModuleValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `namespace` tag occurrence: declares a namespace.
+ *
  * @example
  * ```ts
  * import { NamespaceValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(NamespaceValue)
+ *
+ * const tag = NamespaceValue.make({
+ *   type: "namespace",
+ *   name: "RepoUtils"
+ * })
+ * const tagName: "namespace" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -46,10 +62,15 @@ export class NamespaceValue extends S.TaggedClass<NamespaceValue>($I`NamespaceVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `memberof` tag occurrence: specifies parent membership.
+ *
  * @example
  * ```ts
  * import { MemberofValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(MemberofValue)
+ *
+ * const tag = MemberofValue.make({ name: "RepoUtils.JSDoc" })
+ * const tagName: "memberof" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -63,10 +84,18 @@ export class MemberofValue extends S.TaggedClass<MemberofValue>($I`MemberofValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `member` tag occurrence: documents a member property.
+ *
  * @example
  * ```ts
  * import { MemberValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(MemberValue)
+ *
+ * const tag = MemberValue.make({
+ *   type: "string",
+ *   name: "config"
+ * })
+ * const tagName: "member" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -80,10 +109,19 @@ export class MemberValue extends S.TaggedClass<MemberValue>($I`MemberValue`)(
 ) {}
 
 /**
+ * Schema-backed value for a parsed `property` tag occurrence: documents a property of an object.
+ *
  * @example
  * ```ts
  * import { PropertyValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(PropertyValue)
+ *
+ * const tag = PropertyValue.make({
+ *   type: "number",
+ *   name: "options.timeout",
+ *   description: "Parsed tag text."
+ * })
+ * const tagName: "property" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -97,10 +135,15 @@ export class PropertyValue extends S.TaggedClass<PropertyValue>($I`PropertyValue
 ) {}
 
 /**
+ * Schema-backed value for a parsed `interface` tag occurrence: marks a symbol as an interface.
+ *
  * @example
  * ```ts
  * import { InterfaceValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(InterfaceValue)
+ *
+ * const tag = InterfaceValue.make({ name: "Readable" })
+ * const tagName: "interface" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0
@@ -114,10 +157,15 @@ export class InterfaceValue extends S.TaggedClass<InterfaceValue>($I`InterfaceVa
 ) {}
 
 /**
+ * Schema-backed value for a parsed `function` tag occurrence: marks a symbol as a function.
+ *
  * @example
  * ```ts
  * import { FunctionValue } from "@beep/repo-utils/JSDoc/models/tag-values/OrganizationalTagValues"
- * console.log(FunctionValue)
+ *
+ * const tag = FunctionValue.make({ name: "parseTag" })
+ * const tagName: "function" = tag._tag
+ * console.log(tagName)
  * ```
  * @category models
  * @since 0.0.0

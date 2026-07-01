@@ -6,13 +6,16 @@
  */
 
 /**
- * AssistantContent pure behavior exports.
+ * AssistantContent Markdown projection helpers.
  *
  * @example
  * ```ts
  * import { assistantContentToDocument } from "@beep/agents-domain/values/AssistantContent"
  *
- * console.log(assistantContentToDocument)
+ * const document = assistantContentToDocument([
+ *   { type: "paragraph", children: [{ type: "text", text: "Hello" }] },
+ * ])
+ * console.log(document._tag)
  * ```
  *
  * @category value-objects
@@ -25,8 +28,10 @@ export * from "./AssistantContent.behavior.js";
  * @example
  * ```ts
  * import { AssistantContent } from "@beep/agents-domain/values/AssistantContent"
+ * import * as S from "effect/Schema"
  *
- * console.log(AssistantContent)
+ * const content = S.decodeUnknownSync(AssistantContent)({ blocks: [] })
+ * console.log(content.blocks.length)
  * ```
  *
  * @category value-objects

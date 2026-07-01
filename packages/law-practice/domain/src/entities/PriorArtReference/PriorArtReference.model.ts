@@ -13,17 +13,38 @@ import * as S from "effect/Schema";
 const $I = $LawPracticeDomainId.create("entities/PriorArtReference/PriorArtReference.model");
 
 /**
- * Prior art reference cited by an office action: the document number examiners
- * rely on and its title. Pinned to the office action that introduced it.
+ * Prior-art reference entity cited by an office action.
+ *
+ * Captures the examiner-cited document number and title while linking back to
+ * the office action fixture that introduced the reference.
  *
  * @example
  * ```ts
  * import { PriorArtReference } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(PriorArtReference.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const reference = S.decodeUnknownSync(PriorArtReference)({
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   documentNumber: "US 7,654,321 B2",
+ *   entityType: "LawPracticePriorArtReference",
+ *   fixtureKey: "prior-art.smith",
+ *   id: 6,
+ *   officeActionFixtureKey: "office-action.first",
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   title: "Smith hinge assembly",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(reference.documentNumber) // "US 7,654,321 B2"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class PriorArtReference extends BaseEntity.Class<PriorArtReference>($I`PriorArtReference`)(
@@ -51,6 +72,6 @@ export class PriorArtReference extends BaseEntity.Class<PriorArtReference>($I`Pr
     },
   },
   $I.annote("PriorArtReference", {
-    description: "Prior art reference cited by an office action.",
+    description: "Prior-art reference entity cited by an office action.",
   })
 ) {}

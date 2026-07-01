@@ -10,9 +10,11 @@
  *
  * @example
  * ```ts
- * import { AgentTurnKernel, TurnGenerationError, TurnHistoryItem } from "@beep/agents-use-cases/public"
+ * import { TurnHistoryItem } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(AgentTurnKernel, TurnGenerationError, TurnHistoryItem)
+ * const item = S.decodeUnknownSync(TurnHistoryItem)({ role: "assistant", text: "Done." })
+ * console.log(item.role) // "assistant"
  * ```
  *
  * @category use-cases
@@ -27,7 +29,8 @@ export * from "./processes/AssistantTurn/index.js";
  * ```ts
  * import { ChatActionError, ChatRpcs } from "@beep/agents-use-cases/public"
  *
- * console.log(ChatRpcs, ChatActionError)
+ * const error = ChatActionError.make({ message: "thread not found" })
+ * console.log(ChatRpcs.requests.has("SendMessage"), error._tag) // true "ChatActionError"
  * ```
  *
  * @category protocols
@@ -40,8 +43,10 @@ export * from "./processes/Chat/index.js";
  * @example
  * ```ts
  * import { ProposeCandidateOutputSet } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(ProposeCandidateOutputSet)
+ * const isCommand = S.is(ProposeCandidateOutputSet)
+ * console.log(isCommand({ outputSet: {}, producedByPrincipalId: "agent", scope: {} })) // false
  * ```
  *
  * @category commands
@@ -53,9 +58,14 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.commands.js";
  *
  * @example
  * ```ts
- * import { CandidateOutputSet } from "@beep/agents-use-cases/public"
+ * import { RuntimeScope } from "@beep/agents-use-cases/public"
  *
- * console.log(CandidateOutputSet)
+ * const scope = RuntimeScope.make({
+ *   organizationId: "org-1",
+ *   threadId: "thread-1",
+ *   workspaceId: "workspace-1"
+ * })
+ * console.log(scope.workspaceId)
  * ```
  *
  * @category protocols
@@ -81,9 +91,18 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.errors.js";
  *
  * @example
  * ```ts
- * import { GetContextPacket } from "@beep/agents-use-cases/public"
+ * import { GetContextPacket, RuntimeScope } from "@beep/agents-use-cases/public"
  *
- * console.log(GetContextPacket)
+ * const query = GetContextPacket.make({
+ *   artifactId: "email-artifact-law-001",
+ *   scenarioId: "law-patent-intake",
+ *   scope: RuntimeScope.make({
+ *     organizationId: "org-law-fixture",
+ *     threadId: "thread-law-001",
+ *     workspaceId: "workspace-law-fixture"
+ *   })
+ * })
+ * console.log(query.scenarioId)
  * ```
  *
  * @category queries
@@ -96,8 +115,9 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.queries.js";
  * @example
  * ```ts
  * import { RuntimeCandidateLifecycle } from "@beep/agents-use-cases/public"
+ * import * as S from "effect/Schema"
  *
- * console.log(RuntimeCandidateLifecycle)
+ * console.log(S.is(RuntimeCandidateLifecycle)("candidate")) // true
  * ```
  *
  * @category value-objects
@@ -109,10 +129,11 @@ export * from "./processes/ProfessionalRuntime/ProfessionalRuntime.values.js";
  *
  * @example
  * ```ts
+ * import { makeInMemoryProfessionalRuntimeSdk } from "@beep/agents-use-cases/proof"
  * import type { ProfessionalRuntimeSdk } from "@beep/agents-use-cases/public"
  *
- * declare const sdk: ProfessionalRuntimeSdk
- * console.log(sdk)
+ * const sdk: ProfessionalRuntimeSdk = makeInMemoryProfessionalRuntimeSdk([])
+ * console.log(typeof sdk.proposeCandidateOutputSet) // "function"
  * ```
  *
  * @category services

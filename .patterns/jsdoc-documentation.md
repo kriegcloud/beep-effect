@@ -759,7 +759,7 @@ command schema is `commands`, not `schemas`; a port service contract is
 `ports`, not `services`.
 
 The code source of truth is
-`packages/tooling/tool/cli/src/commands/Shared/JSDocCategories.ts`.
+`packages/tooling/library/repo-utils/src/schemas/JSDocCategories.ts`.
 
 ### Standard Categories
 

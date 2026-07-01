@@ -14,16 +14,35 @@ import { LegalContactRole } from "./LegalContact.values.js";
 const $I = $LawPracticeDomainId.create("entities/LegalContact/LegalContact.model");
 
 /**
- * Legal contact context.
+ * Legal contact entity attached to a legal client.
  *
  * @example
  * ```ts
  * import { LegalContact } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(LegalContact.definition.entityId.resource)
+ * const systemPrincipal = { component: "Runtime", kind: "System" }
+ * const contact = S.decodeUnknownSync(LegalContact)({
+ *   createdAt: 1,
+ *   createdByPrincipal: systemPrincipal,
+ *   displayName: "Ada Founder",
+ *   entityType: "LawPracticeLegalContact",
+ *   fixtureKey: "contact.ada",
+ *   id: 2,
+ *   legalClientFixtureKey: "legal-client.acme",
+ *   orgId: 1,
+ *   role: "founder",
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   updatedAt: 1,
+ *   updatedByPrincipal: systemPrincipal,
+ * })
+ *
+ * console.log(contact.legalClientFixtureKey) // "legal-client.acme"
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class LegalContact extends BaseEntity.Class<LegalContact>($I`LegalContact`)(
@@ -51,6 +70,6 @@ export class LegalContact extends BaseEntity.Class<LegalContact>($I`LegalContact
     },
   },
   $I.annote("LegalContact", {
-    description: "Legal contact context.",
+    description: "Legal contact entity attached to a legal client.",
   })
 ) {}

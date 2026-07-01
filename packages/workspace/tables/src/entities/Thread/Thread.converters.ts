@@ -15,10 +15,12 @@ import type { Table } from "./Thread.table.ts";
  *
  * @example
  * ```ts
- * import type { ThreadRow } from "@beep/workspace-tables/entities/Thread"
+ * import type { Table, ThreadRow } from "@beep/workspace-tables/entities/Thread"
  *
- * const value = {} as ThreadRow
- * console.log(value)
+ * type RowMatchesTable = ThreadRow extends typeof Table.$inferSelect ? true : false
+ * const rowMatchesTable: RowMatchesTable = true
+ *
+ * console.log(rowMatchesTable)
  * ```
  *
  * @category tables
@@ -31,10 +33,12 @@ export type ThreadRow = typeof Table.$inferSelect;
  *
  * @example
  * ```ts
- * import type { ThreadInsert } from "@beep/workspace-tables/entities/Thread"
+ * import type { Table, ThreadInsert } from "@beep/workspace-tables/entities/Thread"
  *
- * const value = {} as ThreadInsert
- * console.log(value)
+ * type InsertMatchesTable = ThreadInsert extends typeof Table.$inferInsert ? true : false
+ * const insertMatchesTable: InsertMatchesTable = true
+ *
+ * console.log(insertMatchesTable)
  * ```
  *
  * @category tables
@@ -48,15 +52,35 @@ const decodeThreadRow = S.decodeUnknownSync(Thread);
 /**
  * Convert a Thread entity into its persistence insert row.
  *
- * The schema-first entity is its own row codec: encoding yields the
- * snake_case column shape produced by {@link Table}. The database-managed
- * `id` (SERIAL) is dropped so the insert defers to the sequence.
+ * The schema-first entity is its own row codec: encoding yields the field-key
+ * shape accepted by {@link Table}, whose metadata carries the physical SQL
+ * column names. The database-managed `id` (SERIAL) is dropped so the insert
+ * defers to the sequence.
  *
  * @example
  * ```ts
+ * import { Thread } from "@beep/workspace-domain/entities/Thread"
  * import { toThreadInsert } from "@beep/workspace-tables/entities/Thread"
+ * import * as S from "effect/Schema"
  *
- * console.log(toThreadInsert)
+ * const principal = { component: "Runtime", kind: "System" }
+ * const thread = S.decodeUnknownSync(Thread)({
+ *   createdAt: 1,
+ *   createdByPrincipal: principal,
+ *   entityType: "WorkspaceThread",
+ *   id: 10,
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   title: "Matter intake",
+ *   updatedAt: 2,
+ *   updatedByPrincipal: principal,
+ *   workspaceId: 2
+ * })
+ *
+ * const insert = toThreadInsert(thread)
+ * console.log(insert.workspaceId)
  * ```
  *
  * @category tables
@@ -72,9 +96,25 @@ export const toThreadInsert = (thread: Thread): ThreadInsert => {
  *
  * @example
  * ```ts
- * import { fromThreadRow } from "@beep/workspace-tables/entities/Thread"
+ * import { fromThreadRow, type ThreadRow } from "@beep/workspace-tables/entities/Thread"
  *
- * console.log(fromThreadRow)
+ * const row = {
+ *   createdAt: 1,
+ *   createdByPrincipal: { component: "Runtime", kind: "System" },
+ *   entityType: "WorkspaceThread",
+ *   id: 10,
+ *   orgId: 1,
+ *   rowVersion: 1,
+ *   schemaVersion: "0.0.0",
+ *   source: "System",
+ *   title: "Matter intake",
+ *   updatedAt: 2,
+ *   updatedByPrincipal: { component: "Runtime", kind: "System" },
+ *   workspaceId: 2
+ * } satisfies ThreadRow
+ *
+ * const thread = fromThreadRow(row)
+ * console.log(thread.title)
  * ```
  *
  * @category tables

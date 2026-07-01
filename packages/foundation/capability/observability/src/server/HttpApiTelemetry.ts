@@ -256,13 +256,16 @@ const annotateHttpApiOutcome = Effect.fn("annotateHttpApiOutcome")(function* (
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { makeHttpApiTelemetryDescriptor } from "@beep/observability/server"
- * import type { HttpApiGroup, HttpApiEndpoint } from "effect/unstable/httpapi"
+ * import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi"
  *
- * declare const group: HttpApiGroup.AnyWithProps
- * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const group = HttpApiGroup.make("todos")
+ * const endpoint = HttpApiEndpoint.post("createTodo", "/todos", {
+ *   success: S.Struct({ id: S.String }).pipe(HttpApiSchema.status(201))
+ * })
  * const descriptor = makeHttpApiTelemetryDescriptor("TodoApi", group, endpoint)
- * console.log(descriptor.endpointName)
+ * console.log(descriptor.successStatus) // 201
  * ```
  *
  * @since 0.0.0
@@ -295,12 +298,15 @@ export const makeHttpApiTelemetryDescriptor: {
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { httpApiFailureStatus } from "@beep/observability/server"
- * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
+ * import { HttpApiEndpoint, HttpApiSchema } from "effect/unstable/httpapi"
  *
- * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const endpoint = HttpApiEndpoint.get("health", "/health", {
+ *   error: S.Struct({ message: S.String }).pipe(HttpApiSchema.status(503))
+ * })
  * const status = httpApiFailureStatus(endpoint, new Error("not found"))
- * console.log(status)
+ * console.log(status) // undefined
  * ```
  *
  * @since 0.0.0
@@ -335,16 +341,22 @@ export const httpApiFailureStatus: {
  * @example
  * ```typescript
  * import { Effect } from "effect"
- * import { makeHttpApiMetrics, observeHttpApiEffect } from "@beep/observability/server"
- * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
+ * import * as S from "effect/Schema"
+ * import {
+ *   makeHttpApiMetrics,
+ *   makeHttpApiTelemetryDescriptor,
+ *   observeHttpApiEffect
+ * } from "@beep/observability/server"
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
+ * import { HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi"
  *
- * declare const descriptor: HttpApiTelemetryDescriptor
- * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const endpoint = HttpApiEndpoint.get("health", "/health", { success: S.String })
+ * const descriptor = makeHttpApiTelemetryDescriptor("TodoApi", HttpApiGroup.make("system"), endpoint)
  * const metrics = makeHttpApiMetrics("todox_api")
  * const handler = Effect.succeed(HttpServerResponse.empty({ status: 200 }))
  * const observed = observeHttpApiEffect(descriptor, endpoint, metrics, handler)
- * console.log(Effect.runPromise(observed))
+ * const status = Effect.runSync(observed.pipe(Effect.map((response) => response.status)))
+ * console.log(status) // 200
  * ```
  *
  * @since 0.0.0
@@ -433,10 +445,10 @@ const observeHttpApiEffectImpl = <E, R>(
  *   makeHttpApiMetrics,
  *   observeHttpApiEffect
  * } from "@beep/observability/server"
- * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
+ * import { HttpApiEndpoint } from "effect/unstable/httpapi"
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
  *
- * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const endpoint = HttpApiEndpoint.get("listTodos", "/todos", { success: S.String })
  * const successStatus = S.decodeUnknownSync(NonNegativeInt)(200)
  * const descriptor = HttpApiTelemetryDescriptor.make({
  *   apiName: "TodoApi",
@@ -451,7 +463,7 @@ const observeHttpApiEffectImpl = <E, R>(
  *   Effect.succeed(HttpServerResponse.empty({ status: 200 })),
  *   { descriptor, endpoint, metrics }
  * )
- * console.log(observed)
+ * console.log(Effect.runSync(observed).status) // 200
  * ```
  *
  * @effects Updates HTTP API request metrics, annotates spans, and preserves the wrapped response effect.
@@ -505,9 +517,19 @@ export const observeHttpApiEffect: {
  *
  * @example
  * ```typescript
- * import { HttpApiTelemetryMiddleware } from "@beep/observability/server"
+ * import { Layer } from "effect"
+ * import {
+ *   HttpApiTelemetryMiddleware,
+ *   layerHttpApiTelemetryMiddleware,
+ *   makeHttpApiMetrics
+ * } from "@beep/observability/server"
  *
- * console.log(HttpApiTelemetryMiddleware)
+ * const middlewareLayer: Layer.Layer<HttpApiTelemetryMiddleware> =
+ *   layerHttpApiTelemetryMiddleware({
+ *     apiName: "TodoApi",
+ *     metrics: makeHttpApiMetrics("todo_api")
+ *   })
+ * console.log(middlewareLayer)
  * ```
  *
  * @since 0.0.0
@@ -560,13 +582,27 @@ export const layerHttpApiTelemetryMiddleware = (
  * @example
  * ```typescript
  * import { Effect } from "effect"
- * import { makeHttpApiMetrics, observeHttpApiHandler } from "@beep/observability/server"
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ * import {
+ *   HttpApiTelemetryDescriptor,
+ *   makeHttpApiMetrics,
+ *   observeHttpApiHandler
+ * } from "@beep/observability/server"
  *
- * declare const descriptor: HttpApiTelemetryDescriptor
+ * const successStatus = S.decodeUnknownSync(NonNegativeInt)(200)
+ * const descriptor = HttpApiTelemetryDescriptor.make({
+ *   apiName: "TodoApi",
+ *   endpointName: "listTodos",
+ *   groupName: "todos",
+ *   method: "GET",
+ *   route: "/todos",
+ *   successStatus
+ * })
  * const metrics = makeHttpApiMetrics("todox_api")
- * const handler = Effect.succeed({ status: 200 as const })
+ * const handler = Effect.succeed({ status: 200 })
  * const observed = observeHttpApiHandler(descriptor, metrics, handler)
- * console.log(Effect.runPromise(observed))
+ * console.log(Effect.runSync(observed).status) // 200
  * ```
  *
  * @since 0.0.0

@@ -72,9 +72,11 @@ export type SemanticSchemaMetadataKind = typeof SemanticSchemaMetadataKind.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SemanticSchemaStatus } from "@beep/rdf/SemanticSchemaMetadata"
  *
- * console.log(SemanticSchemaStatus)
+ * console.log(S.is(SemanticSchemaStatus)("stable")) // true
+ * console.log(S.is(SemanticSchemaStatus)("draft")) // false
  * ```
  *
  * @since 0.0.0
@@ -107,9 +109,11 @@ export type SemanticSchemaStatus = typeof SemanticSchemaStatus.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SemanticSchemaSpecificationDisposition } from "@beep/rdf/SemanticSchemaMetadata"
  *
- * console.log(SemanticSchemaSpecificationDisposition)
+ * const disposition = S.decodeUnknownSync(SemanticSchemaSpecificationDisposition)("normative")
+ * console.log(disposition) // "normative"
  * ```
  *
  * @since 0.0.0
@@ -142,9 +146,11 @@ export type SemanticSchemaSpecificationDisposition = typeof SemanticSchemaSpecif
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SemanticRepresentationKind } from "@beep/rdf/SemanticSchemaMetadata"
  *
- * console.log(SemanticRepresentationKind)
+ * console.log(S.is(SemanticRepresentationKind)("JSON-LD")) // true
+ * console.log(S.is(SemanticRepresentationKind)("CSV")) // false
  * ```
  *
  * @since 0.0.0
@@ -184,9 +190,15 @@ export type SemanticRepresentationKind = typeof SemanticRepresentationKind.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SemanticSchemaSpecification } from "@beep/rdf/SemanticSchemaMetadata"
  *
- * console.log(SemanticSchemaSpecification)
+ * const specification = S.decodeUnknownSync(SemanticSchemaSpecification)({
+ *   name: "RDF 1.1 Concepts",
+ *   section: "Graph Data Model",
+ *   disposition: "normative"
+ * })
+ * console.log(specification.name) // "RDF 1.1 Concepts"
  * ```
  *
  * @since 0.0.0
@@ -211,9 +223,14 @@ export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecifica
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SemanticRepresentation } from "@beep/rdf/SemanticSchemaMetadata"
  *
- * console.log(SemanticRepresentation)
+ * const representation = S.decodeUnknownSync(SemanticRepresentation)({
+ *   kind: "JSON-LD",
+ *   note: "Compacted document shape."
+ * })
+ * console.log(representation.kind) // "JSON-LD"
  * ```
  *
  * @since 0.0.0
@@ -234,9 +251,18 @@ export class SemanticRepresentation extends S.Class<SemanticRepresentation>($I`S
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { SemanticSchemaMetadata } from "@beep/rdf/SemanticSchemaMetadata"
  *
- * console.log(SemanticSchemaMetadata)
+ * const metadata = S.decodeUnknownSync(SemanticSchemaMetadata)({
+ *   kind: "rdfConstruct",
+ *   canonicalName: "NamedNode",
+ *   overview: "RDF named node metadata.",
+ *   status: "stable",
+ *   specifications: [{ name: "RDF/JS Data Model", disposition: "normative" }],
+ *   equivalenceBasis: "IRI equality."
+ * })
+ * console.log(metadata.canonicalName) // "NamedNode"
  * ```
  *
  * @since 0.0.0

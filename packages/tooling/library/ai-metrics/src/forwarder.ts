@@ -91,7 +91,15 @@ export class AiMetricsForwarderError extends TaggedErrorClass<AiMetricsForwarder
  * @example
  * ```ts
  * import { AiMetricsForwarderInput } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderInput)
+ * import { Redacted } from "effect"
+ *
+ * const input = AiMetricsForwarderInput.make({
+ *   hashSalt: "salt",
+ *   homeDir: "/home/me",
+ *   rawArchiveKey: Redacted.make("base64-32-byte-key"),
+ *   repoRoot: "/repo"
+ * })
+ * console.log(input.parquetExportMode)
  * ```
  * @category models
  * @since 0.0.0
@@ -138,7 +146,14 @@ export class AiMetricsForwarderInput extends S.Class<AiMetricsForwarderInput>($I
  * @example
  * ```ts
  * import { AiMetricsForwarderSourceCoverage } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderSourceCoverage)
+ *
+ * const coverage = AiMetricsForwarderSourceCoverage.make({
+ *   candidateFileCount: 12,
+ *   includedFileCount: 10,
+ *   limitedByMaxFiles: true,
+ *   sourceKind: "codex"
+ * })
+ * console.log(coverage.limitedByMaxFiles)
  * ```
  * @category models
  * @since 0.0.0
@@ -167,7 +182,17 @@ export class AiMetricsForwarderSourceCoverage extends S.Class<AiMetricsForwarder
  * @example
  * ```ts
  * import { AiMetricsForwarderOtlpExported } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderOtlpExported)
+ *
+ * const exported = AiMetricsForwarderOtlpExported.make({
+ *   endpointTraceUrl: "http://127.0.0.1:6006/projects/default/traces",
+ *   ingestRunId: "forwarder-1",
+ *   sessionSpanCount: 2,
+ *   spanCount: 12,
+ *   status: "exported",
+ *   target: "local",
+ *   turnSpanCount: 10
+ * })
+ * console.log(exported.spanCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -195,7 +220,15 @@ export class AiMetricsForwarderOtlpExported extends S.Class<AiMetricsForwarderOt
  * @example
  * ```ts
  * import { AiMetricsForwarderOtlpExportFailed } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderOtlpExportFailed)
+ *
+ * const failed = AiMetricsForwarderOtlpExportFailed.make({
+ *   endpointTraceUrl: "http://127.0.0.1:6006/projects/default/traces",
+ *   ingestRunId: "forwarder-1",
+ *   message: "Phoenix was unavailable.",
+ *   status: "failed",
+ *   target: "local"
+ * })
+ * console.log(failed.message)
  * ```
  * @category models
  * @since 0.0.0
@@ -220,8 +253,23 @@ export class AiMetricsForwarderOtlpExportFailed extends S.Class<AiMetricsForward
  *
  * @example
  * ```ts
- * import { AiMetricsForwarderOtlpExport } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderOtlpExport)
+ * import {
+ *   AiMetricsForwarderOtlpExport,
+ *   AiMetricsForwarderOtlpExported
+ * } from "@beep/repo-ai-metrics"
+ * import * as S from "effect/Schema"
+ *
+ * const exported = AiMetricsForwarderOtlpExported.make({
+ *   endpointTraceUrl: "http://127.0.0.1:6006/projects/default/traces",
+ *   ingestRunId: "forwarder-1",
+ *   sessionSpanCount: 1,
+ *   spanCount: 3,
+ *   status: "exported",
+ *   target: "local",
+ *   turnSpanCount: 2
+ * })
+ * const isForwarderOtlpExport = S.is(AiMetricsForwarderOtlpExport)(exported)
+ * console.log(isForwarderOtlpExport)
  * ```
  * @category schemas
  * @since 0.0.0
@@ -255,7 +303,20 @@ export type AiMetricsForwarderOtlpExport = typeof AiMetricsForwarderOtlpExport.T
  * @example
  * ```ts
  * import { AiMetricsForwarderRunResult } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderRunResult)
+ *
+ * const result = AiMetricsForwarderRunResult.make({
+ *   archiveObjectCount: 2,
+ *   configSnapshotId: "config-1",
+ *   duckDbPath: ".beep/ai-metrics/derived/ai-metrics.duckdb",
+ *   ingestRunId: "forwarder-1",
+ *   parquetExportMode: "snapshot",
+ *   parquetTables: ["ai_metrics_turns"],
+ *   rawArchiveDir: ".beep/ai-metrics/raw",
+ *   sourceFileCount: 2,
+ *   target: "local",
+ *   turnCount: 24
+ * })
+ * console.log(result.turnCount)
  * ```
  * @category models
  * @since 0.0.0
@@ -290,7 +351,14 @@ export class AiMetricsForwarderRunResult extends S.Class<AiMetricsForwarderRunRe
  * @example
  * ```ts
  * import { AiMetricsForwarderTimerInput } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderTimerInput)
+ *
+ * const input = AiMetricsForwarderTimerInput.make({
+ *   command: ["/usr/bin/bun", "run", "beep", "ai-metrics", "forwarder"],
+ *   lockPath: "/tmp/beep-ai-metrics-forwarder.lock",
+ *   statusPath: "/tmp/beep-ai-metrics-forwarder.json",
+ *   workingDirectory: "/repo"
+ * })
+ * console.log(input.intervalMinutes)
  * ```
  * @category models
  * @since 0.0.0
@@ -325,7 +393,17 @@ export class AiMetricsForwarderTimerInput extends S.Class<AiMetricsForwarderTime
  * @example
  * ```ts
  * import { AiMetricsForwarderTimerPlan } from "@beep/repo-ai-metrics"
- * console.log(AiMetricsForwarderTimerPlan)
+ *
+ * const plan = AiMetricsForwarderTimerPlan.make({
+ *   installCommands: ["systemctl --user enable --now beep-ai-metrics-forwarder.timer"],
+ *   lockPath: "/tmp/beep-ai-metrics-forwarder.lock",
+ *   serviceUnit: "[Service]\nType=oneshot",
+ *   serviceUnitName: "beep-ai-metrics-forwarder.service",
+ *   statusPath: "/tmp/beep-ai-metrics-forwarder.json",
+ *   timerUnit: "[Timer]\nOnUnitInactiveSec=30m",
+ *   timerUnitName: "beep-ai-metrics-forwarder.timer"
+ * })
+ * console.log(plan.timerUnitName)
  * ```
  * @category models
  * @since 0.0.0
@@ -411,9 +489,20 @@ const shellCommandFromArgv: (argv: ReadonlyArray<string>) => string = flow(A.map
  * @returns A render-only systemd timer/service plan for operator installation.
  * @example
  * ```ts
- * import { renderAiMetricsForwarderTimerPlan } from "@beep/repo-ai-metrics"
+ * import {
+ *   AiMetricsForwarderTimerInput,
+ *   renderAiMetricsForwarderTimerPlan
+ * } from "@beep/repo-ai-metrics"
  *
- * console.log(renderAiMetricsForwarderTimerPlan)
+ * const plan = renderAiMetricsForwarderTimerPlan(
+ *   AiMetricsForwarderTimerInput.make({
+ *     command: ["/usr/bin/bun", "run", "beep", "ai-metrics", "forwarder"],
+ *     lockPath: "/tmp/beep-ai-metrics-forwarder.lock",
+ *     statusPath: "/tmp/beep-ai-metrics-forwarder.json",
+ *     workingDirectory: "/repo"
+ *   })
+ * )
+ * console.log(plan.serviceUnitName)
  * ```
  * @category services
  * @since 0.0.0
@@ -750,6 +839,12 @@ const processSourceFile = Effect.fn("AiMetrics.forwarder.processSourceFile")(
  * const program = runAiMetricsForwarder(input)
  * console.log(program)
  * ```
+ * @effects
+ * - Scans local Codex, Claude, and OpenClaw source locations.
+ * - Reads selected source files and writes encrypted raw archive objects.
+ * - Writes config snapshot artifacts before and after derived storage succeeds.
+ * - Upserts derived rows into DuckDB and optionally refreshes Parquet exports.
+ *
  * @category services
  * @since 0.0.0
  */
@@ -876,8 +971,23 @@ export const forwarderRunResultToJson: (
  *
  * @example
  * ```ts
- * import { forwarderTimerPlanToJson } from "@beep/repo-ai-metrics"
- * console.log(forwarderTimerPlanToJson)
+ * import { AiMetricsForwarderTimerPlan, forwarderTimerPlanToJson } from "@beep/repo-ai-metrics"
+ * import { Effect } from "effect"
+ *
+ * const json = Effect.runPromise(
+ *   forwarderTimerPlanToJson(
+ *     AiMetricsForwarderTimerPlan.make({
+ *       installCommands: [],
+ *       lockPath: "/tmp/beep-ai-metrics-forwarder.lock",
+ *       serviceUnit: "[Service]\nType=oneshot",
+ *       serviceUnitName: "beep-ai-metrics-forwarder.service",
+ *       statusPath: "/tmp/beep-ai-metrics-forwarder.json",
+ *       timerUnit: "[Timer]\nOnUnitInactiveSec=30m",
+ *       timerUnitName: "beep-ai-metrics-forwarder.timer"
+ *     })
+ *   )
+ * )
+ * console.log(json)
  * ```
  * @category utilities
  * @since 0.0.0

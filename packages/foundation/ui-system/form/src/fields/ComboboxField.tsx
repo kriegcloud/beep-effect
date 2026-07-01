@@ -49,9 +49,36 @@ export interface ComboboxFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { ComboboxField } from "@beep/form/fields/ComboboxField"
+ * import * as S from "effect/Schema"
  *
- * console.log(ComboboxField)
+ * const CountrySchema = S.Struct({ country: S.String })
+ * const countryOptions = [
+ *   { value: "us", label: "United States" },
+ *   { value: "ca", label: "Canada" },
+ * ]
+ * const countryFormOptions = makeFormOptions({
+ *   schema: CountrySchema,
+ *   defaultValues: { country: "us" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function CountryComboboxForm() {
+ *   const form = useAppForm(countryFormOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="country">
+ *           {() => <ComboboxField label="Country" options={countryOptions} placeholder="Choose country" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(countryFormOptions.defaultValues.country) // "us"
  * ```
  *
  * @category components

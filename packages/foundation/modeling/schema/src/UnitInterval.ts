@@ -77,13 +77,14 @@ export const isUnitInterval = S.is(UnitInterval);
  *
  * @example
  * ```ts
- * import { ZERO } from "@beep/schema/UnitInterval"
+ * import { ZERO, complement, isUnitInterval } from "@beep/schema/UnitInterval"
  *
- * console.log(ZERO) // 0
+ * console.log(isUnitInterval(ZERO)) // true
+ * console.log(complement(ZERO)) // 1
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const ZERO: UnitInterval = UnitInterval.make(0);
 
@@ -92,13 +93,14 @@ export const ZERO: UnitInterval = UnitInterval.make(0);
  *
  * @example
  * ```ts
- * import { ONE } from "@beep/schema/UnitInterval"
+ * import { ONE, complement, isUnitInterval } from "@beep/schema/UnitInterval"
  *
- * console.log(ONE) // 1
+ * console.log(isUnitInterval(ONE)) // true
+ * console.log(complement(ONE)) // 0
  * ```
  *
- * @since 0.0.0
  * @category constants
+ * @since 0.0.0
  */
 export const ONE: UnitInterval = UnitInterval.make(1);
 

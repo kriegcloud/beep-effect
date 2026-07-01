@@ -10,7 +10,7 @@
  * This pattern is particularly useful in scenarios where frequent reloading can cause services or
  * single-instance objects to be recreated unnecessarily, such as in development environments with hot-reloading.
  *
- * @since 2.0.0
+ * @since 0.0.0
  */
 
 import { HashMap } from "effect";
@@ -34,16 +34,24 @@ type GlobalStore = HashMap.HashMap<unknown, TUnsafe.Any>;
  * ```ts
  * import { globalValue } from "@beep/utils"
  *
- * // This cache will persist as long as the module is running,
- * // even if reloaded or imported elsewhere
- * const myCache = globalValue(
- *   Symbol.for("myCache"),
- *   () => new WeakMap<object, number>()
- * )
+ * let computed = 0
+ * const cacheId = Symbol("docs-cache")
+ *
+ * const first = globalValue(cacheId, () => {
+ *   computed += 1
+ *   return { value: computed }
+ * })
+ * const second = globalValue(cacheId, () => {
+ *   computed += 1
+ *   return { value: computed }
+ * })
+ *
+ * console.log(first === second)
+ * console.log(computed)
  * ```
  *
  * @category utilities
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const globalValue: {
   <A>(compute: () => A): (id: unknown) => A;

@@ -10,12 +10,12 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/entities/UsageRecord"
+ * import { UsageRecord } from "@beep/epistemic-domain/entities/UsageRecord"
  *
- * console.log(Module)
+ * console.log(UsageRecord.definition.entityId.resource)
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export * from "./UsageRecord.model.js";

@@ -26,6 +26,21 @@ import type { JSX } from "react";
 /**
  * Serialized wire shape of {@link YouTubeNode}.
  *
+ * @example
+ * ```ts
+ * import type { SerializedYouTubeNode } from "@beep/editor/youtube-node"
+ *
+ * const payload = {
+ *   type: "youtube",
+ *   version: 1,
+ *   videoID: "dQw4w9WgXcQ",
+ *   format: "",
+ * } satisfies SerializedYouTubeNode
+ *
+ * const videoID: string = payload.videoID
+ * console.log(videoID) // "dQw4w9WgXcQ"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */

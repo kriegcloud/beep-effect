@@ -11,12 +11,16 @@ import * as S from "effect/Schema";
 const $I = $SharedDomainId.create("values/Rule/Rule.model");
 
 /**
+ * Rule-effect literal schema used as the discriminator for rule decisions.
  *
  * @example
  * ```ts
- * import { Effect } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import { Effect as RuleEffect } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Effect.Enum.allow)
+ * const effect = S.decodeUnknownSync(RuleEffect)("allow")
+ *
+ * console.log(RuleEffect.is.allow(effect)) // true
  * ```
  *
  * @category schemas
@@ -29,19 +33,18 @@ export const Effect = LiteralKit(["allow", "deny", "ask"]).pipe(
 );
 
 /**
- * Companion type for {@link Effect}.
+ * Companion namespace for {@link Effect}.
  *
  * @example
  * ```ts
- * import type { Effect } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import { Effect as RuleEffect } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const useEffect = (_value: Effect) => true
- * console.log(useEffect)
+ * const encoded: RuleEffect.Encoded = "allow"
+ *
+ * console.log(RuleEffect.is.allow(encoded)) // true
  * ```
- */
-/**
- * Companion namespace for {@link Effect}.
  *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Effect {
@@ -52,27 +55,32 @@ export declare namespace Effect {
    * ```ts
    * import type { Effect } from "@beep/shared-domain/values/Rule/Rule.model"
    *
-   * const useEncoded = (_value: Effect.Encoded) => true
-   * console.log(useEncoded)
+   * const encoded: Effect.Encoded = "ask"
+   *
+   * console.log(encoded)
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Effect.Encoded;
 }
 
 /**
- * Base class for making the  tagged union.
+ * Shared action and resource fields for rule decision variants.
  *
  * @example
- *
  * ```ts
  * import { Base } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Base)
+ * const base = S.decodeUnknownSync(Base)({
+ *   action: "read",
+ *   resource: "matter"
+ * })
+ *
+ * console.log(base.resource) // "matter"
  * ```
- *
  *
  * @category models
  * @since 0.0.0
@@ -88,13 +96,20 @@ export class Base extends S.Class<Base>($I`Base`)(
 ) {}
 
 /**
- *  with discriminated `allow` effect field.
+ * Rule variant that grants the requested action.
  *
  * @example
  * ```ts
  * import { Allow } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Allow)
+ * const rule = S.decodeUnknownSync(Allow)({
+ *   action: "read",
+ *   effect: "allow",
+ *   resource: "matter"
+ * })
+ *
+ * console.log(rule.effect) // "allow"
  * ```
  *
  * @category models
@@ -110,13 +125,20 @@ export class Allow extends Base.extend<Allow>($I`Allow`)(
 ) {}
 
 /**
- *  with discriminated `deny` effect field.
+ * Rule variant that rejects the requested action.
  *
  * @example
  * ```ts
  * import { Deny } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Deny)
+ * const rule = S.decodeUnknownSync(Deny)({
+ *   action: "delete",
+ *   effect: "deny",
+ *   resource: "matter"
+ * })
+ *
+ * console.log(rule.effect) // "deny"
  * ```
  *
  * @category models
@@ -132,13 +154,20 @@ export class Deny extends Base.extend<Deny>($I`Deny`)(
 ) {}
 
 /**
- *  with discriminated `deny` effect field.
+ * Rule variant that requires an additional decision before proceeding.
  *
  * @example
  * ```ts
  * import { Ask } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Ask)
+ * const rule = S.decodeUnknownSync(Ask)({
+ *   action: "export",
+ *   effect: "ask",
+ *   resource: "matter"
+ * })
+ *
+ * console.log(rule.effect) // "ask"
  * ```
  *
  * @category models
@@ -154,17 +183,23 @@ export class Ask extends Base.extend<Ask>($I`Ask`)(
 ) {}
 
 /**
- * Rule is a schema defining a tagged union composed of three possible effects: Allow, Deny, and Ask.
- * It is annotated as "Rule" with a description indicating its purpose as a RuleEffect tagged union.
+ * Tagged union schema for allow, deny, and ask rule decisions.
  *
  * @example
  * ```ts
  * import { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Rule.ast)
+ * const rule = S.decodeUnknownSync(Rule)({
+ *   action: "read",
+ *   effect: "allow",
+ *   resource: "matter"
+ * })
+ *
+ * console.log(rule.effect) // "allow"
  * ```
  *
- * @category models
+ * @category schemas
  * @since 0.0.0
  */
 export const Rule = S.Union([Allow, Deny, Ask]).pipe(
@@ -181,11 +216,14 @@ export const Rule = S.Union([Allow, Deny, Ask]).pipe(
  * ```ts
  * import type { Rule } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const useRule = (_value: Rule) => true
- * console.log(useRule)
+ * type RuleEffect = Rule["effect"]
+ *
+ * const effect: RuleEffect = "deny"
+ *
+ * console.log(effect)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type Rule = typeof Rule.Type;
@@ -196,11 +234,17 @@ export type Rule = typeof Rule.Type;
  * @example
  * ```ts
  * import { Ruleset } from "@beep/shared-domain/values/Rule/Rule.model"
+ * import * as S from "effect/Schema"
  *
- * console.log(Ruleset.ast)
+ * const rules = S.decodeUnknownSync(Ruleset)([
+ *   { action: "read", effect: "allow", resource: "matter" },
+ *   { action: "delete", effect: "deny", resource: "matter" }
+ * ])
+ *
+ * console.log(rules.length) // 2
  * ```
  *
- * @category models
+ * @category schemas
  * @since 0.0.0
  */
 export const Ruleset = Rule.pipe(
@@ -217,11 +261,14 @@ export const Ruleset = Rule.pipe(
  * ```ts
  * import type { Ruleset } from "@beep/shared-domain/values/Rule/Rule.model"
  *
- * const useRuleset = (_value: Ruleset) => true
- * console.log(useRuleset)
+ * type RuleEffect = Ruleset[number]["effect"]
+ *
+ * const effect: RuleEffect = "ask"
+ *
+ * console.log(effect)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type Ruleset = typeof Ruleset.Type;

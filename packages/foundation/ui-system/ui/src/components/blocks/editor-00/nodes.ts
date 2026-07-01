@@ -5,13 +5,13 @@ import { ParagraphNode, TextNode } from "lexical";
 import type { Klass, LexicalNode, LexicalNodeReplacement } from "lexical";
 
 /**
- * Nodes component.
+ * Lexical node classes registered by the editor block.
  *
  * @example
  * ```ts
  * import { nodes } from "@beep/ui/components/blocks/editor-00/nodes"
  *
- * console.log(nodes)
+ * console.log(nodes.length)
  * ```
  *
  * @category components

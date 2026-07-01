@@ -11,9 +11,10 @@
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { VERSION } from "@beep/epistemic-use-cases"
  *
- * console.log(VERSION)
+ * strictEqual(VERSION, "0.0.0")
  * ```
  *
  * @category constants

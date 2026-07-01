@@ -17,13 +17,22 @@ import * as S from "effect/Schema";
 const $I = $ArchitectureLabUseCasesId.create("aggregates/WorkItem/WorkItem.commands");
 
 /**
- * Create WorkItem command.
+ * Command payload accepted by the WorkItem creation use case.
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { CreateWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(CreateWorkItemCommand)
+ * const command = CreateWorkItemCommand.make({
+ *   id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *   title: "Review architecture slice",
+ *   priority: O.some("high")
+ * })
+ *
+ * console.log(O.getOrUndefined(command.priority)) // "high"
  * ```
  *
  * @category commands
@@ -44,13 +53,21 @@ export class CreateWorkItemCommand extends S.Class<CreateWorkItemCommand>($I`Cre
 ) {}
 
 /**
- * Assign WorkItem command.
+ * Command payload for assigning a WorkItem to a Worker.
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as DomainWorker from "@beep/architecture-lab-domain/entities/Worker"
  * import { AssignWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(AssignWorkItemCommand)
+ * const command = AssignWorkItemCommand.make({
+ *   id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *   assignee: S.decodeUnknownSync(DomainWorker.WorkerId)(1)
+ * })
+ *
+ * console.log(command.assignee) // 1
  * ```
  *
  * @category commands
@@ -68,13 +85,19 @@ export class AssignWorkItemCommand extends S.Class<AssignWorkItemCommand>($I`Ass
 ) {}
 
 /**
- * Complete WorkItem command.
+ * Command payload for completing a WorkItem.
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { CompleteWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(CompleteWorkItemCommand)
+ * const command = CompleteWorkItemCommand.make({
+ *   id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * })
+ *
+ * console.log(command.id) // "work-item-1"
  * ```
  *
  * @category commands
@@ -91,13 +114,19 @@ export class CompleteWorkItemCommand extends S.Class<CompleteWorkItemCommand>($I
 ) {}
 
 /**
- * Reopen WorkItem command.
+ * Command payload for reopening a completed WorkItem.
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { ReopenWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(ReopenWorkItemCommand)
+ * const command = ReopenWorkItemCommand.make({
+ *   id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * })
+ *
+ * console.log(command.id) // "work-item-1"
  * ```
  *
  * @category commands
@@ -114,13 +143,19 @@ export class ReopenWorkItemCommand extends S.Class<ReopenWorkItemCommand>($I`Reo
 ) {}
 
 /**
- * Archive WorkItem command.
+ * Command payload for archiving a WorkItem.
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { ArchiveWorkItemCommand } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(ArchiveWorkItemCommand)
+ * const command = ArchiveWorkItemCommand.make({
+ *   id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * })
+ *
+ * console.log(command.id) // "work-item-1"
  * ```
  *
  * @category commands
@@ -137,16 +172,22 @@ export class ArchiveWorkItemCommand extends S.Class<ArchiveWorkItemCommand>($I`A
 ) {}
 
 /**
- * Get WorkItem query.
+ * Query payload for loading a single WorkItem.
  *
  * @example
  * ```ts
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { GetWorkItemQuery } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(GetWorkItemQuery)
+ * const query = GetWorkItemQuery.make({
+ *   id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1")
+ * })
+ *
+ * console.log(query.id) // "work-item-1"
  * ```
  *
- * @category commands
+ * @category queries
  * @since 0.0.0
  */
 export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQuery`)(
@@ -160,16 +201,19 @@ export class GetWorkItemQuery extends S.Class<GetWorkItemQuery>($I`GetWorkItemQu
 ) {}
 
 /**
- * List WorkItems query.
+ * Query payload for listing WorkItems, optionally constrained by lifecycle status.
  *
  * @example
  * ```ts
  * import { ListWorkItemsQuery } from "@beep/architecture-lab-use-cases/aggregates/WorkItem"
+ * import * as O from "effect/Option"
  *
- * console.log(ListWorkItemsQuery)
+ * const query = ListWorkItemsQuery.make({ status: O.some("assigned") })
+ *
+ * console.log(O.getOrUndefined(query.status)) // "assigned"
  * ```
  *
- * @category commands
+ * @category queries
  * @since 0.0.0
  */
 export class ListWorkItemsQuery extends S.Class<ListWorkItemsQuery>($I`ListWorkItemsQuery`)(

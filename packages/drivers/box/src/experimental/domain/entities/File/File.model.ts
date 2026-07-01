@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box file entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/File/File.model");
 
 /**
+ * Experimental schema anchor for Box file metadata resources.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { File } from "@beep/box/experimental/domain/entities/File/File.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(File.make({
+ * const decoded = S.decodeUnknownSync(File)({});
+ * const encoded: File.Encoded = S.encodeSync(File)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class File extends S.Class<File>($I`File`)(
   {},
   $I.annote("File", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box file metadata resources.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link File}
+ * Type-level companion namespace for {@link File} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { File } from "@beep/box/experimental/domain/entities/File/File.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = File.make({});
+ * const encoded: File.Encoded = S.encodeSync(File)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace File {
   /**
-   * Companion encoded type for {@link File}.
+   * Encoded payload accepted by the {@link File} entity schema.
    *
    * @example
    * ```ts
-   * import type { File } from "@beep/box/experimental/domain/entities/File/File.model";
+   * import { File } from "@beep/box/experimental/domain/entities/File/File.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: File.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: File.Encoded = S.encodeSync(File)(File.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof File.Encoded;
 }
-
-/**
- * Companion runtime type for {@link File}.
- *
- * @example
- * ```ts
- * import type { File } from "@beep/box/experimental/domain/entities/File/File.model";
- *
- * const useValue = (_value: File) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type File = typeof File.Type;

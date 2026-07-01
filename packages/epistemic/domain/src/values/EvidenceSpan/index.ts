@@ -10,12 +10,19 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import { EvidenceSpan } from "@beep/epistemic-domain/values/EvidenceSpan"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const span = S.decodeUnknownSync(EvidenceSpan)({
+ *   confidence: 0.92,
+ *   endChar: 48,
+ *   quote: "a claimed fact",
+ *   startChar: 12
+ * })
+ * console.log(span.quote)
  * ```
 
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./EvidenceSpan.model.js";

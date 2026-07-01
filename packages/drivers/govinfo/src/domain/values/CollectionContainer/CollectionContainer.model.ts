@@ -11,76 +11,115 @@ import { PackageInfo } from "../PackageInfo/index.ts";
 const $I = $GovinfoId.create("domain/values/CollectionContainer/CollectionContainer.model");
 
 /**
- * The CollectionContainer value object.
+ * Paginated GovInfo collection response containing package summaries.
+ *
+ * @remarks
+ * GovInfo collection traversal starts with `offsetMark=*`; subsequent cursors
+ * are exposed through `nextPage` rather than a numeric offset.
  *
  * @example
  * ```ts
  * import { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(CollectionContainer);
+ * const container = S.decodeUnknownSync(CollectionContainer)({
+ *   count: 1,
+ *   message: "",
+ *   nextPage: "https://api.govinfo.gov/collections/CREC/2024-01-01T00:00:00Z?offsetMark=next&pageSize=10",
+ *   packages: [
+ *     {
+ *       congress: "118",
+ *       dateIssued: "2024-01-03T00:00:00Z",
+ *       docClass: "CREC",
+ *       lastModified: "2024-01-04T12:00:00Z",
+ *       packageLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/summary",
+ *       title: "Congressional Record, January 3, 2024"
+ *     }
+ *   ],
+ *   previousPage: ""
+ * });
+ *
+ * console.log(container.packages[0]?.title);
  * ```
  *
- * @category models
+ * @category dtos
  * @since 0.0.0
  */
 export class CollectionContainer extends S.Class<CollectionContainer>($I`CollectionContainer`)(
   {
-    /** Total number of packages available for the requested collection across all pages. */
+    /** Total matching packages reported by the collection endpoint. */
     count: S.Int.pipe(
       S.check(S.makeFilterGroup([S.isInt32(), S.isGreaterThanOrEqualTo(0), S.isFinite()])),
       S.annotateKey({
-        description: "Total number of packages available for the requested GovInfo collection across all pages.",
+        description: "Total matching packages reported by the collection endpoint.",
       })
     ),
 
-    /** Optional informational or status message returned by the GovInfo collections endpoint. */
+    /** Human-readable API message, when GovInfo includes one. */
     message: S.String.annotateKey({
-      description: "Optional informational or status message returned by the GovInfo collections endpoint.",
+      description: "Human-readable API message, when GovInfo includes one.",
     }),
 
-    /** API link to the next page of collection package results for continued pagination. */
+    /** URL for the next page of collection results. */
     nextPage: S.String.annotateKey({
-      description: "API link to the next page of collection package results, used to continue pagination.",
+      description: "URL for the next page of collection results.",
     }),
 
-    /** The current page of GovInfo package metadata entries for the requested collection. */
+    /** Package summaries returned for the current collection page. */
     packages: PackageInfo.pipe(
       S.Array,
       S.annotateKey({
-        description: "The current page of GovInfo package metadata entries for the requested collection.",
+        description: "Package summaries returned for the current collection page.",
       })
     ),
 
-    /** API link to the previous page of collection package results for backward pagination. */
+    /** URL for the previous page of collection results. */
     previousPage: S.String.annotateKey({
-      description: "API link to the previous page of collection package results, used to page backward.",
+      description: "URL for the previous page of collection results.",
     }),
   },
   $I.annote("CollectionContainer", {
-    description:
-      "A single page of a GovInfo collection response: the total package count, forward and backward pagination links, an optional API message, and the current page of package metadata.",
+    description: "Paginated GovInfo collection response containing package summaries.",
   })
 ) {}
 
 /**
- * The companion namespace for the {@link CollectionContainer} value object.
+ * Companion namespace for {@link CollectionContainer} encoded helpers.
  *
- * @category namespaces
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace CollectionContainer {
   /**
-   * The companion encoded type for {@link CollectionContainer}.
+   * Encoded JSON shape accepted by {@link CollectionContainer}.
    *
    * @example
    * ```ts
-   * import type { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
+   * import { CollectionContainer } from "@beep/govinfo/domain/values/CollectionContainer/CollectionContainer.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: CollectionContainer.Encoded) => true;
-   * console.log(useEncoded);
+   * const decoded = S.decodeUnknownSync(CollectionContainer)({
+   *   count: 1,
+   *   message: "",
+   *   nextPage: "https://api.govinfo.gov/collections/CREC/2024-01-01T00:00:00Z?offsetMark=next&pageSize=10",
+   *   packages: [
+   *     {
+   *       congress: "118",
+   *       dateIssued: "2024-01-03T00:00:00Z",
+   *       docClass: "CREC",
+   *       lastModified: "2024-01-04T12:00:00Z",
+   *       packageLink: "https://api.govinfo.gov/packages/CREC-2024-01-03/summary",
+   *       title: "Congressional Record, January 3, 2024"
+   *     }
+   *   ],
+   *   previousPage: ""
+   * });
+   * const encoded: CollectionContainer.Encoded = S.encodeSync(CollectionContainer)(decoded);
+   *
+   * console.log(encoded.count);
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof CollectionContainer.Encoded;

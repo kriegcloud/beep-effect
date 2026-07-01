@@ -1,7 +1,7 @@
 /**
- * Shared Membership table metadata.
+ * Public exports for shared organization membership table metadata.
  *
- * @since 0.0.0
  * @category tables
+ * @since 0.0.0
  */
 export * from "./Membership.table.ts";

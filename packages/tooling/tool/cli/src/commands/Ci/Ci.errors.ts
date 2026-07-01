@@ -18,7 +18,9 @@ const $I = $RepoCliId.create("commands/Ci/Ci.errors");
  * @example
  * ```ts
  * import { CiCommandError } from "@beep/repo-cli/commands/Ci"
- * const error = new CiCommandError({ message: "failed" })
+ *
+ * const error = CiCommandError.make({ message: "Turbo summary not found" })
+ * console.log(error.message) // "Turbo summary not found"
  * ```
  * @category errors
  * @since 0.0.0

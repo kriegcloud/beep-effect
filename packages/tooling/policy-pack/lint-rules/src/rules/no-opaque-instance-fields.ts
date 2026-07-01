@@ -13,6 +13,22 @@ const EFFECT_ROOT_SOURCE = "effect";
 const INSTANCE_MEMBER_TYPES = HashSet.fromIterable(["PropertyDefinition", "MethodDefinition"]);
 const INSTANCE_MEMBER_MESSAGE = "Classes extending Schema.Opaque must not have instance members";
 
+/**
+ * Oxlint rule that reports instance fields and methods on classes extending
+ * `Schema.Opaque`, keeping opaque schema wrappers data-only.
+ *
+ * @example
+ * ```ts
+ * import { strictEqual } from "node:assert/strict"
+ * import plugin from "@beep/lint-rules/oxlint"
+ *
+ * const description = plugin.rules["no-opaque-instance-fields"]?.meta.docs.description
+ *
+ * strictEqual(description, "Disallow instance members in Schema.Opaque classes")
+ * ```
+ * @category tools
+ * @since 0.1.0
+ */
 export default defineRule({
   meta: {
     type: "problem",

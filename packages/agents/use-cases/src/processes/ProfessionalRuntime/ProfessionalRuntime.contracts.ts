@@ -27,7 +27,13 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  * ```ts
  * import { RuntimeScope } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeScope)
+ * const scope = RuntimeScope.make({
+ *   organizationId: "org-1",
+ *   threadId: "thread-1",
+ *   workspaceId: "workspace-1"
+ * })
+ *
+ * console.log(scope.workspaceId) // "workspace-1"
  * ```
  *
  * @category models
@@ -51,7 +57,12 @@ export class RuntimeScope extends S.Class<RuntimeScope>($I`RuntimeScope`)(
  * ```ts
  * import { RuntimeEntityRef } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeEntityRef)
+ * const household = RuntimeEntityRef.make({
+ *   id: "household-park-family",
+ *   kind: "household"
+ * })
+ *
+ * console.log(`${household.kind}:${household.id}`)
  * ```
  *
  * @category models
@@ -74,7 +85,12 @@ export class RuntimeEntityRef extends S.Class<RuntimeEntityRef>($I`RuntimeEntity
  * ```ts
  * import { RuntimeEvidenceRef } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeEvidenceRef)
+ * const evidence = RuntimeEvidenceRef.make({
+ *   artifactId: "email-artifact-001",
+ *   spanIds: ["email-001-s2", "email-001-s3"]
+ * })
+ *
+ * console.log(evidence.spanIds?.length) // 2
  * ```
  *
  * @category models
@@ -96,9 +112,24 @@ export class RuntimeEvidenceRef extends S.Class<RuntimeEvidenceRef>($I`RuntimeEv
  *
  * @example
  * ```ts
- * import { RuntimeCandidateClaim } from "@beep/agents-use-cases/public"
+ * import {
+ *   RuntimeCandidateClaim,
+ *   RuntimeEntityRef,
+ *   RuntimeEvidenceRef
+ * } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeCandidateClaim)
+ * const claim = RuntimeCandidateClaim.make({
+ *   claimId: "claim-cash-need-001",
+ *   claimType: "client_cash_need",
+ *   confidence: "high",
+ *   evidence: [RuntimeEvidenceRef.make({ artifactId: "email-001", spanId: "s2" })],
+ *   lifecycle: "candidate",
+ *   producedByPrincipalId: "principal-agent-runtime-fixture",
+ *   statement: "The household needs cash available by June 3.",
+ *   subjectRef: RuntimeEntityRef.make({ id: "household-park-family", kind: "household" })
+ * })
+ *
+ * console.log(claim.confidence) // "high"
  * ```
  *
  * @category models
@@ -126,9 +157,24 @@ export class RuntimeCandidateClaim extends S.Class<RuntimeCandidateClaim>($I`Run
  *
  * @example
  * ```ts
- * import { RuntimeCandidateProject } from "@beep/agents-use-cases/public"
+ * import {
+ *   RuntimeCandidateProject,
+ *   RuntimeEntityRef,
+ *   RuntimeEvidenceRef
+ * } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeCandidateProject)
+ * const project = RuntimeCandidateProject.make({
+ *   evidence: [RuntimeEvidenceRef.make({ artifactId: "email-001", spanId: "s2" })],
+ *   lifecycle: "candidate",
+ *   projectId: "project-cash-need-001",
+ *   title: "Review household cash need",
+ *   verticalContextRefs: [
+ *     RuntimeEntityRef.make({ id: "household-park-family", kind: "household" })
+ *   ],
+ *   workspaceId: "workspace-wealth"
+ * })
+ *
+ * console.log(project.title)
  * ```
  *
  * @category models
@@ -153,9 +199,19 @@ export class RuntimeCandidateProject extends S.Class<RuntimeCandidateProject>($I
  *
  * @example
  * ```ts
- * import { RuntimeCandidateTask } from "@beep/agents-use-cases/public"
+ * import { RuntimeCandidateTask, RuntimeEvidenceRef } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeCandidateTask)
+ * const task = RuntimeCandidateTask.make({
+ *   assigneePrincipalId: "principal-user-wealth-tia-rowan",
+ *   dueDate: "2026-05-08",
+ *   evidence: [RuntimeEvidenceRef.make({ artifactId: "email-001", spanId: "s5" })],
+ *   lifecycle: "candidate",
+ *   projectId: "project-cash-need-001",
+ *   taskId: "task-schedule-call-001",
+ *   title: "Offer Friday afternoon call times"
+ * })
+ *
+ * console.log(task.dueDate) // "2026-05-08"
  * ```
  *
  * @category models
@@ -183,7 +239,12 @@ export class RuntimeCandidateTask extends S.Class<RuntimeCandidateTask>($I`Runti
  * ```ts
  * import { RuntimeDraftRecipient } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeDraftRecipient)
+ * const recipient = RuntimeDraftRecipient.make({
+ *   displayName: "Mira Park",
+ *   email: "mira.park@example.test"
+ * })
+ *
+ * console.log(recipient.email)
  * ```
  *
  * @category models
@@ -204,9 +265,26 @@ export class RuntimeDraftRecipient extends S.Class<RuntimeDraftRecipient>($I`Run
  *
  * @example
  * ```ts
- * import { RuntimeCandidateDraft } from "@beep/agents-use-cases/public"
+ * import {
+ *   RuntimeCandidateDraft,
+ *   RuntimeDraftRecipient,
+ *   RuntimeEvidenceRef
+ * } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeCandidateDraft)
+ * const draft = RuntimeCandidateDraft.make({
+ *   artifactId: "draft-artifact-001",
+ *   body: "I will review the cash options before recommending movement.",
+ *   draftId: "draft-cash-acknowledgement-001",
+ *   draftKind: "client_email_reply",
+ *   evidence: [RuntimeEvidenceRef.make({ artifactId: "email-001", spanId: "s5" })],
+ *   lifecycle: "candidate",
+ *   producedByPrincipalId: "principal-agent-runtime-fixture",
+ *   requiresApproval: true,
+ *   subject: "Re: Cash need",
+ *   to: [RuntimeDraftRecipient.make({ displayName: "Mira Park", email: "mira.park@example.test" })]
+ * })
+ *
+ * console.log(draft.requiresApproval) // true
  * ```
  *
  * @category models
@@ -235,9 +313,20 @@ export class RuntimeCandidateDraft extends S.Class<RuntimeCandidateDraft>($I`Run
  *
  * @example
  * ```ts
- * import { RuntimeApprovalGate } from "@beep/agents-use-cases/public"
+ * import { RuntimeApprovalGate, RuntimeEvidenceRef } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeApprovalGate)
+ * const gate = RuntimeApprovalGate.make({
+ *   approvalGateId: "approval-cash-request-001",
+ *   candidateRefs: ["claim-cash-need-001", "draft-cash-acknowledgement-001"],
+ *   decision: "pending",
+ *   evidence: [RuntimeEvidenceRef.make({ artifactId: "email-001", spanIds: ["s2", "s5"] })],
+ *   lifecycle: "candidate",
+ *   policyBasis: "Advisor approval is required before sending client-facing drafts.",
+ *   requestedActions: ["approve_or_revise_client_email_draft"],
+ *   reviewerPrincipalId: "principal-user-wealth-tia-rowan"
+ * })
+ *
+ * console.log(gate.decision) // "pending"
  * ```
  *
  * @category models
@@ -266,7 +355,12 @@ export class RuntimeApprovalGate extends S.Class<RuntimeApprovalGate>($I`Runtime
  * ```ts
  * import { RuntimeContextPacketRequest } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeContextPacketRequest)
+ * const request = RuntimeContextPacketRequest.make({
+ *   artifactId: "email-artifact-001",
+ *   kind: "email_to_candidate_work"
+ * })
+ *
+ * console.log(request.kind)
  * ```
  *
  * @category models
@@ -289,7 +383,12 @@ export class RuntimeContextPacketRequest extends S.Class<RuntimeContextPacketReq
  * ```ts
  * import { RuntimeSourceSpanRef } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeSourceSpanRef)
+ * const span = RuntimeSourceSpanRef.make({
+ *   purpose: "cash need and date",
+ *   spanId: "email-001-s2"
+ * })
+ *
+ * console.log(span.spanId)
  * ```
  *
  * @category models
@@ -310,9 +409,18 @@ export class RuntimeSourceSpanRef extends S.Class<RuntimeSourceSpanRef>($I`Runti
  *
  * @example
  * ```ts
- * import { RuntimeSourceArtifact } from "@beep/agents-use-cases/public"
+ * import { RuntimeSourceArtifact, RuntimeSourceSpanRef } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeSourceArtifact)
+ * const artifact = RuntimeSourceArtifact.make({
+ *   artifactId: "email-artifact-001",
+ *   sourceKind: "email",
+ *   spanRefs: [
+ *     RuntimeSourceSpanRef.make({ purpose: "cash need and date", spanId: "email-001-s2" })
+ *   ],
+ *   title: "Cash need"
+ * })
+ *
+ * console.log(artifact.spanRefs[0]?.purpose)
  * ```
  *
  * @category models
@@ -337,7 +445,14 @@ export class RuntimeSourceArtifact extends S.Class<RuntimeSourceArtifact>($I`Run
  * ```ts
  * import { RuntimeActivity } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeActivity)
+ * const activity = RuntimeActivity.make({
+ *   activityId: "activity-candidates-proposed-001",
+ *   activityType: "candidate_work_proposed",
+ *   principalId: "principal-agent-runtime-fixture",
+ *   spanIds: ["email-001-s2", "email-001-s5"]
+ * })
+ *
+ * console.log(activity.activityType)
  * ```
  *
  * @category models
@@ -363,7 +478,14 @@ export class RuntimeActivity extends S.Class<RuntimeActivity>($I`RuntimeActivity
  * ```ts
  * import { RuntimeUsageRecord } from "@beep/agents-use-cases/public"
  *
- * console.log(RuntimeUsageRecord)
+ * const usage = RuntimeUsageRecord.make({
+ *   mode: "deterministic_fixture",
+ *   model: "none",
+ *   provider: "fixture",
+ *   usageRecordId: "usage-fixture-agent-001"
+ * })
+ *
+ * console.log(`${usage.provider}:${usage.model}`)
  * ```
  *
  * @category models
@@ -386,9 +508,69 @@ export class RuntimeUsageRecord extends S.Class<RuntimeUsageRecord>($I`RuntimeUs
  *
  * @example
  * ```ts
- * import { SdkContextPacket } from "@beep/agents-use-cases/public"
+ * import {
+ *   RuntimeActivity,
+ *   RuntimeContextPacketRequest,
+ *   RuntimeEntityRef,
+ *   RuntimeScope,
+ *   RuntimeSourceArtifact,
+ *   RuntimeSourceSpanRef,
+ *   RuntimeUsageRecord,
+ *   SdkContextPacket
+ * } from "@beep/agents-use-cases/public"
  *
- * console.log(SdkContextPacket)
+ * const packet = SdkContextPacket.make({
+ *   activities: [
+ *     RuntimeActivity.make({
+ *       activityId: "activity-ingested-001",
+ *       activityType: "artifact_ingested",
+ *       artifactId: "email-001",
+ *       principalId: "principal-agent-runtime-fixture"
+ *     })
+ *   ],
+ *   approvalGates: ["approval-cash-request-001"],
+ *   candidateClaims: ["claim-cash-need-001"],
+ *   candidateDrafts: ["draft-cash-acknowledgement-001"],
+ *   candidateTasks: ["task-schedule-call-001"],
+ *   contextPacketId: "context-cash-request-001",
+ *   exclusions: ["No external money movement instruction is included."],
+ *   generatedAt: "2026-05-01T15:05:10Z",
+ *   principals: ["principal-user-wealth-tia-rowan", "principal-agent-runtime-fixture"],
+ *   request: RuntimeContextPacketRequest.make({
+ *     artifactId: "email-001",
+ *     kind: "email_to_candidate_work"
+ *   }),
+ *   scenarioId: "wealth-cash-request",
+ *   schemaVersion: "runtime-data-loop.expected.context-packet.v1",
+ *   scope: RuntimeScope.make({
+ *     organizationId: "org-wealth",
+ *     threadId: "thread-wealth-001",
+ *     workspaceId: "workspace-wealth"
+ *   }),
+ *   sourceArtifacts: [
+ *     RuntimeSourceArtifact.make({
+ *       artifactId: "email-001",
+ *       sourceKind: "email",
+ *       spanRefs: [
+ *         RuntimeSourceSpanRef.make({ purpose: "cash need and date", spanId: "email-001-s2" })
+ *       ],
+ *       title: "Cash need"
+ *     })
+ *   ],
+ *   usage: [
+ *     RuntimeUsageRecord.make({
+ *       mode: "deterministic_fixture",
+ *       model: "none",
+ *       provider: "fixture",
+ *       usageRecordId: "usage-fixture-agent-001"
+ *     })
+ *   ],
+ *   verticalContext: [
+ *     RuntimeEntityRef.make({ id: "household-park-family", kind: "household" })
+ *   ]
+ * })
+ *
+ * console.log(packet.request.artifactId)
  * ```
  *
  * @category models
@@ -423,9 +605,33 @@ export class SdkContextPacket extends S.Class<SdkContextPacket>($I`SdkContextPac
  *
  * @example
  * ```ts
- * import { CandidateOutputSet } from "@beep/agents-use-cases/public"
+ * import { runRuntimeFixture, RuntimeFixtureInput } from "@beep/agents-use-cases/proof"
+ * import { Effect } from "effect"
  *
- * console.log(CandidateOutputSet)
+ * const fixture = RuntimeFixtureInput.make({
+ *   body: [
+ *     "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+ *     "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
+ *     "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
+ *     "[span:law-email-001-s5] Please schedule an intake call next week."
+ *   ].join("\n"),
+ *   email: {
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     sourceSpans: ["law-email-001-s2", "law-email-001-s3", "law-email-001-s4", "law-email-001-s5"],
+ *     subject: "Provisional patent help",
+ *     threadId: "thread-law-001"
+ *   },
+ *   seed: {
+ *     organization: { organizationId: "org-law-fixture" },
+ *     scenarioId: "law-patent-intake",
+ *     workspace: { workspaceId: "workspace-law-fixture" }
+ *   }
+ * })
+ *
+ * Effect.runPromise(runRuntimeFixture(fixture)).then((outputSet) =>
+ *   console.log(outputSet.claims.length) // 3
+ * )
  * ```
  *
  * @category models

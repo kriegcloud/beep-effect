@@ -10,9 +10,9 @@
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain"
+ * import { Activity } from "@beep/epistemic-domain"
  *
- * console.log(Module)
+ * console.log(Activity.definition.entityId.tableName)
  * ```
 
  * @category entities
@@ -24,12 +24,14 @@ export * from "./entities/index.js";
  *
  * @example
  * ```ts
- * import * as Module from "@beep/epistemic-domain"
+ * import { ClaimGateSeverity } from "@beep/epistemic-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(Module)
+ * const severity = S.decodeUnknownSync(ClaimGateSeverity)("warning")
+ * console.log(severity)
  * ```
 
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export * from "./values/index.js";

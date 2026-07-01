@@ -16,9 +16,46 @@ const $I = $AgentsUseCasesId.create("processes/ProfessionalRuntime/ProfessionalR
  *
  * @example
  * ```ts
- * import { ProposeCandidateOutputSet } from "@beep/agents-use-cases/public"
+ * import { RuntimeFixtureInput, runRuntimeFixture } from "@beep/agents-use-cases/proof"
+ * import { ProposeCandidateOutputSet, RuntimeScope } from "@beep/agents-use-cases/public"
+ * import { Effect } from "effect"
  *
- * console.log(ProposeCandidateOutputSet)
+ * const fixture = RuntimeFixtureInput.make({
+ *   body: [
+ *     "[span:law-email-001-s2] We need help preparing a provisional patent application.",
+ *     "[span:law-email-001-s3] The public prototype demonstration is planned for June 12, 2026.",
+ *     "[span:law-email-001-s4] Avery Chen and Priya Raman are the main contributors.",
+ *     "[span:law-email-001-s5] Please schedule an intake call next week."
+ *   ].join("\n"),
+ *   email: {
+ *     artifactId: "email-artifact-law-001",
+ *     scenarioId: "law-patent-intake",
+ *     sourceSpans: ["law-email-001-s2", "law-email-001-s3", "law-email-001-s4", "law-email-001-s5"],
+ *     subject: "Provisional patent help",
+ *     threadId: "thread-law-001"
+ *   },
+ *   seed: {
+ *     organization: { organizationId: "org-law-fixture" },
+ *     scenarioId: "law-patent-intake",
+ *     workspace: { workspaceId: "workspace-law-fixture" }
+ *   }
+ * })
+ *
+ * const program = Effect.map(runRuntimeFixture(fixture), (outputSet) =>
+ *   ProposeCandidateOutputSet.make({
+ *     outputSet,
+ *     producedByPrincipalId: "principal-agent-runtime-fixture",
+ *     scope: RuntimeScope.make({
+ *       organizationId: "org-law-fixture",
+ *       threadId: "thread-law-001",
+ *       workspaceId: "workspace-law-fixture"
+ *     })
+ *   })
+ * )
+ *
+ * Effect.runPromise(program).then((command) =>
+ *   console.log(command.outputSet.scenarioId)
+ * )
  * ```
  *
  * @category commands

@@ -38,9 +38,32 @@ export interface SwitchFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { SwitchField } from "@beep/form/fields/SwitchField"
+ * import * as S from "effect/Schema"
  *
- * console.log(SwitchField)
+ * const PreferencesSchema = S.Struct({ notifications: S.Boolean })
+ * const preferencesOptions = makeFormOptions({
+ *   schema: PreferencesSchema,
+ *   defaultValues: { notifications: true },
+ *   validateOn: "change",
+ * })
+ *
+ * export function NotificationsForm() {
+ *   const form = useAppForm(preferencesOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="notifications">
+ *           {() => <SwitchField label="Enable notifications" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(preferencesOptions.defaultValues.notifications) // true
  * ```
  *
  * @category components

@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -39,13 +38,20 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamSerializeRequest } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * console.log(JsonLdStreamSerializeRequest)
+ * const request = S.decodeUnknownSync(JsonLdStreamSerializeRequest)({
+ *   dataset: { quads: [] },
+ *   context: { terms: { name: "https://schema.org/name" } },
+ *   maxChunkCharacters: 128
+ * })
+ * strictEqual(request.dataset.quads.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class JsonLdStreamSerializeRequest extends S.Class<JsonLdStreamSerializeRequest>(
   $I`JsonLdStreamSerializeRequest`
@@ -69,13 +75,20 @@ export class JsonLdStreamSerializeRequest extends S.Class<JsonLdStreamSerializeR
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamSerializeResult } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * console.log(JsonLdStreamSerializeResult)
+ * const result = S.decodeUnknownSync(JsonLdStreamSerializeResult)({
+ *   chunks: ["{\"@graph\":[]}"],
+ *   mode: "buffered-fallback",
+ *   chunkCount: 1
+ * })
+ * strictEqual(result.chunks.length, 1)
  * ```
  *
+ * @category streams
  * @since 0.0.0
- * @category models
  */
 export class JsonLdStreamSerializeResult extends S.Class<JsonLdStreamSerializeResult>($I`JsonLdStreamSerializeResult`)(
   {
@@ -97,13 +110,16 @@ export class JsonLdStreamSerializeResult extends S.Class<JsonLdStreamSerializeRe
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { JsonLdStreamSerializeErrorReason } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * console.log(JsonLdStreamSerializeErrorReason)
+ * const reason = S.decodeUnknownSync(JsonLdStreamSerializeErrorReason)("invalidChunkSize")
+ * strictEqual(reason, "invalidChunkSize")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", "invalidChunkSize"]).pipe(
   $I.annoteSchema("JsonLdStreamSerializeErrorReason", {
@@ -116,13 +132,18 @@ export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", 
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { JsonLdStreamSerializeError } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * console.log(JsonLdStreamSerializeError)
+ * const error = JsonLdStreamSerializeError.make({
+ *   reason: "invalidChunkSize",
+ *   message: "maxChunkCharacters must be positive."
+ * })
+ * strictEqual(error.reason, "invalidChunkSize")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class JsonLdStreamSerializeError extends TaggedErrorClass<JsonLdStreamSerializeError>(
   $I`JsonLdStreamSerializeError`
@@ -166,13 +187,45 @@ export interface JsonLdStreamSerializeServiceShape {
  *
  * @example
  * ```ts
- * import { JsonLdStreamSerializeService } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   JsonLdStreamSerializeRequest,
+ *   JsonLdStreamSerializeResult,
+ *   JsonLdStreamSerializeService
+ * } from "@beep/semantic-web/services/jsonld-stream-serialize"
  *
- * console.log(JsonLdStreamSerializeService)
+ * const request = S.decodeUnknownSync(JsonLdStreamSerializeRequest)({
+ *   dataset: { quads: [] },
+ *   maxChunkCharacters: 128
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* JsonLdStreamSerializeService
+ *   return yield* service.serialize(request)
+ * })
+ *
+ * const result = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     JsonLdStreamSerializeService,
+ *     JsonLdStreamSerializeService.of({
+ *       serialize: () =>
+ *         Effect.succeed(
+ *           S.decodeUnknownSync(JsonLdStreamSerializeResult)({
+ *             chunks: ["{\"@graph\":[]}"],
+ *             mode: "buffered-fallback",
+ *             chunkCount: 1
+ *           })
+ *         )
+ *     })
+ *   )
+ * )
+ * strictEqual(result.chunkCount, 1)
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class JsonLdStreamSerializeService extends Context.Service<
   JsonLdStreamSerializeService,

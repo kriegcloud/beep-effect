@@ -68,7 +68,9 @@ const dragDropBindingAtom = Atom.family((editor: LexicalEditor) =>
  * ```tsx
  * import { AttachmentPlugin } from "@beep/editor/chat"
  *
- * console.log(AttachmentPlugin.name) // "AttachmentPlugin"
+ * function CaptureBinding() {
+ *   return <AttachmentPlugin />
+ * }
  * ```
  *
  * @category components
@@ -89,9 +91,11 @@ export function AttachmentPlugin(): null {
  *
  * @example
  * ```tsx
- * import { AttachmentChips } from "@beep/editor/chat"
+ * import { AttachmentChips, type ComposerAttachment } from "@beep/editor/chat"
  *
- * console.log(AttachmentChips.name) // "AttachmentChips"
+ * function CapturedFiles({ attachments }: { readonly attachments: ReadonlyArray<ComposerAttachment> }) {
+ *   return <AttachmentChips attachments={attachments} onRemove={(id) => console.log(id)} />
+ * }
  * ```
  *
  * @category components

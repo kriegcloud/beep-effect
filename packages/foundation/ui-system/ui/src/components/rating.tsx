@@ -14,7 +14,20 @@ import { cn } from "../lib/index.ts";
 import type React from "react";
 
 /**
- * Props for {@link Rating}.
+ * Props for a numeric star rating backed by radio-group semantics.
+ *
+ * @example
+ * ```ts
+ * import type { RatingProps } from "@beep/ui/components/rating"
+ *
+ * const props = {
+ *   max: 10,
+ *   value: 8,
+ *   onValueChange: (value) => value > 0,
+ * } satisfies RatingProps
+ *
+ * console.log(props.value)
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -33,7 +46,9 @@ export interface RatingProps
  * ```tsx
  * import { Rating } from "@beep/ui/components/rating"
  *
- * console.log(Rating)
+ * export function SatisfactionRating() {
+ *   return <Rating aria-label="Customer satisfaction" max={5} value={4} />
+ * }
  * ```
  *
  * @category components

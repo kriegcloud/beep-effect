@@ -1,5 +1,5 @@
 /**
- * Product-neutral Anthropic repair-call utilities.
+ * Product-neutral Anthropic forced-tool repair utilities.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -16,13 +16,18 @@ import type { Response, Tool, Toolkit } from "effect/unstable/ai";
 import type { GenerateTextOptions } from "effect/unstable/ai/LanguageModel";
 
 /**
- * Haiku model used for repair calls.
+ * Small Claude model used for forced-tool repair calls.
  *
  * @example
  * ```ts
- * import { ANTHROPIC_REPAIR_MODEL } from "@beep/anthropic"
+ * import { strictEqual } from "node:assert"
+ * import { ANTHROPIC_REPAIR_MODEL, AnthropicLanguageModelOptions } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_REPAIR_MODEL)
+ * const repairOptions = AnthropicLanguageModelOptions.make({
+ *   model: ANTHROPIC_REPAIR_MODEL,
+ * })
+ *
+ * strictEqual(repairOptions.model, "claude-haiku-4-5")
  * ```
  *
  * @category configuration
@@ -31,13 +36,18 @@ import type { GenerateTextOptions } from "effect/unstable/ai/LanguageModel";
 export const ANTHROPIC_REPAIR_MODEL = "claude-haiku-4-5" as const;
 
 /**
- * Token budget used for repair calls.
+ * Maximum output-token budget used for repair calls.
  *
  * @example
  * ```ts
- * import { ANTHROPIC_REPAIR_MAX_TOKENS } from "@beep/anthropic"
+ * import { strictEqual } from "node:assert"
+ * import { ANTHROPIC_REPAIR_MAX_TOKENS, AnthropicLanguageModelOptions } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_REPAIR_MAX_TOKENS)
+ * const repairOptions = AnthropicLanguageModelOptions.make({
+ *   maxTokens: ANTHROPIC_REPAIR_MAX_TOKENS,
+ * })
+ *
+ * strictEqual(repairOptions.maxTokens, 4096)
  * ```
  *
  * @category configuration
@@ -46,13 +56,19 @@ export const ANTHROPIC_REPAIR_MODEL = "claude-haiku-4-5" as const;
 export const ANTHROPIC_REPAIR_MAX_TOKENS = 4096 as const;
 
 /**
- * Acquisition attempts used by the repair execution plan.
+ * Maximum acquisition attempts used by the repair execution plan.
  *
  * @example
  * ```ts
- * import { ANTHROPIC_REPAIR_ATTEMPTS } from "@beep/anthropic"
+ * import { deepStrictEqual } from "node:assert"
+ * import { ANTHROPIC_REPAIR_ATTEMPTS, ANTHROPIC_REPAIR_RETRY_BASE_DELAY_MILLIS } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_REPAIR_ATTEMPTS)
+ * const repairBackoffMillis = Array.from(
+ *   { length: ANTHROPIC_REPAIR_ATTEMPTS },
+ *   (_, attempt) => ANTHROPIC_REPAIR_RETRY_BASE_DELAY_MILLIS * 2 ** attempt
+ * )
+ *
+ * deepStrictEqual(repairBackoffMillis, [250, 500])
  * ```
  *
  * @category configuration
@@ -61,13 +77,16 @@ export const ANTHROPIC_REPAIR_MAX_TOKENS = 4096 as const;
 export const ANTHROPIC_REPAIR_ATTEMPTS = 2 as const;
 
 /**
- * Base delay for repair-call acquisition retries.
+ * Initial delay, in milliseconds, for repair-call acquisition retries.
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { ANTHROPIC_REPAIR_RETRY_BASE_DELAY_MILLIS } from "@beep/anthropic"
  *
- * console.log(ANTHROPIC_REPAIR_RETRY_BASE_DELAY_MILLIS)
+ * const secondRepairDelayMillis = ANTHROPIC_REPAIR_RETRY_BASE_DELAY_MILLIS * 2
+ *
+ * strictEqual(secondRepairDelayMillis, 500)
  * ```
  *
  * @category configuration
@@ -81,13 +100,26 @@ const toRepairError =
     RepairError.make({ message: error.message, operation });
 
 /**
- * Build the Anthropic repair-call execution plan.
+ * Build the Anthropic repair-call execution plan with repair-specific defaults.
+ *
+ * @remarks
+ * The plan retries only retryable Effect AI provider failures and supplies a
+ * repair-sized language-model layer; callers do not need to provide
+ * `LanguageModel` separately.
  *
  * @example
  * ```ts
- * import { makeAnthropicRepairPlan } from "@beep/anthropic"
+ * import { strictEqual } from "node:assert"
+ * import { AnthropicLanguageModelOptions, makeAnthropicRepairPlan } from "@beep/anthropic"
  *
- * console.log(makeAnthropicRepairPlan())
+ * const plan = makeAnthropicRepairPlan(
+ *   AnthropicLanguageModelOptions.make({
+ *     maxTokens: 2048,
+ *     model: "claude-haiku-4-5",
+ *   })
+ * )
+ *
+ * strictEqual(typeof plan, "object")
  * ```
  *
  * @category configuration
@@ -109,11 +141,29 @@ export const makeAnthropicRepairPlan = (
 /**
  * Collect streamed forced-tool params into one JSON string.
  *
+ * @remarks
+ * Collection stops at the first `tool-params-end` part; later deltas are
+ * ignored so callers can feed the result directly to a schema decoder.
+ *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { collectToolParamsJson } from "@beep/anthropic"
+ * import { Effect, Stream } from "effect"
+ * import { Response } from "effect/unstable/ai"
  *
- * console.log(collectToolParamsJson)
+ * const json = Effect.runSync(
+ *   collectToolParamsJson(
+ *     Stream.make(
+ *       Response.makePart("tool-params-delta", { delta: "{\"answer\":", id: "repair" }),
+ *       Response.makePart("tool-params-delta", { delta: "42}", id: "repair" }),
+ *       Response.makePart("tool-params-end", { id: "repair" }),
+ *       Response.makePart("tool-params-delta", { delta: "ignored", id: "repair" })
+ *     )
+ *   )
+ * )
+ *
+ * strictEqual(json, "{\"answer\":42}")
  * ```
  *
  * @category combinators
@@ -138,10 +188,32 @@ export const collectToolParamsJson = <Tools extends Record<string, Tool.Any>, E,
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { generateAnthropicToolJson } from "@beep/anthropic"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Tool, Toolkit } from "effect/unstable/ai"
  *
- * console.log(generateAnthropicToolJson)
+ * const RepairTool = Tool.make("repair", {
+ *   description: "Return a corrected JSON object.",
+ *   parameters: S.Struct({ issue: S.String }),
+ *   success: S.String,
+ * }).annotate(Tool.Strict, false)
+ *
+ * const program = generateAnthropicToolJson({
+ *   prompt: "Fix the malformed JSON.",
+ *   toolChoice: { tool: "repair" },
+ *   toolkit: Toolkit.make(RepairTool),
+ * }).pipe(
+ *   Effect.catchTag("RepairError", (error) => Effect.succeed(error.message))
+ * )
+ *
+ * strictEqual(typeof program, "object")
  * ```
+ *
+ * @effects
+ * - Runs a streamed Anthropic language-model request when the returned Effect is executed.
+ * - Consumes tool-parameter deltas until the provider emits `tool-params-end`.
  *
  * @category combinators
  * @since 0.0.0

@@ -16,9 +16,10 @@ const $I = $XaiId.create("XAiEndpoints.models");
  *
  * @example
  * ```ts
- * import { XAI_ENDPOINT_COUNT } from "@beep/xai"
+ * import { XAI_ENDPOINT_COUNT, XAI_ENDPOINTS } from "@beep/xai"
  *
- * console.log(XAI_ENDPOINT_COUNT)
+ * const manifestMatchesCount = XAI_ENDPOINTS.length === XAI_ENDPOINT_COUNT
+ * console.log(manifestMatchesCount) // true
  * ```
  *
  * @category models

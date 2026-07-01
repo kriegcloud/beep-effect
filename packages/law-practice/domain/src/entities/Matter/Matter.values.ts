@@ -11,36 +11,38 @@ import { LiteralKit } from "@beep/schema";
 const $I = $LawPracticeDomainId.create("entities/Matter/Matter.values");
 
 /**
- * Matter type vocabulary represented in proof seeds.
+ * Matter type accepted by the law-practice proof fixtures.
  *
  * @example
  * ```ts
  * import { MatterType } from "@beep/law-practice-domain"
+ * import * as S from "effect/Schema"
  *
- * console.log(MatterType.is.patent_application("patent_application"))
+ * const matterType = S.decodeUnknownSync(MatterType)("patent_application")
+ * console.log(matterType) // "patent_application"
  * ```
  *
- * @category schemas
+ * @category value-objects
  * @since 0.0.0
  */
 export const MatterType = LiteralKit(["patent_application"]).pipe(
   $I.annoteSchema("MatterType", {
-    description: "Legal matter type vocabulary represented in proof seeds.",
+    description: "Matter type accepted by law-practice proof fixtures.",
   })
 );
 
 /**
- * Runtime type for {@link MatterType}.
+ * Type-level literal union produced by {@link MatterType}.
  *
  * @example
  * ```ts
  * import type { MatterType } from "@beep/law-practice-domain"
  *
- * const value: MatterType = "patent_application"
- * console.log(value)
+ * const matterType = "patent_application" satisfies MatterType
+ * console.log(matterType)
  * ```
  *
- * @category models
+ * @category type-level
  * @since 0.0.0
  */
 export type MatterType = typeof MatterType.Type;

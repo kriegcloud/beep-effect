@@ -25,9 +25,18 @@ const repoRootDirectory = fileURLToPath(new URL("../../../../../../", import.met
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import type { DocsESLintConfigShape } from "@beep/repo-configs/eslint/DocsESLintConfig"
- * const config = [] satisfies DocsESLintConfigShape
- * console.log(config)
+ *
+ * const config = [
+ *   {
+ *     rules: {
+ *       "tsdoc/syntax": "error"
+ *     }
+ *   }
+ * ] satisfies DocsESLintConfigShape
+ *
+ * strictEqual(config[0]?.rules?.["tsdoc/syntax"], "error")
  * ```
  * @category configuration
  * @since 0.0.0
@@ -39,8 +48,12 @@ export type DocsESLintConfigShape = ReadonlyArray<Linter.Config>;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { DocsESLintConfig } from "@beep/repo-configs/eslint/DocsESLintConfig"
- * console.log(DocsESLintConfig)
+ *
+ * const hasTSDocSyntaxRule = DocsESLintConfig.some((entry) => entry.rules?.["tsdoc/syntax"] === "error")
+ *
+ * strictEqual(hasTSDocSyntaxRule, true)
  * ```
  * @category configuration
  * @since 0.0.0

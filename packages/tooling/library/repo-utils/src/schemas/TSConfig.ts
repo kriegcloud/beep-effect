@@ -1692,14 +1692,23 @@ export const decodeTSConfigExit: (input: unknown) => Exit.Exit<TSConfig.Type, S.
 /**
  * Decode an unknown value into a strict `TSConfig` as an Effect.
  *
- * @param input - Unknown tsconfig-shaped value to validate and decode.
- * @returns Effect that yields a decoded strict tsconfig value.
+ * @remarks
+ * Semantic decoding keeps the SchemaStore-compatible shape while normalizing
+ * loose JSON records into the schema-backed `TSConfig` model. Unknown compiler
+ * option keys are rejected.
+ *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { decodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
- * const program = decodeTSConfigEffect({ compilerOptions: { strict: true } })
- * console.log(program)
+ *
+ * const config = Effect.runSync(
+ *   decodeTSConfigEffect({ compilerOptions: { strict: true, noEmit: true } })
+ * )
+ *
+ * console.log(config.compilerOptions?.strict) // true
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1712,17 +1721,19 @@ export const decodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.Ty
  * Supports comments and trailing commas through `@beep/schema/Jsonc`.
  * Encoding remains JSON-only and does not preserve comments.
  *
- * @param input - Raw tsconfig JSONC document text.
- * @returns Effect that yields a decoded strict tsconfig value.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { decodeTSConfigFromJsoncTextEffect } from "@beep/repo-utils/schemas/TSConfig"
- * const program = decodeTSConfigFromJsoncTextEffect(`{
+ *
+ * const config = Effect.runSync(decodeTSConfigFromJsoncTextEffect(`{
  *   // Typecheck only
  *   "compilerOptions": { "noEmit": true }
- * }`)
- * console.log(program)
+ * }`))
+ *
+ * console.log(config.compilerOptions?.noEmit) // true
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1739,14 +1750,18 @@ export const decodeTSConfigFromJsoncTextEffect: (input: string) => Effect.Effect
  * The input is first decoded with strict excess-property rejection so callers
  * do not accidentally encode malformed tsconfig objects.
  *
- * @param input - Unknown tsconfig-shaped value to validate before encoding.
- * @returns Effect that yields the encoded tsconfig representation.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { encodeTSConfigEffect } from "@beep/repo-utils/schemas/TSConfig"
- * const program = encodeTSConfigEffect({ compilerOptions: { strict: true } })
- * console.log(program)
+ *
+ * const encoded = Effect.runSync(
+ *   encodeTSConfigEffect({ compilerOptions: { strict: true, moduleResolution: "bundler" } })
+ * )
+ *
+ * console.log(encoded.compilerOptions?.moduleResolution) // "bundler"
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1760,14 +1775,18 @@ export const encodeTSConfigEffect: (input: unknown) => Effect.Effect<TSConfig.En
 /**
  * Encode a strict `TSConfig` value to a compact JSON string as an Effect.
  *
- * @param input - Unknown tsconfig-shaped value to validate before encoding.
- * @returns Effect that yields a compact JSON string.
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { encodeTSConfigToJsonEffect } from "@beep/repo-utils/schemas/TSConfig"
- * const program = encodeTSConfigToJsonEffect({ compilerOptions: { strict: true } })
- * console.log(program)
+ *
+ * const json = Effect.runSync(
+ *   encodeTSConfigToJsonEffect({ compilerOptions: { strict: true } })
+ * )
+ *
+ * console.log(json.includes("\"strict\":true")) // true
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */
@@ -1781,14 +1800,22 @@ export const encodeTSConfigToJsonEffect: (input: unknown) => Effect.Effect<strin
 /**
  * Encode a strict `TSConfig` value to a pretty-printed JSON string.
  *
- * @param input - Unknown tsconfig-shaped value to validate before encoding.
- * @returns Effect that yields a formatted JSON string or a domain formatting error.
+ * @remarks
+ * Pretty printing validates first, then formats the encoded shape with the
+ * shared repo JSON renderer. Comments from JSONC input are not preserved.
+ *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { encodeTSConfigPrettyEffect } from "@beep/repo-utils/schemas/TSConfig"
- * const program = encodeTSConfigPrettyEffect({ compilerOptions: { strict: true } })
- * console.log(program)
+ *
+ * const pretty = Effect.runSync(
+ *   encodeTSConfigPrettyEffect({ compilerOptions: { strict: true } })
+ * )
+ *
+ * console.log(pretty.includes("\n")) // true
  * ```
+ *
  * @category validation
  * @since 0.0.0
  */

@@ -4,13 +4,22 @@ import { Tooltip as TooltipPrimitive } from "@base-ui/react/tooltip";
 import { cn } from "@beep/ui/lib/utils";
 
 /**
- * Tooltip provider component.
+ * Provider that supplies tooltip timing defaults.
  *
  * @example
  * ```tsx
- * import { TooltipProvider } from "@beep/ui/components/ui/tooltip"
+ * import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@beep/ui/components/ui/tooltip"
  *
- * console.log(TooltipProvider)
+ * export function TooltipWithProvider() {
+ *   return (
+ *     <TooltipProvider delay={150}>
+ *       <Tooltip>
+ *         <TooltipTrigger>Hover</TooltipTrigger>
+ *         <TooltipContent>Helpful context</TooltipContent>
+ *       </Tooltip>
+ *     </TooltipProvider>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -21,13 +30,20 @@ function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Prop
 }
 
 /**
- * Tooltip component.
+ * Tooltip root that coordinates trigger and popup state.
  *
  * @example
  * ```tsx
- * import { Tooltip } from "@beep/ui/components/ui/tooltip"
+ * import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/ui/tooltip"
  *
- * console.log(Tooltip)
+ * export function IconTooltip() {
+ *   return (
+ *     <Tooltip>
+ *       <TooltipTrigger aria-label="More information">?</TooltipTrigger>
+ *       <TooltipContent>Shows after the configured delay.</TooltipContent>
+ *     </Tooltip>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -38,13 +54,20 @@ function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
 }
 
 /**
- * Tooltip trigger component.
+ * Element that opens the tooltip when focused or hovered.
  *
  * @example
  * ```tsx
- * import { TooltipTrigger } from "@beep/ui/components/ui/tooltip"
+ * import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/ui/tooltip"
  *
- * console.log(TooltipTrigger)
+ * export function TooltipTriggerButton() {
+ *   return (
+ *     <Tooltip>
+ *       <TooltipTrigger>Details</TooltipTrigger>
+ *       <TooltipContent>Review the full audit trail.</TooltipContent>
+ *     </Tooltip>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -55,13 +78,20 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
 }
 
 /**
- * Tooltip content component.
+ * Positioned tooltip popup with an arrow.
  *
  * @example
  * ```tsx
- * import { TooltipContent } from "@beep/ui/components/ui/tooltip"
+ * import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/ui/tooltip"
  *
- * console.log(TooltipContent)
+ * export function BottomTooltip() {
+ *   return (
+ *     <Tooltip>
+ *       <TooltipTrigger>Storage</TooltipTrigger>
+ *       <TooltipContent side="bottom">2.4 GB used</TooltipContent>
+ *     </Tooltip>
+ *   )
+ * }
  * ```
  *
  * @category components

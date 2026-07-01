@@ -85,6 +85,14 @@ export const TurnHistoryItem = S.Union([UserTurnHistoryItem, AssistantTurnHistor
 /**
  * Runtime type for {@link TurnHistoryItem}.
  *
+ * @example
+ * ```ts
+ * import type { TurnHistoryItem } from "@beep/agents-use-cases/public"
+ *
+ * const item: TurnHistoryItem = { role: "assistant", text: "Ready." }
+ * console.log(item.role) // "assistant"
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -118,6 +126,6 @@ export class IndexedBlock extends S.Class<IndexedBlock>($I`IndexedBlock`)(
     index: S.Finite,
   },
   $I.annote("IndexedBlock", {
-    description: "",
+    description: "Generated assistant block paired with the block's position in the turn stream.",
   })
 ) {}

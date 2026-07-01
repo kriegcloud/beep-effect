@@ -40,9 +40,32 @@ export interface TextareaFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { TextareaField } from "@beep/form/fields/TextareaField"
+ * import * as S from "effect/Schema"
  *
- * console.log(TextareaField)
+ * const ProfileSchema = S.Struct({ bio: S.String })
+ * const profileOptions = makeFormOptions({
+ *   schema: ProfileSchema,
+ *   defaultValues: { bio: "" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function BioForm() {
+ *   const form = useAppForm(profileOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="bio">
+ *           {() => <TextareaField label="Bio" rows={4} placeholder="Short profile" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(profileOptions.defaultValues.bio) // ""
  * ```
  *
  * @category components

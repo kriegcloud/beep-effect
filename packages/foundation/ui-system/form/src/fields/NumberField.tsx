@@ -44,9 +44,32 @@ export interface NumberFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { NumberField } from "@beep/form/fields/NumberField"
+ * import * as S from "effect/Schema"
  *
- * console.log(NumberField)
+ * const OrderSchema = S.Struct({ quantity: S.Finite })
+ * const orderOptions = makeFormOptions({
+ *   schema: OrderSchema,
+ *   defaultValues: { quantity: 1 },
+ *   validateOn: "change",
+ * })
+ *
+ * export function QuantityForm() {
+ *   const form = useAppForm(orderOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="quantity">
+ *           {() => <NumberField label="Quantity" min={1} step={1} />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(orderOptions.defaultValues.quantity) // 1
  * ```
  *
  * @category components

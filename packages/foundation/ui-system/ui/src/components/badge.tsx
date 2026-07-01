@@ -6,13 +6,15 @@ import { cn } from "../lib/index.ts";
 import type { VariantProps } from "class-variance-authority";
 
 /**
- * Badge variants component.
+ * Class variance helper for badge color and emphasis variants.
  *
  * @example
- * ```tsx
+ * ```ts
  * import { badgeVariants } from "@beep/ui/components/badge"
  *
- * console.log(badgeVariants)
+ * const className = badgeVariants({ variant: "secondary" })
+ *
+ * console.log(className.includes("bg-secondary"))
  * ```
  *
  * @category components
@@ -39,13 +41,15 @@ const badgeVariants = cva(
 );
 
 /**
- * Badge component.
+ * Inline status label that can render as a span or custom element.
  *
  * @example
  * ```tsx
  * import { Badge } from "@beep/ui/components/badge"
  *
- * console.log(Badge)
+ * export function DraftBadge() {
+ *   return <Badge variant="secondary">Draft</Badge>
+ * }
  * ```
  *
  * @category components

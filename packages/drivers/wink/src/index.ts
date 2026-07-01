@@ -10,9 +10,12 @@
  *
  * @example
  * ```ts
- * import { VERSION } from "@beep/wink"
+ * import { strictEqual } from "node:assert"
+ * import { InstanceId, VERSION } from "@beep/wink"
  *
- * console.log(VERSION)
+ * const versionedInstance = InstanceId.make(`wink-engine-${VERSION}`)
+ *
+ * strictEqual(versionedInstance, "wink-engine-0.0.0")
  * ```
  *
  * @category configuration

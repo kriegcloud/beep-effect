@@ -467,8 +467,17 @@ export class DocgenQualityWorkerEvalRunnerInput extends S.Class<DocgenQualityWor
  * import type { DocgenQualityWorkerEvalRunner } from "@beep/repo-cli/commands/Docgen/internal/QualityWorkerEval"
  * import { Effect } from "effect"
  *
- * const runner: DocgenQualityWorkerEvalRunner = () => Effect.succeed({ finalResponse: "{}" })
- * console.log(runner)
+ * const runner: DocgenQualityWorkerEvalRunner = (input) =>
+ *   Effect.succeed({ finalResponse: JSON.stringify({ model: input.model }) })
+ * const result = Effect.runSync(
+ *   runner({
+ *     model: "gpt-5.4-mini",
+ *     provider: "codex",
+ *     prompt: "Score this JSDoc packet.",
+ *     workingDirectory: "/tmp/beep-jsdoc-eval"
+ *   })
+ * )
+ * console.log(result.finalResponse)
  * ```
  * @category services
  * @since 0.0.0

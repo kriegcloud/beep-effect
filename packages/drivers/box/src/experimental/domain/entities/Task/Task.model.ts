@@ -1,5 +1,5 @@
 /**
- * TODO
+ * Experimental Box task entity schema.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -10,61 +10,65 @@ import * as S from "effect/Schema";
 const $I = $BoxId.create("experimental/domain/entities/Task/Task.model");
 
 /**
+ * Experimental schema anchor for Box task resources attached to items.
+ *
+ * @remarks
+ * This experimental domain class currently declares an empty schema shape; generated Box SDK payload schemas remain the field-level source for API data until fields are promoted here.
  *
  * @example
  * ```ts
  * import { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
+ * import * as S from "effect/Schema";
  *
- * console.log(Task.make({
+ * const decoded = S.decodeUnknownSync(Task)({});
+ * const encoded: Task.Encoded = S.encodeSync(Task)(decoded);
  *
- * }))
+ * console.log(JSON.stringify(encoded));
  * ```
  *
- * @category models
+ * @category entities
  * @since 0.0.0
  */
 export class Task extends S.Class<Task>($I`Task`)(
   {},
   $I.annote("Task", {
-    description: "TODO",
+    description: "Experimental schema anchor for Box task resources attached to items.",
   })
 ) {}
 
 /**
- * Companion namespace for {@link Task}
+ * Type-level companion namespace for {@link Task} encoded payloads.
  *
+ * @example
+ * ```ts
+ * import { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
+ * import * as S from "effect/Schema";
+ *
+ * const decoded = Task.make({});
+ * const encoded: Task.Encoded = S.encodeSync(Task)(decoded);
+ *
+ * console.log(JSON.stringify(encoded));
+ * ```
+ *
+ * @category type-level
  * @since 0.0.0
  */
 export declare namespace Task {
   /**
-   * Companion encoded type for {@link Task}.
+   * Encoded payload accepted by the {@link Task} entity schema.
    *
    * @example
    * ```ts
-   * import type { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
+   * import { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
+   * import * as S from "effect/Schema";
    *
-   * const useEncoded = (_value: Task.Encoded) => true;
-   * console.log(useEncoded);
+   * const encoded: Task.Encoded = S.encodeSync(Task)(Task.make({}));
+   *
+   * console.log(JSON.stringify(encoded));
    * ```
    *
-   * @category models
+   * @category type-level
    * @since 0.0.0
    */
   export type Encoded = typeof Task.Encoded;
 }
-
-/**
- * Companion runtime type for {@link Task}.
- *
- * @example
- * ```ts
- * import type { Task } from "@beep/box/experimental/domain/entities/Task/Task.model";
- *
- * const useValue = (_value: Task) => true;
- * console.log(useValue);
- * ```
- *
- * @category models
- * @since 0.0.0
- */
-// export type Task = typeof Task.Type;

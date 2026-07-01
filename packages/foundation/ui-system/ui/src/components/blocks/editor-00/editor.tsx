@@ -22,13 +22,15 @@ const editorConfig: InitialConfigType = {
 };
 
 /**
- * Editor component.
+ * Lexical rich-text editor shell with serialized-state change callbacks.
  *
  * @example
  * ```tsx
  * import { Editor } from "@beep/ui/components/blocks/editor-00/editor"
  *
- * console.log(Editor)
+ * export function NotesEditor() {
+ *   return <Editor onSerializedChange={(state) => state.root.children.length} />
+ * }
  * ```
  *
  * @category components

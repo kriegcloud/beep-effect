@@ -6,13 +6,20 @@ import type { VariantProps } from "class-variance-authority";
 import type * as React from "react";
 
 /**
- * Bubble group component.
+ * Vertical stack for chat bubbles or message fragments.
  *
  * @example
  * ```tsx
- * import { BubbleGroup } from "@beep/ui/components/bubble"
+ * import { Bubble, BubbleContent, BubbleGroup } from "@beep/ui/components/bubble"
  *
- * console.log(BubbleGroup)
+ * export function ConversationBubbleGroup() {
+ *   return (
+ *     <BubbleGroup>
+ *       <Bubble><BubbleContent>Can you review the draft?</BubbleContent></Bubble>
+ *       <Bubble align="end" variant="secondary"><BubbleContent>Already on it.</BubbleContent></Bubble>
+ *     </BubbleGroup>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -50,13 +57,20 @@ const bubbleVariants = cva(
 );
 
 /**
- * Bubble component.
+ * Chat bubble wrapper with alignment and color variants.
  *
  * @example
  * ```tsx
- * import { Bubble } from "@beep/ui/components/bubble"
+ * import { Bubble, BubbleContent, BubbleReactions } from "@beep/ui/components/bubble"
  *
- * console.log(Bubble)
+ * export function OutboundChatBubble() {
+ *   return (
+ *     <Bubble align="end" variant="tinted">
+ *       <BubbleContent>The engagement letter is ready.</BubbleContent>
+ *       <BubbleReactions side="bottom" align="end">Seen</BubbleReactions>
+ *     </Bubble>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -83,13 +97,19 @@ function Bubble({
 }
 
 /**
- * Bubble content component.
+ * Renderable content surface inside a chat bubble.
  *
  * @example
  * ```tsx
- * import { BubbleContent } from "@beep/ui/components/bubble"
+ * import { Bubble, BubbleContent } from "@beep/ui/components/bubble"
  *
- * console.log(BubbleContent)
+ * export function LinkedBubbleContent() {
+ *   return (
+ *     <Bubble variant="outline">
+ *       <BubbleContent render={<a href="/matters/42" />}>Open matter</BubbleContent>
+ *     </Bubble>
+ *   )
+ * }
  * ```
  *
  * @category components
@@ -135,13 +155,20 @@ const bubbleReactionsVariants = cva(
 );
 
 /**
- * Bubble reactions component.
+ * Floating reaction strip anchored to a bubble.
  *
  * @example
  * ```tsx
- * import { BubbleReactions } from "@beep/ui/components/bubble"
+ * import { Bubble, BubbleContent, BubbleReactions } from "@beep/ui/components/bubble"
  *
- * console.log(BubbleReactions)
+ * export function BubbleWithTopReactions() {
+ *   return (
+ *     <Bubble variant="muted">
+ *       <BubbleContent>Filed with the court.</BubbleContent>
+ *       <BubbleReactions side="top" align="start">+1</BubbleReactions>
+ *     </Bubble>
+ *   )
+ * }
  * ```
  *
  * @category components

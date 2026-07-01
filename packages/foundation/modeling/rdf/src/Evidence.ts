@@ -60,8 +60,10 @@ export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
  * import { TextQuoteSelector } from "@beep/rdf/Evidence"
  *
  * const selector = S.decodeUnknownSync(TextQuoteSelector)({
- *
- *
+ *   kind: "text-quote",
+ *   exact: "quoted text",
+ *   prefix: "before ",
+ *   suffix: " after"
  * })
  * console.log(selector.kind) // "text-quote"
  * ```
@@ -142,8 +144,8 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
  * import { FragmentSelector } from "@beep/rdf/Evidence"
  *
  * const selector = S.decodeUnknownSync(FragmentSelector)({
- *
- *
+ *   kind: "fragment",
+ *   value: "section-1"
  * })
  * console.log(selector.value) // "section-1"
  * ```
@@ -180,8 +182,8 @@ export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelec
  * import { EvidenceSelector } from "@beep/rdf/Evidence"
  *
  * const decoded = S.decodeUnknownSync(EvidenceSelector)({
- *
- *
+ *   kind: "text-quote",
+ *   exact: "quoted text"
  * })
  * console.log(decoded.kind) // "text-quote"
  * ```
@@ -217,9 +219,14 @@ export type EvidenceSelector = typeof EvidenceSelector.Type;
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { EvidenceTarget } from "@beep/rdf/Evidence"
  *
- * console.log(EvidenceTarget)
+ * const target = S.decodeUnknownSync(EvidenceTarget)({
+ *   source: "https://example.org/document",
+ *   selector: { kind: "fragment", value: "section-1" }
+ * })
+ * console.log(target.selector.kind) // "fragment"
  * ```
  *
  * @since 0.0.0
@@ -249,9 +256,18 @@ export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { EvidenceAnchor } from "@beep/rdf/Evidence"
  *
- * console.log(EvidenceAnchor)
+ * const anchor = S.decodeUnknownSync(EvidenceAnchor)({
+ *   id: "https://example.org/annotation/1",
+ *   target: {
+ *     source: "https://example.org/document",
+ *     selector: { kind: "text-position", start: 0, end: 12 }
+ *   },
+ *   note: "supports the claim"
+ * })
+ * console.log(anchor.id) // "https://example.org/annotation/1"
  * ```
  *
  * @since 0.0.0
@@ -283,9 +299,22 @@ export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
  *
  * @example
  * ```ts
+ * import * as S from "effect/Schema"
  * import { BoundedEvidenceProjection } from "@beep/rdf/Evidence"
  *
- * console.log(BoundedEvidenceProjection)
+ * const projection = S.decodeUnknownSync(BoundedEvidenceProjection)({
+ *   anchors: [
+ *     {
+ *       id: "https://example.org/annotation/1",
+ *       target: {
+ *         source: "https://example.org/document",
+ *         selector: { kind: "fragment", value: "section-1" }
+ *       }
+ *     }
+ *   ],
+ *   truncated: false
+ * })
+ * console.log(projection.anchors.length) // 1
  * ```
  *
  * @since 0.0.0

@@ -3,7 +3,6 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
@@ -31,13 +30,16 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { SparqlQueryProfile } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlQueryProfile)
+ * const profile = S.decodeUnknownSync(SparqlQueryProfile)("ask")
+ * strictEqual(profile, "ask")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"]).pipe(
   $I.annoteSchema("SparqlQueryProfile", {
@@ -50,13 +52,20 @@ export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"]).pip
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { SparqlQueryRequest } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlQueryRequest)
+ * const request = S.decodeUnknownSync(SparqlQueryRequest)({
+ *   query: "ASK { ?s ?p ?o }",
+ *   profile: "ask",
+ *   dataset: { quads: [] }
+ * })
+ * strictEqual(request.profile, "ask")
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQueryRequest`)(
   {
@@ -76,13 +85,15 @@ export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQue
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { SparqlSelectResult } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlSelectResult)
+ * const result = SparqlSelectResult.make({ profile: "select", rows: [] })
+ * strictEqual(result.rows.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSelectResult`)(
   {
@@ -100,13 +111,15 @@ export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSel
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { SparqlAskResult } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlAskResult)
+ * const result = SparqlAskResult.make({ profile: "ask", value: true })
+ * strictEqual(result.value, true)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult`)(
   {
@@ -124,13 +137,19 @@ export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { SparqlConstructResult } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlConstructResult)
+ * const result = S.decodeUnknownSync(SparqlConstructResult)({
+ *   profile: "construct",
+ *   dataset: { quads: [] }
+ * })
+ * strictEqual(result.dataset.quads.length, 0)
  * ```
  *
- * @since 0.0.0
  * @category models
+ * @since 0.0.0
  */
 export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`SparqlConstructResult`)(
   {
@@ -148,13 +167,16 @@ export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`Spa
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
+ * import * as S from "effect/Schema"
  * import { SparqlQueryResult } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlQueryResult)
+ * const result = S.decodeUnknownSync(SparqlQueryResult)({ profile: "ask", value: false })
+ * strictEqual(result.profile, "ask")
  * ```
  *
+ * @category schemas
  * @since 0.0.0
- * @category models
  */
 export const SparqlQueryResult = S.Union([SparqlSelectResult, SparqlAskResult, SparqlConstructResult]).pipe(
   S.toTaggedUnion("profile"),
@@ -184,13 +206,18 @@ export type SparqlQueryResult = typeof SparqlQueryResult.Type;
  *
  * @example
  * ```ts
+ * import { strictEqual } from "node:assert"
  * import { SparqlQueryError } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlQueryError)
+ * const error = SparqlQueryError.make({
+ *   reason: "unsupportedProfile",
+ *   message: "The adapter only supports ASK queries."
+ * })
+ * strictEqual(error.reason, "unsupportedProfile")
  * ```
  *
+ * @category errors
  * @since 0.0.0
- * @category error-handling
  */
 export class SparqlQueryError extends TaggedErrorClass<SparqlQueryError>($I`SparqlQueryError`)(
   "SparqlQueryError",
@@ -227,13 +254,39 @@ export interface SparqlQueryServiceShape {
  *
  * @example
  * ```ts
- * import { SparqlQueryService } from "@beep/semantic-web/services/sparql-query"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   SparqlAskResult,
+ *   SparqlQueryRequest,
+ *   SparqlQueryService
+ * } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(SparqlQueryService)
+ * const request = S.decodeUnknownSync(SparqlQueryRequest)({
+ *   query: "ASK { ?s ?p ?o }",
+ *   profile: "ask",
+ *   dataset: { quads: [] }
+ * })
+ * const program = Effect.gen(function* () {
+ *   const service = yield* SparqlQueryService
+ *   return yield* service.execute(request)
+ * })
+ *
+ * const result = Effect.runSync(
+ *   Effect.provideService(
+ *     program,
+ *     SparqlQueryService,
+ *     SparqlQueryService.of({
+ *       execute: () => Effect.succeed(SparqlAskResult.make({ profile: "ask", value: true }))
+ *     })
+ *   )
+ * )
+ * strictEqual(result.profile, "ask")
  * ```
  *
+ * @category services
  * @since 0.0.0
- * @category models
  */
 export class SparqlQueryService extends Context.Service<SparqlQueryService, SparqlQueryServiceShape>()(
   $I`SparqlQueryService`
@@ -244,13 +297,31 @@ export class SparqlQueryService extends Context.Service<SparqlQueryService, Spar
  *
  * @example
  * ```ts
- * import { UnsupportedSparqlQueryServiceLive } from "@beep/semantic-web/services/sparql-query"
+ * import { strictEqual } from "node:assert"
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import {
+ *   SparqlQueryRequest,
+ *   SparqlQueryService,
+ *   UnsupportedSparqlQueryServiceLive
+ * } from "@beep/semantic-web/services/sparql-query"
  *
- * console.log(UnsupportedSparqlQueryServiceLive)
+ * const request = S.decodeUnknownSync(SparqlQueryRequest)({
+ *   query: "ASK { ?s ?p ?o }",
+ *   profile: "ask",
+ *   dataset: { quads: [] }
+ * })
+ * const error = Effect.runSync(
+ *   Effect.gen(function* () {
+ *     const service = yield* SparqlQueryService
+ *     return yield* Effect.flip(service.execute(request))
+ *   }).pipe(Effect.provide(UnsupportedSparqlQueryServiceLive))
+ * )
+ * strictEqual(error.reason, "unimplemented")
  * ```
  *
- * @since 0.0.0
  * @category layers
+ * @since 0.0.0
  */
 export const UnsupportedSparqlQueryServiceLive = Layer.succeed(
   SparqlQueryService,

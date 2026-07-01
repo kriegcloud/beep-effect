@@ -41,9 +41,32 @@ export interface TextFieldProps
  *
  * @example
  * ```tsx
+ * import { Form, makeFormOptions, useAppForm } from "@beep/form"
  * import { TextField } from "@beep/form/fields/TextField"
+ * import * as S from "effect/Schema"
  *
- * console.log(TextField)
+ * const LoginSchema = S.Struct({ username: S.String })
+ * const loginOptions = makeFormOptions({
+ *   schema: LoginSchema,
+ *   defaultValues: { username: "" },
+ *   validateOn: "change",
+ * })
+ *
+ * export function LoginForm() {
+ *   const form = useAppForm(loginOptions)
+ *
+ *   return (
+ *     <form.AppForm>
+ *       <Form onSubmit={() => form.handleSubmit()}>
+ *         <form.AppField name="username">
+ *           {() => <TextField label="Username" placeholder="ada" />}
+ *         </form.AppField>
+ *       </Form>
+ *     </form.AppForm>
+ *   )
+ * }
+ *
+ * console.log(loginOptions.defaultValues.username) // ""
  * ```
  *
  * @category components

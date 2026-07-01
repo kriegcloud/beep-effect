@@ -18,13 +18,15 @@ const $I = $SchemaId.create("Thunk");
  *
  * @example
  * ```ts
- * import { TypeId } from "@beep/schema/Thunk"
+ * import { TypeId, nominal } from "@beep/schema/Thunk"
  *
- * console.log(TypeId)
+ * const typeId: typeof TypeId = TypeId
+ * const thunk = nominal(() => "ready")
+ * console.log(typeId === TypeId && thunk() === "ready") // true
  * ```
  *
+ * @category type-ids
  * @since 0.0.0
- * @category models
  */
 export const TypeId = $I`ThunkUnknown`;
 
@@ -35,12 +37,12 @@ export const TypeId = $I`ThunkUnknown`;
  * ```ts
  * import { TypeId, type TypeId as TypeIdType } from "@beep/schema/Thunk"
  *
- * const id = TypeId satisfies TypeIdType
- * console.log(id)
+ * const typeId = TypeId satisfies TypeIdType
+ * console.log(typeId === TypeId) // true
  * ```
  *
+ * @category type-ids
  * @since 0.0.0
- * @category models
  */
 export type TypeId = typeof TypeId;
 

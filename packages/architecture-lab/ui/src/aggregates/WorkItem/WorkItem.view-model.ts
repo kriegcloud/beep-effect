@@ -1,8 +1,13 @@
 /**
- * WorkItem UI view model.
+ * WorkItem UI read models for architecture-lab proof screens.
+ *
+ * @remarks
+ * The declarations in this module are intentionally presentation-shaped:
+ * domain identifiers and statuses are preserved, while display labels and
+ * visible action keys are derived for browser-safe consumers.
  *
  * @packageDocumentation
- * @category models
+ * @category read-models
  * @since 0.0.0
  */
 
@@ -19,16 +24,21 @@ import type { WorkItemPublicConfig } from "@beep/architecture-lab-config/public"
 const $I = $ArchitectureLabUiId.create("aggregates/WorkItem/WorkItem.view-model");
 
 /**
- * UI action values for the WorkItem proof surface.
+ * Closed action vocabulary the WorkItem UI may expose for a summary row.
  *
  * @example
  * ```ts
  * import { WorkItemVisibleAction } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemVisibleAction)
+ * const action = S.decodeUnknownSync(WorkItemVisibleAction)("archive")
+ *
+ * if (action !== WorkItemVisibleAction.Enum.archive) {
+ *   throw new Error("expected archive to be a visible WorkItem action")
+ * }
  * ```
  *
- * @category models
+ * @category value-objects
  * @since 0.0.0
  */
 export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen", "archive"]).pipe(
@@ -39,24 +49,59 @@ export const WorkItemVisibleAction = LiteralKit(["assign", "complete", "reopen",
 );
 
 /**
- * UI action value for the WorkItem proof surface.
+ * Runtime type for {@link WorkItemVisibleAction}.
  *
- * @category models
+ * @example
+ * ```ts
+ * import {
+ *   WorkItemVisibleAction,
+ *   type WorkItemVisibleAction as WorkItemVisibleActionValue
+ * } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ *
+ * const action: WorkItemVisibleActionValue = WorkItemVisibleAction.Enum.assign
+ * const visibleActions: ReadonlyArray<WorkItemVisibleActionValue> = [action]
+ *
+ * if (visibleActions[0] !== "assign") {
+ *   throw new Error("expected typed visible action evidence")
+ * }
+ * ```
+ *
+ * @category value-objects
  * @since 0.0.0
  */
 export type WorkItemVisibleAction = typeof WorkItemVisibleAction.Type;
 
 /**
- * UI-facing WorkItem summary.
+ * Client-renderable summary for a canonical WorkItem aggregate.
  *
  * @example
  * ```ts
- * import { WorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ * import {
+ *   WorkItemSummaryViewModel,
+ *   WorkItemVisibleAction
+ * } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ * import {
+ *   WorkItemId,
+ *   WorkItemTitle
+ * } from "@beep/architecture-lab-domain/aggregates/WorkItem"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * console.log(WorkItemSummaryViewModel)
+ * const summary = WorkItemSummaryViewModel.make({
+ *   id: S.decodeUnknownSync(WorkItemId)("work-item-1"),
+ *   title: S.decodeUnknownSync(WorkItemTitle)("Document topology"),
+ *   status: "assigned",
+ *   statusLabel: "ASSIGNED",
+ *   assigneeLabel: O.some("Assigned to 1"),
+ *   visibleActions: [WorkItemVisibleAction.Enum.complete]
+ * })
+ *
+ * if (summary.statusLabel !== "ASSIGNED") {
+ *   throw new Error("expected display-ready WorkItem status")
+ * }
  * ```
  *
- * @category models
+ * @category read-models
  * @since 0.0.0
  */
 export class WorkItemSummaryViewModel extends S.Class<WorkItemSummaryViewModel>($I`WorkItemSummaryViewModel`)(
@@ -93,16 +138,35 @@ const makeVisibleActions = (
 };
 
 /**
- * Create the UI-facing WorkItem summary view model.
+ * Project a domain WorkItem into its UI summary read model.
+ *
+ * @remarks
+ * Supports both data-first and config-first forms. The projection uppercases
+ * the status label, formats an assignee label when present, and filters
+ * visible actions through the browser-safe public WorkItem config.
  *
  * @example
  * ```ts
+ * import { defaultWorkItemPublicConfig } from "@beep/architecture-lab-config/public"
+ * import * as DomainWorkItem from "@beep/architecture-lab-domain/aggregates/WorkItem"
  * import { toWorkItemSummaryViewModel } from "@beep/architecture-lab-ui/aggregates/WorkItem"
+ * import * as S from "effect/Schema"
  *
- * console.log(toWorkItemSummaryViewModel)
+ * const toSummary = toWorkItemSummaryViewModel(defaultWorkItemPublicConfig)
+ * const workItem = DomainWorkItem.create(
+ *   DomainWorkItem.CreateWorkItemInput.make({
+ *     id: S.decodeUnknownSync(DomainWorkItem.WorkItemId)("work-item-1"),
+ *     title: "Document topology"
+ *   })
+ * )
+ * const summary = toSummary(workItem)
+ *
+ * if (summary.statusLabel !== "OPEN" || !summary.visibleActions.includes("complete")) {
+ *   throw new Error("expected open WorkItem summary actions")
+ * }
  * ```
  *
- * @category models
+ * @category mappers
  * @since 0.0.0
  */
 export const toWorkItemSummaryViewModel: {

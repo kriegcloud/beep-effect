@@ -475,9 +475,20 @@ const makeGraphExecutor = Effect.succeed(
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { GraphExecutorLive } from "@beep/nlp-processing/Graph/GraphOperations/Executor"
+ * import { empty } from "@beep/nlp-processing/Graph/EffectGraph"
+ * import { identity } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
+ * import { GraphExecutor } from "@beep/nlp-processing/Graph/GraphOperations/Executor"
  *
- * console.log(GraphExecutorLive)
+ * const cost = await Effect.runPromise(
+ *   Effect.gen(function* () {
+ *     const executor = yield* GraphExecutor
+ *     return yield* executor.estimateCost(empty<string>(), identity<string>())
+ *   }).pipe(Effect.provide(GraphExecutorLive))
+ * )
+ *
+ * cost.complexity
  * ```
  *
  * @since 0.0.0
@@ -495,9 +506,20 @@ export const GraphExecutorLive: Layer.Layer<GraphExecutor> = Layer.effect(GraphE
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { GraphExecutorTest } from "@beep/nlp-processing/Graph/GraphOperations/Executor"
+ * import { empty } from "@beep/nlp-processing/Graph/EffectGraph"
+ * import { identity } from "@beep/nlp-processing/Graph/GraphOperations/Operation"
+ * import { GraphExecutor } from "@beep/nlp-processing/Graph/GraphOperations/Executor"
  *
- * console.log(GraphExecutorTest)
+ * const validation = await Effect.runPromise(
+ *   Effect.gen(function* () {
+ *     const executor = yield* GraphExecutor
+ *     return yield* executor.validate(empty<string>(), identity<string>())
+ *   }).pipe(Effect.provide(GraphExecutorTest))
+ * )
+ *
+ * validation.warnings.length
  * ```
  *
  * @since 0.0.0

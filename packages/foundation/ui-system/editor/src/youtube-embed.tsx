@@ -17,7 +17,10 @@ const youtubeEmbedUrl = (videoID: string): string => `https://www.youtube-nocook
  * ```tsx
  * import { YouTubeEmbed } from "@beep/editor/youtube-embed"
  *
- * console.log(YouTubeEmbed.name) // "YouTubeEmbed"
+ * const props = { videoID: "dQw4w9WgXcQ" }
+ * const embed = <YouTubeEmbed {...props} />
+ *
+ * console.log(props.videoID) // "dQw4w9WgXcQ"
  * ```
  *
  * @category components
