@@ -6,11 +6,12 @@
  * @since 0.0.0
  */
 
+import { $WorkspaceServerId } from "@beep/identity";
 import { Document } from "@beep/md/Md.model";
 import { PostgresDrizzle } from "@beep/postgres";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
 import { A } from "@beep/utils";
-import { Message } from "@beep/workspace-domain/entities/Message";
+import { Message, MessageRole } from "@beep/workspace-domain/entities/Message";
 import { Thread } from "@beep/workspace-domain/entities/Thread";
 import { Turn } from "@beep/workspace-domain/entities/Turn";
 import { DbSchema } from "@beep/workspace-tables";
@@ -22,10 +23,11 @@ import { and, asc, eq } from "drizzle-orm";
 import { Effect, HashMap, Order, pipe, Ref } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import type { MessageRole } from "@beep/workspace-domain/entities/Message";
 import type { MessageInsert, MessageRow } from "@beep/workspace-tables/entities/Message";
 import type { ThreadRow } from "@beep/workspace-tables/entities/Thread";
 import type { TurnRow } from "@beep/workspace-tables/entities/Turn";
+
+const $I = $WorkspaceServerId.create("aggregates/Thread/ThreadStore.repo");
 
 const THREAD_TABLE_NAME = "workspace_thread" as const;
 const TURN_TABLE_NAME = "workspace_turn" as const;
@@ -59,20 +61,38 @@ const baseEntityRecord = (entityType: string, id: number) => ({
   updatedByPrincipal: SYSTEM_PRINCIPAL,
 });
 
-const makeThreadEntity = (input: { id: number; title: string; workspaceId: number }): Thread =>
+class ThreadEntityInput extends S.Class<ThreadEntityInput>($I`ThreadEntityInput`)(
+  {
+    id: S.Finite,
+    title: S.String,
+    workspaceId: S.Finite,
+  },
+  $I.annote("ThreadEntityInput", {
+    description: "Input for creating a Thread entity",
+  })
+) {}
+
+const makeThreadEntity = (input: ThreadEntityInput): Thread =>
   S.decodeUnknownSync(Thread)({
     ...baseEntityRecord("WorkspaceThread", input.id),
     title: input.title,
     workspaceId: input.workspaceId,
   });
 
-const makeTurnEntity = (input: {
-  id: number;
-  threadId: number;
-  parentTurnId: number | null;
-  turnIndex: number;
-  messageId: number;
-}): Turn =>
+class TurnEntityInput extends S.Class<TurnEntityInput>($I`TurnEntityInput`)(
+  {
+    id: S.Finite,
+    threadId: S.Finite,
+    parentTurnId: S.NullOr(S.Finite),
+    turnIndex: S.Finite,
+    messageId: S.Finite,
+  },
+  $I.annote("TurnEntityInput", {
+    description: "Input for creating a Turn entity",
+  })
+) {}
+
+const makeTurnEntity = (input: TurnEntityInput): Turn =>
   S.decodeUnknownSync(Turn)({
     ...baseEntityRecord("WorkspaceTurn", input.id),
     items: [{ itemType: "message", messageId: input.messageId }],
@@ -81,13 +101,20 @@ const makeTurnEntity = (input: {
     turnIndex: input.turnIndex,
   });
 
-const makeMessageEntity = (input: {
-  id: number;
-  threadId: number;
-  turnId: number;
-  role: MessageRole;
-  content: Document;
-}): Message =>
+class MessageEntityInput extends S.Class<MessageEntityInput>($I`MessageEntityInput`)(
+  {
+    id: S.Finite,
+    threadId: S.Finite,
+    turnId: S.Finite,
+    role: MessageRole,
+    content: Document,
+  },
+  $I.annote("MessageEntityInput", {
+    description: "Input for creating a Message entity",
+  })
+) {}
+
+const makeMessageEntity = (input: MessageEntityInput): Message =>
   S.decodeUnknownSync(Message)({
     ...baseEntityRecord("WorkspaceMessage", input.id),
     content: encodeDocument(input.content),
@@ -100,12 +127,21 @@ const threadIdToNumber = (id: WorkspaceIdentity.ThreadId): number => Number(enco
 
 const turnIndexOrder = Order.mapInput(Order.Number, (turn: Turn) => turn.turnIndex);
 
-interface InMemoryState {
-  readonly messages: HashMap.HashMap<number, Message>;
-  readonly nextId: number;
-  readonly threads: HashMap.HashMap<number, Thread>;
-  readonly turns: HashMap.HashMap<number, Turn>;
-}
+class InMemoryState extends S.Class<InMemoryState>($I`InMemoryState`)(
+  {
+    messages: S.HashMap(S.Number, Message).pipe(
+      S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Message>()))
+    ),
+    nextId: S.Finite.pipe(S.withConstructorDefault(Effect.succeed(1))),
+    threads: S.HashMap(S.Number, Thread).pipe(
+      S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Thread>()))
+    ),
+    turns: S.HashMap(S.Number, Turn).pipe(S.withConstructorDefault(Effect.succeed(HashMap.empty<number, Turn>()))),
+  },
+  $I.annote("InMemoryState", {
+    description: "In-memory state for the thread store",
+  })
+) {}
 
 const emptyState: InMemoryState = {
   threads: HashMap.empty<number, Thread>(),

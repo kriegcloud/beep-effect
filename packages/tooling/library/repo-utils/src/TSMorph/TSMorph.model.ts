@@ -114,7 +114,7 @@ const symbolKindOptions = TSSyntaxKind.pickOptions([
  * @example
  * ```ts
  * import { RepoRootPath } from "@beep/repo-utils"
- * const identifier = RepoRootPath.ast.annotations.identifier
+ * const identifier = RepoRootPath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -146,7 +146,7 @@ export type RepoRootPath = typeof RepoRootPath.Type;
  * @example
  * ```ts
  * import { WorkspaceDirectoryPath } from "@beep/repo-utils"
- * const identifier = WorkspaceDirectoryPath.ast.annotations.identifier
+ * const identifier = WorkspaceDirectoryPath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -178,7 +178,7 @@ export type WorkspaceDirectoryPath = typeof WorkspaceDirectoryPath.Type;
  * @example
  * ```ts
  * import { TsConfigFilePath } from "@beep/repo-utils"
- * const identifier = TsConfigFilePath.ast.annotations.identifier
+ * const identifier = TsConfigFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -210,7 +210,7 @@ export type TsConfigFilePath = typeof TsConfigFilePath.Type;
  * @example
  * ```ts
  * import { TypeScriptImplementationFilePath } from "@beep/repo-utils"
- * const identifier = TypeScriptImplementationFilePath.ast.annotations.identifier
+ * const identifier = TypeScriptImplementationFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -242,7 +242,7 @@ export type TypeScriptImplementationFilePath = typeof TypeScriptImplementationFi
  * @example
  * ```ts
  * import { TypeScriptDeclarationFilePath } from "@beep/repo-utils"
- * const identifier = TypeScriptDeclarationFilePath.ast.annotations.identifier
+ * const identifier = TypeScriptDeclarationFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -274,7 +274,7 @@ export type TypeScriptDeclarationFilePath = typeof TypeScriptDeclarationFilePath
  * @example
  * ```ts
  * import { TypeScriptFilePath } from "@beep/repo-utils"
- * const identifier = TypeScriptFilePath.ast.annotations.identifier
+ * const identifier = TypeScriptFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -305,7 +305,7 @@ export type TypeScriptFilePath = typeof TypeScriptFilePath.Type;
  * @example
  * ```ts
  * import { SymbolFilePath } from "@beep/repo-utils"
- * const identifier = SymbolFilePath.ast.annotations.identifier
+ * const identifier = SymbolFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -337,7 +337,7 @@ export type SymbolFilePath = typeof SymbolFilePath.Type;
  * @example
  * ```ts
  * import { SymbolNameSegment } from "@beep/repo-utils"
- * const identifier = SymbolNameSegment.ast.annotations.identifier
+ * const identifier = SymbolNameSegment.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -369,7 +369,7 @@ export type SymbolNameSegment = typeof SymbolNameSegment.Type;
  * @example
  * ```ts
  * import { SymbolQualifiedName } from "@beep/repo-utils"
- * const identifier = SymbolQualifiedName.ast.annotations.identifier
+ * const identifier = SymbolQualifiedName.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -401,7 +401,7 @@ export type SymbolQualifiedName = typeof SymbolQualifiedName.Type;
  * @example
  * ```ts
  * import { SymbolKind } from "@beep/repo-utils"
- * const identifier = SymbolKind.ast.annotations.identifier
+ * const identifier = SymbolKind.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -428,7 +428,7 @@ export type SymbolKind = typeof SymbolKind.Type;
  * @example
  * ```ts
  * import { SymbolCategory } from "@beep/repo-utils"
- * const identifier = SymbolCategory.ast.annotations.identifier
+ * const identifier = SymbolCategory.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -480,7 +480,7 @@ export const symbolCategoryFromKind = SymbolKind.$match({
  * @example
  * ```ts
  * import { SymbolKindToCategory } from "@beep/repo-utils"
- * const identifier = SymbolKindToCategory.ast.annotations.identifier
+ * const identifier = SymbolKindToCategory.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -517,7 +517,7 @@ export type SymbolKindToCategory = typeof SymbolKindToCategory.Type;
  * @example
  * ```ts
  * import { SourceText } from "@beep/repo-utils"
- * const identifier = SourceText.ast.annotations.identifier
+ * const identifier = SourceText.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -549,7 +549,7 @@ export type SourceText = typeof SourceText.Type;
  * @example
  * ```ts
  * import { LineNumber } from "@beep/repo-utils"
- * const identifier = LineNumber.ast.annotations.identifier
+ * const identifier = LineNumber.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -581,7 +581,7 @@ export type LineNumber = typeof LineNumber.Type;
  * @example
  * ```ts
  * import { ColumnNumber } from "@beep/repo-utils"
- * const identifier = ColumnNumber.ast.annotations.identifier
+ * const identifier = ColumnNumber.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -613,7 +613,7 @@ export type ColumnNumber = typeof ColumnNumber.Type;
  * @example
  * ```ts
  * import { ByteOffset } from "@beep/repo-utils"
- * const identifier = ByteOffset.ast.annotations.identifier
+ * const identifier = ByteOffset.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -645,7 +645,7 @@ export type ByteOffset = typeof ByteOffset.Type;
  * @example
  * ```ts
  * import { ByteLength } from "@beep/repo-utils"
- * const identifier = ByteLength.ast.annotations.identifier
+ * const identifier = ByteLength.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -677,7 +677,7 @@ export type ByteLength = typeof ByteLength.Type;
  * @example
  * ```ts
  * import { ContentHash } from "@beep/repo-utils"
- * const identifier = ContentHash.ast.annotations.identifier
+ * const identifier = ContentHash.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -709,7 +709,7 @@ export type ContentHash = typeof ContentHash.Type;
  * @example
  * ```ts
  * import { TsMorphScopeMode } from "@beep/repo-utils"
- * const identifier = TsMorphScopeMode.ast.annotations.identifier
+ * const identifier = TsMorphScopeMode.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -736,7 +736,7 @@ export type TsMorphScopeMode = typeof TsMorphScopeMode.Type;
  * @example
  * ```ts
  * import { TsMorphReferencePolicy } from "@beep/repo-utils"
- * const identifier = TsMorphReferencePolicy.ast.annotations.identifier
+ * const identifier = TsMorphReferencePolicy.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -771,7 +771,7 @@ const resolvedProjectIdentity = S.TemplateLiteral([
  * @example
  * ```ts
  * import { ProjectScopeId } from "@beep/repo-utils"
- * const identifier = ProjectScopeId.ast.annotations.identifier
+ * const identifier = ProjectScopeId.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -803,7 +803,7 @@ export type ProjectScopeId = typeof ProjectScopeId.Type;
  * @example
  * ```ts
  * import { ProjectScopeIdParts } from "@beep/repo-utils"
- * const identifier = ProjectScopeIdParts.ast.annotations.identifier
+ * const identifier = ProjectScopeIdParts.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -827,7 +827,7 @@ export const ProjectScopeIdParts = S.TemplateLiteralParser([
  * @example
  * ```ts
  * import { ProjectCacheKey } from "@beep/repo-utils"
- * const identifier = ProjectCacheKey.ast.annotations.identifier
+ * const identifier = ProjectCacheKey.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -867,7 +867,7 @@ const symbolIdentity = S.TemplateLiteral([SymbolFilePath, "::", SymbolQualifiedN
  * @example
  * ```ts
  * import { SymbolId } from "@beep/repo-utils"
- * const identifier = SymbolId.ast.annotations.identifier
+ * const identifier = SymbolId.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -899,7 +899,7 @@ export type SymbolId = typeof SymbolId.Type;
  * @example
  * ```ts
  * import { SymbolIdParts } from "@beep/repo-utils"
- * const identifier = SymbolIdParts.ast.annotations.identifier
+ * const identifier = SymbolIdParts.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -917,7 +917,7 @@ export const SymbolIdParts = S.TemplateLiteralParser([SymbolFilePath, "::", Symb
  * @example
  * ```ts
  * import { FilePathToTsConfigFilePath } from "@beep/repo-utils"
- * const identifier = FilePathToTsConfigFilePath.ast.annotations.identifier
+ * const identifier = FilePathToTsConfigFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -939,7 +939,7 @@ export const FilePathToTsConfigFilePath = FilePath.pipe(
  * @example
  * ```ts
  * import { FilePathToTypeScriptImplementationFilePath } from "@beep/repo-utils"
- * const identifier = FilePathToTypeScriptImplementationFilePath.ast.annotations.identifier
+ * const identifier = FilePathToTypeScriptImplementationFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -961,7 +961,7 @@ export const FilePathToTypeScriptImplementationFilePath = FilePath.pipe(
  * @example
  * ```ts
  * import { FilePathToTypeScriptDeclarationFilePath } from "@beep/repo-utils"
- * const identifier = FilePathToTypeScriptDeclarationFilePath.ast.annotations.identifier
+ * const identifier = FilePathToTypeScriptDeclarationFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -983,7 +983,7 @@ export const FilePathToTypeScriptDeclarationFilePath = FilePath.pipe(
  * @example
  * ```ts
  * import { FilePathToTypeScriptFilePath } from "@beep/repo-utils"
- * const identifier = FilePathToTypeScriptFilePath.ast.annotations.identifier
+ * const identifier = FilePathToTypeScriptFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1005,7 +1005,7 @@ export const FilePathToTypeScriptFilePath = FilePath.pipe(
  * @example
  * ```ts
  * import { TypeScriptImplementationFilePathToSymbolFilePath } from "@beep/repo-utils"
- * const identifier = TypeScriptImplementationFilePathToSymbolFilePath.ast.annotations.identifier
+ * const identifier = TypeScriptImplementationFilePathToSymbolFilePath.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1032,7 +1032,7 @@ const decodeSha256HexFromBytesEffect = S.decodeUnknownEffect(Sha256HexFromBytes)
  * @example
  * ```ts
  * import { ContentHashFromBytes } from "@beep/repo-utils"
- * const identifier = ContentHashFromBytes.ast.annotations.identifier
+ * const identifier = ContentHashFromBytes.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1064,7 +1064,7 @@ const decodeContentHashFromBytesEffect = S.decodeUnknownEffect(ContentHashFromBy
  * @example
  * ```ts
  * import { ContentHashFromSourceText } from "@beep/repo-utils"
- * const identifier = ContentHashFromSourceText.ast.annotations.identifier
+ * const identifier = ContentHashFromSourceText.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1091,7 +1091,7 @@ export const ContentHashFromSourceText = SourceText.pipe(
  * @example
  * ```ts
  * import { InternalTsMorphProject } from "@beep/repo-utils"
- * const identifier = InternalTsMorphProject.ast.annotations.identifier
+ * const identifier = InternalTsMorphProject.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1109,7 +1109,7 @@ export const InternalTsMorphProject = S.instanceOf(Project).pipe(
  * @example
  * ```ts
  * import { InternalTsMorphSourceFile } from "@beep/repo-utils"
- * const identifier = InternalTsMorphSourceFile.ast.annotations.identifier
+ * const identifier = InternalTsMorphSourceFile.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1129,7 +1129,7 @@ export const InternalTsMorphSourceFile = S.declare<SourceFile>(
  * @example
  * ```ts
  * import { InternalTsMorphNode } from "@beep/repo-utils"
- * const identifier = InternalTsMorphNode.ast.annotations.identifier
+ * const identifier = InternalTsMorphNode.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1149,7 +1149,7 @@ export const InternalTsMorphNode = S.declare<TsMorphNode>(
  * @example
  * ```ts
  * import { Symbol as TsMorphSymbol } from "@beep/repo-utils"
- * const identifier = TsMorphSymbol.ast.annotations.identifier
+ * const identifier = TsMorphSymbol.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1220,7 +1220,7 @@ export class Symbol extends S.Class<Symbol>($I`Symbol`)(
  * @example
  * ```ts
  * import { Symbol as TsMorphSymbol } from "@beep/repo-utils"
- * const identifier = TsMorphSymbol.ast.annotations.identifier
+ * const identifier = TsMorphSymbol.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1449,7 +1449,7 @@ class TsMorphScopeEntrypointFile extends S.Class<TsMorphScopeEntrypointFile>($I`
  * @example
  * ```ts
  * import { TsMorphScopeEntrypoint } from "@beep/repo-utils"
- * const identifier = TsMorphScopeEntrypoint.ast.annotations.identifier
+ * const identifier = TsMorphScopeEntrypoint.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1492,7 +1492,7 @@ export type TsMorphScopeEntrypoint = typeof TsMorphScopeEntrypoint.Type;
  * @example
  * ```ts
  * import { TsMorphProjectScopeRequest } from "@beep/repo-utils"
- * const identifier = TsMorphProjectScopeRequest.ast.annotations.identifier
+ * const identifier = TsMorphProjectScopeRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1516,7 +1516,7 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
  * @example
  * ```ts
  * import { TsMorphProjectInspectionRequest } from "@beep/repo-utils"
- * const identifier = TsMorphProjectInspectionRequest.ast.annotations.identifier
+ * const identifier = TsMorphProjectInspectionRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1545,7 +1545,7 @@ export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspe
  * @example
  * ```ts
  * import { TsMorphProjectScope } from "@beep/repo-utils"
- * const identifier = TsMorphProjectScope.ast.annotations.identifier
+ * const identifier = TsMorphProjectScope.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1572,7 +1572,7 @@ export class TsMorphProjectScope extends S.Class<TsMorphProjectScope>($I`TsMorph
  * @example
  * ```ts
  * import { TsMorphFileOutlineRequest } from "@beep/repo-utils"
- * const identifier = TsMorphFileOutlineRequest.ast.annotations.identifier
+ * const identifier = TsMorphFileOutlineRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1594,7 +1594,7 @@ export class TsMorphFileOutlineRequest extends S.Class<TsMorphFileOutlineRequest
  * @example
  * ```ts
  * import { TsMorphFileOutline } from "@beep/repo-utils"
- * const identifier = TsMorphFileOutline.ast.annotations.identifier
+ * const identifier = TsMorphFileOutline.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1617,7 +1617,7 @@ export class TsMorphFileOutline extends S.Class<TsMorphFileOutline>($I`TsMorphFi
  * @example
  * ```ts
  * import { TsMorphSourceTextRequest } from "@beep/repo-utils"
- * const identifier = TsMorphSourceTextRequest.ast.annotations.identifier
+ * const identifier = TsMorphSourceTextRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1638,7 +1638,7 @@ export class TsMorphSourceTextRequest extends S.Class<TsMorphSourceTextRequest>(
  * @example
  * ```ts
  * import { TsMorphSourceTextResult } from "@beep/repo-utils"
- * const identifier = TsMorphSourceTextResult.ast.annotations.identifier
+ * const identifier = TsMorphSourceTextResult.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1661,7 +1661,7 @@ export class TsMorphSourceTextResult extends S.Class<TsMorphSourceTextResult>($I
  * @example
  * ```ts
  * import { TsMorphSymbolLookupRequest } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolLookupRequest.ast.annotations.identifier
+ * const identifier = TsMorphSymbolLookupRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1683,7 +1683,7 @@ export class TsMorphSymbolLookupRequest extends S.Class<TsMorphSymbolLookupReque
  * @example
  * ```ts
  * import { TsMorphSymbolLookupResult } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolLookupResult.ast.annotations.identifier
+ * const identifier = TsMorphSymbolLookupResult.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1705,7 +1705,7 @@ export class TsMorphSymbolLookupResult extends S.Class<TsMorphSymbolLookupResult
  * @example
  * ```ts
  * import { TsMorphSearchLimit } from "@beep/repo-utils"
- * const identifier = TsMorphSearchLimit.ast.annotations.identifier
+ * const identifier = TsMorphSearchLimit.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1737,7 +1737,7 @@ export type TsMorphSearchLimit = typeof TsMorphSearchLimit.Type;
  * @example
  * ```ts
  * import { TsMorphSymbolSearchRequest } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolSearchRequest.ast.annotations.identifier
+ * const identifier = TsMorphSymbolSearchRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1762,7 +1762,7 @@ export class TsMorphSymbolSearchRequest extends S.Class<TsMorphSymbolSearchReque
  * @example
  * ```ts
  * import { TsMorphSymbolSearchResult } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolSearchResult.ast.annotations.identifier
+ * const identifier = TsMorphSymbolSearchResult.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1787,7 +1787,7 @@ export class TsMorphSymbolSearchResult extends S.Class<TsMorphSymbolSearchResult
  * @example
  * ```ts
  * import { TsMorphSymbolSourceRequest } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolSourceRequest.ast.annotations.identifier
+ * const identifier = TsMorphSymbolSourceRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1809,7 +1809,7 @@ export class TsMorphSymbolSourceRequest extends S.Class<TsMorphSymbolSourceReque
  * @example
  * ```ts
  * import { TsMorphSymbolSourceResult } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolSourceResult.ast.annotations.identifier
+ * const identifier = TsMorphSymbolSourceResult.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1833,7 +1833,7 @@ export class TsMorphSymbolSourceResult extends S.Class<TsMorphSymbolSourceResult
  * @example
  * ```ts
  * import { TsMorphDiagnosticCategory } from "@beep/repo-utils"
- * const identifier = TsMorphDiagnosticCategory.ast.annotations.identifier
+ * const identifier = TsMorphDiagnosticCategory.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1918,7 +1918,7 @@ class TsMorphDiagnosticMessage extends TsMorphDiagnosticBase.extend<TsMorphDiagn
  * @example
  * ```ts
  * import { TsMorphDiagnostic } from "@beep/repo-utils"
- * const identifier = TsMorphDiagnostic.ast.annotations.identifier
+ * const identifier = TsMorphDiagnostic.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1957,7 +1957,7 @@ export type TsMorphDiagnostic = typeof TsMorphDiagnostic.Type;
  * @example
  * ```ts
  * import { TsMorphDiagnosticsRequest } from "@beep/repo-utils"
- * const identifier = TsMorphDiagnosticsRequest.ast.annotations.identifier
+ * const identifier = TsMorphDiagnosticsRequest.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -1979,7 +1979,7 @@ export class TsMorphDiagnosticsRequest extends S.Class<TsMorphDiagnosticsRequest
  * @example
  * ```ts
  * import { TsMorphDiagnosticsResult } from "@beep/repo-utils"
- * const identifier = TsMorphDiagnosticsResult.ast.annotations.identifier
+ * const identifier = TsMorphDiagnosticsResult.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models

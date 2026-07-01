@@ -7,6 +7,7 @@
 
 import { $AgentsServerId } from "@beep/identity";
 import { SchemaUtils } from "@beep/schema";
+import { Match } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
@@ -53,7 +54,7 @@ export class ScanState extends S.Class<ScanState>($I`ScanState`)(
  * @category constructors
  * @since 0.0.0
  */
-export const initialScanState: ScanState = ScanState.make();
+export const initialScanState = ScanState.make();
 
 /**
  * Fold one chunk of structured-output JSON text into the scan state, returning
@@ -87,22 +88,24 @@ export const scanChunk = (state: ScanState, text: string): [ScanState, Array<str
       else if (char === '"') inString = false;
       continue;
     }
-    switch (char) {
-      case '"':
-        inString = true;
-        break;
-      case "[":
-        if (!inBlocksArray) inBlocksArray = true;
-        else if (depth > 0) depth++;
-        break;
-      case "{":
-        if (inBlocksArray) {
-          if (depth === 0) current = "{";
+    Match.value(char).pipe(
+      Match.when(`"`, () => (inString = false)),
+      Match.when("[", () => {
+        if (!inBlocksArray) {
+          inBlocksArray = true;
+        } else if (depth > 0) {
           depth++;
         }
-        break;
-      case "}":
-      case "]":
+      }),
+      Match.when("{", () => {
+        if (inBlocksArray) {
+          if (depth === 0) {
+            current = "{";
+          }
+          depth++;
+        }
+      }),
+      Match.whenOr("}", "]", () => {
         if (depth > 0) {
           depth--;
           if (depth === 0) {
@@ -110,8 +113,18 @@ export const scanChunk = (state: ScanState, text: string): [ScanState, Array<str
             current = "";
           }
         }
-        break;
-    }
+      }),
+      Match.orElse(() => {})
+    );
   }
-  return [{ inBlocksArray, depth, inString, escaped, current }, completed];
+  return [
+    {
+      inBlocksArray,
+      depth,
+      inString,
+      escaped,
+      current,
+    },
+    completed,
+  ];
 };

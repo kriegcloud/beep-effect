@@ -12,14 +12,14 @@
  */
 
 import { $WorkspaceUseCasesId } from "@beep/identity/packages";
+import { Document } from "@beep/md/Md.model";
 import * as WorkspaceIdentity from "@beep/shared-domain/identity/Workspace";
+import { Message, MessageRole } from "@beep/workspace-domain/entities/Message";
+import { Turn } from "@beep/workspace-domain/entities/Turn";
 import { Context } from "effect";
 import * as S from "effect/Schema";
-import type { Document } from "@beep/md/Md.model";
-import type { Message, MessageRole } from "@beep/workspace-domain/entities/Message";
 import type { Thread } from "@beep/workspace-domain/entities/Thread";
-import type { Turn } from "@beep/workspace-domain/entities/Turn";
-import type { Effect, Option } from "effect";
+import type { Effect } from "effect";
 import type { ThreadStoreConflict, ThreadStoreNotFound, ThreadStoreUnavailable } from "./Thread.errors.ts";
 import type { ThreadTimeline } from "./ThreadTimeline.ts";
 
@@ -47,10 +47,15 @@ const $I = $WorkspaceUseCasesId.create("aggregates/Thread/ThreadStore");
  * @category repositories
  * @since 0.0.0
  */
-export interface CreateThreadInput {
-  readonly title: string;
-  readonly workspaceId: WorkspaceIdentity.WorkspaceId;
-}
+class CreateThreadInput extends S.Class<CreateThreadInput>($I`CreateThreadInput`)(
+  {
+    title: S.String,
+    workspaceId: WorkspaceIdentity.WorkspaceId,
+  },
+  $I.annote("CreateThreadInput", {
+    description: "Input accepted by {@link ThreadStoreShape.createThread}.",
+  })
+) {}
 
 /**
  * Input accepted by {@link ThreadStoreShape.appendTurn}.
@@ -81,12 +86,17 @@ export interface CreateThreadInput {
  * @category repositories
  * @since 0.0.0
  */
-export interface AppendTurnInput {
-  readonly content: Document;
-  readonly parentTurnId: Option.Option<WorkspaceIdentity.TurnId>;
-  readonly role: MessageRole;
-  readonly threadId: WorkspaceIdentity.ThreadId;
-}
+class AppendTurnInput extends S.Class<AppendTurnInput>($I`AppendTurnInput`)(
+  {
+    content: Document,
+    parentTurnId: S.Option(WorkspaceIdentity.TurnId),
+    role: MessageRole,
+    threadId: WorkspaceIdentity.ThreadId,
+  },
+  $I.annote("AppendTurnInput", {
+    description: "Input for {@link ThreadStoreShape.appendTurn}.",
+  })
+) {}
 
 /**
  * Result returned by {@link ThreadStoreShape.appendTurn}.
@@ -104,10 +114,15 @@ export interface AppendTurnInput {
  * @category repositories
  * @since 0.0.0
  */
-export interface AppendTurnResult {
-  readonly message: Message;
-  readonly turn: Turn;
-}
+class AppendTurnResult extends S.Class<AppendTurnResult>($I`AppendTurnResult`)(
+  {
+    message: Message,
+    turn: Turn,
+  },
+  $I.annote("AppendTurnResult", {
+    description: "Result returned by {@link ThreadStoreShape.appendTurn}.",
+  })
+) {}
 
 /**
  * Input accepted by {@link ThreadStoreShape.setTitleIfEmpty}.

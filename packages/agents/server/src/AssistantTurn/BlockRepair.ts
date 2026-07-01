@@ -96,10 +96,6 @@ class RepairAttemptState extends S.Class<RepairAttemptState>($I`RepairAttemptSta
     description: "Accumulator for unrepaired failures and accepted repaired blocks across repair attempts.",
   })
 ) {}
-interface RepairAttemptState {
-  readonly pending: ReadonlyArray<IssueReport>;
-  readonly repaired: ReadonlyArray<IndexedBlock>;
-}
 
 /**
  * Provider call used by {@link makeRepairInvalidBlocks} to obtain repair tool
@@ -218,21 +214,71 @@ const toBlockRepairFailed = (message: string): BlockRepairFailed => BlockRepairF
 
 const PATCH_PATH_LIMIT = 128;
 
-interface PatchOpSummary {
-  readonly op: JsonPatch.JsonPatchOperation["op"];
-  readonly path: string;
-}
+export class PatchOpSummaryBase extends S.Class<PatchOpSummaryBase>($I`PatchOpSummaryBase`)(
+  {
+    path: S.String,
+  },
+  $I.annote("PatchOpSummaryBase", {
+    description: "A single JSON Patch operation.",
+  })
+) {}
+
+export class AddPatchOpSummary extends PatchOpSummaryBase.extend<AddPatchOpSummary>($I`AddPatchOpSummary`)(
+  {
+    op: S.tag("add"),
+  },
+  $I.annote("AddPatchOpSummary", {
+    description: "A single JSON Patch add operation.",
+  })
+) {}
+
+export class RemovePatchOpSummary extends PatchOpSummaryBase.extend<RemovePatchOpSummary>($I`RemovePatchOpSummary`)(
+  {
+    op: S.tag("remove"),
+  },
+  $I.annote("RemovePatchOpSummary", {
+    description: "A single JSON Patch remove operation.",
+  })
+) {}
+
+export class ReplacePatchOpSummary extends PatchOpSummaryBase.extend<ReplacePatchOpSummary>($I`ReplacePatchOpSummary`)(
+  {
+    op: S.tag("replace"),
+  },
+  $I.annote("ReplacePatchOpSummary", {
+    description: "A single JSON Patch replace operation.",
+  })
+) {}
+
+export const PatchOpSummary = S.Union([AddPatchOpSummary, RemovePatchOpSummary, ReplacePatchOpSummary]).pipe(
+  S.toTaggedUnion("op"),
+  $I.annoteSchema("PatchOpSummary", {
+    description: "A single JSON Patch operation.",
+  })
+);
+
+export type PatchOpSummary = typeof PatchOpSummary.Type;
+
+class PatchSummarization extends S.Class<PatchSummarization>($I`PatchSummarization`)(
+  {
+    operations: S.Finite,
+    ops: S.Array(PatchOpSummary),
+  },
+  $I.annote("PatchSummarization", {
+    description:
+      "Summarize a JSON patch into non-sensitive structural metadata: the operation count and, per operation, the op kind plus a redacted/truncated JSON Pointer. The `value` field of add/replace operations carries repaired assistant content and is intentionally never logged.",
+  })
+) {}
 
 // Summarize a JSON patch into non-sensitive structural metadata: the operation
 // count and, per operation, the op kind plus a redacted/truncated JSON Pointer.
 // The `value` field of add/replace operations carries repaired assistant content
 // and is intentionally never logged.
-const summarizePatch = (
-  patch: JsonPatch.JsonPatch
-): { readonly operations: number; readonly ops: ReadonlyArray<PatchOpSummary> } => ({
-  operations: A.length(patch),
-  ops: A.map(patch, (operation) => ({ op: operation.op, path: redactString(operation.path, PATCH_PATH_LIMIT) })),
-});
+const summarizePatch = (patch: JsonPatch.JsonPatch): PatchSummarization =>
+  PatchSummarization.make({
+    operations: A.length(patch),
+    ops: A.map(patch, (operation) => ({ op: operation.op, path: redactString(operation.path, PATCH_PATH_LIMIT) })),
+  });
 
 const trackRepairOutcome = (outcome: "call_failed" | "dropped" | "repaired", count: number): Effect.Effect<void> =>
   count === 0 ? Effect.void : Metric.update(Metric.withAttributes(blocksRepaired, { outcome }), count);

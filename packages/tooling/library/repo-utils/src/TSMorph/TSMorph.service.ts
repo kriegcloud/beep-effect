@@ -114,7 +114,7 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  * @example
  * ```ts
  * import { TsMorphServiceUnavailableError } from "@beep/repo-utils"
- * const identifier = TsMorphServiceUnavailableError.ast.annotations.identifier
+ * const identifier = TsMorphServiceUnavailableError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -140,7 +140,7 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
  * @example
  * ```ts
  * import { TsMorphScopeResolutionError } from "@beep/repo-utils"
- * const identifier = TsMorphScopeResolutionError.ast.annotations.identifier
+ * const identifier = TsMorphScopeResolutionError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -166,7 +166,7 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
  * @example
  * ```ts
  * import { TsMorphProjectLoadError } from "@beep/repo-utils"
- * const identifier = TsMorphProjectLoadError.ast.annotations.identifier
+ * const identifier = TsMorphProjectLoadError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -190,7 +190,7 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
  * @example
  * ```ts
  * import { TsMorphSourceFileError } from "@beep/repo-utils"
- * const identifier = TsMorphSourceFileError.ast.annotations.identifier
+ * const identifier = TsMorphSourceFileError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -233,7 +233,7 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
  * @example
  * ```ts
  * import { TsMorphSymbolNotFoundError } from "@beep/repo-utils"
- * const identifier = TsMorphSymbolNotFoundError.ast.annotations.identifier
+ * const identifier = TsMorphSymbolNotFoundError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -262,7 +262,7 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
  * @example
  * ```ts
  * import { TsMorphUnsupportedFileError } from "@beep/repo-utils"
- * const identifier = TsMorphUnsupportedFileError.ast.annotations.identifier
+ * const identifier = TsMorphUnsupportedFileError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models
@@ -288,7 +288,7 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
  * @example
  * ```ts
  * import { TSMorphServiceError } from "@beep/repo-utils"
- * const identifier = TSMorphServiceError.ast.annotations.identifier
+ * const identifier = TSMorphServiceError.ast.annotations?.identifier
  * console.log(identifier)
  * ```
  * @category models

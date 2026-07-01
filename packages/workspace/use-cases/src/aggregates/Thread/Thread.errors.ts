@@ -125,4 +125,31 @@ export class ThreadStoreUnavailable extends TaggedErrorClass<ThreadStoreUnavaila
  * @category errors
  * @since 0.0.0
  */
-export type ThreadStoreError = ThreadStoreNotFound | ThreadStoreConflict | ThreadStoreUnavailable;
+export const ThreadStoreError = S.Union([ThreadStoreNotFound, ThreadStoreConflict, ThreadStoreUnavailable]).pipe(
+  S.toTaggedUnion("_tag"),
+  $I.annoteSchema("ThreadStoreError", {
+    description: "ThreadStore port failure.",
+  })
+);
+
+/**
+ * Companion type for {@link ThreadStoreError}
+ *
+ * @example
+ * ```ts
+ * import type { ThreadStoreError } from "@beep/workspace-use-cases/aggregates/Thread/server"
+ *
+ * type ErrorTag = ThreadStoreError["_tag"]
+ *
+ * const handledTags: ReadonlyArray<ErrorTag> = [
+ *   "ThreadStoreNotFound",
+ *   "ThreadStoreConflict",
+ *   "ThreadStoreUnavailable",
+ * ]
+ * console.log(handledTags.includes("ThreadStoreConflict")) // true
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export type ThreadStoreError = typeof ThreadStoreError.Type;
