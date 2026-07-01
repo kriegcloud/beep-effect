@@ -98,7 +98,7 @@ export type NonEmptyTrimmedStr = typeof NonEmptyTrimmedStr.Type;
  * @since 0.0.0
  * @category validation
  */
-export const UUID = NonEmptyTrimmedStr.check(S.isUUID()).pipe(
+	export const UUID = NonEmptyTrimmedStr.check(S.isUUID()).pipe(
   S.brand("UUID"),
   $I.annoteSchema("UUID", {
     description: "Universally Unique Identifier",
