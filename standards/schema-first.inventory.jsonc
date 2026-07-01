@@ -1,11 +1,7 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-30",
-  "scope": [
-    "apps/**/*.{ts,tsx}",
-    "packages/**/*.{ts,tsx}",
-    "infra/**/*.ts"
-  ],
+  "generatedOn": "2026-07-01",
+  "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "entries": [
     {
       "file": "apps/professional-desktop/src/chat/UsageRecordSink.ts",
@@ -216,6 +212,14 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
+      "file": "packages/drivers/ecfr/src/Ecfr.service.ts",
+      "symbol": "EcfrShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ecfr",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/drivers/face-detection/src/FaceDetection.service.ts",
       "symbol": "FaceDetectionServiceShape",
       "kind": "exported-interface",
@@ -262,6 +266,14 @@
       "status": "exception",
       "owner": "@beep/firecrawl",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/drivers/govinfo/src/Govinfo.service.ts",
+      "symbol": "GovinfoShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/govinfo",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/drivers/hubspot/src/HubSpot.errors.ts",
@@ -522,6 +534,22 @@
       "line": 13,
       "owner": "@beep/epistemic-use-cases",
       "reason": "Schema-heavy test file has 3 Schema codec assertions but no schema-derived property coverage."
+    },
+    {
+      "file": "packages/foundation/capability/api-transport/src/Transport.ts",
+      "symbol": "ApiTransport",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/api-transport",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/api-transport/src/Transport.ts",
+      "symbol": "ApiTransportOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/api-transport",
+      "reason": "Constructor-options bag for makeApiTransport with effect-native members: an ApiAuth Data.TaggedEnum carrying Redacted secrets and a Duration.Input timing input, not a decode-from-wire boundary model."
     },
     {
       "file": "packages/foundation/capability/chalk/src/Chalk.browser.ts",

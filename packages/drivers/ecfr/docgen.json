@@ -30,8 +30,12 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/ecfr": ["../../../packages/drivers/ecfr/src/index.ts"],
-      "@beep/govinfo": ["../../../packages/drivers/govinfo/src/index.ts"],
-      "@beep/govinfo/*": ["../../../packages/drivers/govinfo/src/*.ts"],
+      "@beep/api-transport": [
+        "../../../packages/foundation/capability/api-transport/src/index.ts"
+      ],
+      "@beep/api-transport/*": [
+        "../../../packages/foundation/capability/api-transport/src/*.ts"
+      ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

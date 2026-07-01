@@ -61,7 +61,7 @@ export interface GovinfoShape {
 
 class ResolvedConfig extends S.Class<ResolvedConfig>($I`ResolvedConfig`)(
   {
-    apiKey: S.String.pipe( S.Redacted, S.OptionFromNullishOr),
+    apiKey: S.String.pipe(S.Redacted, S.OptionFromNullishOr),
     apiUrl: URLStr,
   },
   $I.annote("ResolvedConfig", {

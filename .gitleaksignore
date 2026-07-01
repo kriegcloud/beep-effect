@@ -65,3 +65,6 @@ d75d260d2841d8269bf9c8979f6a4be4e6819149:v25/https.d.ts:generic-api-key:341
 d75d260d2841d8269bf9c8979f6a4be4e6819149:v25/https.d.ts:generic-api-key:344
 d75d260d2841d8269bf9c8979f6a4be4e6819149:v25/node-tests/crypto.ts:generic-api-key:1262
 d75d260d2841d8269bf9c8979f6a4be4e6819149:v25/node-tests/crypto.ts:generic-api-key:1275
+
+# gold-intake false positive: crypto-library reference list in a provenance doc (no real secret) — SOURCES.md §token-crypto landscape
+ef35cce67d09e87ee92c56df9ad416531c2e28ab:explorations/secure-document-download-proxy/research/SOURCES.md:generic-api-key:108

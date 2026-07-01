@@ -34,6 +34,21 @@
       ],
       "@beep/api-transport/*": [
         "../../../../packages/foundation/capability/api-transport/src/*.ts"
+      ],
+      "@beep/identity": [
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/utils": [
+        "../../../../packages/foundation/modeling/utils/src/index.ts"
+      ],
+      "@beep/utils/*": [
+        "../../../../packages/foundation/modeling/utils/src/*.ts"
       ]
     }
   }
