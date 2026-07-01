@@ -105,7 +105,7 @@ External landscape citations actually present in this packet's
 - Branca spec (XChaCha20-Poly1305, base62) — https://github.com/tuupola/branca-spec/blob/master/README.md
 - PASETO v3/v4 rationale (no algorithm confusion) — https://github.com/paseto-standard/paseto-spec/blob/master/docs/Rationale-V3-V4.md
 - JWT vs opaque tokens (alternatives to JWTs) — https://www.scottbrady.io/jose/alternatives-to-jwts · https://zitadel.com/blog/jwt-vs-opaque-tokens · https://nordicapis.com/jwt-vs-opaque-tokens-choosing-the-right-token-for-api-security/
-- `iron-webcrypto` (WebCrypto-native, `ttl` + key-rotation, PBKDF2-iterations=1 caveat) — https://github.com/brc-dd/iron-webcrypto/blob/main/README.md
+- `iron-webcrypto` (WebCrypto-native, `ttl` + rotation support, PBKDF2-iterations=1 caveat) — https://github.com/brc-dd/iron-webcrypto/blob/main/README.md
 - `jose` JWE (`dir`+`A256GCM`) — https://www.npmjs.com/package/jose
 - `@noble/ciphers` (`xchacha20poly1305`, 0-dep, audited) — https://github.com/paulmillr/noble-ciphers/blob/main/README.md
 - UUIDs designed for uniqueness not secrecy — https://fastuuid.com/learn-about-uuids/uuid-security/
