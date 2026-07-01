@@ -1,40 +1,46 @@
 /**
- * eCFR driver package boundary for Electronic Code of Federal Regulations
- * integrations.
+ * Package entry point for `@beep/ecfr` — the keyless eCFR versioner API driver.
  *
- * @remarks
- * The current public surface exposes package metadata only. eCFR endpoint
- * clients, schemas, and services should be documented on their owning modules
- * before they are re-exported here.
- *
- * @example
- * ```ts
- * import { strictEqual } from "node:assert"
- * import { VERSION } from "@beep/ecfr"
- *
- * const packageLabel = `@beep/ecfr@${VERSION}`
- *
- * strictEqual(packageLabel, "@beep/ecfr@0.0.0")
- * ```
- *
- * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * Package version for the eCFR driver package.
+ * Generated eCFR value models and operation descriptors.
  *
- * @remarks
- * This is the package release marker, not an eCFR API or Code of Federal
- * Regulations title version. Model upstream regulatory versioning separately
- * when endpoint modules are added.
+ * @since 0.0.0
+ * @category models
+ */
+export * from "./_generated/Ecfr.generated.ts";
+/**
+ * Runtime configuration models and constants.
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export * from "./Ecfr.config.ts";
+/**
+ * Typed eCFR driver errors.
+ *
+ * @since 0.0.0
+ * @category errors
+ */
+export * from "./Ecfr.errors.ts";
+/**
+ * eCFR REST API service.
+ *
+ * @since 0.0.0
+ * @category services
+ */
+export * from "./Ecfr.service.ts";
+
+/**
+ * Package version.
  *
  * @example
  * ```ts
- * import { strictEqual } from "node:assert"
  * import { VERSION } from "@beep/ecfr"
  *
- * strictEqual(VERSION, "0.0.0")
+ * console.log(VERSION)
  * ```
  *
  * @category constants

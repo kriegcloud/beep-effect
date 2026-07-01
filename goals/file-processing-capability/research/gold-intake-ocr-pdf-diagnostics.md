@@ -1,5 +1,9 @@
 # Gold-intake research note: OCR-gating and PDF/text diagnostics for the deferred OCR strategy (2026-06-29)
 
+> Provenance ledger (nugget → upstream repo + license → external citation →
+> in-repo capability) for everything in this note:
+> [`SOURCES.md`](./SOURCES.md).
+
 Non-invasive Case-A extend. This note feeds the OCR/PDF-diagnostics phase that
 SPEC.md already **defers** ("OCR belongs to the operation model as a future
 strategy and driver boundary, not as a V1 implementation requirement"). It does

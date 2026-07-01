@@ -46,9 +46,6 @@
       "@beep/agents-domain/entities/Skill": [
         "../../../packages/agents/domain/src/entities/Skill/index.ts"
       ],
-      "@beep/agents-domain/turn": [
-        "../../../packages/agents/domain/src/turn/index.ts"
-      ],
       "@beep/agents-domain/values": [
         "../../../packages/agents/domain/src/values/index.ts"
       ],

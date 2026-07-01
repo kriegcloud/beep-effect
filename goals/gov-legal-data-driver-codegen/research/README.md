@@ -1,5 +1,8 @@
 # Research — Gov/Legal Data Driver Codegen
 
+Provenance ledger (nuggets → upstream repo `file:line`, licenses + port
+discipline, external citations, in-repo bricks): [`SOURCES.md`](./SOURCES.md).
+
 Supporting research lives in the graduated source exploration (links, not copies):
 
 - [`explorations/gov-legal-data-driver-codegen/RESEARCH.md`](../../../explorations/gov-legal-data-driver-codegen/RESEARCH.md)

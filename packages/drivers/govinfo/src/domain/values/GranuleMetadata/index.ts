@@ -1,19 +1,14 @@
 /**
- * `@beep/govinfo/domain/values/GranuleMetadata` exports.
+ * Barrel for the GovInfo `GranuleMetadata` value object — the metadata
+ * describing a single granule within a GovInfo package.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The GranuleMetadata value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { GranuleMetadata } from "@beep/govinfo/domain/values/GranuleMetadata/GranuleMetadata.model";
- *
- * console.log(GranuleMetadata);
- * ```
+ * The GovInfo `GranuleMetadata` value object modeling a single granule's
+ * metadata within a package.
  *
  * @category models
  * @since 0.0.0

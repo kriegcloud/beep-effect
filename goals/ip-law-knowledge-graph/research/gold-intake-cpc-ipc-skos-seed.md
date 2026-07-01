@@ -1,5 +1,8 @@
 # Gold-intake research note: CPC/IPC classification taxonomy as a SKOS seed for the S7 WIPO-IPC slot (2026-06-29)
 
+> Provenance: see [`SOURCES.md`](./SOURCES.md) for the full nugget → upstream
+> repo + license → external-standards → in-repo-bricks ledger behind this note.
+
 > Non-invasive Case-A extend. This is a research note for the goal owner to act
 > on later. It does **not** modify `SPEC.md`, `PLAN.md`, `GOAL.md`, the manifest
 > phases, or the locked scope. It records where an external pattern can seed an
@@ -124,12 +127,15 @@ inside phases and surfaces the SPEC already defines:
 
 ## Cautions
 
-- **Reimplement, do not copy — licensing unverified.** `patents-mcp-server` is
-  an external repo of unknown license in this intake. Treat the upstream TS as a
-  **pattern reference only**; reimplement the resolver and re-derive the
-  vocabulary from authoritative public sources (WIPO IPC master files; CPC
-  scheme from the EPO/USPTO CPC site). Do not paste upstream source verbatim
-  into this permissively-licensed repo.
+- **License confirmed MIT — port with attribution; re-derive the data.** The
+  gold-intake license bundle confirms `patents-mcp-server` is **MIT** (permissive,
+  not copyleft), superseding this note's earlier "unverified license" caution.
+  The upstream TypeScript resolver *may* be ported with attribution. The
+  *vocabulary content*, however, should still be re-derived from authoritative
+  public sources (WIPO IPC master files; CPC scheme from the EPO/USPTO CPC site) —
+  not for license reasons but for reproducibility, since the upstream's curated
+  subset is illustrative, not the full scheme. See
+  [`SOURCES.md`](./SOURCES.md) §2.
 - **Hand-rolled subset is illustrative, not authoritative.** The gold's
   hardcoded A-H+Y map is a small curated slice, not the full CPC/IPC scheme
   (CPC has ~250k symbols and is revised on a rolling basis). Use it as a starter

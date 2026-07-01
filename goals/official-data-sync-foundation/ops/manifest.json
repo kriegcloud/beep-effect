@@ -12,6 +12,13 @@
   "lifecycle": "active",
   "executionCapable": true,
   "reflectionRequired": true,
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "mission": "Automate official source refreshes into @beep/data and derive @beep/schema literals/codecs from those generated snapshots.",
   "currentSourceOfTruth": [
     "AGENTS.md",

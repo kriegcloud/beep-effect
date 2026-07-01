@@ -16,6 +16,14 @@
     "exploration": "explorations/microsoft-365-integration",
     "graduated": "2026-06-18"
   },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -39,10 +47,26 @@
     }
   ],
   "phases": [
-    { "id": "P0", "name": "Research", "status": "completed" },
-    { "id": "P1", "name": "Implement", "status": "completed" },
-    { "id": "P2", "name": "Verify", "status": "completed" },
-    { "id": "P3", "name": "Close", "status": "completed" }
+    {
+      "id": "P0",
+      "name": "Research",
+      "status": "completed"
+    },
+    {
+      "id": "P1",
+      "name": "Implement",
+      "status": "completed"
+    },
+    {
+      "id": "P2",
+      "name": "Verify",
+      "status": "completed"
+    },
+    {
+      "id": "P3",
+      "name": "Close",
+      "status": "completed"
+    }
   ],
   "verificationCommands": [
     "TURBO_FORCE=1 bunx turbo run check lint test --filter=@beep/m365",

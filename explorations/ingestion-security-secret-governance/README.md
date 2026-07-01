@@ -26,6 +26,14 @@ every package-placement and first-slice decision below it. Eight branch-closing
 decisions are pre-drafted with recommendations in [`DECISIONS.md`](./DECISIONS.md)
 — resolve them via `/grill-with-docs ingestion-security-secret-governance`.
 
+## Sources & provenance
+
+[`research/SOURCES.md`](./research/SOURCES.md) — full provenance ledger joining
+every decision to its mined gold nugget (upstream repo + `file:line`), upstream
+license + port discipline, the external research citation, and the composed
+`@beep/*` capability. Derived from the gold-intake cluster
+"Ingestion security + secret/PII governance" (10 nuggets).
+
 ## Read This First
 
 1. [`ops/manifest.json`](./ops/manifest.json) - machine state: stage, status, open questions.

@@ -17,6 +17,14 @@
     "decomposition": "explorations/atlas-synthesis/MAP.md",
     "packet": "A"
   },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": true,
+    "grandfatheredNote": "Completion predates the 2026-06-30 PR-mergeable gate; not reopened."
+  },
   "relatedPackets": {
     "productAuthority": "goals/agentic-professional-runtime",
     "reference": [
@@ -83,5 +91,8 @@
     "The bounded SHACL subset cannot express the claim shape; surface with evidence and do not extend the engine.",
     "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
     "The same blocker repeats after reasonable investigation."
+  ],
+  "researchReports": [
+    "research/SOURCES.md"
   ]
 }

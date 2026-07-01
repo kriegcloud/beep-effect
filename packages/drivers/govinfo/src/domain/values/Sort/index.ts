@@ -1,19 +1,13 @@
 /**
- * `@beep/govinfo/domain/values/Sort` exports.
+ * Barrel for the GovInfo `Sort` value object — a single search ordering
+ * directive pairing the result field to order by with its ASC/DESC direction.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The Sort value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { Sort } from "@beep/govinfo/domain/values/Sort/Sort.model";
- *
- * console.log(Sort);
- * ```
+ * The GovInfo `Sort` value object modeling a single search ordering directive.
  *
  * @category models
  * @since 0.0.0

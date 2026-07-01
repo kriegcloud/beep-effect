@@ -86,6 +86,11 @@ jobs:
             timeout_minutes: 20
             uses_turbo: "false"
             install_typos: "false"
+          - id: codegen
+            name: Codegen Drift
+            timeout_minutes: 15
+            uses_turbo: "false"
+            install_typos: "false"
     env:
       # The verify matrix runs PR-controlled code (turbo build/check/test/docgen),
       # so the Turbo remote-cache credentials are scoped to push events only —
@@ -219,6 +224,15 @@ jobs:
               else
                 bun run docgen
               fi
+              ;;
+            codegen)
+              # Per-driver codegen-drift gate: regenerate committed generated
+              # artifacts from their checked-in specs (offline; no upstream
+              # download) and fail on drift. Keyless eCFR ships a generator; the
+              # keyed GovInfo driver is hand-authored (no generator, no drift
+              # surface). Extend this list as committed-spec drivers are added.
+              bun run --cwd packages/drivers/ecfr generate
+              git diff --exit-code -- packages/drivers/ecfr/src/_generated packages/drivers/ecfr/openapi.json
               ;;
           esac
 

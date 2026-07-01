@@ -343,3 +343,11 @@ sprintf
 sslmode
 TOTP
 tsvector
+CREC
+USCOURTS
+dtos
+Upserts
+upserts
+unrepaired
+exiftool
+ifying

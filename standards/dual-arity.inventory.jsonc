@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-06-30",
+  "generatedOn": "2026-07-01",
   "scope": ["apps/**/*.{ts,tsx}", "packages/**/*.{ts,tsx}", "infra/**/*.ts"],
   "enforcedRoots": [
     "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
@@ -51,7 +51,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 564,
+      "line": 586,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -63,7 +63,7 @@
       "status": "candidate",
       "owner": "@beep/oip-web",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 563,
+      "line": 585,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -137,7 +137,7 @@
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 380,
+      "line": 397,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual"]
@@ -149,7 +149,7 @@
       "status": "candidate",
       "owner": "@beep/nlp-mcp",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 400,
+      "line": 417,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["missing-dual"]
@@ -245,7 +245,7 @@
       "status": "candidate",
       "owner": "@beep/nlp-processing",
       "reason": "Public helper APIs may not expose more than 3 positional parameters. dual arity must match the public positional arity and may not exceed 3.",
-      "line": 761,
+      "line": 765,
       "column": 14,
       "parameterCount": 5,
       "diagnostics": ["too-many-positional-params", "invalid-dual-arity"]
@@ -306,7 +306,7 @@
       "owner": "@beep/observability",
       "reason": "Compatibility overload keeps observeHttpApiHandler(descriptor, metrics, effect) available while the canonical Effect plus ObserveHttpApiHandlerOptions overload remains the preferred public API.",
       "issue": "OBSERVABILITY-HTTP-API-HANDLER-LEGACY-OVERLOAD",
-      "line": 650,
+      "line": 686,
       "column": 14,
       "parameterCount": 3,
       "diagnostics": ["invalid-dual-arity", "third-param-not-object-like"]
@@ -582,7 +582,7 @@
       "status": "candidate",
       "owner": "@beep/rdf",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 452,
+      "line": 473,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -594,7 +594,7 @@
       "status": "candidate",
       "owner": "@beep/rdf",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 385,
+      "line": 394,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -606,7 +606,7 @@
       "status": "candidate",
       "owner": "@beep/rdf",
       "reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function.",
-      "line": 268,
+      "line": 294,
       "column": 19,
       "parameterCount": 2,
       "diagnostics": ["missing-dual"]
@@ -658,7 +658,7 @@
       "owner": "@beep/utils",
       "reason": "Explicit in-place Array.prototype.splice parity helper centralizes the rare identity-preserving mutation cases found by the native Array sweep.",
       "issue": "UTILS-ARRAY-NATIVE-PARITY",
-      "line": 503,
+      "line": 508,
       "column": 14,
       "parameterCount": 4,
       "diagnostics": ["too-many-positional-params"]
@@ -696,7 +696,7 @@
       "status": "candidate",
       "owner": "@beep/repo-ai-metrics",
       "reason": "Public 3-parameter helper APIs must use a strict ObjectLike third parameter.",
-      "line": 971,
+      "line": 1235,
       "column": 19,
       "parameterCount": 3,
       "diagnostics": ["third-param-not-object-like"]

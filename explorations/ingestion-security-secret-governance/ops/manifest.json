@@ -6,14 +6,14 @@
     "status": "active",
     "stage": "research",
     "openQuestions": [
-      "Scope boundary — one ingestion-security wedge vs split content-security gate + shared secret-governance spine",
-      "First slice — which net-new capability to build first",
-      "Package placement — secret resolver + per-user vault home (platform-adjacent, NOT @beep/identity)",
-      "Package placement — content-security modules, HTML sanitizer, and scored-findings home",
-      "Build-vs-buy — reimplement-not-copy (x-ray on pdf.js, deterministic injection, Presidio contract)",
-      "Vendor/auth — 1Password first provider + ordered-resolution placeholder-rejection mechanism",
-      "Per-user vault cryptography — AES-256-GCM per-user subkeys vs XChaCha20-Poly1305 + KDF floor",
-      "SSRF — extend SafeRemoteHost range table + net-new GuardedHttpClient connect-time layer"
+      "Scope boundary \u2014 one ingestion-security wedge vs split content-security gate + shared secret-governance spine",
+      "First slice \u2014 which net-new capability to build first",
+      "Package placement \u2014 secret resolver + per-user vault home (platform-adjacent, NOT @beep/identity)",
+      "Package placement \u2014 content-security modules, HTML sanitizer, and scored-findings home",
+      "Build-vs-buy \u2014 reimplement-not-copy (x-ray on pdf.js, deterministic injection, Presidio contract)",
+      "Vendor/auth \u2014 1Password first provider + ordered-resolution placeholder-rejection mechanism",
+      "Per-user vault cryptography \u2014 AES-256-GCM per-user subkeys vs XChaCha20-Poly1305 + KDF floor",
+      "SSRF \u2014 extend SafeRemoteHost range table + net-new GuardedHttpClient connect-time layer"
     ],
     "links": {
       "goals": [],
@@ -21,6 +21,9 @@
       "supersededBy": null
     },
     "created": "2026-06-29",
-    "updated": "2026-06-29"
+    "updated": "2026-06-29",
+    "sources": [
+      "research/SOURCES.md"
+    ]
   }
 }

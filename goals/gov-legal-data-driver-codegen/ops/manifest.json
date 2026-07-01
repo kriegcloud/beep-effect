@@ -5,7 +5,7 @@
     "title": "Gov/Legal Data Driver Codegen",
     "status": "active",
     "created": "2026-06-29",
-    "updated": "2026-06-29",
+    "updated": "2026-06-30",
     "packetAnchorDocument": "SPEC.md"
   },
   "packetPath": "goals/gov-legal-data-driver-codegen",
@@ -16,6 +16,13 @@
     "exploration": "explorations/gov-legal-data-driver-codegen",
     "graduated": "2026-06-29"
   },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  },
   "currentSourceOfTruth": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -23,7 +30,10 @@
     "goals/gov-legal-data-driver-codegen/README.md",
     "goals/gov-legal-data-driver-codegen/SPEC.md",
     "goals/gov-legal-data-driver-codegen/PLAN.md",
-    "goals/gov-legal-data-driver-codegen/GOAL.md"
+    "goals/gov-legal-data-driver-codegen/GOAL.md",
+    "goals/gov-legal-data-driver-codegen/research/SOURCES.md",
+    "explorations/gov-legal-data-driver-codegen",
+    "explorations/gov-legal-data-driver-codegen/research/SOURCES.md"
   ],
   "agentLaunchers": [
     {
@@ -38,12 +48,12 @@
     {
       "id": "P0",
       "name": "govinfo-finish + transformer-incubate",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P1",
       "name": "keyless-driver + generator-spike",
-      "status": "pending"
+      "status": "complete"
     },
     {
       "id": "P2",
@@ -53,7 +63,7 @@
     {
       "id": "P3",
       "name": "verify + promote",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "verificationCommands": [
@@ -70,5 +80,9 @@
     "CourtListener/DOL work is reached before the per-upstream data/source-terms matrix exists.",
     "Verification requires unnamed credentials, cost, destructive side effects, or policy approval.",
     "The same blocker repeats after reasonable investigation."
+  ],
+  "researchReports": [
+    "research/2026-06-29-codex-spec.md",
+    "research/SOURCES.md"
   ]
 }

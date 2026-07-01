@@ -10,12 +10,33 @@
   },
   "mission": "Migrate native JS Map/Set/String/Object/Date/JSON/Array usage in first-party packages/** and apps/** to Effect-native equivalents, preferring @beep/utils wrappers where importable.",
   "scope": {
-    "include": ["packages/**", "apps/**"],
-    "exclude": [".repos/**", "**/dist/**", "**/build/**", "generated docgen", "node_modules/**"],
+    "include": [
+      "packages/**",
+      "apps/**"
+    ],
+    "exclude": [
+      ".repos/**",
+      "**/dist/**",
+      "**/build/**",
+      "generated docgen",
+      "node_modules/**"
+    ],
     "testsFixtures": "in scope only for JSON and String bans"
   },
-  "categories": ["Map", "Set", "String", "Object", "Date", "JSON", "Array"],
-  "deferred": ["Number", "schema authoring for unschema'd JSON", "Math.random"],
+  "categories": [
+    "Map",
+    "Set",
+    "String",
+    "Object",
+    "Date",
+    "JSON",
+    "Array"
+  ],
+  "deferred": [
+    "Number",
+    "schema authoring for unschema'd JSON",
+    "Math.random"
+  ],
   "ownership": {
     "drivingDoctrine": ".claude/skills/effect-first-development/SKILL.md",
     "utilsPackage": "@beep/utils",
@@ -27,7 +48,10 @@
     "concurrency": "bounded parallel waves (~4-6)"
   },
   "phases": {
-    "phase0": { "id": "bootstrap", "status": "done" },
+    "phase0": {
+      "id": "bootstrap",
+      "status": "done"
+    },
     "phase1": {
       "id": "symbol-inventories",
       "status": "pending",
@@ -65,5 +89,12 @@
     "check": "bun run check",
     "lint": "bun run lint"
   },
-  "nextAction": "Run Phase 1: spawn 7 parallel agents to build the symbol inventories."
+  "nextAction": "Run Phase 1: spawn 7 parallel agents to build the symbol inventories.",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

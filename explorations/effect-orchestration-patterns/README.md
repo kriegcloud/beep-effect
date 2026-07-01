@@ -16,6 +16,15 @@ explores consolidating a single retry-policy/`Schedule` library plus
 `Layer.unwrapEffect`-based provider selection that every LLM and gov-data driver
 can reuse.
 
+## Sources & provenance
+
+Full source ledger — the 8 gold nuggets (upstream repo + `file:line`), upstream
+licenses, external citations, and the in-repo `@beep/*` bricks this packet
+composes — lives in [`research/SOURCES.md`](./research/SOURCES.md). Mined from the
+gold-intake cluster "Effect orchestration patterns (Schedule, Layer provider,
+bounded fan-out)" ([ROUTING.md](../_gold-intake/ROUTING.md),
+[GOLD_SYNTHESIS.md](../_gold-intake/GOLD_SYNTHESIS.md)).
+
 ## Next Open Question
 
 **Q1: Scope boundary** — does this packet ship only the pure-`Schedule` layer

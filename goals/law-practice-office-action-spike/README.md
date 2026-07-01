@@ -45,6 +45,18 @@ Product authority: `goals/agentic-professional-runtime/SPEC.md` +
 Referenced (not merged): `goals/ip-law-knowledge-graph`,
 `goals/oppold-corpus-pipeline`.
 
+## Source material
+
+Gold-intake provenance for the IP-law domain-depth follow-on research:
+
+- [`research/SOURCES.md`](./research/SOURCES.md) — nugget → upstream repo →
+  license → external citation → in-repo capability ledger (cluster "IP-law
+  domain depth", route `extend-goal`, wave P3).
+- [`research/gold-intake-ip-domain-depth.md`](./research/gold-intake-ip-domain-depth.md)
+  — the folded research note (deferred P2/P3 growth, non-invasive to this spike).
+- Source exploration: `explorations/atlas-synthesis` (this packet's
+  decomposition); gold synthesis in `explorations/_gold-intake/GOLD_SYNTHESIS.md`.
+
 ## Current Phase
 
 `P3 Verify / close` — complete. All four phases (P0 schema → P1 contracts →

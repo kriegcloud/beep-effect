@@ -271,5 +271,12 @@
     "Dashboard and backend expansion remains deferred to non-blocking P7d follow-up",
     "Server-owned collection remains a future topology target requiring transcript access/sync and privacy design"
   ],
-  "nextAction": "Keep the isolated proof-runner timer running through May 16, 2026 02:26 America/Chicago, generate the final credited seven-day report after the proof window elapses, then run the P7e sanitized mirror build/sync/status closeout; keep P7c/P7d as non-blocking follow-up work."
+  "nextAction": "Keep the isolated proof-runner timer running through May 16, 2026 02:26 America/Chicago, generate the final credited seven-day report after the proof window elapses, then run the P7e sanitized mirror build/sync/status closeout; keep P7c/P7d as non-blocking follow-up work.",
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
+  }
 }

@@ -66,5 +66,12 @@
     "runtimeCoverage": "research-only",
     "autofix": "fix-preview-dry-run-only",
     "doctrineRole": "enforcement-projection"
+  },
+  "completionGate": {
+    "operator": "yeet",
+    "requiresPullRequest": true,
+    "requiresMergeable": true,
+    "statement": "Not achieved until this goal's work ships as a PR driven to mergeable via /yeet (bun run beep yeet: repair -> verify -> publish --pr -> monitor).",
+    "grandfathered": false
   }
 }

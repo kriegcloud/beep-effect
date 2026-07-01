@@ -51,6 +51,13 @@ sections: (a) external landscape via web search/fetch, every claim cited;
 (b) in-repo capability inventory via targeted source/barrel searches and local
 package/docs inspection, citing package + path, marking gaps NOT FOUND. Surface
 constraints discovered. Fan out subagents for breadth when the topic is wide.
+Maintain `research/SOURCES.md` as the **provenance ledger**: every external
+citation (with its on-disk URL), each upstream repo + its **license** (copyleft
+⇒ clean-room only; permissive ⇒ port-with-attribution; missing/unverified ⇒
+reference only), each mined source (id, repo, `file:line`, disposition), and
+each in-repo brick the packet composes. Never fabricate a URL — cite the
+RESEARCH.md section when none exists on disk. Register it in manifest
+`exploration.sources`.
 
 **align** — Grilling posture (as in the `grill-me` skill): walk the decision
 tree one branch-closing question at a time via AskUserQuestion, recommended
@@ -79,7 +86,12 @@ owning stage. Then, per approved candidate: scaffold `goals/<slug>/` from
 seed `SPEC.md` from the brief (no-gos -> non-goals, rabbit holes ->
 constraints, DECISIONS -> decision log) with back-links to the exploration,
 not copies; cross-link both manifests; update `ATLAS.md` (move packet to
-Graduated with goal links); flip exploration status — `graduated`, or keep
+Graduated with goal links); carry the exploration's `research/SOURCES.md` into
+the goal (`goals/<slug>/research/SOURCES.md`), reproducing the source corpus for
+implementation and linking the exploration's ledger as primary, and register it
+in the goal manifest `researchReports[]` + `currentSourceOfTruth[]` with
+`provenance.exploration` wired to the exploration's `links.goals`; flip
+exploration status — `graduated`, or keep
 `active` if candidates remain.
 
 ## Guardrails
@@ -90,6 +102,10 @@ Graduated with goal links); flip exploration status — `graduated`, or keep
   "active".
 - One question at a time during align; batch nothing but trivia.
 - `CAPTURE.md` is append-only; never tidy it.
+- Provenance is load-bearing: keep `research/SOURCES.md` current from research
+  on, and never fabricate a source/URL/license — cite the on-disk RESEARCH
+  section when no URL exists, and treat missing/unverified upstream licenses as
+  reference-only (clean-room, never vendor).
 - ATLAS is navigation, never doctrine; load-bearing prose goes to
   `docs/product/` or the goal packet, linked from ATLAS.
 - Stage loops are normal (align exposes a research gap -> do the research ->

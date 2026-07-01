@@ -1,19 +1,13 @@
 /**
- * `@beep/govinfo/domain/values/PackageInfo` exports.
+ * Barrel for the GovInfo `PackageInfo` value object — the summary metadata for
+ * a GovInfo package as returned by `/packages/{id}/summary`.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
- * The PackageInfo value object module for the `@beep/govinfo` driver.
- *
- * @example
- * ```ts
- * import { PackageInfo } from "@beep/govinfo/domain/values/PackageInfo/PackageInfo.model";
- *
- * console.log(PackageInfo);
- * ```
+ * The GovInfo `PackageInfo` value object modeling a package's summary metadata.
  *
  * @category models
  * @since 0.0.0

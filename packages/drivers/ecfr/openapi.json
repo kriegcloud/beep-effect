@@ -1,0 +1,124 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "eCFR Versioner API (checked-in subset)",
+    "version": "v1",
+    "description": "Hand-maintained Swagger 2.0 subset of the public, keyless eCFR versioner API (17 U.S.C. 105 public domain). Exposes the two currency-metadata listing endpoints the driver consumes: the CFR titles catalog and the CFR agencies catalog. Source of record for the bespoke code generator; the eCFR site does not publish a cleanly machine-fetchable spec (see the P1 generator spike)."
+  },
+  "host": "www.ecfr.gov",
+  "basePath": "/api/versioner/v1",
+  "schemes": ["https"],
+  "paths": {
+    "/titles.json": {
+      "get": {
+        "operationId": "listTitles",
+        "summary": "List all CFR titles and their currency metadata.",
+        "responses": {
+          "200": {
+            "description": "Titles listing",
+            "schema": { "$ref": "#/definitions/TitlesResponse" }
+          }
+        }
+      }
+    },
+    "/agencies.json": {
+      "get": {
+        "operationId": "listAgencies",
+        "summary": "List all agencies represented in the CFR.",
+        "responses": {
+          "200": {
+            "description": "Agencies listing",
+            "schema": { "$ref": "#/definitions/AgenciesResponse" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Title": {
+      "type": "object",
+      "description": "A single CFR title with the currency metadata the eCFR versioner reports for it (identity plus the dates that describe how current the published content is).",
+      "required": ["number", "name", "reserved"],
+      "properties": {
+        "number": {
+          "type": "integer",
+          "description": "The CFR title number (1 through 50) that uniquely identifies the title."
+        },
+        "name": {
+          "type": "string",
+          "description": "The official name of the CFR title."
+        },
+        "latest_amended_on": {
+          "type": "string",
+          "format": "date",
+          "description": "Date on which the title's regulatory content was most recently amended (ISO YYYY-MM-DD)."
+        },
+        "latest_issue_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Date of the most recent published issue of the title in eCFR (ISO YYYY-MM-DD)."
+        },
+        "up_to_date_as_of": {
+          "type": "string",
+          "format": "date",
+          "description": "Date through which the title's content is confirmed current in eCFR (ISO YYYY-MM-DD)."
+        },
+        "reserved": {
+          "type": "boolean",
+          "description": "Whether the title number is reserved, meaning it carries no current regulatory content."
+        }
+      }
+    },
+    "TitlesResponse": {
+      "type": "object",
+      "description": "Response envelope for the eCFR titles listing endpoint, wrapping the full catalog of CFR titles.",
+      "required": ["titles"],
+      "properties": {
+        "titles": {
+          "type": "array",
+          "description": "The catalog of CFR titles, each with its currency metadata.",
+          "items": { "$ref": "#/definitions/Title" }
+        }
+      }
+    },
+    "Agency": {
+      "type": "object",
+      "description": "A single agency represented in the CFR, with the naming and slug metadata the eCFR versioner reports for it.",
+      "required": ["name", "slug"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The full, official name of the agency."
+        },
+        "short_name": {
+          "type": "string",
+          "description": "Abbreviated form of the agency name, when eCFR provides one."
+        },
+        "display_name": {
+          "type": "string",
+          "description": "Human-readable agency name intended for presentation in UI."
+        },
+        "sortable_name": {
+          "type": "string",
+          "description": "Agency name normalized for alphabetical sorting (e.g. leading articles removed)."
+        },
+        "slug": {
+          "type": "string",
+          "description": "URL-safe identifier for the agency, used as its key in eCFR API paths."
+        }
+      }
+    },
+    "AgenciesResponse": {
+      "type": "object",
+      "description": "Response envelope for the eCFR agencies listing endpoint, wrapping the full roster of agencies represented in the CFR.",
+      "required": ["agencies"],
+      "properties": {
+        "agencies": {
+          "type": "array",
+          "description": "The roster of agencies represented in the CFR, each with its naming and slug metadata.",
+          "items": { "$ref": "#/definitions/Agency" }
+        }
+      }
+    }
+  }
+}

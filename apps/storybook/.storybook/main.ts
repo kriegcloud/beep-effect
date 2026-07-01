@@ -1,6 +1,26 @@
 import type { StorybookConfig } from "@storybook/react-vite";
+import type { Plugin } from "vite";
 
 const repoRoot = new URL("../../..", import.meta.url).pathname;
+
+// Lexical 0.46 emits two prod bundles with a pure annotation before `return`.
+const lexicalReactProdModule =
+  /node_modules[\\/]@lexical[\\/]react[\\/]dist[\\/]Lexical(ContentEditable|ErrorBoundary)\.prod\.mjs(?:\?.*)?$/;
+const misplacedPureAnnotationBeforeReturn = /\/\*#__PURE__\*\/\s*(?=return\b)/g;
+
+const stripMisplacedLexicalPureAnnotations = (): Plugin => ({
+  name: "beep:strip-misplaced-lexical-pure-annotations",
+  enforce: "pre",
+  transform(code, id) {
+    if (!lexicalReactProdModule.test(id)) {
+      return null;
+    }
+
+    const sanitizedCode = code.replace(misplacedPureAnnotationBeforeReturn, "");
+
+    return sanitizedCode === code ? null : { code: sanitizedCode, map: null };
+  },
+});
 
 const config: StorybookConfig = {
   framework: "@storybook/react-vite",
@@ -17,6 +37,7 @@ const config: StorybookConfig = {
         ...config.resolve,
         dedupe,
       },
+      plugins: [stripMisplacedLexicalPureAnnotations(), ...(config.plugins ?? [])],
       server: {
         ...config.server,
         fs: {
